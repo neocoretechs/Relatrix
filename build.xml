@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<project name="Relatrix" default="main" basedir=".">
+  <!-- Sets variables which can later be used. -->
+  <!-- The value of a property is accessed via ${} -->
+  <property name="src.dir" location="." />
+  <property name="build.dir" location="build" />
+  <property name="bin.dir" location="bin" />
+  <property name="docs.dir" location="docs" />
+  <property name="classpath" value="C:\Program Files\Apache\apache-tomcat\lib\"/>
+	
+   <!-- Classpath for the project -->	
+   <path id="master-classpath">
+	      <fileset dir="${classpath}">
+	      	<include name="**/*.jar"/>
+	      </fileset>
+   </path>
+
+	<!--
+  <property name="dist.dir" location="dist" />
+  -->
+
+  <!-- Deletes the existing build, docs and dist directory-->
+  <target name="clean">
+    <delete dir="${build.dir}" />
+   <!-- <delete dir="${docs.dir}" />-->
+    <delete dir="${bin.dir}" />
+  </target>
+
+  <!-- Creates the  build, docs and dist directory-->
+  <target name="makedir" depends="clean">
+    <mkdir dir="${build.dir}" />
+    <!--<mkdir dir="${docs.dir}" />-->
+    <mkdir dir="${bin.dir}" />
+  </target>
+
+  <!-- Compiles the java code (including the usage of library for JUnit -->
+  <target name="compile" depends="makedir">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" >
+  		<classpath refid="master-classpath"/>
+    </javac>
+
+  </target>
+
+  <!-- Creates Javadoc -->
+  <target name="docs" depends="compile">
+    <javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">
+      <!-- Define which files / directory should get included, we include all -->
+       <fileset dir="${src.dir}">
+                <include name="**" />
+           </fileset>
+    </javadoc>
+  </target>
+
+  <!--Creates the deployable jar file  -->
+  <target name="jar" depends="compile">
+    <jar destfile="${bin.dir}\Relatrix.jar" basedir="${build.dir}" includes="**/com/**" excludes="**/*.java">
+    </jar>
+  </target>
+
+	
+  <target name="main" depends="jar">
+    <description>Main target</description>
+  </target>
+
+</project> 
