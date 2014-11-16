@@ -6,7 +6,8 @@ import java.lang.reflect.Field;
 import java.util.Comparator;
 
 /**
- * I suppose the best way to describe this package is 'forgetful functor down conversion wrappers'
+ * I suppose the best way to describe this package is 'forgetful functor down conversion wrappers' 
+ * to support the typed lambda calculus.
  * To fit in our framework, classes have to implement Comparable, period. On the eight day God invented Comparable
  * for without it yea there is no order and chaos reigns. Some classes, though, are not so endowed, like java.lang.Class.
  * So to deal with any templating based on class or indeed to use any object without a Comparable implementation 

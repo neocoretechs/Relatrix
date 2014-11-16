@@ -9,11 +9,11 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass;
 
 /**
-* This winds up serving 2 functions. One is identity functor retrieval if we get 3 objects that are not
+* This winds up serving 2 functions. One is identity morphism retrieval if we get 3 objects that are not
 * part of TemplateClass retrieval. the second is when one or more params is instanceof TemplateClass. In the second
 * instance, the class functions as template for the enclosed class to retrieve objects of that class (or subclass).
 * Depending on the subclass of TemplateClass, the argument acts as a wildcard (*) or a tuple (?) for instances of that
-* class. Category theory calls these forgetful functors. 
+* class. Category theory analog is a forgetful functor, or perhaps a representable of some sort. 
 * 
 */
 public class FindSetMode7 extends IteratorFactory {

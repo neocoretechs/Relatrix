@@ -10,10 +10,10 @@ import com.neocoretechs.bigsack.iterator.TailSetIterator;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.relatrix.DMRStruc;
 /**
- * Our main forgetful functor. Instances of this class deliver the set of identity morphisms, or
- * deliver sets of compositions of morphisms representing new group homomorphisms. More plainly, an array of iterators is returned representing the
- * N return tuple '?' elements of the query. If its an identity functor (instance of DMRStruc) of three keys (as in the *,*,* query)
- * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity functors.
+ * Our main forgetful functor analog. Instances of this class deliver the set of identity morphisms, or
+ * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
+ * N return tuple '?' elements of the query. If its an identity morphism (instance of DMRStruc) of three keys (as in the *,*,* query)
+ * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. 
  * @author jg
  *

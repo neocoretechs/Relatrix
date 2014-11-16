@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 <project name="Relatrix" default="main" basedir=".">
-  <!-- Sets variables which can later be used. -->
-  <!-- The value of a property is accessed via ${} -->
-  <property name="src.dir" location="." />
+  <property name="src.dir" location="src" />
   <property name="build.dir" location="build" />
   <property name="bin.dir" location="bin" />
   <property name="docs.dir" location="docs" />
-  <property name="classpath" value="C:\Program Files\Apache\apache-tomcat\lib\"/>
+  <property name="classpath" value="C://Program Files/Apache/apache-tomcat/lib/"/>
 	
    <!-- Classpath for the project -->	
    <path id="master-classpath">
@@ -15,9 +13,6 @@
 	      </fileset>
    </path>
 
-	<!--
-  <property name="dist.dir" location="dist" />
-  -->
 
   <!-- Deletes the existing build, docs and dist directory-->
   <target name="clean">
@@ -38,7 +33,6 @@
     <javac srcdir="${src.dir}" destdir="${build.dir}" >
   		<classpath refid="master-classpath"/>
     </javac>
-
   </target>
 
   <!-- Creates Javadoc -->
@@ -53,7 +47,7 @@
 
   <!--Creates the deployable jar file  -->
   <target name="jar" depends="compile">
-    <jar destfile="${bin.dir}\Relatrix.jar" basedir="${build.dir}" includes="**/com/**" excludes="**/*.java">
+    <jar destfile="${bin.dir}/Relatrix.jar" basedir="${build.dir}" includes="**/com/**" excludes="**/*.java">
     </jar>
   </target>
 

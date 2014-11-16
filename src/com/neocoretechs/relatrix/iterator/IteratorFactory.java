@@ -1,10 +1,6 @@
-﻿/*
- */
 package com.neocoretechs.relatrix.iterator;
-
 import java.io.IOException;
 import java.util.Iterator;
-
 import com.neocoretechs.relatrix.Relatrix;
 
 	/**
@@ -95,7 +91,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		        return 0;
 		}
 		/**
-		 * Determine if we are returning identity relationship functors
+		 * Determine if we are returning identity relationship morphisms
 		 * @param dop The domain predicate from retrieval operation
 		 * @param mop Map predicate
 		 * @param rop Range
@@ -110,7 +106,5 @@ import com.neocoretechs.relatrix.Relatrix;
 		protected static boolean isReturnRelationships(short[] dmr_return) {
 			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );
 		}
-		
-	
 		
 	}
