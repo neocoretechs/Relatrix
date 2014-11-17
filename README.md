@@ -30,19 +30,19 @@ which, using the above iterator, would produce:
 [fromObject] [toObject] "composes with" [anotherObject]
 
 <code>
-public class VisualCortex {
-public static void main(String[] args) throws Exception {
-	Relatrix.setTablespaceDirectory(args[0]);
-	Iterator<?> iterator = Relatrix.findSet("?", "?", "?");
-	int cnt = 0;
-	while(iterator.hasNext()) {
-		Comparable[] c = (Comparable[])iterator.next();
-		for(int i = 0; i < c.length; i++) {
-			System.out.println(cnt+" "+((Object)c[i]).toString());
-		++cnt;
-		}
-	}
-	System.out.println("Count: "+cnt);
+public class VisualCortex {<br/>
+public static void main(String[] args) throws Exception {<br/>
+	Relatrix.setTablespaceDirectory(args[0]);<br/>
+	Iterator<?> iterator = Relatrix.findSet("?", "?", "?");<br/>
+	int cnt = 0;<br/>
+	while(iterator.hasNext()) {<br/>
+		Comparable[] c = (Comparable[])iterator.next();<br/>
+		for(int i = 0; i < c.length; i++) {<br/>
+			System.out.println(cnt+" "+((Object)c[i]).toString());<br/>
+		++cnt;<br/>
+		}<br/>
+	}<br/>
+	System.out.println("Count: "+cnt);<br/>
 }
 }
 </code>
