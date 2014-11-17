@@ -35,6 +35,10 @@
     </javac>
   </target>
 
+	<target name="copy" depends="jar">
+		<copy file="${bin.dir}/Relatrix.jar" todir="C:/Program Files/Apache/apache-tomcat/lib"/>
+	</target>
+	
   <!-- Creates Javadoc -->
   <target name="docs" depends="compile">
     <javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">

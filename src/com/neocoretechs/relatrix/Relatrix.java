@@ -48,8 +48,8 @@ public class Relatrix {
 	
 	public static void setTablespaceDirectory(String path) throws IOException {
 		File p = new File(path);
-		if(!p.isDirectory())
-			throw new IOException("Cannot access directory "+path+" for tablespace");
+		if(!new File(p.getParent()).isDirectory())
+			throw new IOException("Cannot access fileset "+path+" for tablespace");
 		BigSackAdapter.setTableSpaceDir(path);
 	}
 	
@@ -169,6 +169,7 @@ public static void transactionCommit() throws IOException {
 		return;
 	}
 	for(int i = 0; i < 6; i++) {
+		System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
 		transactionTreeSets[i].commit();
 		transactionTreeSets[i] = null;
 	}
