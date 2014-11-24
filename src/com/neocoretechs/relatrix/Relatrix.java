@@ -168,7 +168,7 @@ public static void transactionCommit() throws IOException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
-	for(int i = 0; i < 6; i++) {
+	for(int i = 0; i < transactionTreeSets.length; i++) {
 		System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
 		transactionTreeSets[i].commit();
 		transactionTreeSets[i] = null;
@@ -182,7 +182,7 @@ public static void transactionRollback() throws IOException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
-	for(int i = 0; i < 6; i++) {
+	for(int i = 0; i < transactionTreeSets.length; i++) {
 		transactionTreeSets[i].rollback();
 		transactionTreeSets[i] = null;
 	}
@@ -203,7 +203,7 @@ public static void transactionCheckpoint() throws IOException, IllegalAccessExce
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
-	for(int i = 0; i < 6; i++) {
+	for(int i = 0; i < transactionTreeSets.length; i++) {
 		transactionTreeSets[i].checkpoint();
 	}
 }
