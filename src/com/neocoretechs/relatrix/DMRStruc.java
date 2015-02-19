@@ -19,7 +19,10 @@ import com.neocoretechs.relatrix.forgetfulfunctor.*;
 * we use this key for bin tree retrieval depending   <dd>
 * on the desired traversal scenario, that is,        <dd>
 * in what order do we want the values returned...    <dd>
-* @author Groff (C) NeoCoreTechs 1997
+* The is the base class for the different morphism permutations that allow us to form different
+* sets from categories. Support for the typed lamdba calculus is provided by the template
+* class which can be used to retrieve sets based on their class type.
+* @author Groff (C) NeoCoreTechs 1997,2014
 */
 public abstract class DMRStruc implements Comparable, Serializable {
         static final long serialVersionUID = -9129948317265641091L;
@@ -55,9 +58,12 @@ public abstract class DMRStruc implements Comparable, Serializable {
             range = r;
         }
         /**
-         * Failsafe compareTo since at times different key classes need to reconcile. Also supports
-         * retrieval via 'forgetful functor class template' by determining if template is instanceof TemplateClass.  If it is
-         * we check whether the enclosed class equals the target class
+         * Failsafe compareTo since at times different key classes need to reconcile in support of the typed lambda calculus.
+         * Also supports retrieval via 'forgetful functor class template' by determining if template is instanceof TemplateClass.  If it is
+         * we check whether the enclosed class equals the target class.
+         * If classes are not the same and the target is not assignable from the source, try a comparison
+         * of the universal string representation of the two classes.
+         * If none of the above conditions apply, perform a straight up 'compareTo'
          * @param from
          * @param to
          * @return
@@ -88,12 +94,19 @@ public abstract class DMRStruc implements Comparable, Serializable {
         	toClass = to.getClass();
           	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
         	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
+        		// compare a universal string representation
         		return from.toString().compareTo(to.toString());
         	}
         	return from.compareTo(to);
         }
         /**
-         * Failsafe equals since at times different key classes need to reconcile
+         * Failsafe equals since at times different key classes need to reconcile in support of the typed lambda calculus.
+         * Also supports retrieval via 'forgetful functor class template' by determining if template is instanceof TemplateClass.  If it is
+         * we check whether the enclosed class equals the target class.
+         * If classes are not the same and the target is not assignable from the source, try a comparison
+         * of the universal string representation of the two classes.
+         * If none of the above conditions apply, perform a straight up 'equals'
+         * This is an attempt to provide support for the typed lambda calculus
          * @param from
          * @param to
          * @return
@@ -111,7 +124,8 @@ public abstract class DMRStruc implements Comparable, Serializable {
     		}
            	Class toClass = to.getClass();
         	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
-        	if( !from.getClass().equals(to.getClass()) && !toIsSubclass ) {
+        	// maybe try a string representation
+        	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
         		return from.toString().equals(to.toString());
         	}
         	return from.equals(to);

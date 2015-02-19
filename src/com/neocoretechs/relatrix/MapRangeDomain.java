@@ -17,7 +17,7 @@ public class MapRangeDomain extends DMRStruc {
 	public int compareTo(Object dmrpk) {
 		MapRangeDomain dmr = (MapRangeDomain)dmrpk;
 		int cmp = 0;
-		if(dmr. map == null )
+		if(dmr.map == null )
 			return 1;
 		//cmp = map.compareTo(dmr.map);
 		cmp = DMRStruc.fullCompareTo(map, dmr.map);

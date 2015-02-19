@@ -22,7 +22,7 @@ public class RangeMapDomain extends DMRStruc {
 		//cmp = range.compareTo(dmr.range);
 		cmp = DMRStruc.fullCompareTo(range, dmr.range);
 		if( cmp != 0 ) return cmp;
-		if(dmr. map == null )
+		if( dmr.map == null )
 			return 1;
 		//cmp = map.compareTo(dmr.map);
 		cmp = DMRStruc.fullCompareTo(map, dmr.map);
@@ -38,17 +38,17 @@ public class RangeMapDomain extends DMRStruc {
 	public boolean equals(Object dmrpk) {
 		RangeMapDomain dmr = (RangeMapDomain)dmrpk;
 		boolean cmp = false;
-		if( range == null )
+		if( dmr.range == null )
 			return false;
 		//cmp = range.equals(dmr.range);
 		cmp = DMRStruc.fullEquals(range, dmr.range);
 		if( !cmp ) return cmp;
-		if( map == null )
+		if( dmr.map == null )
 			return false;
 		//cmp = map.equals(dmr.map);
 		cmp = DMRStruc.fullEquals(map, dmr.map);
 		if( !cmp ) return cmp;
-		if( domain == null )
+		if( dmr.domain == null )
 			return false;
 		//return domain.equals(dmr.domain);
 		return DMRStruc.fullEquals(domain, dmr.domain);

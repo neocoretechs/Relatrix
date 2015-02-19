@@ -45,7 +45,11 @@ public class Relatrix {
 		OPERATOR_TUPLE_CHAR = tp;
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	}
-	
+	/**
+	 * Verify that we are specifying a dir
+	 * @param path
+	 * @throws IOException
+	 */
 	public static void setTablespaceDirectory(String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
@@ -53,10 +57,21 @@ public class Relatrix {
 		BigSackAdapter.setTableSpaceDir(path);
 	}
 	
-	public static String getTableSpaceDirectory(String path) {
+	public static String getTableSpaceDirectory() {
 		return BigSackAdapter.getTableSpaceDir();
 	}
-
+	/**
+	 * We cant reasonably check the validity
+	 * @param path
+	 * @throws IOException
+	 */
+	public static void setRemoteDirectory(String path) {
+		BigSackAdapter.setRemoteDir(path);
+	}
+	
+	public static String getRemoteDirectory() {
+		return BigSackAdapter.getRemoteDir();
+	}
 /**
  * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes
  * @param d
@@ -169,8 +184,10 @@ public static void transactionCommit() throws IOException {
 		return;
 	}
 	for(int i = 0; i < transactionTreeSets.length; i++) {
+		long startTime = System.currentTimeMillis();
 		System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
 		transactionTreeSets[i].commit();
+		System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
 		transactionTreeSets[i] = null;
 	}
 }

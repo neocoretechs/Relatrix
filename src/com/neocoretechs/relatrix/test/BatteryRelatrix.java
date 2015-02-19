@@ -7,6 +7,7 @@ import com.neocoretechs.bigsack.session.BigSackSession;
 import com.neocoretechs.bigsack.session.BufferedTreeMap;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.bigsack.session.SessionManager;
+import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.bigsack.test.AnalyzeBlock;
 import com.neocoretechs.relatrix.BigSackAdapter;
 import com.neocoretechs.relatrix.DMRStruc;
@@ -43,7 +44,8 @@ public class BatteryRelatrix {
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix session = new Relatrix();
-		 System.out.println("Analysis of all");
+		 //System.out.println("Analysis of all");
+		BigSackAdapter.setTableSpaceDir(argv[0]);
 		//battery1(session, argv);
 		//battery1A(session, argv);
 		 //battery1AA(session, argv);
@@ -59,7 +61,7 @@ public class BatteryRelatrix {
 		//battery1AR10(session, argv);
 		//battery1AR11(session, argv);
 		//battery1AR12(session, argv);
-		battery1AR13(session, argv);
+		battery1X(session, argv);
 		//battery1B(session, argv);
 		//battery1C(session, argv);
 		//battery1D(session, argv);
@@ -93,6 +95,15 @@ public class BatteryRelatrix {
 			Relatrix.store(fkey, "Has time", new Long(System.currentTimeMillis()));
 		}
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	public static void battery1X(Relatrix session, String argv[]) throws Exception {
+		//RangeDomainMap tkey = new RangeDomainMap();
+		DomainMapRange tkey = new DomainMapRange();
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(DomainMapRange.class);
+		Iterator it = btm.tailSet(tkey);
+		while(it.hasNext()) {
+			System.out.println(it.next());
+		}
 	}
 	/**
 	 * Loads up on key/value pairs
