@@ -1,10 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
 
 import com.neocoretechs.bigsack.iterator.TailSetIterator;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
@@ -47,7 +44,12 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 			buffer = (DMRStruc)iter.next();
 			needsIter = false;
 		}
-		return iterateDmr();
+		try {
+			return iterateDmr();
+		} catch (IllegalAccessException | IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
@@ -60,8 +62,10 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	* based on dmr_return values.  In dmr_return, value 0
 	* is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
 	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
+	 * @throws IOException 
+	 * @throws IllegalAccessException 
 	*/
-	private Comparable[] iterateDmr()
+	private Comparable[] iterateDmr() throws IllegalAccessException, IOException
 	{
 		int returnTupleCtr = 0;
 	    Comparable[] tuples = new Comparable[getReturnTuples(dmr_return)];
@@ -73,11 +77,8 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;
-		do {
-			dmr_return[0]++;
-	        if( dmr_return[dmr_return[0]] != 0)
-	        	tuples[returnTupleCtr++] = buffer.returnTupleOrder(dmr_return[0]);
-	    } while( dmr_return[0] < 3 );
+	    for(int i = 0; i < tuples.length; i++)
+	    	tuples[i] = buffer.iterate_dmr(dmr_return);
 		needsIter = true;
 		return tuples;
 	}
@@ -91,7 +92,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 		if( dmr_return[0] == -1 ||  isIdentity(dmr_return) ) // return all relationship types, 1 tuple special case
 			return 1;
 		for(int i = 1; i < 4; i++) {
-			if( dmr_return[i] > 0 )++cnt;
+			if( dmr_return[i] == 1 ) ++cnt;
 		}
 		return cnt;
 	}

@@ -9,6 +9,8 @@ import com.neocoretechs.relatrix.MapDomainRange;
 
 
 /**
+* Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
+* value. 
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
 * *,[object],* *,[object],? ?,[object],? ?,[object],*
 * *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*

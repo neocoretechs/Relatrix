@@ -6,15 +6,29 @@ import java.util.Iterator;
 import com.neocoretechs.relatrix.BigSackAdapter;
 import com.neocoretechs.relatrix.DMRStruc;
 import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DomainRangeMap;
+import com.neocoretechs.relatrix.MapDomainRange;
+import com.neocoretechs.relatrix.MapRangeDomain;
+import com.neocoretechs.relatrix.RangeDomainMap;
+import com.neocoretechs.relatrix.RangeMapDomain;
 
 /**
 * Permutation for predicate *,*,* or ?,?,? or return identity relationships or 
-* domain,map,range 3 element array for each iteration
+* domain,map,range 3 element array for each iteration.
+* ?,*,* domainmaprange
+* *,?,* mapdomainrange
+* *,*,? rangemapdomain
+* ?,?,* domainmaprange
+* *,?,? rangedomainmap
+* ?,*,? domainrangemap
+* ?,?,? domainmaprange
+* *,*,* domainmaprange identity
 */
 public class FindSetMode0 extends IteratorFactory {
 	// mode 0
 	char dop,mop,rop;
 	short[] dmr_return = new short[4];
+	private static boolean DEBUG = true;;
     public FindSetMode0(char dop, char mop, char rop) { 	
     	this.dop = dop;
     	this.mop = mop;
@@ -31,7 +45,29 @@ public class FindSetMode0 extends IteratorFactory {
     */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    DMRStruc dmr = new DomainMapRange(null, null, null);
+		DMRStruc dmr = null;
+		switch(DMRStruc.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
+			case 0: // dmr
+				dmr = new DomainMapRange(null, null, null);
+				break;
+			case 1: // drm
+				dmr = new DomainRangeMap(null, null, null);
+				break;
+			case 2: // mdr
+				dmr = new MapDomainRange(null, null, null);
+				break;
+			case 3: // mrd
+				dmr = new MapRangeDomain(null, null, null);
+				break;
+			case 4: // rdm
+				dmr = new RangeDomainMap(null, null, null);
+				break;
+			case 5: // rmd
+				dmr = new RangeMapDomain(null, null, null);
+				break;
+		}
+		if( DEBUG  )
+			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
 	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(dmr), dmr, dmr_return);
 	}
 }

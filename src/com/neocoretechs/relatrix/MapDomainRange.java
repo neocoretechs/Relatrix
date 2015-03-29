@@ -1,7 +1,5 @@
 package com.neocoretechs.relatrix;
 
-import java.io.IOException;
-
 
 public class MapDomainRange extends DMRStruc {
 	private static final long serialVersionUID = -3223516008906545636L;
@@ -54,7 +52,8 @@ public class MapDomainRange extends DMRStruc {
 		return DMRStruc.fullEquals(range, dmr.range);
 	}
 	
-    public String toString() { return map.toString()+"->"+domain.toString()+ "->"+range.toString(); }
+
+    
     public Comparable returnTupleOrder(int n) {
     	// default dmr
     	switch(n) {
@@ -69,4 +68,5 @@ public class MapDomainRange extends DMRStruc {
     	}
     	throw new RuntimeException("returnTupleOrder invalid tuple "+n);
     }
+    
 }

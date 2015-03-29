@@ -10,6 +10,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	 */
 	public abstract class IteratorFactory
 	{
+		private static boolean DEBUG = true; 
 		public abstract Iterator<?> createIterator() throws IllegalAccessException, IOException;
 	
 		public static IteratorFactory createFactory(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
@@ -51,7 +52,9 @@ import com.neocoretechs.relatrix.Relatrix;
 		            		mode ^= 1;                
 		    } else
 			   mode ^= 1;
-		        System.out.println("findSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+		    
+		    if( DEBUG )
+		        System.out.println("Relatrix IteratorFactory findSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
 			
 		    switch(mode) {
                case 0:
@@ -85,10 +88,9 @@ import com.neocoretechs.relatrix.Relatrix;
 		        if( marg == Relatrix.OPERATOR_TUPLE_CHAR )
 		                return 1;
 		        else
-		                if( marg != Relatrix.OPERATOR_WILDCARD_CHAR )
-		                        throw new IllegalArgumentException("findSet takes only '?' or '*' for Relatrix operators");
-		   
-		        return 0;
+		        	if( marg == Relatrix.OPERATOR_WILDCARD_CHAR)
+		                	return 2;
+		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
 		}
 		/**
 		 * Determine if we are returning identity relationship morphisms

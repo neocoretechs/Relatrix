@@ -1,8 +1,5 @@
 package com.neocoretechs.relatrix;
 
-import java.io.IOException;
-
-
 public class DomainMapRange extends DMRStruc {
 	private static final long serialVersionUID = 8664384659501163179L;
     public DomainMapRange() {}

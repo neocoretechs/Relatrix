@@ -25,6 +25,7 @@ import com.neocoretechs.relatrix.forgetfulfunctor.*;
 * @author Groff (C) NeoCoreTechs 1997,2014
 */
 public abstract class DMRStruc implements Comparable, Serializable {
+		private static boolean DEBUG = false;
         static final long serialVersionUID = -9129948317265641091L;
         
 		public Comparable  domain;       // domain object
@@ -74,15 +75,18 @@ public abstract class DMRStruc implements Comparable, Serializable {
           	//System.out.println("fullCompareTo to:"+to.getClass()+":"+to+" from:"+from.getClass()+":"+from);
         	// check forgetful functor, if template is java.lang.Class just see if its assignable
         	if ( to instanceof com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass ) {
-      			System.out.println("fullCompareTo forgetful functor template "+from.getClass()+":"+from+" to "+to.getClass()+":"+to);
+        		if( DEBUG )
+        			System.out.println("fullCompareTo forgetful functor template "+from.getClass()+":"+from+" to "+to.getClass()+":"+to);
         		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
-        			System.out.println("fullCompareTo template return using "+((TemplateClass)to).getComparableClass());
+        			if( DEBUG )
+        				System.out.println("fullCompareTo template return using "+((TemplateClass)to).getComparableClass());
         			return 0;
         		} else {
         			// now try to compare to our minimum value
         			Comparable minTo = (Comparable)((TemplateClass)to).getMinimumValue();
         			toClass = minTo.getClass();
-        			System.out.println("fullCompareTo min val return using "+from.getClass()+":"+from+" "+toClass+":"+minTo);
+        			if( DEBUG )
+        				System.out.println("fullCompareTo min val return using "+from.getClass()+":"+from+" "+toClass+":"+minTo);
         	     	if( !from.getClass().equals(toClass)  ) {
                 		return from.toString().compareTo(minTo.toString());
                 	}
@@ -112,12 +116,13 @@ public abstract class DMRStruc implements Comparable, Serializable {
          * @return
          */
         public static boolean fullEquals(Comparable from, Comparable to) {
-   
-        	System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
+        	if( DEBUG )
+        		System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
     		// check forgetful functor, if template is instance of class just see if its assignable
     		if ( to instanceof com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass)  {
         		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
-        			System.out.println("fullEquals forgetful functor template returning "+from+" "+to);
+        			if( DEBUG )
+        				System.out.println("fullEquals forgetful functor template returning "+from+" "+to);
         			return true;
         		}
         		return false;
@@ -131,8 +136,14 @@ public abstract class DMRStruc implements Comparable, Serializable {
         	return from.equals(to);
         }
         
-        public String toString() { return "ID["+domain.getClass().getName()+":"+domain.toString()+"->"+
-        		map.getClass().getName()+":"+map.toString()+ "->"+range.getClass().getName()+":"+range.toString()+"]"; }
+        public String toString() { 
+        	return "Class "+this.getClass().getName()+
+        			" ID["+(domain == null ? "<DomainTemplate>" : domain.getClass().getName()+":"+domain.toString())
+        			+"->"+
+        			(map == null ? "<MapTemplate>" : map.getClass().getName()+":"+map.toString()) 
+        			+ "->"+
+        			(range == null ? "<RangeTemplate>" : range.getClass().getName()+":"+range.toString())+"]"; 
+        	}
         /**
          * key combinations for Relatrix follow
          */
@@ -183,12 +194,11 @@ public abstract class DMRStruc implements Comparable, Serializable {
         * based on dmr_return values.  In dmr_return, value 0
         * is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
         * @return the next location to retrieve
-         * @throws IOException 
-         * @throws IllegalAccessException 
+        * @throws IOException 
+        * @throws IllegalAccessException 
         */
-        private synchronized Comparable iterate_dmr(short[] dmr_return) throws IllegalAccessException, IOException
+        public Comparable iterate_dmr(short[] dmr_return) throws IllegalAccessException, IOException
         {
-//                ErrMsg("iterate dmr");
                 if(dmr_return[0] >= 3) 
                 	return null;
                 // no return vals? send back relation location
@@ -196,21 +206,15 @@ public abstract class DMRStruc implements Comparable, Serializable {
                 	return this;
                 do {
                   dmr_return[0]++;
+                  // If the element of the tuple needs returning based on formation of our dmr_return, do so
                   if( dmr_return[dmr_return[0]] != 0)
-                	  switch(dmr_return[0]) {
-        			   	case 1:
-        			   		return domain;
-        			   	case 2:
-                            return map;
-        			   	case 3:
-                            return range;
-                	  }
+                	  return returnTupleOrder(dmr_return[0]);
                 } while( dmr_return[0] < 3 );
                 return null;
         }
         /**
-        * form_template_keyop - 'this' is functioning as template for search
-        * depending on the values in domain,map,range (0 for ? or *, !0 for RGuid)
+        * form_template_keyop - Passed Comparable arrray is functioning as template for search
+        * depending on the values in domain,map,range (0 for ? or *, !0 or object)
         * and the ones we care about returning (boolean true in dret)
         * construct the proper index to key array (keyop) and return it
         * (see form_dmrkey for keyop descr)
@@ -221,23 +225,23 @@ public abstract class DMRStruc implements Comparable, Serializable {
         * @param dret the return value flag array with iterator at 0
         * @return the keyop
         */
-        private synchronized short form_template_keyop(short[] dret)
+        public static short form_template_keyop(Comparable[] tdmr, short[] dret)
         {
             short dmr_prec[] = {2,1,0};
-            if( domain != null )
+            if( tdmr[0] != null ) // domain not null
                         dmr_prec[0] += 6; // RGuid
         	else
                         if( dret[1] == 1 ) dmr_prec[0] += 3; // '?'
                 // if '*' leave alone, this gets all
-            if( map != null )
+            if( tdmr[1] != null ) // map not null
                         dmr_prec[1] += 6; // RGuid
         	else
-                        if( dret[2] == 2 ) dmr_prec[1] += 3; // '?'
+                        if( dret[2] == 1 ) dmr_prec[1] += 3; // '?'
                 //
-            if(range != null )
+            if( tdmr[2] != null ) // range not null
                         dmr_prec[2] += 6;
         	else    
-                        if( dret[3] == 3 ) dmr_prec[2] += 3;
+                        if( dret[3] == 1 ) dmr_prec[2] += 3;
                 //
                 // we have precedents, now find order
         	if( dmr_prec[0] > dmr_prec[1] && dmr_prec[0] > dmr_prec[2] ) {
@@ -267,9 +271,8 @@ public abstract class DMRStruc implements Comparable, Serializable {
         		// range > (domain < map)
                                 return (short)5; // rmd
         	}
-            // this is private and should not happen
-            System.out.println("Invalid keyop in form_keyop ");
-            return (short)0;
+            // this method is internal and this should not happen
+            throw new RuntimeException("Invalid keyop in form_keyop ");
         }
         /**
          * When participating in a retrieval we want to return the proper part of the tuple
