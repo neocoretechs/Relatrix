@@ -22,9 +22,9 @@ import com.neocoretechs.relatrix.forgetfulfunctor.*;
 * The is the base class for the different morphism permutations that allow us to form different
 * sets from categories. Support for the typed lamdba calculus is provided by the template
 * class which can be used to retrieve sets based on their class type.
-* @author Groff (C) NeoCoreTechs 1997,2014
+* @author Groff (C) NeoCoreTechs 1997,2014,2015
 */
-public abstract class DMRStruc implements Comparable, Serializable {
+public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
 		private static boolean DEBUG = false;
         static final long serialVersionUID = -9129948317265641091L;
         
@@ -149,6 +149,7 @@ public abstract class DMRStruc implements Comparable, Serializable {
          */
         public abstract int compareTo(Object dmrpk);
         public abstract boolean equals(Object dmrpk);
+        public abstract Object clone() throws CloneNotSupportedException;
         
         /**
         * for relate cmpr, we return a value in the range 0-63
@@ -207,7 +208,7 @@ public abstract class DMRStruc implements Comparable, Serializable {
                 do {
                   dmr_return[0]++;
                   // If the element of the tuple needs returning based on formation of our dmr_return, do so
-                  if( dmr_return[dmr_return[0]] != 0)
+                  if( dmr_return[dmr_return[0]] == 1)
                 	  return returnTupleOrder(dmr_return[0]);
                 } while( dmr_return[0] < 3 );
                 return null;

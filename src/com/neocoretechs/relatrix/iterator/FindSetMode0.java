@@ -13,16 +13,21 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 
 /**
+* Construct an iterator from findSet or one of its subclasses (headSet, subset, tailSet is the default).
 * Permutation for predicate *,*,* or ?,?,? or return identity relationships or 
-* domain,map,range 3 element array for each iteration.
+* domain,map,range 3 element array for each iteration. This mode return a one to three element Comparable[]
+* depending on the configuration of the findSet. The number of "?" elements determines the size of the returned Comparable array.
+* This mode represents the equivalent of 'SELECT ALL' for identities or morphisms where identities return 1 array element of the
+* DMRStruc object and the ("?","?","?") returns 3 elements of each of the independent objects
 * ?,*,* domainmaprange
 * *,?,* mapdomainrange
 * *,*,? rangemapdomain
 * ?,?,* domainmaprange
 * *,?,? rangedomainmap
 * ?,*,? domainrangemap
-* ?,?,? domainmaprange
+* ?,?,? domainmaprange separate tuple elements
 * *,*,* domainmaprange identity
+* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
 */
 public class FindSetMode0 extends IteratorFactory {
 	// mode 0
@@ -68,6 +73,11 @@ public class FindSetMode0 extends IteratorFactory {
 		}
 		if( DEBUG  )
 			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
-	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(dmr), dmr, dmr_return);
+	    return createRelatrixIterator(dmr);
+	}
+	
+	@Override
+	protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
+	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
 	}
 }

@@ -7,11 +7,14 @@ import com.neocoretechs.relatrix.BigSackAdapter;
 import com.neocoretechs.relatrix.DMRStruc;
 import com.neocoretechs.relatrix.DomainMapRange;
 
-
 /**
-* Find the set of objects in the relation via the specified predicate. Legal permutations are
+* Find the set of objects in the relation via the specified predicate. 
+* This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
+* for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
+* Legal permutations are
 * [object],*,* [object],*,? [object],?,? [object],?,*
 * [TemplateClass],*,* [TemplateClass],*,? [TemplateClass],?,? [TemplateClass],?,*
+* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
 *
 */
 public class FindSetMode4 extends IteratorFactory {
@@ -37,6 +40,10 @@ public class FindSetMode4 extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
 		DMRStruc dmr = new DomainMapRange((Comparable)darg, null, null);
-		return new RelatrixIterator(BigSackAdapter.getBigSackSet(dmr), dmr, dmr_return);
+		return createRelatrixIterator(dmr);
+	}
+	@Override
+	protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
+		return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
 	}
 }

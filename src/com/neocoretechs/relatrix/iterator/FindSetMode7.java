@@ -13,8 +13,8 @@ import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass;
 * part of TemplateClass retrieval. the second is when one or more params is instanceof TemplateClass. In the second
 * instance, the class functions as template for the enclosed class to retrieve objects of that class (or subclass).
 * Depending on the subclass of TemplateClass, the argument acts as a wildcard (*) or a tuple (?) for instances of that
-* class. Category theory analog is a forgetful functor, or perhaps a representable of some sort. 
-* 
+* class. Category theory analog is a representable. 
+* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105 
 */
 public class FindSetMode7 extends IteratorFactory {
 	// mode 7
@@ -45,6 +45,10 @@ public class FindSetMode7 extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
 	    DMRStruc dmr = new DomainMapRange((Comparable)darg, (Comparable)marg, (Comparable)rarg);
-	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(dmr), dmr, dmr_return);
+	    return createRelatrixIterator(dmr);
+	}
+	@Override
+	protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
+	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
 	}
 }

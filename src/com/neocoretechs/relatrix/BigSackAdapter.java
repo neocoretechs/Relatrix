@@ -8,7 +8,8 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.config.Props;
 /**
- * The appropriate map or set is instantiated. This class links the Relatrix to the BigSack
+ * This class links the Relatrix to the BigSack.
+ * Its main function is to ensure that the appropriate map or set is instantiated.
  * A map or set can be obtained by instance of Comparable to impart ordering or
  * via class type to support the typed lambda calculus.
  * A Buffered map or set has atomic transactions bounded automatically with each insert/delete

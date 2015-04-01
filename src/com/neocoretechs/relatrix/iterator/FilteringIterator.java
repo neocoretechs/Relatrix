@@ -5,7 +5,10 @@ import java.io.IOException;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.relatrix.DMRStruc;
 import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass;
-
+/**
+ * The attempt here is to provide a more customizable retrieval filter.
+ * @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+ */
 public class FilteringIterator extends RelatrixIterator implements FilterInterface {
 	private DMRStruc template;
 	public FilteringIterator(BufferedTreeSet bts, DMRStruc template, short[] dmr_return) throws IOException {

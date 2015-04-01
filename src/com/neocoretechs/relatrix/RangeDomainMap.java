@@ -1,7 +1,14 @@
 package com.neocoretechs.relatrix;
 
-
-public class RangeDomainMap extends DMRStruc {
+/**
+* This class represents the morphisms stored in range (codomain),domain,map order.
+* The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
+* By storing these indexes with all their possible retrieval combinations for the morphisms,
+* which turns out to be 6 indexes, we facilitate the retrieval of posets from our categories
+* based on any number of possible operators and objects passed to the various 'findSet' permutations.
+* @author jg (C) NeoCoreTechs 2014,2015
+*/ 
+public final class RangeDomainMap extends DMRStruc {
 	private static final long serialVersionUID = -1689898604140078900L;
     public RangeDomainMap() {}
     
@@ -51,7 +58,7 @@ public class RangeDomainMap extends DMRStruc {
 		return DMRStruc.fullEquals(map, dmr.map);
 	}
  
-    
+    /*
     public Comparable returnTupleOrder(int n) {
     	// default dmr
     	switch(n) {
@@ -66,5 +73,9 @@ public class RangeDomainMap extends DMRStruc {
     	}
     	throw new RuntimeException("returnTupleOrder invalid tuple "+n);
     }
-    
+    */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+    	return new RangeDomainMap(domain, map, range);
+    }
 }

@@ -1,6 +1,14 @@
 package com.neocoretechs.relatrix;
-
-public class DomainMapRange extends DMRStruc {
+/**
+ * This class represents the morphisms stored in their natural retrieval order.
+ * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
+ * By storing these indexes with all their possible retrieval combinations for the morphisms,
+ * which turns out to be 6 indexes, we facilitate the retrieval of posets from our categories
+ * based on any number of possible operators and objects passed to the various 'findSet' permutations. 
+ * @author jg
+ *
+ */
+public final class DomainMapRange extends DMRStruc {
 	private static final long serialVersionUID = 8664384659501163179L;
     public DomainMapRange() {}
     
@@ -48,5 +56,10 @@ public class DomainMapRange extends DMRStruc {
 		//return range.equals(dmr.range);
 		return DMRStruc.fullEquals(range, dmr.range);
 	}
+	
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+    	return new DomainMapRange(domain, map, range);
+    }
 
 }
