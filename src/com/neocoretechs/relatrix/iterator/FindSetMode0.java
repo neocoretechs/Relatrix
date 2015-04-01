@@ -33,7 +33,7 @@ public class FindSetMode0 extends IteratorFactory {
 	// mode 0
 	char dop,mop,rop;
 	short[] dmr_return = new short[4];
-	private static boolean DEBUG = true;;
+	private static boolean DEBUG = false;
     public FindSetMode0(char dop, char mop, char rop) { 	
     	this.dop = dop;
     	this.mop = mop;

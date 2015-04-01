@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	 */
 	public abstract class IteratorFactory
 	{
-		private static boolean DEBUG = true; 
+		private static boolean DEBUG = false; 
 		/**
 		 * Create the iterator. Factory method, abstract.
 		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms
@@ -207,7 +207,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	               case 7:
 	            	   	   return new FindHeadSetMode7(darg, marg, rarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findSet factory mode "+mode+" is not supported.");
+	                    throw new IllegalArgumentException("The findHeadset factory mode "+mode+" is not supported.");
 			}
 		}
 
@@ -282,7 +282,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	               case 7:
 	           			   return new FindSubSetMode7(darg, marg, marg, endarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findSet factory mode "+mode+" is not supported.");
+	                    throw new IllegalArgumentException("The findSubset factory mode "+mode+" is not supported.");
 			}	
 		}
 		
