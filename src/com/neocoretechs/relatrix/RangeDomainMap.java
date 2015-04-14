@@ -30,7 +30,7 @@ public final class RangeDomainMap extends DMRStruc {
 		if( dmr.domain == null )
 			return 1;
 		//cmp = domain.compareTo(dmr.domain);
-		DMRStruc.fullCompareTo(domain, dmr.domain);
+		cmp = DMRStruc.fullCompareTo(domain, dmr.domain);
 		if( cmp != 0 ) return cmp;
 		if( dmr.map == null )
 			return 1;

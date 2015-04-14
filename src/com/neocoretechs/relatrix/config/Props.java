@@ -1,5 +1,5 @@
 package com.neocoretechs.relatrix.config;
 
 public class Props {
-	public static final int L3CacheSize = 100;
+	public static final int L3CacheSize = 0;
 }

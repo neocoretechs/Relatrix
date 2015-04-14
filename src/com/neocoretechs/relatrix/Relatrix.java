@@ -40,6 +40,7 @@ public final class Relatrix {
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	
 	private static TransactionalTreeSet[] transactionTreeSets = new TransactionalTreeSet[6];
+	private static boolean DEBUG = false;
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -140,43 +141,50 @@ public static DomainMapRange transactionalStore(Comparable d, Comparable m, Comp
 	if( transactionTreeSets[0] == null ) {
 		transactionTreeSets[0] = BigSackAdapter.getBigSackSetTransaction(dmr);
 	}
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
 	transactionTreeSets[0].add(dmr);
 	
-	dmr = new DomainRangeMap(d,m,r);
-	//btm = BigSackAdapter.getBigSackSet(dmr);
+	DomainRangeMap drm = new DomainRangeMap(d,m,r);
 	if( transactionTreeSets[1] == null ) {
-		transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(dmr);
+		transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(drm);
 	}
-	transactionTreeSets[1].add(dmr);
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing drm:"+dmr);
+	transactionTreeSets[1].add(drm);
 
-	dmr = new MapDomainRange(d,m,r);
-	//btm = BigSackAdapter.getBigSackSet(dmr);
+	MapDomainRange mdr = new MapDomainRange(d,m,r);
 	if( transactionTreeSets[2] == null ) {
-		transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(dmr);
+		transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(mdr);
 	}
-	transactionTreeSets[2].add(dmr);
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing mdr:"+dmr);
+	transactionTreeSets[2].add(mdr);
 
-	dmr = new MapRangeDomain(d,m,r);
-	//btm = BigSackAdapter.getBigSackSet(dmr);
+	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
 	if( transactionTreeSets[3] == null ) {
-		transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(dmr);
+		transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(mrd);
 	}
-	transactionTreeSets[3].add(dmr);
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing:"+mrd);
+	transactionTreeSets[3].add(mrd);
 
-	dmr = new RangeDomainMap(d,m,r);
-	//btm = BigSackAdapter.getBigSackSet(dmr);
+	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
 	if( transactionTreeSets[4] == null ) {
-		transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(dmr);
+		transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(rdm);
 	}
-	transactionTreeSets[4].add(dmr);
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing:"+rdm);
+	transactionTreeSets[4].add(rdm);
 
-	dmr = new RangeMapDomain(d,m,r);
-	//btm = BigSackAdapter.getBigSackSet(dmr);
+	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
 	if( transactionTreeSets[5] == null ) {
-		transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(dmr);
+		transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
 	}
-	transactionTreeSets[5].add(dmr);
-
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing:"+rmd);
+	transactionTreeSets[5].add(rmd);
+	
 	return (DomainMapRange) identity;
 }
 /**
