@@ -21,12 +21,12 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 * order the result set. The representable operator allows us to go from Cat->Set. Specifically to 'poset'.<br/>
 * The critical element about retrieving relationships is to remember that the number of elements from each passed
 * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
-* if we declare findHeadSet("*","?","*") we get back a Comparable[] or of one element, for findSet("?",object,"?") we
+* if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element, for findSet("?",object,"?") we
 * would get back a Comparable[2] array, with each element of the relationship returned.<br/>
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
+* the requirement to be 'categorical'. In general, all 3 element arrays returned by the Cat->set representable operators are
 * the mathematical identity, or constitute the unique key in database terms.
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
@@ -62,7 +62,7 @@ public final class Relatrix {
 	public static void setTablespaceDirectory(String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
-			throw new IOException("Cannot access fileset "+path+" for tablespace");
+			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
 		BigSackAdapter.setTableSpaceDir(path);
 	}
 	
