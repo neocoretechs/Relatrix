@@ -6,25 +6,20 @@ import java.lang.reflect.Field;
 import java.util.Comparator;
 
 /**
- * I suppose the best way to describe this package is 'forgetful functor down conversion wrappers' 
- * to support the typed lambda calculus.
- * To fit in our framework, classes have to implement Comparable, period. On the eight day God invented Comparable
- * for without it yea there is no order and chaos reigns. Some classes, though, are not so endowed, like java.lang.Class.
- * So to deal with any templating based on class or indeed to use any object without a Comparable implementation 
- * We form a template class using only what we have; class. Hopefully we are classy enough to have a
- * minimum value so we can order our retrieval based on this. Classes that have a MIN_VALUE field al la
+ * I suppose the best way to describe this package is 'down conversion wrappers' to support the typed lambda calculus.
+ * To fit in our framework, classes have to implement Comparable, period.. 
+ * Some classes, though, are not so endowed, like java.lang.Class.
+ * So to deal with any templating based on class, or indeed to use any object without a Comparable implementation,
+ * We form a template class using only what we have; java.lang.Class. 
+ * How to order retrieval based on this? Classes that have a MIN_VALUE field al la
  * Integer, Long, etc, provide it natively. Option is to supply via constructor.
- * So we have a class and we need some means to provide a value by which to order. We attempt to reconcile a minimum value.
- * I imagine an analog would be the way java lets you assign a componentized Comparator interface for TreeMap and TreeSet 
- * What appears as a limitation may be an asset. Can we use the minVal to further refine our set constraints
- * and set a range for template classes? is this even useful? Stay tuned.
- * Since we want to use our forgetful functor via a template Class type, but Class has
+ * Like java lets you assign a componentized Comparator interface for TreeMap and TreeSet. 
+ * Since we want to use this via a template Class type, but java.lang.Class has
  * no Comparator, we need to wrap it (Class is final, so we cant subclass) 
- * In the end. If we store this, it creates a global relation over the class of the element in the tuple.
- * Questions: Can we use an identity functor specifying a template in some way?
- * Is it an identity anymore? is it redundant? seems redundant hmm.
+ * In the end, when we store this, its identity represents a global relation over the class of the elements in the morphism.
+ * And hence, an identity to allow it to fit in the categorical framework.
  * At any rate, the down conversion refers to the process of adding a minimum value to create a pseudo concrete
- * class from the template so we can order our retrieval  
+ * class from the template so we can order our retrieval. 
  * @author jg
  *
  */
@@ -62,8 +57,10 @@ public class TemplateClass implements Serializable, Comparable{
 	}
 	/**
 	 * Get the minimum value for the enclosed class. this is so we can determine proper
-	 * sort order for wildcards in the event they are unequal to target
-	 * @return
+	 * sort order for wildcards in the event they are unequal to target. Attempt to 
+	 * extract it from various attributes and fields of the class although we have no
+	 * instance to invoke.
+	 * @return The object representing the minimum value for this class
 	 */
 	public Object getMinimumValue() {
 		if( minVal != null ) {
@@ -75,7 +72,7 @@ public class TemplateClass implements Serializable, Comparable{
 		} catch (NoSuchFieldException | SecurityException e) {
 			if( theClass.equals(String.class)) {
 				minVal = "";
-				return minVal; // ubiquitous String class min val
+				return minVal; // ubiquitous String class min val, if we happen to be dealing with strings
 			}
 			System.out.println("Cant find a min val for class :"+theClass);
 			return null;

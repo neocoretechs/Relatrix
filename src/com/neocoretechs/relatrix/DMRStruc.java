@@ -60,23 +60,30 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         }
         /**
          * Failsafe compareTo since at times different key classes need to reconcile in support of the typed lambda calculus.
-         * Also supports retrieval via 'forgetful functor class template' by determining if template is instanceof TemplateClass.  If it is
+         * Also supports retrieval via 'class template' by determining if template is instanceof TemplateClass.  If it is
          * we check whether the enclosed class equals the target class.
          * If classes are not the same and the target is not assignable from the source, try a comparison
-         * of the universal string representation of the two classes.
-         * If none of the above conditions apply, perform a straight up 'compareTo'
+         * of the universal string representation of the two classes as the last attempt to provide some ordering of keys.
+         * Note that this only occurs for template classes, for regular objects we use the standard compareTo semantics.
+         * If none of the above conditions apply, the default is to perform a straight up 'compareTo' as we all implement Comparable
          * @param from
          * @param to
          * @return
          */
         @SuppressWarnings({ "unchecked", "rawtypes" })
 		public static int fullCompareTo(Comparable from, Comparable to) {
+        	if( DEBUG ) {
+        		if( from == null )
+        			throw new RuntimeException("DMRStruc.fullCompareTo 'from' element is null, to is "+to);
+        		if( to == null )
+        			throw new RuntimeException("DMRStruc.fullCompareTo 'to' element is null, from is "+from);
+        	}
         	Class toClass;
           	//System.out.println("fullCompareTo to:"+to.getClass()+":"+to+" from:"+from.getClass()+":"+from);
         	// check forgetful functor, if template is java.lang.Class just see if its assignable
         	if ( to instanceof com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass ) {
         		if( DEBUG )
-        			System.out.println("fullCompareTo forgetful functor template "+from.getClass()+":"+from+" to "+to.getClass()+":"+to);
+        			System.out.println("fullCompareTo template "+from.getClass()+":"+from+" to "+to.getClass()+":"+to);
         		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
         			if( DEBUG )
         				System.out.println("fullCompareTo template return using "+((TemplateClass)to).getComparableClass());
@@ -98,9 +105,10 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         	toClass = to.getClass();
           	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
         	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
-        		// compare a universal string representation
+        		// compare a universal string representation as a unifying datatype for typed class templates
         		return from.toString().compareTo(to.toString());
         	}
+        	// Otherwise, use the standard compareTo for all objects which invokes our indicies
         	return from.compareTo(to);
         }
         /**
@@ -122,7 +130,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
     		if ( to instanceof com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass)  {
         		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
         			if( DEBUG )
-        				System.out.println("fullEquals forgetful functor template returning "+from+" "+to);
+        				System.out.println("fullEquals template returning "+from+" "+to);
         			return true;
         		}
         		return false;
@@ -214,7 +222,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
                 return null;
         }
         /**
-        * form_template_keyop - Passed Comparable arrray is functioning as template for search
+        * form_template_keyop - Passed Comparable array is functioning as template for search
         * depending on the values in domain,map,range (0 for ? or *, !0 or object)
         * and the ones we care about returning (boolean true in dret)
         * construct the proper index to key array (keyop) and return it

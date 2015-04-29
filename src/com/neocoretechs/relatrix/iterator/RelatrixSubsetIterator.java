@@ -69,8 +69,8 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	* based on dmr_return values.  In dmr_return, value 0
 	* is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
 	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
+	* @throws IOException 
+	* @throws IllegalAccessException 
 	*/
 	private Comparable[] iterateDmr() throws IllegalAccessException, IOException
 	{
