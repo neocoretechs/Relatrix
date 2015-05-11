@@ -18,8 +18,8 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClassReturn;
-import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClassWildcard;
+import com.neocoretechs.relatrix.typedlambda.TemplateClassReturn;
+import com.neocoretechs.relatrix.typedlambda.TemplateClassWildcard;
 
 /**
  * Yes, this should be a nice JUnit fixture someday

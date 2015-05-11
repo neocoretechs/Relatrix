@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix;
 import java.io.IOException;
 import java.io.Serializable;
 
-import com.neocoretechs.relatrix.forgetfulfunctor.*;
+import com.neocoretechs.relatrix.typedlambda.*;
 
 /**
 * DMRStruc - domain, map, range structure
@@ -81,7 +81,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         	Class toClass;
           	//System.out.println("fullCompareTo to:"+to.getClass()+":"+to+" from:"+from.getClass()+":"+from);
         	// check forgetful functor, if template is java.lang.Class just see if its assignable
-        	if ( to instanceof com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass ) {
+        	if ( to instanceof com.neocoretechs.relatrix.typedlambda.TemplateClass ) {
         		if( DEBUG )
         			System.out.println("fullCompareTo template "+from.getClass()+":"+from+" to "+to.getClass()+":"+to);
         		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
@@ -127,7 +127,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         	if( DEBUG )
         		System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
     		// check forgetful functor, if template is instance of class just see if its assignable
-    		if ( to instanceof com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass)  {
+    		if ( to instanceof com.neocoretechs.relatrix.typedlambda.TemplateClass)  {
         		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
         			if( DEBUG )
         				System.out.println("fullEquals template returning "+from+" "+to);

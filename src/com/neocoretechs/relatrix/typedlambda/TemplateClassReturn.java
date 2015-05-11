@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.forgetfulfunctor;
+package com.neocoretechs.relatrix.typedlambda;
 
 import java.io.IOException;
 

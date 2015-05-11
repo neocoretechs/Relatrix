@@ -6,7 +6,7 @@ import java.util.Iterator;
 import com.neocoretechs.relatrix.BigSackAdapter;
 import com.neocoretechs.relatrix.DMRStruc;
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass;
+import com.neocoretechs.relatrix.typedlambda.TemplateClass;
 
 /**
 * This winds up serving 2 functions. One is identity morphism retrieval if we get 3 objects that are not

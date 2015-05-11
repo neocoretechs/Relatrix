@@ -6,9 +6,9 @@ import java.util.Iterator;
 import com.neocoretechs.bigsack.session.BufferedTreeMap;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.relatrix.forgetfulfunctor.TemplateClass;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+import com.neocoretechs.relatrix.typedlambda.TemplateClass;
 
 /**
 * Wrapper for structural (relationship) morphism identity objects and the representable operators that retrieve them<dd>
