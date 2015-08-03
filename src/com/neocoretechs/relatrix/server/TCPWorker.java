@@ -14,20 +14,24 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
-import com.neocoretechs.bigsack.io.request.IoResponseInterface;
-import com.neocoretechs.bigsack.io.request.cluster.CompletionLatchInterface;
+import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
+import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+
 
 /**
+ * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
+ * has been sent from client to WORKBOOTPORT. A WorkerRequestProcessor handles the actual processing of the
+ * request after it has been acquired and extracted here.
  * @author jg
  * Copyright (C) NeoCoreTechs 2014,2015
  *
  */
-public class TCPWorker implements Runnable, DistributedWorkerResponseInterface {
+public class TCPWorker implements Runnable {
 	private static final boolean DEBUG = false;
 	boolean shouldRun = true;
 	public int MASTERPORT = 9876;
 	public int SLAVEPORT = 9876;
-	private String remoteMaster = "AMIMASTER";
+
     //private byte[] sendData;
 	private InetAddress IPAddress = null;
 	//private ServerSocketChannel workerSocketChannel;
@@ -39,13 +43,12 @@ public class TCPWorker implements Runnable, DistributedWorkerResponseInterface {
 	private Socket masterSocket;
 	
 	private WorkerRequestProcessor workerRequestProcessor;
-	// ByteBuffer for NIO socket read/write, currently broken under arm
+	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
 	private static boolean TEST = true;
 	
     public TCPWorker(String dbname, String remoteMaster, int masterPort, int slavePort) throws IOException {
-    	if( remoteMaster != null )
-    		this.remoteMaster = remoteMaster;
+  
     	MASTERPORT= masterPort;
     	SLAVEPORT = slavePort;
 		try {
@@ -77,25 +80,21 @@ public class TCPWorker implements Runnable, DistributedWorkerResponseInterface {
 					" address:"+IPAddress);
 		}
 	}
-    
 	
 	/**
-	 * Queue a request on this worker, the request is assumed to be on this tablespace
+	 * Queue a request on this worker,
 	 * Instead of queuing to a running thread request queue, queue this for outbound message
-	 * The type is IOResponseInterface and contains the Id and the payload
+	 * The type is RemoteCompletionInterface and contains the Id and the payload
 	 * back to master
 	 * @param irf
 	 */
-	public void queueResponse(IoResponseInterface irf) {
+	public void queueResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
-			// connect to the master and establish persistent connect
-			//sendData = GlobalDBIO.getObjectAsBytes(irf);
-			//ByteBuffer srcs = ByteBuffer.wrap(sendData);
-			//masterSocketChannel.write(srcs);
+			// Write response to master for forwarding to client
 			OutputStream os = masterSocket.getOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(os);
 			oos.writeObject(irf);
@@ -109,7 +108,7 @@ public class TCPWorker implements Runnable, DistributedWorkerResponseInterface {
 		}
 	}
 	/**
-     * Spin the worker, get the tablespace from the cmdl param
+     * Spin the worker from command line
      * @param args
      * @throws Exception
      */
@@ -124,20 +123,14 @@ public class TCPWorker implements Runnable, DistributedWorkerResponseInterface {
 				Integer.valueOf(args[2]) , // master port
 				Integer.valueOf(args[3]))); //worker port
 	}
-	
+	/**
+	 * Client (Slave port) sends data to our master in the following loop
+	 */
 	@Override
 	public void run() {
-		//SocketChannel s = null;
+
 		Socket s = null;
 		try {
-			/*
-			s = workerSocketChannel.accept();
-			s.configureBlocking(true);
-			s.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-			s.setOption(StandardSocketOptions.TCP_NODELAY, true);
-			s.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
-			s.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-			*/
 			s = workerSocket.accept();
 			s.setKeepAlive(true);
 			//s.setTcpNoDelay(true);
@@ -155,7 +148,7 @@ public class TCPWorker implements Runnable, DistributedWorkerResponseInterface {
 				//b.clear();
 				InputStream ins = s.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
-				CompletionLatchInterface iori = (CompletionLatchInterface)ois.readObject();
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)ois.readObject();
 				if( DEBUG ) {
 					System.out.println("TCPWorker FROM REMOTE on port:"+SLAVEPORT+" "+iori);
 				}

@@ -22,7 +22,5 @@ public interface CommandPacketInterface extends Serializable {
 	public String getRemoteMaster();
 	public void setRemoteMaster(String remoteMaster);
 	
-	// RelatrixStatement contains linkage to Relatrix method to be called
-	public RelatrixStatement getExecutableStatement();
-	public void setExecutableStatement(RelatrixStatement rs);
+
 }

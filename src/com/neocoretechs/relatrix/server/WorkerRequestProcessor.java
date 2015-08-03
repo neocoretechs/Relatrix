@@ -1,51 +1,47 @@
 package com.neocoretechs.relatrix.server;
 
-import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
-import com.neocoretechs.bigsack.io.IOWorker;
-import com.neocoretechs.bigsack.io.request.IoRequestInterface;
-import com.neocoretechs.bigsack.io.request.cluster.CompletionLatchInterface;
-import com.neocoretechs.bigsack.io.request.cluster.IoResponse;
+import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
+import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
 /**
  * Once requests from master are queued we extract them here and process them
  * This class functions as a generic threaded request processor for entries on a BlockingQueue of 
- * CompletionLatchInterface implementors managed by a DistributeWorkerResponseInterface implementation.
- * This request processor is spun up in conjunction with IO workers such as TCPMaster and UDPMaster. 
+ * RemoteCompletionInterface implementors 
+ * This request processor is spun up in conjunction with IO workers such as TCPMaster. 
  * The intent is to separate the processing of requests, the maintenance of latches, etc from the communication
  * processing. In addition, increased parallelism can be achieved by separation of these tasks.
- * The WorkerRequestProcessors are responsible for setting the fields for the ioUnit and countdownlatch.
- * Essentially, the transient fields of outbound cluster requests, and the template fields in standalone
- * requests are filled in by methods invoked by this processor before 'process' is called on the request.
- * @see IoRequestInterface
+ * The WorkerRequestProcessors are responsible for setting the fields for the countdownlatch.
  * Copyright (C) NeoCoreTechs 2014,2015
  * @author jg
  *
  */
 public final class WorkerRequestProcessor implements Runnable {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static int QUEUESIZE = 1024;
-	private BlockingQueue<IoRequestInterface> requestQueue;
-	private DistributedWorkerResponseInterface worker;
+	private BlockingQueue<RemoteCompletionInterface> requestQueue;
+	private TCPWorker responseQueue;
+
 	private boolean shouldRun = true;
-	public WorkerRequestProcessor(DistributedWorkerResponseInterface worker) {
-		this.worker = worker;
-		requestQueue = new ArrayBlockingQueue<IoRequestInterface>(QUEUESIZE, true);
+	public WorkerRequestProcessor(TCPWorker tcpworker) {
+		this.responseQueue = tcpworker;
+		this.requestQueue = new ArrayBlockingQueue<RemoteCompletionInterface>(QUEUESIZE, true);
 	}
 	
 	public void stop() {
 		shouldRun = false;
 	}
 	
-	public BlockingQueue<IoRequestInterface> getQueue() { return requestQueue; }
+	public BlockingQueue<RemoteCompletionInterface> getQueue() { return requestQueue; }
 	
 	@Override
 	public void run() {
 	  while(shouldRun) {
-		IoRequestInterface iori = null;
+		RemoteCompletionInterface iori = null;
+		RemoteResponseInterface irri = null;
 		try {
 			iori = requestQueue.take();
 		} catch (InterruptedException e1) {
@@ -57,17 +53,20 @@ public final class WorkerRequestProcessor implements Runnable {
 		// because all operations are taking place on 1 tablespace and thread with coordination
 		// at the Master level otherwise
 		CountDownLatch cdl = new CountDownLatch(1);
-		((CompletionLatchInterface)iori).setCountDownLatch(cdl);
+		((RemoteCompletionInterface)iori).setCountDownLatch(cdl);
 		if( DEBUG  ) {
-			System.out.println("port:"+worker.getSlavePort()+" data:"+iori);
+			System.out.println(" data:"+iori);
 		}
-		// tablespace set before request comes down
 		
 		try {
-			iori.process();
+			//
+			// invoke the designated method on the server, return any result
+			//
+			irri = RelatrixServer.process(iori);
+			
 			try {
 				if( DEBUG )
-					System.out.println("port:"+worker.getSlavePort()+" avaiting countdown latch...");
+					System.out.println(" avaiting countdown latch...");
 				cdl.await();
 			} catch (InterruptedException e) {
 				// most likely executor shutdown request during latching, be good and bail
@@ -77,28 +76,34 @@ public final class WorkerRequestProcessor implements Runnable {
 			// we have flipped the latch from the request to the thread waiting here, so send an outbound response
 			// with the result of our work if a response is required
 			if( DEBUG ) {
-				System.out.println("Local processing complete, queuing response to "+worker.getMasterPort());
+				System.out.println("Local processing complete, queuing response");
 			}
-			IoResponse ioresp = new IoResponse(iori);
+
 			// And finally, send the package back up the line
-			worker.queueResponse(ioresp);
+			queueResponse(irri);
 			if( DEBUG ) {
-				System.out.println("Response queued:"+ioresp);
+				System.out.println("Response queued:"+irri);
 			}
-		} catch (IOException e1) {
+		} catch (Exception e1) {
 			if( DEBUG ) {
-				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to "+worker.getMasterPort());
+				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 			}
-			((CompletionLatchInterface)iori).setObjectReturn(e1);
-			IoResponse ioresp = new IoResponse(iori);
+			iori.setObjectReturn(e1);
+			
 			// And finally, send the package back up the line
-			worker.queueResponse(ioresp);
+			queueResponse((RemoteResponseInterface) iori);
 			//if( DEBUG ) {
-				System.out.println("***FAULT Response queued:"+ioresp);
+				System.out.println("***FAULT Response queued:"+iori);
 			//}
 		}
 	  } //shouldRun
 	  
 	}
+
+	public void queueResponse(RemoteResponseInterface iori) {
+		responseQueue.queueResponse(iori);
+		
+	}
+
 
 }

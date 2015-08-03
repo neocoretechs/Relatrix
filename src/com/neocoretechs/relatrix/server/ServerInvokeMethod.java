@@ -5,6 +5,7 @@ import java.lang.reflect.*;
 
 import com.neocoretechs.relatrix.client.RelatrixMethodNamesAndParams;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
+import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 /**
 * This class handles reflection of the user "handlers" for designated methods,
 * populates a table of those methods, creates a method call transport for client,
@@ -23,12 +24,11 @@ public final class ServerInvokeMethod {
     /**
     * This constructor populates this object with reflected methods from the
     * designated class.  Reflect hierarchy in reverse (to get proper
-    * overload) and look for methods with the "PowerKernel_" signature
+    * overload) and look for methods
     * @param tclass The class name we are targeting
     * @param skipArgs > 0 if we want to skip first args.
     */
-    public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {
-                
+    public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {      
                 pkmnap.classClass = Class.forName(tclass);
                 //pkmnap.classClass = theClassLoader.loadClass(tclass, true);
                 pkmnap.className = pkmnap.classClass.getName();
@@ -38,8 +38,8 @@ public final class ServerInvokeMethod {
                 m = pkmnap.classClass.getMethods();
                 for(int i = m.length-1; i >= 0 ; i--) {
                         //if( m[i].getName().startsWith("Relatrix_") ) {
-                                pkmnap.methodNames.add(m[i].getName().substring(12));
-                                System.out.println("Method :"+m[i].getName().substring(12));
+                                pkmnap.methodNames.add(m[i].getName()/*.substring(9)*/);
+                                System.out.println("Method :"+m[i].getName()/*.substring(9)*/);
                         //}
                 }
                 // create arrays
@@ -54,18 +54,19 @@ public final class ServerInvokeMethod {
                                 pkmnap.methodParams[methCnt] = m[i].getParameterTypes();
                                 pkmnap.methodSigs[methCnt] = m[i].toString();
                                 pkmnap.returnTypes[methCnt] = m[i].getReturnType();
-                                if( pkmnap.returnTypes[methCnt] == void.class ) pkmnap.returnTypes[methCnt] = Void.class;
-                                int ind1 = pkmnap.methodSigs[methCnt].indexOf("PowerKernel_");
-                                pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+12);
+                                if( pkmnap.returnTypes[methCnt] == void.class ) 
+                                	pkmnap.returnTypes[methCnt] = Void.class;
+                                //int ind1 = pkmnap.methodSigs[methCnt].indexOf("Relatrix_");
+                                //pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+9);
                                 if( skipArgs > 0) {
                                    try {
-                                        ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
+                                        int ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
                                         int ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind1);
                                         ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
                                         ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
                                         pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1+1)+pkmnap.methodSigs[methCnt].substring(ind2+1);
                                    } catch(StringIndexOutOfBoundsException sioobe) {
-                                        System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped), bypassing it..");
+                                        System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped)");
                                    }
                                 }
                                 methods[methCnt++] = m[i];
@@ -74,31 +75,18 @@ public final class ServerInvokeMethod {
        }
 
        /**
-       * Make a PKTransportMethodCall from the passed CustomerConnectionPanel
-       * and Packet.
-       * @param ccp The CustomerConnectionPanel of the calling party
-       * @param pc The Packet passed to the method which will be unwound into separate args if actual arg is not Packet.
-       * @return PKTransportMethodCall of the newly formed method call
-       * @throw PowerSpaceException if the number of arguments to the method does not match Packet field count
        */
-       public static RelatrixStatement makeMethodCall(String tClass, String methName, String objref, Object ... params) throws Exception {
-    	   return new RelatrixStatement("session", tClass, methName, objref, params);
+       public static RemoteRequestInterface makeMethodCall(String tClass, String methName, Object ... params) throws Exception {
+    	   return new RelatrixStatement("session", tClass, methName, params);
        }
        /**
-       * For an incoming PKTransportMethodCall, verify and invoke the proper
+       * For an incoming RelatrixStatement, verify and invoke the proper
        * method.  We assume there is a table of class names and this and
-       * it has been used to locate this object.  In this case, we may be dealing
-       * with a Packet transport, so we unwind it of we need to to call the
-       * method with params from packet...we have a single arg of type packet in transport
-       * and we are not dealing with a single arg of type packet in invokee
-       * @param leg The PowerPlant leg of request origin
-       * @param ccp The CustomerConnectionPanel of the calling party
-       * @param tmc The PKTransportMethodCall of the method to be called
+       * it has been used to locate this object. 
        * @return Object of result of method invocation
        */
-       public Object invokeMethod(RelatrixStatement tmc) throws Exception {
-                //NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {
-                
+       public Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
+                //NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
                 String targetMethod = tmc.getMethodName();
                 int methodIndex = pkmnap.methodNames.indexOf(targetMethod);
                 String whyNotFound = "No such method";
@@ -130,8 +118,7 @@ public final class ServerInvokeMethod {
                                 }
                                 if( found ) {
                                         if( skipArgs > 0) {
-                                                Object o1[] = tmc.getParamArray();
-      
+                                                Object o1[] = tmc.getParamArray(); 
 //                                                return methods[methodIndex].invoke( PKObjectTable.getObject(tmc.getSession(), tmc.getObjref()), o2 );
                                                 return methods[methodIndex].invoke( null, o1 );
                                         } 
