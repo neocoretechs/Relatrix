@@ -10,9 +10,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
+
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
+
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -39,7 +44,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * Copyright (C) NeoCoreTechs 2014,2015
  */
 public class RelatrixClient implements Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	private int MASTERPORT = 9876; // temp master port, accepts connection from remote server
@@ -55,6 +60,8 @@ public class RelatrixClient implements Runnable {
 	private String DBName; // database remote name
 	
 	private boolean shouldRun = true; // master service thread control
+	
+	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>(); 
 	
 	/**
 	 * Start a relatrix client. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -134,6 +141,14 @@ public class RelatrixClient implements Runnable {
 				 Object o = iori.getObjectReturn();
 				 if( o instanceof Exception ) {
 					 System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+o);
+				 } else {
+					 RelatrixStatement rs = outstandingRequests.get(iori.getSession());
+					 if( rs == null ) {
+						 System.out.println("REQUEST/RESPONSE MISMATCH, statement:"+iori);
+					 } else {
+						 // We have the request after its session round trip, get it from outstanding waiters and signal
+						 rs.getCountDownLatch().countDown();
+					 }
 				 }
 			} catch (SocketException e) {
 					System.out.println("RelatrixClient: receive socket error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -174,7 +189,6 @@ public class RelatrixClient implements Runnable {
 				}
 				// reached the WorkBoot to restart, set up accept
 				try {
-					//sock = masterSocketChannel.accept();
 					sock = masterSocket.accept();
 				} catch (IOException e1) {
 						System.out.println("RelatrixClient RETRY accept failed with "+e1+" Remote node can not be reached!");
@@ -194,19 +208,7 @@ public class RelatrixClient implements Runnable {
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) {
-	    byte[] sendData;
 		try {
-			/*
-			if(workerSocketChannel == null ) {
-				workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-				workerSocketChannel = SocketChannel.open(workerSocketAddress);
-				workerSocketChannel.configureBlocking(true);
-				workerSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-				workerSocketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-				workerSocketChannel.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
-				workerSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-			}
-			*/
 			if(workerSocket == null ) {
 				workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
 				workerSocket = new Socket();
@@ -216,9 +218,7 @@ public class RelatrixClient implements Runnable {
 				workerSocket.setReceiveBufferSize(32767);
 				workerSocket.setSendBufferSize(32767);
 			}
-			//sendData = GlobalDBIO.getObjectAsBytes(iori);
-			//ByteBuffer srcs = ByteBuffer.wrap(sendData);
-			//workerSocketChannel.write(srcs);
+			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
 			oos.flush();
@@ -229,6 +229,257 @@ public class RelatrixClient implements Runnable {
 		}
 	}
 	
+	/**
+	 * Verify that we are specifying a dir
+	 * @param path
+	 * @throws IOException
+	 */
+	public void setTablespaceDirectory(String path) throws IOException {
+		RelatrixStatement rs = new RelatrixStatement("setTablespaceDirectory",path);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+	}
+	
+	/**
+	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
+	 * BigSack tablespaces that comprise our database.
+	 * @param path
+	 * @throws IOException
+	 */
+	public void setRemoteDirectory(String path) {
+		RelatrixStatement rs = new RelatrixStatement("setRemoteDirectory",path);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+	}
+	
+
+	/**
+	 * Call the remote server method to store a morphism.
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * This is a standalone store in an atomic transparent transaction. Disallowed in transaction mode.
+	 * @param d The Comparable representing the domain object for this morphism relationship.
+	 * @param m The Comparable representing the map object for this morphism relationship.
+	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
+	 */
+	public DomainMapRange store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixStatement("store",d, m, r);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		return (DomainMapRange) rs.getObjectReturn();
+	
+	}
+	/**
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * This is a transactional store in the context of a previously initiated transaction.
+	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
+	 * to prevent a recovery on the next operation
+	 * @param d The Comparable representing the domain object for this morphism relationship.
+	 * @param m The Comparable representing the map object for this morphism relationship.
+	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 */
+	public DomainMapRange transactionalStore(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixStatement("transactionalStore",d, m, r);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		return (DomainMapRange) rs.getObjectReturn();
+	}
+	/**
+	 * Commit the outstanding indicies to their transactional data.
+	 * @throws IOException
+	 */
+	public void transactionCommit() throws IOException {
+		RelatrixStatement rs = new RelatrixStatement("transactionalStore",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+	}
+	/**
+	 * Roll back all outstanding transactions on the indicies
+	 * @throws IOException
+	 */
+	public void transactionRollback() throws IOException {
+		RelatrixStatement rs = new RelatrixStatement("transactionRollback",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+	}
+	/**
+	 * Take a check point of our current indicies. What this means is that we are
+	 * going to write a log record such that if we crash will will restore the logs from that point forward.
+	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
+	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
+	 * if we crash, to restore the data to its state up to that point", hence check, point...
+	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
+	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
+	 * even the old data before the checkpoint.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public void transactionCheckpoint() throws IOException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+	}
+	/**
+	* recursively delete all relationships that this object participates in
+	* @exception IOException low-level access or problems modifiying schema
+	*/
+	public void remove(Comparable c) throws IOException
+	{
+		throw new RuntimeException("Not implemented yet");
+	}
+	/**
+	 * Delete specific relationship and all relationships that it participates in
+	 * @param d
+	 * @param m
+	 * @param r
+	 */
+	public void remove(Comparable d, Comparable m, Comparable r) {
+		throw new RuntimeException("Not implemented yet");	
+	}
+
+
+	/**
+	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+	* matching the given set of operators and/or objects. Essentially this is the default permutation which
+	* retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
+	* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
+	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return an identity composed of those 3 or
+	* a set composed of identity elements matching the class of the template(s) in the argument(s)
+	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
+	* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
+	* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
+	* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
+	* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
+	* the mathematical identity, or constitute the unique key in database terms.
+	* @param darg Object for domain of relationship or a class template
+	* @param marg Object for the map of relationship or a class template
+	* @param rarg Object for the range of the relationship or a class template
+	* @exception IOException low-level access or problems modifiying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	*/
+	public Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		return null;
+
+	}
+
+	/**
+	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+	* matching the given set of operators and/or objects.
+	* The parameters can be objects and/or operators. Semantically,
+	* this set-based retrieval makes no sense without at least one object to supply a value to
+	* work against, so in this method that check is performed.
+	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return a
+	* a set composed of elements matching the class of the template(s) in the argument(s)
+	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
+	* @param darg Object for domain of relationship or a class template
+	* @param marg Object for the map of relationship or a class template
+	* @param rarg Object for the range of the relationship or a class template
+	* @exception IOException low-level access or problems modifiying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	*/
+	public Iterator<?> findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		return null;
+
+	}
+
+	/**
+	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
+	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
+	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
+	 * work against, so in this method that check is performed.
+	 * @param darg Domain of morphism
+	 * @param marg Map of morphism relationship
+	 * @param rarg Range or codomain or morphism relationship
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public Iterator<?> findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		return null;
+
+	}
+	/**
+	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
+	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
+	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
+	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
+	 * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
+	 * work against, so in this method that check is performed.
+	 * @param darg The domain of the relationship to retrieve
+	 * @param marg The map of the relationship to retrieve
+	 * @param rarg The range or codomain of the relationship
+	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public Iterator<?> findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		return null;
+
+	}
+
+
 	/**
 	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
 	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc
@@ -272,7 +523,7 @@ public class RelatrixClient implements Runnable {
 	
 	public static void main(String[] args) throws Exception {
 		RelatrixClient rc = new RelatrixClient("C:/Users/jg/Relatrix/AMI", "devbox", 9000);
-		RelatrixStatement rs = new RelatrixStatement("tostring",(Object[])null);
+		RelatrixStatement rs = new RelatrixStatement("toString",(Object[])null);
 		rc.send(rs);
 	}
 	

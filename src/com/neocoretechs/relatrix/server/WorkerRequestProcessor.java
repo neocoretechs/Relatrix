@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  *
  */
 public final class WorkerRequestProcessor implements Runnable {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
 	private TCPWorker responseQueue;
@@ -55,7 +55,7 @@ public final class WorkerRequestProcessor implements Runnable {
 		CountDownLatch cdl = new CountDownLatch(1);
 		((RemoteCompletionInterface)iori).setCountDownLatch(cdl);
 		if( DEBUG  ) {
-			System.out.println(" data:"+iori);
+			System.out.println("WorkerRequestProcessor preparing to process:"+iori);
 		}
 		
 		try {
@@ -76,7 +76,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			// we have flipped the latch from the request to the thread waiting here, so send an outbound response
 			// with the result of our work if a response is required
 			if( DEBUG ) {
-				System.out.println("Local processing complete, queuing response");
+				System.out.println("WorkerRequestProcessor processing complete, queuing response:"+irri);
 			}
 
 			// And finally, send the package back up the line
@@ -85,16 +85,15 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("Response queued:"+irri);
 			}
 		} catch (Exception e1) {
-			if( DEBUG ) {
-				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
-			}
+			
+			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
+			e1.printStackTrace();
+			
 			iori.setObjectReturn(e1);
 			
 			// And finally, send the package back up the line
 			queueResponse((RemoteResponseInterface) iori);
-			//if( DEBUG ) {
-				System.out.println("***FAULT Response queued:"+iori);
-			//}
+			
 		}
 	  } //shouldRun
 	  

@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
-
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
@@ -79,6 +79,7 @@ public final class RelatrixServer extends TCPServer {
                     	}
                     }
                     // determine if this worker has started, if so, cancel thread and start a new one.
+                    Relatrix.setTablespaceDirectory(db);
                     uworker = new TCPWorker(db, o.getRemoteMaster(), Integer.valueOf(o.getMasterPort()), Integer.valueOf(o.getSlavePort()));
                     dbToWorker.put(db, uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);

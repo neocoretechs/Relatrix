@@ -70,7 +70,7 @@ public final class Relatrix {
 		return BigSackAdapter.getTableSpaceDir();
 	}
 	/**
-	 * We cant reasonably check the validity. Set the path to the remote dorectory that contains the
+	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
 	 * BigSack tablespaces that comprise our database.
 	 * @param path
 	 * @throws IOException

@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * @author Groff Copyright (C) NeoCoreTechs 1998-2000
 */
 public final class ServerInvokeMethod {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
     protected int skipArgs;
     int skipArgIndex;
     private Method[] methods;

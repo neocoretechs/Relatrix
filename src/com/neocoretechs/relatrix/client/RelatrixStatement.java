@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.Serializable;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
@@ -11,7 +12,8 @@ import java.util.concurrent.CyclicBarrier;
  */
 public class RelatrixStatement implements Serializable, RemoteRequestInterface, RemoteResponseInterface {
     static final long serialVersionUID = 8649844374668828845L;
-    private String session;
+    private static boolean DEBUG = false;
+    private String session = null;
     private String className = "com.neocoretechs.relatrix.Relatrix";
     private String methodName;
     private Object[] paramArray;
@@ -42,7 +44,13 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
 	 */
     @Override
-	public String getSession() { return session; }
+	public String getSession() {
+    	if( session == null ) {
+    		session = UUID.randomUUID().toString();
+    		if( DEBUG ) System.out.println("Generated ID for RelatrixStatement:"+session);
+    	}
+    	return session; 
+    }
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getMethodName()
 	 */
@@ -65,10 +73,9 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
              return c;
     }
   
-    public String toString() { return "<Method call transport> Session: "+
-             session+" Class: "+className+" Method: "+methodName+" Arg: "+
-             (paramArray == null || paramArray.length == 0 ? "nil" :
-             (paramArray[0] == null ? "NULL PARAM!" : paramArray[0])); }
+    public String toString() { return "RelatrixStatement for Session:"+
+             session+" Class:"+className+" Method:"+methodName+" Arg:"+
+             (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0])); }
     
 	@Override
 	public CountDownLatch getCountDownLatch() {
