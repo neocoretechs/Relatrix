@@ -318,7 +318,7 @@ public class RelatrixClient implements Runnable {
 	 * @throws IOException
 	 */
 	public void transactionCommit() throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionalStore",new Object[0]);
+		RelatrixStatement rs = new RelatrixStatement("transactionCommit",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
