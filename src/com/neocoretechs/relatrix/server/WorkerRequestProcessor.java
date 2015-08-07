@@ -1,9 +1,11 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
@@ -26,6 +28,7 @@ public final class WorkerRequestProcessor implements Runnable {
 	private TCPWorker responseQueue;
 
 	private boolean shouldRun = true;
+	private Object waitHalt = new Object();
 	public WorkerRequestProcessor(TCPWorker tcpworker) {
 		this.responseQueue = tcpworker;
 		this.requestQueue = new ArrayBlockingQueue<RemoteCompletionInterface>(QUEUESIZE, true);
@@ -33,13 +36,18 @@ public final class WorkerRequestProcessor implements Runnable {
 	
 	public void stop() {
 		shouldRun = false;
+		synchronized(waitHalt) {
+			try {
+				waitHalt.wait();
+			} catch (InterruptedException e) {}
+		}
 	}
 	
 	public BlockingQueue<RemoteCompletionInterface> getQueue() { return requestQueue; }
 	
 	@Override
 	public void run() {
-	  while(shouldRun) {
+	  while(shouldRun || !requestQueue.isEmpty()) {
 		RemoteCompletionInterface iori = null;
 		RemoteResponseInterface irri = null;
 		try {
@@ -90,12 +98,24 @@ public final class WorkerRequestProcessor implements Runnable {
 			e1.printStackTrace();
 			
 			iori.setObjectReturn(e1);
+			// clear the request queue
+			requestQueue.clear();
 			
 			// And finally, send the package back up the line
 			queueResponse((RemoteResponseInterface) iori);
+			// roll back changes
+			try {
+				Relatrix.transactionRollback();
+			} catch (IOException e) {
+				System.out.println("Exception on transaction rollback due to fault:"+e);
+				e.printStackTrace();
+			}
 			
 		}
 	  } //shouldRun
+	  synchronized(waitHalt) {
+		  waitHalt.notify();
+	  }
 	  
 	}
 

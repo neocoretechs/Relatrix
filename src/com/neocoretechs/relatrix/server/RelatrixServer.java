@@ -75,16 +75,31 @@ public final class RelatrixServer extends TCPServer {
                     TCPWorker uworker = dbToWorker.get(db);
                     if( uworker != null ) {
                     	if(o.getTransport().equals("TCP")) {
-                    		uworker.stopWorker();
+                    		if( uworker.shouldRun )
+                    			uworker.stopWorker();
                     	}
                     }
                     // determine if this worker has started, if so, cancel thread and start a new one.
                     Relatrix.setTablespaceDirectory(db);
+                    
+                    // set the remote tablespace directory
+                    String rdb = o.getRemoteDirectory();
+                    if( rdb != null ) {
+                    	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
+                    		(new File(o.getRemoteDirectory()).getName());
+                    	String sdb = rdb.replace('\\', '/');
+                    	Relatrix.setRemoteDirectory(sdb);
+                    }
+                    
+                    // Create the worker, it in turn creates a WorkerRequestProcessor
                     uworker = new TCPWorker(db, o.getRemoteMaster(), Integer.valueOf(o.getMasterPort()), Integer.valueOf(o.getSlavePort()));
                     dbToWorker.put(db, uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);
+                    
                     if( DEBUG ) {
-                    	System.out.println("RelatrixServer starting new worker "+db+" master port:"+o.getMasterPort()+" slave port:"+o.getSlavePort());
+                    	System.out.println("RelatrixServer starting new worker db:"+db+
+                    			( rdb != null ? "remote db:"+rdb : "" ) +
+                    			" master port:"+o.getMasterPort()+" slave port:"+o.getSlavePort());
                     }
                     
 				} catch(Exception e) {

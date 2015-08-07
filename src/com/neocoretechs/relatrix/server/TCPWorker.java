@@ -28,7 +28,10 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  */
 public class TCPWorker implements Runnable {
 	private static final boolean DEBUG = false;
-	boolean shouldRun = true;
+	
+	public boolean shouldRun = true;
+	private Object waitHalt = new Object();
+	
 	public int MASTERPORT = 9876;
 	public int SLAVEPORT = 9876;
 
@@ -154,31 +157,66 @@ public class TCPWorker implements Runnable {
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put(iori);
-			} catch(IOException ioe) {
+			} catch(IOException ioe) { // connection reset by peer most likely
 				System.out.println("TCPWorker receive exception "+ioe+" on port "+SLAVEPORT);
-				break;
-			} catch (InterruptedException e) {
-				// the condition here is that the blocking request queue was waiting on a 'put' since the
-				// queue was at maximum capacity, and a the ExecutorService requested a shutdown during that
-				// time, we should bail form the thread and exit
-			    // quit the processing thread
-			    break;
-			} catch (ClassNotFoundException e) {
-				System.out.println("TCPWorker class not found on deserialization"+e+" on port "+SLAVEPORT);
-				break;
+				workerRequestProcessor.stop();
+				try {
+					s.close();
+				} catch (IOException e) {}
+				try {
+					if(!workerSocket.isClosed()) workerSocket.close();
+				} catch (IOException e) {}
+				try {
+					if(!masterSocket.isClosed()) masterSocket.close();
+				} catch (IOException e) {}
+				shouldRun = false;
+				return;
+			} catch (InterruptedException ie) {
+				// the condition here is that the WorkerREquestProcessor blocking request queue was waiting on a 
+				// 'put' since the queue was at maximum capacity, and a the ExecutorService requested a shutdown during that
+				// time, we should bail from the thread and exit quit the processing thread
+				workerRequestProcessor.stop();
+				try {
+					s.close();
+				} catch (IOException e) {}
+				try {
+					if(!workerSocket.isClosed()) workerSocket.close();
+				} catch (IOException e) {}
+				try {
+					if(!masterSocket.isClosed()) masterSocket.close();
+				} catch (IOException e) {}
+				shouldRun = false;
+				return;
+			} catch (ClassNotFoundException cnfe) {
+				System.out.println("Remote class undefined locally "+cnfe+" on port "+SLAVEPORT);
+				workerRequestProcessor.stop();
+				try {
+					s.close();
+				} catch (IOException e) {}
+				try {
+					if(!workerSocket.isClosed()) workerSocket.close();
+				} catch (IOException e) {}
+				try {
+					if(!masterSocket.isClosed()) masterSocket.close();
+				} catch (IOException e) {}
+				shouldRun = false;
+				return;
 			} 
 		}
-		// thread has been stopped by WorkBoot or by error
+		// Call to shut down has been received from stopWorker
+		workerRequestProcessor.stop();
 		try {
-			s.close();
-			/*
-			if( masterSocketChannel.isOpen() ) masterSocketChannel.close();
-			if( workerSocketChannel.isOpen() ) workerSocketChannel.close();
-			*/
-			if(!masterSocket.isClosed()) masterSocket.close();
-			if(!workerSocket.isClosed()) workerSocket.close();
-			workerRequestProcessor.stop();
+				s.close();
 		} catch (IOException e) {}
+		try {
+			if(!workerSocket.isClosed()) workerSocket.close();
+		} catch (IOException e) {}
+		try {
+			if(!masterSocket.isClosed()) masterSocket.close();
+		} catch (IOException e) {}
+		synchronized(waitHalt) {
+				waitHalt.notify();
+		}
 	}
 
 
@@ -194,5 +232,11 @@ public class TCPWorker implements Runnable {
 	public void stopWorker() {
 		// thread has been stopped by executor
 		shouldRun = false;
+		synchronized(waitHalt) {
+			try {
+				waitHalt.wait();
+			} catch (InterruptedException e) {
+			}
+		}
 	}
 }

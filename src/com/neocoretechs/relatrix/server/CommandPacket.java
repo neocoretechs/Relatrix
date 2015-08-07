@@ -9,9 +9,12 @@ public class CommandPacket implements CommandPacketInterface {
 	InetAddress bootNode;
 	int MASTERPORT, SLAVEPORT;
 	String transport = "TCP";
-	public CommandPacket(InetAddress bootNode, String fname, int masterport, int slaveport) {
+	String remoteDirectory;
+	
+	public CommandPacket(InetAddress bootNode, String fname, String remoteDir, int masterport, int slaveport) {
 		this.bootNode = bootNode;
 		this.fname = fname;
+		remoteDirectory = remoteDir;
 		MASTERPORT = masterport;
 		SLAVEPORT = slaveport;
 	}
@@ -59,6 +62,15 @@ public class CommandPacket implements CommandPacketInterface {
 		} catch (UnknownHostException e) {
 			System.out.println("Remote host unknown:"+remoteMaster);
 		}
+	}
+	@Override
+	public String getRemoteDirectory() {
+			return remoteDirectory;
+	}
+	
+	@Override
+	public void setRemoteDirectory(String remoteDir) {
+		remoteDirectory = remoteDir;
 	}
 	@Override
 	public String toString() { return "CommandPacket boot:"+bootNode+" DB:"+fname+" trans:"+transport+" ports:"+MASTERPORT+","+SLAVEPORT; }

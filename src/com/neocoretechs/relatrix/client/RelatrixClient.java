@@ -10,13 +10,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
-
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -60,8 +58,10 @@ public class RelatrixClient implements Runnable {
 	private String DBName; // database remote name
 	
 	private boolean shouldRun = true; // master service thread control
+	private Object waitHalt = new Object(); 
 	
-	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>(); 
+	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();
+
 	
 	/**
 	 * Start a relatrix client. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -69,6 +69,7 @@ public class RelatrixClient implements Runnable {
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
 	 * @param dbName The name of the remote DB in full qualified path form
+	 * @param remote The remote database name for cluster server
 	 * @param bootNode The name of the remote server host
 	 * @param bootPort Then name of the remote host port on which RelatrixServer is running
 	 */
@@ -88,7 +89,7 @@ public class RelatrixClient implements Runnable {
 			System.out.println("RelatrixClient constructed with DB:"+DBName+" | WorkBoot:"+IPAddress);
 		}
 		// send message to spin up DB
-		Fopen(dbName, false);
+		Fopen(dbName, null, false);
 		//
 		// Wait for master server node to connect back to here for return channel communication
 		//
@@ -98,11 +99,38 @@ public class RelatrixClient implements Runnable {
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		ThreadPoolManager.getInstance().spin(this);
 	}
-		
+	
+	public RelatrixClient(String dbName, String remote, String bootNode, int bootPort)  throws IOException {
+		this.DBName = dbName;
 
+		if( TEST ) {
+			IPAddress = InetAddress.getLocalHost();
+		} else {
+			if( bootNode != null ) {
+				IPAddress = InetAddress.getByName(bootNode);
+			} else {
+				throw new IOException("Boot node is null for RelatrixClient");
+			}
+		}
+		if( DEBUG ) {
+			System.out.println("RelatrixClient constructed with DB:"+DBName+" | WorkBoot:"+IPAddress);
+		}
+		// send message to spin up DB
+		Fopen(dbName, remote, false);
+		//
+		// Wait for master server node to connect back to here for return channel communication
+		//
+		masterSocketAddress = new InetSocketAddress(MASTERPORT);
+		masterSocket = new ServerSocket();
+		masterSocket.bind(masterSocketAddress);
+		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
+		ThreadPoolManager.getInstance().spin(this);
+	}
+	
 	public void setMasterPort(int port) {
 		MASTERPORT = port;
 	}
+	
 	public void setSlavePort(int port) {
 		SLAVEPORT = port;
 	}
@@ -114,7 +142,7 @@ public class RelatrixClient implements Runnable {
 	@Override
 	public void run() {
   	    //SocketChannel sock;
-  	    Socket sock;
+  	    Socket sock = null;
 		try {
 			sock = masterSocket.accept();
 			sock.setKeepAlive(true);
@@ -124,11 +152,22 @@ public class RelatrixClient implements Runnable {
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixClient server socket accept failed with "+e1);
+			if( sock != null ) {
+				try {
+					sock.close();
+				} catch (IOException e) {}
+			}
+			try {
+					workerSocket.close();
+			} catch (IOException e2) {}
+			try {
+					masterSocket.close();
+			} catch (IOException e2) {}
 			return;
 		}
-  	     if( DEBUG ) {
+  	    if( DEBUG ) {
   	    	 System.out.println("RelatrixClient got connection "+sock);
-  	     }
+  	    }
 		while(shouldRun ) {
 			try {
 
@@ -179,7 +218,7 @@ public class RelatrixClient implements Runnable {
 				// through human intervention
 				while(true) {
 					try {
-						Fopen(null, false);
+						Fopen(null, null, false);
 						break;
 					} catch (IOException e2) {
 						try {
@@ -201,7 +240,22 @@ public class RelatrixClient implements Runnable {
 				System.out.println("RelatrixClient class not found for deserialization "+e1+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				break;
 			}
-	      }	
+	      }	// shouldRun
+		// requested shutdown from close()
+		if( sock != null ) {
+			try {
+				sock.close();
+			} catch (IOException e) {}
+		}
+		try {
+				workerSocket.close();
+		} catch (IOException e2) {}
+		try {
+				masterSocket.close();
+		} catch (IOException e2) {}
+		synchronized(waitHalt) {
+				waitHalt.notify();
+		}
 	}
 	/**
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
@@ -229,6 +283,14 @@ public class RelatrixClient implements Runnable {
 		}
 	}
 	
+	public void close() {
+		shouldRun = false;
+		synchronized(waitHalt) {
+			try {
+				waitHalt.wait();
+			} catch (InterruptedException e) {}
+		}
+	}
 	/**
 	 * Verify that we are specifying a dir
 	 * @param path
@@ -488,13 +550,13 @@ public class RelatrixClient implements Runnable {
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean Fopen(String fname, boolean create) throws IOException {
+	public boolean Fopen(String fname, String remote, boolean create) throws IOException {
 		// send a remote Fopen request to the node
 		// this consists of sending the running WorkBoot a message to start the worker for a particular
 		// database on the node we hand down
 		Socket s = new Socket(IPAddress, RelatrixServer.WORKBOOTPORT);
 		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-		CommandPacketInterface cpi = new CommandPacket(IPAddress, fname, MASTERPORT, SLAVEPORT);
+		CommandPacketInterface cpi = new CommandPacket(IPAddress, fname, remote, MASTERPORT, SLAVEPORT);
 		/*
 		if( remoteDBName != null )
 			cpi.setDatabase(remoteDBName);
@@ -522,7 +584,7 @@ public class RelatrixClient implements Runnable {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		RelatrixClient rc = new RelatrixClient("C:/Users/jg/Relatrix/AMI", "devbox", 9000);
+		RelatrixClient rc = new RelatrixClient("C:/Users/jg/Relatrix/AMI","/home/odroid/Relatrix", "devbox", 9000);
 		RelatrixStatement rs = new RelatrixStatement("toString",(Object[])null);
 		rc.send(rs);
 	}

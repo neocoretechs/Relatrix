@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.Serializable;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
+
 /**
  * Command packet interface bound for WorkBoot nodes to activate threads
  * to operate on a specific port, tablespace, and database, all determined by master node
@@ -21,6 +21,8 @@ public interface CommandPacketInterface extends Serializable {
 	public void setTransport(String transport);
 	public String getRemoteMaster();
 	public void setRemoteMaster(String remoteMaster);
+	public String getRemoteDirectory();
+	public void setRemoteDirectory(String remoteDir);
 	
 
 }
