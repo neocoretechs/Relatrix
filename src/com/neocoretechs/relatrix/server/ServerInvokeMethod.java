@@ -4,14 +4,16 @@ package com.neocoretechs.relatrix.server;
 import java.lang.reflect.*;
 
 import com.neocoretechs.relatrix.client.RelatrixMethodNamesAndParams;
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 /**
-* This class handles reflection of the user "handlers" for designated methods,
-* populates a table of those methods, creates a method call transport for client,
+* The remote call mechanism depends on Java reflection to provide access to methods that can be
+* remotely invoked via serializable arguments and method name. By designating the reflected classes at startup
+* in the server module, remote calls have access to reflected methods. 
+* This class handles reflection of the user requests to call designated methods in the server side classes,
+* It starts by populating a table of those methods, and at runtime, creates a method call transport for client,
 * and provides for server-side invocation of those methods.
 * Option to skip leading arguments for  whatever reason is provided.
-* @author Groff Copyright (C) NeoCoreTechs 1998-2000
+* @author Groff Copyright (C) NeoCoreTechs 1998-2000, 2015
 */
 public final class ServerInvokeMethod {
 	private static final boolean DEBUG = false;
@@ -73,11 +75,15 @@ public final class ServerInvokeMethod {
                        // }
                 }
        }
-
+    
        /**
+    	 * Call invocation for static methods in target class
+    	 * @param tmc
+    	 * @return
+    	 * @throws Exception
        */
-       public static RemoteRequestInterface makeMethodCall(String tClass, String methName, Object ... params) throws Exception {
-    	   return new RelatrixStatement("session", tClass, methName, params);
+       public Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
+    		return invokeMethod(tmc, null);
        }
        /**
        * For an incoming RelatrixStatement, verify and invoke the proper
@@ -85,7 +91,7 @@ public final class ServerInvokeMethod {
        * it has been used to locate this object. 
        * @return Object of result of method invocation
        */
-       public Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
+       public Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
                 //NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
                 String targetMethod = tmc.getMethodName();
                 int methodIndex = pkmnap.methodNames.indexOf(targetMethod);
@@ -119,12 +125,10 @@ public final class ServerInvokeMethod {
                                 if( found ) {
                                         if( skipArgs > 0) {
                                                 Object o1[] = tmc.getParamArray(); 
-//                                                return methods[methodIndex].invoke( PKObjectTable.getObject(tmc.getSession(), tmc.getObjref()), o2 );
-                                                return methods[methodIndex].invoke( null, o1 );
+                                                return methods[methodIndex].invoke( localObject, o1 );
                                         } 
-//                                        return methods[methodIndex].invoke( PKObjectTable.getObject(tmc.getSession(), tmc.getObjref()),tmc.getParamArray() );
                                         // invoke it for return
-                                        return methods[methodIndex].invoke( null, tmc.getParamArray() );
+                                        return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
                                }
                         } else
                                // tag for later if we find nothing matching

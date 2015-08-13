@@ -186,6 +186,9 @@ public class RelatrixClient implements Runnable {
 						 System.out.println("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 					 } else {
 						 // We have the request after its session round trip, get it from outstanding waiters and signal
+						 // set it with the response object
+						 rs.setObjectReturn(o);
+						 // and signal the latch we have finished
 						 rs.getCountDownLatch().countDown();
 					 }
 				 }
@@ -284,11 +287,12 @@ public class RelatrixClient implements Runnable {
 	}
 	
 	public void close() {
-		shouldRun = false;
 		synchronized(waitHalt) {
 			try {
+				shouldRun = false;
+				masterSocket.close();
 				waitHalt.wait();
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException | IOException e) {}
 		}
 	}
 	/**
@@ -469,9 +473,9 @@ public class RelatrixClient implements Runnable {
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteTailsetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		return null;
+		return findTailSet(darg, marg, rarg);
 
 	}
 
@@ -493,9 +497,18 @@ public class RelatrixClient implements Runnable {
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public Iterator<?> findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteTailsetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		return null;
+		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		return (RemoteTailsetIterator) rs.getObjectReturn();
 
 	}
 
@@ -513,9 +526,18 @@ public class RelatrixClient implements Runnable {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public Iterator<?> findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteHeadsetIterator findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		return null;
+		RelatrixStatement rs = new RelatrixStatement("findHeadSet",darg, marg, rarg);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		return (RemoteHeadsetIterator) rs.getObjectReturn();
 
 	}
 	/**
@@ -535,13 +557,77 @@ public class RelatrixClient implements Runnable {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public Iterator<?> findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteSubsetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		return null;
+		RelatrixStatement rs = new RelatrixStatement("findSubSet",darg, marg, rarg, endarg);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		return (RemoteSubsetIterator) rs.getObjectReturn();
 
 	}
+	/**
+	 * Call the remote iterator from the various 'findSet' methods and return the result.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param rii
+	 * @return
+	 */
+	public Comparable[] next(RemoteObjectInterface rii) {
+		((RelatrixStatement)rii).methodName = "next";
+		((RelatrixStatement)rii).paramArray = new Object[0];
+		CountDownLatch cdl = new CountDownLatch(1);
+		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		send((RemoteRequestInterface) rii);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {}
+		return (Comparable[])((RelatrixStatement)rii).getObjectReturn();
 
-
+	}
+	
+	public boolean hasNext(RemoteObjectInterface rii) {
+		((RelatrixStatement)rii).methodName = "hasNext";
+		((RelatrixStatement)rii).paramArray = new Object[0];
+		CountDownLatch cdl = new CountDownLatch(1);
+		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		send((RemoteRequestInterface) rii);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {}
+		return (boolean)((RelatrixStatement)rii).getObjectReturn();	
+	}
+	
+	public void remove(RemoteObjectInterface rii) {
+		((RelatrixStatement)rii).methodName = "remove";
+		((RelatrixStatement)rii).paramArray = new Object[]{ ((RelatrixStatement)rii).getObjectReturn() };
+		CountDownLatch cdl = new CountDownLatch(1);
+		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		send((RemoteRequestInterface) rii);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {}
+	}
+	/**
+	 * Issue a close which will merely remove the request resident object here and on the server
+	 * @param rii
+	 */
+	public void close(RemoteObjectInterface rii) {
+		((RelatrixStatement)rii).methodName = "close";
+		((RelatrixStatement)rii).paramArray = new Object[0];
+		CountDownLatch cdl = new CountDownLatch(1);
+		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		send((RemoteRequestInterface) rii);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {}
+		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
+	}
 	/**
 	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
 	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc

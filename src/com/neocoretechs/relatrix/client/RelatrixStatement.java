@@ -1,9 +1,13 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
+
+import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
  * The following class allows the transport of Relatrix method calls to the server
@@ -11,30 +15,27 @@ import java.util.concurrent.CyclicBarrier;
  *
  */
 public class RelatrixStatement implements Serializable, RemoteRequestInterface, RemoteResponseInterface {
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
-    private static boolean DEBUG = false;
     private String session = null;
     private String className = "com.neocoretechs.relatrix.Relatrix";
-    private String methodName;
-    private Object[] paramArray;
+    protected String methodName;
+    protected Object[] paramArray;
     private Object retObj;
     private long retLong;
     private transient CountDownLatch latch;
     private transient CyclicBarrier barrier;
     
     public RelatrixStatement() {}
+    
     /**
     * Prep RelatrixStatement to send remote method call
     */
- 
     public RelatrixStatement(String tmeth, Object ... o1) {
-             //session = tsession;
-             //className = tclass;
              methodName = tmeth;
              paramArray = o1;
     }
- 
- 
+  
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
 	 */
@@ -51,6 +52,9 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
     	}
     	return session; 
     }
+    
+    protected void setSession(String session) { this.session = session; }
+    
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getMethodName()
 	 */
@@ -111,5 +115,40 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 	public Object getObjectReturn() {
 		return retObj;
 	}
+	/**
+	 * Call methods of the man Relatrix class, which will return an instance or an object that is not Serializable
+	 * in which case we save it server side an link it to the session for later retrieval
+	 */
+	@Override
+	public void process() throws Exception {
+		Object result = RelatrixServer.relatrixMethods.invokeMethod(this);
+		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
+		// which does not serialize so we front it
+		if( !result.getClass().isAssignableFrom(Serializable.class) ) {
+			if( DEBUG ) {
+				System.out.println("RelatrixStatement Storing local object reference for "+getSession()+", data:"+result);
+			}
+			// put it in the array and send our intermediary back
+			RelatrixServer.sessionToObject.put(getSession(), result);
+			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {
+				setObjectReturn( new RemoteTailsetIterator(getSession()) );
+			} else {
+				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
+					setObjectReturn( new RemoteSubsetIterator(getSession()) );
+				} else {
+					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
+						setObjectReturn( new RemoteHeadsetIterator(getSession()) );
+					} else {
+						throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+					}
+				}
+			}
+		} else {
+			setObjectReturn(result);
+		}
+		getCountDownLatch().countDown();
+	}
+	
+	
 
 }

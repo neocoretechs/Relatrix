@@ -5,15 +5,23 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
-import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+
 
 /**
- * Extends TCPServer, receives CommandPacketinterface.
+ * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
+ * serializable descriptions of the method and parameters. Providing additional resources involves adding
+ * another static instance of ServerInvokeMethod and populating that at construction of this class.
+ * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
+ * and if the remote call is linked
+ * to an object instance on the server, as it is for non-serializable iterators, then you must maintain 
+ * a mapping from session GUID to an instance of the object you are invoking on the server side.
+ * Static methods need no server side object in residence and can be called willy nilly.
+ * Functionally this class Extends TCPServer, receives CommandPacketinterface.
  * Starts a TCPWorker, which spawns a WorkerRequestProcessor.
  * WorkerRequestProcessor takes requests and processes them.
  * On the client and server the following are present as conventions:
@@ -27,10 +35,27 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 public final class RelatrixServer extends TCPServer {
 	private static boolean DEBUG = true;
 	public static final int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
-	private static ServerInvokeMethod relatrixMethods;
+	
+	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
+	public static ServerInvokeMethod relatrixSubsetMethods = null; // Subset iterator methods
+	public static ServerInvokeMethod relatrixHeadsetMethods = null; // Headset iterator methods
+	public static ServerInvokeMethod relatrixTailsetMethods = null; // Standard Tailset iterator methods
+	
+	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
+	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
-	public RelatrixServer() throws IOException {
+	
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public RelatrixServer() throws IOException, ClassNotFoundException {
 		super();
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator", 0);
+		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
+		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
 		startServer(WORKBOOTPORT);
 	}
 
@@ -40,16 +65,8 @@ public final class RelatrixServer extends TCPServer {
 	 * @throws Exception
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		new RelatrixServer();
 		System.out.println("Relatrix Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
-	}
-	
-	public static RemoteResponseInterface process(RemoteCompletionInterface rci) throws Exception {
-		Object result = relatrixMethods.invokeMethod(rci);
-		rci.setObjectReturn(result);
-		rci.getCountDownLatch().countDown();
-		return (RemoteResponseInterface) rci;
 	}
 	
 	public void run() {

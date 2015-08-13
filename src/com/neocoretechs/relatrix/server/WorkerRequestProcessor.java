@@ -1,13 +1,17 @@
 package com.neocoretechs.relatrix.server;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.RemoteSubsetIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 
 /**
  * Once requests from master are queued we extract them here and process them
@@ -25,19 +29,23 @@ public final class WorkerRequestProcessor implements Runnable {
 	private static boolean DEBUG = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
+
 	private TCPWorker responseQueue;
 
 	private boolean shouldRun = true;
 	private Object waitHalt = new Object();
+	
 	public WorkerRequestProcessor(TCPWorker tcpworker) {
 		this.responseQueue = tcpworker;
 		this.requestQueue = new ArrayBlockingQueue<RemoteCompletionInterface>(QUEUESIZE, true);
 	}
-	
+	/**
+	 * Wait for request queue to finish then exit and shutdown thread
+	 */
 	public void stop() {
-		shouldRun = false;
 		synchronized(waitHalt) {
 			try {
+				shouldRun = false;
 				waitHalt.wait();
 			} catch (InterruptedException e) {}
 		}
@@ -49,7 +57,6 @@ public final class WorkerRequestProcessor implements Runnable {
 	public void run() {
 	  while(shouldRun || !requestQueue.isEmpty()) {
 		RemoteCompletionInterface iori = null;
-		RemoteResponseInterface irri = null;
 		try {
 			iori = requestQueue.take();
 		} catch (InterruptedException e1) {
@@ -68,9 +75,10 @@ public final class WorkerRequestProcessor implements Runnable {
 		
 		try {
 			//
-			// invoke the designated method on the server, return any result
+			// invoke the designated method on the server, wait for countdown latch to signal finish
+			// The result is placed in the return object or other property of the request/response/completion object
 			//
-			irri = RelatrixServer.process(iori);
+			((RemoteCompletionInterface)iori).process();
 			
 			try {
 				if( DEBUG )
@@ -81,16 +89,17 @@ public final class WorkerRequestProcessor implements Runnable {
 			    // quit the processing thread
 			    break;	
 			}
+
 			// we have flipped the latch from the request to the thread waiting here, so send an outbound response
 			// with the result of our work if a response is required
 			if( DEBUG ) {
-				System.out.println("WorkerRequestProcessor processing complete, queuing response:"+irri);
+				System.out.println("WorkerRequestProcessor processing complete, queuing response:"+iori);
 			}
 
 			// And finally, send the package back up the line
-			queueResponse(irri);
+			queueResponse((RemoteResponseInterface) iori);
 			if( DEBUG ) {
-				System.out.println("Response queued:"+irri);
+				System.out.println("Response queued:"+iori);
 			}
 		} catch (Exception e1) {
 			

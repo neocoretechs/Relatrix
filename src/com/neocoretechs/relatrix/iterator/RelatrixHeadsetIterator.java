@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.HeadSetIterator;
-import com.neocoretechs.bigsack.iterator.TailSetIterator;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.relatrix.DMRStruc;
 /**

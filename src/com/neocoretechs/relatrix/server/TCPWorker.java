@@ -231,12 +231,12 @@ public class TCPWorker implements Runnable {
 
 	public void stopWorker() {
 		// thread has been stopped by executor
-		shouldRun = false;
 		synchronized(waitHalt) {
+			shouldRun = false;
 			try {
+				workerSocket.close(); // if we get a socket close error we probably dont want to wait anyway
 				waitHalt.wait();
-			} catch (InterruptedException e) {
-			}
+			} catch (InterruptedException | IOException e) {}
 		}
 	}
 }
