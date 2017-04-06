@@ -18,20 +18,19 @@ Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObjec
 Iterator iterator = Relatrix.findSet([fromObject1],”*”,”?”); // This returns all range objects mapped to [fromObject1] through ANY map object including the relationship stored above<br/>
 Iterator iterator = Relatrix.findSet(("*","*","*"); // This retrieves all relationships as identity objects<br/>
 
-<code>
+
 public class VisualCortex {<br/>
 public static void main(String[] args) throws Exception {<br/>
-	Relatrix.setTablespaceDirectory(args[0]);<br/>
-	Iterator<?> iterator = Relatrix.findSet("?", "?", "?");<br/>
-	int cnt = 0;<br/>
-	while(iterator.hasNext()) {<br/>
-		Comparable[] c = (Comparable[])iterator.next();<br/>
-		for(int i = 0; i < c.length; i++) {<br/>
-			System.out.println(cnt+" "+((Object)c[i]).toString());<br/>
-		++cnt;<br/>
-		}<br/>
-	}<br/>
-	System.out.println("Count: "+cnt);<br/>
+<t/>	Relatrix.setTablespaceDirectory(args[0]);<br/>
+<t/>	Iterator<?> iterator = Relatrix.findSet("?", "?", "?");<br/>
+<t/>	int cnt = 0;<br/>
+<t/>	while(iterator.hasNext()) {<br/>
+<t/><t/>		Comparable[] c = (Comparable[])iterator.next();<br/>
+<t/><t/>		for(int i = 0; i < c.length; i++) {<br/>
+<t/><t/><t/>			System.out.println(cnt+" "+((Object)c[i]).toString());<br/>
+<t/><t/><t/>		++cnt;<br/>
+<t/><t/>		}<br/>
+<t/>	}<br/>
+<t/>	System.out.println("Count: "+cnt);<br/>
 }
 }
-</code>
