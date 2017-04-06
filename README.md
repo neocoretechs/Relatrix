@@ -2,32 +2,21 @@ The Relatrix:
 Toward a Category Theoretic data management paradigm.
 In order to provide structure to unstructured data, category theory provides us with a perfect description of how to add increasing
 levels of structure through algebraic rules.
-The Relatrix is the worlds first Functor Object Oriented Database Management System (FOODBMS).
-Using the theoretical underpinnings of a branch of mathematics called 'Category Theory', The Relatrix uses the morphism identity to allow 
-random Key/Value collections to be overlayed with semantic information stored as relationships. Unstructured data can be related 
-with any conceivable "has", "is a" or arbitrary mapping of relationships. Data is retrieved using 'Forgetful functors' that create new group homomorphisms 
-presented as standard Java Iterators. More plainly, imagine that rather than being able to map keys one-to-one like a relational database you can map 
-them through a function that adds more relevance. Once this relationship is created, many set operations can easily be performed. 
-Using algebraic rules such as association, commutation, and distribution, and using the concept of composition, category theory constructs 
-like the 'Natural Transformation' functions as a way to impart structure to data and these data can be processed as one does a relational join,
-but with far more inherent power. 
-Any Key/Value store can be overlayed with The Relatrix but it uses The Java Key/Value deep store BigSack 
-(another NeoCoreTechs project) as the primary durable storage mechanism. Building relationships is as easy as saying:
-
-Relatrix.store([fromObject],"relates to",[toObject]);
-and a query for that set is as simple as:
-Iterator iterator = Relatrix.findSet("?","relates to","?");
-
-and each iteration returning an array of Comparable[] keys of arity "?"=2 for your 2 "?" parameters in the findSet call.
-The previous is just one extremely simplified example, there are a multitude of options for returning new sets using variations of the same simple 
-query method calls.
-
-Object relationObject = Relatrix.store([fromObject],"relates to",[toObject]);
-Relatrix.Store([relationObject],"composes with",[anotherObject]
-and a query for that set is as simple as:
-Iterator iterator = Relatrix.findSet("?","relates to","?");
-which, using the above iterator, would produce:
-[fromObject] [toObject] "composes with" [anotherObject]
+The Relatrix is a new data management system based on the branch of mathematics called 'Category Theory'. 
+The Relatrix is a Java framework that manages unstructured data by the mapping of the functional relationships within the data sets. 
+Relationships are defined as objects comprised of a ‘domain’ Java object, with a functional ‘mapping’ object, that relates the domain to a ‘range’ object.  
+Data is retrieved using 'functors' that take categories to sets presented as standard Java Iterators. 
+More plainly, imagine that rather than being able to map keys one-to-one like a relational database you can map them through a function that adds more relevance. 
+We can then assign equivalence through isomorphism, or functional similarities between data. The relationships themselves are objects which can be composed into higher level relationships that
+harness the power of Category theory to perform analysis not possible with conventional databases.
+<br/><br/><i> Building relationships is as easy as saying:</i><br/>
+Relatrix.store([fromObject],[mapObject],[toObject]); // This stores a functional relationship<br/>
+<i>and a query for that set is as simple as:</i><br/>
+Iterator iterator = Relatrix.findSet("?",[mapObject],"?"); // This retrieves all domain objects and range objects mapped through [mapObject]<br/>
+<i>or to compose two relationships to an association:</i><br/>
+Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObject2].[toObject2])); // This composes relationships<br/>
+Iterator iterator = Relatrix.findSet([fromObject1],”*”,”?”); // This returns all range objects mapped to [fromObject1] through ANY map object including the relationship stored above<br/>
+Iterator iterator = Relatrix.findSet(("*","*","*"); // This retrieves all relationships as identity objects<br/>
 
 <code>
 public class VisualCortex {<br/>
