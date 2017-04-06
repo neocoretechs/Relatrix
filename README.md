@@ -21,16 +21,16 @@ Iterator iterator = Relatrix.findSet(("*","*","*"); // This retrieves all relati
 
 public class VisualCortex {<br/>
 public static void main(String[] args) throws Exception {<br/>
-<t/>	Relatrix.setTablespaceDirectory(args[0]);<br/>
-<t/>	Iterator<?> iterator = Relatrix.findSet("?", "?", "?");<br/>
-<t/>	int cnt = 0;<br/>
-<t/>	while(iterator.hasNext()) {<br/>
-<t/><t/>		Comparable[] c = (Comparable[])iterator.next();<br/>
-<t/><t/>		for(int i = 0; i < c.length; i++) {<br/>
-<t/><t/><t/>			System.out.println(cnt+" "+((Object)c[i]).toString());<br/>
-<t/><t/><t/>		++cnt;<br/>
-<t/><t/>		}<br/>
-<t/>	}<br/>
-<t/>	System.out.println("Count: "+cnt);<br/>
+&nbsp;&nbsp;&nbsp;	Relatrix.setTablespaceDirectory(args[0]);<br/>
+&nbsp;&nbsp;&nbsp;	Iterator<?> iterator = Relatrix.findSet("?", "?", "?");<br/>
+&nbsp;&nbsp;&nbsp;	int cnt = 0;<br/>
+&nbsp;&nbsp;&nbsp;	while(iterator.hasNext()) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		Comparable[] c = (Comparable[])iterator.next();<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		for(int i = 0; i < c.length; i++) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		System.out.println(cnt+" "+((Object)c[i]).toString());<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		++cnt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		}<br/>
+&nbsp;&nbsp;&nbsp;	}<br/>
+&nbsp;&nbsp;&nbsp;	System.out.println("Count: "+cnt);<br/>
 }
 }
