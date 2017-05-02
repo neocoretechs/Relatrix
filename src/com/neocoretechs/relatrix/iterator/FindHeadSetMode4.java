@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 
 
 /**
@@ -21,7 +21,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
      *  @return The iterator for the returned set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
+	public Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixHeadsetIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
 	}
 }

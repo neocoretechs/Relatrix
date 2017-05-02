@@ -5,11 +5,11 @@ import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.HeadSetIterator;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
- * N return tuple '?' elements of the query. If its an identity morphism (instance of DMRStruc) of three keys (as in the *,*,* query)
+ * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Here, the headset, or from beginning to the template element, is retrieved.
@@ -22,7 +22,7 @@ import com.neocoretechs.relatrix.DMRStruc;
  */
 public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
 	protected HeadSetIterator iter;
-    protected DMRStruc buffer = null;
+    protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = false;
@@ -32,7 +32,7 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIterator(BufferedTreeSet bts, DMRStruc template, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIterator(BufferedTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = isIdentity(this.dmr_return);
     	iter = (HeadSetIterator) bts.headSet(template);
@@ -46,7 +46,7 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
 	@Override
 	public Comparable[] next() {
 		if( buffer == null || needsIter) {
-			buffer = (DMRStruc)iter.next();
+			buffer = (Morphism)iter.next();
 			needsIter = false;
 		}
 		try {

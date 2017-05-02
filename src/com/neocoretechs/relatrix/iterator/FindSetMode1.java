@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
 
 /**
@@ -35,11 +35,11 @@ public class FindSetMode1 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    DMRStruc dmr = new RangeDomainMap(null, null, (Comparable)rarg);
+	    Morphism dmr = new RangeDomainMap(null, null, (Comparable)rarg);
 	    return createRelatrixIterator(dmr);
 	}
 	
-	protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
 	}
 }

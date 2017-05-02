@@ -3,15 +3,15 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.typedlambda.TemplateClass;
 /**
  * The attempt here is to provide a more customizable retrieval filter.
  * @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
  */
 public class FilteringIterator extends RelatrixIterator implements FilterInterface {
-	private DMRStruc template;
-	public FilteringIterator(BufferedTreeSet bts, DMRStruc template, short[] dmr_return) throws IOException {
+	private Morphism template;
+	public FilteringIterator(BufferedTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
 		super(bts, template, dmr_return);
 		this.template = template;
 	}
@@ -22,7 +22,7 @@ public class FilteringIterator extends RelatrixIterator implements FilterInterfa
 		if( buffer == null || needsIter) {
 			needsIter = false;
 			while(iter.hasNext()) {
-				buffer = (DMRStruc)iter.next();
+				buffer = (Morphism)iter.next();
 				if( !isFilter(template.domain, buffer.domain) &&
 					!isFilter(template.map, buffer.map) &&
 					!isFilter(template.range, buffer.range) ) {

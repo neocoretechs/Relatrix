@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
@@ -27,12 +27,12 @@ public class FindSubSetMode7 extends FindSetMode7 {
     	assert(xarg.length == 3) : "Wrong variable argument length to FindSubsetMode7, expected 3 got "+xarg.length;
     }
 	@Override
-	protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
-		   // make a new DMRStruc template
-		   DMRStruc templdmr;
+	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+		   // make a new Morphism template
+		   Morphism templdmr;
 		   try {
 			   // primarily for class type than values of instance
-			   templdmr = (DMRStruc) tdmr.clone();
+			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.domain != null ) {

@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 
 	/**
@@ -31,7 +31,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		protected abstract Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException;
+		protected abstract Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException;
 		/**
 		 * Factory method, create the abstract factory which will manufacture our specific iterator instances.
 		 * @param darg The domain argument from the driving findSet method being invoked. 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 * domain,map,range 3 element array for each iteration. This mode return a one to three element Comparable[]
 * depending on the configuration of the findSet. The number of "?" elements determines the size of the returned Comparable array.
 * This mode represents the equivalent of 'SELECT ALL' for identities or morphisms where identities return 1 array element of the
-* DMRStruc object and the ("?","?","?") returns 3 elements of each of the independent objects
+* Morphism object and the ("?","?","?") returns 3 elements of each of the independent objects
 * ?,*,* domainmaprange
 * *,?,* mapdomainrange
 * *,*,? rangemapdomain
@@ -50,8 +50,8 @@ public class FindSetMode0 extends IteratorFactory {
     */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		DMRStruc dmr = null;
-		switch(DMRStruc.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
+		Morphism dmr = null;
+		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
 			case 0: // dmr
 				dmr = new DomainMapRange(null, null, null);
 				break;
@@ -77,7 +77,7 @@ public class FindSetMode0 extends IteratorFactory {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
 	}
 }

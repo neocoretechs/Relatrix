@@ -8,8 +8,10 @@ package com.neocoretechs.relatrix;
  * @author jg
  *
  */
-public final class DomainMapRange extends DMRStruc {
+public final class DomainMapRange extends Morphism {
 	private static final long serialVersionUID = 8664384659501163179L;
+	private static boolean uniqueKey = false;
+	
     public DomainMapRange() {}
     
     public DomainMapRange(Comparable d, Comparable m, Comparable r) {
@@ -17,6 +19,9 @@ public final class DomainMapRange extends DMRStruc {
         map = m;
         range = r;
     }
+    
+    public void setUniqueKey(boolean unique) { uniqueKey = unique; }
+    
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
@@ -24,17 +29,18 @@ public final class DomainMapRange extends DMRStruc {
 		if( dmr.domain == null )
 			return 1;
 		//int cmp = domain.compareTo(dmr.domain);
-		int cmp = DMRStruc.fullCompareTo(domain, dmr.domain);
+		int cmp = Morphism.fullCompareTo(domain, dmr.domain);
 		if( cmp != 0 ) return cmp;
 		if( dmr.map == null )
 			return 1;
 		//cmp = map.compareTo(dmr.map);
-		cmp = DMRStruc.fullCompareTo(map, dmr.map);
-		if( cmp != 0 ) return cmp;
+		cmp = Morphism.fullCompareTo(map, dmr.map);
+		// if uniqueKey is set, compare only the domain and map
+		if( uniqueKey || cmp != 0 ) return cmp;
 		if( dmr.range == null )
 			return 1;
 		//return range.compareTo(dmr.range);
-		return DMRStruc.fullCompareTo(range, dmr.range);
+		return Morphism.fullCompareTo(range, dmr.range);
 	}
 
 	@Override
@@ -44,17 +50,17 @@ public final class DomainMapRange extends DMRStruc {
 		if( dmr.domain == null )
 			return false;
 		//cmp = domain.equals(dmr.domain);
-		cmp = DMRStruc.fullEquals(domain, dmr.domain);
+		cmp = Morphism.fullEquals(domain, dmr.domain);
 		if( !cmp ) return cmp;
 		if( dmr.map == null )
 			return false;
 		//cmp = map.equals(dmr.map);
-		cmp = DMRStruc.fullEquals(map, dmr.map);
-		if( !cmp ) return cmp;
+		cmp = Morphism.fullEquals(map, dmr.map);
+		if( uniqueKey || !cmp ) return cmp;
 		if( dmr.range == null )
 			return false;
 		//return range.equals(dmr.range);
-		return DMRStruc.fullEquals(range, dmr.range);
+		return Morphism.fullEquals(range, dmr.range);
 	}
 	
     @Override

@@ -5,11 +5,11 @@ import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.SubSetIterator;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
- * N return tuple '?' elements of the query. If its an identity morphism (instance of DMRStruc) of three keys (as in the *,*,* query)
+ * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
@@ -22,7 +22,7 @@ import com.neocoretechs.relatrix.DMRStruc;
  */
 public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	protected SubSetIterator iter;
-    protected DMRStruc buffer = null;
+    protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = false;
@@ -32,7 +32,7 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixSubsetIterator(BufferedTreeSet bts, DMRStruc template, DMRStruc template2, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIterator(BufferedTreeSet bts, Morphism template, Morphism template2, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = isIdentity(this.dmr_return);
     	iter = (SubSetIterator) bts.subSet(template, template2);
@@ -46,7 +46,7 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	@Override
 	public Comparable[] next() {
 		if( buffer == null || needsIter) {
-			buffer = (DMRStruc)iter.next();
+			buffer = (Morphism)iter.next();
 			needsIter = false;
 		}
 		try {

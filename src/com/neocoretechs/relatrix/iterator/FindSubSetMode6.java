@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
@@ -26,12 +26,12 @@ public class FindSubSetMode6 extends FindSetMode6 {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	  @Override
-	  protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
-		   // make a new DMRStruc template
-		   DMRStruc templdmr;
+	  protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+		   // make a new Morphism template
+		   Morphism templdmr;
 		   try {
 			   // primarily for class type than values of instance
-			   templdmr = (DMRStruc) tdmr.clone();
+			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.domain != null ) {

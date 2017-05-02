@@ -7,7 +7,7 @@ package com.neocoretechs.relatrix;
 * based on any number of possible operators and objects passed to the various 'findSet' permutations.
 * @author jg (C) NeoCoreTechs 2014,2015
 */ 
-public final class DomainRangeMap extends DMRStruc {
+public final class DomainRangeMap extends Morphism {
 	private static final long serialVersionUID = -1694888225034392347L;
     public DomainRangeMap() {}
     
@@ -24,17 +24,17 @@ public final class DomainRangeMap extends DMRStruc {
 		if( dmr.domain == null )
 			return 1;
 		//cmp = domain.compareTo(dmr.domain);
-		cmp = DMRStruc.fullCompareTo(domain, dmr.domain);
+		cmp = Morphism.fullCompareTo(domain, dmr.domain);
 		if( cmp != 0 ) return cmp;
 		if( dmr.range == null )
 			return 1;
 		//cmp = range.compareTo(dmr.range);
-		cmp = DMRStruc.fullCompareTo(range, dmr.range);
+		cmp = Morphism.fullCompareTo(range, dmr.range);
 		if( cmp != 0 ) return cmp;
 		if( dmr.map == null )
 			return 1;
 		//return map.compareTo(dmr.map);
-		return DMRStruc.fullCompareTo(map, dmr.map);
+		return Morphism.fullCompareTo(map, dmr.map);
 	}
 
 	@Override
@@ -44,17 +44,17 @@ public final class DomainRangeMap extends DMRStruc {
 		if( dmr.domain == null )
 			return false;
 		//cmp = domain.equals(dmr.domain);
-		cmp = DMRStruc.fullEquals(domain, dmr.domain);
+		cmp = Morphism.fullEquals(domain, dmr.domain);
 		if( !cmp ) return cmp;
 		if( dmr.range == null )
 			return false;
 		//cmp = range.equals(dmr.range);
-		cmp = DMRStruc.fullEquals(range, dmr.range);
+		cmp = Morphism.fullEquals(range, dmr.range);
 		if( !cmp ) return cmp;
 		if( dmr.map == null )
 			return false;
 		//return map.equals(dmr.map);
-		return DMRStruc.fullEquals(map, dmr.map);
+		return Morphism.fullEquals(map, dmr.map);
 	}
  
     /*

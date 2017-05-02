@@ -22,14 +22,19 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
+import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 
-
+/**
+ * Process the apache log files and place in a Relatrix database
+ * @author jg
+ *
+ */
 public class ApacheLogFOODBMS {
 	private static final String dateForm = "dd/MMM/yyyy:HH:mm:ss Z";
 	boolean DEBUG = false;
 
-	/*Log file feilds*/
+	/*Log file fields*/
 	String remoteHost = null;
 	String shouldBDash = null;
 	String requestTime = null;
@@ -90,8 +95,14 @@ public class ApacheLogFOODBMS {
 				baos.close();
 			}
 			System.out.println(" payload: "+load.length);
-			processPayload(load);
+			try {
+				processPayload(load);
+			} catch (DuplicateKeyException e) {
+				System.out.println("Attempt to store duplicate domain/map key "+e);
+				e.printStackTrace();
+			}
 		}
+		Relatrix.transactionCommit();
 		System.out.println("FINISHED! with "+totalRecords+" processed");
 	}
 	
@@ -117,22 +128,22 @@ public class ApacheLogFOODBMS {
 	        return baos.toByteArray();
 	}
 	
-	public void processPayload(byte[] pl) throws IOException, ParseException {
+	public void processPayload(byte[] pl) throws IOException, ParseException, DuplicateKeyException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess(line);
-				Comparable rel = Relatrix.store("neocoretechs.com","accessed by",remoteHost);
-				Relatrix.store(rel, "remote user", remoteUser); // unreliable
-				Relatrix.store(rel, "access time",accessLogEntryEpoch);
-				Relatrix.store(rel, "client request",clientRequest);
-				Relatrix.store(rel, "http status",httpStatusCode);
-				Relatrix.store(rel, "bytes returned",numBytes);
-				Relatrix.store(rel, "referer",referer);
-				Relatrix.store(rel, "user agent",userAgent);
-				Relatrix.store(rel, "OS",Os);
-				Relatrix.store(rel,"OS Ver.",OsVer);
+				Comparable rel = Relatrix.transactionalStore(accessLogEntryEpoch,"accessed by",remoteHost);
+				Relatrix.transactionalStore(rel, "remote user", remoteUser); // unreliable
+				//Relatrix.transactionalStore(rel, "access time",accessLogEntryEpoch);
+				Relatrix.transactionalStore(rel, "client request",clientRequest);
+				Relatrix.transactionalStore(rel, "http status",httpStatusCode);
+				Relatrix.transactionalStore(rel, "bytes returned",numBytes);
+				Relatrix.transactionalStore(rel, "referer",referer);
+				Relatrix.transactionalStore(rel, "user agent",userAgent);
+				Relatrix.transactionalStore(rel, "OS",Os);
+				Relatrix.transactionalStore(rel,"OS Ver.",OsVer);
 			} catch(ParseException pe) { //its in chinese
 				
 			} catch (IllegalAccessException e) {

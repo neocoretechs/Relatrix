@@ -10,7 +10,8 @@ import com.neocoretechs.bigsack.session.SessionManager;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.bigsack.test.AnalyzeBlock;
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -28,298 +29,358 @@ import com.neocoretechs.relatrix.typedlambda.TemplateClassWildcard;
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
  * In general most of the battery1 testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable 
- * @author jg
+ * Of course, you can substitute any class for the Strings here providing its Comparable.
+ * The first test battery verifies the lower level functions of the BigSack and the BigSackAdapter that
+ * connects the Relatrix to the BigSack K/V store.
+ * The next set of tests verifies the higher level 'findSet' functors in the Relatrix, which can be used
+ * as examples of Relatrix processing.
+ * NOTES:
+ * A database unique to this test module should be used.
+ * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
+ * @author jg C 2016
  *
  */
 public class BatteryRelatrix {
+	public static boolean DEBUG = false;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 2000;
+	static int max = 200;
 	static int numDelete = 100; // for delete test
 	/**
 	* Analysis test fixture
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix session = new Relatrix();
 		 //System.out.println("Analysis of all");
 		BigSackAdapter.setTableSpaceDir(argv[0]);
-		//battery1(session, argv);
-		//battery1A(session, argv);
-		 //battery1AA(session, argv);
-		//battery1AR1(session, argv);
-		//battery1AR2(session, argv);
-		//battery1AR3(session, argv);
-		//battery1AR4(session, argv);
-		//battery1AR5(session, argv);
-		//battery1AR6(session, argv);
-		//battery1AR7(session, argv);
-		//battery1AR8(session, argv);
-		//battery1AR9(session, argv);
-		//battery1AR10(session, argv);
-		//battery1AR11(session, argv);
-		//battery1AR12(session, argv);
-		battery1X(session, argv);
-		//battery1B(session, argv);
-		//battery1C(session, argv);
-		//battery1D(session, argv);
-		//battery1D1(session, argv);
-		//battery1E(session, argv);
-		//battery1E1(session, argv);
-		//battery1F(session, argv);
-		//battery1F1(session, argv);
-		//battery1G(session, argv);
-		//battery2(session, argv);
-		//battery3(session, argv);
-		//battery4(session, argv);
-		//battery5(session, argv);
-		
+		battery1(argv);
+		battery11(argv);
+		battery1A(argv);
+		battery1AR1(argv);
+		battery1AR2(argv);
+		battery1AR3(argv);
+		battery1AR4(argv);
+		battery1AR5(argv);
+		battery1AR6(argv);
+		battery1AR7(argv);
+		battery1AR8(argv);
+		battery1AR9(argv);
+		//battery1AR10(argv);
+		//battery1AR11(argv);
+		//battery1AR12(argv);
+	
 		 System.out.println("TEST BATTERY COMPLETE.");
 		
 	}
 	/**
-	 * Loads up on key/value pairs
-	 * @param session
+	 * Loads up on keys
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(Relatrix session, String[] argv) throws Exception {
+	public static void battery1(String[] argv) throws Exception {
+		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
+		int dupes = 0;
+		int recs = 0;
 		String fkey = null;
-		BufferedTreeMap btm = BigSackAdapter.getBigSackMap(String.class);
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			btm.put(fkey, val+String.format(uniqKeyFmt, i));
-			Relatrix.store(fkey, "Has time", new Long(System.currentTimeMillis()));
+			try {
+				Relatrix.store(fkey, "Has unit", new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	public static void battery1X(Relatrix session, String argv[]) throws Exception {
-		//RangeDomainMap tkey = new RangeDomainMap();
-		DomainMapRange tkey = new DomainMapRange();
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(DomainMapRange.class);
-		Iterator it = btm.tailSet(tkey);
-		while(it.hasNext()) {
-			System.out.println(it.next());
-		}
-	}
+	
 	/**
-	 * Loads up on key/value pairs
-	 * @param session
+	 * Tries to store partial key that should match existing keys, should reject all
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AA(Relatrix session, String[] argv) throws Exception {
+	public static void battery11(String[] argv) throws Exception {
+		System.out.println("Battery11 ");
 		long tims = System.currentTimeMillis();
+		int dupes = 0;
+		int recs = 0;
 		String fkey = null;
-		BufferedTreeMap btm = BigSackAdapter.getBigSackMap(String.class);
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			btm.put(fkey, val+String.format(uniqKeyFmt, i));
-			Relatrix.store(fkey, "Has time", String.valueOf((System.currentTimeMillis())));
+			try {
+				Relatrix.store(fkey, "Has unit", new Long(99999));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		 System.out.println("BATTERY1AA SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		if( recs > 0)
+			System.out.println("BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
+		else
+			System.out.println("BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
+	
+	
+	
 	/**
-	 * Does a simple 'get' of the elements inserted before
-	 * @param session
+	 * Test the underlying tables of the Relatrix through the BigSackAdapter
+	 * The test will confirm the layers beneath the main Relatrix methods and above the BigSack
+	 * We are attempting to confirm the bridge between the BigSack and Relatrix
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1A(Relatrix session, String[] argv) throws Exception {
+	public static void battery1A(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		DomainMapRange fkey = null;
+		DomainMapRange ret = null;
 		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(DomainMapRange.class);
-		System.out.println(btm.getDBName());
+		System.out.println("Battery1A "+btm.getDBName());
 		DomainMapRange fdmr = (DomainMapRange) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
 		while(it.hasNext()) {
-			System.out.println("1A:"+it.next());
+				ret = (DomainMapRange) it.next();
+				if( DEBUG ) System.out.println("1A"+i+"="+ret);
+				String skey = key + String.format(uniqKeyFmt, i);
+				if(!skey.equals(ret.domain) )
+					System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
+				if(!ret.map.equals("Has unit"))
+					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
+				Long unit = new Long(i);
+				if(!ret.range.equals(unit))
+					System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
+				++i;
 		}
-		/*
-		for(int i = min; i < max; i++) {
-			Object o = session.get(key + String.format(uniqKeyFmt, i));
-			if( !(val+String.format(uniqKeyFmt, i)).equals(o) ) {
-				 System.out.println("BATTERY1A FAIL "+o);
-				throw new Exception("B1A Fail on get with "+o);
-			}
-		}
-		*/
+
 		 System.out.println("BATTERY1A SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR1(Relatrix session, String[] argv) throws Exception {
+	public static void battery1AR1(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		DomainRangeMap fkey = null;
+		DomainRangeMap ret = null;
 		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(DomainRangeMap.class);
+		System.out.println("Battery1AR1 "+btm.getDBName());
 		System.out.println(btm.getDBName());
 		DomainRangeMap fdmr = (DomainRangeMap) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
 		while(it.hasNext()) {
-			System.out.println("1AR1:"+it.next());
+			ret = (DomainRangeMap) it.next();
+			if( DEBUG ) System.out.println("1AR1:"+i+"="+ret);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(ret.domain) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
+			if(!ret.map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
+			Long unit = new Long(i);
+			if(!ret.range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
+			++i;
 		}
-		/*
-		for(int i = min; i < max; i++) {
-			Object o = session.get(key + String.format(uniqKeyFmt, i));
-			if( !(val+String.format(uniqKeyFmt, i)).equals(o) ) {
-				 System.out.println("BATTERY1A FAIL "+o);
-				throw new Exception("B1A Fail on get with "+o);
-			}
-		}
-		*/
 		 System.out.println("BATTERY1AR1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR2(Relatrix session, String[] argv) throws Exception {
+	
+	public static void battery1AR2(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		MapDomainRange fkey = null;
+		MapDomainRange ret = null;
 		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(MapDomainRange.class);
-		System.out.println(btm.getDBName());
+		System.out.println("Battery1AR2 "+btm.getDBName());
 		MapDomainRange fdmr = (MapDomainRange) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
 		while(it.hasNext()) {
-			System.out.println("1AR2:"+it.next());
+			ret = (MapDomainRange) it.next();
+			if( DEBUG ) System.out.println("1AR2:"+i+"="+ret);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(ret.domain) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
+			if(!ret.map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
+			Long unit = new Long(i);
+			if(!ret.range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
+			++i;
 		}
-		/*
-		for(int i = min; i < max; i++) {
-			Object o = session.get(key + String.format(uniqKeyFmt, i));
-			if( !(val+String.format(uniqKeyFmt, i)).equals(o) ) {
-				 System.out.println("BATTERY1A FAIL "+o);
-				throw new Exception("B1A Fail on get with "+o);
-			}
-		}
-		*/
 		 System.out.println("BATTERY1AR@ SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR3(Relatrix session, String[] argv) throws Exception {
+	
+	public static void battery1AR3(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		MapRangeDomain fkey = null;
+		MapRangeDomain ret = null;
 		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(MapRangeDomain.class);
-		System.out.println(btm.getDBName());
+		System.out.println("Battery1AR3 "+btm.getDBName());
 		MapRangeDomain fdmr = (MapRangeDomain) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
 		while(it.hasNext()) {
-			System.out.println("1AR3:"+it.next());
+			ret = (MapRangeDomain) it.next();
+			if( DEBUG ) System.out.println("1AR3:"+ret);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(ret.domain) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
+			if(!ret.map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
+			Long unit = new Long(i);
+			if(!ret.range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
+			++i;
 		}
-		/*
-		for(int i = min; i < max; i++) {
-			Object o = session.get(key + String.format(uniqKeyFmt, i));
-			if( !(val+String.format(uniqKeyFmt, i)).equals(o) ) {
-				 System.out.println("BATTERY1A FAIL "+o);
-				throw new Exception("B1A Fail on get with "+o);
-			}
-		}
-		*/
 		 System.out.println("BATTERY1AR3 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR4(Relatrix session, String[] argv) throws Exception {
+	
+	public static void battery1AR4(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		RangeDomainMap fkey = null;
+		RangeDomainMap ret = null;
 		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(RangeDomainMap.class);
-		System.out.println(btm.getDBName());
+		System.out.println("Battery1AR4 "+btm.getDBName());
 		RangeDomainMap fdmr = (RangeDomainMap) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
 		while(it.hasNext()) {
-			System.out.println("1AR4:"+it.next());
+			ret = (RangeDomainMap) it.next();
+			if( DEBUG ) System.out.println("1AR4:"+ret);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(ret.domain) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
+			if(!ret.map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
+			Long unit = new Long(i);
+			if(!ret.range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
+			++i;
 		}
-		/*
-		for(int i = min; i < max; i++) {
-			Object o = session.get(key + String.format(uniqKeyFmt, i));
-			if( !(val+String.format(uniqKeyFmt, i)).equals(o) ) {
-				 System.out.println("BATTERY1A FAIL "+o);
-				throw new Exception("B1A Fail on get with "+o);
-			}
-		}
-		*/
+	
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR5(Relatrix session, String[] argv) throws Exception {
+	public static void battery1AR5(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		RangeMapDomain fkey = null;
+		RangeMapDomain ret = null;
 		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(RangeMapDomain.class);
-		System.out.println(btm.getDBName());
+		System.out.println("Battery1AR5 "+btm.getDBName());
 		RangeMapDomain fdmr = (RangeMapDomain) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
 		while(it.hasNext()) {
-			System.out.println("1AR5:"+it.next());
+			ret = (RangeMapDomain) it.next();
+			if( DEBUG ) System.out.println("1AR5:"+it.next());
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(ret.domain) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
+			if(!ret.map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
+			Long unit = new Long(i);
+			if(!ret.range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
+			++i;
 		}
 		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR6(Relatrix session, String[] argv) throws Exception {
+	
+	/**
+	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
+	 * verify the previously inserted data
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR6(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet("?", "?", "?");
-
+		System.out.println("Battery1AR6");
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR6:"+i+" "+nex[i]);
+			// 3 question marks = dimension 3 in return array
+				if( DEBUG ) System.out.println("1AR6:"+i+" "+nex[0]+","+nex[1]+","+nex[2]);
+				String skey = key + String.format(uniqKeyFmt, i);
+				if(!skey.equals(nex[0]) )
+					System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+				if(!nex[1].equals("Has unit"))
+					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[1]);
+				Long unit = new Long(i);
+				if(!nex[2].equals(unit))
+					System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[2]);
+				++i;
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR7(Relatrix session, String[] argv) throws Exception {
+	
+	public static void battery1AR7(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet("?", "*", "*");
-
+		System.out.println("Battery1AR7");
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR7:"+i+" "+nex[i]);
+			// one '?' in findset gives us one element returned
+			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex[0]);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(nex[0]) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+			++i;
 		}
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR8(Relatrix session, String[] argv) throws Exception {
+	
+	public static void battery1AR8(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet("?", "?", "*");
-
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR8:"+i+" "+nex[i]);
+			// two '?' in findset gives use 2 element array, the domain and map
+			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex[0]+" "+nex[1]);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals(nex[0]) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+			if(!nex[1].equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[1]);
+			++i;
 		}
 		 System.out.println("BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void battery1AR9(Relatrix session, String[] argv) throws Exception {
+	
+	public static void battery1AR9(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet("*", "*", "*");
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR9:"+i+" "+nex[i]);
+			// the returned array has 1 element, the identity Morphism DomainMapRange
+			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex[0]);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+			if(!((DomainMapRange)nex[0]).map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
+			Long unit = new Long(i);
+			if(!((DomainMapRange)nex[0]).range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
+			++i;
 		}
 		 System.out.println("BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * store and verify relations
-	 * @param session
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR10(Relatrix session, String[] argv) throws Exception {
+
+
+	public static void battery1AR10(String[] argv) throws Exception {
+		int i = min;
 		long tims = System.currentTimeMillis();
-		String fkey = key + String.format(uniqKeyFmt, max);
-		DMRStruc d = Relatrix.store(fkey, "Has time", new Long(tims));
-		System.out.println("1AR10:"+d);
-		Iterator<?> its = Relatrix.findSet(fkey, "Has time", new Long(tims));
-		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR10:"+i+" "+nex[i]);
-		}
-		 System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	
-	public static void battery1AR11(Relatrix session, String[] argv) throws Exception {
-		long tims = System.currentTimeMillis();
-	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has time", new TemplateClassWildcard(Long.class));
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new TemplateClassWildcard(Long.class));
 		while(its.hasNext()) {
+			// In this case, the set of ranges of type Long that have domain and map should be returned
+			// since we supply a fixed domain object, we should get one item back
 			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR11:"+i+" "+nex[i]);
+			if(DEBUG ) System.out.println("1AR10:"+i+" "+nex[0]);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+			if(!((DomainMapRange)nex[0]).map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
+			Long unit = new Long(i);
+			if(!((DomainMapRange)nex[0]).range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
+			++i;
 		}
-		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		if( i != 1 ) System.out.println("BATTERY1AR10 unexpected number of keys "+i);
+		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * negative assertion of above
@@ -327,7 +388,7 @@ public class BatteryRelatrix {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(Relatrix session, String[] argv) throws Exception {
+	public static void battery1AR11(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -335,10 +396,9 @@ public class BatteryRelatrix {
 		Iterator<?> its = Relatrix.findSet(fkey, "Has time", new TemplateClassWildcard(Integer.class));
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR12:"+i+" "+nex[i]);
+			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex[0]);
 		}
-		 System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * Testing of TemplateClassReturn
@@ -346,39 +406,18 @@ public class BatteryRelatrix {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR13(Relatrix session, String[] argv) throws Exception {
+	public static void battery1AR12(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has time", new TemplateClassReturn(Long.class));
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new TemplateClassReturn(Long.class));
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
 			for(int i = 0; i < nex.length; i++)
-				System.out.println("1AR13:"+i+" "+nex[i]);
+				if( DEBUG ) System.out.println("1AR12:"+i+" "+nex[i]);
 		}
-		 System.out.println("BATTERY1AR13 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * Check the string table we made in battery1
-	 * @param rel
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery2(Relatrix rel, String[] argv) throws Exception {
-		long tims = System.currentTimeMillis();
-		BufferedTreeMap bs = BigSackAdapter.getBigSackMap(String.class);
-		Iterator it = bs.tailMapKV("");
-		while(it.hasNext()) {
-			System.out.println("B2:"+it.next());
-		}
-		 System.out.println("BATTERY2 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	public static void battery4(Relatrix rel, String[] argv) throws Exception {
-		 argv = new String[3];
-		 argv[0] = "/C:/users/jg/Relatrix/com.neocoretechs.relatrix.MapRangeDomain";
-		 argv[1] = "4";
-		 argv[2] = "2421760";
-		AnalyzeBlock.main(argv);
-	}
+	
 }

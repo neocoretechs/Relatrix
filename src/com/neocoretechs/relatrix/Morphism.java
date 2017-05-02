@@ -6,7 +6,7 @@ import java.io.Serializable;
 import com.neocoretechs.relatrix.typedlambda.*;
 
 /**
-* DMRStruc - domain, map, range structure
+* Morphism - domain, map, range structure
 * ref's for relation datatype
 *
 * The permutations for our tuple are as follows
@@ -20,11 +20,10 @@ import com.neocoretechs.relatrix.typedlambda.*;
 * on the desired traversal scenario, that is,        <dd>
 * in what order do we want the values returned...    <dd>
 * The is the base class for the different morphism permutations that allow us to form different
-* sets from categories. Support for the typed lamdba calculus is provided by the template
-* class which can be used to retrieve sets based on their class type.
+* sets from categories. The template class can be used to retrieve sets based on their class type.
 * @author Groff (C) NeoCoreTechs 1997,2014,2015
 */
-public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
+public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		private static boolean DEBUG = false;
         static final long serialVersionUID = -9129948317265641091L;
         
@@ -32,35 +31,35 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         public Comparable  map;          // map object
         public Comparable  range;        // range
         
-        public Comparable getDomain() {
+        public Comparable<?> getDomain() {
 			return domain;
 		}
-		public void setDomain(Comparable domain) {
+		public void setDomain(Comparable<?> domain) {
 			this.domain = domain;
 		}
-		public Comparable getMap() {
+		public Comparable<?> getMap() {
 			return map;
 		}
-		public void setMap(Comparable map) {
+		public void setMap(Comparable<?> map) {
 			this.map = map;
 		}
-		public Comparable getRange() {
+		public Comparable<?> getRange() {
 			return range;
 		}
-		public void setRange(Comparable range) {
+		public void setRange(Comparable<?> range) {
 			this.range = range;
 		}
 
-        public DMRStruc() {}
+        public Morphism() {}
         
-        public DMRStruc(Comparable d, Comparable m, Comparable r) {
+        public Morphism(Comparable<?> d, Comparable<?> m, Comparable<?> r) {
         	domain = d;
             map = m;
             range = r;
         }
         /**
-         * Failsafe compareTo since at times different key classes need to reconcile in support of the typed lambda calculus.
-         * Also supports retrieval via 'class template' by determining if template is instanceof TemplateClass.  If it is
+         * Failsafe compareTo since at times different key classes need to reconcile retrieval via 'class 
+         * template' by determining if template is instanceof TemplateClass.  If it is
          * we check whether the enclosed class equals the target class.
          * If classes are not the same and the target is not assignable from the source, try a comparison
          * of the universal string representation of the two classes as the last attempt to provide some ordering of keys.
@@ -74,9 +73,9 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
 		public static int fullCompareTo(Comparable from, Comparable to) {
         	if( DEBUG ) {
         		if( from == null )
-        			throw new RuntimeException("DMRStruc.fullCompareTo 'from' element is null, to is "+to);
+        			throw new RuntimeException("Morphism.fullCompareTo 'from' element is null, to is "+to);
         		if( to == null )
-        			throw new RuntimeException("DMRStruc.fullCompareTo 'to' element is null, from is "+from);
+        			throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
         	}
         	Class toClass;
           	//System.out.println("fullCompareTo to:"+to.getClass()+":"+to+" from:"+from.getClass()+":"+from);
@@ -123,7 +122,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
          * @param to
          * @return
          */
-        public static boolean fullEquals(Comparable from, Comparable to) {
+        public static boolean fullEquals(Comparable<?> from, Comparable<?> to) {
         	if( DEBUG )
         		System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
     		// check forgetful functor, if template is instance of class just see if its assignable
@@ -135,7 +134,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         		}
         		return false;
     		}
-           	Class toClass = to.getClass();
+           	Class<?> toClass = to.getClass();
         	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
         	// maybe try a string representation
         	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
@@ -151,7 +150,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         			(map == null ? "<MapTemplate>" : map.getClass().getName()+":"+map.toString()) 
         			+ "->"+
         			(range == null ? "<RangeTemplate>" : range.getClass().getName()+":"+range.toString())+"]"; 
-        	}
+        }
         /**
          * key combinations for Relatrix follow
          */
@@ -164,10 +163,10 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         * in which the values for domain,map range : >,<,=,dont care = 0-3
         * are encoded as three 0-3 values in the first six bit positions.
         * a dont care is coded when a dmr value is zero.
-        * @param cmpdmr the DMRStruc to compare to
+        * @param cmpdmr the Morphism to compare to
         * @return the 0-63 compare value
         */
-        private short cmpr(DMRStruc cmpdmr)
+        private short cmpr(Morphism cmpdmr)
         {
         	short cmpres = 0;
             if(domain == null)
@@ -206,7 +205,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         * @throws IOException 
         * @throws IllegalAccessException 
         */
-        public Comparable iterate_dmr(short[] dmr_return) throws IllegalAccessException, IOException
+        public Comparable<?> iterate_dmr(short[] dmr_return) throws IllegalAccessException, IOException
         {
                 if(dmr_return[0] >= 3) 
                 	return null;
@@ -234,7 +233,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
         * @param dret the return value flag array with iterator at 0
         * @return the keyop
         */
-        public static short form_template_keyop(Comparable[] tdmr, short[] dret)
+        public static short form_template_keyop(Comparable<?>[] tdmr, short[] dret)
         {
             short dmr_prec[] = {2,1,0};
             if( tdmr[0] != null ) // domain not null
@@ -290,7 +289,7 @@ public abstract class DMRStruc implements Comparable, Serializable, Cloneable {
          * @param n
          * @return
          */
-        public Comparable returnTupleOrder(int n) {
+        public Comparable<?> returnTupleOrder(int n) {
         	// default dmr
         	switch(n) {
         		case 1:

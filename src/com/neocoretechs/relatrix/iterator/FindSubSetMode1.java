@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.BigSackAdapter;
-import com.neocoretechs.relatrix.DMRStruc;
+import com.neocoretechs.relatrix.Morphism;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
  * to the crucial methods that represents the ending range of the set valued results of our findSet query.
@@ -25,12 +25,12 @@ public class FindSubSetMode1 extends FindSetMode1 {
 	   }
 	   
 	   @Override
-	   protected Iterator<?> createRelatrixIterator(DMRStruc tdmr) throws IllegalAccessException, IOException {
-		   // make a new DMRStruc template
-		   DMRStruc templdmr;
+	   protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+		   // make a new Morphism template
+		   Morphism templdmr;
 		   try {
 			   // primarily for class type than values of instance
-			   templdmr = (DMRStruc) tdmr.clone();
+			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.domain != null ) {

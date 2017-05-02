@@ -3,6 +3,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.Iterator;
 
+import com.neocoretechs.bigsack.btree.TreeSearchResult;
 import com.neocoretechs.bigsack.session.BufferedTreeMap;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
@@ -12,12 +13,12 @@ import com.neocoretechs.relatrix.typedlambda.TemplateClass;
 
 /**
 * Wrapper for structural (relationship) morphism identity objects and the representable operators that retrieve them<dd>
-* Utilizes the DMRStruc subclasses which contain reference for domain, map, range
-* The lynch pin is the DMRStruc and its subclasses, which store and retrieve the identity morphisms indexed
+* Utilizes the Morphism subclasses which contain reference for domain, map, range
+* The lynch pin is the Morphism and its subclasses, which store and retrieve the identity morphisms indexed
 * in all possible permutations of the domain,map,and range of the morphism, the identities. Conceptually, these wrappers
-* swim in 2 oceans: The storage ocean and the retrieval sea. For storage, the compareTo and fullCompareTo of DMRStruc
+* swim in 2 oceans: The storage ocean and the retrieval sea. For storage, the compareTo and fullCompareTo of Morphism
 * needs to account for differing classes and values. For retrieval, a partial template is constructed to retrieve the
-* proper DMRStruc subclass and partially construct a morphism, a so-called 'representable' to partially
+* proper Morphism subclass and partially construct a morphism, a so-called 'representable' to partially
 * order the result set. The representable operator allows us to go from Cat->Set. Specifically to 'poset'.<br/>
 * The critical element about retrieving relationships is to remember that the number of elements from each passed
 * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
@@ -34,13 +35,16 @@ import com.neocoretechs.relatrix.typedlambda.TemplateClass;
 * @author jg, Groff (C) NeoCoreTechs 1997, 2013,2014,2015
 */
 public final class Relatrix {
+	private static boolean DEBUG = false;
+	private static boolean TRACE = true;
+	
 	public static char OPERATOR_WILDCARD_CHAR = '*';
 	public static char OPERATOR_TUPLE_CHAR = '?';
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	
 	private static TransactionalTreeSet[] transactionTreeSets = new TransactionalTreeSet[6];
-	private static boolean DEBUG = false;
+
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -85,6 +89,8 @@ public final class Relatrix {
 /**
  * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
  * This is a standalone store in an atomic transparent transaction. Disallowed in transaction mode.
+ * NOTE: The unique key is domain, map, as the range is determined by the domain passing through map.
+ * The domain/map unique key is critical to the category theoretic foundation.
  * @param d The Comparable representing the domain object for this morphism relationship.
  * @param m The Comparable representing the map object for this morphism relationship.
  * @param r The Comparable representing the range or codomain object for this morphism relationship.
@@ -92,14 +98,27 @@ public final class Relatrix {
  * @throws IOException
  * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
  */
-public static DomainMapRange store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException {
+public static DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 	if( transactionTreeSets[0] != null )
 		throw new IllegalAccessException("Transactions are active, can not initiate monolithic store");
-	DMRStruc dmr = new DomainMapRange(d,m,r);
-	DMRStruc identity = dmr;
+	Morphism dmr = new DomainMapRange(d,m,r);
+	Morphism identity = dmr;
 	BufferedTreeSet btm = BigSackAdapter.getBigSackSet(dmr);
-
+	// check for domain/map match
+	// Enforce categorical structure; domain->map function uniquely determines range.
+	// If the search winds up at the key or the key is empty or the domain->map exists, the key
+	// cannot be inserted.
+	((DomainMapRange)dmr).setUniqueKey(true);
+	TreeSearchResult tsr = btm.locate(dmr);
+	((DomainMapRange)dmr).setUniqueKey(false);
+	if( DEBUG )
+		System.out.println("Relatrix.store Tree Search Result: "+tsr);
+	if(tsr.atKey ) {
+			throw new DuplicateKeyException(d, m);
+	}
 	btm.add(dmr);
+	
+	//btm.add(dmr);
 	dmr = new DomainRangeMap(d,m,r);
 	btm = BigSackAdapter.getBigSackSet(dmr);
 
@@ -126,7 +145,7 @@ public static DomainMapRange store(Comparable d, Comparable m, Comparable r) thr
  * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
  * This is a transactional store in the context of a previously initiated transaction.
  * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
- * to prevent a recovery on the next operation
+ * to prevent a recovery on the next operation.
  * @param d The Comparable representing the domain object for this morphism relationship.
  * @param m The Comparable representing the map object for this morphism relationship.
  * @param r The Comparable representing the range or codomain object for this morphism relationship.
@@ -134,55 +153,67 @@ public static DomainMapRange store(Comparable d, Comparable m, Comparable r) thr
  * @throws IOException
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
-public static DomainMapRange transactionalStore(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException {
+public static DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 
-	DMRStruc dmr = new DomainMapRange(d,m,r);
-	DMRStruc identity = dmr;
+	Morphism dmr = new DomainMapRange(d,m,r);
+	Morphism identity = dmr;
 	if( transactionTreeSets[0] == null ) {
 		transactionTreeSets[0] = BigSackAdapter.getBigSackSetTransaction(dmr);
 	}
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
-	transactionTreeSets[0].add(dmr);
-	
 	DomainRangeMap drm = new DomainRangeMap(d,m,r);
 	if( transactionTreeSets[1] == null ) {
 		transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(drm);
 	}
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing drm:"+dmr);
-	transactionTreeSets[1].add(drm);
-
 	MapDomainRange mdr = new MapDomainRange(d,m,r);
 	if( transactionTreeSets[2] == null ) {
 		transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(mdr);
 	}
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing mdr:"+dmr);
-	transactionTreeSets[2].add(mdr);
-
 	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
 	if( transactionTreeSets[3] == null ) {
 		transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(mrd);
 	}
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing:"+mrd);
-	transactionTreeSets[3].add(mrd);
-
 	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
 	if( transactionTreeSets[4] == null ) {
 		transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(rdm);
 	}
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing:"+rdm);
-	transactionTreeSets[4].add(rdm);
-
 	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
 	if( transactionTreeSets[5] == null ) {
 		transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
 	}
 	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing:"+rmd);
+		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
+	// check for domain/map match
+	// Enforce categorical structure; domain->map function uniquely determines range.
+	// If the search winds up at the key or the key is empty or the domain->map exists, the key
+	// cannot be inserted.
+	((DomainMapRange)dmr).setUniqueKey(true);
+	TreeSearchResult tsr = transactionTreeSets[0].locate(dmr);
+	((DomainMapRange)dmr).setUniqueKey(false);
+	if( DEBUG )
+		System.out.println("Relatrix.store Tree Search Result: "+tsr);
+	if( tsr.atKey) {
+			throw new DuplicateKeyException(d, m);
+	}
+	transactionTreeSets[0].add(dmr);
+	
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing drm:"+dmr);
+	transactionTreeSets[1].add(drm);
+
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing mdr:"+dmr);
+	transactionTreeSets[2].add(mdr);
+
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
+	transactionTreeSets[3].add(mrd);
+
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
+	transactionTreeSets[4].add(rdm);
+	
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
 	transactionTreeSets[5].add(rmd);
 	
 	return (DomainMapRange) identity;
@@ -197,9 +228,11 @@ public static void transactionCommit() throws IOException {
 	}
 	for(int i = 0; i < transactionTreeSets.length; i++) {
 		long startTime = System.currentTimeMillis();
-		System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
+		if( TRACE )
+			System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
 		transactionTreeSets[i].commit();
-		System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
+		if( TRACE )
+			System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
 		transactionTreeSets[i] = null;
 	}
 }
@@ -240,7 +273,7 @@ public static void transactionCheckpoint() throws IOException, IllegalAccessExce
 * recursively delete all relationships that this object participates in
 * @exception IOException low-level access or problems modifiying schema
 */
-public synchronized void remove(Comparable c) throws IOException
+public synchronized void remove(Comparable<?> c) throws IOException
 {
 	throw new RuntimeException("Not implemented yet");
 }
@@ -250,7 +283,7 @@ public synchronized void remove(Comparable c) throws IOException
  * @param m
  * @param r
  */
-public synchronized void remove(Comparable d, Comparable m, Comparable r) {
+public synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 	throw new RuntimeException("Not implemented yet");	
 }
 //throw new NonPersistentObjectException("attempt to specify the range of a relationship with a non-persistent object");
