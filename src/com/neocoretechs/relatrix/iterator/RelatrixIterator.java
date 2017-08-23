@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.TailSetIterator;
-import com.neocoretechs.bigsack.session.BufferedTreeSet;
+import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
@@ -20,6 +20,8 @@ import com.neocoretechs.relatrix.Morphism;
  *
  */
 public class RelatrixIterator implements Iterator<Comparable[]> {
+	private static boolean DEBUG = false;
+	TransactionalTreeSet deepStore;
 	protected TailSetIterator iter;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
@@ -31,7 +33,8 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixIterator(BufferedTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixIterator(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
+    	this.deepStore = bts;
     	this.dmr_return = dmr_return;
     	identity = isIdentity(this.dmr_return);
     	iter = (TailSetIterator) bts.tailSet(template);
@@ -39,13 +42,32 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
     
 	@Override
 	public boolean hasNext() {
+		if( DEBUG )
+			System.out.println("RelatrixIterator.hasNext() "+iter.hasNext());
 		return iter.hasNext();
 	}
 
+	
 	@Override
 	public Comparable[] next() {
 		if( buffer == null || needsIter) {
+			if( DEBUG ) {
+	    		try { // might catch a tuple not ready to be displayed
+	    			System.out.println("RelatrixIterator.next() before iteration:"+buffer);
+	       		} catch(Exception e) {
+	    			System.out.println("RelatrixIterator.next() before iteration TUPLE DISPLAY FAILED WITH:"+e);
+	    		}
+			}
+	    		
 			buffer = (Morphism)iter.next();
+			
+			if( DEBUG ) {
+	    		try { // might catch a tuple not ready to be displayed
+	    			System.out.println("RelatrixIterator.next() after iteration:"+buffer);
+	    		} catch(Exception e) {
+	    			System.out.println("RelatrixIterator.next() after iteration TUPLE DISPLAY FAILED WITH:"+e);
+	    		}
+			}
 			needsIter = false;
 		}
 		try {
@@ -81,8 +103,25 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length; i++)
+	    for(int i = 0; i < tuples.length; i++) {
+	    	if( DEBUG ) {
+	    		try { // might catch a tuple not ready to be displayed
+	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" tuple:"+tuples[i]);
+	    		} catch(Exception e) {
+	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" TUPLE DISPLAY FAILED WITH:"+e);
+	    		}
+	    	}
+	    	
 	    	tuples[i] = buffer.iterate_dmr(dmr_return);
+	    	
+	    	if( DEBUG ) {
+	    		try { // might catch a tuple not ready to be displayed
+	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" tuple:"+tuples[i]);
+	    		} catch(Exception e) {
+	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" TUPLE DISPLAY FAILED WITH:"+e);
+	    		}
+	    	}
+	    }
 		needsIter = true;
 		return tuples;
 	}

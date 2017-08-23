@@ -1,15 +1,13 @@
 package com.neocoretechs.relatrix;
 import java.io.*;
-import java.nio.file.Path;
+
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.btree.TreeSearchResult;
-import com.neocoretechs.bigsack.session.BufferedTreeMap;
 import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
-import com.neocoretechs.relatrix.iterator.RelatrixIterator;
-import com.neocoretechs.relatrix.typedlambda.TemplateClass;
+
 
 /**
 * Wrapper for structural (relationship) morphism identity objects and the representable operators that retrieve them<dd>
@@ -86,61 +84,7 @@ public final class Relatrix {
 	public static String getRemoteDirectory() {
 		return BigSackAdapter.getRemoteDir();
 	}
-/**
- * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
- * This is a standalone store in an atomic transparent transaction. Disallowed in transaction mode.
- * NOTE: The unique key is domain, map, as the range is determined by the domain passing through map.
- * The domain/map unique key is critical to the category theoretic foundation.
- * @param d The Comparable representing the domain object for this morphism relationship.
- * @param m The Comparable representing the map object for this morphism relationship.
- * @param r The Comparable representing the range or codomain object for this morphism relationship.
- * @throws IllegalAccessException
- * @throws IOException
- * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
- */
-public static DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
-	if( transactionTreeSets[0] != null )
-		throw new IllegalAccessException("Transactions are active, can not initiate monolithic store");
-	Morphism dmr = new DomainMapRange(d,m,r);
-	Morphism identity = dmr;
-	BufferedTreeSet btm = BigSackAdapter.getBigSackSet(dmr);
-	// check for domain/map match
-	// Enforce categorical structure; domain->map function uniquely determines range.
-	// If the search winds up at the key or the key is empty or the domain->map exists, the key
-	// cannot be inserted.
-	((DomainMapRange)dmr).setUniqueKey(true);
-	TreeSearchResult tsr = btm.locate(dmr);
-	((DomainMapRange)dmr).setUniqueKey(false);
-	if( DEBUG )
-		System.out.println("Relatrix.store Tree Search Result: "+tsr);
-	if(tsr.atKey ) {
-			throw new DuplicateKeyException(d, m);
-	}
-	btm.add(dmr);
-	
-	//btm.add(dmr);
-	dmr = new DomainRangeMap(d,m,r);
-	btm = BigSackAdapter.getBigSackSet(dmr);
 
-	btm.add(dmr);
-	dmr = new MapDomainRange(d,m,r);
-	btm = BigSackAdapter.getBigSackSet(dmr);
-
-	btm.add(dmr);
-	dmr = new MapRangeDomain(d,m,r);
-	btm = BigSackAdapter.getBigSackSet(dmr);
-
-	btm.add(dmr);
-	dmr = new RangeDomainMap(d,m,r);
-	btm = BigSackAdapter.getBigSackSet(dmr);
-
-	btm.add(dmr);
-	dmr = new RangeMapDomain(d,m,r);
-	btm = BigSackAdapter.getBigSackSet(dmr);
-
-	btm.add(dmr);
-	return (DomainMapRange) identity;
-}
 /**
  * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
  * This is a transactional store in the context of a previously initiated transaction.

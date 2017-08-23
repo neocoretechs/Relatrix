@@ -19,8 +19,7 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.typedlambda.TemplateClassReturn;
-import com.neocoretechs.relatrix.typedlambda.TemplateClassWildcard;
+
 
 /**
  * Yes, this should be a nice JUnit fixture someday
@@ -88,10 +87,11 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(i));
+				Relatrix.transactionalStore(fkey, "Has unit", new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
+		Relatrix.transactionCommit();
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -109,14 +109,17 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(99999));
+				Relatrix.transactionalStore(fkey, "Has unit", new Long(99999));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		if( recs > 0)
+		if( recs > 0) {
 			System.out.println("BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
-		else
+			Relatrix.transactionRollback();
+		} else {
 			System.out.println("BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+			Relatrix.transactionCommit();
+		}
 	}
 	
 	
@@ -132,7 +135,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		DomainMapRange ret = null;
-		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(DomainMapRange.class);
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(DomainMapRange.class);
 		System.out.println("Battery1A "+btm.getDBName());
 		DomainMapRange fdmr = (DomainMapRange) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
@@ -156,7 +159,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		DomainRangeMap ret = null;
-		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(DomainRangeMap.class);
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(DomainRangeMap.class);
 		System.out.println("Battery1AR1 "+btm.getDBName());
 		System.out.println(btm.getDBName());
 		DomainRangeMap fdmr = (DomainRangeMap) btm.first();
@@ -181,7 +184,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		MapDomainRange ret = null;
-		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(MapDomainRange.class);
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(MapDomainRange.class);
 		System.out.println("Battery1AR2 "+btm.getDBName());
 		MapDomainRange fdmr = (MapDomainRange) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
@@ -205,7 +208,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		MapRangeDomain ret = null;
-		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(MapRangeDomain.class);
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(MapRangeDomain.class);
 		System.out.println("Battery1AR3 "+btm.getDBName());
 		MapRangeDomain fdmr = (MapRangeDomain) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
@@ -229,7 +232,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		RangeDomainMap ret = null;
-		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(RangeDomainMap.class);
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(RangeDomainMap.class);
 		System.out.println("Battery1AR4 "+btm.getDBName());
 		RangeDomainMap fdmr = (RangeDomainMap) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
@@ -253,7 +256,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		RangeMapDomain ret = null;
-		BufferedTreeSet btm = BigSackAdapter.getBigSackSet(RangeMapDomain.class);
+		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(RangeMapDomain.class);
 		System.out.println("Battery1AR5 "+btm.getDBName());
 		RangeMapDomain fdmr = (RangeMapDomain) btm.first();
 		Iterator<?> it = btm.tailSet(fdmr);
@@ -363,7 +366,7 @@ public class BatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new TemplateClassWildcard(Long.class));
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.class.getName());
 		while(its.hasNext()) {
 			// In this case, the set of ranges of type Long that have domain and map should be returned
 			// since we supply a fixed domain object, we should get one item back
@@ -393,7 +396,7 @@ public class BatteryRelatrix {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has time", new TemplateClassWildcard(Integer.class));
+		Iterator<?> its = Relatrix.findSet(fkey, "Has time", Integer.class.getName());
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex[0]);
@@ -411,7 +414,7 @@ public class BatteryRelatrix {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new TemplateClassReturn(Long.class));
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.class.getName());
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
 			for(int i = 0; i < nex.length; i++)

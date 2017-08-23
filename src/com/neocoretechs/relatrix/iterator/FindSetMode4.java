@@ -44,6 +44,6 @@ public class FindSetMode4 extends IteratorFactory {
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-		return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
+		return new RelatrixIterator(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, dmr_return);
 	}
 }

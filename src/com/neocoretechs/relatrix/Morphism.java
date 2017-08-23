@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix;
 import java.io.IOException;
 import java.io.Serializable;
 
-import com.neocoretechs.relatrix.typedlambda.*;
 
 /**
 * Morphism - domain, map, range structure
@@ -77,37 +76,17 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         		if( to == null )
         			throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
         	}
-        	Class toClass;
-          	//System.out.println("fullCompareTo to:"+to.getClass()+":"+to+" from:"+from.getClass()+":"+from);
-        	// check forgetful functor, if template is java.lang.Class just see if its assignable
-        	if ( to instanceof com.neocoretechs.relatrix.typedlambda.TemplateClass ) {
-        		if( DEBUG )
-        			System.out.println("fullCompareTo template "+from.getClass()+":"+from+" to "+to.getClass()+":"+to);
-        		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
-        			if( DEBUG )
-        				System.out.println("fullCompareTo template return using "+((TemplateClass)to).getComparableClass());
-        			return 0;
-        		} else {
-        			// now try to compare to our minimum value
-        			Comparable minTo = (Comparable)((TemplateClass)to).getMinimumValue();
-        			toClass = minTo.getClass();
-        			if( DEBUG )
-        				System.out.println("fullCompareTo min val return using "+from.getClass()+":"+from+" "+toClass+":"+minTo);
-        	     	if( !from.getClass().equals(toClass)  ) {
-                		return from.toString().compareTo(minTo.toString());
-                	}
-                	return from.compareTo(minTo);
-        		}
-        	}
-        	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
+         	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
         	// in a digital hail mary
-        	toClass = to.getClass();
+        	
+        	Class toClass = to.getClass();
           	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
         	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
         		// compare a universal string representation as a unifying datatype for typed class templates
         		return from.toString().compareTo(to.toString());
         	}
         	// Otherwise, use the standard compareTo for all objects which invokes our indicies
+        	// use the standard compareTo for all objects which invokes our indicies
         	return from.compareTo(to);
         }
         /**
@@ -125,15 +104,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         public static boolean fullEquals(Comparable<?> from, Comparable<?> to) {
         	if( DEBUG )
         		System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
-    		// check forgetful functor, if template is instance of class just see if its assignable
-    		if ( to instanceof com.neocoretechs.relatrix.typedlambda.TemplateClass)  {
-        		if( ((TemplateClass)to).getComparableClass().equals(from.getClass()) ) {
-        			if( DEBUG )
-        				System.out.println("fullEquals template returning "+from+" "+to);
-        			return true;
-        		}
-        		return false;
-    		}
            	Class<?> toClass = to.getClass();
         	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
         	// maybe try a string representation

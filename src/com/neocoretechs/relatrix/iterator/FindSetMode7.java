@@ -6,15 +6,11 @@ import java.util.Iterator;
 import com.neocoretechs.relatrix.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.typedlambda.TemplateClass;
+
 
 /**
-* This winds up serving 2 functions. One is identity morphism retrieval if we get 3 objects that are not
-* part of TemplateClass retrieval. the second is when one or more params is instanceof TemplateClass. In the second
-* instance, the class functions as template for the enclosed class to retrieve objects of that class (or subclass).
-* Depending on the subclass of TemplateClass, the argument acts as a wildcard (*) or a tuple (?) for instances of that
-* class. Category theory analog is a representable. 
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105 
+* Identity morphism retrieval.
+* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105,2017 
 */
 public class FindSetMode7 extends IteratorFactory {
 	// mode 7
@@ -27,15 +23,6 @@ public class FindSetMode7 extends IteratorFactory {
     	dmr_return[1] = 0;
         dmr_return[2] = 0;
         dmr_return[3] = 0;
-        if( darg instanceof TemplateClass) {
-        	dmr_return[1] = checkOp(((TemplateClass)darg).getRetrievalPredicate());
-        }
-        if( marg instanceof TemplateClass) {
-        	dmr_return[2] = checkOp(((TemplateClass)marg).getRetrievalPredicate());
-        }
-        if( rarg instanceof TemplateClass) {
-        	dmr_return[3] = checkOp(((TemplateClass)rarg).getRetrievalPredicate());
-        }
         if( isReturnRelationships(dmr_return) )
         	dmr_return[0] = -1;
     }
@@ -49,6 +36,6 @@ public class FindSetMode7 extends IteratorFactory {
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, dmr_return);
+	    return new RelatrixIterator(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, dmr_return);
 	}
 }

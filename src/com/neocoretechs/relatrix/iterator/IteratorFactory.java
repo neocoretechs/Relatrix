@@ -100,7 +100,7 @@ import com.neocoretechs.relatrix.Relatrix;
                case 6:
                        return new FindSetMode6(darg, marg, rop);
                case 7:
-                   	return new FindSetMode7(darg, marg, rarg);
+                   	   return new FindSetMode7(darg, marg, rarg);
         	    default:
                     throw new IllegalArgumentException("The findSet factory mode "+mode+" is not supported.");
 		    }

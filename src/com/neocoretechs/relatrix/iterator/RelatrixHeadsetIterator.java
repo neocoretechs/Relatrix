@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.HeadSetIterator;
-import com.neocoretechs.bigsack.session.BufferedTreeSet;
+import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
@@ -32,7 +32,7 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIterator(BufferedTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIterator(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = isIdentity(this.dmr_return);
     	iter = (HeadSetIterator) bts.headSet(template);

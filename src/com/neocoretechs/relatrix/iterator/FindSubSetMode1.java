@@ -45,6 +45,6 @@ public class FindSubSetMode1 extends FindSetMode1 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return new RelatrixSubsetIterator(BigSackAdapter.getBigSackSet(tdmr), tdmr, templdmr, dmr_return);
+		   return new RelatrixSubsetIterator(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, templdmr, dmr_return);
 	   }
 }
