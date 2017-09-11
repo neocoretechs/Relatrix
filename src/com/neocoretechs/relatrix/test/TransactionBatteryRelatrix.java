@@ -1,15 +1,9 @@
 package com.neocoretechs.relatrix.test;
 
 
-import com.neocoretechs.relatrix.BigSackAdapter;
+import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainRangeMap;
-import com.neocoretechs.relatrix.MapDomainRange;
-import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.RangeDomainMap;
-import com.neocoretechs.relatrix.RangeMapDomain;
+
 import com.neocoretechs.relatrix.Relatrix;
 
 /**

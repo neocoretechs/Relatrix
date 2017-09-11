@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.BigSackAdapter;
+import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument

@@ -3,9 +3,9 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.BigSackAdapter;
+import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.DomainRangeMap;
+
 
 /**
 * Mode 5. Permutation with 2 objects.

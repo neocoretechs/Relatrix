@@ -2,16 +2,9 @@ package com.neocoretechs.relatrix.test;
 
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.KeyValuePair;
-import com.neocoretechs.bigsack.session.BigSackSession;
-import com.neocoretechs.bigsack.session.BufferedTreeMap;
-import com.neocoretechs.bigsack.session.BufferedTreeSet;
-import com.neocoretechs.bigsack.session.SessionManager;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.bigsack.test.AnalyzeBlock;
-import com.neocoretechs.relatrix.BigSackAdapter;
+import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.MapDomainRange;

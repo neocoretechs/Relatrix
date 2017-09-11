@@ -1,10 +1,9 @@
 package com.neocoretechs.relatrix;
 import java.io.*;
-
 import java.util.Iterator;
 
+import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.bigsack.btree.TreeSearchResult;
-import com.neocoretechs.bigsack.session.BufferedTreeSet;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
