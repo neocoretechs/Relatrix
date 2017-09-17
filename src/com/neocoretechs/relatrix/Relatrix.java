@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.BigSackAdapter;
@@ -29,10 +30,11 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism
-* @author jg, Groff (C) NeoCoreTechs 1997, 2013,2014,2015
+* @author jg, Groff (C) NeoCoreTechs 1997,2013,2014,2015
 */
 public final class Relatrix {
 	private static boolean DEBUG = false;
+	private static boolean DEBUGREMOVE = true;
 	private static boolean TRACE = true;
 	
 	public static char OPERATOR_WILDCARD_CHAR = '*';
@@ -56,31 +58,31 @@ public final class Relatrix {
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	}
 	/**
-	 * Verify that we are specifying a dir
+	 * Verify that we are specifying a directory, then set that as top level file structure and database name
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void setTablespaceDirectory(String path) throws IOException {
+	public static synchronized void setTablespaceDirectory(String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
 		BigSackAdapter.setTableSpaceDir(path);
 	}
 	
-	public static String getTableSpaceDirectory() {
+	public static synchronized String getTableSpaceDirectory() {
 		return BigSackAdapter.getTableSpaceDir();
 	}
 	/**
 	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
-	 * BigSack tablespaces that comprise our database.
+	 * BigSack tablespaces that comprise our database on remote nodes.
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void setRemoteDirectory(String path) {
+	public static synchronized void setRemoteDirectory(String path) {
 		BigSackAdapter.setRemoteDir(path);
 	}
 	
-	public static String getRemoteDirectory() {
+	public static synchronized String getRemoteDirectory() {
 		return BigSackAdapter.getRemoteDir();
 	}
 
@@ -96,7 +98,7 @@ public final class Relatrix {
  * @throws IOException
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
-public static DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 
 	Morphism dmr = new DomainMapRange(d,m,r);
 	Morphism identity = dmr;
@@ -134,17 +136,20 @@ public static DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m
 	((DomainMapRange)dmr).setUniqueKey(false);
 	if( DEBUG )
 		System.out.println("Relatrix.store Tree Search Result: "+tsr);
-	if( tsr.atKey) {
+	if(tsr.atKey) {
 			throw new DuplicateKeyException(d, m);
 	}
-	transactionTreeSets[0].add(dmr);
 	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing drm:"+dmr);
-	transactionTreeSets[1].add(drm);
-
+	transactionTreeSets[0].add(dmr);
+	
 	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing mdr:"+dmr);
+		System.out.println("Relatrix.transactionalStore storing drm:"+drm);
+	transactionTreeSets[1].add(drm);
+	
+	if( DEBUG  )
+		System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
 	transactionTreeSets[2].add(mdr);
 
 	if( DEBUG  )
@@ -162,19 +167,19 @@ public static DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m
 	return (DomainMapRange) identity;
 }
 /**
- * Commit the outstanding indicies to their transactional data.
+ * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
  */
-public static void transactionCommit() throws IOException {
+public static synchronized void transactionCommit() throws IOException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
 	for(int i = 0; i < transactionTreeSets.length; i++) {
 		long startTime = System.currentTimeMillis();
-		if( TRACE )
+		if( DEBUG || TRACE )
 			System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
 		transactionTreeSets[i].commit();
-		if( TRACE )
+		if( DEBUG || TRACE )
 			System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
 		transactionTreeSets[i] = null;
 	}
@@ -183,7 +188,7 @@ public static void transactionCommit() throws IOException {
  * Roll back all outstanding transactions on the indicies
  * @throws IOException
  */
-public static void transactionRollback() throws IOException {
+public static synchronized void transactionRollback() throws IOException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
@@ -204,7 +209,7 @@ public static void transactionRollback() throws IOException {
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static void transactionCheckpoint() throws IOException, IllegalAccessException {
+public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
@@ -213,38 +218,122 @@ public static void transactionCheckpoint() throws IOException, IllegalAccessExce
 	}
 }
 /**
-* recursively delete all relationships that this object participates in
+* Delete all relationships that this object participates in
 * @exception IOException low-level access or problems modifiying schema
+ * @throws IllegalAccessException 
+ * @throws ClassNotFoundException 
+ * @throws IllegalArgumentException 
 */
-public synchronized void remove(Comparable<?> c) throws IOException
+public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	throw new RuntimeException("Not implemented yet");
+	if( DEBUG || DEBUGREMOVE )
+		System.out.println("Relatrix.remove prepping to remove:"+c);
+	ArrayList<Morphism> m = new ArrayList<Morphism>();
+	try {
+		Iterator<?> it = findSet(c,"*","*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE)
+				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+			m.add((Morphism) o[0]); 
+		}
+	} catch(RuntimeException re) { re.printStackTrace();}
+	try {
+		Iterator<?> it = findSet("*",c,"*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+			m.add((Morphism) o[0]); 
+		}
+	} catch(RuntimeException re) {re.printStackTrace();}
+	try {
+		Iterator<?> it = findSet("*","*",c);
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+			m.add((Morphism) o[0]); 
+		}
+	} catch(RuntimeException re) { re.printStackTrace(); }
+	for(Morphism mo : m) {
+		if( DEBUG || DEBUGREMOVE)
+			System.out.println("Relatrix.remove removing"+mo);
+		remove(mo.domain, mo.map, mo.range);
+	}
+	if( DEBUG || DEBUGREMOVE )
+		System.out.println("Relatrix.remove exiting remove for key:"+c+" should have removed "+m.size());
 }
 /**
  * Delete specific relationship and all relationships that it participates in
  * @param d
  * @param m
  * @param r
+ * @throws IllegalAccessException 
  */
-public synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) {
-	throw new RuntimeException("Not implemented yet");	
+public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
+	Morphism dmr = new DomainMapRange(d,m,r);
+	if( transactionTreeSets[0] == null ) {
+		transactionTreeSets[0] = BigSackAdapter.getBigSackSetTransaction(dmr);
+	}
+	DomainRangeMap drm = new DomainRangeMap(d,m,r);
+	if( transactionTreeSets[1] == null ) {
+		transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(drm);
+	}
+	MapDomainRange mdr = new MapDomainRange(d,m,r);
+	if( transactionTreeSets[2] == null ) {
+		transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(mdr);
+	}
+	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
+	if( transactionTreeSets[3] == null ) {
+		transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(mrd);
+	}
+	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
+	if( transactionTreeSets[4] == null ) {
+		transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(rdm);
+	}
+	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
+	if( transactionTreeSets[5] == null ) {
+		transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
+	}
+	if( DEBUG  )
+		System.out.println("Relatrix.remove removing dmr:"+dmr);
+	transactionTreeSets[0].remove(dmr);
+	
+	if( DEBUG  )
+		System.out.println("Relatrix.remove removing drm:"+drm);
+	transactionTreeSets[1].remove(drm);
+
+	if( DEBUG  )
+		System.out.println("Relatrix.remove removing mdr:"+mdr);
+	transactionTreeSets[2].remove(mdr);
+
+	if( DEBUG  )
+		System.out.println("Relatrix.remove removing mrd:"+mrd);
+	transactionTreeSets[3].remove(mrd);
+
+	if( DEBUG  )
+		System.out.println("Relatrix.remove removing rdm:"+rdm);
+	transactionTreeSets[4].remove(rdm);
+	
+	if( DEBUG  )
+		System.out.println("Relatrix.remove removing rmd:"+rmd);
+	transactionTreeSets[5].remove(rmd);
+	
 }
-//throw new NonPersistentObjectException("attempt to specify the range of a relationship with a non-persistent object");
-//throw new NonPersistentObjectException("attempt to specify the map of a relationship with a non-persistent object");
-//throw new NonPersistentObjectException("attempt to specify the domain of a relationship with a non-persistent object");
+
 
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects. Essentially this is the default permutation which
 * retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
 * the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-* In support of the typed lambda calculus, When presented with 3 objects, the options are to return an identity composed of those 3 or
-* a set composed of identity elements matching the class of the template(s) in the argument(s)
-* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
+* The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
+* relationships of the 3 objects, of the type DomainMapRange. 
+* The returned elements(s) constitute identities in the sense of these morphisms satisfying
+* the requirement to be 'categorical'. In general, all 3 element arrays return by the Cat->set representable operators are
 * the mathematical identity, or constitute the unique key in database terms.
 * @param darg Object for domain of relationship or a class template
 * @param marg Object for the map of relationship or a class template
@@ -266,15 +355,13 @@ public static synchronized Iterator<?> findSet(Object darg, Object marg, Object 
 * matching the given set of operators and/or objects.
 * The parameters can be objects and/or operators. Semantically,
 * this set-based retrieval makes no sense without at least one object to supply a value to
-* work against, so in this method that check is performed.
-* In support of the typed lambda calculus, When presented with 3 objects, the options are to return a
-* a set composed of elements matching the class of the template(s) in the argument(s)
-* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
+* work against, so in this method that check is performed. If you are going to anchor a set
+* retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
 * @param darg Object for domain of relationship or a class template
 * @param marg Object for the map of relationship or a class template
 * @param rarg Object for the range of the relationship or a class template
 * @exception IOException low-level access or problems modifiying schema
-* @exception IllegalArgumentException the operator is invalid
+* @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 * @exception ClassNotFoundException if the Class of Object is invalid
 * @throws IllegalAccessException 
 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
@@ -294,13 +381,14 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
  * passed, to the given relationship, should the relationship contain an object as at least one of its components.
  * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
- * work against, so in this method that check is performed.
+ * work against, so in this method that check is performed in the createHeadsetFactory method. If you are going to anchor a set
+ * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
  * @param darg Domain of morphism
  * @param marg Map of morphism relationship
  * @param rarg Range or codomain or morphism relationship
  * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
  * @throws IOException
- * @throws IllegalArgumentException
+ * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
@@ -316,14 +404,17 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
  * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
  * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
  * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
- * work against, so in this method that check is performed.
+ * work against, so in this method that check is performed. If you are going to anchor a set
+ * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
+ * Since this is a subset operation, the additional constraint is applied that the ending declaration of the subset retrieval
+ * must match the number of concrete objects vs wildcards in the first part of the declaration.
  * @param darg The domain of the relationship to retrieve
  * @param marg The map of the relationship to retrieve
  * @param rarg The range or codomain of the relationship
  * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
  * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
  * @throws IOException
- * @throws IllegalArgumentException
+ * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
@@ -343,5 +434,6 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
 	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 	return ifact.createIterator();
 }
+
 }
 

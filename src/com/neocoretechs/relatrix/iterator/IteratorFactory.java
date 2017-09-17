@@ -108,7 +108,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
 		* @param marg the char operator
-		* @return the translated ordinal
+		* @return the translated ordinal, either 1 for ? or 2 for *
 		* @exception IllegalArgumentException the operator is invalid
 		*/
 		protected static short checkOp(char marg) throws IllegalArgumentException

@@ -2,15 +2,10 @@ package com.neocoretechs.relatrix.test;
 
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainRangeMap;
-import com.neocoretechs.relatrix.MapDomainRange;
-import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.RangeDomainMap;
-import com.neocoretechs.relatrix.RangeMapDomain;
+
 import com.neocoretechs.relatrix.Relatrix;
 
 
@@ -30,7 +25,7 @@ import com.neocoretechs.relatrix.Relatrix;
  * A database unique to this test module should be used.
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2
  * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
- * @author jg C 2016
+ * @author jg (C) 2016,2017
  *
  */
 public class BatteryRelatrix {
@@ -39,7 +34,7 @@ public class BatteryRelatrix {
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 200;
+	static int max = 1000;
 	static int numDelete = 100; // for delete test
 	/**
 	* Analysis test fixture
@@ -49,19 +44,14 @@ public class BatteryRelatrix {
 		BigSackAdapter.setTableSpaceDir(argv[0]);
 		battery1(argv);
 		battery11(argv);
-		battery1A(argv);
-		battery1AR1(argv);
-		battery1AR2(argv);
-		battery1AR3(argv);
-		battery1AR4(argv);
-		battery1AR5(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
 		battery1AR8(argv);
 		battery1AR9(argv);
-		//battery1AR10(argv);
-		//battery1AR11(argv);
-		//battery1AR12(argv);
+		battery1AR10(argv);
+		battery1AR101(argv);
+		battery1AR11(argv);
+		battery1AR12(argv);
 	
 		 System.out.println("TEST BATTERY COMPLETE.");
 		
@@ -115,160 +105,7 @@ public class BatteryRelatrix {
 		}
 	}
 	
-	
-	
-	/**
-	 * Test the underlying tables of the Relatrix through the BigSackAdapter
-	 * The test will confirm the layers beneath the main Relatrix methods and above the BigSack
-	 * We are attempting to confirm the bridge between the BigSack and Relatrix
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1A(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		DomainMapRange ret = null;
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(DomainMapRange.class);
-		System.out.println("Battery1A "+btm.getDBName());
-		DomainMapRange fdmr = (DomainMapRange) btm.first();
-		Iterator<?> it = btm.tailSet(fdmr);
-		while(it.hasNext()) {
-				ret = (DomainMapRange) it.next();
-				if( DEBUG ) System.out.println("1A"+i+"="+ret);
-				String skey = key + String.format(uniqKeyFmt, i);
-				if(!skey.equals(ret.domain) )
-					System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
-				if(!ret.map.equals("Has unit"))
-					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
-				Long unit = new Long(i);
-				if(!ret.range.equals(unit))
-					System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
-				++i;
-		}
 
-		 System.out.println("BATTERY1A SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	public static void battery1AR1(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		DomainRangeMap ret = null;
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(DomainRangeMap.class);
-		System.out.println("Battery1AR1 "+btm.getDBName());
-		System.out.println(btm.getDBName());
-		DomainRangeMap fdmr = (DomainRangeMap) btm.first();
-		Iterator<?> it = btm.tailSet(fdmr);
-		while(it.hasNext()) {
-			ret = (DomainRangeMap) it.next();
-			if( DEBUG ) System.out.println("1AR1:"+i+"="+ret);
-			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals(ret.domain) )
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
-			if(!ret.map.equals("Has unit"))
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
-			Long unit = new Long(i);
-			if(!ret.range.equals(unit))
-				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
-			++i;
-		}
-		 System.out.println("BATTERY1AR1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	
-	public static void battery1AR2(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		MapDomainRange ret = null;
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(MapDomainRange.class);
-		System.out.println("Battery1AR2 "+btm.getDBName());
-		MapDomainRange fdmr = (MapDomainRange) btm.first();
-		Iterator<?> it = btm.tailSet(fdmr);
-		while(it.hasNext()) {
-			ret = (MapDomainRange) it.next();
-			if( DEBUG ) System.out.println("1AR2:"+i+"="+ret);
-			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals(ret.domain) )
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
-			if(!ret.map.equals("Has unit"))
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
-			Long unit = new Long(i);
-			if(!ret.range.equals(unit))
-				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
-			++i;
-		}
-		 System.out.println("BATTERY1AR@ SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	
-	public static void battery1AR3(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		MapRangeDomain ret = null;
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(MapRangeDomain.class);
-		System.out.println("Battery1AR3 "+btm.getDBName());
-		MapRangeDomain fdmr = (MapRangeDomain) btm.first();
-		Iterator<?> it = btm.tailSet(fdmr);
-		while(it.hasNext()) {
-			ret = (MapRangeDomain) it.next();
-			if( DEBUG ) System.out.println("1AR3:"+ret);
-			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals(ret.domain) )
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
-			if(!ret.map.equals("Has unit"))
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
-			Long unit = new Long(i);
-			if(!ret.range.equals(unit))
-				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
-			++i;
-		}
-		 System.out.println("BATTERY1AR3 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	
-	public static void battery1AR4(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		RangeDomainMap ret = null;
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(RangeDomainMap.class);
-		System.out.println("Battery1AR4 "+btm.getDBName());
-		RangeDomainMap fdmr = (RangeDomainMap) btm.first();
-		Iterator<?> it = btm.tailSet(fdmr);
-		while(it.hasNext()) {
-			ret = (RangeDomainMap) it.next();
-			if( DEBUG ) System.out.println("1AR4:"+ret);
-			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals(ret.domain) )
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
-			if(!ret.map.equals("Has unit"))
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
-			Long unit = new Long(i);
-			if(!ret.range.equals(unit))
-				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
-			++i;
-		}
-	
-		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	public static void battery1AR5(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		RangeMapDomain ret = null;
-		TransactionalTreeSet btm = BigSackAdapter.getBigSackSetTransaction(RangeMapDomain.class);
-		System.out.println("Battery1AR5 "+btm.getDBName());
-		RangeMapDomain fdmr = (RangeMapDomain) btm.first();
-		Iterator<?> it = btm.tailSet(fdmr);
-		while(it.hasNext()) {
-			ret = (RangeMapDomain) it.next();
-			if( DEBUG ) System.out.println("1AR5:"+it.next());
-			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals(ret.domain) )
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+ret.domain);
-			if(!ret.map.equals("Has unit"))
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+ret.map);
-			Long unit = new Long(i);
-			if(!ret.range.equals(unit))
-				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+ret.range);
-			++i;
-		}
-		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data
@@ -294,6 +131,10 @@ public class BatteryRelatrix {
 					System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[2]);
 				++i;
 		}
+		if( i != max ) {
+			System.out.println("BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
+		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
@@ -310,6 +151,10 @@ public class BatteryRelatrix {
 			if(!skey.equals(nex[0]) )
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
 			++i;
+		}
+		if( i != max ) {
+			System.out.println("BATTERY1AR7 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR7 unexpected number of keys "+i);
 		}
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -328,6 +173,10 @@ public class BatteryRelatrix {
 			if(!nex[1].equals("Has unit"))
 				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[1]);
 			++i;
+		}
+		if( i != max ) {
+			System.out.println("BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR8 unexpected number of keys "+i);
 		}
 		 System.out.println("BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -350,6 +199,10 @@ public class BatteryRelatrix {
 				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
+		if( i != max ) {
+			System.out.println("BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
+		}
 		 System.out.println("BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
@@ -358,13 +211,15 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
-		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.class.getName());
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", "*");
+		// return all identities with the given key for all ranges, should be 1
 		while(its.hasNext()) {
-			// In this case, the set of ranges of type Long that have domain and map should be returned
-			// since we supply a fixed domain object, we should get one item back
+			// In this case, the set of identities of type Long that have stated domain and map should be returned
+			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
 			Comparable[] nex = (Comparable[]) its.next();
-			if(DEBUG ) System.out.println("1AR10:"+i+" "+nex[0]);
+			if( nex.length != 1)
+				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length);
+			if(DEBUG) System.out.println("1AR10:"+i+" "+nex[0]);
 			String skey = key + String.format(uniqKeyFmt, i);
 			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
@@ -375,8 +230,41 @@ public class BatteryRelatrix {
 				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
-		if( i != 1 ) System.out.println("BATTERY1AR10 unexpected number of keys "+i);
+		if( i != 1 ) {
+			System.out.println("BATTERY1AR10 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR10 unexpected number of keys "+i);
+		}
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	
+	public static void battery1AR101(String[] argv) throws Exception {
+		int i = 0;
+		long tims = System.currentTimeMillis();
+		String fkey = key + String.format(uniqKeyFmt, max);
+		// key is max, so zero keys should be retrieved since we insert 0 to max-1
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new Long(max));
+		while(its.hasNext()) {
+			// In this case, the set of identities of type Long that have stated domain and map should be returned
+			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
+			Comparable[] nex = (Comparable[]) its.next();
+			if( nex.length != 1)
+				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length);
+			if(DEBUG) System.out.println("1AR101:"+i+" "+nex[0]);
+			String skey = key + String.format(uniqKeyFmt, i);
+			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+			if(!((DomainMapRange)nex[0]).map.equals("Has unit"))
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
+			Long unit = new Long(i);
+			if(!((DomainMapRange)nex[0]).range.equals(unit))
+				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
+			++i;
+		}
+		if( i != 0 ) {
+			System.out.println("BATTERY1AR101 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR101 unexpected number of keys "+i);
+		}
+		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * negative assertion of above
@@ -389,15 +277,16 @@ public class BatteryRelatrix {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has time", Integer.class.getName());
+		Iterator<?> its = Relatrix.findSet(fkey, "Has time", "*");
 		while(its.hasNext()) {
 			Comparable[] nex = (Comparable[]) its.next();
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex[0]);
+			throw new Exception("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex[0]);
 		}
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of TemplateClassReturn
+	 * Testing of remove
 	 * @param session
 	 * @param argv
 	 * @throws Exception
@@ -406,13 +295,26 @@ public class BatteryRelatrix {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
-		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.class.getName());
-		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
-			for(int i = 0; i < nex.length; i++)
-				if( DEBUG ) System.out.println("1AR12:"+i+" "+nex[i]);
-		}
+		Relatrix.remove(fkey);
+		try {
+			Iterator<?> its = Relatrix.findSet(fkey, "*", "*");
+			if(its.hasNext()) {
+				throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey);
+			}
+		} catch(RuntimeException re) {} // if types differ in domain from fkey
+		try {
+			Iterator<?> its = Relatrix.findSet("*", fkey, "*");
+			if(its.hasNext()) {
+				throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
+			}
+		} catch(RuntimeException re) {} // if types differ in domain from fkey
+		try {
+			Iterator<?> its = Relatrix.findSet("*", "*", fkey);
+			if(its.hasNext()) {
+				throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
+			}
+		} catch(RuntimeException re) {} // if types differ in domain from fkey
+	
 		 System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	

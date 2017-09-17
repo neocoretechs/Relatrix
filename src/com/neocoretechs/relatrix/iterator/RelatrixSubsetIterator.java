@@ -34,7 +34,7 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
      */
     public RelatrixSubsetIterator(TransactionalTreeSet bts, Morphism template, Morphism template2, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
-    	identity = isIdentity(this.dmr_return);
+    	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	iter = (SubSetIterator) bts.subSet(template, template2);
     }
     
@@ -73,7 +73,7 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	private Comparable[] iterateDmr() throws IllegalAccessException, IOException
 	{
 		int returnTupleCtr = 0;
-	    Comparable[] tuples = new Comparable[getReturnTuples(dmr_return)];
+	    Comparable[] tuples = new Comparable[RelatrixIterator.getReturnTuples(dmr_return)];
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
 	    if( identity ) {
@@ -87,24 +87,9 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 		needsIter = true;
 		return tuples;
 	}
-	/**
-	 * Return the number of tuple elements to be returned from specified query in each iteration
-	 * @param dmr_return
-	 * @return
-	 */
-	protected static short getReturnTuples(short[] dmr_return) {
-		short cnt = 0;
-		if( dmr_return[0] == -1 ||  isIdentity(dmr_return) ) // return all relationship types, 1 tuple special case
-			return 1;
-		for(int i = 1; i < 4; i++) {
-			if( dmr_return[i] == 1 ) ++cnt;
-		}
-		return cnt;
-	}
+
 	
-	protected static boolean isIdentity(short[] dmr_return) {
-	    return ( dmr_return[0] == (-1) || (dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0));
-	}
+
 	
 
 }

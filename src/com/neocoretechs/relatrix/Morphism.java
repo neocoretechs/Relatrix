@@ -57,12 +57,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
             range = r;
         }
         /**
-         * Failsafe compareTo since at times different key classes need to reconcile retrieval via 'class 
-         * template' by determining if template is instanceof TemplateClass.  If it is
-         * we check whether the enclosed class equals the target class.
-         * If classes are not the same and the target is not assignable from the source, try a comparison
-         * of the universal string representation of the two classes as the last attempt to provide some ordering of keys.
-         * Note that this only occurs for template classes, for regular objects we use the standard compareTo semantics.
+         * Failsafe compareTo.
+         * If classes are not the same and the target is not assignable from the source, that is , not a subclass, toss an error
          * If none of the above conditions apply, the default is to perform a straight up 'compareTo' as we all implement Comparable
          * @param from
          * @param to
@@ -77,26 +73,22 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         			throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
         	}
          	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
-        	// in a digital hail mary
-        	
+        	// the string representations as a failsafe.	
         	Class toClass = to.getClass();
-          	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
-        	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
-        		// compare a universal string representation as a unifying datatype for typed class templates
-        		return from.toString().compareTo(to.toString());
+        	if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass())) {
+        		//compare a universal string representation as a unifying datatype for typed class templates
+        		//return from.toString().compareTo(to.toString());
+        		throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
+        				" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
         	}
         	// Otherwise, use the standard compareTo for all objects which invokes our indicies
         	// use the standard compareTo for all objects which invokes our indicies
         	return from.compareTo(to);
         }
         /**
-         * Failsafe equals since at times different key classes need to reconcile in support of the typed lambda calculus.
-         * Also supports retrieval via 'forgetful functor class template' by determining if template is instanceof TemplateClass.  If it is
          * we check whether the enclosed class equals the target class.
-         * If classes are not the same and the target is not assignable from the source, try a comparison
-         * of the universal string representation of the two classes.
+         * If classes are not the same and the target is not assignable from the source, throw runtime exception
          * If none of the above conditions apply, perform a straight up 'equals'
-         * This is an attempt to provide support for the typed lambda calculus
          * @param from
          * @param to
          * @return
@@ -105,10 +97,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	if( DEBUG )
         		System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
            	Class<?> toClass = to.getClass();
-        	boolean toIsSubclass = toClass.isAssignableFrom(from.getClass());
-        	// maybe try a string representation
-        	if( !from.getClass().equals(toClass) && !toIsSubclass ) {
-        		return from.toString().equals(to.toString());
+        	// If classes are not the same try a comparison of the string representations as a unifying type
+        	if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass()) ) {
+        		//return from.toString().equals(to.toString());
+          		throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
+        				" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
         	}
         	return from.equals(to);
         }
@@ -192,13 +185,13 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         }
         /**
         * form_template_keyop - Passed Comparable array is functioning as template for search
-        * depending on the values in domain,map,range (0 for ? or *, !0 or object)
+        * depending on the values in domain,map,range (object=0, ?=1 or *=2, !0 or object)
         * and the ones we care about returning (boolean true in dret)
         * construct the proper index to key array (keyop) and return it
         * (see form_dmrkey for keyop descr)
         * method: construct a little weighting value for each one based
         * on a base val of position domain=2,map=1,range=0
-        * and modified by args to findset value=6,?=3,*=0
+        * and modified by args to findset object=6,?=3,*=0
         * this establishes a precedent for our return values
         * @param dret the return value flag array with iterator at 0
         * @return the keyop
