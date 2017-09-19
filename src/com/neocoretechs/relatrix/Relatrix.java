@@ -13,10 +13,11 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 * Wrapper for structural (relationship) morphism identity objects and the representable operators that retrieve them<dd>
 * Utilizes the Morphism subclasses which contain reference for domain, map, range
 * The lynch pin is the Morphism and its subclasses, which store and retrieve the identity morphisms indexed
-* in all possible permutations of the domain,map,and range of the morphism, the identities. Conceptually, these wrappers
-* swim in 2 oceans: The storage ocean and the retrieval sea. For storage, the compareTo and fullCompareTo of Morphism
-* needs to account for differing classes and values. For retrieval, a partial template is constructed to retrieve the
-* proper Morphism subclass and partially construct a morphism, a so-called 'representable' to partially
+* in all possible permutations of the domain,map,and range of the morphism and these comprise the identities sorted
+* with most significant part of the triplet first so we can retrieve ranges in all the sort orders. 
+* The compareTo and fullCompareTo of Morphism drive the process.
+* For retrieval, a partial template is constructed of the proper Morphism subclass which puts the three elements
+* in the proper sort order. To retrieve the proper Morphism subclass partially construct a morphism template to
 * order the result set. The representable operator allows us to go from Cat->Set. Specifically to 'poset'.<br/>
 * The critical element about retrieving relationships is to remember that the number of elements from each passed
 * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
@@ -26,7 +27,10 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
 * the requirement to be 'categorical'. In general, all 3 element arrays returned by the Cat->set representable operators are
-* the mathematical identity, or constitute the unique key in database terms.
+* the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
+* since a conceptually a Morphism is a domain acted upon by the map function yielding the range. 
+* A given domain run through a 'map function' always yields the same range, 
+* as any function that processes an element yields one consistent result.
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism
@@ -34,7 +38,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 */
 public final class Relatrix {
 	private static boolean DEBUG = false;
-	private static boolean DEBUGREMOVE = true;
+	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
 	public static char OPERATOR_WILDCARD_CHAR = '*';
@@ -237,7 +241,7 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
 			m.add((Morphism) o[0]); 
 		}
-	} catch(RuntimeException re) { re.printStackTrace();}
+	} catch(RuntimeException re) { /*re.printStackTrace();*/} // We can get this exception if the class types differ in domain
 	try {
 		Iterator<?> it = findSet("*",c,"*");
 		while(it.hasNext()) {
@@ -246,7 +250,7 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
 			m.add((Morphism) o[0]); 
 		}
-	} catch(RuntimeException re) {re.printStackTrace();}
+	} catch(RuntimeException re) {/*re.printStackTrace();*/} // we can get this exception if map class types differ
 	try {
 		Iterator<?> it = findSet("*","*",c);
 		while(it.hasNext()) {
@@ -255,7 +259,8 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
 			m.add((Morphism) o[0]); 
 		}
-	} catch(RuntimeException re) { re.printStackTrace(); }
+	} catch(RuntimeException re) { /*re.printStackTrace();*/ } // we can get this exception if range class types differ
+	// Process our array of candidates
 	for(Morphism mo : m) {
 		if( DEBUG || DEBUGREMOVE)
 			System.out.println("Relatrix.remove removing"+mo);
@@ -296,32 +301,31 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 	if( transactionTreeSets[5] == null ) {
 		transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
 	}
-	if( DEBUG  )
+	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove removing dmr:"+dmr);
 	transactionTreeSets[0].remove(dmr);
 	
-	if( DEBUG  )
+	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove removing drm:"+drm);
 	transactionTreeSets[1].remove(drm);
 
-	if( DEBUG  )
+	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove removing mdr:"+mdr);
 	transactionTreeSets[2].remove(mdr);
 
-	if( DEBUG  )
+	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove removing mrd:"+mrd);
 	transactionTreeSets[3].remove(mrd);
 
-	if( DEBUG  )
+	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove removing rdm:"+rdm);
 	transactionTreeSets[4].remove(rdm);
 	
-	if( DEBUG  )
+	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove removing rmd:"+rmd);
 	transactionTreeSets[5].remove(rmd);
 	
 }
-
 
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -353,11 +357,12 @@ public static synchronized Iterator<?> findSet(Object darg, Object marg, Object 
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects.
+* Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
 * The parameters can be objects and/or operators. Semantically,
 * this set-based retrieval makes no sense without at least one object to supply a value to
 * work against, so in this method that check is performed. If you are going to anchor a set
 * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
-* @param darg Object for domain of relationship or a class template
+* @param darg Object for domain of relationship
 * @param marg Object for the map of relationship or a class template
 * @param rarg Object for the range of the relationship or a class template
 * @exception IOException low-level access or problems modifiying schema
@@ -380,6 +385,7 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
  * passed, to the given relationship, should the relationship contain an object as at least one of its components.
+ * Returns a view of the portion of this set whose elements are strictly less than toElement.
  * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
  * work against, so in this method that check is performed in the createHeadsetFactory method. If you are going to anchor a set
  * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
@@ -403,6 +409,8 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
  * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
  * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
  * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
+ * Returns a view of the portion of this set whose elements range from fromElement, inclusive, to toElement, exclusive. 
+ * (If fromElement and toElement are equal, the returned set is empty.) 
  * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
  * work against, so in this method that check is performed. If you are going to anchor a set
  * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.

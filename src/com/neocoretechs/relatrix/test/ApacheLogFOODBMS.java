@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.DirectoryStream;
@@ -93,6 +92,7 @@ public class ApacheLogFOODBMS {
 				baos.flush();
 				load = baos.toByteArray();
 				baos.close();
+				fis.close();
 			}
 			System.out.println(" payload: "+load.length);
 			try {
@@ -135,7 +135,7 @@ public class ApacheLogFOODBMS {
 			try {
 				readAndProcess(line);
 				Comparable rel = Relatrix.transactionalStore(accessLogEntryEpoch,"accessed by",remoteHost);
-				Relatrix.transactionalStore(rel, "remote user", remoteUser); // unreliable
+				Relatrix.transactionalStore(rel, "remote user", remoteUser); // unreliable info field remoteUser
 				//Relatrix.transactionalStore(rel, "access time",accessLogEntryEpoch);
 				Relatrix.transactionalStore(rel, "client request",clientRequest);
 				Relatrix.transactionalStore(rel, "http status",httpStatusCode);
@@ -165,7 +165,7 @@ public class ApacheLogFOODBMS {
 		else
 		{
 			remoteHost = accessLogEntryMatcher.group(1);
-			remoteUser = accessLogEntryMatcher.group(2); // unreliable
+			remoteUser = accessLogEntryMatcher.group(2); // unreliable info in this field
 			requestTime=accessLogEntryMatcher.group(4);
 			accessLogEntryEpoch = (accesslogDateFormat.parse(requestTime)).getTime();
 			//System.out.println("Got time:"+accessLogEntryEpoch);

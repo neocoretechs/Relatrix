@@ -18,7 +18,7 @@ public class FindSubSetMode4 extends FindSetMode4 {
     public FindSubSetMode4(Object darg, char mop, char rop, Object ... xarg) { 	
     	super(darg, mop, rop);
 		this.xarg = xarg;
-		assert(xarg.length == 2) : "Wrong variable argument length to FindSubsetMode4, expected 1 got "+xarg.length;
+		assert(xarg.length == 1) : "Wrong variable argument length to FindSubsetMode4, expected 1 got "+xarg.length;
     }
     /**
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s

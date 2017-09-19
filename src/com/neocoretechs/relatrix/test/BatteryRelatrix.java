@@ -8,18 +8,15 @@ import com.neocoretechs.relatrix.DomainMapRange;
 
 import com.neocoretechs.relatrix.Relatrix;
 
-
 /**
  * Yes, this should be a nice JUnit fixture someday
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
- * In general most of the battery1 testing relies on checking order against expected values hence the importance of
+ * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The first test battery verifies the lower level functions of the BigSack and the BigSackAdapter that
- * connects the Relatrix to the BigSack K/V store.
- * The next set of tests verifies the higher level 'findSet' functors in the Relatrix, which can be used
+ * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
@@ -37,10 +34,9 @@ public class BatteryRelatrix {
 	static int max = 1000;
 	static int numDelete = 100; // for delete test
 	/**
-	* Analysis test fixture
+	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		 //System.out.println("Analysis of all");
 		BigSackAdapter.setTableSpaceDir(argv[0]);
 		battery1(argv);
 		battery11(argv);
@@ -137,7 +133,11 @@ public class BatteryRelatrix {
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	
+	/**
+	 * Testing of Iterator<?> its = Relatrix.findSet("?", "*", "*");
+	 * @param argv
+	 * @throws Exception
+	 */
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
@@ -158,7 +158,11 @@ public class BatteryRelatrix {
 		}
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	
+	/**
+	 * Testing of Iterator<?> its = Relatrix.findSet("?", "?", "*");
+	 * @param argv
+	 * @throws Exception
+	 */
 	public static void battery1AR8(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
@@ -180,7 +184,12 @@ public class BatteryRelatrix {
 		}
 		 System.out.println("BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	
+	/**
+	 * 
+	 * Testing of Iterator<?> its = Relatrix.findSet("*", "*", "*");
+	 * @param argv
+	 * @throws Exception
+	 */
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
@@ -206,7 +215,12 @@ public class BatteryRelatrix {
 		 System.out.println("BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
-
+	/**
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", "*");
+	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
+	 * @param argv
+	 * @throws Exception
+	 */
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
@@ -236,12 +250,17 @@ public class BatteryRelatrix {
 		}
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	
+	/**
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new Long(max));
+	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
+	 * @param argv
+	 * @throws Exception
+	 */
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = 0;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max);
-		// key is max, so zero keys should be retrieved since we insert 0 to max-1
+		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
 		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new Long(max));
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
@@ -268,6 +287,8 @@ public class BatteryRelatrix {
 	}
 	/**
 	 * negative assertion of above
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has time", "*");
+	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
 	 * @param argv
 	 * @throws Exception
@@ -286,7 +307,8 @@ public class BatteryRelatrix {
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of remove
+	 * Testing of remove. Remove the object and all its relationships.
+	 * Perform 3 findSet with removed key to verify its gone.
 	 * @param session
 	 * @param argv
 	 * @throws Exception
