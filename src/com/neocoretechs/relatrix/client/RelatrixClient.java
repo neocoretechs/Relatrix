@@ -57,7 +57,7 @@ public class RelatrixClient implements Runnable {
 
 	private String DBName; // database remote name
 	
-	private boolean shouldRun = true; // master service thread control
+	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 	
 	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();

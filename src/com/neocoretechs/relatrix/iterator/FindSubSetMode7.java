@@ -22,7 +22,7 @@ public class FindSubSetMode7 extends FindSetMode7 {
     public FindSubSetMode7(Object darg, Object marg, Object rarg, Object ... xarg) throws IllegalArgumentException, IOException { 	
     	super(darg, marg, rarg);
        	this.xarg = xarg;
-    	assert(xarg.length == 3) : "Wrong variable argument length to FindSubsetMode7, expected 3 got "+xarg.length;
+    	if(xarg.length != 3) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 3 got "+xarg.length);
     }
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {

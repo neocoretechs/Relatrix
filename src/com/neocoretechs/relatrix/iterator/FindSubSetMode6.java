@@ -19,7 +19,7 @@ public class FindSubSetMode6 extends FindSetMode6 {
     public FindSubSetMode6(Object darg, Object marg, char rop, Object ...xarg) { 	
     	super(darg,marg, rop);
        	this.xarg = xarg;
-    	assert(xarg.length == 2) : "Wrong variable argument length to FindSubsetMode6, expected 2 got "+xarg.length;
+    	if(xarg.length != 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 2 got "+xarg.length);
     }
 
     /**

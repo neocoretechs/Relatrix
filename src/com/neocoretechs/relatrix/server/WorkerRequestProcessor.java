@@ -32,7 +32,7 @@ public final class WorkerRequestProcessor implements Runnable {
 
 	private TCPWorker responseQueue;
 
-	private boolean shouldRun = true;
+	private volatile boolean shouldRun = true;
 	private Object waitHalt = new Object();
 	
 	public WorkerRequestProcessor(TCPWorker tcpworker) {

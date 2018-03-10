@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 public class TCPWorker implements Runnable {
 	private static final boolean DEBUG = false;
 	
-	public boolean shouldRun = true;
+	public volatile boolean shouldRun = true;
 	private Object waitHalt = new Object();
 	
 	public int MASTERPORT = 9876;

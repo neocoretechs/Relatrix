@@ -18,7 +18,7 @@ public class FindSubSetMode3 extends FindSetMode3 {
     public FindSubSetMode3(char dop, Object marg, Object rarg, Object ...xarg) { 	
     	super(dop, marg, rarg);
 		this.xarg = xarg;
-		assert(xarg.length == 2) : "Wrong variable argument length to FindSubsetMode3, expected 2 got "+xarg.length;
+		if(xarg.length != 2) throw new RuntimeException("Wrong number of end range arguments for 'findSubSet', expected 2 got "+xarg.length);
     }
     /**
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
