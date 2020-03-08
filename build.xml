@@ -30,7 +30,7 @@
 
   <!-- Compiles the java code (including the usage of library for JUnit -->
   <target name="compile" depends="makedir">
-    <javac srcdir="${src.dir}" destdir="${build.dir}" >
+    <javac compiler="modern" srcdir="${src.dir}" destdir="${build.dir}" >
   		<classpath refid="master-classpath"/>
     </javac>
   </target>

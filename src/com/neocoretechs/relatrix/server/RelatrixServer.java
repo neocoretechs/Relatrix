@@ -34,6 +34,7 @@ import com.neocoretechs.relatrix.Relatrix;
  */
 public final class RelatrixServer extends TCPServer {
 	private static boolean DEBUG = true;
+	private static boolean DEBUGCOMMAND = false;
 	public static final int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
@@ -80,7 +81,7 @@ public final class RelatrixServer extends TCPServer {
 					//
                     ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
                     CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
-                    if( DEBUG )
+                    if( DEBUGCOMMAND )
                     	System.out.println("Relatrix Server command received:"+o);
     
                     String db = o.getDatabase();

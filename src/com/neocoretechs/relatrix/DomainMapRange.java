@@ -19,7 +19,12 @@ public final class DomainMapRange extends Morphism {
         map = m;
         range = r;
     }
-    
+    /**
+     * The purpose here is to control the compareTo method such that when storing, the range portion
+     * is ignored by setting uniqueKey to true, otherwise, we want to include the range value in our
+     * comparisons when retrieving.
+     * @param unique
+     */
     public void setUniqueKey(boolean unique) { uniqueKey = unique; }
     
 	@SuppressWarnings("unchecked")

@@ -10,31 +10,30 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
 
 /**
-* Wrapper for structural (relationship) morphism identity objects and the representable operators that retrieve them<dd>
-* Utilizes the Morphism subclasses which contain reference for domain, map, range
-* The lynch pin is the Morphism and its subclasses, which store and retrieve the identity morphisms indexed
-* in all possible permutations of the domain,map,and range of the morphism and these comprise the identities sorted
-* with most significant part of the triplet first so we can retrieve ranges in all the sort orders. 
-* The compareTo and fullCompareTo of Morphism drive the process.
+* Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.
+* The lynch pin is the Morphism and its subclasses indexed
+* in the 6 permutations of the domain,map,and range so we can retrieve instances in all
+* the potential sort orders. 
+* The compareTo and fullCompareTo of Morphism provide the comparison methods to drive the processes.
 * For retrieval, a partial template is constructed of the proper Morphism subclass which puts the three elements
-* in the proper sort order. To retrieve the proper Morphism subclass partially construct a morphism template to
-* order the result set. The representable operator allows us to go from Cat->Set. Specifically to 'poset'.<br/>
-* The critical element about retrieving relationships is to remember that the number of elements from each passed
+* in the proper sort order. To retrieve the proper Morphism subclass, partially construct a morphism template to
+* order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<br/>
+* The critical concept about retrieving relationships is to remember that the number of elements from each passed
 * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
 * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element, for findSet("?",object,"?") we
 * would get back a Comparable[2] array, with each element of the relationship returned.<br/>
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all 3 element arrays returned by the Cat->set representable operators are
+* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
-* since a conceptually a Morphism is a domain acted upon by the map function yielding the range. 
+* since conceptually a Morphism is a domain acted upon by the map function yielding the range. 
 * A given domain run through a 'map function' always yields the same range, 
 * as any function that processes an element yields one consistent result.
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism
-* @author jg, Groff (C) NeoCoreTechs 1997,2013,2014,2015
+* @author jg, Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020
 */
 public final class Relatrix {
 	private static boolean DEBUG = false;
@@ -330,18 +329,18 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects. Essentially this is the default permutation which
-* retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
+* retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
 * the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
 * The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, of the type DomainMapRange. 
 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all 3 element arrays return by the Cat->set representable operators are
+* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
 * the mathematical identity, or constitute the unique key in database terms.
-* @param darg Object for domain of relationship or a class template
-* @param marg Object for the map of relationship or a class template
-* @param rarg Object for the range of the relationship or a class template
+* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
 * @exception IOException low-level access or problems modifiying schema
 * @exception IllegalArgumentException the operator is invalid
 * @exception ClassNotFoundException if the Class of Object is invalid
@@ -362,9 +361,9 @@ public static synchronized Iterator<?> findSet(Object darg, Object marg, Object 
 * this set-based retrieval makes no sense without at least one object to supply a value to
 * work against, so in this method that check is performed. If you are going to anchor a set
 * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
-* @param darg Object for domain of relationship
-* @param marg Object for the map of relationship or a class template
-* @param rarg Object for the range of the relationship or a class template
+* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
+* @param marg Object for the map of relationship , a dont-care wildcard "*", a return-object "?", or a class template
+* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
 * @exception IOException low-level access or problems modifiying schema
 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 * @exception ClassNotFoundException if the Class of Object is invalid
@@ -389,9 +388,9 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
  * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
  * work against, so in this method that check is performed in the createHeadsetFactory method. If you are going to anchor a set
  * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
- * @param darg Domain of morphism
- * @param marg Map of morphism relationship
- * @param rarg Range or codomain or morphism relationship
+ * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
+ * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
+ * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
  * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
  * @throws IOException
  * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
@@ -416,9 +415,9 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
  * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
  * Since this is a subset operation, the additional constraint is applied that the ending declaration of the subset retrieval
  * must match the number of concrete objects vs wildcards in the first part of the declaration.
- * @param darg The domain of the relationship to retrieve
- * @param marg The map of the relationship to retrieve
- * @param rarg The range or codomain of the relationship
+ * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
+ * @param marg The map of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
+ * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
  * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
  * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
  * @throws IOException
@@ -441,6 +440,58 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
 		throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 	return ifact.createIterator();
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+ * instance having the lowest valued key.
+ * @return the DomainMapRange morphism having the lowest key value.
+ * @throws IOException
+ */
+public static synchronized Object first() throws IOException
+{
+	if( transactionTreeSets[0] == null ) {
+		return null;
+	}
+	return transactionTreeSets[0].first();
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the highest valued key.
+ * @return the DomainMapRange morphism having the highest key value.
+ * @throws IOException
+ */
+public static synchronized Object last() throws IOException
+{
+	if( transactionTreeSets[0] == null ) {
+		return null;
+	}
+	return transactionTreeSets[0].last();
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
+ * instances.
+ * @return the number of DomainMapRange morphisms.
+ * @throws IOException
+ */
+public static synchronized long size() throws IOException
+{
+	if( transactionTreeSets[0] == null ) {
+		return -1;
+	}
+	return transactionTreeSets[0].size();
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns whether the passed DomainMapRange
+ * instance exists in the data.
+ * @return true if the passed DomainMapRAnge exists.
+ * @throws IOException
+ */
+public static synchronized boolean contains(Comparable obj) throws IOException
+{
+	if( transactionTreeSets[0] == null ) {
+		return false;
+	}
+	return transactionTreeSets[0].contains(obj);
 }
 
 }

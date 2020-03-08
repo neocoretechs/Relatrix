@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.Morphism;
  *
  */
 public class RelatrixIterator implements Iterator<Comparable[]> {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	TransactionalTreeSet deepStore;
 	protected TailSetIterator iter;
     protected Morphism buffer = null;
