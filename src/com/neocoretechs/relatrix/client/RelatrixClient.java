@@ -33,7 +33,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.
- * In general the remote directory is 
+ * In general for a cluster configuration the remote directory is 
  * 'Database path + 'tablespace'+ tablespace# + tablename' where tablename is 'DBname+class+'.'+tablespace#'
  * so if your remote db path is /home/relatrix/AMI as passed to the server then its translation is:
  *  /home/relatrix/tablespace0/AMIcom.yourpack.yourclass.0
@@ -64,12 +64,11 @@ public class RelatrixClient implements Runnable {
 
 	
 	/**
-	 * Start a relatrix client. Contact the boot time portion of server and queue a CommandPacket to open the desired
+	 * Start a relatrix client for a one node server. Contact the boot time portion of server and queue a CommandPacket to open the desired
 	 * database and get back the master and slave ports of the remote server. The main client thread then
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
 	 * @param dbName The name of the remote DB in full qualified path form
-	 * @param remote The remote database name for cluster server
 	 * @param bootNode The name of the remote server host
 	 * @param bootPort Then name of the remote host port on which RelatrixServer is running
 	 */
@@ -99,7 +98,21 @@ public class RelatrixClient implements Runnable {
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		ThreadPoolManager.getInstance().spin(this);
 	}
-	
+	/**
+	 * Start a relatrix client for a cluster configuration. Contact the boot time portion of server and queue a CommandPacket to open the desired
+	 * database and get back the master and slave ports of the remote server. The main client thread then
+	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server.
+	 * * In general for a cluster configuration the remote directory is 
+	 * 'Database path + 'tablespace'+ tablespace# + tablename' where tablename is 'DBname+class+'.'+tablespace#'
+	 * so if your remote db path is /home/relatrix/AMI as passed to the server then its translation is:
+	 *  /home/relatrix/tablespace0/AMIcom.yourpack.yourclass.0
+	 * for the remote node 'AMI0', for others replace all '0' with '1' etc for other tablespaces.
+	 * @param dbName The name of the remote DB in full qualified path form
+	 * @param remote The remote database name for cluster server
+	 * @param bootNode The name of the remote server host
+	 * @param bootPort Then name of the remote host port on which RelatrixServer is running
+	 */
 	public RelatrixClient(String dbName, String remote, String bootNode, int bootPort)  throws IOException {
 		this.DBName = dbName;
 
@@ -136,8 +149,7 @@ public class RelatrixClient implements Runnable {
 	}
 	
 	/**
-	 * Look for messages coming back from the workers. Extract the UUID of the returned packet
-	 * and get the real request from the ConcurrentHashTable buffer
+	* Set up the socket 
 	 */
 	@Override
 	public void run() {

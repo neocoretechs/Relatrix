@@ -117,8 +117,8 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 		return retObj;
 	}
 	/**
-	 * Call methods of the man Relatrix class, which will return an instance or an object that is not Serializable
-	 * in which case we save it server side an link it to the session for later retrieval
+	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
+	 * in which case we save it server side and link it to the session for later retrieval
 	 */
 	@Override
 	public void process() throws Exception {
