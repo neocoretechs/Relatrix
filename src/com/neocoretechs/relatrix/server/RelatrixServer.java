@@ -38,7 +38,7 @@ import com.neocoretechs.relatrix.client.RemoteTailsetIterator;
 public final class RelatrixServer extends TCPServer {
 	private static boolean DEBUG = true;
 	private static boolean DEBUGCOMMAND = false;
-	public static final int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
+	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
 	public static ServerInvokeMethod relatrixSubsetMethods = null; // Subset iterator methods
@@ -51,15 +51,17 @@ public final class RelatrixServer extends TCPServer {
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param port Port upon which to start server
 	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixServer() throws IOException, ClassNotFoundException {
+	public RelatrixServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod(RemoteSubsetIterator.className, 0);
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod(RemoteHeadsetIterator.className, 0);
 		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailsetIterator.className, 0);
+		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
 
@@ -69,7 +71,10 @@ public final class RelatrixServer extends TCPServer {
 	 * @throws Exception
 	 */
 	public static void main(String args[]) throws Exception {
-		new RelatrixServer();
+		if(args.length > 0) {
+			WORKBOOTPORT = Integer.parseInt(args[0]);
+		}
+		new RelatrixServer(WORKBOOTPORT);
 		System.out.println("Relatrix Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
 	}
 	

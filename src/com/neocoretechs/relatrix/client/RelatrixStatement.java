@@ -72,10 +72,13 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 	 */
     @Override
 	public Class<?>[] getParams() {
-             Class<?>[] c = new Class[paramArray.length];
-             for(int i = 0; i < paramArray.length; i++)
-                     c[i] = paramArray[i].getClass();
-             return c;
+    	//System.out.println("params:"+paramArray.length);
+    	//for(int i = 0; i < paramArray.length; i++)
+    		//System.out.println("paramArray "+i+"="+paramArray[i]);
+        Class<?>[] c = new Class[paramArray.length];
+        for(int i = 0; i < paramArray.length; i++)
+                c[i] = paramArray[i].getClass();
+        return c;
     }
   
     public String toString() { return "RelatrixStatement for Session:"+

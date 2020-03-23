@@ -39,7 +39,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  *  /home/relatrix/tablespace0/AMIcom.yourpack.yourclass.0
  * for the remote node 'AMI0', for others replace all '0' with '1' etc for other tablespaces.
  * @author jg
- * Copyright (C) NeoCoreTechs 2014,2015
+ * Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixClient implements Runnable {
 	private static final boolean DEBUG = false;
@@ -74,7 +74,8 @@ public class RelatrixClient implements Runnable {
 	 */
 	public RelatrixClient(String dbName, String bootNode, int bootPort)  throws IOException {
 		this.DBName = dbName;
-
+		MASTERPORT = bootPort+1;
+		SLAVEPORT = bootPort+2;
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -139,15 +140,7 @@ public class RelatrixClient implements Runnable {
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		ThreadPoolManager.getInstance().spin(this);
 	}
-	
-	public void setMasterPort(int port) {
-		MASTERPORT = port;
-	}
-	
-	public void setSlavePort(int port) {
-		SLAVEPORT = port;
-	}
-	
+		
 	/**
 	* Set up the socket 
 	 */
@@ -670,15 +663,6 @@ public class RelatrixClient implements Runnable {
 		os.close();
 		s.close();
 		return true;
-	}
-
-	public void setSlavePort(String port) {
-		SLAVEPORT = Integer.valueOf(port);
-	}
-
-	public void setMasterPort(String port) {
-		MASTERPORT = Integer.valueOf(port);
-		
 	}
 	
 	public static void main(String[] args) throws Exception {

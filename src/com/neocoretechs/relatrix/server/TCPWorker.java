@@ -23,7 +23,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  * has been sent from client to WORKBOOTPORT. A WorkerRequestProcessor handles the actual processing of the
  * request after it has been acquired and extracted here.
  * @author jg
- * Copyright (C) NeoCoreTechs 2014,2015
+ * Copyright (C) NeoCoreTechs 2014,2015,2020
  *
  */
 public class TCPWorker implements Runnable {
@@ -109,22 +109,6 @@ public class TCPWorker implements Runnable {
 				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
 				throw new RuntimeException(e);
 		}
-	}
-	/**
-     * Spin the worker from command line
-     * @param args
-     * @throws Exception
-     */
-	public static void main(String args[]) throws Exception {
-		if( args.length < 4 ) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [database] [remote master] [master port] [slave port]");
-		}
-		// Use mmap mode 0
-		ThreadPoolManager.getInstance().spin(new TCPWorker(
-				args[0], // database
-				args[1], // remote master node
-				Integer.valueOf(args[2]) , // master port
-				Integer.valueOf(args[3]))); //worker port
 	}
 	/**
 	 * Client (Slave port) sends data to our master in the following loop
@@ -238,5 +222,21 @@ public class TCPWorker implements Runnable {
 				waitHalt.wait();
 			} catch (InterruptedException | IOException e) {}
 		}
+	}
+	/**
+     * Spin the worker from command line
+     * @param args
+     * @throws Exception
+     */
+	public static void main(String args[]) throws Exception {
+		if( args.length < 4 ) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [database] [remote master] [master port] [slave port]");
+		}
+		// Use mmap mode 0
+		ThreadPoolManager.getInstance().spin(new TCPWorker(
+				args[0], // database
+				args[1], // remote master node
+				Integer.valueOf(args[2]) , // master port
+				Integer.valueOf(args[3]))); //worker port
 	}
 }
