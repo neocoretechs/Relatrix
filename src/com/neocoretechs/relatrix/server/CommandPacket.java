@@ -2,46 +2,32 @@ package com.neocoretechs.relatrix.server;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+/**
+ * Remote master is from the perspective of the server, as it calls back to the 
+ * source of the sent ComandPacket to the bootNode
+ * @author jg 2020
+ *
+ */
 public class CommandPacket implements CommandPacketInterface {
-	private static final long serialVersionUID = 1L;
-	String fname;
-	InetAddress bootNode;
-	int MASTERPORT, SLAVEPORT;
+	private static final long serialVersionUID = 8579879510521146873L;
+	String bootNode;
+	int MASTERPORT;
 	String transport = "TCP";
-	String remoteDirectory;
 	
-	public CommandPacket(InetAddress bootNode, String fname, String remoteDir, int masterport, int slaveport) {
+	public CommandPacket(String bootNode, int masterport) {
 		this.bootNode = bootNode;
-		this.fname = fname;
-		remoteDirectory = remoteDir;
 		MASTERPORT = masterport;
-		SLAVEPORT = slaveport;
 	}
 	@Override
-	public String getDatabase() {
-		return fname;
+	public int getMasterPort() {
+		return MASTERPORT;
 	}
+
 	@Override
-	public void setDatabase(String database) {
-		fname = database;
+	public void setMasterPort(int port) {
+		MASTERPORT = port;
 	}
-	@Override
-	public String getMasterPort() {
-		return (String.valueOf(MASTERPORT));
-	}
-	@Override
-	public String getSlavePort() {
-		return (String.valueOf(SLAVEPORT));
-	}
-	@Override
-	public void setMasterPort(String port) {
-		MASTERPORT = Integer.valueOf(port);
-	}
-	@Override
-	public void setSlavePort(String port) {
-		SLAVEPORT = Integer.valueOf(port);
-	}
+
 	@Override
 	public String getTransport() {
 		return transport;
@@ -52,27 +38,15 @@ public class CommandPacket implements CommandPacketInterface {
 	}
 	@Override
 	public String getRemoteMaster() {
-			return bootNode.getHostAddress();
+			return bootNode;
 	}
 	
 	@Override
 	public void setRemoteMaster(String remoteMaster) {
-		try {
-			bootNode = InetAddress.getByName(remoteMaster);
-		} catch (UnknownHostException e) {
-			System.out.println("Remote host unknown:"+remoteMaster);
-		}
+			bootNode = remoteMaster;
 	}
+
 	@Override
-	public String getRemoteDirectory() {
-			return remoteDirectory;
-	}
-	
-	@Override
-	public void setRemoteDirectory(String remoteDir) {
-		remoteDirectory = remoteDir;
-	}
-	@Override
-	public String toString() { return "CommandPacket boot:"+bootNode+" DB:"+fname+" trans:"+transport+" ports:"+MASTERPORT+","+SLAVEPORT; }
+	public String toString() { return "CommandPacket boot:"+bootNode+" trans:"+transport+" ports:"+MASTERPORT; }
 	
 }

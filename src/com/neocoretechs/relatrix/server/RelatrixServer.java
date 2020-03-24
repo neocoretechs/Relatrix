@@ -31,7 +31,9 @@ import com.neocoretechs.relatrix.client.RemoteTailsetIterator;
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT
  * On the client a socket is created to connect to SLAVEPORT and objects are written to it
  * On the server a socket is created to connect to MASTERPORT and response objects are written to it
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it
+ * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.
+ * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.
+ * In this way multiple databases can be used by instantiating separate clients.
  * @author jg Copyright (C) NeoCoreTechs 2015
  *
  */
@@ -65,18 +67,6 @@ public final class RelatrixServer extends TCPServer {
 		startServer(WORKBOOTPORT);
 	}
 
-	/**
-	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String args[]) throws Exception {
-		if(args.length > 0) {
-			WORKBOOTPORT = Integer.parseInt(args[0]);
-		}
-		new RelatrixServer(WORKBOOTPORT);
-		System.out.println("Relatrix Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
-	}
 	
 	public void run() {
 			while(!shouldStop) {
@@ -91,14 +81,11 @@ public final class RelatrixServer extends TCPServer {
                     CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
                     if( DEBUGCOMMAND )
                     	System.out.println("Relatrix Server command received:"+o);
-    
-                    String db = o.getDatabase();
-   
-                    db = (new File(db)).toPath().getParent().toString() + File.separator +
-                    		(new File(o.getDatabase()).getName());
+                   // db = (new File(db)).toPath().getParent().toString() + File.separator +
+                    //		(new File(o.getDatabase()).getName());
                     // if we get a command packet with no statement, assume it to start a new instance
                    
-                    TCPWorker uworker = dbToWorker.get(db);
+                    TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
                     if( uworker != null ) {
                     	if(o.getTransport().equals("TCP")) {
                     		if( uworker.shouldRun )
@@ -106,26 +93,26 @@ public final class RelatrixServer extends TCPServer {
                     	}
                     }
                     // determine if this worker has started, if so, cancel thread and start a new one.
-                    Relatrix.setTablespaceDirectory(db);
+                    //Relatrix.setTablespaceDirectory(db);
                     
                     // set the remote tablespace directory
-                    String rdb = o.getRemoteDirectory();
-                    if( rdb != null ) {
-                    	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
-                    		(new File(o.getRemoteDirectory()).getName());
-                    	String sdb = rdb.replace('\\', '/');
-                    	Relatrix.setRemoteDirectory(sdb);
-                    }
+                    //String rdb = o.getRemoteDirectory();
+                    //if( rdb != null ) {
+                    //	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
+                    //		(new File(o.getRemoteDirectory()).getName());
+                    //	String sdb = rdb.replace('\\', '/');
+                    //	Relatrix.setRemoteDirectory(sdb);
+                    //}
                     
                     // Create the worker, it in turn creates a WorkerRequestProcessor
-                    uworker = new TCPWorker(db, o.getRemoteMaster(), Integer.valueOf(o.getMasterPort()), Integer.valueOf(o.getSlavePort()));
-                    dbToWorker.put(db, uworker); 
+                    uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+                    dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixServer starting new worker db:"+db+
-                    			( rdb != null ? "remote db:"+rdb : "" ) +
-                    			" master port:"+o.getMasterPort()+" slave port:"+o.getSlavePort());
+                    	System.out.println("RelatrixServer starting new worker"+uworker+
+                    			//( rdb != null ? "remote db:"+rdb : "" ) +
+                    			" master port:"+o.getMasterPort());
                     }
                     
 				} catch(Exception e) {
@@ -134,7 +121,23 @@ public final class RelatrixServer extends TCPServer {
                     e.printStackTrace();
                }
 		}
-	
+	}
+	/**
+	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String args[]) throws Exception {
+		if(args.length > 0) {
+			WORKBOOTPORT = Integer.parseInt(args[1]);
+		}
+        String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+        		(new File(args[0]).getName());
+        System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
+        Relatrix.setTablespaceDirectory(db);
+        // if we get a command packet with no statement, assume it to start a new instance
+		new RelatrixServer(WORKBOOTPORT);
+		System.out.println("Relatrix Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
 	}
 	
 
