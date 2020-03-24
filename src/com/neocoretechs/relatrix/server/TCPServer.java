@@ -9,7 +9,7 @@ import com.neocoretechs.bigsack.io.ThreadPoolManager;
 public abstract class TCPServer implements Cloneable, Runnable {
 	ServerSocket server = null;
 	Socket data = null;
-	boolean shouldStop = false;
+	volatile boolean shouldStop = false;
 	public synchronized void startServer(int port) throws IOException {
 		if( server == null ) {
 			server = new ServerSocket(port);

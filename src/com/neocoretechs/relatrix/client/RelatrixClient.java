@@ -60,14 +60,15 @@ public class RelatrixClient implements Runnable {
 	
 	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();
 
-	
 	/**
-	 * Start a relatrix client for a one node server. Contact the boot time portion of server and queue a CommandPacket to open the desired
+	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
 	 * database and get back the master and slave ports of the remote server. The main client thread then
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode The name of the remote server host
-	 * @param bootPort Then name of the remote host port on which RelatrixServer is running
+	 * @param bootNode
+	 * @param remoteNode
+	 * @param remotePort
+	 * @throws IOException
 	 */
 	public RelatrixClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
 		if( TEST ) {
@@ -78,8 +79,6 @@ public class RelatrixClient implements Runnable {
 		if( DEBUG ) {
 			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
 		}
-		// send message to spin connetion
-		Fopen(bootNode);
 		//
 		// Wait for master server node to connect back to here for return channel communication
 		//
@@ -87,6 +86,8 @@ public class RelatrixClient implements Runnable {
 		masterSocket = new ServerSocket(0);
 		MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
+		// send message to spin connetion
+		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		ThreadPoolManager.getInstance().spin(this);
@@ -183,15 +184,7 @@ public class RelatrixClient implements Runnable {
 	 */
 	public void send(RemoteRequestInterface iori) {
 		try {
-			if(workerSocket == null ) {
-				workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-				workerSocket = new Socket();
-				workerSocket.connect(workerSocketAddress);
-				workerSocket.setKeepAlive(true);
-				//workerSocket.setTcpNoDelay(true);
-				workerSocket.setReceiveBufferSize(32767);
-				workerSocket.setSendBufferSize(32767);
-			}
+
 			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
@@ -521,11 +514,20 @@ public class RelatrixClient implements Runnable {
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean Fopen(String bootNode) throws IOException {
+	public Socket Fopen(String bootNode) throws IOException {
 		// send a remote Fopen request to the node
 		// this consists of sending the running WorkBoot a message to start the worker for a particular
 		// database on the node we hand down
+		//if(workerSocket == null ) {
+		//	workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
+		//	workerSocket = new Socket();
+		//	workerSocket.connect(workerSocketAddress);
+		//}
 		Socket s = new Socket(IPAddress, SLAVEPORT);
+		s.setKeepAlive(true);
+		s.setReceiveBufferSize(32767);
+		s.setSendBufferSize(32767);
+		System.out.println("Socket created to "+s);
 		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
 		/*
@@ -540,9 +542,9 @@ public class RelatrixClient implements Runnable {
 		*/
 		os.writeObject(cpi);
 		os.flush();
-		os.close();
-		s.close();
-		return true;
+		//os.close();
+		//s.close();
+		return s;
 	}
 	
 	public static void main(String[] args) throws Exception {
