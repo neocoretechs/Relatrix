@@ -138,7 +138,8 @@ public class RelatrixClient implements Runnable {
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Exception ) {
-					 System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+o);
+					 System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+					 o = ((Throwable)o).getCause();
 				}
 				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
