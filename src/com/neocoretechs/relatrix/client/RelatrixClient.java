@@ -11,11 +11,13 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -131,26 +133,24 @@ public class RelatrixClient implements Runnable {
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				RemoteResponseInterface iori = (RemoteResponseInterface) ois.readObject();
-				 // get the original request from the stored table
-				 if( DEBUG )
+				// get the original request from the stored table
+				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-				 Object o = iori.getObjectReturn();
-				 if( o instanceof Exception ) {
+				Object o = iori.getObjectReturn();
+				if( o instanceof Exception ) {
 					 System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+o);
-					 ois.close();
-					 throw (Exception)o;
-				 } else {
-					 RelatrixStatement rs = outstandingRequests.get(iori.getSession());
-					 if( rs == null ) {
-						 System.out.println("REQUEST/RESPONSE MISMATCH, statement:"+iori);
-					 } else {
-						 // We have the request after its session round trip, get it from outstanding waiters and signal
-						 // set it with the response object
-						 rs.setObjectReturn(o);
-						 // and signal the latch we have finished
-						 rs.getCountDownLatch().countDown();
-					 }
-				 }
+				}
+				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
+				if( rs == null ) {
+					ois.close();
+					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
+				} else {
+					// We have the request after its session round trip, get it from outstanding waiters and signal
+					// set it with the response object
+					rs.setObjectReturn(o);
+					// and signal the latch we have finished
+					rs.getCountDownLatch().countDown();
+				}
 		}
 		} catch(Exception e) {
 			// we lost the remote, try to close worker and wait for reconnect
@@ -218,7 +218,7 @@ public class RelatrixClient implements Runnable {
 	 * @throws IOException
 	 * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
 	 */
-	public DomainMapRange store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException {
+	public DomainMapRange store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixStatement("store",d, m, r);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -227,8 +227,17 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		return (DomainMapRange) rs.getObjectReturn();
+		if(o instanceof DuplicateKeyException)
+			throw (DuplicateKeyException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+		return (DomainMapRange)o;
 	
 	}
 	/**
@@ -242,8 +251,9 @@ public class RelatrixClient implements Runnable {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @throws DuplicateKeyException 
 	 */
-	public DomainMapRange transactionalStore(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException {
+	public DomainMapRange transactionalStore(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixStatement("transactionalStore",d, m, r);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -252,8 +262,17 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		return (DomainMapRange) rs.getObjectReturn();
+		if(o instanceof DuplicateKeyException)
+			throw (DuplicateKeyException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+		return (DomainMapRange)o;
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -268,7 +287,10 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		Object o = rs.getObjectReturn();		
 		outstandingRequests.remove(rs.getSession());
+		if(o != null && o instanceof IOException)
+			throw (IOException)o;
 	}
 	/**
 	 * Roll back all outstanding transactions on the indicies
@@ -283,7 +305,10 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		Object o = rs.getObjectReturn();		
 		outstandingRequests.remove(rs.getSession());
+		if(o != null && o instanceof IOException)
+			throw (IOException)o;
 	}
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -307,6 +332,14 @@ public class RelatrixClient implements Runnable {
 		} catch (InterruptedException e) {
 		}
 		outstandingRequests.remove(rs.getSession());
+		Object o = rs.getObjectReturn();		
+		if(o != null) {
+			if(o instanceof IOException)
+				throw (IOException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+		}
 	}
 	/**
 	* recursively delete all relationships that this object participates in
@@ -383,8 +416,21 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		return (RemoteTailsetIterator) rs.getObjectReturn();
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+		return (RemoteTailsetIterator)o;
 
 	}
 
@@ -412,8 +458,20 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		return (RemoteHeadsetIterator) rs.getObjectReturn();
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+		return (RemoteHeadsetIterator)o;
 
 	}
 	/**
@@ -443,8 +501,20 @@ public class RelatrixClient implements Runnable {
 			cdl.await();
 		} catch (InterruptedException e) {
 		}
+		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		return (RemoteSubsetIterator) rs.getObjectReturn();
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+		return (RemoteSubsetIterator)o;
 
 	}
 	/**
@@ -454,7 +524,7 @@ public class RelatrixClient implements Runnable {
 	 * @param rii
 	 * @return
 	 */
-	public Comparable[] next(RemoteObjectInterface rii) {
+	public Comparable[] next(RemoteObjectInterface rii) throws NoSuchElementException {
 		((RelatrixStatement)rii).methodName = "next";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -463,7 +533,10 @@ public class RelatrixClient implements Runnable {
 		try {
 			cdl.await();
 		} catch (InterruptedException e) {}
-		return (Comparable[])((RelatrixStatement)rii).getObjectReturn();
+		Object o = ((RelatrixStatement)rii).getObjectReturn();
+		if(o instanceof NoSuchElementException)
+			throw (NoSuchElementException)o;
+		return (Comparable[])o;
 
 	}
 	
@@ -479,7 +552,7 @@ public class RelatrixClient implements Runnable {
 		return (boolean)((RelatrixStatement)rii).getObjectReturn();	
 	}
 	
-	public void remove(RemoteObjectInterface rii) {
+	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException{
 		((RelatrixStatement)rii).methodName = "remove";
 		((RelatrixStatement)rii).paramArray = new Object[]{ ((RelatrixStatement)rii).getObjectReturn() };
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -488,6 +561,14 @@ public class RelatrixClient implements Runnable {
 		try {
 			cdl.await();
 		} catch (InterruptedException e) {}
+		Object o = ((RelatrixStatement)rii).getObjectReturn();
+		if( o != null) {
+			if( o instanceof UnsupportedOperationException)
+				throw (UnsupportedOperationException)o;
+			else
+				if( o instanceof IllegalStateException)
+					throw (IllegalStateException)o;
+		}
 	}
 	/**
 	 * Issue a close which will merely remove the request resident object here and on the server
