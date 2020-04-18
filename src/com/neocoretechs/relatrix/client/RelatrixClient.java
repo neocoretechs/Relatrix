@@ -238,6 +238,9 @@ public class RelatrixClient implements Runnable {
 			else
 				if(o instanceof IOException)
 					throw (IOException)o;
+				else
+					if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (DomainMapRange)o;
 	
 	}
@@ -273,6 +276,9 @@ public class RelatrixClient implements Runnable {
 			else
 				if(o instanceof IOException)
 					throw (IOException)o;
+				else
+					if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (DomainMapRange)o;
 	}
 	/**
@@ -292,6 +298,9 @@ public class RelatrixClient implements Runnable {
 		outstandingRequests.remove(rs.getSession());
 		if(o != null && o instanceof IOException)
 			throw (IOException)o;
+		else
+			if(o instanceof Exception)
+				throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 	/**
 	 * Roll back all outstanding transactions on the indicies
@@ -310,6 +319,9 @@ public class RelatrixClient implements Runnable {
 		outstandingRequests.remove(rs.getSession());
 		if(o != null && o instanceof IOException)
 			throw (IOException)o;
+		else
+			if(o instanceof Exception)
+				throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -340,6 +352,9 @@ public class RelatrixClient implements Runnable {
 			else
 				if(o instanceof IllegalAccessException)
 					throw (IllegalAccessException)o;
+				else
+					if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		}
 	}
 	/**
@@ -348,7 +363,7 @@ public class RelatrixClient implements Runnable {
 	*/
 	public void remove(Comparable c) throws IOException
 	{
-		throw new RuntimeException("Not implemented yet");
+		throw new IOException("No remove implemented yet");
 	}
 	/**
 	 * Delete specific relationship and all relationships that it participates in
@@ -356,8 +371,8 @@ public class RelatrixClient implements Runnable {
 	 * @param m
 	 * @param r
 	 */
-	public void remove(Comparable d, Comparable m, Comparable r) {
-		throw new RuntimeException("Not implemented yet");	
+	public void remove(Comparable d, Comparable m, Comparable r) throws IOException {
+		throw new IOException("No remove implemented yet");	
 	}
 
 
@@ -431,6 +446,9 @@ public class RelatrixClient implements Runnable {
 				else
 					if(o instanceof IOException)
 						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (RemoteTailsetIterator)o;
 
 	}
@@ -472,6 +490,9 @@ public class RelatrixClient implements Runnable {
 				else
 					if(o instanceof IOException)
 						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (RemoteHeadsetIterator)o;
 
 	}
@@ -515,6 +536,9 @@ public class RelatrixClient implements Runnable {
 				else
 					if(o instanceof IOException)
 						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (RemoteSubsetIterator)o;
 
 	}
@@ -569,6 +593,9 @@ public class RelatrixClient implements Runnable {
 			else
 				if( o instanceof IllegalStateException)
 					throw (IllegalStateException)o;
+				else
+					if(o instanceof Exception)
+						throw new UnsupportedOperationException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		}
 	}
 	/**
