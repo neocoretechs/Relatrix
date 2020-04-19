@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -114,7 +115,10 @@ public final class WorkerRequestProcessor implements Runnable {
 			queueResponse((RemoteResponseInterface) iori);
 			// roll back changes
 			try {
-				Relatrix.transactionRollback();
+				if(e1.getCause() instanceof DuplicateKeyException)
+					System.out.println("CANCELLING AUTOMATIC TRANSACTION ROLLBACK FOR DUPLICATE KEY EXECEPTION");
+				else
+					Relatrix.transactionRollback();
 			} catch (IOException e) {
 				System.out.println("Exception on transaction rollback due to fault:"+e);
 				e.printStackTrace();
