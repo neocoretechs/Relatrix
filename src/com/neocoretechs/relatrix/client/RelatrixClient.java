@@ -111,25 +111,14 @@ public class RelatrixClient implements Runnable {
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixClient server socket accept failed with "+e1);
-			if( sock != null ) {
-				try {
-					sock.close();
-				} catch (IOException e) {}
-			}
-			try {
-					workerSocket.close();
-			} catch (IOException e2) {}
-			try {
-					masterSocket.close();
-			} catch (IOException e2) {}
-			shouldRun = false;
+			shutdown(sock);
 			return;
 		}
   	    if( DEBUG ) {
   	    	 System.out.println("RelatrixClient got connection "+sock);
   	    }
   	    try {
-		while(shouldRun ) {
+		  while(shouldRun ) {
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				RemoteResponseInterface iori = (RemoteResponseInterface) ois.readObject();
@@ -152,32 +141,14 @@ public class RelatrixClient implements Runnable {
 					// and signal the latch we have finished
 					rs.getCountDownLatch().countDown();
 				}
-		}
+		  }
 		} catch(Exception e) {
 			// we lost the remote, try to close worker and wait for reconnect
 			System.out.println("RelatrixClient: receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-			shouldRun = false;
-		}
-  	    finally {
-		if(workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e1) {}
-			workerSocket = null;
-		}
-		// requested shutdown from close()
-		if( sock != null ) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-		}
-		try {
-				workerSocket.close();
-		} catch (IOException e2) {}
-		try {
-				masterSocket.close();
-		} catch (IOException e2) {}
+		} finally {
+			shutdown(sock);
   	    }
+  	    waitHalt.notifyAll();
 	}
 	/**
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
@@ -185,7 +156,6 @@ public class RelatrixClient implements Runnable {
 	 */
 	public void send(RemoteRequestInterface iori) {
 		try {
-
 			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
@@ -198,16 +168,38 @@ public class RelatrixClient implements Runnable {
 	}
 	
 	public void close() {
+		shouldRun = false;
+		try {
+			masterSocket.close();
+		} catch (IOException e) {}
+		masterSocket = null;
 		synchronized(waitHalt) {
 			try {
-				shouldRun = false;
-				if(masterSocket != null)
-					masterSocket.close();
 				waitHalt.wait();
-			} catch (InterruptedException | IOException e) {}
+			} catch (InterruptedException ie) {}
 		}
 	}
 	
+	private void shutdown(Socket sock) {
+		if( sock != null ) {
+			try {
+				sock.close();
+			} catch (IOException e) {}
+		}
+		if( workerSocket != null ) {
+			try {
+				workerSocket.close();
+			} catch (IOException e2) {}
+			workerSocket = null;
+		}
+		if( masterSocket != null ) {
+			try {
+				masterSocket.close();
+			} catch (IOException e2) {}
+			masterSocket = null;
+		}
+		shouldRun = false;
+	}
 	/**
 	 * Call the remote server method to store a morphism.
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.

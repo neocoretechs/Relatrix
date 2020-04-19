@@ -142,7 +142,8 @@ public class TCPWorker implements Runnable {
 			}
 		// Call to shut down has been received from stopWorker
 		} catch (IOException |ClassNotFoundException | InterruptedException ie) {
-			ie.printStackTrace();
+			//ie.printStackTrace();
+			System.out.println("Remote client disconnect with exception "+ie.getMessage());
 		}
 		finally {
 			shouldRun = false;
