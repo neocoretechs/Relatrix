@@ -55,6 +55,7 @@ public class RelatrixClient implements Runnable {
 	private Socket workerSocket = null; // socket assigned to slave port
 	private SocketAddress workerSocketAddress; //address of slave
 	private ServerSocket masterSocket; // master socket connected back to via server
+	private Socket sock; // socker of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -101,7 +102,6 @@ public class RelatrixClient implements Runnable {
 	@Override
 	public void run() {
   	    //SocketChannel sock;
-  	    Socket sock = null;
 		try {
 			sock = masterSocket.accept();
 			sock.setKeepAlive(true);
@@ -111,7 +111,7 @@ public class RelatrixClient implements Runnable {
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixClient server socket accept failed with "+e1);
-			shutdown(sock);
+			shutdown();
 			return;
 		}
   	    if( DEBUG ) {
@@ -146,9 +146,11 @@ public class RelatrixClient implements Runnable {
 			// we lost the remote, try to close worker and wait for reconnect
 			System.out.println("RelatrixClient: receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 		} finally {
-			shutdown(sock);
+			shutdown();
   	    }
-  	    waitHalt.notifyAll();
+  	    synchronized(waitHalt) {
+  	    	waitHalt.notifyAll();
+  	    }
 	}
 	/**
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
@@ -170,9 +172,9 @@ public class RelatrixClient implements Runnable {
 	public void close() {
 		shouldRun = false;
 		try {
-			masterSocket.close();
+			sock.close();
 		} catch (IOException e) {}
-		masterSocket = null;
+		sock = null;
 		synchronized(waitHalt) {
 			try {
 				waitHalt.wait();
@@ -180,7 +182,7 @@ public class RelatrixClient implements Runnable {
 		}
 	}
 	
-	private void shutdown(Socket sock) {
+	private void shutdown() {
 		if( sock != null ) {
 			try {
 				sock.close();
