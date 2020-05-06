@@ -144,7 +144,7 @@ public class RelatrixClient implements Runnable {
 		  }
 		} catch(Exception e) {
 			// we lost the remote, try to close worker and wait for reconnect
-			System.out.println("RelatrixClient: receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			//System.out.println("RelatrixClient: receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 		} finally {
 			shutdown();
   	    }
@@ -180,6 +180,7 @@ public class RelatrixClient implements Runnable {
 				waitHalt.wait();
 			} catch (InterruptedException ie) {}
 		}
+		ThreadPoolManager.getInstance().shutdown(); // client threads
 	}
 	
 	private void shutdown() {
