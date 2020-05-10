@@ -22,7 +22,7 @@ import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * This class functions as client to the RelatrixServer Worker threads located on a remote node.
+ * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.
  * On the client and server the following are present as conventions:
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT
  * On the client a socket is created to connect to SLAVEPORT and objects are written to it
@@ -43,12 +43,12 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author jg
  * Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClient implements Runnable {
+public class RelatrixKVClient implements Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
-	private int MASTERPORT = 9876; // master port, accepts connection from remote server
-	private int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
+	private int MASTERPORT = 9376; // master port, accepts connection from remote server
+	private int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	private InetAddress IPAddress = null; // remote server address
 
@@ -61,7 +61,7 @@ public class RelatrixClient implements Runnable {
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 	
-	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();
+	private ConcurrentHashMap<String, RelatrixKVStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixKVStatement>();
 
 	/**
 	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -73,7 +73,7 @@ public class RelatrixClient implements Runnable {
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
+	public RelatrixKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -83,7 +83,7 @@ public class RelatrixClient implements Runnable {
 			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
 		}
 		//
- 		// Wait for master server node to connect back to here for return channel communication
+		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
 		masterSocket = new ServerSocket(0);
@@ -110,12 +110,12 @@ public class RelatrixClient implements Runnable {
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("RelatrixClient server socket accept failed with "+e1);
+			System.out.println("RelatrixKVClient server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
   	    if( DEBUG ) {
-  	    	 System.out.println("RelatrixClient got connection "+sock);
+  	    	 System.out.println("RelatrixKVClient got connection "+sock);
   	    }
   	    try {
 		  while(shouldRun ) {
@@ -127,10 +127,10 @@ public class RelatrixClient implements Runnable {
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Exception ) {
-					 System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+					 System.out.println("RelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					 o = ((Throwable)o).getCause();
 				}
-				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
+				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
@@ -158,7 +158,7 @@ public class RelatrixClient implements Runnable {
 	 */
 	public void send(RemoteRequestInterface iori) {
 		try {
-			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
+			outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
 			oos.flush();
@@ -204,18 +204,15 @@ public class RelatrixClient implements Runnable {
 		shouldRun = false;
 	}
 	/**
-	 * Call the remote server method to store a morphism.
-	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * This is a standalone store in an atomic transparent transaction. Disallowed in transaction mode.
-	 * @param d The Comparable representing the domain object for this morphism relationship.
-	 * @param m The Comparable representing the map object for this morphism relationship.
-	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * Call the remote server method to store an object.
+	 * @param k The Comparable representing the key relationship
+	 * @param v The value
 	 * @throws IllegalAccessException
 	 * @throws IOException
-	 * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
+	 * @return 
 	 */
-	public DomainMapRange store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixStatement("store",d, m, r);
+	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("store",k,v);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -236,24 +233,23 @@ public class RelatrixClient implements Runnable {
 				else
 					if(o instanceof Exception)
 						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (DomainMapRange)o;
+		return o;
 	
 	}
 	/**
-	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * Store our k/v
 	 * This is a transactional store in the context of a previously initiated transaction.
 	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
 	 * to prevent a recovery on the next operation
-	 * @param d The Comparable representing the domain object for this morphism relationship.
-	 * @param m The Comparable representing the map object for this morphism relationship.
-	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @param d The Comparable representing the key object for this morphism relationship.
+	 * @param m The value object
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	public DomainMapRange transactionalStore(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixStatement("transactionalStore",d, m, r);
+	public Object transactionalStore(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionalStore",k, v);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -274,14 +270,14 @@ public class RelatrixClient implements Runnable {
 				else
 					if(o instanceof Exception)
 						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (DomainMapRange)o;
+		return o;
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
 	 */
 	public void transactionCommit() throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionCommit",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -302,7 +298,7 @@ public class RelatrixClient implements Runnable {
 	 * @throws IOException
 	 */
 	public void transactionRollback() throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionRollback",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -331,7 +327,7 @@ public class RelatrixClient implements Runnable {
 	 * @throws IllegalAccessException 
 	 */
 	public void transactionCheckpoint() throws IOException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -355,71 +351,12 @@ public class RelatrixClient implements Runnable {
 	/**
 	* recursively delete all relationships that this object participates in
 	* @exception IOException low-level access or problems modifiying schema
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
 	*/
-	public void remove(Comparable c) throws IOException
+	public Object remove(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		throw new IOException("No remove implemented yet");
-	}
-	/**
-	 * Delete specific relationship and all relationships that it participates in
-	 * @param d
-	 * @param m
-	 * @param r
-	 */
-	public void remove(Comparable d, Comparable m, Comparable r) throws IOException {
-		throw new IOException("No remove implemented yet");	
-	}
-
-
-	/**
-	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	* matching the given set of operators and/or objects. Essentially this is the default permutation which
-	* retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
-	* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return an identity composed of those 3 or
-	* a set composed of identity elements matching the class of the template(s) in the argument(s)
-	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
-	* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
-	* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-	* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
-	* the mathematical identity, or constitute the unique key in database terms.
-	* @param darg Object for domain of relationship or a class template
-	* @param marg Object for the map of relationship or a class template
-	* @param rarg Object for the range of the relationship or a class template
-	* @exception IOException low-level access or problems modifiying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
-	*/
-	public RemoteTailsetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		return findTailSet(darg, marg, rarg);
-
-	}
-
-	/**
-	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	* matching the given set of operators and/or objects.
-	* The parameters can be objects and/or operators. Semantically,
-	* this set-based retrieval makes no sense without at least one object to supply a value to
-	* work against, so in this method that check is performed.
-	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return a
-	* a set composed of elements matching the class of the template(s) in the argument(s)
-	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
-	* @param darg Object for domain of relationship or a class template
-	* @param marg Object for the map of relationship or a class template
-	* @param rarg Object for the range of the relationship or a class template
-	* @exception IOException low-level access or problems modifiying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
-	*/
-	public RemoteTailsetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
+		RelatrixKVStatement rs = new RelatrixKVStatement("remove",key);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -444,7 +381,351 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailsetIterator)o;
+		return o;
+	}
+
+	public Object first() throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("first",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+	
+	public Object last() throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("last",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+	
+	public Comparable firstKey() throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (Comparable) o;
+	}
+	
+	public Comparable lastKey() throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (Comparable) o;
+	}
+
+	public long size() throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("size",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (long) o;
+	}
+	
+	public boolean contains(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("contains",key);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (boolean) o;
+	}
+	/**
+	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+	* matching the given set of operators and/or objects. Essentially this is the default permutation which
+	* retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
+	* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
+	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return an identity composed of those 3 or
+	* a set composed of identity elements matching the class of the template(s) in the argument(s)
+	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
+	* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
+	* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
+	* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
+	* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
+	* the mathematical identity, or constitute the unique key in database terms.
+	* @param darg Object for domain of relationship or a class template
+	* @param marg Object for the map of relationship or a class template
+	* @param rarg Object for the range of the relationship or a class template
+	* @exception IOException low-level access or problems modifiying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	*/
+	public RemoteTailmapIterator findTailMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",key);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteTailmapIterator)o;
+
+
+	}
+
+	public RemoteTailmapIterator entrySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteTailmapIterator)o;
+
+
+	}
+	
+	public RemoteTailmapIterator keySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",new Object[0]);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteTailmapIterator)o;
+
+
+	}
+	/**
+	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+	* matching the given set of operators and/or objects.
+	* The parameters can be objects and/or operators. Semantically,
+	* this set-based retrieval makes no sense without at least one object to supply a value to
+	* work against, so in this method that check is performed.
+	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return a
+	* a set composed of elements matching the class of the template(s) in the argument(s)
+	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
+	* @param darg Object for domain of relationship or a class template
+	* @param marg Object for the map of relationship or a class template
+	* @param rarg Object for the range of the relationship or a class template
+	* @exception IOException low-level access or problems modifiying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	*/
+	public RemoteTailmapKVIterator findTailMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",key);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteTailmapKVIterator)o;
 
 	}
 
@@ -462,9 +743,9 @@ public class RelatrixClient implements Runnable {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteHeadsetIterator findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteHeadmapIterator findHeadMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixStatement rs = new RelatrixStatement("findHeadSet",darg, marg, rarg);
+		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",key);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -488,7 +769,48 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteHeadsetIterator)o;
+		return (RemoteHeadmapIterator)o;
+
+	}
+	/**
+	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
+	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
+	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
+	 * work against, so in this method that check is performed.
+	 * @param darg Domain of morphism
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public RemoteHeadmapKVIterator findHeadMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",key);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteHeadmapKVIterator)o;
 
 	}
 	/**
@@ -500,17 +822,15 @@ public class RelatrixClient implements Runnable {
 	 * work against, so in this method that check is performed.
 	 * @param darg The domain of the relationship to retrieve
 	 * @param marg The map of the relationship to retrieve
-	 * @param rarg The range or codomain of the relationship
-	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteSubsetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteSubmapIterator findSubMap(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixStatement rs = new RelatrixStatement("findSubSet",darg, marg, rarg, endarg);
+		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMap",key1, key2);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -534,7 +854,52 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteSubsetIterator)o;
+		return (RemoteSubmapIterator)o;
+
+	}
+	
+	/**
+	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
+	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
+	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
+	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
+	 * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
+	 * work against, so in this method that check is performed.
+	 * @param darg The domain of the relationship to retrieve
+	 * @param marg The map of the relationship to retrieve
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable>
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public RemoteSubmapKVIterator findSubMapKV(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKV",key1, key2);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteSubmapKVIterator)o;
 
 	}
 	/**
@@ -544,44 +909,44 @@ public class RelatrixClient implements Runnable {
 	 * @param rii
 	 * @return
 	 */
-	public Comparable[] next(RemoteObjectInterface rii) throws NoSuchElementException {
-		((RelatrixStatement)rii).methodName = "next";
-		((RelatrixStatement)rii).paramArray = new Object[0];
+	public Comparable next(RemoteObjectInterface rii) throws NoSuchElementException {
+		((RelatrixKVStatement)rii).methodName = "next";
+		((RelatrixKVStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
 		send((RemoteRequestInterface) rii);
 		try {
 			cdl.await();
 		} catch (InterruptedException e) {}
-		Object o = ((RelatrixStatement)rii).getObjectReturn();
+		Object o = ((RelatrixKVStatement)rii).getObjectReturn();
 		if(o instanceof NoSuchElementException)
 			throw (NoSuchElementException)o;
-		return (Comparable[])o;
+		return (Comparable)o;
 
 	}
 	
 	public boolean hasNext(RemoteObjectInterface rii) {
-		((RelatrixStatement)rii).methodName = "hasNext";
-		((RelatrixStatement)rii).paramArray = new Object[0];
+		((RelatrixKVStatement)rii).methodName = "hasNext";
+		((RelatrixKVStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
 		send((RemoteRequestInterface) rii);
 		try {
 			cdl.await();
 		} catch (InterruptedException e) {}
-		return (boolean)((RelatrixStatement)rii).getObjectReturn();	
+		return (boolean)((RelatrixKVStatement)rii).getObjectReturn();	
 	}
 	
 	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException{
-		((RelatrixStatement)rii).methodName = "remove";
-		((RelatrixStatement)rii).paramArray = new Object[]{ ((RelatrixStatement)rii).getObjectReturn() };
+		((RelatrixKVStatement)rii).methodName = "remove";
+		((RelatrixKVStatement)rii).paramArray = new Object[]{ ((RelatrixKVStatement)rii).getObjectReturn() };
 		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
 		send((RemoteRequestInterface) rii);
 		try {
 			cdl.await();
 		} catch (InterruptedException e) {}
-		Object o = ((RelatrixStatement)rii).getObjectReturn();
+		Object o = ((RelatrixKVStatement)rii).getObjectReturn();
 		if( o != null) {
 			if( o instanceof UnsupportedOperationException)
 				throw (UnsupportedOperationException)o;
@@ -598,10 +963,10 @@ public class RelatrixClient implements Runnable {
 	 * @param rii
 	 */
 	public void close(RemoteObjectInterface rii) {
-		((RelatrixStatement)rii).methodName = "close";
-		((RelatrixStatement)rii).paramArray = new Object[0];
+		((RelatrixKVStatement)rii).methodName = "close";
+		((RelatrixKVStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
+		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
 		send((RemoteRequestInterface) rii);
 		try {
 			cdl.await();
@@ -652,7 +1017,7 @@ public class RelatrixClient implements Runnable {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		RelatrixClient rc = new RelatrixClient("localhost","localhost", 9000);
+		RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
 		RelatrixStatement rs = new RelatrixStatement("toString",(Object[])null);
 		rc.send(rs);
 	}

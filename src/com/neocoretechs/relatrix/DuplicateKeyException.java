@@ -8,4 +8,6 @@ package com.neocoretechs.relatrix;
  */
 public class DuplicateKeyException extends Exception {
 	public DuplicateKeyException(Comparable domain, Comparable map) { super("Duplicate key:"+domain+","+map); }
+
+	public DuplicateKeyException(Comparable<?> key) { super("Duplicate key:"+key);}
 }
