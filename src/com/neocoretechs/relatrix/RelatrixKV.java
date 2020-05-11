@@ -113,7 +113,7 @@ public static synchronized void transactionCommit() throws IOException {
 		transactionTreeMap.commit();
 		if( DEBUG || TRACE )
 			System.out.println("Committed treeSet "+transactionTreeMap.getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
-		transactionTreeMap = null;
+		//transactionTreeMap = null;
 }
 /**
  * Roll back all outstanding transactions on the indicies
@@ -262,6 +262,7 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
 public static synchronized Iterator<?> entrySet() throws IOException
 {
 	if( transactionTreeMap == null ) {
+		System.out.println("Treemap got nulled");
 		return null;
 	}
 	return transactionTreeMap.entrySet();
@@ -275,8 +276,7 @@ public static synchronized Iterator<?> keySet() throws IOException
 	return transactionTreeMap.keySet();
 }
 /**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
- * instance having the lowest valued key.
+ * return lowest valued key.
  * @return the The key/value with lowest key value.
  * @throws IOException
  */
@@ -285,20 +285,23 @@ public static synchronized Object first() throws IOException
 	if( transactionTreeMap == null ) {
 		return null;
 	}
-	return transactionTreeMap.first();
+	return transactionTreeMap.firstKey();
 }
-
-public static synchronized Object firstKey() throws IOException
+/**
+ * The lowest key value object
+ * @return
+ * @throws IOException
+ */
+public static synchronized Object firstValue() throws IOException
 {
 	if( transactionTreeMap == null ) {
 		return null;
 	}
-	return transactionTreeMap.firstKey();
+	return transactionTreeMap.first();
 }
 /**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the highest valued key.
- * @return the DomainMapRange morphism having the highest key value.
+ * Return instance having the highest valued key.
+ * @return the The highest value object
  * @throws IOException
  */
 public static synchronized Object last() throws IOException
@@ -306,24 +309,22 @@ public static synchronized Object last() throws IOException
 	if( transactionTreeMap == null ) {
 		return null;
 	}
-	return transactionTreeMap.last();
+	return transactionTreeMap.lastKey();
 }
 /**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the highest valued key.
+ * Return the instance having the highest valued key.
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
  */
-public static synchronized Object lastKey() throws IOException
+public static synchronized Object lastValue() throws IOException
 {
 	if( transactionTreeMap == null ) {
 		return null;
 	}
-	return transactionTreeMap.lastKey();
+	return transactionTreeMap.last();
 }
 /**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
- * instances.
+ * Size of all elements
  * @return the number of DomainMapRange morphisms.
  * @throws IOException
  */
@@ -335,9 +336,9 @@ public static synchronized long size() throws IOException
 	return transactionTreeMap.size();
 }
 /**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns whether the passed DomainMapRange
- * instance exists in the data.
- * @return true if the passed DomainMapRAnge exists.
+ * Is the key contained in the dataset
+ * @parameter obj The Comparable key to search for
+ * @return true if key is found
  * @throws IOException
  */
 public static synchronized boolean contains(Comparable obj) throws IOException
@@ -347,7 +348,19 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	}
 	return transactionTreeMap.containsKey(obj);
 }
-
+/**
+ * Is the value object present
+ * @param obj the object with equals, CAUTION explicit conversion is needed
+ * @return boolean true if found
+ * @throws IOException
+ */
+public static synchronized boolean containsValue(Object obj) throws IOException
+{
+	if( transactionTreeMap == null ) {
+		return false;
+	}
+	return transactionTreeMap.containsValue(obj);
+}
 
 }
 
