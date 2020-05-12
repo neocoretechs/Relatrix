@@ -1,0 +1,1 @@
+java -d64 -Xmx4g -XX:+UseParallelGC -DBigSack.properties="c:/users/jg/relatrix/BigSack.properties" -cp \Progra~1\apache\apache-tomcat\lib\Relatrix.jar;\Progra~1\apache\apache-tomcat\lib\BigSack.jar;\Progra~1\apache\apache-tomcat\lib\mpi.jar com.neocoretechs.relatrix.server.RelatrixKVServer %1 %2

@@ -563,6 +563,36 @@ public class RelatrixKVClient implements Runnable {
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (boolean) o;
 	}
+	
+	public boolean containsValue(Object value) throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("containsValue",value);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (boolean) o;
+	}
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	* matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -613,8 +643,6 @@ public class RelatrixKVClient implements Runnable {
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (RemoteTailmapIterator)o;
-
-
 	}
 
 	public RemoteTailmapIterator entrySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
