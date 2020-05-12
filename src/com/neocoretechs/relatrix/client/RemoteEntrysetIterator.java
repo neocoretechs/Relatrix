@@ -2,14 +2,14 @@ package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 /**
- * Used by the Key/Value RelatrixKVServer to produce headmaps for remote delivery
+ * Used by the Key/Value RelatrixKVServer to produce entry sets for remote delivery
  * @author Groff
  *
  */
-public class RemoteHeadmapKVIterator extends RelatrixKVStatement implements RemoteObjectInterface{
-	private static final long serialVersionUID = -3324485838278832306L;
-	public static final String className = "com.neocoretechs.bigsack.iterator.HeadSetKVIterator";
-	public RemoteHeadmapKVIterator(String session) {
+public class RemoteEntrysetIterator extends RelatrixKVStatement implements RemoteObjectInterface{
+	private static final long serialVersionUID = 1206621317830948409L;
+	public static final String className = "com.neocoretechs.bigsack.iterator.EntrySetIterator";
+	public RemoteEntrysetIterator(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
@@ -30,7 +30,8 @@ public class RemoteHeadmapKVIterator extends RelatrixKVStatement implements Remo
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixKVServer.relatrixHeadmapKVMethods.invokeMethod(this, itInst);
+			//System.out.println(itInst+" class:"+itInst.getClass());
+			Object result = RelatrixKVServer.relatrixEntrysetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters

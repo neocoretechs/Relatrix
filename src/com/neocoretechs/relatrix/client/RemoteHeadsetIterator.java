@@ -2,7 +2,11 @@ package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixServer;
-
+/**
+ * Used by the category theoretic Relatrix server to produce headsets for remote delivery
+ * @author Groff
+ *
+ */
 public class RemoteHeadsetIterator extends RelatrixStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
 	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator";

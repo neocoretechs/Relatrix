@@ -10,14 +10,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.client.RemoteEntrysetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadsetIterator;
+import com.neocoretechs.relatrix.client.RemoteKeysetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubmapIterator;
 import com.neocoretechs.relatrix.client.RemoteSubmapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteTailmapIterator;
 import com.neocoretechs.relatrix.client.RemoteTailmapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteTailsetIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 
 
 /**
@@ -54,8 +58,10 @@ public final class RelatrixKVServer extends TCPServer {
 	public static ServerInvokeMethod relatrixHeadmapKVMethods = null; // Headmap iterator methods
 	public static ServerInvokeMethod relatrixTailmapMethods = null; // Standard Tailmap iterator methods
 	public static ServerInvokeMethod relatrixTailmapKVMethods = null;// Tailmap KV methods
-	
+	public static ServerInvokeMethod relatrixEntrysetMethods = null;// EntrySet KV methods
+	public static ServerInvokeMethod relatrixKeysetMethods = null; // Keyset KV methods
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
+
 	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
@@ -74,6 +80,8 @@ public final class RelatrixKVServer extends TCPServer {
 		RelatrixKVServer.relatrixHeadmapKVMethods = new ServerInvokeMethod(RemoteHeadmapKVIterator.className, 0);
 		RelatrixKVServer.relatrixTailmapMethods = new ServerInvokeMethod(RemoteTailmapIterator.className, 0);
 		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod(RemoteTailmapKVIterator.className, 0);
+		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod(RemoteEntrysetIterator.className, 0);
+		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeysetIterator.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
@@ -144,7 +152,7 @@ public final class RelatrixKVServer extends TCPServer {
         String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
         		(new File(args[0]).getName());
         System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
-        Relatrix.setTablespaceDirectory(db);
+        RelatrixKV.setTablespaceDirectory(db);
         // if we get a command packet with no statement, assume it to start a new instance
 		new RelatrixKVServer(WORKBOOTPORT);
 		System.out.println("Relatrix K/V Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);

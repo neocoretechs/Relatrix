@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
- * The following class allows the transport of Relatrix method calls to the server
+ * The following class allows the transport of RelatrixKV method calls to the server
  * @author jg
  *
  */
@@ -121,8 +121,12 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 		return retObj;
 	}
 	/**
-	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
-	 * in which case we save it server side and link it to the session for later retrieval
+	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable
+	 * in which case we save it server side and link it to the session for later retrieval. We create an intermediary
+	 * that proxyies the functionality back to the server and client, and is serializable and contains the necessary infrastructure
+	 * to encapsulate the iterator.<p/>
+	 * Note that here we are returning BigSack iterators rather than Relatrix Factory iterators. We can use the native iterators here
+	 * because the functionality is available in whole, and we dont have to add the morphism processing aspect.
 	 */
 	@Override
 	public void process() throws Exception {
@@ -135,26 +139,35 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 				System.out.println("RelatrixKVStatement Storing local object reference for "+getSession()+", data:"+result);
 			}
 			// put it in the array and send our intermediary back
-			RelatrixServer.sessionToObject.put(getSession(), result);
-			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKVIterator.class) {
+			RelatrixKVServer.sessionToObject.put(getSession(), result);
+			if( result.getClass() == com.neocoretechs.bigsack.iterator.TailSetKVIterator.class) {
 				setObjectReturn( new RemoteTailmapKVIterator(getSession()) );
 			} else {
-				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapKVIterator.class ) {
+				if(result.getClass() == com.neocoretechs.bigsack.iterator.SubSetKVIterator.class ) {
 					setObjectReturn( new RemoteSubmapKVIterator(getSession()) );
 				} else {
-					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapKVIterator.class ) {
+					if(result.getClass() == com.neocoretechs.bigsack.iterator.HeadSetKVIterator.class ) {
 						setObjectReturn( new RemoteHeadmapKVIterator(getSession()) );
 					} else {
-						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeyIterator.class) {
+						if( result.getClass() == com.neocoretechs.bigsack.iterator.TailSetIterator.class) {
 							setObjectReturn( new RemoteTailmapIterator(getSession()) );
 						} else {
-							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator.class) {
+							if( result.getClass() == com.neocoretechs.bigsack.iterator.SubSetIterator.class) {
 								setObjectReturn( new RemoteSubmapIterator(getSession()) );
 							} else {
-								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator.class) {
+								if( result.getClass() == com.neocoretechs.bigsack.iterator.HeadSetIterator.class) {
 									setObjectReturn( new RemoteHeadmapIterator(getSession()) );
-								} else 
-									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								} else {
+									if( result.getClass() == com.neocoretechs.bigsack.iterator.EntrySetIterator.class) {
+										setObjectReturn( new RemoteEntrysetIterator(getSession()) );
+									} else {
+										if( result.getClass() == com.neocoretechs.bigsack.iterator.KeySetIterator.class) {
+											setObjectReturn( new RemoteKeysetIterator(getSession()) );
+										} else {
+											throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+										}
+									}
+								}
 							}
 						}
 					}

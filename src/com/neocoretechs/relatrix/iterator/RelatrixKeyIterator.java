@@ -5,8 +5,7 @@ import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.TailSetIterator;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.relatrix.Morphism;
+
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
  * to set the lower bound of the correct range search for the properly ordered set of  subclasses;

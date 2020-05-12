@@ -193,7 +193,7 @@ public class BatteryRelatrixKV {
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Object k = RelatrixKV.first(); // first key
+		Object k = RelatrixKV.firstKey(); // first key
 		System.out.println("KV Battery1AR9");
 		if( Integer.parseInt((String)k) != i ) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
@@ -215,7 +215,7 @@ public class BatteryRelatrixKV {
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Object k = RelatrixKV.last(); // key
+		Object k = RelatrixKV.lastKey(); // key
 		System.out.println("KV Battery1AR10");
 		if( Long.parseLong((String) k) != (long)i ) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
@@ -253,7 +253,7 @@ public class BatteryRelatrixKV {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		Iterator<?> its = RelatrixKV.findMap(fkey);
+		Iterator<?> its = RelatrixKV.findTailMap(fkey);
 		System.out.println("KV Battery1AR11");
 		while(its.hasNext()) {
 			String nex = (String) its.next();
@@ -275,7 +275,7 @@ public class BatteryRelatrixKV {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		Iterator<?> its = RelatrixKV.findMapKV(fkey);
+		Iterator<?> its = RelatrixKV.findTailMapKV(fkey);
 		System.out.println("KV Battery1AR12");
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();

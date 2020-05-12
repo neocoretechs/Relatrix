@@ -170,7 +170,7 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 * @throws IllegalAccessException 
 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 */
-public static synchronized Iterator<?> findMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	return transactionTreeMap.tailMap(darg);
 }
@@ -191,7 +191,7 @@ public static synchronized Iterator<?> findMap(Comparable darg) throws IOExcepti
 * @throws IllegalAccessException 
 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 */
-public static synchronized Iterator<?> findMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	return transactionTreeMap.tailMapKV(darg);
 }
@@ -262,7 +262,6 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
 public static synchronized Iterator<?> entrySet() throws IOException
 {
 	if( transactionTreeMap == null ) {
-		System.out.println("Treemap got nulled");
 		return null;
 	}
 	return transactionTreeMap.entrySet();
@@ -280,7 +279,7 @@ public static synchronized Iterator<?> keySet() throws IOException
  * @return the The key/value with lowest key value.
  * @throws IOException
  */
-public static synchronized Object first() throws IOException
+public static synchronized Object firstKey() throws IOException
 {
 	if( transactionTreeMap == null ) {
 		return null;
@@ -304,7 +303,7 @@ public static synchronized Object firstValue() throws IOException
  * @return the The highest value object
  * @throws IOException
  */
-public static synchronized Object last() throws IOException
+public static synchronized Object lastKey() throws IOException
 {
 	if( transactionTreeMap == null ) {
 		return null;

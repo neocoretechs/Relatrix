@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.TailSetIterator;
+import com.neocoretechs.bigsack.iterator.EntrySetIterator;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 
 /**
@@ -12,10 +12,10 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  * @author jg Copyright (C) NeoCoreTechs 2020
  *
  */
-public class RelatrixKVIterator implements Iterator<Comparable> {
+public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 	private static boolean DEBUG = false;
 	TransactionalTreeMap deepStore;
-	protected TailSetIterator iter;
+	protected EntrySetIterator iter;
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
@@ -24,20 +24,20 @@ public class RelatrixKVIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixKVIterator(TransactionalTreeMap bts, Comparable template) throws IOException {
+    public RelatrixEntrysetIterator(TransactionalTreeMap bts) throws IOException {
     	this.deepStore = bts;
-    	iter = (TailSetIterator) bts.tailMapKV(template);
+    	iter = (EntrySetIterator) bts.entrySet();
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
     	if( DEBUG )
-			System.out.println("RelatrixKVIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
+			System.out.println("RelatrixEntrysetIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
     	}
     }
     
 	@Override
 	public boolean hasNext() {
 		if( DEBUG )
-			System.out.println("RelatrixKVIterator.hasNext() "+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+			System.out.println("RelatrixEntrysetIterator.hasNext() "+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
 		return needsIter;
 	}
 
@@ -45,7 +45,7 @@ public class RelatrixKVIterator implements Iterator<Comparable> {
 	public Comparable next() {
 		if( buffer == null || needsIter) {
 			if( DEBUG ) {
-	    			System.out.println("RelatrixKVIterator.next() before iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+	    			System.out.println("RelatrixEntrysetIterator.next() before iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
 			}
 			if( nextit != null )
 				buffer = nextit;
@@ -59,7 +59,7 @@ public class RelatrixKVIterator implements Iterator<Comparable> {
 		}
 		// always return using this with non null buffer
 		if( DEBUG ) {
-			System.out.println("RelatrixKVIterator.next() template match after iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+			System.out.println("RelatrixEntrysetIterator.next() template match after iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
 		}
 		return nextit;
 	}

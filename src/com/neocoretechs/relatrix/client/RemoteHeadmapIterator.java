@@ -1,12 +1,14 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
-
-public class RemoteHeadmapIterator extends RelatrixStatement implements RemoteObjectInterface{
+/**
+ * Used by the Key/Value RelatrixKVServer to produce headmaps for remote delivery
+ * @author Groff
+ *
+ */
+public class RemoteHeadmapIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -6767314283313398274L;
-	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator";
+	public static final String className = "com.neocoretechs.bigsack.iterator.HeadSetIterator";
 	public RemoteHeadmapIterator(String session) {
 		super();
 		paramArray = new Object[0];
@@ -37,6 +39,6 @@ public class RemoteHeadmapIterator extends RelatrixStatement implements RemoteOb
 
 	@Override
 	public void close() {
-		RelatrixServer.sessionToObject.remove(getSession());
+		RelatrixKVServer.sessionToObject.remove(getSession());
 	}
 }

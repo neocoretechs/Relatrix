@@ -6,8 +6,10 @@ import java.util.Map;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
+import com.neocoretechs.relatrix.client.RemoteEntrysetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapKVIterator;
+import com.neocoretechs.relatrix.client.RemoteKeysetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubmapIterator;
 import com.neocoretechs.relatrix.client.RemoteSubmapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteTailmapIterator;
@@ -37,7 +39,7 @@ public class BatteryRelatrixKVClient {
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 1000;
 	static int numDelete = 100; // for delete test
 	/**
 	* Main test fixture driver
@@ -130,7 +132,7 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR6(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteTailmapIterator its = rkvc.entrySet();
+		RemoteEntrysetIterator its = rkvc.entrySet();
 		System.out.println("KV Battery1AR6");
 		while(rkvc.hasNext(its)) {
 			Comparable nex = (Comparable) rkvc.next(its);
@@ -153,7 +155,7 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteTailmapIterator its = rkvc.keySet();
+		RemoteKeysetIterator its = rkvc.keySet();
 		System.out.println("KV Battery1AR7");
 		while(rkvc.hasNext(its)) {
 			String nex = (String) rkvc.next(its);
@@ -207,10 +209,10 @@ public class BatteryRelatrixKVClient {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
-		long ks = (long) rkvc.first();
+		long ks = (long) rkvc.firstValue();
 		if( ks != i) {
-			System.out.println("KV BATTERY1A9 cant find contains key "+i);
-			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
+			System.out.println("KV BATTERY1A9 cant find contains value "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of value "+i);
 		}
 		System.out.println("KV BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -229,9 +231,9 @@ public class BatteryRelatrixKVClient {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
-		long ks = (long)rkvc.last();
+		long ks = (long)rkvc.lastValue();
 		if( ks != i) {
-			System.out.println("KV BATTERY1AR10 cant find last key "+i);
+			System.out.println("KV BATTERY1AR10 cant find last value "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
@@ -429,7 +431,7 @@ public class BatteryRelatrixKVClient {
 		rkvc.transactionCommit();
 		long siz = RelatrixKV.size();
 		if(siz > 0) {
-			RemoteTailmapIterator its = rkvc.entrySet();
+			RemoteEntrysetIterator its = rkvc.entrySet();
 			while(rkvc.hasNext(its)) {
 				Comparable nex = (Comparable) rkvc.next(its);
 				//System.out.println(i+"="+nex);

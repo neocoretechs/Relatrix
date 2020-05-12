@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
- * The following class allows the transport of Relatrix method calls to the server
+ * The following class allows the transport of Relatrix method calls to the server.
  * @author jg
  *
  */

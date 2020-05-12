@@ -3,11 +3,9 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.SubSetIterator;
 import com.neocoretechs.bigsack.iterator.SubSetKVIterator;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.relatrix.Morphism;
+
 /**
  * Our main representable analog. Instances of this class deliver the set of key/value
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.

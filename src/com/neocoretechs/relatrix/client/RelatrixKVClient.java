@@ -5,22 +5,18 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
-import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.
  * On the client and server the following are present as conventions:
@@ -163,9 +159,9 @@ public class RelatrixKVClient implements Runnable {
 			oos.writeObject(iori);
 			oos.flush();
 		} catch (SocketException e) {
-				System.out.println("Exception setting up socket to remote host:"+IPAddress+" port "+SLAVEPORT+" "+e);
+				System.out.println("Exception setting up socket to remote KV host:"+IPAddress+" port "+SLAVEPORT+" "+e);
 		} catch (IOException e) {
-				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
+				System.out.println("KV Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
 		}
 	}
 	
@@ -384,9 +380,9 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 
-	public Object first() throws IOException, ClassNotFoundException, IllegalAccessException
+	public Object firstValue() throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("first",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -414,9 +410,9 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 	
-	public Object last() throws IOException, ClassNotFoundException, IllegalAccessException
+	public Object lastValue() throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("last",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -645,7 +641,7 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteTailmapIterator)o;
 	}
 
-	public RemoteTailmapIterator entrySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteEntrysetIterator entrySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -672,12 +668,12 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailmapIterator)o;
+		return (RemoteEntrysetIterator)o;
 
 
 	}
 	
-	public RemoteTailmapIterator keySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteKeysetIterator keySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -704,7 +700,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailmapIterator)o;
+		return (RemoteKeysetIterator)o;
 
 
 	}
@@ -728,7 +724,7 @@ public class RelatrixKVClient implements Runnable {
 	*/
 	public RemoteTailmapKVIterator findTailMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",key);
+		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKV",key);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -814,7 +810,7 @@ public class RelatrixKVClient implements Runnable {
 	 */
 	public RemoteHeadmapKVIterator findHeadMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",key);
+		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKV",key);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -1046,7 +1042,7 @@ public class RelatrixKVClient implements Runnable {
 	
 	public static void main(String[] args) throws Exception {
 		RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
-		RelatrixStatement rs = new RelatrixStatement("toString",(Object[])null);
+		RelatrixKVStatement rs = new RelatrixKVStatement("toString",(Object[])null);
 		rc.send(rs);
 	}
 	

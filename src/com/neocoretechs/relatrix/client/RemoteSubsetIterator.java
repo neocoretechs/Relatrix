@@ -2,7 +2,11 @@ package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixServer;
-
+/**
+ * Used by category theoretic and set valued operations to produce subset functors etc.
+ * @author groff
+ *
+ */
 public class RemoteSubsetIterator extends RelatrixStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
 	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator";

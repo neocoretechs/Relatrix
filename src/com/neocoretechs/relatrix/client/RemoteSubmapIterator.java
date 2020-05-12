@@ -1,12 +1,14 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
-
-public class RemoteSubmapIterator extends RelatrixStatement implements RemoteObjectInterface{
+/**
+ * Used by the Key/Value subsystem to produce submaps for remote delivery
+ * @author Groff
+ *
+ */
+public class RemoteSubmapIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -112309448424952343L;
-	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator";
+	public static final String className = "com.neocoretechs.bigsack.iterator.SubSetIterator";
 	public RemoteSubmapIterator(String session) {
 		super();
 		paramArray = new Object[0];
@@ -37,6 +39,6 @@ public class RemoteSubmapIterator extends RelatrixStatement implements RemoteObj
 
 	@Override
 	public void close() {
-		RelatrixServer.sessionToObject.remove(getSession());
+		RelatrixKVServer.sessionToObject.remove(getSession());
 	}
 }

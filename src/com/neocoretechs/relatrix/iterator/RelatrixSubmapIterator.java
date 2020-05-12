@@ -5,8 +5,6 @@ import java.util.Iterator;
 
 import com.neocoretechs.bigsack.iterator.SubSetIterator;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of keys
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.

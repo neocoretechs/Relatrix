@@ -1,12 +1,10 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 
-public class RemoteTailmapKVIterator extends RelatrixStatement implements RemoteObjectInterface{
+public class RemoteTailmapKVIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
-	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixKVIterator";
+	public static final String className = "com.neocoretechs.bigsack.iterator.TailSetKVIterator";
 	public RemoteTailmapKVIterator(String session) {
 		super();
 		paramArray = new Object[0];
@@ -37,6 +35,6 @@ public class RemoteTailmapKVIterator extends RelatrixStatement implements Remote
 
 	@Override
 	public void close() {
-		RelatrixServer.sessionToObject.remove(getSession());
+		RelatrixKVServer.sessionToObject.remove(getSession());
 	}
 }
