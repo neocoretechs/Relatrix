@@ -46,7 +46,7 @@ public class BatteryRelatrixKVClient {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		battery1(argv);
+		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
@@ -61,7 +61,6 @@ public class BatteryRelatrixKVClient {
 		battery1AR15(argv);
 		battery1AR16(argv);
 		battery1AR17(argv);
-
 		System.out.println("TEST BATTERY COMPLETE.");
 		
 	}
@@ -426,7 +425,6 @@ public class BatteryRelatrixKVClient {
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
-			++i;
 		}
 		rkvc.transactionCommit(String.class);
 		long siz = rkvc.size(String.class);

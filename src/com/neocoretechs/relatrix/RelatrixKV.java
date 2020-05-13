@@ -133,7 +133,7 @@ public static synchronized void transactionCheckpoint() throws IOException, Ille
  * @throws ClassNotFoundException 
  * @throws IllegalArgumentException 
 */
-public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized void remove(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(c);
 	if( DEBUG || DEBUGREMOVE )

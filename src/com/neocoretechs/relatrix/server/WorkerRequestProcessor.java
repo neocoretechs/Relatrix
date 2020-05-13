@@ -28,6 +28,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
  */
 public final class WorkerRequestProcessor implements Runnable {
 	private static boolean DEBUG = false;
+	public static boolean SHOWDUPEKEYEXCEPTION = true;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
 
@@ -103,9 +104,10 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("Response queued:"+iori);
 			}
 		} catch (Exception e1) {
-			
-			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
-			e1.printStackTrace();
+			if( !(((Throwable)e1).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION ) {
+				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
+				e1.printStackTrace();
+			}
 			
 			iori.setObjectReturn(e1);
 			// clear the request queue
@@ -115,10 +117,12 @@ public final class WorkerRequestProcessor implements Runnable {
 			queueResponse((RemoteResponseInterface) iori);
 			// roll back changes
 			try {
-				if(e1.getCause() instanceof DuplicateKeyException)
-					System.out.println("CANCELLING AUTOMATIC TRANSACTION ROLLBACK FOR DUPLICATE KEY EXECEPTION");
-				else
+				if(e1.getCause() instanceof DuplicateKeyException) {
+					if(SHOWDUPEKEYEXCEPTION)
+						System.out.println("CANCELLING AUTOMATIC TRANSACTION ROLLBACK FOR DUPLICATE KEY EXECEPTION");
+				} else {
 					Relatrix.transactionRollback();
+				}
 			} catch (IOException e) {
 				System.out.println("Exception on transaction rollback due to fault:"+e);
 				e.printStackTrace();

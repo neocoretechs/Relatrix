@@ -42,6 +42,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
 public class RelatrixKVClient implements Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
+	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	
 	private int MASTERPORT = 9376; // master port, accepts connection from remote server
 	private int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
@@ -123,7 +124,8 @@ public class RelatrixKVClient implements Runnable {
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Exception ) {
-					 System.out.println("RelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
+						System.out.println("RelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					 o = ((Throwable)o).getCause();
 				}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
