@@ -429,7 +429,7 @@ public class BatteryRelatrixKVClient {
 			++i;
 		}
 		rkvc.transactionCommit(String.class);
-		long siz = RelatrixKV.size(String.class);
+		long siz = rkvc.size(String.class);
 		if(siz > 0) {
 			RemoteEntrysetIterator its = rkvc.entrySet(String.class);
 			while(rkvc.hasNext(its)) {
@@ -441,6 +441,7 @@ public class BatteryRelatrixKVClient {
 			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 rkvc.close();
 	}
 	
 }
