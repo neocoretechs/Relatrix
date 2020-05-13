@@ -27,7 +27,6 @@ public final class RelatrixKV {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	// dbname, object cache size to open
-	private static TransactionalTreeMap transactionTreeMap;
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -84,47 +83,33 @@ public final class RelatrixKV {
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
 public static synchronized void transactionalStore(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-
-	if( transactionTreeMap == null ) {
-		transactionTreeMap = BigSackAdapter.getBigSackMapTransaction(key);
-	}
-
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(key);
 	if( DEBUG  )
 		System.out.println("RelatrixKV.transactionalStore storing dmr:"+key+"/"+value);
-	TreeSearchResult tsr = transactionTreeMap.locate(key);
+	TreeSearchResult tsr = ttm.locate(key);
 	if( DEBUG )
 		System.out.println("RelatrixKV.store Tree Search Result: "+tsr);
 	if(tsr.atKey) {
 			throw new DuplicateKeyException(key);
 	}
-	transactionTreeMap.put(key, value);
+	ttm.put(key, value);
 }
 /**
  * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
  */
-public static synchronized void transactionCommit() throws IOException {
-	if( transactionTreeMap == null ) {
-		return;
-	}
+public static synchronized void transactionCommit(Class clazz) throws IOException {
 	long startTime = System.currentTimeMillis();
-	if( DEBUG || TRACE )
-		System.out.println("Committing treeMap "+transactionTreeMap.getDBName());
-		transactionTreeMap.commit();
+	BigSackAdapter.commitMap(clazz);
 		if( DEBUG || TRACE )
-			System.out.println("Committed treeSet "+transactionTreeMap.getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
-		//transactionTreeMap = null;
+			System.out.println("Committed treeSet in " + (System.currentTimeMillis() - startTime) + "ms.");		
 }
 /**
  * Roll back all outstanding transactions on the indicies
  * @throws IOException
  */
-public static synchronized void transactionRollback() throws IOException {
-	if( transactionTreeMap == null ) {
-		return;
-	}
-	transactionTreeMap.rollback();
-
+public static synchronized void transactionRollback(Class clazz) throws IOException {
+	BigSackAdapter.rollbackMap(clazz);
 }
 /**
  * Take a check point of our current indicies. What this means is that we are
@@ -139,10 +124,7 @@ public static synchronized void transactionRollback() throws IOException {
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	if( transactionTreeMap == null ) {
-		return;
-	}
-	transactionTreeMap.checkpoint();
+	
 }
 /**
 * Delete all relationships that this object participates in
@@ -153,9 +135,10 @@ public static synchronized void transactionCheckpoint() throws IOException, Ille
 */
 public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(c);
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("RelatrixKV.remove prepping to remove:"+c);
-		transactionTreeMap.remove(c);
+		ttm.remove(c);
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove exiting remove for key:"+c+" should have removed"+c);
 }
@@ -172,7 +155,8 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 */
 public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	return transactionTreeMap.tailMap(darg);
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	return ttm.tailMap(darg);
 }
 
 /**
@@ -193,7 +177,8 @@ public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOExc
 */
 public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	return transactionTreeMap.tailMapKV(darg);
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	return ttm.tailMapKV(darg);
 }
 
 /**
@@ -206,8 +191,9 @@ public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOE
  */
 public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	// check for at least one object reference in our headset factory
-	return transactionTreeMap.headMap(darg);
+	return ttm.headMap(darg);
 }
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -219,8 +205,9 @@ public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOExc
  */
 public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	// check for at least one object reference in our headset factory
-	return transactionTreeMap.headMapKV(darg);
+	return ttm.headMapKV(darg);
 }
 /**
  * Retrieve the subset of the given set of arguments from the point of the relationship of the first 
@@ -234,11 +221,8 @@ public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOE
  */
 public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	// check for at least one object reference
-	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) ) 
-		throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
-	return transactionTreeMap.subMap(darg, marg);
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	return ttm.subMap(darg, marg);
 }
 /**
  * Retrieve the subset of the given set of arguments from the point of the relationship of the first 
@@ -253,112 +237,99 @@ public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable ma
 public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
-	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) ) 
-		throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
-	return transactionTreeMap.subMapKV(darg, marg);
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	return ttm.subMapKV(darg, marg);
 }
 
-public static synchronized Iterator<?> entrySet() throws IOException
+public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return null;
-	}
-	return transactionTreeMap.entrySet();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.entrySet();
 }
 
-public static synchronized Iterator<?> keySet() throws IOException
+public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return null;
-	}
-	return transactionTreeMap.keySet();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.keySet();
 }
 /**
  * return lowest valued key.
  * @return the The key/value with lowest key value.
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized Object firstKey() throws IOException
+public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return null;
-	}
-	return transactionTreeMap.firstKey();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.firstKey();
 }
 /**
  * The lowest key value object
  * @return
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized Object firstValue() throws IOException
+public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return null;
-	}
-	return transactionTreeMap.first();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.first();
 }
 /**
  * Return instance having the highest valued key.
  * @return the The highest value object
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized Object lastKey() throws IOException
+public static synchronized Object lastKey(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return null;
-	}
-	return transactionTreeMap.lastKey();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.lastKey();
 }
 /**
  * Return the instance having the highest valued key.
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized Object lastValue() throws IOException
+public static synchronized Object lastValue(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return null;
-	}
-	return transactionTreeMap.last();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.last();
 }
 /**
  * Size of all elements
  * @return the number of DomainMapRange morphisms.
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized long size() throws IOException
+public static synchronized long size(Class clazz) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return -1;
-	}
-	return transactionTreeMap.size();
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	return ttm.size();
 }
 /**
  * Is the key contained in the dataset
  * @parameter obj The Comparable key to search for
  * @return true if key is found
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized boolean contains(Comparable obj) throws IOException
+public static synchronized boolean contains(Comparable obj) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return false;
-	}
-	return transactionTreeMap.containsKey(obj);
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(obj);
+	return ttm.containsKey(obj);
 }
 /**
  * Is the value object present
  * @param obj the object with equals, CAUTION explicit conversion is needed
  * @return boolean true if found
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized boolean containsValue(Object obj) throws IOException
+public static synchronized boolean containsValue(Object obj) throws IOException, IllegalAccessException
 {
-	if( transactionTreeMap == null ) {
-		return false;
-	}
-	return transactionTreeMap.containsValue(obj);
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(obj.getClass());
+	return ttm.containsValue(obj);
 }
 
 }

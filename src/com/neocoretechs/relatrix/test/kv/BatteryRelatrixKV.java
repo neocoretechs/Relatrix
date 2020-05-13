@@ -73,7 +73,7 @@ public class BatteryRelatrixKV {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixKV.transactionCommit();
+		RelatrixKV.transactionCommit(fkey.getClass());
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -97,10 +97,10 @@ public class BatteryRelatrixKV {
 		}
 		if( recs > 0) {
 			System.out.println("KV BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
-			RelatrixKV.transactionRollback();
+			RelatrixKV.transactionRollback(fkey.getClass());
 		} else {
 			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-			RelatrixKV.transactionCommit();
+			RelatrixKV.transactionCommit(fkey.getClass());
 		}
 	}
 	
@@ -122,7 +122,7 @@ public class BatteryRelatrixKV {
 	public static void battery1AR6(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKV.entrySet();
+		Iterator<?> its = RelatrixKV.entrySet(String.class);
 		System.out.println("KV Battery1AR6");
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
@@ -145,7 +145,7 @@ public class BatteryRelatrixKV {
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKV.keySet();
+		Iterator<?> its = RelatrixKV.keySet(String.class);
 		System.out.println("KV Battery1AR7");
 		while(its.hasNext()) {
 			String nex = (String) its.next();
@@ -193,13 +193,13 @@ public class BatteryRelatrixKV {
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Object k = RelatrixKV.firstKey(); // first key
+		Object k = RelatrixKV.firstKey(String.class); // first key
 		System.out.println("KV Battery1AR9");
 		if( Integer.parseInt((String)k) != i ) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
-		long ks = (long) RelatrixKV.firstValue();
+		long ks = (long) RelatrixKV.firstValue(String.class);
 		if( ks != i) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
@@ -215,13 +215,13 @@ public class BatteryRelatrixKV {
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Object k = RelatrixKV.lastKey(); // key
+		Object k = RelatrixKV.lastKey(String.class); // key
 		System.out.println("KV Battery1AR10");
 		if( Long.parseLong((String) k) != (long)i ) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
-		long ks = (long)RelatrixKV.lastValue();
+		long ks = (long)RelatrixKV.lastValue(String.class);
 		if( ks != i) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
@@ -236,7 +236,7 @@ public class BatteryRelatrixKV {
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = RelatrixKV.size();
+		long bits = RelatrixKV.size(String.class);
 		System.out.println("KV Battery1AR101");
 		if( bits != i ) {
 			System.out.println("KV BATTERY1AR101 size mismatch "+bits+" should be:"+i);
@@ -418,10 +418,10 @@ public class BatteryRelatrixKV {
 			}
 			++i;
 		}
-		RelatrixKV.transactionCommit();
-		long siz = RelatrixKV.size();
+		RelatrixKV.transactionCommit(String.class);
+		long siz = RelatrixKV.size(String.class);
 		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet();
+			Iterator<?> its = RelatrixKV.entrySet(String.class);
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				//System.out.println(i+"="+nex);

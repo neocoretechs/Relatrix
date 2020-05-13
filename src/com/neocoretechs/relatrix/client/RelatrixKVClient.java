@@ -272,8 +272,8 @@ public class RelatrixKVClient implements Runnable {
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
 	 */
-	public void transactionCommit() throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",new Object[0]);
+	public void transactionCommit(Class clazz) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -293,8 +293,8 @@ public class RelatrixKVClient implements Runnable {
 	 * Roll back all outstanding transactions on the indicies
 	 * @throws IOException
 	 */
-	public void transactionRollback() throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",new Object[0]);
+	public void transactionRollback(Class clazz) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -322,8 +322,8 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public void transactionCheckpoint() throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",new Object[0]);
+	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -380,9 +380,9 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 
-	public Object firstValue() throws IOException, ClassNotFoundException, IllegalAccessException
+	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -410,9 +410,9 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 	
-	public Object lastValue() throws IOException, ClassNotFoundException, IllegalAccessException
+	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -440,9 +440,9 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 	
-	public Comparable firstKey() throws IOException, ClassNotFoundException, IllegalAccessException
+	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -470,9 +470,9 @@ public class RelatrixKVClient implements Runnable {
 		return (Comparable) o;
 	}
 	
-	public Comparable lastKey() throws IOException, ClassNotFoundException, IllegalAccessException
+	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -500,9 +500,9 @@ public class RelatrixKVClient implements Runnable {
 		return (Comparable) o;
 	}
 
-	public long size() throws IOException, ClassNotFoundException, IllegalAccessException
+	public long size(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("size",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("size",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -641,9 +641,9 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteTailmapIterator)o;
 	}
 
-	public RemoteEntrysetIterator entrySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteEntrysetIterator entrySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -673,9 +673,9 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 	
-	public RemoteKeysetIterator keySet() throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteKeysetIterator keySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",new Object[0]);
+		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
