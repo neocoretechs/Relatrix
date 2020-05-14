@@ -1,10 +1,8 @@
 package com.neocoretechs.relatrix.test.kv;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrysetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapIterator;
@@ -46,12 +44,12 @@ public class BatteryRelatrixKVClient {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		battery1(argv);	
+		/*battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
-		battery1AR7(argv);
+		battery1AR7(argv);*/
 		battery1AR8(argv);
-		battery1AR9(argv);
+		/*battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
 		battery1AR11(argv);
@@ -60,8 +58,9 @@ public class BatteryRelatrixKVClient {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);
+		battery1AR17(argv);*/
 		System.out.println("TEST BATTERY COMPLETE.");
+		rkvc.close();
 		
 	}
 	/**
@@ -176,22 +175,48 @@ public class BatteryRelatrixKVClient {
 	 */
 	public static void battery1AR8(String[] argv) throws Exception {
 		int i = min;
-		long tims = System.currentTimeMillis();
-		String fkey = String.format(uniqKeyFmt, i);
-		boolean bits = rkvc.contains(fkey);
 		System.out.println("KV Battery1AR8");
-		if( !bits ) {
-			System.out.println("KV BATTERY1A8 cant find contains key "+i);
-			//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
+		long tims = System.currentTimeMillis();
+		for(int j = min; j < max; j++) {
+			String fkey = String.format(uniqKeyFmt, j);
+			boolean bits = rkvc.contains(fkey);
+			if( !bits ) {
+				System.out.println("KV BATTERY1A8 cant find contains key "+j);
+				//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
+			}
 		}
-		i = max-1;
-		// careful here, have to do the conversion explicitly
-		bits = rkvc.containsValue((long)i);
-		if( !bits ) {
-			System.out.println("KV BATTERY1AR8 unexpected cant find contains key "+i);
-			//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+		 System.out.println("KV BATTERY1AR8 FORWARD CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		 tims = System.currentTimeMillis();
+		 for(int j = max; j > min; j--) {
+				String fkey = String.format(uniqKeyFmt, j);
+				boolean bits = rkvc.contains(fkey);
+				if( !bits ) {
+					System.out.println("KV BATTERY1A8 cant find contains key "+j);
+					//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
+				}
+			}
+			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		//i = max-1;
+		tims = System.currentTimeMillis();
+		for(int j = min; j < max; j++) {
+			// careful here, have to do the conversion explicitly
+			boolean bits = rkvc.containsValue(String.class, (long)j);
+			if( !bits ) {
+				System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
+				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+			}
 		}
-		 System.out.println("KV BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV BATTERY1AR8 FORWARD CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		tims = System.currentTimeMillis();
+		for(int j = max; j > min; j--) {
+				// careful here, have to do the conversion explicitly
+				boolean bits = rkvc.containsValue(String.class, (long)j);
+				if( !bits ) {
+					System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
+					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+				}
+		}
+		System.out.println("KV BATTERY1AR8 REVERSE CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * 
@@ -439,7 +464,7 @@ public class BatteryRelatrixKVClient {
 			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-		 rkvc.close();
+
 	}
 	
 }

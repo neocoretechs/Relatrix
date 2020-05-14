@@ -326,9 +326,9 @@ public static synchronized boolean contains(Comparable obj) throws IOException, 
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static synchronized boolean containsValue(Object obj) throws IOException, IllegalAccessException
+public static synchronized boolean containsValue(Class keyType, Object obj) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(obj.getClass());
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(keyType);
 	return ttm.containsValue(obj);
 }
 

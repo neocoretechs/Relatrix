@@ -28,7 +28,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
  */
 public final class WorkerRequestProcessor implements Runnable {
 	private static boolean DEBUG = false;
-	public static boolean SHOWDUPEKEYEXCEPTION = true;
+	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
 

@@ -177,7 +177,7 @@ public class BatteryRelatrixKV {
 		}
 		i = max-1;
 		// careful here, have to do the conversion explicitly
-		bits = RelatrixKV.containsValue((long)i);
+		bits = RelatrixKV.containsValue(String.class, (long)i);
 		if( !bits ) {
 			System.out.println("KV BATTERY1AR8 unexpected cant find contains key "+i);
 			throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);

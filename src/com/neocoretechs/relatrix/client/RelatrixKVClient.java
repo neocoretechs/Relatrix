@@ -562,9 +562,9 @@ public class RelatrixKVClient implements Runnable {
 		return (boolean) o;
 	}
 	
-	public boolean containsValue(Object value) throws IOException, ClassNotFoundException, IllegalAccessException
+	public boolean containsValue(Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixKVStatement rs = new RelatrixKVStatement("containsValue",value);
+		RelatrixKVStatement rs = new RelatrixKVStatement("containsValue",keyType, value);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
