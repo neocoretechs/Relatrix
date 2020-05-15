@@ -1,3 +1,4 @@
+<h2>NEW! Full featured Key/Value Deep Store with transaction checkpointing and recovery as part of Relatrix!</h2>
 The Relatrix:
 Toward a Category Theoretic data management paradigm.
 In order to provide structure to unstructured data, category theory provides us with a perfect description of how to add increasing
