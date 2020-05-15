@@ -77,7 +77,7 @@ public class RelatrixKVClient implements Runnable {
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
+			System.out.println("RelatrixKVClient constructed with remote:"+IPAddress);
 		}
 		//
 		// Wait for master server node to connect back to here for return channel communication
@@ -201,6 +201,39 @@ public class RelatrixKVClient implements Runnable {
 		}
 		shouldRun = false;
 	}
+	
+	/**
+	 * Call the remote server method to send a manually constructed command
+	 * @param rs The RelatrixKvStatement manually constructed
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @return 
+	 */
+	public Object sendCommand(RelatrixKVStatement rs) throws IllegalAccessException, IOException, DuplicateKeyException {
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof DuplicateKeyException)
+			throw (DuplicateKeyException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+				else
+					if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	
+	}
+	
 	/**
 	 * Call the remote server method to store an object.
 	 * @param k The Comparable representing the key relationship
@@ -411,7 +444,44 @@ public class RelatrixKVClient implements Runnable {
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return o;
 	}
-	
+	/**
+	 * Get the keyed value
+	 * @param key The Comparable key
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("get",key);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+		
 	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",clazz);
@@ -929,6 +999,81 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 	/**
+	 * Load a class into the handlerclassloader from remote repository via jar file
+	 * @param jar
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public Object loadClassFromJar(String jar) throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("loadClassFromJar",jar);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+	/**
+	 * Load a class in to handlerclassloader via package and directory path.
+	 * @param pack The package designation
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public Object loadClassFromPath(String pack, String path) throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("loadClassFromPath", pack, path);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
@@ -999,6 +1144,7 @@ public class RelatrixKVClient implements Runnable {
 		} catch (InterruptedException e) {}
 		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
 	}
+	
 	/**
 	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
 	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc. The fname should be full qualified.
@@ -1041,11 +1187,39 @@ public class RelatrixKVClient implements Runnable {
 		//s.close();
 		return s;
 	}
-	
+	/**
+	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
-		RelatrixKVStatement rs = new RelatrixKVStatement("toString",(Object[])null);
-		rc.send(rs);
+		//RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
+		//RelatrixKVStatement rs = new RelatrixKVStatement("toString",(Object[])null);
+		//rc.send(rs);
+		RelatrixKVClient rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVStatement rs = null;
+		switch(args.length) {
+			case 4:
+				rs = new RelatrixKVStatement(args[3]);
+				break;
+			case 5:
+				rs = new RelatrixKVStatement(args[3],args[4]);
+				break;
+			case 6:
+				rs = new RelatrixKVStatement(args[3],args[4],args[5]);
+				break;
+			case 7:
+				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6]);
+				break;
+			case 8:
+				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6],args[7]);
+				break;
+			default:
+				System.out.println("Cant process argument list of length:"+args.length);
+				return;
+		}
+		rc.sendCommand(rs);
+		rc.close();
 	}
 	
 }

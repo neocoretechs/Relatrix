@@ -1,0 +1,1 @@
+java -cp \Progra~1\apache\apache-tomcat\lib\BigSack.jar;\Progra~1\apache\apache-tomcat\lib\Relatrix.jar;. com.neocoretechs.relatrix.client.RelatrixKVClient %1 %2 %3 %4 %5 %6 %7 %8 %9

@@ -43,6 +43,7 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 	 */
     @Override
 	public String getClassName() { return className; }
+    
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
 	 */

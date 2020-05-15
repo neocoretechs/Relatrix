@@ -652,11 +652,36 @@ public class RelatrixClient implements Runnable {
 		//s.close();
 		return s;
 	}
-	
+	/**
+	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClient rc = new RelatrixClient("localhost","localhost", 9000);
-		RelatrixStatement rs = new RelatrixStatement("toString",(Object[])null);
+		RelatrixClient rc = new RelatrixClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixStatement rs = null;
+		switch(args.length) {
+			case 4:
+				rs = new RelatrixStatement(args[3]);
+				break;
+			case 5:
+				rs = new RelatrixStatement(args[3],args[4]);
+				break;
+			case 6:
+				rs = new RelatrixStatement(args[3],args[4],args[5]);
+				break;
+			case 7:
+				rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
+				break;
+			case 8:
+				rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
+				break;
+			default:
+				System.out.println("Cant process argument list of length:"+args.length);
+				return;
+		}
 		rc.send(rs);
+		rc.close();
 	}
 	
 }

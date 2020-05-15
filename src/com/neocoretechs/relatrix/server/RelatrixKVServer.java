@@ -5,23 +5,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RemoteEntrysetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadmapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadsetIterator;
 import com.neocoretechs.relatrix.client.RemoteKeysetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubmapIterator;
 import com.neocoretechs.relatrix.client.RemoteSubmapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteTailmapIterator;
 import com.neocoretechs.relatrix.client.RemoteTailmapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailsetIterator;
-import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 
 
 /**

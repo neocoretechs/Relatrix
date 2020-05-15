@@ -1,40 +1,66 @@
 package com.neocoretechs.relatrix.server;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
-import com.neocoretechs.bigsack.session.BigSackSession;
-import com.neocoretechs.bigsack.session.SessionManager;
+import com.neocoretechs.bigsack.BigSackAdapter;
+import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.client.RelatrixKVClient;
 /**
 * This is a generic ClassLoader of which many examples abound.
 * We do some tricks with resolution from a hashtable of names and bytecodes,
-* and InputStreams as well.
+* and InputStreams as well.</p>
+* If you want to find a class and throw an exception if its not in the available cache, used findClass.<br/>
+* If you want to load a class by all means available and make it available, use loadClass.<p/>
 * This is to support the Relatrix JAR load, and remote classloading.
 * We can operate in embedded mode, or remote using a client to retrieve bytecode from server.
 * @author Groff (C) NeoCoreTechs 1999, 2000, 2020
 */
 public class HandlerClassLoader extends ClassLoader
 {
-    private ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
-    private Hashtable<String, byte[]> classNameAndBytecodes = new Hashtable<String, byte[]>();
-    private Class retc;
+    private static ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
+    private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
     private static boolean useEmbedded = false;
-    public static String path = "/jserv/"; // bytecode repository path
-
+    public static String defaultPath = "/etc/"; // bytecode repository path
+    public static RelatrixKVClient remoteRepository = null;
+    public static TransactionalTreeMap localRepository = null;
+    
     public HandlerClassLoader()
     {
 //        System.out.println("HandlerClassLoader "+this);
     }
+    
+    public static void connectToRemoteRepository(String local, String remote, int port) throws IOException, IllegalAccessException {
+    	useEmbedded = false;
+    	remoteRepository = new RelatrixKVClient(local, remote, port);
+    }
+    
+    public static void connectToLocalRepository(String path) throws IOException, IllegalAccessException {
+    	useEmbedded = true;
+    	if(path != null) {
+    		if(!path.endsWith("/"))
+    			path += "/";
+    		defaultPath = path;
+    	}
+    	BigSackAdapter.setTableSpaceDir(defaultPath+"BytecodeRepository/Bytecodes");
+    	localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
+    }
     /**
     * Find a class by the given name
     */
-    protected Class findClass(String name) throws ClassNotFoundException {
+    public synchronized Class findClass(String name) throws ClassNotFoundException {
         Class c;
         if ( (c = cache.get(name)) != null) {
 //                System.out.println(this+" HandlerClassLoader.findClass return cache.get "+name);
@@ -82,7 +108,7 @@ public class HandlerClassLoader extends ClassLoader
         if (c == null) {
                 byte[] bytecodes = classNameAndBytecodes.get(name);
                 System.out.println("Attempt to retrieve "+name+" from classNameAndBytecodes");              
-                if( useEmbedded && bytecodes == null ) {
+                if( bytecodes == null ) {
                         // grab it from repository
                         try {
                                 bytecodes = getBytesFromRepository(name);
@@ -114,7 +140,7 @@ public class HandlerClassLoader extends ClassLoader
     * @param name The class name
     * @param data The byte array to get bytecodes from
     */
-    public synchronized Class defineAClass(String name, byte data[]) {
+    public Class defineAClass(String name, byte data[]) {
         return defineAClass(name, data, 0, data.length);
     }
     /**
@@ -140,37 +166,7 @@ public class HandlerClassLoader extends ClassLoader
 //        System.out.println("HandlerClassLoader.defineAClass return cache.put "+name);
         return c;
     }
-    /**
-    * Define classes by Hashtable of names and bytecodes.
-    * @param tclassNameAndBytecodes the Hashtable of bytecodes with name as key
-    * @return An array of Classes currently defined + 1 extra at end for main handler
-    * @see loadClass
-    */
-    public synchronized Class[] defineClasses(Hashtable<String, byte[]> tclassNameAndBytecodes) {
-        String name = null;
-//        System.out.println("HandlerClassLoader.defineClasses enter ");
-        Enumeration<byte[]> en = tclassNameAndBytecodes.elements();
-        Enumeration<String> enk = tclassNameAndBytecodes.keys();
-        // init return classes array
-        Class[] retClasses = new Class[tclassNameAndBytecodes.size()+1];
-        int iClass = 0;
-        //
-        while(en.hasMoreElements()) {
-                name = enk.nextElement();
-                byte[] b = en.nextElement();
-                // force an update
-//                if ( (retc = (Class)(cache.get(name))) == null) {
-                        // line up the name
-                        classNameAndBytecodes.put(name, b);
-                        retc = defineClass(name, b, 0, b.length);
-                        cache.put(name, retc);
-//                        System.out.println("HandlerClassLoader.defineClasses defined "+name);
-//                }
-                // found it, and it's retc
-                retClasses[iClass++] = retc;
-        }
-        return retClasses;
-    }
+  
     /**
     * Define classes from byte array JAR
     * @param jarFile The JAR byte array
@@ -183,7 +179,6 @@ public class HandlerClassLoader extends ClassLoader
     * @param in the inputstream with JAR format
     */
     public synchronized void defineClassStream(InputStream in) {
-        Hashtable<String, byte[]> classNameAndBytes = new Hashtable<>();
         // we can't seem to get size from JAR, so big buf
         byte[] bigbuf = new byte[500000];
         try
@@ -207,12 +202,12 @@ public class HandlerClassLoader extends ClassLoader
                         // move it right size buffer cause it's staying around
                         byte bytecode[] = new byte[itot];
                         System.arraycopy(bigbuf, 0, bytecode, 0, itot);
-                        classNameAndBytes.put(entryName, bytecode);
+                        defineAClass(entryName, bytecode);
                 	}
                 }
                 zipFile.closeEntry();
             }
-            defineClasses(classNameAndBytes);
+
             //
         } catch(Exception e) {
                 System.out.println("HandlerClassLoader.defineClassStream failed "+e.getMessage());
@@ -226,25 +221,20 @@ public class HandlerClassLoader extends ClassLoader
     */
     public static byte[] getBytesFromRepository(String name) {
         byte[] retBytes = null;
-        BigSackSession DS = null;
+       	ClassNameAndBytes cnab = new ClassNameAndBytes(name, retBytes);
 //        System.out.println("HandlerClassLoader.getBytesFromRepository "+name);
         try {
         	if(useEmbedded) {
-                DS = SessionManager.Connect(path+"PSClassRepository",null, true);
-                ClassNameAndBytes cnab = (ClassNameAndBytes) DS.get(new ClassNameAndBytes(name));	
-                if( cnab != null )
-                	return cnab.getBytes();
+                cnab = (ClassNameAndBytes) localRepository.get(cnab);	
+        	} else {
+        		cnab = (ClassNameAndBytes) remoteRepository.get(cnab);
         	}
+            if( cnab != null )
+            	return cnab.getBytes();
         } catch(Exception e) {
-                System.out.println(e);
                 e.printStackTrace();
         }
-        finally {
-                try {
-                        if( useEmbedded && DS != null ) DS.Close(false);
-                } catch(Exception e) {}
-        }
-        return retBytes;
+        return null;
    }
     /**
     * Put the bytecodes to BigSack repository.  This function to be
@@ -253,39 +243,60 @@ public class HandlerClassLoader extends ClassLoader
     * @param bytes The associated bytecode array
     */
     public static void setBytesInRepository(String name, byte[] bytes) {
-        BigSackSession DS = null;
 //        System.out.println("HandlerClassLoader.setBytesInRepository "+name);
+    	ClassNameAndBytes cnab = new ClassNameAndBytes(name, bytes);
         try {
         	if(useEmbedded) {
-        		DS = SessionManager.Connect(path+"PSClassRepository",null,true);
-        		DS.put(new ClassNameAndBytes(name));
+        		if(localRepository != null)
+        			localRepository.put(name, cnab);
+        	} else {
+        		if(remoteRepository != null)
+					try {
+						remoteRepository.transactionalStore(name, cnab);
+					} catch (DuplicateKeyException dce) {
+						remoteRepository.remove(name);
+						try {
+							remoteRepository.transactionalStore(name, cnab);
+						} catch (DuplicateKeyException e) {}
+					}
         	}
-        } catch(Exception e) {
+            if( useEmbedded ) {
+            	localRepository.commit();
+            } else {
+            	remoteRepository.transactionCommit(cnab.getClass());
+            }
+        } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
                 System.out.println(e);
                 e.printStackTrace();
+                if( useEmbedded )
+					try {
+						localRepository.rollback();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+                else
+                	try {
+                		remoteRepository.transactionRollback(cnab.getClass());
+                	} catch (IOException e1) {
+						e1.printStackTrace();
+					}
         }
-        finally {
-                try {
-                        if( useEmbedded && DS != null ) DS.Close(false);
-                } catch(Exception e) {}
-        }
+ 
    }
+
     /**
     * Put the bytecodes to BigSack repository.  This function to be
     * performed outside of class loading cause it happens rarely.
     * @param name The class name to put
     * @param bytes The associated bytecode array
+     * @throws FileNotFoundException 
     */
-    public static void setBytesInRepository(byte[] jarFile) {
-        BigSackSession DS = null;
+    public static void setBytesInRepositoryFromJar(String jarFile) throws FileNotFoundException {
 //        System.out.println("HandlerClassLoader.setBytesInRepository jarFile");
-        // we can't seem to get size from JAR, so big buf
-        byte[] bigbuf = new byte[500000];
-        ClassNameAndBytes cnab = new ClassNameAndBytes();
-        try {
-            InputStream in = new ByteArrayInputStream(jarFile);
-            ZipInputStream zipFile = new ZipInputStream(in);
-            DS = SessionManager.Connect(path+"PSClassRepository",null,true);
+    	File file = new File(jarFile);
+    	byte[] bigbuf = new byte[500000];
+        try (  	FileInputStream f = new FileInputStream(file);
+        		ZipInputStream zipFile = new ZipInputStream(f)) {
             for (ZipEntry entry = zipFile.getNextEntry(); entry != null; entry = zipFile.getNextEntry())
             {
                 if (!entry.isDirectory() || entry.getName().indexOf("META-INF") == -1 )
@@ -304,10 +315,9 @@ public class HandlerClassLoader extends ClassLoader
                     // move it right size buffer cause it's staying around
                     byte bytecode[] = new byte[itot];
                     System.arraycopy(bigbuf, 0, bytecode, 0, itot);
-                    cnab = new ClassNameAndBytes(entryName, bytecode);
-                   if(useEmbedded)
-                	   DS.put(cnab);
-		}
+                    setBytesInRepository(entryName, bytecode);
+	                System.out.println("Loading bytecode for JAR Entry "+entryName+" read "+bytecode.length);
+                	}
                 }
                 zipFile.closeEntry();
             }
@@ -315,11 +325,6 @@ public class HandlerClassLoader extends ClassLoader
         } catch(Exception e) {
                 System.out.println("HandlerClassLoader.setBytesInRepository failed "+e.getMessage());
                 e.printStackTrace();
-        }
-        finally {
-                try {
-                        if( useEmbedded && DS != null ) DS.Close(false);
-                } catch(Exception e) {}
         }
    }
     /**
@@ -331,16 +336,16 @@ public class HandlerClassLoader extends ClassLoader
      * @param dir The directory to load class files
      * @throws IOException If the directory is not valid
      */
- 	public void setBytesInRepository(String packg, Path dir) throws IOException {
+ 	public static void setBytesInRepository(String packg, Path dir) throws IOException {
 	       try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{class}")) {
 	           for (Path entry: stream) {
 	        	String entryName = entry.getFileName().toString().replace('/', '.');
 //	              System.out.println(String.valueOf(entry.getSize()));
 	          		entryName = packg+"."+entryName.substring(0,entryName.length()-6);
-	          		System.out.println(entryName);
+	          		//System.out.println(entryName);
 	          		byte[] bytes = Files.readAllBytes(entry);
-	          		classNameAndBytecodes.put(entryName,  bytes); // chicken and egg, egg, or chicken
-	                System.out.println("File Entry "+entryName+" read "+bytes.length);
+	          		setBytesInRepository(entryName,  bytes); // chicken and egg, egg, or chicken
+	                System.out.println("Loading bytecode for File Entry "+entryName+" read "+bytes.length);
 	           } 
 	       } catch (DirectoryIteratorException ex) {
 	           // I/O error encounted during the iteration, the cause is an IOException
@@ -349,9 +354,8 @@ public class HandlerClassLoader extends ClassLoader
 	}
  	
     public static void main(String[] args) throws IOException {
-    	HandlerClassLoader hcl = new HandlerClassLoader();
     	Path p = FileSystems.getDefault().getPath("C:/users/jg/workspace/volvex/bin/com/neocoretechs/volvex");
-    	hcl.setBytesInRepository("com.neocoretechs.volvex",p);
+    	setBytesInRepository("com.neocoretechs.volvex",p);
 
     }
 }

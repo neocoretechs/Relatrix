@@ -1,13 +1,15 @@
 package com.neocoretechs.relatrix;
 import java.io.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.bigsack.btree.TreeSearchResult;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.relatrix.iterator.IteratorFactory;
+
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 
 /**
@@ -120,11 +122,30 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
  * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
  * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
  * even the old data before the checkpoint.
+ * @param clazz The class for which the map has been created.
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	
+public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
+	BigSackAdapter.checkpointMapTransactions(clazz);
+}
+/**
+ * Load the stated package form the declared path into the bytecode repository
+ * @param pack
+ * @param path
+ * @throws IOException
+ */
+public static synchronized void loadClassFromPath(String pack, String path) throws IOException {
+	Path p = FileSystems.getDefault().getPath(path);
+	HandlerClassLoader.setBytesInRepository(pack,p);
+}
+/**
+ * Load the jar file located at jar into the repository
+ * @param jar
+ * @throws IOException
+ */
+public static synchronized void loadClassFromJar(String jar) throws IOException {
+	HandlerClassLoader.setBytesInRepositoryFromJar(jar);
 }
 /**
 * Delete all relationships that this object participates in
@@ -262,6 +283,17 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	return ttm.firstKey();
+}
+/**
+ * Return the value for the key.
+ * @return The value for the key.
+ * @throws IOException
+ * @throws IllegalAccessException 
+ */
+public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(key);
+	return ttm.get(key);
 }
 /**
  * The lowest key value object
