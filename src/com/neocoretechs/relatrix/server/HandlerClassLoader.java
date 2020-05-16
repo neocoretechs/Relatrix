@@ -10,6 +10,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -18,6 +20,7 @@ import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
+import com.neocoretechs.relatrix.client.RemoteKeysetIterator;
 /**
 * This is a generic ClassLoader of which many examples abound.
 * We do some tricks with resolution from a hashtable of names and bytecodes,
@@ -247,24 +250,29 @@ public class HandlerClassLoader extends ClassLoader
     	ClassNameAndBytes cnab = new ClassNameAndBytes(name, bytes);
         try {
         	if(useEmbedded) {
-        		if(localRepository != null)
+        		if(localRepository != null) {
         			localRepository.put(name, cnab);
+                   	localRepository.commit();
+					System.out.println("Stored and committed bytecode for class:"+name);
+        		} else
+            		System.out.println("LOCAL REPOSITORY HAS NOT BEEN DEFINED!, NO ADDITION POSSIBLE!");
         	} else {
         		if(remoteRepository != null)
 					try {
 						remoteRepository.transactionalStore(name, cnab);
+						remoteRepository.transactionCommit(String.class);
+						System.out.println("Stored and committed bytecode for class:"+name);
 					} catch (DuplicateKeyException dce) {
 						remoteRepository.remove(name);
 						try {
 							remoteRepository.transactionalStore(name, cnab);
+							remoteRepository.transactionCommit(String.class);
+							System.out.println("Replaced and committed bytecode for class:"+name);
 						} catch (DuplicateKeyException e) {}
 					}
+        		else
+        			System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO ADDITION POSSIBLE!");
         	}
-            if( useEmbedded ) {
-            	localRepository.commit();
-            } else {
-            	remoteRepository.transactionCommit(cnab.getClass());
-            }
         } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
                 System.out.println(e);
                 e.printStackTrace();
@@ -276,13 +284,76 @@ public class HandlerClassLoader extends ClassLoader
 					}
                 else
                 	try {
-                		remoteRepository.transactionRollback(cnab.getClass());
+                		remoteRepository.transactionRollback(String.class);
                 	} catch (IOException e1) {
 						e1.printStackTrace();
 					}
         }
  
    }
+    /**
+     * Remove all classes STARTING WITH the given name, use caution.
+     * @param name The value that the class STARTS WITH, to remove packages at any level desired
+     */
+    public static void removeBytesInRepository(String name) {
+//      System.out.println("HandlerClassLoader.removeBytesInRepository "+name);
+      try {
+      	if(useEmbedded) {
+      		ArrayList<String> remo = new ArrayList<String>();
+      		if(localRepository != null) {
+      			Iterator<?> it = localRepository.keySet();
+      			while(it.hasNext()) {
+      				Comparable key = (Comparable) it.next();
+      				if( ((String)key).startsWith(name))
+      					remo.add((String) key);
+      			}
+      			for(String s: remo) {
+      				localRepository.remove(s);
+      				classNameAndBytecodes.remove(s);
+      				cache.remove(s);
+      				System.out.println("Removed bytecode for class:"+s);
+      			}
+                localRepository.commit();
+      		} else
+      			System.out.println("LOCAL REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
+      	} else {
+      		if(remoteRepository != null) {
+      	      		ArrayList<String> remo = new ArrayList<String>();
+      	      			RemoteKeysetIterator it = remoteRepository.keySet(String.class);
+      	      			while(remoteRepository.hasNext(it)) {
+      	      				Comparable key = (Comparable) remoteRepository.next(it);
+      	      				if( ((String)key).startsWith(name))
+      	      					remo.add((String) key);
+      	      			}
+      	      			for(String s: remo) {
+      	      				remoteRepository.remove(s);
+      	     				classNameAndBytecodes.remove(s);
+      	      				cache.remove(s);
+      	      				System.out.println("Removed bytecode for class:"+s);
+      	      			}
+      	                remoteRepository.transactionCommit(String.class);
+  
+      		} else
+	      		System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
+      	}
+      } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
+              System.out.println(e);
+              e.printStackTrace();
+              if( useEmbedded )
+					try {
+						localRepository.rollback();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+              else
+              	try {
+              		remoteRepository.transactionRollback(String.class);
+              	} catch (IOException e1) {
+						e1.printStackTrace();
+				}
+      }
+
+ }
 
     /**
     * Put the bytecodes to BigSack repository.  This function to be
@@ -337,16 +408,22 @@ public class HandlerClassLoader extends ClassLoader
      * @throws IOException If the directory is not valid
      */
  	public static void setBytesInRepository(String packg, Path dir) throws IOException {
+ 		System.out.println("Attempting to load class files for package:"+packg+" from path:"+dir);
 	       try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{class}")) {
+	    	   if(stream != null)
 	           for (Path entry: stream) {
-	        	String entryName = entry.getFileName().toString().replace('/', '.');
+	        	   System.out.println("Found file:"+entry);
+	        	   String entryName = entry.getFileName().toString().replace('/', '.');
 //	              System.out.println(String.valueOf(entry.getSize()));
 	          		entryName = packg+"."+entryName.substring(0,entryName.length()-6);
+	          		System.out.println("Processing class "+entryName);
 	          		//System.out.println(entryName);
 	          		byte[] bytes = Files.readAllBytes(entry);
 	          		setBytesInRepository(entryName,  bytes); // chicken and egg, egg, or chicken
 	                System.out.println("Loading bytecode for File Entry "+entryName+" read "+bytes.length);
-	           } 
+	           }
+	    	   else
+	    		   System.out.println("No class files available from path "+dir);
 	       } catch (DirectoryIteratorException ex) {
 	           // I/O error encounted during the iteration, the cause is an IOException
 	           throw ex.getCause();

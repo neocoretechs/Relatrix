@@ -55,9 +55,12 @@ public final class RelatrixKVServer extends TCPServer {
 	public static ServerInvokeMethod relatrixTailmapKVMethods = null;// Tailmap KV methods
 	public static ServerInvokeMethod relatrixEntrysetMethods = null;// EntrySet KV methods
 	public static ServerInvokeMethod relatrixKeysetMethods = null; // Keyset KV methods
+	// in server, we are using local repository for handlerclassloader, but only one
+	// and that one will be located on port 9999
+	boolean isThisBytecodeRepository = false;
+	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 
-	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
 	/**
@@ -79,6 +82,15 @@ public final class RelatrixKVServer extends TCPServer {
 		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeysetIterator.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(null); // use default path
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void run() {
@@ -115,8 +127,7 @@ public final class RelatrixKVServer extends TCPServer {
                     //		(new File(o.getRemoteDirectory()).getName());
                     //	String sdb = rdb.replace('\\', '/');
                     //	Relatrix.setRemoteDirectory(sdb);
-                    //}
-                    
+                    //}              
                     // Create the worker, it in turn creates a WorkerRequestProcessor
                     uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 

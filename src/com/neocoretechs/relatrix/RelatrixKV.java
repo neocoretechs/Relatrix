@@ -130,7 +130,7 @@ public static synchronized void transactionCheckpoint(Class clazz) throws IOExce
 	BigSackAdapter.checkpointMapTransactions(clazz);
 }
 /**
- * Load the stated package form the declared path into the bytecode repository
+ * Load the stated package from the declared path into the bytecode repository
  * @param pack
  * @param path
  * @throws IOException
@@ -146,6 +146,15 @@ public static synchronized void loadClassFromPath(String pack, String path) thro
  */
 public static synchronized void loadClassFromJar(String jar) throws IOException {
 	HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+}
+/**
+ * Remove the stated package from the declared package and all subpackages from the bytecode repository
+ * @param pack
+ * @param path
+ * @throws IOException
+ */
+public static synchronized void removePackageFromRepository(String pack) throws IOException {
+	HandlerClassLoader.removeBytesInRepository(pack);
 }
 /**
 * Delete all relationships that this object participates in

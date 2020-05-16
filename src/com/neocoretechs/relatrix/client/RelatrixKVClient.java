@@ -1074,6 +1074,44 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 	/**
+	 * Remove package in handlerclassloader and from repository.
+	 * @param pack The package designation, everything starting with this descriptor will be removed
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	public Object removePackageFromRepository(String pack) throws IOException, ClassNotFoundException, IllegalAccessException
+	{
+		RelatrixKVStatement rs = new RelatrixKVStatement("removePackageFromRepository", pack);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred

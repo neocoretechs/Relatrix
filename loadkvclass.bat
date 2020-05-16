@@ -1,1 +1,1 @@
-relatrixkvclient VOLVATRON VOLVATRON 9990 loadClassFromPath "C:/users/jg/workspace/VolvexFitnessFunctions/bin" "" 
+relatrixkvclient VOLVATRON VOLVATRON 9999 loadClassFromPath %1 %2 
