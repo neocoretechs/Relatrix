@@ -5,8 +5,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.bigsack.btree.TreeSearchResult;
+import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;

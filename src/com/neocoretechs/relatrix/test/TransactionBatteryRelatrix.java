@@ -1,7 +1,7 @@
 package com.neocoretechs.relatrix.test;
 
 
-import com.neocoretechs.bigsack.BigSackAdapter;
+import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 import com.neocoretechs.relatrix.Relatrix;

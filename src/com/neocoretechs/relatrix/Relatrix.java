@@ -3,8 +3,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.bigsack.btree.TreeSearchResult;
+import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
@@ -102,32 +102,19 @@ public final class Relatrix {
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
 public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
-
 	Morphism dmr = new DomainMapRange(d,m,r);
 	Morphism identity = dmr;
-	if( transactionTreeSets[0] == null ) {
-		transactionTreeSets[0] = BigSackAdapter.getBigSackSetTransaction(dmr);
-	}
+	transactionTreeSets[0] = BigSackAdapter.getBigSackSetTransaction(dmr);
 	DomainRangeMap drm = new DomainRangeMap(d,m,r);
-	if( transactionTreeSets[1] == null ) {
-		transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(drm);
-	}
+	transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(drm);
 	MapDomainRange mdr = new MapDomainRange(d,m,r);
-	if( transactionTreeSets[2] == null ) {
-		transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(mdr);
-	}
+	transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(mdr);
 	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
-	if( transactionTreeSets[3] == null ) {
-		transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(mrd);
-	}
+	transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(mrd);
 	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
-	if( transactionTreeSets[4] == null ) {
-		transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(rdm);
-	}
+	transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(rdm);
 	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
-	if( transactionTreeSets[5] == null ) {
-		transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
-	}
+	transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
 	// check for domain/map match
@@ -181,7 +168,7 @@ public static synchronized void transactionCommit() throws IOException {
 		long startTime = System.currentTimeMillis();
 		if( DEBUG || TRACE )
 			System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
-		transactionTreeSets[i].commit();
+		BigSackAdapter.commitSet(transactionTreeSets[i]);
 		if( DEBUG || TRACE )
 			System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
 		transactionTreeSets[i] = null;
@@ -196,7 +183,7 @@ public static synchronized void transactionRollback() throws IOException {
 		return;
 	}
 	for(int i = 0; i < transactionTreeSets.length; i++) {
-		transactionTreeSets[i].rollback();
+		BigSackAdapter.rollbackSet(transactionTreeSets[i]);
 		transactionTreeSets[i] = null;
 	}
 }
@@ -217,7 +204,7 @@ public static synchronized void transactionCheckpoint() throws IOException, Ille
 		return;
 	}
 	for(int i = 0; i < transactionTreeSets.length; i++) {
-		transactionTreeSets[i].checkpoint();
+		BigSackAdapter.checkpointSetTransactions(transactionTreeSets[i]);
 	}
 }
 /**

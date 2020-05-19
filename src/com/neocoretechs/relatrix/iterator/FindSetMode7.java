@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 

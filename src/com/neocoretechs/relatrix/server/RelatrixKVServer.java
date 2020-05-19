@@ -134,7 +134,7 @@ public final class RelatrixKVServer extends TCPServer {
                     ThreadPoolManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixKVServer starting new worker"+uworker+
+                    	System.out.println("RelatrixKVServer starting new worker "+uworker+
                     			//( rdb != null ? "remote db:"+rdb : "" ) +
                     			" master port:"+o.getMasterPort());
                     }

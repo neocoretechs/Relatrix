@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.neocoretechs.bigsack.BigSackAdapter;
+import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
@@ -38,9 +38,14 @@ public class HandlerClassLoader extends ClassLoader
     private static boolean useEmbedded = false;
     public static String defaultPath = "/etc/"; // bytecode repository path
     public static RelatrixKVClient remoteRepository = null;
-    public static TransactionalTreeMap localRepository = null;
+ 
     
     public HandlerClassLoader()
+    {
+//        System.out.println("HandlerClassLoader "+this);
+    }
+    
+    public HandlerClassLoader(ClassLoader parent)
     {
 //        System.out.println("HandlerClassLoader "+this);
     }
@@ -58,7 +63,6 @@ public class HandlerClassLoader extends ClassLoader
     		defaultPath = path;
     	}
     	BigSackAdapter.setTableSpaceDir(defaultPath+"BytecodeRepository/Bytecodes");
-    	localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
     }
     /**
     * Find a class by the given name
@@ -126,14 +130,15 @@ public class HandlerClassLoader extends ClassLoader
                         }
                 }
                 c = defineClass(name, bytecodes, 0, bytecodes.length);
+                System.out.println("Putting class "+name+" of class "+c+" to cache with "+bytecodes.length+" bytes");
                 cache.put(name, c);
         } else {
-//                System.out.println(this+" HandlerClassLoader.LoadClass exit found loaded "+name+" resolve="+resolve);
-                return c;
+               System.out.println(this+" HandlerClassLoader.LoadClass exit found loaded "+name+" resolve="+resolve);
+               return c;
         }
-        if (resolve)
+        //if (resolve)
             resolveClass(c);
-//        System.out.println(this+" HandlerClassLoader.LoadClass exit resolved "+name+" resolve="+resolve);
+        System.out.println(this+" HandlerClassLoader.LoadClass exit resolved "+name+" resolve="+resolve);
         return c;
     }
     /**
@@ -228,12 +233,21 @@ public class HandlerClassLoader extends ClassLoader
 //        System.out.println("HandlerClassLoader.getBytesFromRepository "+name);
         try {
         	if(useEmbedded) {
-                cnab = (ClassNameAndBytes) localRepository.get(cnab);	
+        	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
+           		System.out.println("Attempting get from local repository "+localRepository);
+                cnab = (ClassNameAndBytes) localRepository.get(name);	
         	} else {
-        		cnab = (ClassNameAndBytes) remoteRepository.get(cnab);
+          		System.out.println("Attempting get from remote repository "+remoteRepository);
+        		cnab = (ClassNameAndBytes) remoteRepository.get(name);
         	}
-            if( cnab != null )
+            if( cnab != null ) {
+            	if(cnab.getBytes() == null)
+            		System.out.println("Bytecode payload from remote repository "+remoteRepository+" came back null");
+            	else
+            		System.out.println("Bytecode payload returned "+cnab.getBytes().length+" bytes from remote repository "+remoteRepository);
             	return cnab.getBytes();
+            } else
+            	System.out.println("Failed to return bytecodes from remote repository "+remoteRepository);
         } catch(Exception e) {
                 e.printStackTrace();
         }
@@ -250,40 +264,40 @@ public class HandlerClassLoader extends ClassLoader
     	ClassNameAndBytes cnab = new ClassNameAndBytes(name, bytes);
         try {
         	if(useEmbedded) {
-        		if(localRepository != null) {
+        	 		TransactionalTreeMap localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
         			localRepository.put(name, cnab);
-                   	localRepository.commit();
-					System.out.println("Stored and committed bytecode for class:"+name);
-        		} else
-            		System.out.println("LOCAL REPOSITORY HAS NOT BEEN DEFINED!, NO ADDITION POSSIBLE!");
+                   	BigSackAdapter.commitMap(String.class);
+					System.out.println("Stored and committed bytecode in local repository for class:"+name);
         	} else {
         		if(remoteRepository != null)
 					try {
 						remoteRepository.transactionalStore(name, cnab);
 						remoteRepository.transactionCommit(String.class);
-						System.out.println("Stored and committed bytecode for class:"+name);
+						System.out.println("Stored and committed bytecode in remote repository for class:"+name);
 					} catch (DuplicateKeyException dce) {
+						System.out.println("Removing existing bytecode in remote repository prior to replace for class "+name);
 						remoteRepository.remove(name);
 						try {
 							remoteRepository.transactionalStore(name, cnab);
 							remoteRepository.transactionCommit(String.class);
-							System.out.println("Replaced and committed bytecode for class:"+name);
+							System.out.println("Replaced and committed bytecode in remote repository for class:"+name);
 						} catch (DuplicateKeyException e) {}
 					}
         		else
         			System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO ADDITION POSSIBLE!");
         	}
         } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
-                System.out.println(e);
                 e.printStackTrace();
                 if( useEmbedded )
 					try {
-						localRepository.rollback();
+						System.out.println("Rolling back bytecode in local repository for class:"+name);
+					 	BigSackAdapter.rollbackMap(String.class); // class type of key
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
                 else
                 	try {
+    					System.out.println("Rolling back bytecode in remote repository for class:"+name);
                 		remoteRepository.transactionRollback(String.class);
                 	} catch (IOException e1) {
 						e1.printStackTrace();
@@ -300,7 +314,7 @@ public class HandlerClassLoader extends ClassLoader
       try {
       	if(useEmbedded) {
       		ArrayList<String> remo = new ArrayList<String>();
-      		if(localRepository != null) {
+      	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
       			Iterator<?> it = localRepository.keySet();
       			while(it.hasNext()) {
       				Comparable key = (Comparable) it.next();
@@ -313,9 +327,7 @@ public class HandlerClassLoader extends ClassLoader
       				cache.remove(s);
       				System.out.println("Removed bytecode for class:"+s);
       			}
-                localRepository.commit();
-      		} else
-      			System.out.println("LOCAL REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
+                BigSackAdapter.commitMap(String.class);
       	} else {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
@@ -341,7 +353,7 @@ public class HandlerClassLoader extends ClassLoader
               e.printStackTrace();
               if( useEmbedded )
 					try {
-						localRepository.rollback();
+						BigSackAdapter.rollbackMap(String.class);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -415,12 +427,15 @@ public class HandlerClassLoader extends ClassLoader
 	        	   System.out.println("Found file:"+entry);
 	        	   String entryName = entry.getFileName().toString().replace('/', '.');
 //	              System.out.println(String.valueOf(entry.getSize()));
-	          		entryName = packg+"."+entryName.substring(0,entryName.length()-6);
-	          		System.out.println("Processing class "+entryName);
-	          		//System.out.println(entryName);
-	          		byte[] bytes = Files.readAllBytes(entry);
-	          		setBytesInRepository(entryName,  bytes); // chicken and egg, egg, or chicken
-	                System.out.println("Loading bytecode for File Entry "+entryName+" read "+bytes.length);
+	        	   if(packg.length() > 1) // account for default package
+	        		   entryName = packg+"."+entryName.substring(0,entryName.length()-6);
+	        	   else
+	        		   entryName = entryName.substring(0,entryName.length()-6);	
+	        	   System.out.println("Processing class "+entryName);
+	        	   //System.out.println(entryName);
+	        	   byte[] bytes = Files.readAllBytes(entry);
+	        	   setBytesInRepository(entryName,  bytes); // chicken and egg, egg, or chicken
+	               System.out.println("Loading bytecode for File Entry "+entryName+" read "+bytes.length);
 	           }
 	    	   else
 	    		   System.out.println("No class files available from path "+dir);
