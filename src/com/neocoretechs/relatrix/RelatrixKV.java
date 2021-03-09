@@ -161,11 +161,12 @@ public static synchronized void removePackageFromRepository(String pack) throws 
 	HandlerClassLoader.removeBytesInRepository(pack);
 }
 /**
-* Delete all relationships that this object participates in
-* @exception IOException low-level access or problems modifiying schema
- * @throws IllegalAccessException 
- * @throws ClassNotFoundException 
- * @throws IllegalArgumentException 
+* Delete element with given key that this object participates in
+* @param c The Comparable key
+* @exception IOException low-level access or problems modifying schema
+* @throws IllegalAccessException 
+* @throws ClassNotFoundException 
+* @throws IllegalArgumentException 
 */
 public static synchronized void remove(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
@@ -179,9 +180,9 @@ public static synchronized void remove(Comparable c) throws IOException, Illegal
 
 /**
 * Retrieve from the targeted relationship. Essentially this is the default permutation which
-* retrieves the equivalent of a tailSet and returns the key/value elements
-* @param rarg Object for the range of the relationship
-* @exception IOException low-level access or problems modifiying schema
+* retrieves the equivalent of a tailSet and returns the value elements
+* @param darg Object marking start of retrieval
+* @exception IOException low-level access or problems modifying schema
 * @exception IllegalArgumentException the operator is invalid
 * @exception ClassNotFoundException if the Class of Object is invalid
 * @throws IllegalAccessException 
@@ -192,7 +193,17 @@ public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOExc
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	return ttm.tailMap(darg);
 }
-
+/**
+* Retrieve from the targeted relationship. Essentially this is the default permutation which
+* retrieves the equivalent of a tailSet and returns the value elements
+* @param darg Comparable marking start of retrieval
+* @param parallel optional true to execute parallel stream
+* @exception IOException low-level access or problems modifying schema
+* @exception IllegalArgumentException the operator is invalid
+* @exception ClassNotFoundException if the Class of Object is invalid
+* @throws IllegalAccessException 
+* @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Comparable[]>
+*/
 public static synchronized Stream<?> findTailMapStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
@@ -200,29 +211,31 @@ public static synchronized Stream<?> findTailMapStream(Comparable darg, boolean.
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 
-
 /**
-* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-* matching the given set of operators and/or objects.
+* Retrieve from the targeted Key/Value relationship from given key.
 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
-* The parameters can be objects and/or operators. Semantically,
-* this set-based retrieval makes no sense without at least one object to supply a value to
-* work against, so in this method that check is performed. If you are going to anchor a set
-* retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
-* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
-
-* @exception IOException low-level access or problems modifiying schema
-* @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+* @param darg Object for key of relationship
+* @exception IOException low-level access or problems modifying schema
+* @exception IllegalArgumentException At least one argument must be a valid object reference
 * @exception ClassNotFoundException if the Class of Object is invalid
 * @throws IllegalAccessException 
-* @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+* @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 */
 public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	return ttm.tailMapKV(darg);
 }
-
+/**
+* Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
+* @param darg Comparable for key
+* @param parallel Optional true to execute parallel stream
+* @exception IOException low-level access or problems modifying schema
+* @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+* @exception ClassNotFoundException if the Class of Object is invalid
+* @throws IllegalAccessException 
+* @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
+*/
 public static synchronized Stream<?> findTailMapKVStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
@@ -230,12 +243,12 @@ public static synchronized Stream<?> findTailMapKVStream(Comparable darg, boolea
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
- * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
- * passed, to the given relationship
- * @param darg 
- * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+ * Retrieve the given set of values from the start of the elements to the given key.
+ * @param darg The Comparable key
+ * @throws IllegalArgumentException At least one argument must be a valid object reference
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
+ * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
  */
 public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
@@ -243,7 +256,15 @@ public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOExc
 	// check for at least one object reference in our headset factory
 	return ttm.headMap(darg);
 }
-
+/**
+ * Retrieve the given set of values from the start of the elements to the given key.
+ * @param darg Comparable key
+ * @param parallel Optional true to execute parallel stream
+ * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ * @return Stream from which data may be consumed. Fulfills Stream interface.
+ */
 public static synchronized Stream<?> findHeadMapStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
@@ -252,12 +273,12 @@ public static synchronized Stream<?> findHeadMapStream(Comparable darg, boolean.
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
- * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
- * passed, to the given relationship
- * @param darg 
+ * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
+ * @param darg The comparable key
  * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
+ * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
  */
 public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
@@ -265,7 +286,15 @@ public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOE
 	// check for at least one object reference in our headset factory
 	return ttm.headMapKV(darg);
 }
-
+/**
+ * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
+ * @param darg Comparable key
+ * @param parallel true for parallel stream
+ * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ * @return Stream from which KV data may be consumed. Fulfills Stream interface.
+ */
 public static synchronized Stream<?> findHeadMapKVStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
@@ -274,21 +303,31 @@ public static synchronized Stream<?> findHeadMapKVStream(Comparable darg, boolea
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
- * Retrieve the subset of the given set of arguments from the point of the relationship of the first 
- * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
- * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
- * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+ * Retrieve the subset of the given set of keys from the point of the relationship of the first 
+ * @param darg The starting key
+ * @param marg The ending key
  * @throws IOException
  * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
+ * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
  */
 public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	return ttm.subMap(darg, marg);
 }
-
+/**
+ * Retrieve the subset of the given set of keys from the point of the relationship of the first 
+ * @param darg The starting key
+ * @param marg The ending key
+ * @param parallel Optional true for parallel stream execution
+ * @throws IOException
+ * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ * @return Stream from which data may be retrieved. Fulfills Stream interface.
+ */
 public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparable marg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
@@ -296,14 +335,14 @@ public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparabl
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
- * Retrieve the subset of the given set of arguments from the point of the relationship of the first 
- * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
- * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
- * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+ * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
+ * @param darg The starting key
+ * @param marg The ending key
  * @throws IOException
  * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
+ * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
  */
 public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
@@ -311,7 +350,17 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	return ttm.subMapKV(darg, marg);
 }
-
+/**
+ * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
+ * @param darg The starting key
+ * @param marg The ending key
+ * @param parallel Optional true for parallel stream execution
+ * @throws IOException
+ * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Comparable[]>
+ */
 public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Comparable marg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
@@ -319,26 +368,53 @@ public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Compara
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
-
+/**
+ * Return the entry set for the given class type
+ * @param clazz the class to retrieve
+ * @return Iterator for entry set
+ * @throws IOException
+ * @throws IllegalAccessException
+ */
 public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	return ttm.entrySet();
 }
 
+/**
+ * Return the entry set for the given class type
+ * @param clazz the class to retrieve
+ * @param Optional true for parallel stream execution
+ * @return Stream for entry set
+ * @throws IOException
+ * @throws IllegalAccessException
+ */
 public static synchronized Stream<?> entrySetStream(Class clazz, boolean... parallel) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
-
+/**
+ * Return the keyset for the given class
+ * @param clazz the class to retrieve
+ * @return the iterator for the keyset
+ * @throws IOException
+ * @throws IllegalAccessException
+ */
 public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	return ttm.keySet();
 }
-
+/**
+ * Return the keyset for the given class
+ * @param clazz the class to retrieve
+ * @param parallel Optional true for parallel stream
+ * @return The stream from which keyset can be consumed
+ * @throws IOException
+ * @throws IllegalAccessException
+ */
 public static synchronized Stream<?> keySetStream(Class clazz, boolean... parallel) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
@@ -347,6 +423,7 @@ public static synchronized Stream<?> keySetStream(Class clazz, boolean... parall
 }
 /**
  * return lowest valued key.
+ * @param clazz the class to retrieve
  * @return the The key/value with lowest key value.
  * @throws IOException
  * @throws IllegalAccessException 
@@ -358,6 +435,7 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
 }
 /**
  * Return the value for the key.
+ * @param key the key to retrieve
  * @return The value for the key.
  * @throws IOException
  * @throws IllegalAccessException 
@@ -369,7 +447,8 @@ public static synchronized Object get(Comparable key) throws IOException, Illega
 }
 /**
  * The lowest key value object
- * @return
+ * @param clazz the class to retrieve
+ * @return The first value of the class with given key
  * @throws IOException
  * @throws IllegalAccessException 
  */
@@ -380,6 +459,7 @@ public static synchronized Object firstValue(Class clazz) throws IOException, Il
 }
 /**
  * Return instance having the highest valued key.
+ * @param clazz the class to retrieve
  * @return the The highest value object
  * @throws IOException
  * @throws IllegalAccessException 
@@ -391,6 +471,7 @@ public static synchronized Object lastKey(Class clazz) throws IOException, Illeg
 }
 /**
  * Return the instance having the highest valued key.
+ * @param clazz the class to retrieve
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
  * @throws IllegalAccessException 
@@ -402,6 +483,7 @@ public static synchronized Object lastValue(Class clazz) throws IOException, Ill
 }
 /**
  * Size of all elements
+ * @param clazz the class to retrieve
  * @return the number of DomainMapRange morphisms.
  * @throws IOException
  * @throws IllegalAccessException 
@@ -425,6 +507,7 @@ public static synchronized boolean contains(Comparable obj) throws IOException, 
 }
 /**
  * Is the value object present
+ * @param keyType the class to retrieve
  * @param obj the object with equals, CAUTION explicit conversion is needed
  * @return boolean true if found
  * @throws IOException

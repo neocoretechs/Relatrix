@@ -14,30 +14,32 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
 
 /**
-* Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.
+* Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
 * The lynch pin is the Morphism and its subclasses indexed
 * in the 6 permutations of the domain,map,and range so we can retrieve instances in all
-* the potential sort orders. 
+* the potential sort orders.<b/>
 * The compareTo and fullCompareTo of Morphism provide the comparison methods to drive the processes.
 * For retrieval, a partial template is constructed of the proper Morphism subclass which puts the three elements
 * in the proper sort order. To retrieve the proper Morphism subclass, partially construct a morphism template to
-* order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<br/>
+* order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p/>
 * The critical concept about retrieving relationships is to remember that the number of elements from each passed
-* iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
+* stream element or iteration of a Stream or Iterator is dependent on the number of "?" operators in a 'findSet'. For example,
 * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element, for findSet("?",object,"?") we
 * would get back a Comparable[2] array, with each element of the relationship returned.<br/>
+* If we findHeadStream("*","?","*") we return a stream where one Comparable array element can be mapped, reduced, consumed, etc.<br/>
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
+* the requirement to be 'categorical'.<p/>
+* In general, all Streams or '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
-* since conceptually a Morphism is a domain acted upon by the map function yielding the range. 
+* since conceptually a Morphism is a domain acted upon by the map function yielding the range.<p/>
 * A given domain run through a 'map function' always yields the same range, 
-* as any function that processes an element yields one consistent result.
+* as any function that processes an element yields one consistent result.<p/>
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism
-* @author jg, Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020
+* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class Relatrix {
 	private static boolean DEBUG = false;
@@ -344,7 +346,29 @@ public static synchronized Iterator<?> findSet(Object darg, Object marg, Object 
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 	return ifact.createIterator();
 }
-
+/**
+* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+* matching the given set of operators and/or objects. Essentially this is the default permutation which
+* retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
+* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
+* The returned Stream is always of dimension n="# of question marks" or a one element array of a single object.
+* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
+* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
+* relationships of the 3 objects, of the type DomainMapRange. 
+* The returned elements(s) constitute identities in the sense of these morphisms satisfying
+* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
+* the mathematical identity, or constitute the unique key in database terms.
+* 
+* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param parallel Optional argument to invoke parallel stream
+* @exception IOException low-level access or problems modifiying schema
+* @exception IllegalArgumentException the operator is invalid
+* @exception ClassNotFoundException if the Class of Object is invalid
+* @throws IllegalAccessException 
+* @return The Stream pipeline with the retrieved elements
+ */
 public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
@@ -378,14 +402,31 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 	return ifact.createIterator();
 }
-
+/**
+* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+* matching the given set of operators and/or objects.
+* Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
+* The parameters can be objects and/or operators. Semantically,
+* this set-based retrieval makes no sense without at least one object to supply a value to
+* work against, so in this method that check is performed. If you are going to anchor a set
+* retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
+* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
+* @param marg Object for the map of relationship , a dont-care wildcard "*", a return-object "?", or a class template
+* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param parallel Optional true for parallel stream execution
+* @exception IOException low-level access or problems modifiying schema
+* @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+* @exception ClassNotFoundException if the Class of Object is invalid
+* @throws IllegalAccessException 
+* @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
+*/
 public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
 		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-		throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
+		throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
@@ -412,7 +453,23 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
 	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 	return ifact.createIterator();
 }
-
+/**
+ * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
+ * passed, to the given relationship, should the relationship contain an object as at least one of its components.
+ * Returns a view of the portion of this set whose elements are strictly less than toElement.
+ * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
+ * work against, so in this method that check is performed in the createHeadsetFactory method. If you are going to anchor a set
+ * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
+ * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
+ * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
+ * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
+ * @param parallel Optional true to execute stream in parallel
+ * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
+ * @throws IOException
+ * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ */
 public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference in our headset factory
@@ -458,7 +515,29 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
 	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 	return ifact.createIterator();
 }
-
+/**
+ * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
+ * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
+ * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
+ * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
+ * Returns a view of the portion of this set whose elements range from fromElement, inclusive, to toElement, exclusive. 
+ * (If fromElement and toElement are equal, the returned set is empty.) 
+ * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
+ * work against, so in this method that check is performed. If you are going to anchor a set
+ * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
+ * Since this is a subset operation, the additional constraint is applied that the ending declaration of the subset retrieval
+ * must match the number of concrete objects vs wildcards in the first part of the declaration.
+ * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
+ * @param marg The map of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
+ * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
+ * @param parallel true to execute stream in parallel, false for sequential
+ * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
+ * @return The Stream from which the data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
+ * @throws IOException
+ * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ */
 public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, boolean parallel, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
