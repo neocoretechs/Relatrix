@@ -4,6 +4,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.bigsack.btree.TreeSearchResult;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
@@ -28,7 +32,7 @@ public final class RelatrixKV {
 	public static char OPERATOR_TUPLE_CHAR = '?';
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
-	// dbname, object cache size to open
+	private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED; 
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -189,6 +193,14 @@ public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOExc
 	return ttm.tailMap(darg);
 }
 
+public static synchronized Stream<?> findTailMapStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+}
+
+
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects.
@@ -211,6 +223,12 @@ public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOE
 	return ttm.tailMapKV(darg);
 }
 
+public static synchronized Stream<?> findTailMapKVStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+}
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
  * passed, to the given relationship
@@ -224,6 +242,14 @@ public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOExc
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	// check for at least one object reference in our headset factory
 	return ttm.headMap(darg);
+}
+
+public static synchronized Stream<?> findHeadMapStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	// check for at least one object reference in our headset factory
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -239,6 +265,14 @@ public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOE
 	// check for at least one object reference in our headset factory
 	return ttm.headMapKV(darg);
 }
+
+public static synchronized Stream<?> findHeadMapKVStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	// check for at least one object reference in our headset factory
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+}
 /**
  * Retrieve the subset of the given set of arguments from the point of the relationship of the first 
  * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
@@ -253,6 +287,13 @@ public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable ma
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	return ttm.subMap(darg, marg);
+}
+
+public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparable marg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
  * Retrieve the subset of the given set of arguments from the point of the relationship of the first 
@@ -271,16 +312,38 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
 	return ttm.subMapKV(darg, marg);
 }
 
+public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Comparable marg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+{
+	// check for at least one object reference
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+}
+
 public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	return ttm.entrySet();
 }
 
+public static synchronized Stream<?> entrySetStream(Class clazz, boolean... parallel) throws IOException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+}
+
 public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	return ttm.keySet();
+}
+
+public static synchronized Stream<?> keySetStream(Class clazz, boolean... parallel) throws IOException, IllegalAccessException
+{
+	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
 }
 /**
  * return lowest valued key.
