@@ -32,7 +32,7 @@ Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream([fromOb
 Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream(("*","*","*"); // This makes ready for consumption by stream all relationships as identity objects<br/>
 </code>
 
-<code>
+```
 public class VisualCortex {
 	public static void main(String[] args) throws Exception {
 		Relatrix.setTablespaceDirectory(args[0]);
@@ -45,4 +45,4 @@ public class VisualCortex {
 		});
 	}
 }
-</code>
+```
