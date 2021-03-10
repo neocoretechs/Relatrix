@@ -13,18 +13,26 @@ More plainly, imagine that rather than being able to map keys one-to-one like a 
 We can then assign equivalence through isomorphism, or functional similarities between data. The relationships themselves are objects which can be composed into higher level relationships that
 harness the power of Category theory to perform analysis not possible with conventional databases.
 <br/><br/><i> Building relationships is as easy as saying:</i><br/>
+<code>
 Relatrix.store([fromObject],[mapObject],[toObject]); // This stores a functional relationship<br/>
+</code>
 <i>and a query for that set is as simple as:</i><p/>
+<code>
 Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream("?", "?", "?");<br/>
 stream.forEach(e -> Stream.of(e).forEach(g -> System.out.println("Element A:"+g)));<p/>
+</code>
 Or using the old Iterator model:<br/>
+<code>
 Iterator iterator = Relatrix.findSet("?",[mapObject],"?"); // This retrieves all domain objects and range objects mapped through [mapObject]<p/>
+</code>
 <i>To compose two relationships to an association:</i><br/>
+<code>
 Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObject2].[toObject2])); // This composes relationships<p/>
-Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream([fromObject1],â€�*â€�,â€�?â€�, true); // This returns all range objects mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
+Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream([fromObject1],"*","?", true); // This returns all range objects mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
 Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream(("*","*","*"); // This makes ready for consumption by stream all relationships as identity objects<br/>
+</code>
 
-
+<code>
 public class VisualCortex {<br/>
 public static void main(String[] args) throws Exception {<br/>
 &nbsp;&nbsp;&nbsp;Relatrix.setTablespaceDirectory(args[0]);<br/>
@@ -38,3 +46,4 @@ public static void main(String[] args) throws Exception {<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/>
 }<br/>
 }
+</code>
