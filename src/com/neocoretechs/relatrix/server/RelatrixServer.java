@@ -11,8 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteHeadsetIterator;
+import com.neocoretechs.relatrix.client.RemoteHeadsetStream;
 import com.neocoretechs.relatrix.client.RemoteSubsetIterator;
+import com.neocoretechs.relatrix.client.RemoteSubsetStream;
 import com.neocoretechs.relatrix.client.RemoteTailsetIterator;
+import com.neocoretechs.relatrix.client.RemoteTailsetStream;
 
 
 /**
@@ -34,7 +37,7 @@ import com.neocoretechs.relatrix.client.RemoteTailsetIterator;
  * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.
  * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.
  * In this way multiple databases can be used by instantiating separate clients.
- * @author jg Copyright (C) NeoCoreTechs 2015
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021
  *
  */
 public final class RelatrixServer extends TCPServer {
@@ -46,6 +49,10 @@ public final class RelatrixServer extends TCPServer {
 	public static ServerInvokeMethod relatrixSubsetMethods = null; // Subset iterator methods
 	public static ServerInvokeMethod relatrixHeadsetMethods = null; // Headset iterator methods
 	public static ServerInvokeMethod relatrixTailsetMethods = null; // Standard Tailset iterator methods
+	public static ServerInvokeMethod relatrixSubstreamMethods = null; // Subset stream methods
+	public static ServerInvokeMethod relatrixHeadstreamMethods = null; // Headset stream methods
+	public static ServerInvokeMethod relatrixTailstreamMethods = null; // Standard Tailset stream methods
+	
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 	
@@ -63,6 +70,9 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod(RemoteSubsetIterator.className, 0);
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod(RemoteHeadsetIterator.className, 0);
 		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailsetIterator.className, 0);
+		RelatrixServer.relatrixSubstreamMethods = new ServerInvokeMethod(RemoteSubsetStream.className, 0);
+		RelatrixServer.relatrixHeadstreamMethods = new ServerInvokeMethod(RemoteHeadsetStream.className, 0);
+		RelatrixServer.relatrixTailstreamMethods = new ServerInvokeMethod(RemoteTailsetStream.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}

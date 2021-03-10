@@ -1,0 +1,1 @@
+java -Xmx512m -cp C:\Progra~1\apache\apache-tomcat\lib\bigsack.jar com.neocoretechs.bigsack.CreateDatabaseVolume %1
