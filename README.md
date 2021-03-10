@@ -34,16 +34,16 @@ Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream(("*","*
 
 <code>
 public class VisualCortex {<br/>
-public static void main(String[] args) throws Exception {<br/>
-&nbsp;&nbsp;&nbsp;Relatrix.setTablespaceDirectory(args[0]);<br/>
-&nbsp;&nbsp;&nbsp;Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream("?", "?", "?", true);<br/>
-&nbsp;&nbsp;&nbsp;	
-&nbsp;&nbsp;&nbsp;Map<Object, Map<Object, Map<Object, Long>>> nameCount = stream.collect(Collectors.groupingBy(b -> b[0].toString(),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collectors.groupingBy(d -> d[1].toString(),<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collectors.groupingBy(e -> e[2].toString(), Collectors.counting()))));<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nameCount.forEach((name, count) -> {<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(name + ":" + count);<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<br/>
-}<br/>
+	public static void main(String[] args) throws Exception {
+		Relatrix.setTablespaceDirectory(args[0]);
+		Stream<Comparable[]> stream = (Stream<Comparable[]>) Relatrix.findStream("?", "?", "?", true);
+
+		Map<Object, Map<Object, Map<Object, Long>>> nameCount = stream.collect(Collectors.groupingBy(b -> b[0].toString(),
+		Collectors.groupingBy(d -> d[1].toString(),
+		Collectors.groupingBy(e -> e[2].toString(), Collectors.counting()))));
+		nameCount.forEach((name, count) -> {
+			System.out.println(name + ":" + count);
+		});
+	}
 }
 </code>
