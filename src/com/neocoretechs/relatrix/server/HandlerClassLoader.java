@@ -20,7 +20,7 @@ import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteKeysetIterator;
+import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 /**
 * This is a generic ClassLoader of which many examples abound.
 * We do some tricks with resolution from a hashtable of names and bytecodes,
@@ -331,7 +331,7 @@ public class HandlerClassLoader extends ClassLoader
       	} else {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
-      	      			RemoteKeysetIterator it = remoteRepository.keySet(String.class);
+      	      			RemoteKeySetIterator it = remoteRepository.keySet(String.class);
       	      			while(remoteRepository.hasNext(it)) {
       	      				Comparable key = (Comparable) remoteRepository.next(it);
       	      				if( ((String)key).startsWith(name))

@@ -7,10 +7,10 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author groff
  *
  */
-public class RemoteTailsetIterator extends RelatrixStatement implements RemoteObjectInterface{
+public class RemoteTailSetIterator extends RelatrixStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
 	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixIterator";
-	public RemoteTailsetIterator(String session) {
+	public RemoteTailSetIterator(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

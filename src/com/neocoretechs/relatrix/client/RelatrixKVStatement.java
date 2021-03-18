@@ -142,28 +142,28 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 			// put it in the array and send our intermediary back
 			RelatrixKVServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.bigsack.iterator.TailSetKVIterator.class) {
-				setObjectReturn( new RemoteTailmapKVIterator(getSession()) );
+				setObjectReturn( new RemoteTailMapKVIterator(getSession()) );
 			} else {
 				if(result.getClass() == com.neocoretechs.bigsack.iterator.SubSetKVIterator.class ) {
-					setObjectReturn( new RemoteSubmapKVIterator(getSession()) );
+					setObjectReturn( new RemoteSubMapKVIterator(getSession()) );
 				} else {
 					if(result.getClass() == com.neocoretechs.bigsack.iterator.HeadSetKVIterator.class ) {
-						setObjectReturn( new RemoteHeadmapKVIterator(getSession()) );
+						setObjectReturn( new RemoteHeadMapKVIterator(getSession()) );
 					} else {
 						if( result.getClass() == com.neocoretechs.bigsack.iterator.TailSetIterator.class) {
-							setObjectReturn( new RemoteTailmapIterator(getSession()) );
+							setObjectReturn( new RemoteTailMapIterator(getSession()) );
 						} else {
 							if( result.getClass() == com.neocoretechs.bigsack.iterator.SubSetIterator.class) {
-								setObjectReturn( new RemoteSubmapIterator(getSession()) );
+								setObjectReturn( new RemoteSubMapIterator(getSession()) );
 							} else {
 								if( result.getClass() == com.neocoretechs.bigsack.iterator.HeadSetIterator.class) {
-									setObjectReturn( new RemoteHeadmapIterator(getSession()) );
+									setObjectReturn( new RemoteHeadMapIterator(getSession()) );
 								} else {
 									if( result.getClass() == com.neocoretechs.bigsack.iterator.EntrySetIterator.class) {
-										setObjectReturn( new RemoteEntrysetIterator(getSession()) );
+										setObjectReturn( new RemoteEntrySetIterator(getSession()) );
 									} else {
 										if( result.getClass() == com.neocoretechs.bigsack.iterator.KeySetIterator.class) {
-											setObjectReturn( new RemoteKeysetIterator(getSession()) );
+											setObjectReturn( new RemoteKeySetIterator(getSession()) );
 										} else {
 											throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 										}

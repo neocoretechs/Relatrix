@@ -1,17 +1,18 @@
 package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
+import com.neocoretechs.relatrix.client.RemoteEntrySetStream;
+import com.neocoretechs.relatrix.client.RemoteHeadMapStream;
+import com.neocoretechs.relatrix.client.RemoteHeadMapKVStream;
+import com.neocoretechs.relatrix.client.RemoteKeySetStream;
+import com.neocoretechs.relatrix.client.RemoteSubMapStream;
+import com.neocoretechs.relatrix.client.RemoteSubMapKVStream;
+import com.neocoretechs.relatrix.client.RemoteTailMapStream;
+import com.neocoretechs.relatrix.client.RemoteTailMapKVStream;
 
 /**
  * Yes, this should be a nice JUnit fixture someday
@@ -30,7 +31,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * @author jg (C) 2020
  *
  */
-public class BatteryRelatrixKVClient {
+public class BatteryRelatrixKVClientStream {
 	public static boolean DEBUG = false;
 	public static RelatrixKVClient rkvc;
 	static String key = "This is a test"; // holds the base random key string for tests
@@ -39,17 +40,19 @@ public class BatteryRelatrixKVClient {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
+	static int i;
+	static int j;
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		/*battery1(argv);	
+		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
-		battery1AR7(argv);*/
+		battery1AR7(argv);
 		battery1AR8(argv);
-		/*battery1AR9(argv);
+		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
 		battery1AR11(argv);
@@ -58,7 +61,7 @@ public class BatteryRelatrixKVClient {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);*/
+		battery1AR17(argv);
 		System.out.println("TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
@@ -116,29 +119,28 @@ public class BatteryRelatrixKVClient {
 	 * Test the higher level functions in the RelatrixKV.
 	 * public Set<Map.Entry<K,V>> entrySet()
 	 * Returns a Set view of the mappings contained in this map. 
-	 * The set's iterator returns the entries in ascending key order. 
+	 * The set's stream returns the entries in ascending key order. 
 	 * The set is backed by the map, so changes to the map are reflected in the set, and vice-versa.
-	 *  If the map is modified while an iteration over the set is in progress (except through the iterator's 
-	 *  own remove operation, or through the setValue operation on a map entry returned by the iterator) the results
-	 *   of the iteration are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
-	 *   via the Iterator.remove, Set.remove, removeAll, retainAll and clear operations. 
+	 *  If the map is modified while an iteration over the set is in progress (except through the stream's 
+	 *  own remove operation, or through the setValue operation on a map entry returned by the stream) the results
+	 *   of the streaming are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
+	 *   via the stream. Remove, Set.remove, removeAll, retainAll and clear operations. 
 	 *   It does not support the add or addAll operations.
 	 *   from battery1 we should have 0 to max, say 1000 keys of length 100
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR6(String[] argv) throws Exception {
-		int i = min;
+		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIterator its = rkvc.entrySet(String.class);
+		RemoteEntrySetStream its = rkvc.entrySetStream(String.class);
 		System.out.println("KV Battery1AR6");
-		while(rkvc.hasNext(its)) {
-			Comparable nex = (Comparable) rkvc.next(its);
-			//System.out.println(i+"="+nex);
-			if(((Long)nex).intValue() != i)
-				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if((Long)(((Map.Entry<String,Long>)e).getValue()) != i) {
+				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
+			}
 			++i;
-		}
+		});
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
 			//throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
@@ -146,22 +148,21 @@ public class BatteryRelatrixKVClient {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixKV.keySet;
+	 * Testing of Stream<?> its = RelatrixKV.keySet;
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR7(String[] argv) throws Exception {
-		int i = min;
+		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetIterator its = rkvc.keySet(String.class);
+		RemoteKeySetStream its = rkvc.keySetStream(String.class);
 		System.out.println("KV Battery1AR7");
-		while(rkvc.hasNext(its)) {
-			String nex = (String) rkvc.next(its);
-			// Map.Entry
-			if(Integer.parseInt(nex) != i)
-				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt((String)e) != i) {
+				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
+			}
 			++i;
-		}
+		});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
 			//throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
@@ -169,12 +170,12 @@ public class BatteryRelatrixKVClient {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "?", "*");
+	 * Testing of Stream<?> its = Relatrix.findSet("?", "?", "*");
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR8(String[] argv) throws Exception {
-		int i = min;
+		i = min;
 		System.out.println("KV Battery1AR8");
 		long tims = System.currentTimeMillis();
 		for(int j = min; j < max; j++) {
@@ -285,19 +286,17 @@ public class BatteryRelatrixKVClient {
 	 */
 	public static void battery1AR11(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		int i = min;
+		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapIterator its = rkvc.findTailMap(fkey);
+		RemoteTailMapStream its = rkvc.findTailMapSteam(fkey);
 		System.out.println("KV Battery1AR11");
-		while(rkvc.hasNext(its)) {
-			String nex = (String) rkvc.next(its);
-			// Map.Entry
-			if(Integer.parseInt(nex) != i) {
-				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt((String)e) != i) {
+				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
-		}
+		});
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
@@ -307,20 +306,18 @@ public class BatteryRelatrixKVClient {
 	 */
 	public static void battery1AR12(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		int i = min;
+		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVIterator its = rkvc.findTailMapKV(fkey);
+		RemoteTailMapKVStream its = rkvc.findTailMapKVStream(fkey);
 		System.out.println("KV Battery1AR12");
-		while(rkvc.hasNext(its)) {
-			Comparable nex = (Comparable) rkvc.next(its);
-			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex;
-			if(Integer.parseInt(nexe.getKey()) != i) {
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
-				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
-		}
+		});
 		 System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
@@ -331,46 +328,43 @@ public class BatteryRelatrixKVClient {
 	 */
 	public static void battery1AR13(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		int i = max;
+		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapIterator its = rkvc.findHeadMap(fkey);
+		RemoteHeadMapStream its = rkvc.findHeadMapStream(fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
-		while(rkvc.hasNext(its)) {
-			String nex = (String) rkvc.next(its);
-			if(Integer.parseInt(nex) != i) {
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt((String)e) != i) {
 			// Map.Entry
-				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex);
+				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
+				//throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
-		}
+		});
 		 System.out.println("BATTERY1AR13 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
-	 *  findHeadMapKV
+	 * findHeadMapKV
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR14(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		int i = max;
+		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapKVIterator its = rkvc.findHeadMapKV(fkey);
+		RemoteHeadMapKVStream its = rkvc.findHeadMapKVStream(fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
-		while(rkvc.hasNext(its)) {
-			Comparable nex = (Comparable) rkvc.next(its);
-			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex;
-			if(Integer.parseInt(nexe.getKey()) != i) {
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
-				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
-		}
+		});
 		 System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
@@ -381,23 +375,22 @@ public class BatteryRelatrixKVClient {
 	 */
 	public static void battery1AR15(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		int i = min;
-		int j = max;
+		i = min;
+		j = max;
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapIterator its = rkvc.findSubMap(fkey, tkey);
+		RemoteSubMapStream its = rkvc.findSubMapStream(fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
-		while(rkvc.hasNext(its)) {
-			String nex = (String) rkvc.next(its);
-			if(Integer.parseInt(nex) != i) {
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
-				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex);
+				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
+				//throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
-		}
+		});
 		 System.out.println("BATTERY1AR15 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
@@ -408,24 +401,22 @@ public class BatteryRelatrixKVClient {
 	 */
 	public static void battery1AR16(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		int i = min;
-		int j = max;
+		i = min;
+		j = max;
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapKVIterator its = rkvc.findSubMapKV(fkey, tkey);
+		RemoteSubMapKVStream its = rkvc.findSubMapKVStream(fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
-		while(rkvc.hasNext(its)) {
-			Comparable nex = (Comparable) rkvc.next(its);
-			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex;
-			if(Integer.parseInt(nexe.getKey()) != i) {
+		Stream.of(rkvc.next(its)).forEach(e ->{
+			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
-				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe);
-				//throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe);
+				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
+				//throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
-		}
+		});
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
@@ -454,12 +445,11 @@ public class BatteryRelatrixKVClient {
 		rkvc.transactionCommit(String.class);
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
-			RemoteEntrySetIterator its = rkvc.entrySet(String.class);
-			while(rkvc.hasNext(its)) {
-				Comparable nex = (Comparable) rkvc.next(its);
-				//System.out.println(i+"="+nex);
-				System.out.println(nex);
-			}
+			RemoteEntrySetStream its = rkvc.entrySetStream(String.class);
+			Stream.of(rkvc.next(its)).forEach(e ->{
+				//System.out.println(i+"="+key);
+				System.out.println(key+"="+e);
+			});
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}

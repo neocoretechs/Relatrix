@@ -2,10 +2,10 @@ package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 
-public class RemoteTailmapKVIterator extends RelatrixKVStatement implements RemoteObjectInterface{
+public class RemoteTailMapKVIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
 	public static final String className = "com.neocoretechs.bigsack.iterator.TailSetKVIterator";
-	public RemoteTailmapKVIterator(String session) {
+	public RemoteTailMapKVIterator(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

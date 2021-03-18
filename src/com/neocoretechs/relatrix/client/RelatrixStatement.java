@@ -136,13 +136,13 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 			// put it in the array and send our intermediary back
 			RelatrixServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {
-				setObjectReturn( new RemoteTailsetIterator(getSession()) );
+				setObjectReturn( new RemoteTailSetIterator(getSession()) );
 			} else {
 				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
-					setObjectReturn( new RemoteSubsetIterator(getSession()) );
+					setObjectReturn( new RemoteSubSetIterator(getSession()) );
 				} else {
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
-						setObjectReturn( new RemoteHeadsetIterator(getSession()) );
+						setObjectReturn( new RemoteHeadSetIterator(getSession()) );
 					} else {
 						throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 					}

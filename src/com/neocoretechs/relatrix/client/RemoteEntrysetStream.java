@@ -6,10 +6,10 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteEntrysetStream extends RelatrixKVStatement implements RemoteObjectInterface{
+public class RemoteEntrySetStream extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = 1206621317830948409L;
 	public static final String className = "com.neocoretechs.bigsack.stream.EntrySetStream";
-	public RemoteEntrysetStream(String session) {
+	public RemoteEntrySetStream(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

@@ -9,14 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RemoteEntrysetIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadmapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadmapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeysetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubmapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubmapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailmapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailmapKVIterator;
+import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
+import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
+import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
+import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
+import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
+import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
+import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
+import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
 
 
 /**
@@ -81,23 +81,23 @@ public final class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixSubmapMethods = new ServerInvokeMethod(RemoteSubmapIterator.className, 0);
-		RelatrixKVServer.relatrixSubmapKVMethods = new ServerInvokeMethod(RemoteSubmapKVIterator.className, 0);
-		RelatrixKVServer.relatrixHeadmapMethods = new ServerInvokeMethod(RemoteHeadmapIterator.className, 0);
-		RelatrixKVServer.relatrixHeadmapKVMethods = new ServerInvokeMethod(RemoteHeadmapKVIterator.className, 0);
-		RelatrixKVServer.relatrixTailmapMethods = new ServerInvokeMethod(RemoteTailmapIterator.className, 0);
-		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod(RemoteTailmapKVIterator.className, 0);
-		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod(RemoteEntrysetIterator.className, 0);
-		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeysetIterator.className, 0);
+		RelatrixKVServer.relatrixSubmapMethods = new ServerInvokeMethod(RemoteSubMapIterator.className, 0);
+		RelatrixKVServer.relatrixSubmapKVMethods = new ServerInvokeMethod(RemoteSubMapKVIterator.className, 0);
+		RelatrixKVServer.relatrixHeadmapMethods = new ServerInvokeMethod(RemoteHeadMapIterator.className, 0);
+		RelatrixKVServer.relatrixHeadmapKVMethods = new ServerInvokeMethod(RemoteHeadMapKVIterator.className, 0);
+		RelatrixKVServer.relatrixTailmapMethods = new ServerInvokeMethod(RemoteTailMapIterator.className, 0);
+		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod(RemoteTailMapKVIterator.className, 0);
+		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod(RemoteEntrySetIterator.className, 0);
+		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeySetIterator.className, 0);
 		//
-		RelatrixKVServer.relatrixSubmapStreamMethods = new ServerInvokeMethod(RemoteSubmapIterator.className, 0);
-		RelatrixKVServer.relatrixSubmapKVStreamMethods = new ServerInvokeMethod(RemoteSubmapKVIterator.className, 0);
-		RelatrixKVServer.relatrixHeadmapStreamMethods = new ServerInvokeMethod(RemoteHeadmapIterator.className, 0);
-		RelatrixKVServer.relatrixHeadmapKVStreamMethods = new ServerInvokeMethod(RemoteHeadmapKVIterator.className, 0);
-		RelatrixKVServer.relatrixTailmapStreamMethods = new ServerInvokeMethod(RemoteTailmapIterator.className, 0);
-		RelatrixKVServer.relatrixTailmapKVStreamMethods = new ServerInvokeMethod(RemoteTailmapKVIterator.className, 0);
-		RelatrixKVServer.relatrixEntrysetStreamMethods = new ServerInvokeMethod(RemoteEntrysetIterator.className, 0);
-		RelatrixKVServer.relatrixKeysetStreamMethods = new ServerInvokeMethod(RemoteKeysetIterator.className, 0);
+		RelatrixKVServer.relatrixSubmapStreamMethods = new ServerInvokeMethod(RemoteSubMapIterator.className, 0);
+		RelatrixKVServer.relatrixSubmapKVStreamMethods = new ServerInvokeMethod(RemoteSubMapKVIterator.className, 0);
+		RelatrixKVServer.relatrixHeadmapStreamMethods = new ServerInvokeMethod(RemoteHeadMapIterator.className, 0);
+		RelatrixKVServer.relatrixHeadmapKVStreamMethods = new ServerInvokeMethod(RemoteHeadMapKVIterator.className, 0);
+		RelatrixKVServer.relatrixTailmapStreamMethods = new ServerInvokeMethod(RemoteTailMapIterator.className, 0);
+		RelatrixKVServer.relatrixTailmapKVStreamMethods = new ServerInvokeMethod(RemoteTailMapKVIterator.className, 0);
+		RelatrixKVServer.relatrixEntrysetStreamMethods = new ServerInvokeMethod(RemoteEntrySetIterator.className, 0);
+		RelatrixKVServer.relatrixKeysetStreamMethods = new ServerInvokeMethod(RemoteKeySetIterator.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 		if(port == 9999) {

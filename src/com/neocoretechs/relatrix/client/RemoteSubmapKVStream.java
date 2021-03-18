@@ -6,10 +6,10 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author groff
  *
  */
-public class RemoteSubmapKVStream extends RelatrixKVStatement implements RemoteObjectInterface{
+public class RemoteSubMapKVStream extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -112309448424952343L;
 	public static final String className = "com.neocoretechs.bigsack.stream.SubSetKVStream";
-	public RemoteSubmapKVStream(String session) {
+	public RemoteSubMapKVStream(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

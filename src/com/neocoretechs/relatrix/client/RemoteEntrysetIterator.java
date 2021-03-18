@@ -6,10 +6,10 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author Groff
  *
  */
-public class RemoteEntrysetIterator extends RelatrixKVStatement implements RemoteObjectInterface{
+public class RemoteEntrySetIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = 1206621317830948409L;
 	public static final String className = "com.neocoretechs.bigsack.iterator.EntrySetIterator";
-	public RemoteEntrysetIterator(String session) {
+	public RemoteEntrySetIterator(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

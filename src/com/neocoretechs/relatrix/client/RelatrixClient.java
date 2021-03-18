@@ -395,13 +395,13 @@ public class RelatrixClient implements Runnable {
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public RemoteTailsetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteTailSetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		return findTailSet(darg, marg, rarg);
 
 	}
 	
-	public RemoteTailsetStream findSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteTailSetStream findSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		return findTailSetStream(darg, marg, rarg);
 
@@ -424,7 +424,7 @@ public class RelatrixClient implements Runnable {
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public RemoteTailsetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteTailSetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -451,11 +451,11 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailsetIterator)o;
+		return (RemoteTailSetIterator)o;
 
 	}
 
-	public RemoteTailsetStream findTailSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteTailSetStream findTailSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixStatement rs = new RelatrixStatement("findSetStream",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -482,7 +482,7 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailsetStream)o;
+		return (RemoteTailSetStream)o;
 
 	}
 
@@ -500,7 +500,7 @@ public class RelatrixClient implements Runnable {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteHeadsetIterator findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteHeadSetIterator findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixStatement rs = new RelatrixStatement("findHeadSet",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -526,11 +526,11 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteHeadsetIterator)o;
+		return (RemoteHeadSetIterator)o;
 
 	}
 	
-	public RemoteHeadsetStream findHeadSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteHeadSetStream findHeadSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixStatement rs = new RelatrixStatement("findHeadSetStream",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -556,7 +556,7 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteHeadsetStream)o;
+		return (RemoteHeadSetStream)o;
 
 	}
 	/**
@@ -576,7 +576,7 @@ public class RelatrixClient implements Runnable {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteSubsetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteSubSetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixStatement rs = new RelatrixStatement("findSubSet",darg, marg, rarg, endarg);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -602,11 +602,11 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteSubsetIterator)o;
+		return (RemoteSubSetIterator)o;
 
 	}
 	
-	public RemoteSubsetStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteSubSetStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixStatement rs = new RelatrixStatement("findSubSetStream",darg, marg, rarg, endarg);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -632,7 +632,7 @@ public class RelatrixClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteSubsetStream)o;
+		return (RemoteSubSetStream)o;
 
 	}
 	/**

@@ -7,10 +7,10 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2021
  *
  */
-public class RemoteSubsetStream extends RelatrixStatement implements RemoteObjectInterface{
+public class RemoteSubSetStream extends RelatrixStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -855158566032128874L;
 	public static final String className = "com.neocoretechs.relatrix.stream.RelatrixSubsetStream";
-	public RemoteSubsetStream(String session) {
+	public RemoteSubSetStream(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.client.RemoteSubsetIterator;
+import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 
 /**
