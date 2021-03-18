@@ -17,26 +17,25 @@ import com.neocoretechs.relatrix.client.RemoteSubSetStream;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 import com.neocoretechs.relatrix.client.RemoteTailSetStream;
 
-
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of ServerInvokeMethod and populating that at construction of this class.
+ * another static instance of ServerInvokeMethod and populating that at construction of this class.<p/>
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
- * and if the remote call is linked
- * to an object instance on the server, as it is for non-serializable iterators, then you must maintain 
- * a mapping from session GUID to an instance of the object you are invoking on the server side.
- * Static methods need no server side object in residence and can be called willy nilly.
- * Functionally this class Extends TCPServer, receives CommandPacketinterface.
- * Starts a TCPWorker, which spawns a WorkerRequestProcessor.
- * WorkerRequestProcessor takes requests and processes them.
- * On the client and server the following are present as conventions:
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.
- * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.
- * In this way multiple databases can be used by instantiating separate clients.
+ * and if the remote call is linked to an object instance on the server, as it 
+ * is for non-serializable iterators, then you must maintain 
+ * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
+ * Static methods need no server side object in residence and can be called willy nilly.<br/>
+ * Functionally this class Extends TCPServer, receives CommandPacketinterface,
+ * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p/>
+ * WorkerRequestProcessor takes requests and processes them.<br/>
+ * On the client and server the following are present as conventions:<br/>
+ * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT.<br/>
+ * On the client a socket is created to connect to SLAVEPORT and objects are written to it.<br/>
+ * On the server a socket is created to connect to MASTERPORT and response objects are written to it.<br/>
+ * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.<br/>
+ * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.<br/>
+ * In this way multiple databases can be used by instantiating separate clients.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021
  *
  */
@@ -52,7 +51,6 @@ public final class RelatrixServer extends TCPServer {
 	public static ServerInvokeMethod relatrixSubstreamMethods = null; // Subset stream methods
 	public static ServerInvokeMethod relatrixHeadstreamMethods = null; // Headset stream methods
 	public static ServerInvokeMethod relatrixTailstreamMethods = null; // Standard Tailset stream methods
-	
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 	
@@ -77,7 +75,6 @@ public final class RelatrixServer extends TCPServer {
 		startServer(WORKBOOTPORT);
 	}
 
-	
 	public void run() {
 			while(!shouldStop) {
 				try {
@@ -133,13 +130,16 @@ public final class RelatrixServer extends TCPServer {
 		}
 	}
 	/**
-	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer
-	 * @param args
-	 * @throws Exception
+	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
+	 * The path to the database must conform to that of the the tablespace layout created by {@code com.neocoretechs.bigsack.CreateDatabaseVolume}<p/> 
+	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database.
+	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
 		if(args.length > 0) {
 			WORKBOOTPORT = Integer.parseInt(args[1]);
+		} else {
+			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer /path/to/database/databasename <port>");
 		}
         String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
         		(new File(args[0]).getName());
@@ -149,6 +149,5 @@ public final class RelatrixServer extends TCPServer {
 		new RelatrixServer(WORKBOOTPORT);
 		System.out.println("Relatrix Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
 	}
-	
 
 }

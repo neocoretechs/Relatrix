@@ -47,8 +47,8 @@ public class BatteryRelatrixKVClientStream {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		battery1(argv);	
-		battery11(argv);
+		//battery1(argv);	
+		//battery11(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
 		battery1AR8(argv);

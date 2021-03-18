@@ -164,8 +164,39 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 									} else {
 										if( result.getClass() == com.neocoretechs.bigsack.iterator.KeySetIterator.class) {
 											setObjectReturn( new RemoteKeySetIterator(getSession()) );
-										} else {
-											throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+										} else {							
+											// Streams..
+											if( result.getClass() == com.neocoretechs.bigsack.stream.TailSetKVStream.class) {
+												setObjectReturn( new RemoteTailMapKVStream(getSession()) );
+											} else {
+												if(result.getClass() == com.neocoretechs.bigsack.stream.SubSetKVStream.class ) {
+													setObjectReturn( new RemoteSubMapKVStream(getSession()) );
+												} else {
+													if(result.getClass() == com.neocoretechs.bigsack.stream.HeadSetKVStream.class ) {
+														setObjectReturn( new RemoteHeadMapKVStream(getSession()) );
+													} else {
+														if( result.getClass() == com.neocoretechs.bigsack.stream.TailSetStream.class) {
+															setObjectReturn( new RemoteTailMapStream(getSession()) );
+														} else {
+															if( result.getClass() == com.neocoretechs.bigsack.stream.SubSetStream.class) {
+																setObjectReturn( new RemoteSubMapStream(getSession()) );
+														} else {
+															if( result.getClass() == com.neocoretechs.bigsack.stream.HeadSetStream.class) {
+																setObjectReturn( new RemoteHeadMapStream(getSession()) );
+															} else {
+																if( result.getClass() == com.neocoretechs.bigsack.stream.EntrySetStream.class) {
+																	setObjectReturn( new RemoteEntrySetStream(getSession()) );
+																} else {
+																	if( result.getClass() == com.neocoretechs.bigsack.stream.KeySetStream.class) {
+																		setObjectReturn( new RemoteKeySetStream(getSession()) );
+																} else {
+																	throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+																}
+															}
+														}
+													}
+												}
+											}
 										}
 									}
 								}
@@ -174,12 +205,12 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 					}
 				}
 			}
-		} else {
-			setObjectReturn(result);
 		}
-		getCountDownLatch().countDown();
 	}
-	
-	
+	} else {
+		setObjectReturn(result);
+	}
+	getCountDownLatch().countDown();
+}	
 
 }

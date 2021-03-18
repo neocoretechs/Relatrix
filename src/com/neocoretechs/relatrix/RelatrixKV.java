@@ -197,18 +197,17 @@ public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOExc
 * Retrieve from the targeted relationship. Essentially this is the default permutation which
 * retrieves the equivalent of a tailSet and returns the value elements
 * @param darg Comparable marking start of retrieval
-* @param parallel optional true to execute parallel stream
 * @exception IOException low-level access or problems modifying schema
 * @exception IllegalArgumentException the operator is invalid
 * @exception ClassNotFoundException if the Class of Object is invalid
 * @throws IllegalAccessException 
 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Comparable[]>
 */
-public static synchronized Stream<?> findTailMapStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findTailMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 
 /**
@@ -236,11 +235,11 @@ public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOE
 * @throws IllegalAccessException 
 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
 */
-public static synchronized Stream<?> findTailMapKVStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findTailMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Retrieve the given set of values from the start of the elements to the given key.
@@ -259,18 +258,17 @@ public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOExc
 /**
  * Retrieve the given set of values from the start of the elements to the given key.
  * @param darg Comparable key
- * @param parallel Optional true to execute parallel stream
  * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  * @return Stream from which data may be consumed. Fulfills Stream interface.
  */
-public static synchronized Stream<?> findHeadMapStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findHeadMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	// check for at least one object reference in our headset factory
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -295,12 +293,12 @@ public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOE
  * @throws IllegalAccessException
  * @return Stream from which KV data may be consumed. Fulfills Stream interface.
  */
-public static synchronized Stream<?> findHeadMapKVStream(Comparable darg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findHeadMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	// check for at least one object reference in our headset factory
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Retrieve the subset of the given set of keys from the point of the relationship of the first 
@@ -321,18 +319,17 @@ public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable ma
  * Retrieve the subset of the given set of keys from the point of the relationship of the first 
  * @param darg The starting key
  * @param marg The ending key
- * @param parallel Optional true for parallel stream execution
  * @throws IOException
  * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  * @return Stream from which data may be retrieved. Fulfills Stream interface.
  */
-public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparable marg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
@@ -354,19 +351,19 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
  * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
  * @param darg The starting key
  * @param marg The ending key
- * @param parallel Optional true for parallel stream execution
+
  * @throws IOException
  * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Comparable[]>
  */
-public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Comparable marg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Return the entry set for the given class type
@@ -384,16 +381,15 @@ public static synchronized Iterator<?> entrySet(Class clazz) throws IOException,
 /**
  * Return the entry set for the given class type
  * @param clazz the class to retrieve
- * @param Optional true for parallel stream execution
  * @return Stream for entry set
  * @throws IOException
  * @throws IllegalAccessException
  */
-public static synchronized Stream<?> entrySetStream(Class clazz, boolean... parallel) throws IOException, IllegalAccessException
+public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
 }
 /**
  * Return the keyset for the given class
@@ -410,16 +406,15 @@ public static synchronized Iterator<?> keySet(Class clazz) throws IOException, I
 /**
  * Return the keyset for the given class
  * @param clazz the class to retrieve
- * @param parallel Optional true for parallel stream
  * @return The stream from which keyset can be consumed
  * @throws IOException
  * @throws IllegalAccessException
  */
-public static synchronized Stream<?> keySetStream(Class clazz, boolean... parallel) throws IOException, IllegalAccessException
+public static synchronized Stream<?> keySetStream(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackMapTransaction(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * return lowest valued key.
