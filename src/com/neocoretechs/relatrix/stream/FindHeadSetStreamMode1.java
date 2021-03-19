@@ -8,7 +8,7 @@ import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 public class FindHeadSetStreamMode1 extends FindSetStreamMode1 {
-	   public FindHeadSetStreamMode1(char dop, char mop, Object rarg) { 	super(dop,mop,rarg); }
+	   public FindHeadSetStreamMode1(char dop, char mop, Object rarg) { super(dop,mop,rarg); }
 	   
 	   @Override
 	   protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {

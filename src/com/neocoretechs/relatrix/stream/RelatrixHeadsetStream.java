@@ -1,10 +1,29 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
+import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.iterator.HeadSetIterator;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
+import com.neocoretechs.bigsack.stream.HeadSetStream;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
@@ -20,8 +39,8 @@ import com.neocoretechs.relatrix.Morphism;
  * @author jg Copyright (C) NeoCoreTechs 2014,2015
  *
  */
-public class RelatrixHeadsetStream implements Iterator<Comparable[]> {
-	protected HeadSetIterator iter;
+public class RelatrixHeadsetStream<T> implements Stream<T> {
+	protected HeadSetStream stream;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
 
@@ -35,61 +54,209 @@ public class RelatrixHeadsetStream implements Iterator<Comparable[]> {
     public RelatrixHeadsetStream(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
-    	iter = (HeadSetIterator) bts.headSet(template);
+    	stream = (HeadSetStream) bts.headSetStream(template);
     }
     
 	@Override
-	public boolean hasNext() {
-		return iter.hasNext();
+	public Iterator<T> iterator() {
+		return stream.iterator();
 	}
 
 	@Override
-	public Comparable[] next() {
-		if( buffer == null || needsIter) {
-			buffer = (Morphism)iter.next();
-			needsIter = false;
-		}
-		try {
-			return iterateDmr();
-		} catch (IllegalAccessException | IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public Spliterator<T> spliterator() {
+		return stream.spliterator();
 	}
 
 	@Override
-	public void remove() {
-		throw new RuntimeException("Remove not supported for this iterator");
-		
+	public boolean isParallel() {
+		return stream.isParallel();
 	}
-	/**
-	* iterate_dmr - return proper domain, map, or range
-	* based on dmr_return values.  In dmr_return, value 0
-	* is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
-	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
-	*/
-	private Comparable[] iterateDmr() throws IllegalAccessException, IOException
-	{
-		int returnTupleCtr = 0;
-	    Comparable[] tuples = new Comparable[RelatrixStream.getReturnTuples(dmr_return)];
-		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-	    // no return vals? send back Relate location
-	    if( identity ) {
-	    	tuples[0] = buffer;
-	    	needsIter = true;
-	    	return tuples;
-	    }
-	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length; i++)
-	    	tuples[i] = buffer.iterate_dmr(dmr_return);
-		needsIter = true;
-		return tuples;
+
+	@Override
+	public Stream<T> sequential() {
+		return stream.sequential();
 	}
-	
+
+	@Override
+	public Stream<T> parallel() {
+		return stream.parallel();
+	}
+
+	@Override
+	public Stream<T> unordered() {
+		return stream.unordered();
+	}
+
+	@Override
+	public Stream<T> onClose(Runnable closeHandler) {
+		return stream.onClose(closeHandler);
+	}
+
+	@Override
+	public void close() {
+		stream.close();	
+	}
+
+	@Override
+	public Stream<T> filter(Predicate<? super T> predicate) {
+		return stream.filter(predicate);
+	}
+
+	@Override
+	public <R> Stream<R> map(Function<? super T, ? extends R> mapper) {		
+		return stream.map(mapper);
+	}
+
+	@Override
+	public IntStream mapToInt(ToIntFunction<? super T> mapper) {
+		return stream.mapToInt(mapper);
+	}
+
+	@Override
+	public LongStream mapToLong(ToLongFunction<? super T> mapper) {
+		return stream.mapToLong(mapper);
+	}
+
+	@Override
+	public DoubleStream mapToDouble(ToDoubleFunction<? super T> mapper) {
+		return stream.mapToDouble(mapper);
+	}
+
+	@Override
+	public <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
+		return stream.flatMap(mapper);
+	}
+
+	@Override
+	public IntStream flatMapToInt(Function<? super T, ? extends IntStream> mapper) {
+		return stream.flatMapToInt(mapper);
+	}
+
+	@Override
+	public LongStream flatMapToLong(Function<? super T, ? extends LongStream> mapper) {
+		return stream.flatMapToLong(mapper);
+	}
+
+	@Override
+	public DoubleStream flatMapToDouble(Function<? super T, ? extends DoubleStream> mapper) {
+		return stream.flatMapToDouble(mapper);
+	}
+
+	@Override
+	public Stream<T> distinct() {
+		return stream.distinct();
+	}
+
+	@Override
+	public Stream<T> sorted() {
+		return stream.sorted();
+	}
+
+	@Override
+	public Stream<T> sorted(Comparator<? super T> comparator) {
+		return stream.sorted(comparator);
+	}
+
+	@Override
+	public Stream<T> peek(Consumer<? super T> action) {
+		return stream.peek(action);
+	}
+
+	@Override
+	public Stream<T> limit(long maxSize) {
+		return stream.limit(maxSize);
+	}
+
+	@Override
+	public Stream<T> skip(long n) {
+		return stream.skip(n);
+	}
+
+	@Override
+	public void forEach(Consumer<? super T> action) {
+		stream.forEach(action);
+	}
+
+	@Override
+	public void forEachOrdered(Consumer<? super T> action) {
+		stream.forEachOrdered(action);	
+	}
+
+	@Override
+	public Object[] toArray() {
+		return stream.toArray();
+	}
+
+	@Override
+	public <A> A[] toArray(IntFunction<A[]> generator) {
+		return (A[]) stream.toArray(generator);
+	}
+
+	@Override
+	public T reduce(T identity, BinaryOperator<T> accumulator) {
+		return (T) stream.reduce(accumulator);
+	}
+
+	@Override
+	public Optional<T> reduce(BinaryOperator<T> accumulator) {
+		return stream.reduce(accumulator);
+	}
+
+	@Override
+	public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
+		return (U) stream.reduce(accumulator,combiner);
+	}
+
+	@Override
+	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
+		return (R) stream.collect(supplier, accumulator, combiner);
+	}
+
+	@Override
+	public <R, A> R collect(Collector<? super T, A, R> collector) {
+		return (R) stream.collect(collector);
+	}
+
+	@Override
+	public Optional<T> min(Comparator<? super T> comparator) {
+		return stream.min(comparator);
+	}
+
+	@Override
+	public Optional<T> max(Comparator<? super T> comparator) {
+		return stream.max(comparator);
+	}
+
+	@Override
+	public long count() {
+		return stream.count();
+	}
+
+	@Override
+	public boolean anyMatch(Predicate<? super T> predicate) {
+		return stream.anyMatch(predicate);
+	}
+
+	@Override
+	public boolean allMatch(Predicate<? super T> predicate) {
+		return stream.allMatch(predicate);
+	}
+
+	@Override
+	public boolean noneMatch(Predicate<? super T> predicate) {
+		return stream.noneMatch(predicate);
+	}
+
+	@Override
+	public Optional<T> findFirst() {
+		return stream.findFirst();
+	}
+
+	@Override
+	public Optional<T> findAny() {
+		return stream.findAny();
+	}
 	
 
-	
 
 }

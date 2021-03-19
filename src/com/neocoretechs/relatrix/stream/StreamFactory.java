@@ -7,13 +7,13 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 
 	/**
-	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors
+	 * Abstract factory pattern to create the proper Relatrix stream for set retrieval from the various flavors
 	 * of findSet: HeadSet from selected result set,SubSet from result set, or tailSet from findSet return ordered set.
 	 * The iterator will, in general, return an array of Comparable corresponding to the number of elements specified 
 	 * in the findSet retrieval indicated by the "?" parameter. <br/>
 	 * This factory generates the proper iterator based on our findSet semantics.
 	 * Like all factories, this one is not pretty, but it makes the necessary sausage to feed the rest of the process.
-	 * @author jg Copyright (C) NeoCoreTechs 2014,2015
+	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 	 *
 	 */
 	public abstract class StreamFactory
