@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.Morphism;
 * This winds up serving 2 functions. One is identity morphism retrieval if we get 3 objects that are not
 * the argument acts as a wildcard (*) or a tuple (?) for instances of that
 * class.
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105,2021 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
 */
 public class FindSubSetStreamMode7 extends FindSetStreamMode7 {
 	Object[] xarg;

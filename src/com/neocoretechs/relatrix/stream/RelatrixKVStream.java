@@ -26,9 +26,9 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.bigsack.stream.TailSetStream;
 
 /**
- * Implementation of the standard Iterator interface which operates on K/V keys
+ * Implementation of the standard stream interface which operates on K/V keys
  * to set the lower bound of the correct range search for the properly ordered set of  subclasses;
- * @author jg Copyright (C) NeoCoreTechs 2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2021
  *
  */
 public class RelatrixKVStream<T> implements Stream<T> {
@@ -44,7 +44,7 @@ public class RelatrixKVStream<T> implements Stream<T> {
     	this.deepStore = bts;
     	stream = (TailSetStream) bts.tailMapKVStream(template);
     	if( DEBUG )
-			System.out.println("RelatrixKVIterator "+stream);
+			System.out.println("RelatrixKVStream "+stream);
     }
     
 	@Override

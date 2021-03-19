@@ -1,5 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
+import java.util.stream.Stream;
+
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
@@ -7,10 +9,11 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2021
  *
  */
-public class RemoteTailSetStream extends RelatrixStatement implements RemoteObjectInterface {
+public class RemoteStream extends RelatrixStatement implements RemoteObjectInterface {
 	private static final long serialVersionUID = -322257696363301665L;
+	public static boolean DEBUG = true;
 	public static final String className = "com.neocoretechs.relatrix.stream.RelatrixStream";
-	public RemoteTailSetStream(String session) {
+	public RemoteStream(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
@@ -31,13 +34,21 @@ public class RemoteTailSetStream extends RelatrixStatement implements RemoteObje
 			if( itInst == null )
 				throw new Exception("Requested stream instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixServer.relatrixTailstreamMethods.invokeMethod(this, itInst);
-			setObjectReturn(result);
+			//Object result = RelatrixServer.relatrixTailstreamMethods.invokeMethod(this, itInst);
+			//setObjectReturn(result);
+			Object[] retArray = ((Stream)itInst).toArray();
+			if(DEBUG)
+				System.out.printf("Setting return object:%s length:%d%n", (retArray != null ? retArray : "NULL"), (retArray != null ? retArray.length : 0));
+			setObjectReturn(retArray);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
 	}
 
+	public Stream<?> of() {
+		return Stream.of((Comparable[])getObjectReturn());
+	}
+	
 	@Override
 	public void close() {
 		RelatrixServer.sessionToObject.remove(getSession());

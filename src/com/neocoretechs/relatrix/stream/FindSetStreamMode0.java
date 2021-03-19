@@ -28,7 +28,7 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 * ?,*,? domainrangemap
 * ?,?,? domainmaprange separate tuple elements
 * *,*,* domainmaprange identity
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindSetStreamMode0 extends StreamFactory {
 	// mode 0
@@ -47,7 +47,7 @@ public class FindSetStreamMode0 extends StreamFactory {
 	    	dmr_return[0] = -1;
     }
     /**
-    * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+    * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
     */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
@@ -73,7 +73,7 @@ public class FindSetStreamMode0 extends StreamFactory {
 				break;
 		}
 		if( DEBUG  )
-			System.out.println("Relatrix FindsetMode0.createStream setting search for "+dmr);
+			System.out.println("Relatrix FindSetStreamMode0.createStream setting search for "+dmr);
 	    return createRelatrixStream(dmr);
 	}
 	

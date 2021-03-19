@@ -195,10 +195,10 @@ public class BatteryRelatrixKVClient {
 					//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 				}
 			}
-			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms." );
 		//i = max-1;
 		tims = System.currentTimeMillis();
-		for(int j = min; j < max; j++) {
+		for(int j = min; j < max; j++) {            
 			// careful here, have to do the conversion explicitly
 			boolean bits = rkvc.containsValue(String.class, (long)j);
 			if( !bits ) {

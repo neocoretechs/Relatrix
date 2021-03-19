@@ -2,18 +2,16 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
-import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
  * The following class allows the transport of RelatrixKV method calls to the server
- * @author jg
+ * @author Jonathan Groff (C) neoCoreTechs 2021
  *
  */
 public class RelatrixKVStatement implements Serializable, RemoteRequestInterface, RemoteResponseInterface {
@@ -122,11 +120,13 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 		return retObj;
 	}
 	/**
-	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable
-	 * in which case we save it server side and link it to the session for later retrieval. We create an intermediary
-	 * that proxyies the functionality back to the server and client, and is serializable and contains the necessary infrastructure
-	 * to encapsulate the iterator.<p/>
-	 * Note that here we are returning BigSack iterators rather than Relatrix Factory iterators. We can use the native iterators here
+	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p/>
+	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p/>
+	 * In the case if non-Serializable return type of Iterator ro Stream, we save it server side and link it to the session for later retrieval.<br/>
+	 * We create an intermediary that proxies the functionality back to the server and client, and is Serializable and contains 
+	 * the necessary infrastructure to encapsulate the iterator or stream.<p/>
+	 * Note that here we are returning BigSack iterators and streams rather than Relatrix Factory iterators and streams.<br/>
+	 * We can use the native iterators and streams here
 	 * because the functionality is available in whole, and we dont have to add the morphism processing aspect.
 	 */
 	@Override
@@ -165,39 +165,14 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 										if( result.getClass() == com.neocoretechs.bigsack.iterator.KeySetIterator.class) {
 											setObjectReturn( new RemoteKeySetIterator(getSession()) );
 										} else {							
-											// Streams..
-											if( result.getClass() == com.neocoretechs.bigsack.stream.TailSetKVStream.class) {
-												setObjectReturn( new RemoteTailMapKVStream(getSession()) );
-											} else {
-												if(result.getClass() == com.neocoretechs.bigsack.stream.SubSetKVStream.class ) {
-													setObjectReturn( new RemoteSubMapKVStream(getSession()) );
-												} else {
-													if(result.getClass() == com.neocoretechs.bigsack.stream.HeadSetKVStream.class ) {
-														setObjectReturn( new RemoteHeadMapKVStream(getSession()) );
-													} else {
-														if( result.getClass() == com.neocoretechs.bigsack.stream.TailSetStream.class) {
-															setObjectReturn( new RemoteTailMapStream(getSession()) );
-														} else {
-															if( result.getClass() == com.neocoretechs.bigsack.stream.SubSetStream.class) {
-																setObjectReturn( new RemoteSubMapStream(getSession()) );
-														} else {
-															if( result.getClass() == com.neocoretechs.bigsack.stream.HeadSetStream.class) {
-																setObjectReturn( new RemoteHeadMapStream(getSession()) );
-															} else {
-																if( result.getClass() == com.neocoretechs.bigsack.stream.EntrySetStream.class) {
-																	setObjectReturn( new RemoteEntrySetStream(getSession()) );
-																} else {
-																	if( result.getClass() == com.neocoretechs.bigsack.stream.KeySetStream.class) {
-																		setObjectReturn( new RemoteKeySetStream(getSession()) );
-																} else {
-																	throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-																}
-															}
-														}
-													}
-												}
+											// Stream..
+											if( result instanceof Stream) {
+													setObjectReturn( new RemoteKVStream(getSession()) );
+											} else {							
+													throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 											}
 										}
+								
 									}
 								}
 							}
@@ -205,11 +180,9 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 					}
 				}
 			}
+		} else {
+			setObjectReturn(result);
 		}
-	}
-	} else {
-		setObjectReturn(result);
-	}
 	getCountDownLatch().countDown();
 }	
 

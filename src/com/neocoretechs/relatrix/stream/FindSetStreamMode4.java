@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 * Legal permutations are
 * [object],*,* [object],*,? [object],?,? [object],?,*
 * [TemplateClass],*,* [TemplateClass],*,? [TemplateClass],?,? [TemplateClass],?,*
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
 public class FindSetStreamMode4 extends StreamFactory {

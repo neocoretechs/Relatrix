@@ -28,7 +28,7 @@ import com.neocoretechs.bigsack.stream.EntrySetStream;
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
  * to set the lower bound of the correct range search for the properly ordered set of  subclasses;
- * @author jg Copyright (C) NeoCoreTechs 2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2021
  *
  */
 public class RelatrixEntrysetStream<T> implements Stream<T> {
@@ -45,7 +45,7 @@ public class RelatrixEntrysetStream<T> implements Stream<T> {
     	this.deepStore = bts;
     	stream = (EntrySetStream) bts.entrySetStream();
     	if( DEBUG )
-			System.out.println("RelatrixEntrysetIterator "+stream);
+			System.out.println("RelatrixEntrysetStream "+stream);
     }
     
 	@Override
@@ -247,8 +247,5 @@ public class RelatrixEntrysetStream<T> implements Stream<T> {
 	public Optional<T> findAny() {
 		return stream.findAny();
 	}
-	
-
-	
 
 }

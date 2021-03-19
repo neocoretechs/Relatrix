@@ -7,8 +7,10 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrySetStream;
 import com.neocoretechs.relatrix.client.RemoteHeadMapStream;
+import com.neocoretechs.relatrix.client.RemoteKVStream;
 import com.neocoretechs.relatrix.client.RemoteHeadMapKVStream;
 import com.neocoretechs.relatrix.client.RemoteKeySetStream;
+import com.neocoretechs.relatrix.client.RemoteStream;
 import com.neocoretechs.relatrix.client.RemoteSubMapStream;
 import com.neocoretechs.relatrix.client.RemoteSubMapKVStream;
 import com.neocoretechs.relatrix.client.RemoteTailMapStream;
@@ -50,7 +52,7 @@ public class BatteryRelatrixKVClientStream {
 		//battery1(argv);	
 		//battery11(argv);
 		battery1AR6(argv);
-		battery1AR7(argv);
+		/*battery1AR7(argv);
 		battery1AR8(argv);
 		battery1AR9(argv);
 		battery1AR10(argv);
@@ -61,7 +63,7 @@ public class BatteryRelatrixKVClientStream {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);
+		battery1AR17(argv);*/
 		System.out.println("TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
@@ -133,9 +135,9 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR6(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetStream its = rkvc.entrySetStream(String.class);
+		RemoteKVStream stream = rkvc.entrySetStream(String.class);
 		System.out.println("KV Battery1AR6");
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if((Long)(((Map.Entry<String,Long>)e).getValue()) != i) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			}
@@ -155,9 +157,9 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR7(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetStream its = rkvc.keySetStream(String.class);
+		RemoteKVStream stream = rkvc.keySetStream(String.class);
 		System.out.println("KV Battery1AR7");
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
@@ -288,9 +290,9 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapStream its = rkvc.findTailMapSteam(fkey);
+		RemoteKVStream stream = rkvc.findTailMapSteam(fkey);
 		System.out.println("KV Battery1AR11");
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
@@ -308,9 +310,9 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVStream its = rkvc.findTailMapKVStream(fkey);
+		RemoteKVStream stream = rkvc.findTailMapKVStream(fkey);
 		System.out.println("KV Battery1AR12");
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
@@ -330,11 +332,11 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapStream its = rkvc.findHeadMapStream(fkey);
+		RemoteKVStream stream = rkvc.findHeadMapStream(fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
@@ -354,10 +356,10 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapKVStream its = rkvc.findHeadMapKVStream(fkey);
+		RemoteKVStream stream = rkvc.findHeadMapKVStream(fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
@@ -380,10 +382,10 @@ public class BatteryRelatrixKVClientStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapStream its = rkvc.findSubMapStream(fkey, tkey);
+		RemoteKVStream stream = rkvc.findSubMapStream(fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
@@ -406,10 +408,10 @@ public class BatteryRelatrixKVClientStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapKVStream its = rkvc.findSubMapKVStream(fkey, tkey);
+		RemoteKVStream stream = rkvc.findSubMapKVStream(fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
-		Stream.of(rkvc.next(its)).forEach(e ->{
+		stream.of().forEach(e ->{
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
@@ -445,8 +447,8 @@ public class BatteryRelatrixKVClientStream {
 		rkvc.transactionCommit(String.class);
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
-			RemoteEntrySetStream its = rkvc.entrySetStream(String.class);
-			Stream.of(rkvc.next(its)).forEach(e ->{
+			RemoteKVStream stream = rkvc.entrySetStream(String.class);
+			stream.of().forEach(e ->{
 				//System.out.println(i+"="+key);
 				System.out.println(key+"="+e);
 			});

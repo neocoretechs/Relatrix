@@ -188,7 +188,7 @@ import com.neocoretechs.relatrix.Relatrix;
 				   mode ^= 1;
 			    
 			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory findHeadSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix StreamFactory findHeadSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
 				
 			switch(mode) {
 	               case 0:

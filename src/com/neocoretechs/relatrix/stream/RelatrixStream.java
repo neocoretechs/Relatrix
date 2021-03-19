@@ -26,26 +26,26 @@ import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.bigsack.stream.TailSetStream;
 import com.neocoretechs.relatrix.Morphism;
 /**
- * Implementation of the standard Iterator interface which operates on Morphisms formed into a template
+ * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
  * The N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, 
- * that being the identity morphism.
+ * that being the identity morphism.<p/>
  * For tuples the array size is relative to the '?' query predicates. <br/>
- * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
+ * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each
+ * RelatrixStream is dependent on the number of "?" operators in a 'findSet'. For example,
+ * if we declare findHeadSetStream("*","?","*") we get back a Comparable[] of one element. For findSetStream("?",object,"?") we
  * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
- * findSet("*","*","*") = Comparable[1] containing identity in [0] of instance DomainMapRange
- * findSet("*","*",object) = Comparable[1] identity in [0] of RangeDomainMap where 'object' is range
- * findSet("*",object,object) = Comparable[1] identity in [0] of MapRangeDomain matching the 2 concrete objects
- * findSet(object,object,object) = Comparable[1] identity in [0] of DomainMapRange matching 3 objects
- * and the findHeadSet and findSubSet work the same way.
- * findSet("?","?","?") = Comparable[3] return all, for each element in the database.
- * findSet("?","?",object) = Comparable[2] return all domain and map objects for a given range object
- * findSet("?","*","?") = Comparable[2] return all elements of domain and range
+ * findSetStream("*","*","*") = Comparable[1] containing identity in [0] of instance DomainMapRange<br/>
+ * findSetStream("*","*",object) = Comparable[1] identity in [0] of RangeDomainMap where 'object' is range<br/>
+ * findSetStream("*",object,object) = Comparable[1] identity in [0] of MapRangeDomain matching the 2 concrete objects<br/>
+ * findSetStream(object,object,object) = Comparable[1] identity in [0] of DomainMapRange matching 3 objects<br/>
+ * and the findHeadSeStreamt and findSubSetStream work the same way.<p/>
+ * findSet("?","?","?") = Comparable[3] return all, for each element in the database.<br/>
+ * findSet("?","?",object) = Comparable[2] return all domain and map objects for a given range object<br/>
+ * findSet("?","*","?") = Comparable[2] return all elements of domain and range<br/>
  * etc.
- * @author jg Copyright (C) NeoCoreTechs 2014,2015,2017
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021
  *
  */
 public class RelatrixStream<T> implements Stream<T> {
@@ -291,7 +291,7 @@ public class RelatrixStream<T> implements Stream<T> {
 	* @throws IOException 
 	* @throws IllegalAccessException 
 	*/
-	private Comparable[] iterateDmr() throws IllegalAccessException, IOException {
+	private Comparable[] streamDmr() throws IllegalAccessException, IOException {
 	    Comparable[] tuples = new Comparable[getReturnTuples(dmr_return)];
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
@@ -301,20 +301,20 @@ public class RelatrixStream<T> implements Stream<T> {
 	    	dmr_return[0] = 0;
 	    	for(int i = 0; i < tuples.length; i++) {
 	    		if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" tuple:"+tuples[i]);
+	    			System.out.println("RelatrixStream.streamDmr() before "+i+" tuple:"+tuples[i]);
 	    		}
 	    	
 	    		tuples[i] = buffer.iterate_dmr(dmr_return);
 	    	
 	    		if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" tuple:"+tuples[i]);
+	    			System.out.println("RelatrixStream.streamDmr() after  "+i+" tuple:"+tuples[i]);
 	    		}
 	    	}
 	    }
 		return tuples;
 	}
 	/**
-	 * Return the number of tuple elements to be returned from specified query in each iteration
+	 * Return the number of tuple elements to be returned from specified query in each 
 	 * @param dmr_return
 	 * @return
 	 */
@@ -351,7 +351,7 @@ public class RelatrixStream<T> implements Stream<T> {
 	 */
 	private static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
-			System.out.println("RelatrixIterator.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
+			System.out.println("RelatrixStream.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		if( dmr_return[1] == 0 && template.domain.compareTo(record.domain) != 0 ) return false;
 		if( dmr_return[2] == 0 && template.map.compareTo(record.map) != 0 ) return false;
 		if( dmr_return[3] == 0 && template.range.compareTo(record.range) != 0) return false;

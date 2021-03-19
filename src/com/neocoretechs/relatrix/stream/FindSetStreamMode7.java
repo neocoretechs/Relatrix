@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 
 /**
 * Identity morphism retrieval.
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105,2017,2021
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021
 */
 public class FindSetStreamMode7 extends StreamFactory {
 	// mode 7

@@ -1,29 +1,25 @@
 package com.neocoretechs.relatrix.server;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
-import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 
 /**
- * Once requests from master are queued we extract them here and process them
+ * Once requests from master are queued we extract them here and process them.<p/>
  * This class functions as a generic threaded request processor for entries on a BlockingQueue of 
- * RemoteCompletionInterface implementors 
+ * RemoteCompletionInterface implementors.<br/>
  * This request processor is spun up in conjunction with IO workers such as TCPMaster. 
- * The intent is to separate the processing of requests, the maintenance of latches, etc from the communication
+ * The intent is to separate the processing of requests and the maintenance of latches, etc from the communication
  * processing. In addition, increased parallelism can be achieved by separation of these tasks.
  * The WorkerRequestProcessors are responsible for setting the fields for the countdownlatch.
- * Copyright (C) NeoCoreTechs 2014,2015
- * @author jg
+ * @author Jonathan Groff  Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
 public final class WorkerRequestProcessor implements Runnable {

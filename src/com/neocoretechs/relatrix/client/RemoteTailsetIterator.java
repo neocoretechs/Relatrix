@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.client;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Used for Relatrix category theoretic and set oriented processing to produce tailset and tailset functors
- * @author groff
+ * Used for Relatrix category theoretic and set oriented processing to produce tailset and tailset functors.<p/>
+ * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
 public class RemoteTailSetIterator extends RelatrixStatement implements RemoteObjectInterface{

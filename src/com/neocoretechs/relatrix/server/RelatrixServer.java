@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.client.RemoteHeadSetStream;
 import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubSetStream;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
-import com.neocoretechs.relatrix.client.RemoteTailSetStream;
+import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -70,7 +70,7 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailSetIterator.className, 0);
 		RelatrixServer.relatrixSubstreamMethods = new ServerInvokeMethod(RemoteSubSetStream.className, 0);
 		RelatrixServer.relatrixHeadstreamMethods = new ServerInvokeMethod(RemoteHeadSetStream.className, 0);
-		RelatrixServer.relatrixTailstreamMethods = new ServerInvokeMethod(RemoteTailSetStream.className, 0);
+		RelatrixServer.relatrixTailstreamMethods = new ServerInvokeMethod(RemoteStream.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}

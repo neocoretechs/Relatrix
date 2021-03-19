@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.Morphism;
 * instance, the class functions as template for the enclosed class to retrieve objects of that class (or subclass).
 * Depending on the subclass of TemplateClass, the argument acts as a wildcard (*) or a tuple (?) for instances of that
 * class. Category theory analog is a representable. 
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindHeadSetStreamMode7 extends FindSetStreamMode7 {
 	// mode 7

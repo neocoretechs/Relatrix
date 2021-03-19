@@ -1,7 +1,6 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -13,11 +12,11 @@ import com.neocoretechs.relatrix.DomainMapRange;
 * where a 1 element Comparable array is returned from each iteration of the constructed iterator returned from findSet.
 * The array has either the identity where the first 2 objects are components of the relationship for each iterated element of the 
 * findSet, or the object functioning as the range (codomain) for each iteration where the first 2 objects are domain and
-* map.
-* Legal permutations are
-* [object],[object],* [object],[object],?
-* [TemplateClass],[TemplateClass],* [TemplateClass],[TemplateClass],?
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+* map.<br/>
+* Legal permutations are<br/>
+* [object],[object],* [object],[object],?<br/>
+* [TemplateClass],[TemplateClass],* [TemplateClass],[TemplateClass],?<br/>
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
 public class FindSetStreamMode6 extends StreamFactory {

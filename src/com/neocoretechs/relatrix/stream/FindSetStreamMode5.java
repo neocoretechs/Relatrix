@@ -1,7 +1,6 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -38,7 +37,7 @@ public class FindSetStreamMode5 extends StreamFactory {
     	dmr_return[3] = 0;
     }
     /**
-     * @return strem for the set, each stream return is a Comparable array of tuples of arity n=?'s
+     * @return stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {

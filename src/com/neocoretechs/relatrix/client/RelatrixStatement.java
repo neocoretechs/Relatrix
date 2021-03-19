@@ -6,13 +6,14 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
  * The following class allows the transport of Relatrix method calls to the server.
- * @author jg
+ * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
 public class RelatrixStatement implements Serializable, RemoteRequestInterface, RemoteResponseInterface {
@@ -145,16 +146,13 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 						setObjectReturn( new RemoteHeadSetIterator(getSession()) );
 					} else {
 						if( result.getClass() == com.neocoretechs.relatrix.stream.RelatrixStream.class) {
-							setObjectReturn( new RemoteTailSetStream(getSession()) );
-						} else {
-							if(result.getClass() == com.neocoretechs.relatrix.stream.RelatrixSubsetStream.class ) {
-								setObjectReturn( new RemoteSubSetStream(getSession()) );
-							} else {
-								if(result.getClass() == com.neocoretechs.relatrix.stream.RelatrixHeadsetStream.class ) {
-									setObjectReturn( new RemoteHeadSetStream(getSession()) );
-								} else {
-									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-								}
+							setObjectReturn( new RemoteStream(getSession()) );
+						} else {										
+							// Stream..
+							if( result instanceof Stream) {
+								setObjectReturn( new RemoteKVStream(getSession()) );
+							} else {							
+								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 							}
 						}
 					}

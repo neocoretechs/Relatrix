@@ -28,7 +28,7 @@ import com.neocoretechs.bigsack.stream.HeadSetKVStream;
  * Implementation of the standard Stream interface which operates on K/V keys
  * to set the upper bound of the correct range search for the properly ordered set of subclasses;
  * From beginning to template
- * @author jg Copyright (C) NeoCoreTechs 2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2021
  *
  */
 public class RelatrixHeadmapKVStream<T,V> implements Stream<T> {

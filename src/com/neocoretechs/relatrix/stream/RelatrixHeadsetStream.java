@@ -27,16 +27,16 @@ import com.neocoretechs.bigsack.stream.HeadSetStream;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
- * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
+ * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array is returned representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Here, the headset, or from beginning to the template element, is retrieved.
- * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
+ * The critical element about retrieving relationships is to remember that the number of elements from each
+ * member of a RelatrixStream is dependent on the number of "?" operators in a 'findSet'. For example,
  * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
  * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
- * @author jg Copyright (C) NeoCoreTechs 2014,2015
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
 public class RelatrixHeadsetStream<T> implements Stream<T> {

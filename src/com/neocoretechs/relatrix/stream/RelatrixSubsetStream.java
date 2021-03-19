@@ -22,7 +22,6 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.iterator.SubSetIterator;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.bigsack.stream.SubSetStream;
 import com.neocoretechs.relatrix.Morphism;
