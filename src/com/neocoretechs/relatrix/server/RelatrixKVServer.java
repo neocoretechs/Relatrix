@@ -10,22 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
-import com.neocoretechs.relatrix.client.RemoteEntrySetStream;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVStream;
-import com.neocoretechs.relatrix.client.RemoteHeadMapStream;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetStream;
 import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
 import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVStream;
-import com.neocoretechs.relatrix.client.RemoteSubMapStream;
 import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
 import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVStream;
-import com.neocoretechs.relatrix.client.RemoteTailMapStream;
-
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -64,14 +55,7 @@ public final class RelatrixKVServer extends TCPServer {
 	public static ServerInvokeMethod relatrixEntrysetMethods = null;// EntrySet KV methods
 	public static ServerInvokeMethod relatrixKeysetMethods = null; // Keyset KV methods
 	//
-	public static ServerInvokeMethod relatrixSubmapStreamMethods = null; // Submap stream methods
-	public static ServerInvokeMethod relatrixSubmapKVStreamMethods = null; // submap K/V stream methods
-	public static ServerInvokeMethod relatrixHeadmapStreamMethods = null; // Headmap stream methods
-	public static ServerInvokeMethod relatrixHeadmapKVStreamMethods = null; // Headmap stream methods
-	public static ServerInvokeMethod relatrixTailmapStreamMethods = null; // Standard Tailmap stream methods
-	public static ServerInvokeMethod relatrixTailmapKVStreamMethods = null;// Tailmap KV methods
-	public static ServerInvokeMethod relatrixEntrysetStreamMethods = null;// EntrySet KV methods
-	public static ServerInvokeMethod relatrixKeysetStreamMethods = null; // Keyset KV methods
+
 	// in server, we are using local repository for handlerclassloader, but only one
 	// and that one will be located on port 9999
 	boolean isThisBytecodeRepository = false;
@@ -97,15 +81,7 @@ public final class RelatrixKVServer extends TCPServer {
 		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod(RemoteTailMapKVIterator.className, 0);
 		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod(RemoteEntrySetIterator.className, 0);
 		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeySetIterator.className, 0);
-		//
-		RelatrixKVServer.relatrixSubmapStreamMethods = new ServerInvokeMethod(RemoteSubMapStream.className, 0);
-		RelatrixKVServer.relatrixSubmapKVStreamMethods = new ServerInvokeMethod(RemoteSubMapKVStream.className, 0);
-		RelatrixKVServer.relatrixHeadmapStreamMethods = new ServerInvokeMethod(RemoteHeadMapStream.className, 0);
-		RelatrixKVServer.relatrixHeadmapKVStreamMethods = new ServerInvokeMethod(RemoteHeadMapKVStream.className, 0);
-		RelatrixKVServer.relatrixTailmapStreamMethods = new ServerInvokeMethod(RemoteTailMapStream.className, 0);
-		RelatrixKVServer.relatrixTailmapKVStreamMethods = new ServerInvokeMethod(RemoteTailMapKVStream.className, 0);
-		RelatrixKVServer.relatrixEntrysetStreamMethods = new ServerInvokeMethod(RemoteEntrySetStream.className, 0);
-		RelatrixKVServer.relatrixKeysetStreamMethods = new ServerInvokeMethod(RemoteKeySetStream.className, 0);
+	
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 		if(port == 9999) {

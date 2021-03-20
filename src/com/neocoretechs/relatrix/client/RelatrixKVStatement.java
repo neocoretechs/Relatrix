@@ -138,7 +138,7 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {					
 			// Stream..?
 			if( result instanceof Stream) {
-					setObjectReturn( new RemoteKVStream(result) );
+					setObjectReturn( new RemoteStream(result) );
 					getCountDownLatch().countDown();
 					return;
 			}

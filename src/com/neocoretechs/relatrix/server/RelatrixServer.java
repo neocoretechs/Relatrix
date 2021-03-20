@@ -11,9 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteHeadSetIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadSetStream;
 import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubSetStream;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
@@ -68,9 +66,6 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod(RemoteSubSetIterator.className, 0);
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod(RemoteHeadSetIterator.className, 0);
 		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailSetIterator.className, 0);
-		RelatrixServer.relatrixSubstreamMethods = new ServerInvokeMethod(RemoteSubSetStream.className, 0);
-		RelatrixServer.relatrixHeadstreamMethods = new ServerInvokeMethod(RemoteHeadSetStream.className, 0);
-		RelatrixServer.relatrixTailstreamMethods = new ServerInvokeMethod(RemoteStream.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}

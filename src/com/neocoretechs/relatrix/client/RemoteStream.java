@@ -1,56 +1,33 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.Serializable;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Used for Relatrix category theoretic and set oriented processing to produce tailStream and tailStream functors
- * @author Jonathan Groff (C) NeoCoreTechs 2020,2021
+ * Used by the RelatrixServer and RelatrixKVServer to produce and consume streams for remote delivery and retrieval.<p/>
+ * There is no persistent contract here and no need to implement RemoteObjectInterface for a 'close' operation nor
+ * extend RelatrixStatement for a 'process' operation since the entire payload is built here for delivery in one operation.<p/>
+ * Unlike an iterator, a stream is atomic and requires no further calls to the server. Indeed, it must be so to follow the stream paradigm.
+ * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteStream extends RelatrixStatement implements RemoteObjectInterface {
-	private static final long serialVersionUID = -322257696363301665L;
-	public static boolean DEBUG = true;
-	public static final String className = "com.neocoretechs.relatrix.stream.RelatrixStream";
-	public RemoteStream(String session) {
-		super();
-		paramArray = new Object[0];
-		setSession(session);
-	}
-	/* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
+public class RemoteStream implements Serializable {
+	private static final long serialVersionUID = 3064585530528835745L;
+	private static boolean DEBUG = true;
+	Object[] retArray;
+	/**
+	 * 
+	 * @param result instance of stream to build collection that is serializable to return to client for
+	 * construction of client side stream
 	 */
-	@Override
-	public String getClassName() { return className; }
-	
-	@Override
-	public void process() throws Exception {
-		if( this.methodName.equals("close") ) {
-			close();
-		} else {
-			// Get the stream linked to this session
-			Object itInst = RelatrixServer.sessionToObject.get(getSession());
-			if( itInst == null )
-				throw new Exception("Requested stream instance does not exist for session "+getSession());
-			// invoke the desired method on this concrete server side iterator, let boxing take result
-			//Object result = RelatrixServer.relatrixTailstreamMethods.invokeMethod(this, itInst);
-			//setObjectReturn(result);
-			Object[] retArray = ((Stream)itInst).toArray();
-			if(DEBUG)
-				System.out.printf("Setting return object:%s length:%d%n", (retArray != null ? retArray : "NULL"), (retArray != null ? retArray.length : 0));
-			setObjectReturn(retArray);
-		}
-		// notify latch waiters
-		getCountDownLatch().countDown();
+	public RemoteStream(Object result) {
+		retArray = ((Stream)result).toArray();
+		if(DEBUG)
+			System.out.printf("Setting return object:%s length:%d%n", (retArray != null ? retArray : "NULL"), (retArray != null ? retArray.length : 0));
 	}
 
 	public Stream<?> of() {
-		return Stream.of((Comparable[])getObjectReturn());
+		return Stream.of(retArray);
 	}
 	
-	@Override
-	public void close() {
-		RelatrixServer.sessionToObject.remove(getSession());
-	}
 }

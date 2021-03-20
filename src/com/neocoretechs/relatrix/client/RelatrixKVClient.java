@@ -713,7 +713,7 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteTailMapIterator)o;
 	}
 
-	public RemoteKVStream findTailMapSteam(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream findTailMapSteam(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapStream",key);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -740,7 +740,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 	}
 
 	public RemoteEntrySetIterator entrySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
@@ -773,7 +773,7 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteEntrySetIterator)o;
 	}
 	
-	public RemoteKVStream entrySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream entrySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("entrySetStream",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -800,7 +800,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 	}
 	
 	
@@ -834,7 +834,7 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteKeySetIterator)o;
 	}
 	
-	public RemoteKVStream keySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream keySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("keySetStream",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -861,7 +861,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 
 
 	}
@@ -914,7 +914,7 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 
-	public RemoteKVStream findTailMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream findTailMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKVStream",key);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -941,7 +941,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 
 	}
 	/**
@@ -988,7 +988,7 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 	
-	public RemoteKVStream findHeadMapStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream findHeadMapStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapStream",key);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1014,7 +1014,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 
 	}
 	/**
@@ -1058,7 +1058,7 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteHeadMapKVIterator)o;
 
 	}
-	public RemoteKVStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKVStream",key);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1084,7 +1084,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 
 	}
 	/**
@@ -1132,7 +1132,7 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 	
-	public RemoteKVStream findSubMapStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream findSubMapStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapStream",key1, key2);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1158,7 +1158,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 
 	}
 	/**
@@ -1206,7 +1206,7 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 	
-	public RemoteKVStream findSubMapKVStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public RemoteStream findSubMapKVStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKVStream",key1, key2);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1232,7 +1232,7 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKVStream)o;
+		return (RemoteStream)o;
 
 	}
 	/**

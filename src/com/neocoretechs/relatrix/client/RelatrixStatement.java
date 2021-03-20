@@ -131,6 +131,12 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
 		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {
+			// Stream..?
+			if( result instanceof Stream) {
+					setObjectReturn( new RemoteStream(result) );
+					getCountDownLatch().countDown();
+					return;
+			}
 			if( DEBUG ) {
 				System.out.println("RelatrixStatement Storing local object reference for "+getSession()+", data:"+result);
 			}
@@ -150,7 +156,7 @@ public class RelatrixStatement implements Serializable, RemoteRequestInterface, 
 						} else {										
 							// Stream..
 							if( result instanceof Stream) {
-								setObjectReturn( new RemoteKVStream(getSession()) );
+								setObjectReturn( new RemoteStream(getSession()) );
 							} else {							
 								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 							}
