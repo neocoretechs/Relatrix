@@ -23,7 +23,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  *
  */
 public final class WorkerRequestProcessor implements Runnable {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
@@ -115,7 +115,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			try {
 				if(e1.getCause() instanceof DuplicateKeyException) {
 					if(SHOWDUPEKEYEXCEPTION)
-						System.out.println("CANCELLING AUTOMATIC TRANSACTION ROLLBACK FOR DUPLICATE KEY EXECEPTION");
+						System.out.println("CANCELLING AUTOMATIC TRANSACTION ROLLBACK FOR DUPLICATE KEY EXCEPTION");
 				} else {
 					Relatrix.transactionRollback();
 				}

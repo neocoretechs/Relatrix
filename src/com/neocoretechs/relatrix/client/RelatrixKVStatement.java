@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  *
  */
 public class RelatrixKVStatement implements Serializable, RemoteRequestInterface, RemoteResponseInterface {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
     private String className = "com.neocoretechs.relatrix.RelatrixKV";
@@ -135,7 +135,13 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
-		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {
+		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {					
+			// Stream..?
+			if( result instanceof Stream) {
+					setObjectReturn( new RemoteKVStream(result) );
+					getCountDownLatch().countDown();
+					return;
+			}
 			if( DEBUG ) {
 				System.out.println("RelatrixKVStatement Storing local object reference for "+getSession()+", data:"+result);
 			}
@@ -165,14 +171,8 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 										if( result.getClass() == com.neocoretechs.bigsack.iterator.KeySetIterator.class) {
 											setObjectReturn( new RemoteKeySetIterator(getSession()) );
 										} else {							
-											// Stream..
-											if( result instanceof Stream) {
-													setObjectReturn( new RemoteKVStream(getSession()) );
-											} else {							
-													throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-											}
+												throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 										}
-								
 									}
 								}
 							}

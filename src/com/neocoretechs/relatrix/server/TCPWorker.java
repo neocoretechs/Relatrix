@@ -22,8 +22,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
  * has been sent from client to WORKBOOTPORT. A WorkerRequestProcessor handles the actual processing of the
  * request after it has been acquired and extracted here.
- * @author jg
- * Copyright (C) NeoCoreTechs 2014,2015,2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
  */
 public class TCPWorker implements Runnable {

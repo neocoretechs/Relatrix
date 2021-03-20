@@ -138,7 +138,7 @@ public class BatteryRelatrixKVClientStream {
 		RemoteKVStream stream = rkvc.entrySetStream(String.class);
 		System.out.println("KV Battery1AR6");
 		stream.of().forEach(e ->{
-			if((Long)(((Map.Entry<String,Long>)e).getValue()) != i) {
+			if(((Map.Entry<String,Long>)e).getValue() != i) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
