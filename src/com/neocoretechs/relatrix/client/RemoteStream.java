@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  */
 public class RemoteStream implements Serializable {
 	private static final long serialVersionUID = 3064585530528835745L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	Object[] retArray;
 	/**
 	 * 

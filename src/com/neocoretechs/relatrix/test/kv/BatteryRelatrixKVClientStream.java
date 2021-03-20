@@ -40,11 +40,11 @@ public class BatteryRelatrixKVClientStream {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		//battery1(argv);	
-		//battery11(argv);
+		battery1(argv);	// build and store
+		battery11(argv);  // build and store
 		battery1AR6(argv);
 		battery1AR7(argv);
-		battery1AR8(argv);
+		//battery1AR8(argv); // search by value, slow operation no key
 		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
@@ -377,7 +377,7 @@ public class BatteryRelatrixKVClientStream {
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
+			if(Integer.parseInt((String) e) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
 				//throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
