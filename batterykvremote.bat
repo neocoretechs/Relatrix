@@ -1,0 +1,1 @@
+java -ea -Djava.system.class.loader=com.neocoretechs.relatrix.server.HandlerClassLoader -DBigSack.properties="c:/users/jg/relatrix/BigSack.properties" -cp \Progra~1\apache\apache-tomcat\lib\Relatrix.jar. com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStream "C:/users/jg/Relatrix/Test/TESTRelatrix/"
