@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -43,6 +44,7 @@ public class HandlerClassLoader extends ClassLoader {
     public static String defaultPath = "/etc/"; // bytecode repository path
     public static RelatrixKVClient remoteRepository = null;
     private ClassLoader parent = null;
+	static int size;
    
     public HandlerClassLoader() { }
     /**
@@ -543,8 +545,13 @@ public class HandlerClassLoader extends ClassLoader {
     public static void main(String[] args) throws IOException, IllegalAccessException, IllegalArgumentException, ClassNotFoundException {
     	//Path p = FileSystems.getDefault().getPath("C:/users/jg/workspace/volvex/bin/com/neocoretechs/volvex");
     	//setBytesInRepository("com.neocoretechs.volvex",p);
+    	size = 0;
     	connectToRemoteRepository();
-    	remoteRepository.keySetStream(String.class).of().forEach(e->System.out.printf("Class: %s%n", e));
-
+    	remoteRepository.entrySetStream(String.class).of().forEach(e-> {
+    		System.out.printf("Class: %s size:%d%n",((ClassNameAndBytes)((Map.Entry)e).getValue()).getName(),
+    			((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length);
+    		size += ((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length;
+    	});
+    	System.out.printf("Total size=%d%n",size);
     }
 }
