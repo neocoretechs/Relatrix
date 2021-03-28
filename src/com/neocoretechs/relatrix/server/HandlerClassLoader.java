@@ -36,7 +36,7 @@ import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 * @author Jonathan Groff (C) NeoCoreTechs 1999, 2000, 2020
 */
 public class HandlerClassLoader extends ClassLoader {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGSETREPOSITORY = true;
     private static ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
     private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
@@ -191,15 +191,15 @@ public class HandlerClassLoader extends ClassLoader {
                 	System.out.println("DEBUG: "+this+" Attempt to retrieve "+name+" from classNameAndBytecodes");              
                     // grab it from repository
                 try {
-                      bytecodes = getBytesFromRepository(name);
-                      if( bytecodes == null) {
+                    bytecodes = getBytesFromRepository(name);
+                    if( bytecodes == null) {
                     	  // blued and tattooed
                     	  if(DEBUG)
                     		  System.out.println(this+".LoadClass bytecode not found in repository for "+name);
                           throw new ClassNotFoundException("The requested class: "+name+" can not be found on any resource path");
-                      }
+                    }
                 } catch(Exception e) {
-                                throw new ClassNotFoundException("The requested class: "+name+" can not be found on any resource path");
+                	throw new ClassNotFoundException("The requested class: "+name+" can not be found on any resource path");
                 }
                 c = defineClass(name, bytecodes, 0, bytecodes.length);
                 if(DEBUG)
@@ -299,7 +299,7 @@ public class HandlerClassLoader extends ClassLoader {
     * @param name The class name to get
     * @return The byte array or null
     */
-    public static byte[] getBytesFromRepository(String name) {
+    public static byte[] getBytesFromRepository(String name) throws BytecodeNotFoundInRepositoryException {
         byte[] retBytes = null;
        	ClassNameAndBytes cnab = new ClassNameAndBytes(name, retBytes);
    	 	if(DEBUG)
@@ -324,8 +324,10 @@ public class HandlerClassLoader extends ClassLoader {
             	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload returned "+cnab.getBytes().length+" bytes from remote repository "+remoteRepository);
                	 	return cnab.getBytes();
             	}
-            } else
+            } else {
             	System.out.println("Failed to return bytecodes from remote repository "+remoteRepository);
+            	throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+            }
         } catch(Exception e) {
                 e.printStackTrace();
         }

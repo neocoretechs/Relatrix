@@ -44,6 +44,9 @@ public class RelatrixKVClient implements Runnable {
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	
+	private String bootNode, remoteNode;
+	private int remotePort;
+	
 	private int MASTERPORT = 9376; // master port, accepts connection from remote server
 	private int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
 	
@@ -71,6 +74,9 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws IOException
 	 */
 	public RelatrixKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
+		this.bootNode = bootNode;
+		this.remoteNode = remoteNode;
+		this.remotePort = remotePort;
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -1461,6 +1467,11 @@ public class RelatrixKVClient implements Runnable {
 		//os.close();
 		//s.close();
 		return s;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
