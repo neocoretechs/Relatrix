@@ -106,7 +106,7 @@ public final class RelatrixKVServer extends TCPServer {
 					//
                     ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
                     CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
-                    if( DEBUGCOMMAND )
+                    if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Server command received:"+o);
                    // db = (new File(db)).toPath().getParent().toString() + File.separator +
                     //		(new File(o.getDatabase()).getName());

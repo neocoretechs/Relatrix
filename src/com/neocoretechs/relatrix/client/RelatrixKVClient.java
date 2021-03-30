@@ -36,8 +36,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * so if your remote db path is /home/relatrix/AMI as passed to the server then its translation is:
  *  /home/relatrix/tablespace0/AMIcom.yourpack.yourclass.0
  * for the remote node 'AMI0', for others replace all '0' with '1' etc for other tablespaces.
- * @author jg
- * Copyright (C) NeoCoreTechs 2014,2015,2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixKVClient implements Runnable {
 	private static final boolean DEBUG = false;
@@ -51,6 +50,7 @@ public class RelatrixKVClient implements Runnable {
 	private int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	private InetAddress IPAddress = null; // remote server address
+	private InetAddress localIPAddress = null; // local server address
 
 	private Socket workerSocket = null; // socket assigned to slave port
 	private SocketAddress workerSocketAddress; //address of slave
@@ -85,14 +85,18 @@ public class RelatrixKVClient implements Runnable {
 		if( DEBUG ) {
 			System.out.println("RelatrixKVClient constructed with remote:"+IPAddress);
 		}
+		localIPAddress = InetAddress.getByName(bootNode);
 		//
 		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0);
+		masterSocket = new ServerSocket(0, 1000, localIPAddress);
 		MASTERPORT = masterSocket.getLocalPort();
+		if(DEBUG) {
+			System.out.printf("%s with arguments bootNode:%s remoteNode:%s remotePort:%d masterSocket:%s MASTERPORT:%d%n", this.getClass().getName(), bootNode, remoteNode, remotePort, masterSocket.toString(), MASTERPORT);
+		}
 		SLAVEPORT = remotePort;
-		// send message to spin connetion
+		// send message to spin connection
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'

@@ -55,6 +55,7 @@ public class RelatrixClient implements Runnable {
 	private int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	private InetAddress IPAddress = null; // remote server address
+	private InetAddress localIPAddress = null; // local server address
 
 	private Socket workerSocket = null; // socket assigned to slave port
 	private SocketAddress workerSocketAddress; //address of slave
@@ -89,14 +90,15 @@ public class RelatrixClient implements Runnable {
 		if( DEBUG ) {
 			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
 		}
+		localIPAddress = InetAddress.getByName(bootNode);
 		//
  		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0);
+		masterSocket = new ServerSocket(0, 1000, localIPAddress);
 		MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
-		// send message to spin connetion
+		// send message to spin connection
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'

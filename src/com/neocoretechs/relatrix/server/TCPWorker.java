@@ -46,7 +46,7 @@ public class TCPWorker implements Runnable {
 	private WorkerRequestProcessor workerRequestProcessor;
 	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
-	private static boolean TEST = true;
+	private static boolean TEST = false;
 	
     public TCPWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
     	workerSocket = datasocket;
@@ -60,9 +60,13 @@ public class TCPWorker implements Runnable {
 		} catch (UnknownHostException e) {
 			throw new RuntimeException("Bad remote master address:"+remoteMaster);
 		}
-	
+		if(DEBUG) {
+			System.out.printf("%s with params datasocket:%s, remoteMaster:%s masterPort:%d connection to masterPort at IPAddress:%s%n", this.getClass().getName(), datasocket.toString(), remoteMaster, masterPort, IPAddress.toString()); 
+		}
 		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
 		masterSocket = new Socket();
+		if(DEBUG)
+			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
 		masterSocket.connect(masterSocketAddress);
 		masterSocket.setKeepAlive(true);
 		//masterSocket.setTcpNoDelay(true);

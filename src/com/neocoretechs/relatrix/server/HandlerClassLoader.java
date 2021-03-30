@@ -555,5 +555,6 @@ public class HandlerClassLoader extends ClassLoader {
     		size += ((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length;
     	});
     	System.out.printf("Total size=%d%n",size);
+    	remoteRepository.close();
     }
 }
