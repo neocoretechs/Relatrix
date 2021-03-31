@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.server;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -254,6 +256,7 @@ public class HandlerClassLoader extends ClassLoader {
     * Define classes from byte array JAR
     * @param jarFile The JAR byte array
     */
+    @Deprecated
     public synchronized void defineClasses(byte jarFile[]) {
            defineClassStream(new ByteArrayInputStream(jarFile));
     }
@@ -261,6 +264,7 @@ public class HandlerClassLoader extends ClassLoader {
     * Define a set of classes from JAR input stream
     * @param in the inputstream with JAR format
     */
+    @Deprecated
     public synchronized void defineClassStream(InputStream in) {
         // we can't seem to get size from JAR, so big buf
         byte[] bigbuf = new byte[500000];
@@ -466,42 +470,79 @@ public class HandlerClassLoader extends ClassLoader {
     * @param bytes The associated bytecode array
      * @throws FileNotFoundException 
     */
-    public static void setBytesInRepositoryFromJar(String jarFile) throws FileNotFoundException {
+    public static void setBytesInRepositoryFromJar(String jarFile) throws IOException, FileNotFoundException {
  	 	if(DEBUG || DEBUGSETREPOSITORY)
-	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar for"+jarFile);
-    	File file = new File(jarFile);
-    	byte[] bigbuf = new byte[500000];
-        try (  	FileInputStream f = new FileInputStream(file);
-        		ZipInputStream zipFile = new ZipInputStream(f)) {
-            for (ZipEntry entry = zipFile.getNextEntry(); entry != null; entry = zipFile.getNextEntry()) {
-                if (!entry.isDirectory() || entry.getName().indexOf("META-INF") == -1 ) {
-                	if( entry.getName().endsWith(".class") ) {
+	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar for JAR file:"+jarFile);
+    	try (JarFile file = new JarFile(jarFile)) {
+    	file.stream().forEach(entry-> {
+                if (!entry.isDirectory() && !entry.getName().contains("META-INF") && entry.getName().endsWith(".class")) {
+                 	if(DEBUG || DEBUGSETREPOSITORY)
+            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar for JAR file entry:"+entry.getName());
                     String entryName = entry.getName().replace('/', '.');
              	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar size:"+String.valueOf(entry.getSize()));
                     entryName = entryName.substring(0,entryName.length()-6);
+                   	byte[] bigbuf = new byte[(int) entry.getSize()];
+                   	InputStream istream = null;
+					try {
+						istream = file.getInputStream(entry);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
                     int i = 0;
                     int itot = 0;
-                    while( i != -1 ) {
-                        i= zipFile.read(bigbuf,itot,bigbuf.length-itot);
-                        if( i != -1 ) itot+=i;
+                    while( itot < bigbuf.length ) {
+                        try {
+							i = istream.read(bigbuf,itot,bigbuf.length-itot);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+                        if( i != -1 ) 
+                        	itot+=i;
+                        else
+                        	break;
                     }
              	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar JAR Entry "+entryName+" read "+String.valueOf(itot));
                     // move it right size buffer cause it's staying around
-                    byte bytecode[] = new byte[itot];
-                    System.arraycopy(bigbuf, 0, bytecode, 0, itot);
-                    setBytesInRepository(entryName, bytecode);
+                    //byte bytecode[] = new byte[itot];
+                    //System.arraycopy(bigbuf, 0, bytecode, 0, itot);
+                    setBytesInRepository(entryName, bigbuf);//bytecode);
              	 	if(DEBUG || DEBUGSETREPOSITORY)
-            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar Loading bytecode for JAR Entry "+entryName+" read "+bytecode.length);
-                	}
+            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryFromJar Loading bytecode for JAR Entry "+entryName+" read "+bigbuf.length);//bytecode.length);
                 }
-                zipFile.closeEntry();
-            }
+    	});
             //
         } catch(Exception e) {
                 System.out.println("HandlerClassLoader.setBytesInRepository failed "+e.getMessage());
                 e.printStackTrace();
+        }
+   }
+    
+   public static void setBytesInRepositoryWithJar(String jarFile) throws IOException, FileNotFoundException {
+ 	 	if(DEBUG || DEBUGSETREPOSITORY)
+	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryWithJar for JAR file:"+jarFile);
+ 	 	byte[] bigbuf = new byte[100000];
+    	try (FileInputStream istream = new FileInputStream(jarFile); ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
+                    String fileName = new File(jarFile).getName();
+                    int i = 0;
+                    int itot = 0;
+                    while( i != -1 ) {
+                        try {
+							i = istream.read(bigbuf);
+		                    if( i != -1 ) {
+		                    	  baos.write(bigbuf, 0, i);
+		                    	  itot += i;
+		                    }	
+						} catch (IOException e) {
+							e.printStackTrace();
+							i = -1;
+						}
+                    }
+                    baos.flush();
+             	 	if(DEBUG || DEBUGSETREPOSITORY)
+            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryWithJar JAR Entry "+fileName+" read "+String.valueOf(itot));
+                    setBytesInRepository(fileName, baos.toByteArray());
         }
    }
     /**
