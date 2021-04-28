@@ -14,9 +14,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -251,7 +253,38 @@ public class HandlerClassLoader extends ClassLoader {
 //        System.out.println("HandlerClassLoader.defineAClass return cache.put "+name);
         return c;
     }
-  
+    
+    public synchronized void defineClasses(String jarFile) throws IOException {
+    	defineClasses(new JarFile(jarFile));
+    }
+    
+    public synchronized void defineClasses(JarFile jarFile) throws IOException {
+        Enumeration<JarEntry> e = jarFile.entries();
+        byte[] buffer = new byte[4096];
+        while (e.hasMoreElements()) {
+          JarEntry entry = e.nextElement();
+          String entryname = entry.getName();
+          if (!entry.isDirectory() && entryname.endsWith(".class")) {
+            String classname = entryname.substring(0, entryname.length() - 6);
+            if (classname.startsWith("/")) {
+              classname = classname.substring(1);
+            }
+            classname = classname.replace('/', '.');
+            //entry.getSize();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int num;
+            try {
+            	InputStream data = jarFile.getInputStream(entry);
+                while ((num = data.read(buffer)) > 0) {
+                  baos.write(buffer, 0, num);
+                }
+                baos.flush();
+              Class<?> c = defineAClass(classname, baos.toByteArray(), 0, baos.size());
+            } catch (NoClassDefFoundError | UnsatisfiedLinkError ex) {}
+          }
+        }
+  } 
+
     /**
     * Define classes from byte array JAR
     * @param jarFile The JAR byte array
@@ -519,32 +552,7 @@ public class HandlerClassLoader extends ClassLoader {
         }
    }
     
-   public static void setBytesInRepositoryWithJar(String jarFile) throws IOException, FileNotFoundException {
- 	 	if(DEBUG || DEBUGSETREPOSITORY)
-	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryWithJar for JAR file:"+jarFile);
- 	 	byte[] bigbuf = new byte[100000];
-    	try (FileInputStream istream = new FileInputStream(jarFile); ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
-                    String fileName = new File(jarFile).getName();
-                    int i = 0;
-                    int itot = 0;
-                    while( i != -1 ) {
-                        try {
-							i = istream.read(bigbuf);
-		                    if( i != -1 ) {
-		                    	  baos.write(bigbuf, 0, i);
-		                    	  itot += i;
-		                    }	
-						} catch (IOException e) {
-							e.printStackTrace();
-							i = -1;
-						}
-                    }
-                    baos.flush();
-             	 	if(DEBUG || DEBUGSETREPOSITORY)
-            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepositoryWithJar JAR Entry "+fileName+" read "+String.valueOf(itot));
-                    setBytesInRepository(fileName, baos.toByteArray());
-        }
-   }
+
     /**
      * Load the classes in the designated directory path into the repository for defining classes.
      * The use case here is if we are running a server and wish to define new classes, we wont have to bounce it, or

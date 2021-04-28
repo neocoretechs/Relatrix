@@ -58,6 +58,15 @@ public final class RangeMapDomain extends Morphism {
 		//return domain.equals(dmr.domain);
 		return Morphism.fullEquals(domain, dmr.domain);
 	}
+	
+	@Override
+	public int hashCode() {
+		int result = 17;
+		result = 37*result + (domain == null ? 0 : domain.hashCode());
+		result = 37*result + (map == null ? 0 : map.hashCode());
+		result = 37*result + (range == null ? 0 : range.hashCode());
+		return result;
+	}
 	/*
     public Comparable returnTupleOrder(int n) {
       	// default dmr
