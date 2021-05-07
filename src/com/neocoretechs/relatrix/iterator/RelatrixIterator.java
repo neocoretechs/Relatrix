@@ -26,7 +26,7 @@ import com.neocoretechs.relatrix.Morphism;
  * findSet("?","?",object) = Comparable[2] return all domain and map objects for a given range object
  * findSet("?","*","?") = Comparable[2] return all elements of domain and range
  * etc.
- * @author jg Copyright (C) NeoCoreTechs 2014,2015,2017
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017
  *
  */
 public class RelatrixIterator implements Iterator<Comparable[]> {
@@ -185,9 +185,9 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	private static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
 			System.out.println("RelatrixIterator.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		if( dmr_return[1] == 0 && template.domain.compareTo(record.domain) != 0 ) return false;
-		if( dmr_return[2] == 0 && template.map.compareTo(record.map) != 0 ) return false;
-		if( dmr_return[3] == 0 && template.range.compareTo(record.range) != 0) return false;
+		if( dmr_return[1] == 0 && template.getDomain().compareTo(record.getDomain()) != 0 ) return false;
+		if( dmr_return[2] == 0 && template.getMap().compareTo(record.getMap()) != 0 ) return false;
+		if( dmr_return[3] == 0 && template.getRange().compareTo(record.getRange()) != 0) return false;
 		return true;
 	}
 	

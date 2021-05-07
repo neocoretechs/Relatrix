@@ -9,7 +9,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 /**
  * Our main representable analog. Instances of this class deliver the set of key/value
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
- * @author jg Copyright (C) NeoCoreTechs 2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020
  *
  */
 public class RelatrixSubmapKVIterator implements Iterator<Comparable> {

@@ -11,6 +11,7 @@ import com.neocoretechs.bigsack.btree.TreeSearchResult;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
+import com.neocoretechs.relatrix.key.IndexInstanceTable;
 
 
 /**
@@ -171,6 +172,7 @@ public static synchronized void transactionCommit() throws IOException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
+	IndexInstanceTable.commit();
 	for(int i = 0; i < transactionTreeSets.length; i++) {
 		long startTime = System.currentTimeMillis();
 		if( DEBUG || TRACE )
@@ -189,6 +191,7 @@ public static synchronized void transactionRollback() throws IOException {
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
+	IndexInstanceTable.rollback();
 	for(int i = 0; i < transactionTreeSets.length; i++) {
 		BigSackAdapter.rollbackSet(transactionTreeSets[i]);
 		transactionTreeSets[i] = null;
@@ -210,6 +213,7 @@ public static synchronized void transactionCheckpoint() throws IOException, Ille
 	if( transactionTreeSets[0] == null ) {
 		return;
 	}
+	IndexInstanceTable.checkpoint();
 	for(int i = 0; i < transactionTreeSets.length; i++) {
 		BigSackAdapter.checkpointSetTransactions(transactionTreeSets[i]);
 	}
@@ -257,7 +261,7 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 	for(Morphism mo : m) {
 		if( DEBUG || DEBUGREMOVE)
 			System.out.println("Relatrix.remove removing"+mo);
-		remove(mo.domain, mo.map, mo.range);
+		remove(mo.getDomain(), mo.getMap(), mo.getRange());
 	}
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove exiting remove for key:"+c+" should have removed "+m.size());

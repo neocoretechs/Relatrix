@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.MapDomainRange;
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
 * *,[object],* *,[object],? ?,[object],? ?,[object],*
 * *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105
 * 
 */
 public class FindSetMode2 extends IteratorFactory {

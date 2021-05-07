@@ -35,11 +35,11 @@ public class FindSubSetStreamMode6 extends FindSetStreamMode6 {
 			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
-			   if( tdmr.domain != null ) {
-					  templdmr.domain = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getDomain() != null ) {
+					  templdmr.setDomain((Comparable) xarg[ipos++]); 
 			   }
-			   if( tdmr.map != null ) {
-					  templdmr.map = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getMap() != null ) {
+					  templdmr.setMap((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

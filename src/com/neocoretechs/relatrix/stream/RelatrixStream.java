@@ -352,9 +352,9 @@ public class RelatrixStream<T> implements Stream<T> {
 	private static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
 			System.out.println("RelatrixStream.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		if( dmr_return[1] == 0 && template.domain.compareTo(record.domain) != 0 ) return false;
-		if( dmr_return[2] == 0 && template.map.compareTo(record.map) != 0 ) return false;
-		if( dmr_return[3] == 0 && template.range.compareTo(record.range) != 0) return false;
+		if( dmr_return[1] == 0 && template.getDomain().compareTo(record.getDomain()) != 0 ) return false;
+		if( dmr_return[2] == 0 && template.getMap().compareTo(record.getMap()) != 0 ) return false;
+		if( dmr_return[3] == 0 && template.getRange().compareTo(record.getRange()) != 0) return false;
 		return true;
 	}
 	

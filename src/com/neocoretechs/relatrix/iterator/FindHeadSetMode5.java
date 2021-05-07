@@ -12,6 +12,7 @@ import com.neocoretechs.relatrix.Morphism;
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
 * [object],*,[object] [object],?,[object]
 * [TemplateClass],*,[TemplateClass] [TemplateClass],?,[TemplateClass]
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
 public class FindHeadSetMode5 extends FindSetMode5 {

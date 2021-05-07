@@ -9,7 +9,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  * Implementation of the standard Iterator interface which operates on K/V keys
  * to set the upper bound of the correct range search for the properly ordered set of subclasses;
  * From beginning to template
- * @author jg Copyright (C) NeoCoreTechs 2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020
  *
  */
 public class RelatrixHeadmapIterator implements Iterator<Comparable> {

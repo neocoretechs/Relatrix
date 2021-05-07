@@ -7,7 +7,7 @@ import com.neocoretechs.relatrix.Morphism;
 
 /**
  * The attempt here is to provide a more customizable retrieval filter.
- * @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105
  */
 public abstract class FilteringIterator extends RelatrixIterator implements FilterInterface {
 	private Morphism template;
@@ -23,9 +23,9 @@ public abstract class FilteringIterator extends RelatrixIterator implements Filt
 			needsIter = false;
 			while(iter.hasNext()) {
 				buffer = (Morphism)iter.next();
-				if( !isFilter(template.domain, buffer.domain) &&
-					!isFilter(template.map, buffer.map) &&
-					!isFilter(template.range, buffer.range) ) {
+				if( !isFilter(template.getDomain(), buffer.getDomain()) &&
+					!isFilter(template.getMap(), buffer.getMap()) &&
+					!isFilter(template.getRange(), buffer.getRange()) ) {
 					return true;
 				}
 			}

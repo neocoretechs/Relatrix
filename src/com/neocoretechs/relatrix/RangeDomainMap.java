@@ -6,64 +6,62 @@ package com.neocoretechs.relatrix;
 * By storing these indexes with all their possible retrieval combinations for the morphisms,
 * which turns out to be 6 indexes, we facilitate the retrieval of posets from our categories
 * based on any number of possible operators and objects passed to the various 'findSet' permutations.
-* @author jg (C) NeoCoreTechs 2014,2015
+* @author Jonathan Groff (C) NeoCoreTechs 2014,2015
 */ 
 public final class RangeDomainMap extends Morphism {
 	private static final long serialVersionUID = -1689898604140078900L;
     public RangeDomainMap() {}
     
     public RangeDomainMap(Comparable d, Comparable m, Comparable r) {
-    	domain = d;
-        map = m;
-        range = r;
+       	super(d,m,r);
     }
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
 		RangeDomainMap dmr = (RangeDomainMap)dmrpk;
 		int cmp = 0;
-		if( dmr.range == null )
+		if( dmr.getRange() == null )
 			return 1;
 		//cmp = range.compareTo(dmr.range);
-		cmp = Morphism.fullCompareTo(range, dmr.range);
+		cmp = Morphism.fullCompareTo(getRange(), dmr.getRange());
 		if( cmp != 0 ) return cmp;
-		if( dmr.domain == null )
+		if( dmr.getDomain() == null )
 			return 1;
 		//cmp = domain.compareTo(dmr.domain);
-		cmp = Morphism.fullCompareTo(domain, dmr.domain);
+		cmp = Morphism.fullCompareTo(getDomain(), dmr.getDomain());
 		if( cmp != 0 ) return cmp;
-		if( dmr.map == null )
+		if( dmr.getMap() == null )
 			return 1;
 		//return map.compareTo(dmr.map);
-		return Morphism.fullCompareTo(map, dmr.map);
+		return Morphism.fullCompareTo(getMap(), dmr.getMap());
 	}
 
 	@Override
 	public boolean equals(Object dmrpk) {
 		RangeDomainMap dmr = (RangeDomainMap)dmrpk;
 		boolean cmp = false;
-		if( dmr.range == null )
+		if( dmr.getRange() == null )
 			return false;
 		//cmp = range.equals(dmr.range);
-		cmp = Morphism.fullEquals(range, dmr.range);
+		cmp = Morphism.fullEquals(getRange(), dmr.getRange());
 		if( !cmp ) return cmp;
-		if( dmr.domain == null )
+		if( dmr.getDomain() == null )
 			return false;
 		//cmp = domain.equals(dmr.domain);
-		cmp = Morphism.fullEquals(domain, dmr.domain);
+		cmp = Morphism.fullEquals(getDomain(), dmr.getDomain());
 		if( !cmp ) return cmp;
-		if( dmr.map == null )
+		if( dmr.getMap() == null )
 			return false;
 		//return map.equals(dmr.map);
-		return Morphism.fullEquals(map, dmr.map);
+		return Morphism.fullEquals(getMap(), dmr.getMap());
 	}
  
 	@Override
 	public int hashCode() {
 		int result = 17;
-		result = 37*result + (domain == null ? 0 : domain.hashCode());
-		result = 37*result + (map == null ? 0 : map.hashCode());
-		result = 37*result + (range == null ? 0 : range.hashCode());
+		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
+		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
+		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
 		return result;
 	}
     /*
@@ -84,6 +82,6 @@ public final class RangeDomainMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new RangeDomainMap(domain, map, range);
+    	return new RangeDomainMap(getDomain(), getMap(), getRange());
     }
 }

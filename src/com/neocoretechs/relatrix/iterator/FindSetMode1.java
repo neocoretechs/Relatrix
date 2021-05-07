@@ -13,7 +13,7 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 * Legal permutations are
 * *,*,[object] *,?,[object] ?,?,[object] ?,*,[object]
 * *,*,[TemplateClass] *,?,[TemplateClass] ?,?,[TemplateClass] ?,*,[TemplateClass]
-* * @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+* * @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2105
 *
 */
 public class FindSetMode1 extends IteratorFactory {

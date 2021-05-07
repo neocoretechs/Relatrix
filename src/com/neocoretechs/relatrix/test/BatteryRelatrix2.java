@@ -124,7 +124,7 @@ public class BatteryRelatrix2 {
 			Comparable[] nex = (Comparable[]) its.next();
 			// one '?' in findset gives us one element returned
 			if(DEBUG ) System.out.println("1B:"+i+" "+nex[0]);
-			if(skey.compareTo((String)(((Morphism)nex[0]).domain)) < 0 ) {
+			if(skey.compareTo((String)(((Morphism)nex[0]).getDomain())) < 0 ) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
 			}

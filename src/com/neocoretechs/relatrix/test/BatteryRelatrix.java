@@ -199,12 +199,12 @@ public class BatteryRelatrix {
 			// the returned array has 1 element, the identity Morphism DomainMapRange
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex[0]);
 			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
+			if(!skey.equals( ((DomainMapRange)nex[0]).getDomain() ) )
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((DomainMapRange)nex[0]).map.equals("Has unit"))
+			if(!((DomainMapRange)nex[0]).getMap().equals("Has unit"))
 				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
 			Long unit = new Long(i);
-			if(!((DomainMapRange)nex[0]).range.equals(unit))
+			if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
@@ -235,12 +235,12 @@ public class BatteryRelatrix {
 				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length);
 			if(DEBUG) System.out.println("1AR10:"+i+" "+nex[0]);
 			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
+			if(!skey.equals( ((DomainMapRange)nex[0]).getDomain() ) )
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((DomainMapRange)nex[0]).map.equals("Has unit"))
+			if(!((DomainMapRange)nex[0]).getMap().equals("Has unit"))
 				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
 			Long unit = new Long(i);
-			if(!((DomainMapRange)nex[0]).range.equals(unit))
+			if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
@@ -270,12 +270,12 @@ public class BatteryRelatrix {
 				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length);
 			if(DEBUG) System.out.println("1AR101:"+i+" "+nex[0]);
 			String skey = key + String.format(uniqKeyFmt, i);
-			if(!skey.equals( ((DomainMapRange)nex[0]).domain ) )
+			if(!skey.equals( ((DomainMapRange)nex[0]).getDomain() ) )
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((DomainMapRange)nex[0]).map.equals("Has unit"))
+			if(!((DomainMapRange)nex[0]).getMap().equals("Has unit"))
 				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
 			Long unit = new Long(i);
-			if(!((DomainMapRange)nex[0]).range.equals(unit))
+			if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 				System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}

@@ -13,6 +13,7 @@ import com.neocoretechs.relatrix.Morphism;
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
 * *,[object],* *,[object],? ?,[object],? ?,[object],*
 * *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015, 2021
 * 
 */
 public class FindSubSetMode2 extends FindSetMode2 {
@@ -34,8 +35,8 @@ public class FindSubSetMode2 extends FindSetMode2 {
 			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
-			   if( tdmr.map != null ) {
-					  templdmr.map = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getMap() != null ) {
+					  templdmr.setMap((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

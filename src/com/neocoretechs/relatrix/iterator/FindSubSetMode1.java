@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.Morphism;
  * clone method to render an instance for our template that we fill in with the arguments from the additional semantics.
  * It takes the form of a variable parameter argument to the findSet method at the highest levels of the Relatrix
  * API. 
- * @author jg Copyright (C) 2015 NeoCoreTechs
+ * @author Jonathan Copyright (C) 2015 NeoCoreTechs
  *
  */
 public class FindSubSetMode1 extends FindSetMode1 {
@@ -33,14 +33,14 @@ public class FindSubSetMode1 extends FindSetMode1 {
 			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
-			   if( tdmr.domain != null ) {
-					  templdmr.domain = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getDomain() != null ) {
+					  templdmr.setDomain((Comparable) xarg[ipos++]); 
 			   }
-			   if( tdmr.map != null ) {
-					  templdmr.map = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getMap() != null ) {
+					  templdmr.setMap((Comparable) xarg[ipos++]); 
 			   }
-			   if( tdmr.range != null ) {
-					  templdmr.range = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getRange() != null ) {
+					  templdmr.setRange((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

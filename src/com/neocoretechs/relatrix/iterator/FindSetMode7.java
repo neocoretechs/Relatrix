@@ -10,7 +10,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 
 /**
 * Identity morphism retrieval.
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105,2017 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105,2017 
 */
 public class FindSetMode7 extends IteratorFactory {
 	// mode 7

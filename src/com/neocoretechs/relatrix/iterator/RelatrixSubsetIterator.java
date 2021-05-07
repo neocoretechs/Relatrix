@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.Morphism;
  * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
  * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
  * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
- * @author jg Copyright (C) NeoCoreTechs 2014,2015
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
  *
  */
 public class RelatrixSubsetIterator implements Iterator<Comparable[]> {

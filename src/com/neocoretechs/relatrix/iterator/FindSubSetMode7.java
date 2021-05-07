@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.Morphism;
 * This winds up serving 2 functions. One is identity morphism retrieval if we get 3 objects that are not
 * the argument acts as a wildcard (*) or a tuple (?) for instances of that
 * class.
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105 
 */
 public class FindSubSetMode7 extends FindSetMode7 {
 	Object[] xarg;
@@ -33,14 +33,14 @@ public class FindSubSetMode7 extends FindSetMode7 {
 			   templdmr = (Morphism) tdmr.clone();
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
-			   if( tdmr.domain != null ) {
-					  templdmr.domain = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getDomain() != null ) {
+					  templdmr.setDomain((Comparable) xarg[ipos++]); 
 			   }
-			   if( tdmr.map != null ) {
-					  templdmr.map = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getMap() != null ) {
+					  templdmr.setMap((Comparable) xarg[ipos++]); 
 			   }
-			   if( tdmr.range != null ) {
-					  templdmr.range = (Comparable) xarg[ipos++]; 
+			   if( tdmr.getRange() != null ) {
+					  templdmr.setRange((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

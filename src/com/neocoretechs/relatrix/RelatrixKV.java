@@ -21,7 +21,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 * The compareTo and fullCompareTo provide the comparison methods to drive the processes.
 * The retrieval operators allow us to form the partially ordered result sets that are returned.<br/>
-* @author jg, Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020
+* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class RelatrixKV {
 	private static boolean DEBUG = false;

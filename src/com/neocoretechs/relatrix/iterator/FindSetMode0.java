@@ -27,7 +27,7 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 * ?,*,? domainrangemap
 * ?,?,? domainmaprange separate tuple elements
 * *,*,* domainmaprange identity
-* @author jg Groff Copyright (C) NeoCoreTechs 2014,2105
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105
 */
 public class FindSetMode0 extends IteratorFactory {
 	// mode 0
