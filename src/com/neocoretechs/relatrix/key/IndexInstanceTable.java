@@ -51,9 +51,10 @@ public final class IndexInstanceTable {
 			Object lastKeyObject = RelatrixKV.lastKey(InstanceIndex.class);
 			if(lastKeyObject == null)
 				lastKeyObject = new InstanceIndex(0);
-			InstanceIndex lastKey = (InstanceIndex) lastKeyObject;
+			lastKey = (InstanceIndex) lastKeyObject;
 		}
-		index.setInstanceIndex(lastKey.getIndex() + 1);
+		lastKey.increment();
+		index.setInstanceIndex(lastKey.getIndex());
 		if(DEBUG)
 			System.out.printf("%s.put(%s)%n", index.getClass().getName(), index);
 		try {

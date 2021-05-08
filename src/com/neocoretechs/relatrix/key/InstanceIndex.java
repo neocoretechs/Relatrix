@@ -15,6 +15,9 @@ public final class InstanceIndex implements Comparable<InstanceIndex>, Serializa
 	public boolean isValid() {
 		return index == -1 ? false : true;
 	}
+	public void increment() {
+		++index;
+	}
 	@Override
 	public String toString() {
 		return String.format("%s: key:%d%n", this.getClass().getName(), index);
@@ -23,5 +26,6 @@ public final class InstanceIndex implements Comparable<InstanceIndex>, Serializa
 	public int compareTo(InstanceIndex o) {
 		return index.compareTo(o.index);
 	}
+
 
 }
