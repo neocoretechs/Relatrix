@@ -5,6 +5,7 @@ import java.io.Serializable;
 public final class InstanceIndex implements Comparable<InstanceIndex>, Serializable {
 	private static final long serialVersionUID = 7241928009601092784L;
 	private Integer index = -1;
+	public InstanceIndex() {}
 	public InstanceIndex(int index) {
 		this.index = index;
 	}

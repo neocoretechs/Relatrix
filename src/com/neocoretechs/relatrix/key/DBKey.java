@@ -16,7 +16,7 @@ public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
 	private transient Comparable instance = null; // not stored, but retrieved dynamically from instance table
-	private InstanceIndex instanceIndex;
+	private InstanceIndex instanceIndex = new InstanceIndex();
 	
 	private DBKey() {}
 	
@@ -33,9 +33,7 @@ public final class DBKey implements Comparable, Serializable {
 		return null;
 	}
 
-	private static InstanceIndex newInstanceIndex(Integer index) {
-		return new InstanceIndex(index);
-	}
+
 	
 	protected void setInstanceIndex(Integer index) {
 		instanceIndex = new InstanceIndex(index);
@@ -53,13 +51,15 @@ public final class DBKey implements Comparable, Serializable {
 		DBKey dbKey = new DBKey();
 		dbKey.instance = (Comparable) instance;
 		Integer index = IndexInstanceTable.getByInstance(dbKey);
-		if(index == null)
+		if(index == null) {
 			try {
 				IndexInstanceTable.put(dbKey); // the passed key is updated
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
-		dbKey.instanceIndex = newInstanceIndex(index);
+		} else {
+			dbKey.instanceIndex = new InstanceIndex(index);
+		}
 		return dbKey;	
 	}
 	
@@ -134,7 +134,7 @@ public final class DBKey implements Comparable, Serializable {
 	
 	@Override
 	public String toString() {
-		return String.format("%s instance:%s, index:%s", this.getClass().getName(), instance, instanceIndex);
+		return String.format("%s instance:%s index:%s valid:%b%n", this.getClass().getName(), instance, instanceIndex, instanceIndex.isValid());
 	}
 
 }
