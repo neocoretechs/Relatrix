@@ -8,35 +8,35 @@ import java.io.Serializable;
  * Since our relations are composed of multiple indexes of otherwise redundant data, we need to have a means of
  * reducing the overhead at the cost of computational cycles. Minor redundancy is incurred due to the method
  * of storage of 2 tables indexed by [integer index, instance] and [instance, integer index] so we can do
- * lookups by index or instance.
+ * lookups by index or instance. 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
-	private transient Comparable instance = null; // not stored, but retrieved dynamically from instance table
-	private InstanceIndex instanceIndex = new InstanceIndex();
+	private Integer instanceIndex = new Integer(-1);
 	
-	private DBKey() {}
+	public DBKey() {}
 	
-	protected InstanceIndex getInstanceIndex() {
+	public DBKey(int index) {
+		instanceIndex = new Integer(index);
+	}
+	
+	protected Integer getInstanceIndex() {
 		return instanceIndex;
 	}
 	
-	public Object getInstance() throws IllegalAccessException, ClassNotFoundException, IOException {
-		if(instance != null)
-			return instance;
-		if(instanceIndex.isValid()) {
-			instance = (Comparable) IndexInstanceTable.getByIndex(this);
-		}
-		return null;
-	}
-
-
-	
 	protected void setInstanceIndex(Integer index) {
-		instanceIndex = new InstanceIndex(index);
+		instanceIndex = new Integer(index);
+	}
+	
+	public boolean isValid() {
+		return instanceIndex == -1 ? false : true;
+	}
+	
+	public void increment() {
+		++instanceIndex;
 	}
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
@@ -48,93 +48,33 @@ public final class DBKey implements Comparable, Serializable {
 	 * @throws IOException
 	 */
 	public static DBKey newKey(Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-		DBKey dbKey = new DBKey();
-		dbKey.instance = (Comparable) instance;
-		Integer index = IndexInstanceTable.getByInstance(dbKey);
-		if(index == null) {
-			try {
-				IndexInstanceTable.put(dbKey); // the passed key is updated
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			dbKey.instanceIndex = new InstanceIndex(index);
+		DBKey index = new DBKey();
+		try {
+			IndexInstanceTable.put(index, (Comparable) instance); // the passed key is updated
+		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			throw new RuntimeException(e);
 		}
-		return dbKey;	
+		return index;
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if(!instanceIndex.isValid())
-			try {
-				IndexInstanceTable.put(this);
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		if(!((DBKey)o).instanceIndex.isValid())
-			try {
-				IndexInstanceTable.put((DBKey) o);
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}		
-     	// now see if the classes are compatible for comparison
-    	Class toClass = ((DBKey)o).instance.getClass();
-    	if( !instance.getClass().equals(toClass) && !toClass.isAssignableFrom(instance.getClass())) {
-    		throw new RuntimeException("Classes are incompatible and the schema would be violated for "+o+" and "+instance+
-    				" whose classes are "+instance.getClass().getName()+" and "+((DBKey)o).instance.getClass().getName());
-    	}
-    	// Otherwise, use the standard compareTo for all objects which invokes our indicies
-    	try {
-			return instance.equals(((DBKey)o).getInstance());
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
+    	return instanceIndex.equals(((DBKey)o).instanceIndex);
 	}
 	
 	@Override
 	public int hashCode() {
-		if(!instanceIndex.isValid())
-			try {
-				IndexInstanceTable.put(this);
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		return instance.hashCode();
+		return instanceIndex.hashCode();
 	}
 	
 	@Override
 	public int compareTo(Object o) {
-		if(!instanceIndex.isValid())
-			try {
-				IndexInstanceTable.put(this);
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		if(!((DBKey)o).instanceIndex.isValid())
-			try {
-				IndexInstanceTable.put((DBKey) o);
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}		
-     	// now see if the classes are compatible for comparison, 
-    	Class toClass = ((DBKey)o).instance.getClass();
-    	if( !instance.getClass().equals(toClass) && !toClass.isAssignableFrom(instance.getClass())) {
-    		//compare a universal string representation as a unifying datatype for typed class templates
-    		//return from.toString().compareTo(to.toString());
-    		throw new RuntimeException("Classes are incompatible and the schema would be violated for "+o+" and "+instance+
-    				" whose classes are "+instance.getClass().getName()+" and "+((DBKey)o).instance.getClass().getName());
-    	}
-    	// Otherwise, use the standard compareTo for all objects which invokes our indicies
-    	try {
-			return instance.compareTo(((DBKey)o).getInstance());
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
+    	return instanceIndex.compareTo(((DBKey)o).instanceIndex);
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("%s instance:%s index:%s valid:%b%n", this.getClass().getName(), instance, instanceIndex, instanceIndex.isValid());
+		return String.format("%s: key:%d%n", this.getClass().getName(), instanceIndex);
 	}
 
 }

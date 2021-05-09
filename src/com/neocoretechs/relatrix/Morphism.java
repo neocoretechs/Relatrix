@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexInstanceTable;
 
 /**
 * Morphism - domain, map, range structure
@@ -24,33 +25,54 @@ import com.neocoretechs.relatrix.key.DBKey;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
 public abstract class Morphism implements Comparable, Serializable, Cloneable {
-		private static boolean DEBUG = false;
+		private static boolean DEBUG = true;
         static final long serialVersionUID = -9129948317265641091L;
         
-		private Comparable  domain;       // domain object, DBKey
-        private Comparable  map;          // map object, DBKey
-        private Comparable  range;        // range, DBKey
+		private transient Comparable  domain = null;       // domain object
+        private transient Comparable  map = null;          // map object
+        private transient Comparable  range = null;        // range
+        
+        private DBKey domainKey = new DBKey();
+        private DBKey mapKey = new DBKey();
+        private DBKey rangeKey = new DBKey();
+        
         /**
          * Transparently process DBKey, returning actual instance
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getDomain() {
 			try {
-				return domain == null ? domain : (Comparable<?>) ((DBKey)domain).getInstance();
+				Comparable tdomain = null;
+				if(domain != null)
+					return domain;
+				if(domainKey.isValid()) {
+					domain = (Comparable) IndexInstanceTable.getByIndex(domainKey);
+				}
+				return domain;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
 		public void setDomain(Comparable<?> domain) {
 			try {
-				this.domain = domain == null ? null : DBKey.newKey(domain);
+				this.domain = domain;
+				if(domain == null)
+					domainKey = new DBKey();
+				else
+					DBKey.newKey(domain);
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
 		public Comparable getMap() {
 			try {
-				return map == null ? null : (Comparable<?>) ((DBKey)map).getInstance();
+				Comparable tmap = null;
+				if(map != null) 
+					return map;
+				if(mapKey.isValid()) {
+					map = (Comparable) IndexInstanceTable.getByIndex(mapKey);
+				}
+				return map;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -64,7 +86,13 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		}
 		public Comparable getRange() {
 			try {
-				return range == null ? null : (Comparable<?>) ((DBKey)range).getInstance();
+				Comparable trange = null;
+				if(range != null)
+					return range;
+				if(rangeKey.isValid()) {
+					range = (Comparable) IndexInstanceTable.getByIndex(rangeKey);
+				}
+				return range;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -79,7 +107,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 
         public Morphism() {}
         
-        public Morphism(Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+        public Morphism(Comparable d, Comparable m, Comparable r) {
         	setDomain(d);
             setMap(m);
             setRange(r);
@@ -135,15 +163,13 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         }
         
         public String toString() { 
-        	try {
-				return String.format("Class:%s [%s->%s->%s]%n",this.getClass().getName(),
-						(domain == null ? "<DomainTemplate>" : ((DBKey)domain).getInstance().getClass().getName()+":"+domain.toString()),
-						(map == null ? "<MapTemplate>" : map.getClass().getName()+":"+map.toString()), 
-						(range == null ? "<RangeTemplate>" : range.getClass().getName()+":"+range.toString()));
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-			}
-        	return String.format("%s failed to generate string%n", this.getClass().getName());
+        	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
+					(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
+					(getMap() == null ? "NULL" : getMap().getClass().getName()), 
+					(getRange() == null ? "NULL" : getRange().getClass().getName()),
+					(getDomain() == null ? "NULL" : getDomain()),
+					(getMap() == null ? "NULL" : getMap()), 
+					(getRange() == null ? "NULL" : getRange()));
         }
         /**
          * key combinations for Relatrix follow
@@ -162,31 +188,31 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         */
         private short cmpr(Morphism cmpdmr) {
         	short cmpres = 0;
-            if(domain == null)
+            if(getDomain() == null)
         		cmpres = 48;
         	else
-        		if( domain.compareTo(cmpdmr.domain) < 0)
+        		if( getDomain().compareTo(cmpdmr.getDomain()) < 0)
         			cmpres = 16;
         		else
-        			if(domain.equals(cmpdmr.domain) )
+        			if(getDomain().equals(cmpdmr.getDomain()) )
         				cmpres = 32;
                 //
-            if(map == null)
+            if(getMap() == null)
         		cmpres ^= 12;
         	else
-        		if(map.compareTo(cmpdmr.map)  < 0)
+        		if(getMap().compareTo(cmpdmr.getMap())  < 0)
         			cmpres ^= 4;
         		else
-        			if( map.equals(cmpdmr.map) )
+        			if( getMap().equals(cmpdmr.getMap()) )
         				cmpres ^= 8;
                 //
-           if(range == null)
+           if(getRange() == null)
         		cmpres ^= 3;
         	else
-        		if( range.compareTo( cmpdmr.range ) < 0)
+        		if( getRange().compareTo( cmpdmr.getRange() ) < 0)
         			cmpres ^= 1;
         		else
-        			if( range.equals(cmpdmr.range) )
+        			if( getRange().equals(cmpdmr.getRange()) )
         				cmpres ^= 2;
         	return cmpres;
         }
@@ -284,74 +310,69 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	// default dmr
         	switch(n) {
         		case 1:
-        			return domain;
+        			return getDomain();
         		case 2:
-        			return map;
+        			return getMap();
         		case 3:
-        			return range;
+        			return getRange();
         		default:
         			break;
         	}
         	throw new RuntimeException("returnTupleOrder invalid tuple "+n);
         }
         
-        /**
-         * Read the graph of keys and resolve recursive relationships.<p/>
-         * Storage is enforced by key creation, but upon retrieval we need to reconstruct the
-         * recursive relationships.
-         * @param o
-         * @throws IOException
-         * @throws ClassNotFoundException
-         */
-        private void readObject(ObjectInputStream o) throws IOException, ClassNotFoundException {  
-        	o.defaultReadObject();
-        	Comparable tdomain, tmap, trange;
-        	tdomain = domain;
-        	tmap = map;
-        	trange = range;
-        	try {
+        
+        private void resolve(Comparable instance, DBKey func) throws IllegalAccessException, ClassNotFoundException, IOException {
+        	if(!instance.getClass().isAssignableFrom(Morphism.class))
+        		return;
+         	Comparable tdomain, tmap, trange;
+          	tdomain = ((Morphism)instance).getDomain();
+        	//((DBKey)map).getInstance();
+        	tmap = ((Morphism)instance).getMap();
+        	//((DBKey)range).getInstance();
+        	trange = ((Morphism)instance).getRange();
+        	if(DEBUG)
+        		System.out.printf("%s.resolve %s %s %s%n", this.getClass().getName(), domain, map, range);
+  
         		// resolve domain-level relationships derived from original relationship in this morphism we just deserialized
-				while(tdomain != null && ((DBKey)tdomain).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-					tdomain = (Comparable) ((DBKey)((Morphism)tdomain).domain).getInstance();
-					if( ((Morphism)tdomain).map != null && ((DBKey)((Morphism)tdomain).map).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-						Comparable txmap = (Comparable) ((DBKey)(((Morphism)tdomain).map)).getInstance();
-						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range)).getInstance();
-							while(txrange != null && ((DBKey)txrange).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range)).getInstance();
+				while(tdomain != null && tdomain.getClass().isAssignableFrom(Morphism.class)) {
+					tdomain = (Comparable) ((DBKey)((Morphism)tdomain).domain);
+					if( ((Morphism)tdomain).map != null && ((DBKey)((Morphism)tdomain).map).getClass().isAssignableFrom(Morphism.class)) {
+						Comparable txmap = (Comparable) ((DBKey)(((Morphism)tdomain).map));
+						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getClass().isAssignableFrom(Morphism.class)) {
+							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
+							while(txrange != null && ((DBKey)txrange).getClass().isAssignableFrom(Morphism.class)) {
+								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
 							}
 						}
 					}
 				}
 				// resolve map-level relationships descended from original relationship
-				while(tmap != null && ((DBKey)tmap).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-					tdomain = (Comparable) ((DBKey)((Morphism)tmap).domain).getInstance();
-					if( ((Morphism)tmap).map != null && ((DBKey)((Morphism)tmap).map).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-						Comparable txmap = (Comparable) ((DBKey)(((Morphism)tmap).map)).getInstance();
-						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range)).getInstance();
-							while(txrange != null && ((DBKey)txrange).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range)).getInstance();
+				while(tmap != null && ((DBKey)tmap).getClass().isAssignableFrom(Morphism.class)) {
+					tdomain = (Comparable) ((DBKey)((Morphism)tmap).domain);
+					if( ((Morphism)tmap).map != null && ((DBKey)((Morphism)tmap).map).getClass().isAssignableFrom(Morphism.class)) {
+						Comparable txmap = (Comparable) ((DBKey)(((Morphism)tmap).map));
+						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getClass().isAssignableFrom(Morphism.class)) {
+							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
+							while(txrange != null && ((DBKey)txrange).getClass().isAssignableFrom(Morphism.class)) {
+								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
 							}
 						}
 					}
 				}
 				// resolve range-level relationships descended from original relationship
-				while(trange != null && ((DBKey)trange).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-					tdomain = (Comparable) ((DBKey)((Morphism)trange).domain).getInstance();
-					if( ((Morphism)trange).map != null && ((DBKey)((Morphism)trange).map).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-						Comparable txmap = (Comparable) ((DBKey)(((Morphism)trange).map)).getInstance();
-						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range)).getInstance();
-							while(txrange != null && ((DBKey)txrange).getInstance().getClass().isAssignableFrom(Morphism.class)) {
-								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range)).getInstance();
+				while(trange != null && ((DBKey)trange).getClass().isAssignableFrom(Morphism.class)) {
+					tdomain = (Comparable) ((DBKey)((Morphism)trange).domain);
+					if( ((Morphism)trange).map != null && ((DBKey)((Morphism)trange).map).getClass().isAssignableFrom(Morphism.class)) {
+						Comparable txmap = (Comparable) ((DBKey)(((Morphism)trange).map));
+						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getClass().isAssignableFrom(Morphism.class)) {
+							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
+							while(txrange != null && ((DBKey)txrange).getClass().isAssignableFrom(Morphism.class)) {
+								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
 							}
 						}
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
         }
 
 }
