@@ -90,6 +90,6 @@ public final class MapDomainRange extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new MapDomainRange(getDomain(), getMap(), getRange());
+    	return new MapDomainRange(getDomain(), getMap(), getRange(), getKeys());
     }
 }

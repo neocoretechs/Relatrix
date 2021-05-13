@@ -37,8 +37,10 @@ public class DumpKVStore {
 		System.out.printf("Count = %d%n", RelatrixKV.size(clazz));
 		RelatrixKV.entrySetStream(clazz).forEach(e-> {
 			System.out.printf("%d=%s, %s | %s, %s%n",recs++, 
-			((Map.Entry<?, ?>)e).getKey().getClass().getName(),((Map.Entry<?, ?>)e).getKey(),
-			((Map.Entry<?, ?>)e).getValue().getClass().getName(),((Map.Entry<?, ?>)e).getValue());
+			((Map.Entry<?, ?>)e).getKey().getClass().getName(),
+			((Map.Entry<?, ?>)e).getKey(),
+			((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue().getClass().getName(),
+			((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue());
 		});
 		System.out.println("Dump in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
 	}

@@ -88,6 +88,6 @@ public final class RangeDomainMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new RangeDomainMap(getDomain(), getMap(), getRange());
+    	return new RangeDomainMap(getDomain(), getMap(), getRange(), getKeys());
     }
 }

@@ -88,7 +88,7 @@ public final class DomainRangeMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new DomainRangeMap(getDomain(), getMap(), getRange());
+    	return new DomainRangeMap(getDomain(), getMap(), getRange(), getKeys());
     }
 
 }
