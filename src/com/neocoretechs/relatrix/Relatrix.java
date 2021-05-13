@@ -110,18 +110,20 @@ public final class Relatrix {
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
 public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	if( d == null || m == null || r == null)
+		throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 	Morphism dmr = new DomainMapRange(d,m,r);
 	Morphism identity = dmr;
 	transactionTreeSets[0] = BigSackAdapter.getBigSackSetTransaction(dmr);
-	DomainRangeMap drm = new DomainRangeMap(d,m,r);
+	DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
 	transactionTreeSets[1] = BigSackAdapter.getBigSackSetTransaction(drm);
-	MapDomainRange mdr = new MapDomainRange(d,m,r);
+	MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
 	transactionTreeSets[2] = BigSackAdapter.getBigSackSetTransaction(mdr);
-	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
+	MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
 	transactionTreeSets[3] = BigSackAdapter.getBigSackSetTransaction(mrd);
-	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
+	RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
 	transactionTreeSets[4] = BigSackAdapter.getBigSackSetTransaction(rdm);
-	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
+	RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
 	transactionTreeSets[5] = BigSackAdapter.getBigSackSetTransaction(rmd);
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);

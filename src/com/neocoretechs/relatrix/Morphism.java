@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
+import com.neocoretechs.relatrix.key.KeySet;
 
 /**
 * Morphism - domain, map, range structure
@@ -28,14 +29,14 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		private static boolean DEBUG = true;
         static final long serialVersionUID = -9129948317265641091L;
         
-		private transient Comparable  domain = null;       // domain object
-        private transient Comparable  map = null;          // map object
-        private transient Comparable  range = null;        // range
+		private transient Comparable  domain;       // domain object
+        private transient Comparable  map;          // map object
+        private transient Comparable  range;        // range
         
-        private DBKey domainKey = new DBKey();
-        private DBKey mapKey = new DBKey();
-        private DBKey rangeKey = new DBKey();
+        private KeySet keys;
         
+        public KeySet getKeys() { return keys; }
+        public void setKeys(KeySet keys) { this.keys = keys; }
         /**
          * Transparently process DBKey, returning actual instance
          * @return The real Comparable instance, pointed to by DBKey
@@ -45,8 +46,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				Comparable tdomain = null;
 				if(domain != null)
 					return domain;
-				if(domainKey.isValid()) {
-					domain = (Comparable) IndexInstanceTable.getByIndex(domainKey);
+				if(keys.getDomainKey().isValid()) {
+					domain = (Comparable) IndexInstanceTable.getByIndex(keys.getDomainKey());
 				}
 				return domain;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -57,9 +58,9 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			try {
 				this.domain = domain;
 				if(domain == null)
-					domainKey = new DBKey();
+					keys.setDomainKey( new DBKey());
 				else
-					DBKey.newKey(domain);
+					keys.setDomainKey(DBKey.newKey(domain));
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -69,8 +70,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				Comparable tmap = null;
 				if(map != null) 
 					return map;
-				if(mapKey.isValid()) {
-					map = (Comparable) IndexInstanceTable.getByIndex(mapKey);
+				if(keys.getMapKey().isValid()) {
+					map = (Comparable) IndexInstanceTable.getByIndex(keys.getMapKey());
 				}
 				return map;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -79,7 +80,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		}
 		public void setMap(Comparable<?> map) {
 			try {
-				this.map = map == null ? null : DBKey.newKey(map);
+				this.map = map;
+				if(map == null)
+					keys.setMapKey(new DBKey());
+				else
+					keys.setMapKey(DBKey.newKey(map));
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -89,8 +94,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				Comparable trange = null;
 				if(range != null)
 					return range;
-				if(rangeKey.isValid()) {
-					range = (Comparable) IndexInstanceTable.getByIndex(rangeKey);
+				if(keys.getRangeKey().isValid()) {
+					range = (Comparable) IndexInstanceTable.getByIndex(keys.getRangeKey());
 				}
 				return range;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -99,7 +104,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		}
 		public void setRange(Comparable<?> range) {
 			try {
-				this.range = range == null ? null : DBKey.newKey(range);
+				this.range = range;
+				if(range == null) 
+					keys.setRangeKey(new DBKey());
+				else
+					keys.setRangeKey(DBKey.newKey(range));
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -107,10 +116,31 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 
         public Morphism() {}
         
+        /**
+         * Construct and establish key position for the elements of a morphism.
+         * @param d
+         * @param m
+         * @param r
+         */
         public Morphism(Comparable d, Comparable m, Comparable r) {
+        	keys = new KeySet();
         	setDomain(d);
             setMap(m);
             setRange(r);
+        }
+        
+        /**
+         * Constructor for the event when we have a keyset from a previous morphism.
+         * @param d
+         * @param m
+         * @param r
+         * @param keys
+         */
+        public Morphism(Comparable d, Comparable m, Comparable r, KeySet keys) {
+        	this.domain = d;
+            this.map = m;
+            this.range = r;
+            this.keys = keys;
         }
         /**
          * Failsafe compareTo.

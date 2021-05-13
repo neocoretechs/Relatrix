@@ -1,5 +1,7 @@
 package com.neocoretechs.relatrix;
 
+import com.neocoretechs.relatrix.key.KeySet;
+
 /**
 * This class represents the morphisms stored in range (codomain),map,domain order.
 * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
@@ -15,6 +17,10 @@ public final class RangeMapDomain extends Morphism {
     public RangeMapDomain(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
+	public RangeMapDomain(Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
+		super(d,m,r,keys);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
