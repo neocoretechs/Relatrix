@@ -1,4 +1,7 @@
 package com.neocoretechs.relatrix;
+
+import com.neocoretechs.relatrix.key.KeySet;
+
 /**
  * This class represents the morphisms stored in their natural retrieval order.
  * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
@@ -16,6 +19,9 @@ public final class DomainMapRange extends Morphism {
     
     public DomainMapRange(Comparable d, Comparable m, Comparable r) {
     	super(d,m,r);
+    }
+    public DomainMapRange(Comparable d, Comparable m, Comparable r, KeySet keys) {
+    	super(d,m,r,keys);
     }
     /**
      * The purpose here is to control the compareTo method such that when storing, the range portion
@@ -77,7 +83,7 @@ public final class DomainMapRange extends Morphism {
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new DomainMapRange(getDomain(), getMap(), getRange());
+    	return new DomainMapRange(getDomain(), getMap(), getRange(), getKeys());
     }
 
 }

@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public final class IndexInstanceTable {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	static DBKey lastKey = new DBKey(-1);
 	/**

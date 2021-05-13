@@ -26,7 +26,7 @@ import com.neocoretechs.relatrix.key.KeySet;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
 public abstract class Morphism implements Comparable, Serializable, Cloneable {
-		private static boolean DEBUG = true;
+		private static boolean DEBUG = false;
         static final long serialVersionUID = -9129948317265641091L;
         
 		private transient Comparable  domain;       // domain object
