@@ -22,6 +22,6 @@ public class FindHeadSetMode6 extends FindSetMode6 {
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
-	    return new RelatrixHeadsetIterator(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, dmr_return);
+	    return new RelatrixHeadsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
 	}
 }

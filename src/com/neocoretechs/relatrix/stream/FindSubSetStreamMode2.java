@@ -41,6 +41,6 @@ public class FindSubSetStreamMode2 extends FindSetStreamMode2 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return (Stream<?>) new RelatrixSubsetStream(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, templdmr, dmr_return);
+		   return (Stream<?>) new RelatrixSubsetStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
 	   }
 }

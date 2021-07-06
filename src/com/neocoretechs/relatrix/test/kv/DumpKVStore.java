@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -35,6 +36,7 @@ public class DumpKVStore {
 		System.out.printf("First Key = %s, %s%n", argv[1], RelatrixKV.firstKey(clazz));
 		System.out.printf("Last Key = %s, %s%n", argv[1], RelatrixKV.lastKey(clazz));
 		System.out.printf("Count = %d%n", RelatrixKV.size(clazz));
+		/*
 		RelatrixKV.entrySetStream(clazz).forEach(e-> {
 			System.out.printf("%d=%s, %s | %s, %s%n",recs++, 
 			((Map.Entry<?, ?>)e).getKey().getClass().getName(),
@@ -42,6 +44,16 @@ public class DumpKVStore {
 			((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue().getClass().getName(),
 			((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue());
 		});
+		*/
+		Iterator it = RelatrixKV.entrySet(clazz);
+		while(it.hasNext()) {
+			Map.Entry<?,?> e = (Entry<?, ?>) it.next();
+			System.out.printf("%d=%s, %s | %s, %s%n",recs++, 
+					((Map.Entry<?, ?>)e).getKey().getClass().getName(),
+					((Map.Entry<?, ?>)e).getKey(),
+					((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue().getClass().getName(),
+					((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue());
+		}
 		System.out.println("Dump in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
 	}
 		

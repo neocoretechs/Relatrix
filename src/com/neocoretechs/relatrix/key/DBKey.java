@@ -24,19 +24,27 @@ public final class DBKey implements Comparable, Serializable {
 	}
 	
 	protected Integer getInstanceIndex() {
-		return instanceIndex;
+		synchronized(instanceIndex) {
+			return instanceIndex;
+		}
 	}
 	
 	protected void setInstanceIndex(Integer index) {
-		instanceIndex = new Integer(index);
+		synchronized(instanceIndex) {
+			instanceIndex = new Integer(index);
+		}
 	}
 	
 	public boolean isValid() {
-		return instanceIndex == -1 ? false : true;
+		synchronized(instanceIndex) {
+			return instanceIndex == -1 ? false : true;
+		}
 	}
 	
 	public void increment() {
-		++instanceIndex;
+		synchronized(instanceIndex) {
+			++instanceIndex;
+		}
 	}
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
@@ -59,22 +67,30 @@ public final class DBKey implements Comparable, Serializable {
 	
 	@Override
 	public boolean equals(Object o) {
-    	return instanceIndex.equals(((DBKey)o).instanceIndex);
+		synchronized(instanceIndex) {
+			return instanceIndex.equals(((DBKey)o).instanceIndex);
+		}
 	}
 	
 	@Override
 	public int hashCode() {
-		return instanceIndex.hashCode();
+		synchronized(instanceIndex) {
+			return instanceIndex.hashCode();
+		}
 	}
 	
 	@Override
 	public int compareTo(Object o) {
-    	return instanceIndex.compareTo(((DBKey)o).instanceIndex);
+		synchronized(instanceIndex) {
+			return instanceIndex.compareTo(((DBKey)o).instanceIndex);
+		}
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s: key:%d%n", this.getClass().getName(), instanceIndex);
+		synchronized(instanceIndex) {
+			return String.format("%s: key:%d%n", this.getClass().getName(), instanceIndex);
+		}
 	}
 
 }

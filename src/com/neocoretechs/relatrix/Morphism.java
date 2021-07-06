@@ -91,7 +91,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		}
 		public Comparable getRange() {
 			try {
-				Comparable trange = null;
 				if(range != null)
 					return range;
 				if(keys.getRangeKey().isValid()) {

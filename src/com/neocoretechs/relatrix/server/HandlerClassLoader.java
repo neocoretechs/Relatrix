@@ -343,7 +343,7 @@ public class HandlerClassLoader extends ClassLoader {
 	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get for "+name);
         try {
         	if(useEmbedded) {
-        	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
+        	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackTransactionalTreeMap(String.class); // class type of key
         	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
                 cnab = (ClassNameAndBytes) localRepository.get(name);	
@@ -382,9 +382,9 @@ public class HandlerClassLoader extends ClassLoader {
     	ClassNameAndBytes cnab = new ClassNameAndBytes(name, bytes);
         try {
         	if(useEmbedded) {
-        	 		TransactionalTreeMap localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
+        	 		TransactionalTreeMap localRepository = BigSackAdapter.getBigSackTransactionalTreeMap(String.class); // class type of key
         			localRepository.put(name, cnab);
-                   	BigSackAdapter.commitMap(String.class);
+                   	BigSackAdapter.commitTransaction(String.class);
                	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in local repository for class:"+name);
         	} else {
@@ -415,7 +415,7 @@ public class HandlerClassLoader extends ClassLoader {
 					try {
 	             	 	if(DEBUG || DEBUGSETREPOSITORY)
 	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in local repository for class:"+name);
-					 	BigSackAdapter.rollbackMap(String.class); // class type of key
+					 	BigSackAdapter.rollbackTransaction(String.class); // class type of key
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -441,7 +441,7 @@ public class HandlerClassLoader extends ClassLoader {
       try {
       	if(useEmbedded) {
       		ArrayList<String> remo = new ArrayList<String>();
-      	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackMapTransaction(String.class); // class type of key
+      	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackTransactionalTreeMap(String.class); // class type of key
       			Iterator<?> it = localRepository.keySet();
       			while(it.hasNext()) {
       				Comparable key = (Comparable) it.next();
@@ -455,7 +455,7 @@ public class HandlerClassLoader extends ClassLoader {
              	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+s);
       			}
-                BigSackAdapter.commitMap(String.class);
+                BigSackAdapter.commitTransaction(String.class);
       	} else {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
@@ -482,7 +482,7 @@ public class HandlerClassLoader extends ClassLoader {
               e.printStackTrace();
               if( useEmbedded )
 					try {
-						BigSackAdapter.rollbackMap(String.class);
+						BigSackAdapter.rollbackTransaction(String.class);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}

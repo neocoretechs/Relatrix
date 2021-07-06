@@ -45,6 +45,6 @@ public class FindSetStreamMode2 extends StreamFactory {
 		return createRelatrixStream(dmr);
 	}
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		return (Stream<?>) new RelatrixStream(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, dmr_return);	
+		return (Stream<?>) new RelatrixStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);	
 	}
 }

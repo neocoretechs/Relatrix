@@ -22,6 +22,6 @@ public class FindHeadSetStreamMode6 extends FindSetStreamMode6 {
 
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr)throws IllegalAccessException, IOException {
-	    return (Stream<?>) new RelatrixHeadsetStream(BigSackAdapter.getBigSackSetTransaction(tdmr), tdmr, dmr_return);
+	    return (Stream<?>) new RelatrixHeadsetStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
 	}
 }
