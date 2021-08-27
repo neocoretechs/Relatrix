@@ -4,12 +4,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2, class i.e. com.your.class.class
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
  * @author jg (C) 2021
  *
  */
@@ -54,7 +52,7 @@ public class DumpKVStore {
 					((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue().getClass().getName(),
 					((Map.Entry<?, ?>)e).getValue() == null ? "NULL" : ((Map.Entry<?, ?>)e).getValue());
 		}
-		System.out.println("Dump in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
+		System.out.println("Dump in "+(System.currentTimeMillis()-tims)+" ms. retrieved "+recs+" records");
 	}
 		
 }

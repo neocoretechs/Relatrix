@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.Stack;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
+import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
+import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 
@@ -92,7 +95,8 @@ public static synchronized void transactionalStore(Comparable<?> key, Object val
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
 	if( DEBUG  )
 		System.out.println("RelatrixKV.transactionalStore storing dmr:"+key+"/"+value);
-	KeySearchResult tsr = ttm.locate(key);
+	Stack stack = new Stack();
+	KeySearchResult tsr = ttm.locate(key, stack);
 	if( DEBUG )
 		System.out.println("RelatrixKV.store Tree Search Result: "+tsr);
 	if(tsr.atKey) {
@@ -426,7 +430,9 @@ public static synchronized Stream<?> keySetStream(Class clazz) throws IOExceptio
 public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	return ttm.firstKey();
+	Stack stack = new Stack();
+	TraversalStackElement tse = new TraversalStackElement(null,0,0);
+	return ttm.firstKey(tse, stack);
 }
 /**
  * Return the value for the key.
@@ -450,7 +456,9 @@ public static synchronized Object get(Comparable key) throws IOException, Illega
 public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	return ttm.first();
+	Stack stack = new Stack();
+	TraversalStackElement tse = new TraversalStackElement(null,0,0);
+	return ttm.first(tse, stack);
 }
 /**
  * Return instance having the highest valued key.
@@ -462,10 +470,12 @@ public static synchronized Object firstValue(Class clazz) throws IOException, Il
 public static synchronized Object lastKey(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	return ttm.lastKey();
+	Stack stack = new Stack();
+	TraversalStackElement tse = new TraversalStackElement(null,0,0);
+	return ttm.lastKey(tse, stack);
 }
 /**
- * Return the instance having the highest valued key.
+ * Return the instance having the value for  the greatest key.
  * @param clazz the class to retrieve
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
@@ -474,7 +484,9 @@ public static synchronized Object lastKey(Class clazz) throws IOException, Illeg
 public static synchronized Object lastValue(Class clazz) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	return ttm.last();
+	Stack stack = new Stack();
+	TraversalStackElement tse = new TraversalStackElement(null,0,0);
+	return ttm.last(tse, stack);
 }
 /**
  * Size of all elements

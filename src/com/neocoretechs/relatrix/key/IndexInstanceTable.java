@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
+import com.neocoretechs.bigsack.session.BigSackAdapter;
+import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
@@ -24,6 +27,7 @@ public final class IndexInstanceTable {
 		synchronized(mutex) {
 			Object lastKeyObject = null;
 			try {
+				classCommits.add(DBKey.class);
 				lastKeyObject = RelatrixKV.lastKey(DBKey.class);
 			} catch (IllegalAccessException | IOException e) {
 				System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
@@ -103,7 +107,6 @@ public final class IndexInstanceTable {
 	
 	public static void commit() throws IOException {
 		synchronized(mutex) {
-			RelatrixKV.transactionCommit(DBKey.class);
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
@@ -119,7 +122,6 @@ public final class IndexInstanceTable {
 	
 	public static void rollback() throws IOException {
 		synchronized(mutex) {
-			RelatrixKV.transactionRollback(DBKey.class);
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
@@ -131,11 +133,11 @@ public final class IndexInstanceTable {
 	
 	public static void checkpoint() throws IllegalAccessException, IOException {
 		synchronized(mutex) {
-			RelatrixKV.transactionCheckpoint(DBKey.class);
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext())
+				while(it.hasNext()) {
 					RelatrixKV.transactionCheckpoint(it.next());
+				}
 			}
 		}	
 	}
@@ -149,7 +151,10 @@ public final class IndexInstanceTable {
 	 */
 	public static Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
-			return RelatrixKV.get(index);
+			Object o = RelatrixKV.get(index);
+			if(o == null)
+				return null;
+			return ((KeyValue)o).getmKey();
 		}
 	}
 	/**
@@ -162,7 +167,9 @@ public final class IndexInstanceTable {
 	 */
 	public static DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
-			Object o = RelatrixKV.get((Comparable)instance);
+			TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(instance.getClass());
+			classCommits.add(instance.getClass());
+			Object o = RelatrixKV.get((Comparable) instance);
 			if(o == null)
 				return null;
 			return (DBKey)o;

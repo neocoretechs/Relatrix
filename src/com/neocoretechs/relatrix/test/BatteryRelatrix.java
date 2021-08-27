@@ -46,8 +46,8 @@ public class BatteryRelatrix {
 		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
+		//battery1AR11(argv);
+		//battery1AR12(argv);
 	
 		 System.out.println("TEST BATTERY COMPLETE.");
 		
@@ -128,8 +128,8 @@ public class BatteryRelatrix {
 				++i;
 		}
 		if( i != max ) {
-			System.out.println("BATTERY1AR9 unexpected number of keys "+i);
-			throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
+			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

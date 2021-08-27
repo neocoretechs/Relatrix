@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.neocoretechs.bigsack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 
@@ -50,7 +51,7 @@ public class BatteryRelatrixKV {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);
+		//battery1AR17(argv);
 
 		 System.out.println("TEST BATTERY COMPLETE.");
 		
@@ -125,9 +126,9 @@ public class BatteryRelatrixKV {
 		Iterator<?> its = RelatrixKV.entrySet(String.class);
 		System.out.println("KV Battery1AR6");
 		while(its.hasNext()) {
-			Comparable nex = (Comparable) its.next();
+			Entry nex = (Entry) its.next();
 			//System.out.println(i+"="+nex);
-			if(((Long)nex).intValue() != i)
+			if(((Long)nex.getValue()).intValue() != i)
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
 			++i;
 		}

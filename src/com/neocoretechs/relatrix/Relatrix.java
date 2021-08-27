@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.Stack;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
+import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
@@ -132,7 +134,8 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	// If the search winds up at the key or the key is empty or the domain->map exists, the key
 	// cannot be inserted.
 	((DomainMapRange)dmr).setUniqueKey(true);
-	KeySearchResult tsr = transactionTreeSets[0].locate(dmr);
+	Stack stack = new Stack();
+	KeySearchResult tsr = transactionTreeSets[0].locate(dmr, stack);
 	((DomainMapRange)dmr).setUniqueKey(false);
 	if( DEBUG )
 		System.out.println("Relatrix.store Tree Search Result: "+tsr);
@@ -195,7 +198,7 @@ public static synchronized void transactionRollback() throws IOException {
 	}
 	IndexInstanceTable.rollback();
 	for(int i = 0; i < transactionTreeSets.length; i++) {
-		transactionTreeSets[i].Rollback();;
+		transactionTreeSets[i].Rollback();
 		transactionTreeSets[i] = null;
 	}
 }
@@ -572,7 +575,9 @@ public static synchronized Object first() throws IOException
 	if( transactionTreeSets[0] == null ) {
 		return null;
 	}
-	return transactionTreeSets[0].first();
+	Stack stack = new Stack();
+	TraversalStackElement tse = new TraversalStackElement(null,0,0);
+	return transactionTreeSets[0].first(tse, stack);
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
@@ -585,7 +590,9 @@ public static synchronized Object last() throws IOException
 	if( transactionTreeSets[0] == null ) {
 		return null;
 	}
-	return transactionTreeSets[0].last();
+	Stack stack = new Stack();
+	TraversalStackElement tse = new TraversalStackElement(null,0,0);
+	return transactionTreeSets[0].last(tse, stack);
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
@@ -614,5 +621,11 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	return transactionTreeSets[0].contains(obj);
 }
 
+public static void main(String[] args) throws Exception {
+	setTablespaceDirectory(args[0]);
+	Relatrix.findStream("*", "*", "*", false).forEach((s) -> {
+		System.out.println(s.toString());
+	});
+}
 }
 
