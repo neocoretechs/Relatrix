@@ -36,7 +36,7 @@ public class FindSubSetMode2 extends FindSetMode2 {
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getMap() != null ) {
-					  templdmr.setMap((Comparable) xarg[ipos++]); 
+					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

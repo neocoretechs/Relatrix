@@ -21,7 +21,6 @@ import com.neocoretechs.relatrix.Relatrix;
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
  * @author jg (C) 2016,2017
  *
  */
@@ -46,8 +45,8 @@ public class BatteryRelatrix {
 		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
-		//battery1AR11(argv);
-		//battery1AR12(argv);
+		battery1AR11(argv);
+		battery1AR12(argv);
 	
 		 System.out.println("TEST BATTERY COMPLETE.");
 		

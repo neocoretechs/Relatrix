@@ -35,7 +35,7 @@ public class FindSetMode1 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    Morphism dmr = new RangeDomainMap(null, null, (Comparable)rarg);
+	    Morphism dmr = new RangeDomainMap(null, null, (Comparable)rarg, true);
 	    return createRelatrixIterator(dmr);
 	}
 	

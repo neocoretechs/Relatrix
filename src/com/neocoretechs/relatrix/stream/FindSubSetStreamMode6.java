@@ -36,10 +36,10 @@ public class FindSubSetStreamMode6 extends FindSetStreamMode6 {
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomain((Comparable) xarg[ipos++]); 
+					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
 			   }
 			   if( tdmr.getMap() != null ) {
-					  templdmr.setMap((Comparable) xarg[ipos++]); 
+					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

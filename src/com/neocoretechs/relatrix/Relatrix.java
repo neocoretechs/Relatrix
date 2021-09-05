@@ -182,7 +182,7 @@ public static synchronized void transactionCommit() throws IOException {
 		long startTime = System.currentTimeMillis();
 		if( DEBUG || TRACE )
 			System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
-		transactionTreeSets[i].Commit();;
+		transactionTreeSets[i].Commit();
 		if( DEBUG || TRACE )
 			System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
 		transactionTreeSets[i] = null;

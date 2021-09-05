@@ -34,10 +34,10 @@ public class FindSubSetStreamMode3 extends FindSetStreamMode3 {
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getMap() != null ) {
-					  templdmr.setMap((Comparable) xarg[ipos++]); 
+					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
 			   }
 			   if( tdmr.getRange() != null ) {
-					  templdmr.setRange((Comparable) xarg[ipos++]); 
+					  templdmr.setRangeTemplate((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

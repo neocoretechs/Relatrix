@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	 */
 	public abstract class IteratorFactory
 	{
-		private static boolean DEBUG = false; 
+		private static boolean DEBUG = true; 
 		/**
 		 * Create the iterator. Factory method, abstract.
 		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms

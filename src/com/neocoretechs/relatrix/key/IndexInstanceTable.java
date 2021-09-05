@@ -9,6 +9,7 @@ import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -71,12 +72,13 @@ public final class IndexInstanceTable {
 					try {
 						RelatrixKV.transactionalStore(index, instance);
 					} catch(DuplicateKeyException dke) {
-						System.out.printf("DBKey to Instance table duplicate key:%s encountered contrary to programmatic logic for instance:%s%nException:%s%n",index,instance,dke);
+						throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered contrary to programmatic logic for instance:%s%n",index,instance));
 					}
 					try {
 						RelatrixKV.transactionalStore(instance, index);
 					} catch(DuplicateKeyException dke) {
-						System.out.printf("Instance to DBKey duplicate key:%s encountered contrary to programmatic logic for instance:%s%nException:%s%n",instance,index,dke);
+						throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered contrary to programmatic logic for key:%s%n",instance,index));
+						
 					}
 					classCommits.add(instance.getClass());
 				} else {
@@ -154,7 +156,13 @@ public final class IndexInstanceTable {
 			Object o = RelatrixKV.get(index);
 			if(o == null)
 				return null;
-			return ((KeyValue)o).getmKey();
+			KeyValue kv = (KeyValue)o;
+			if(kv.getmValue() instanceof Morphism) {
+				Morphism m = ((Morphism)o);
+				KeySet ks = m.getKeys();
+				getByIndex(ks.getDomainKey());
+			}				
+			return kv.getmValue();
 		}
 	}
 	/**
@@ -172,7 +180,8 @@ public final class IndexInstanceTable {
 			Object o = RelatrixKV.get((Comparable) instance);
 			if(o == null)
 				return null;
-			return (DBKey)o;
+			KeyValue kv = (KeyValue)o;
+			return (DBKey)kv.getmValue();
 		}
 	}
 

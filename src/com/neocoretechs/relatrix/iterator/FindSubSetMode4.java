@@ -33,7 +33,7 @@ public class FindSubSetMode4 extends FindSetMode4 {
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomain((Comparable) xarg[ipos++]); 
+					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

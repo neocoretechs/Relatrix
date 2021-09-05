@@ -86,10 +86,6 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	    	tuples[i] = buffer.iterate_dmr(dmr_return);
 		needsIter = true;
 		return tuples;
-	}
-
-	
-
-	
+	}	
 
 }

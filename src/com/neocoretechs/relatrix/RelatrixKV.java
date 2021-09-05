@@ -112,7 +112,7 @@ public static synchronized void transactionCommit(Class clazz) throws IOExceptio
 	long startTime = System.currentTimeMillis();
 	BigSackAdapter.commitTransaction(clazz);
 		if( DEBUG || TRACE )
-			System.out.println("Committed treeSet in " + (System.currentTimeMillis() - startTime) + "ms.");		
+			System.out.println("Committed treeSet "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 }
 /**
  * Roll back all outstanding transactions on the indicies
@@ -435,16 +435,16 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
 	return ttm.firstKey(tse, stack);
 }
 /**
- * Return the value for the key.
+ * Return the key/value for the key.
  * @param key the key to retrieve
- * @return The value for the key.
+ * @return The key/value for the key.
  * @throws IOException
  * @throws IllegalAccessException 
  */
 public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
-	return ttm.get(key);
+	return ttm.get(key); // gets key/value
 }
 /**
  * The lowest key value object

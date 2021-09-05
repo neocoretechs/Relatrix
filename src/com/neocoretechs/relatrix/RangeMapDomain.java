@@ -20,7 +20,9 @@ public final class RangeMapDomain extends Morphism {
 	public RangeMapDomain(Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
 		super(d,m,r,keys);
 	}
-
+	public RangeMapDomain(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
+		super(d,m,r,template);
+	}
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {

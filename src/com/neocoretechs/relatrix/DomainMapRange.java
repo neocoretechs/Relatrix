@@ -23,6 +23,9 @@ public final class DomainMapRange extends Morphism {
     public DomainMapRange(Comparable d, Comparable m, Comparable r, KeySet keys) {
     	super(d,m,r,keys);
     }
+    public DomainMapRange(Comparable d, Comparable m, Comparable r, boolean template) {
+    	super(d,m,r,template);
+    }
     /**
      * The purpose here is to control the compareTo method such that when storing, the range portion
      * is ignored by setting uniqueKey to true, otherwise, we want to include the range value in our

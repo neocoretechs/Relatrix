@@ -35,8 +35,35 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         
         private KeySet keys;
         
+        /**
+         * Construct and establish key position for the elements of a morphism.
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(Comparable d, Comparable m, Comparable r) {
+        	keys = new KeySet();
+        	setDomain(d);
+            setMap(m);
+            setRange(r);
+        }
+        
+        /**
+         * Construct and establish key position for the elements of a morphism.
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(Comparable d, Comparable m, Comparable r, boolean template) {
+        	keys = new KeySet();
+        	setDomainTemplate(d);
+            setMapTemplate(m);
+            setRangeTemplate(r);
+        }
+        
         public KeySet getKeys() { return keys; }
         public void setKeys(KeySet keys) { this.keys = keys; }
+        
         /**
          * Transparently process DBKey, returning actual instance
          * @return The real Comparable instance, pointed to by DBKey
@@ -65,6 +92,12 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				throw new RuntimeException(e);
 			}
 		}
+		
+		public void setDomainTemplate(Comparable<?> domain) {
+			this.domain = domain;
+			keys.setDomainKey(new DBKey());
+		}
+		
 		public Comparable getMap() {
 			try {
 				Comparable tmap = null;
@@ -78,6 +111,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				throw new RuntimeException(e);
 			}
 		}
+		
 		public void setMap(Comparable<?> map) {
 			try {
 				this.map = map;
@@ -89,6 +123,12 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				throw new RuntimeException(e);
 			}
 		}
+
+		public void setMapTemplate(Comparable<?> map) {
+			this.map = map;
+			keys.setMapKey(new DBKey());
+		}
+
 		public Comparable getRange() {
 			try {
 				if(range != null)
@@ -101,6 +141,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				throw new RuntimeException(e);
 			}
 		}
+		
 		public void setRange(Comparable<?> range) {
 			try {
 				this.range = range;
@@ -113,21 +154,14 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			}
 		}
 
+		public void setRangeTemplate(Comparable<?> range) {
+			this.range = range;
+			keys.setRangeKey(new DBKey());
+		}
+		
         public Morphism() {}
         
-        /**
-         * Construct and establish key position for the elements of a morphism.
-         * @param d
-         * @param m
-         * @param r
-         */
-        public Morphism(Comparable d, Comparable m, Comparable r) {
-        	keys = new KeySet();
-        	setDomain(d);
-            setMap(m);
-            setRange(r);
-        }
-        
+  
         /**
          * Constructor for the event when we have a keyset from a previous morphism.
          * @param d
@@ -151,12 +185,14 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          */
         @SuppressWarnings({ "unchecked", "rawtypes" })
 		public static int fullCompareTo(Comparable from, Comparable to) {
-        	if( DEBUG ) {
-        		if( from == null )
-        			throw new RuntimeException("Morphism.fullCompareTo 'from' element is null, to is "+to);
+        	//if( DEBUG ) {
+        		//if( from == null )
+        			//throw new RuntimeException("Morphism.fullCompareTo 'from' element is null, to is "+to);
         		if( to == null )
         			throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
-        	}
+        	//}
+        	if(from == null)
+        		return -1;
          	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
         	// the string representations as a failsafe.	
         	Class toClass = to.getClass();
@@ -365,39 +401,39 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
   
         		// resolve domain-level relationships derived from original relationship in this morphism we just deserialized
 				while(tdomain != null && tdomain.getClass().isAssignableFrom(Morphism.class)) {
-					tdomain = (Comparable) ((DBKey)((Morphism)tdomain).domain);
-					if( ((Morphism)tdomain).map != null && ((DBKey)((Morphism)tdomain).map).getClass().isAssignableFrom(Morphism.class)) {
-						Comparable txmap = (Comparable) ((DBKey)(((Morphism)tdomain).map));
-						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getClass().isAssignableFrom(Morphism.class)) {
-							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
-							while(txrange != null && ((DBKey)txrange).getClass().isAssignableFrom(Morphism.class)) {
-								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
+					tdomain = (Comparable) ((Morphism)tdomain).getDomain();
+					if( ((Morphism)tdomain).getMap() != null && ((Morphism)tdomain).getMap().getClass().isAssignableFrom(Morphism.class)) {
+						Comparable txmap = (Comparable) ((Morphism)tdomain).getMap();
+						if( ((Morphism)txmap).getRange() != null && ((Morphism)txmap).getRange().getClass().isAssignableFrom(Morphism.class)) {
+							Comparable txrange = (Comparable) ((Morphism)txmap).getRange();
+							while(txrange != null && txrange.getClass().isAssignableFrom(Morphism.class)) {
+								txrange = (Comparable) ((Morphism)txmap).getRange();
 							}
 						}
 					}
 				}
 				// resolve map-level relationships descended from original relationship
-				while(tmap != null && ((DBKey)tmap).getClass().isAssignableFrom(Morphism.class)) {
-					tdomain = (Comparable) ((DBKey)((Morphism)tmap).domain);
-					if( ((Morphism)tmap).map != null && ((DBKey)((Morphism)tmap).map).getClass().isAssignableFrom(Morphism.class)) {
-						Comparable txmap = (Comparable) ((DBKey)(((Morphism)tmap).map));
-						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getClass().isAssignableFrom(Morphism.class)) {
-							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
-							while(txrange != null && ((DBKey)txrange).getClass().isAssignableFrom(Morphism.class)) {
-								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
+				while(tmap != null && tmap.getClass().isAssignableFrom(Morphism.class)) {
+					tdomain = (Comparable) ((Morphism)tmap).getDomain();
+					if( ((Morphism)tmap).getMap() != null && ((Morphism)tmap).getMap().getClass().isAssignableFrom(Morphism.class)) {
+						Comparable txmap = (Comparable) ((Morphism)tmap).getMap();
+						if( ((Morphism)txmap).getRange() != null && ((Morphism)txmap).getRange().getClass().isAssignableFrom(Morphism.class)) {
+							Comparable txrange = (Comparable) ((Morphism)txmap).getRange();
+							while(txrange != null && txrange.getClass().isAssignableFrom(Morphism.class)) {
+								txrange = (Comparable) ((Morphism)txmap).getRange();
 							}
 						}
 					}
 				}
 				// resolve range-level relationships descended from original relationship
-				while(trange != null && ((DBKey)trange).getClass().isAssignableFrom(Morphism.class)) {
-					tdomain = (Comparable) ((DBKey)((Morphism)trange).domain);
-					if( ((Morphism)trange).map != null && ((DBKey)((Morphism)trange).map).getClass().isAssignableFrom(Morphism.class)) {
-						Comparable txmap = (Comparable) ((DBKey)(((Morphism)trange).map));
-						if( ((Morphism)txmap).range != null && ((DBKey)((Morphism)txmap).range).getClass().isAssignableFrom(Morphism.class)) {
-							Comparable txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
-							while(txrange != null && ((DBKey)txrange).getClass().isAssignableFrom(Morphism.class)) {
-								txrange = (Comparable) ((DBKey)(((Morphism)txmap).range));
+				while(trange != null && trange.getClass().isAssignableFrom(Morphism.class)) {
+					tdomain = (Comparable) ((Morphism)trange).getDomain();
+					if( ((Morphism)trange).getMap() != null && ((Morphism)trange).getMap().getClass().isAssignableFrom(Morphism.class)) {
+						Comparable txmap = (Comparable) ((Morphism)trange).getMap();
+						if( ((Morphism)txmap).getRange() != null && ((Morphism)txmap).getRange().getClass().isAssignableFrom(Morphism.class)) {
+							Comparable txrange = (Comparable) (((Morphism)txmap).getRange());
+							while(txrange != null && txrange.getClass().isAssignableFrom(Morphism.class)) {
+								txrange = (Comparable) ((Morphism)txmap).getRange();
 							}
 						}
 					}
