@@ -1,18 +1,22 @@
 package com.neocoretechs.relatrix;
-import java.io.*;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.Stack;
+//import java.util.Stack;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
-import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
+import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
+//import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
+//import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
+//import com.neocoretechs.bigsack.session.BigSackAdapter;
+//import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 
 
@@ -55,7 +59,8 @@ public final class Relatrix {
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
 	
-	private static TransactionalTreeSet[] transactionTreeSets = new TransactionalTreeSet[6];
+	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
+													  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -79,11 +84,11 @@ public final class Relatrix {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
-		BigSackAdapter.setTableSpaceDir(path);
+		/*BigSackAdapter*/RelatrixKV.setTablespaceDirectory(path);
 	}
 	
 	public static synchronized String getTableSpaceDirectory() {
-		return BigSackAdapter.getTableSpaceDir();
+		return /*BigSackAdapter.getTableSpaceDir();*/RelatrixKV.getTableSpaceDirectory();
 	}
 	/**
 	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
@@ -92,11 +97,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 */
 	public static synchronized void setRemoteDirectory(String path) {
-		BigSackAdapter.setRemoteDir(path);
+		//BigSackAdapter.setRemoteDir(path);
+		RelatrixKV.setRemoteDirectory(path);
 	}
 	
 	public static synchronized String getRemoteDirectory() {
-		return BigSackAdapter.getRemoteDir();
+		return RelatrixKV.getRemoteDirectory();//BigSackAdapter.getRemoteDir();
 	}
 
 /**
@@ -119,52 +125,69 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	// Enforce categorical structure; domain->map function uniquely determines range.
 	// If the search winds up at the key or the key is empty or the domain->map exists, the key
 	// cannot be inserted.
-	transactionTreeSets[0] = BigSackAdapter.getBigSackTransactionalTreeSet(dmr);
+	//transactionTreeSets[0] = BigSackAdapter.getBigSackTransactionalTreeSet(dmr);
+	//indexClasses[0] = dmr.getClass(); indexInstanceTable takes over dmr
 	((DomainMapRange)dmr).setUniqueKey(true);
-	Stack stack = new Stack();
-	KeySearchResult tsr = transactionTreeSets[0].locate(dmr, stack);
+	//Stack stack = new Stack();
+	//KeySearchResult tsr = transactionTreeSets[0].locate(dmr, stack);
+	Object o = RelatrixKV.get(dmr);
 	((DomainMapRange)dmr).setUniqueKey(false);
 	if( DEBUG )
-		System.out.println("Relatrix.store Tree Search Result: "+tsr);
-	if(tsr.atKey) {
+		System.out.println("Relatrix.store Tree Search Result: "+o);//tsr);
+	if(o != null) { //tsr.atKey) {
 		transactionRollback();
-		throw new DuplicateKeyException("Domain:"+d+" Map:"+m+" tsr:"+tsr);
+		throw new DuplicateKeyException("dmr:"+o);//tsr);
 	}
 	
 	Morphism identity = dmr;
 	DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
-	transactionTreeSets[1] = BigSackAdapter.getBigSackTransactionalTreeSet(drm);
+	//transactionTreeSets[1] = BigSackAdapter.getBigSackTransactionalTreeSet(drm);
+	indexClasses[1] = drm.getClass();
 	MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
-	transactionTreeSets[2] = BigSackAdapter.getBigSackTransactionalTreeSet(mdr);
+	//transactionTreeSets[2] = BigSackAdapter.getBigSackTransactionalTreeSet(mdr);
+	indexClasses[2] = mdr.getClass();
 	MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
-	transactionTreeSets[3] = BigSackAdapter.getBigSackTransactionalTreeSet(mrd);
+	//transactionTreeSets[3] = BigSackAdapter.getBigSackTransactionalTreeSet(mrd);
+	indexClasses[3] = mrd.getClass();
 	RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
-	transactionTreeSets[4] = BigSackAdapter.getBigSackTransactionalTreeSet(rdm);
+	//transactionTreeSets[4] = BigSackAdapter.getBigSackTransactionalTreeSet(rdm);
+	indexClasses[4] = rdm.getClass();
 	RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
-	transactionTreeSets[5] = BigSackAdapter.getBigSackTransactionalTreeSet(rmd);
+	//transactionTreeSets[5] = BigSackAdapter.getBigSackTransactionalTreeSet(rmd);
+	indexClasses[5] = rmd.getClass();
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
-	transactionTreeSets[0].put(dmr);
-	
+	//transactionTreeSets[0].put(dmr);
+	DBKey dbKey = null;
+	try {
+		dbKey = DBKey.newKey(dmr);
+	} catch (ClassNotFoundException e) {
+		throw new IOException(e);
+	} // store primary key, then use it as value for index keys
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing drm:"+drm);
-	transactionTreeSets[1].put(drm);
+	//transactionTreeSets[1].put(drm);
+	RelatrixKV.transactionalStore(drm,  dbKey);
 	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
-	transactionTreeSets[2].put(mdr);
-
+	//transactionTreeSets[2].put(mdr);
+	RelatrixKV.transactionalStore(mdr,  dbKey);
+	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
-	transactionTreeSets[3].put(mrd);
+	//transactionTreeSets[3].put(mrd);
+	RelatrixKV.transactionalStore(mrd,  dbKey);
 
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
-	transactionTreeSets[4].put(rdm);
+	//transactionTreeSets[4].put(rdm);
+	RelatrixKV.transactionalStore(rdm,  dbKey);
 	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
-	transactionTreeSets[5].put(rmd);
+	//transactionTreeSets[5].put(rmd);
+	RelatrixKV.transactionalStore(rmd,  dbKey);
 	
 	return (DomainMapRange) identity;
 }
@@ -173,18 +196,18 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
  * @throws IOException
  */
 public static synchronized void transactionCommit() throws IOException {
-	if( transactionTreeSets[0] == null ) {
-		return;
-	}
 	IndexInstanceTable.commit();
-	for(int i = 0; i < transactionTreeSets.length; i++) {
+	for(int i = 0; i < indexClasses.length/*transactionTreeSets.length*/; i++) {
 		long startTime = System.currentTimeMillis();
-		if( DEBUG || TRACE )
-			System.out.println("Committing treeSet "+transactionTreeSets[i].getDBName());
-		transactionTreeSets[i].Commit();
-		if( DEBUG || TRACE )
-			System.out.println("Committed treeSet "+transactionTreeSets[i].getDBName() + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
-		transactionTreeSets[i] = null;
+		//transactionTreeSets[i].Commit();
+		if(indexClasses[i] != null) {
+			if( DEBUG || TRACE )
+				System.out.println("Committing "+/*transactionTreeSets*/indexClasses[i]);		
+			RelatrixKV.transactionCommit(indexClasses[i]);
+			if( DEBUG || TRACE )
+				System.out.println("Committed "+/*transactionTreeSets*/indexClasses[i]/*.getDBName()*/ + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
+			/*transactionTreeSets*/indexClasses[i] = null;
+		}
 	}
 }
 /**
@@ -192,14 +215,11 @@ public static synchronized void transactionCommit() throws IOException {
  * @throws IOException
  */
 public static synchronized void transactionRollback() throws IOException {
-	if( transactionTreeSets[0] == null ) {
-		return;
-	}
 	IndexInstanceTable.rollback();
-	for(int i = 0; i < transactionTreeSets.length; i++) {
-		if(transactionTreeSets[i] != null) {
-			transactionTreeSets[i].Rollback();
-			transactionTreeSets[i] = null;
+	for(int i = 0; i < /*transactionTreeSets*/indexClasses.length; i++) {
+		if(/*transactionTreeSets*/indexClasses[i] != null) {
+			/*transactionTreeSets*/RelatrixKV.transactionRollback(indexClasses[i]);//transactionTreeSets[i].Rollback();
+			/*transactionTreeSets*/indexClasses[i] = null;
 		}
 	}
 }
@@ -216,12 +236,11 @@ public static synchronized void transactionRollback() throws IOException {
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	if( transactionTreeSets[0] == null ) {
-		return;
-	}
 	IndexInstanceTable.checkpoint();
-	for(int i = 0; i < transactionTreeSets.length; i++) {
-		transactionTreeSets[i].Checkpoint();;
+	for(int i = 0; i < /*transactionTreeSets*/indexClasses.length; i++) {
+		/*transactionTreeSets[i].Checkpoint();*/
+		if(indexClasses[1] != null)
+			RelatrixKV.transactionCheckpoint(indexClasses[i]);
 	}
 }
 /**
@@ -281,52 +300,48 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
  */
 public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
 	Morphism dmr = new DomainMapRange(d,m,r);
-	if( transactionTreeSets[0] == null ) {
-		transactionTreeSets[0] = BigSackAdapter.getBigSackTransactionalTreeSet(dmr);
+	Object o = RelatrixKV.get(dmr);
+	if(o == null)
+		return;
+	KeyValue kv = (KeyValue)o;
+	DBKey dbKey = (DBKey) kv.getmValue();
+	try {
+		IndexInstanceTable.delete(dbKey);
+	} catch (ClassNotFoundException | DuplicateKeyException e) {
+		throw new IOException(e);
 	}
+	indexClasses[0] = null;
 	DomainRangeMap drm = new DomainRangeMap(d,m,r);
-	if( transactionTreeSets[1] == null ) {
-		transactionTreeSets[1] = BigSackAdapter.getBigSackTransactionalTreeSet(drm);
-	}
+	indexClasses[1] = drm.getClass();
 	MapDomainRange mdr = new MapDomainRange(d,m,r);
-	if( transactionTreeSets[2] == null ) {
-		transactionTreeSets[2] = BigSackAdapter.getBigSackTransactionalTreeSet(mdr);
-	}
+	indexClasses[2] = mdr.getClass();
 	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
-	if( transactionTreeSets[3] == null ) {
-		transactionTreeSets[3] = BigSackAdapter.getBigSackTransactionalTreeSet(mrd);
-	}
+	indexClasses[3] = mrd.getClass();
 	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
-	if( transactionTreeSets[4] == null ) {
-		transactionTreeSets[4] = BigSackAdapter.getBigSackTransactionalTreeSet(rdm);
-	}
+	indexClasses[4] = rdm.getClass();
 	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
-	if( transactionTreeSets[5] == null ) {
-		transactionTreeSets[5] = BigSackAdapter.getBigSackTransactionalTreeSet(rmd);
+	indexClasses[5] = rmd.getClass();
+	if( DEBUG || DEBUGREMOVE )
+		System.out.println("Relatrix.remove removed dmr:"+dmr);
+	try {
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+drm);
+			RelatrixKV.remove(drm);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+mdr);
+			RelatrixKV.remove(mdr);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+mrd);
+			RelatrixKV.remove(mrd);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+rdm);
+			RelatrixKV.remove(rdm);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+rmd);
+			RelatrixKV.remove(rmd);
+	} catch (IllegalArgumentException | ClassNotFoundException e) {
+		throw new IOException(e);
 	}
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removing dmr:"+dmr);
-	transactionTreeSets[0].remove(dmr);
-	
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removing drm:"+drm);
-	transactionTreeSets[1].remove(drm);
-
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removing mdr:"+mdr);
-	transactionTreeSets[2].remove(mdr);
-
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removing mrd:"+mrd);
-	transactionTreeSets[3].remove(mrd);
-
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removing rdm:"+rdm);
-	transactionTreeSets[4].remove(rdm);
-	
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removing rmd:"+rmd);
-	transactionTreeSets[5].remove(rmd);
 	
 }
 
@@ -573,12 +588,19 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
  */
 public static synchronized Object first() throws IOException
 {
-	if( transactionTreeSets[0] == null ) {
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
 		return null;
 	}
+	/*
 	Stack stack = new Stack();
 	TraversalStackElement tse = new TraversalStackElement(null,0,0);
 	return transactionTreeSets[0].first(tse, stack);
+	*/
+	try {
+		return RelatrixKV.firstKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
@@ -588,12 +610,19 @@ public static synchronized Object first() throws IOException
  */
 public static synchronized Object last() throws IOException
 {
-	if( transactionTreeSets[0] == null ) {
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
 		return null;
 	}
+	/*
 	Stack stack = new Stack();
 	TraversalStackElement tse = new TraversalStackElement(null,0,0);
 	return transactionTreeSets[0].last(tse, stack);
+	*/
+	try {
+		return RelatrixKV.lastKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
@@ -603,10 +632,15 @@ public static synchronized Object last() throws IOException
  */
 public static synchronized long size() throws IOException
 {
-	if( transactionTreeSets[0] == null ) {
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
 		return -1;
 	}
-	return transactionTreeSets[0].size();
+	//return transactionTreeSets[0].size();
+	try {
+		return RelatrixKV.size(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns whether the passed DomainMapRange
@@ -616,10 +650,15 @@ public static synchronized long size() throws IOException
  */
 public static synchronized boolean contains(Comparable obj) throws IOException
 {
-	if( transactionTreeSets[0] == null ) {
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
 		return false;
 	}
-	return transactionTreeSets[0].contains(obj);
+	//return transactionTreeSets[0].contains(obj);
+	try {
+		return RelatrixKV.contains(obj);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
 }
 
 public static void main(String[] args) throws Exception {

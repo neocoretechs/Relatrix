@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -82,6 +80,7 @@ public final class IndexInstanceTable {
 						throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered contrary to programmatic logic for key:%s%n",instance,index));
 						
 					}
+					classCommits.add(index.getClass());
 					classCommits.add(instance.getClass());
 				} else {
 					// instance is null, no instance in DBkey, keys are not valid, nothing to put.
@@ -105,6 +104,7 @@ public final class IndexInstanceTable {
 			}
 			RelatrixKV.remove(index);
 			RelatrixKV.remove(instance);
+			classCommits.add(index.getClass());
 			classCommits.add(instance.getClass());
 		}
 	}
@@ -161,11 +161,11 @@ public final class IndexInstanceTable {
 			if(o == null)
 				return null;
 			KeyValue kv = (KeyValue)o;
-			if(kv.getmValue() instanceof Morphism) {
-				Morphism m = ((Morphism)o);
-				KeySet ks = m.getKeys();
-				getByIndex(ks.getDomainKey());
-			}				
+			//if(kv.getmValue() instanceof Morphism) {
+			//	Morphism m = ((Morphism)o);
+			//	KeySet ks = m.getKeys();
+			//	getByIndex(ks.getDomainKey());
+			//}				
 			return kv.getmValue();
 		}
 	}
@@ -179,7 +179,6 @@ public final class IndexInstanceTable {
 	 */
 	public static DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
-			TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(instance.getClass());
 			classCommits.add(instance.getClass());
 			Object o = RelatrixKV.get((Comparable) instance);
 			if(o == null)

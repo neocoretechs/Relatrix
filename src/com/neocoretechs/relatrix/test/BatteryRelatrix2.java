@@ -21,7 +21,6 @@ import com.neocoretechs.relatrix.Relatrix;
  * as examples of Relatrix processing.
  * NOTES:
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
  * @author jg (C) 2016,2017
  *
  */

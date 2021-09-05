@@ -3,9 +3,10 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.TailSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
+//import com.neocoretechs.bigsack.iterator.TailSetIterator;
+//import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Implementation of the standard Iterator interface which operates on Morphisms formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
@@ -31,8 +32,8 @@ import com.neocoretechs.relatrix.Morphism;
  */
 public class RelatrixIterator implements Iterator<Comparable[]> {
 	private static boolean DEBUG = false;
-	TransactionalTreeSet deepStore;
-	protected TailSetIterator iter;
+	//TransactionalTreeSet deepStore;
+	protected Iterator iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
     private Morphism base;
@@ -45,12 +46,16 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixIterator(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
-    	this.deepStore = bts;
+    public RelatrixIterator(/*TransactionalTreeSet bts,*/ Morphism template, short[] dmr_return) throws IOException {
+    	//this.deepStore = bts;
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
-    	iter = (TailSetIterator) bts.tailSet(template);
+    	try {
+			iter = RelatrixKV.findTailMap(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}//(TailSetIterator) bts.tailSet(template);
     	if( iter.hasNext() ) {
 			buffer = (Morphism) iter.next();
 			if( !templateMatches(base, buffer, dmr_return) ) {

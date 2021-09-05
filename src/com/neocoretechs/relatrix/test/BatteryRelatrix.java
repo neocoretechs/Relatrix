@@ -74,7 +74,8 @@ public class BatteryRelatrix {
 	}
 	
 	/**
-	 * Tries to store partial key that should match existing keys, should reject all
+	 * Tries to store partial key that should match existing keys, should reject all.
+	 * Domain/map determines unique key
 	 * @param argv
 	 * @throws Exception
 	 */

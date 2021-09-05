@@ -112,7 +112,7 @@ public static synchronized void transactionCommit(Class clazz) throws IOExceptio
 	long startTime = System.currentTimeMillis();
 	BigSackAdapter.commitTransaction(clazz);
 		if( DEBUG || TRACE )
-			System.out.println("Committed treeSet "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
+			System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 }
 /**
  * Roll back all outstanding transactions on the indicies

@@ -1,6 +1,8 @@
 package com.neocoretechs.relatrix.test;
 
 
+import java.util.Iterator;
+
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
@@ -14,10 +16,8 @@ import com.neocoretechs.relatrix.Relatrix;
  * In general most of the battery1 testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * This module tests the transactional Relatrix methods. Storage and retrieval in a transaction context.
  * NOTES:
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
  * A database unique to this test module should be used.
  * @author jg C 2017
  *
@@ -37,7 +37,6 @@ public class TransactionBatteryRelatrix {
 		 //System.out.println("Analysis of all");
 		BigSackAdapter.setTableSpaceDir(argv[0]);
 		battery1(argv);
-		battery2(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
 	}
 	/**
@@ -49,40 +48,18 @@ public class TransactionBatteryRelatrix {
 		System.out.println("Battery1 ");
 		String fmap;
 		long tims = System.currentTimeMillis();
-		int dupes = 0;
 		int recs = 0;
-		String fkey = key + String.format(uniqKeyFmt, 99999);
-		for(int i = min; i < max; i++) {
-			fmap = "Has unit " + i;
-			try {
-				Relatrix.transactionalStore(fkey, fmap, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
+		Iterator<?> it = Relatrix.findSet("*", "*", "*");
+		//while(it.hasNext()) {
+			Object o = it.next();
+			Comparable[] c = (Comparable[])o;
+			System.out.println(++recs+"="+c[0]);
+			Relatrix.transactionalStore("Relation","has relationship",c[0]);
+		//}
+	
 		Relatrix.transactionCommit();
-		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
 	}
 	
-	public static void battery2(String[] argv) throws Exception {
-		System.out.println("Battery2 ");
-		String fmap;
-		long tims = System.currentTimeMillis();
-		int dupes = 0;
-		int recs = 0;
-		String fkey = key + String.format(uniqKeyFmt, 99999);
-		for(int i = min; i < max; i++) {
-			fmap = "Has unit " + i;
-			try {
-				Relatrix.transactionalStore(fkey, fmap, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		Relatrix.transactionCommit();
-		// These should all have failed with primary key rejection
-		if( recs > 0)
-			System.out.println("BATTERY2 FAIL in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-		else
-			System.out.println("BATTERY2 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-	}
-	
+
 }

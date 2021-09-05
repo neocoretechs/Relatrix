@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
+//import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
@@ -11,8 +11,8 @@ import com.neocoretechs.relatrix.Morphism;
  */
 public abstract class FilteringIterator extends RelatrixIterator implements FilterInterface {
 	private Morphism template;
-	public FilteringIterator(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
-		super(bts, template, dmr_return);
+	public FilteringIterator(/*TransactionalTreeSet bts,*/ Morphism template, short[] dmr_return) throws IOException {
+		super(/*bts,*/ template, dmr_return);
 		this.template = template;
 	}
 	/**

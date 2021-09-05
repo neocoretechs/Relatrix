@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
+//import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
 
@@ -40,6 +40,6 @@ public class FindSetMode1 extends IteratorFactory {
 	}
 	
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+	    return new RelatrixIterator(/*BigSackAdapter.getBigSackTransactionalTreeSet(tdmr),*/ tdmr, dmr_return);
 	}
 }
