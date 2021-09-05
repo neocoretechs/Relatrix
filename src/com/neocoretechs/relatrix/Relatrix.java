@@ -120,7 +120,7 @@ public final class Relatrix {
 public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 	if( d == null || m == null || r == null)
 		throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-	Morphism dmr = new DomainMapRange(d,m,r);
+	Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
 	// check for domain/map match
 	// Enforce categorical structure; domain->map function uniquely determines range.
 	// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -130,15 +130,14 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	((DomainMapRange)dmr).setUniqueKey(true);
 	//Stack stack = new Stack();
 	//KeySearchResult tsr = transactionTreeSets[0].locate(dmr, stack);
-	Object o = RelatrixKV.get(dmr);
-	((DomainMapRange)dmr).setUniqueKey(false);
-	if( DEBUG )
-		System.out.println("Relatrix.store Tree Search Result: "+o);//tsr);
-	if(o != null) { //tsr.atKey) {
+	//Object o = RelatrixKV.get(dmr);
+	//System.out.println("got"+o);
+	if(RelatrixKV.contains(dmr)) { //tsr.atKey) {
 		transactionRollback();
-		throw new DuplicateKeyException("dmr:"+o);//tsr);
+		throw new DuplicateKeyException("dmr:"+dmr);//tsr);
 	}
-	
+	((DomainMapRange)dmr).setUniqueKey(false);
+	dmr = new DomainMapRange(d,m,r);
 	Morphism identity = dmr;
 	DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
 	//transactionTreeSets[1] = BigSackAdapter.getBigSackTransactionalTreeSet(drm);
