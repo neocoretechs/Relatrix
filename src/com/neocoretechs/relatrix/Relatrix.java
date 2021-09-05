@@ -115,8 +115,23 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	if( d == null || m == null || r == null)
 		throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 	Morphism dmr = new DomainMapRange(d,m,r);
-	Morphism identity = dmr;
+	// check for domain/map match
+	// Enforce categorical structure; domain->map function uniquely determines range.
+	// If the search winds up at the key or the key is empty or the domain->map exists, the key
+	// cannot be inserted.
 	transactionTreeSets[0] = BigSackAdapter.getBigSackTransactionalTreeSet(dmr);
+	((DomainMapRange)dmr).setUniqueKey(true);
+	Stack stack = new Stack();
+	KeySearchResult tsr = transactionTreeSets[0].locate(dmr, stack);
+	((DomainMapRange)dmr).setUniqueKey(false);
+	if( DEBUG )
+		System.out.println("Relatrix.store Tree Search Result: "+tsr);
+	if(tsr.atKey) {
+		transactionRollback();
+		throw new DuplicateKeyException("Domain:"+d+" Map:"+m+" tsr:"+tsr);
+	}
+	
+	Morphism identity = dmr;
 	DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
 	transactionTreeSets[1] = BigSackAdapter.getBigSackTransactionalTreeSet(drm);
 	MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
@@ -129,22 +144,6 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	transactionTreeSets[5] = BigSackAdapter.getBigSackTransactionalTreeSet(rmd);
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
-	// check for domain/map match
-	// Enforce categorical structure; domain->map function uniquely determines range.
-	// If the search winds up at the key or the key is empty or the domain->map exists, the key
-	// cannot be inserted.
-	((DomainMapRange)dmr).setUniqueKey(true);
-	Stack stack = new Stack();
-	KeySearchResult tsr = transactionTreeSets[0].locate(dmr, stack);
-	((DomainMapRange)dmr).setUniqueKey(false);
-	if( DEBUG )
-		System.out.println("Relatrix.store Tree Search Result: "+tsr);
-	if(tsr.atKey) {
-			throw new DuplicateKeyException("Domain:"+d+" Map:"+m+" tsr:"+tsr);
-	}
-	
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing drm:"+dmr);
 	transactionTreeSets[0].put(dmr);
 	
 	if( DEBUG  )
@@ -198,8 +197,10 @@ public static synchronized void transactionRollback() throws IOException {
 	}
 	IndexInstanceTable.rollback();
 	for(int i = 0; i < transactionTreeSets.length; i++) {
-		transactionTreeSets[i].Rollback();
-		transactionTreeSets[i] = null;
+		if(transactionTreeSets[i] != null) {
+			transactionTreeSets[i].Rollback();
+			transactionTreeSets[i] = null;
+		}
 	}
 }
 /**

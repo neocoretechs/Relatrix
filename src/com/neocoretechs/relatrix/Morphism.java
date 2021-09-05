@@ -49,6 +49,20 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         }
         
         /**
+         * Constructor for the event when we have a keyset from a previous morphism.
+         * @param d
+         * @param m
+         * @param r
+         * @param keys
+         */
+        public Morphism(Comparable d, Comparable m, Comparable r, KeySet keys) {
+        	this.domain = d;
+            this.map = m;
+            this.range = r;
+            this.keys = keys;
+        }
+        
+        /**
          * Construct and establish key position for the elements of a morphism.
          * @param d
          * @param m
@@ -161,20 +175,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		
         public Morphism() {}
         
-  
-        /**
-         * Constructor for the event when we have a keyset from a previous morphism.
-         * @param d
-         * @param m
-         * @param r
-         * @param keys
-         */
-        public Morphism(Comparable d, Comparable m, Comparable r, KeySet keys) {
-        	this.domain = d;
-            this.map = m;
-            this.range = r;
-            this.keys = keys;
-        }
         /**
          * Failsafe compareTo.
          * If classes are not the same and the target is not assignable from the source, that is , not a subclass, toss an error

@@ -24,6 +24,7 @@ public final class IndexInstanceTable {
 	static Object mutex = new Object();
 	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	static volatile DBKey lastKey;
+	static volatile DBKey lastGoodKey;
 	static {
 		synchronized(mutex) {
 			Object lastKeyObject = null;
@@ -38,6 +39,7 @@ public final class IndexInstanceTable {
 		if(lastKeyObject == null)
 			lastKeyObject = new DBKey(0);
 		lastKey = (DBKey) lastKeyObject;
+		lastGoodKey = lastKey;
 		}
 	}
 	
@@ -118,6 +120,7 @@ public final class IndexInstanceTable {
 					RelatrixKV.transactionCommit(c);
 				}
 				classCommits.clear();
+				lastGoodKey = lastKey;
 			}
 		}
 	}
@@ -130,6 +133,7 @@ public final class IndexInstanceTable {
 					RelatrixKV.transactionRollback(it.next());
 				classCommits.clear();
 			}
+			lastKey = lastGoodKey; // account for increments
 		}
 	}
 	
