@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.key.KeySet;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
-public final class DomainMapRange extends Morphism {
+public class DomainMapRange extends Morphism {
 	private static final long serialVersionUID = 8664384659501163179L;
 	private static boolean uniqueKey = false;
 	

@@ -27,6 +27,8 @@ import com.neocoretechs.relatrix.key.KeySet;
 */
 public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		private static boolean DEBUG = false;
+		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
+		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
         static final long serialVersionUID = -9129948317265641091L;
         
 		private transient Comparable  domain;       // domain object
@@ -34,6 +36,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         private transient Comparable  range;        // range
         
         private KeySet keys;
+        
+        public Morphism() {}
         
         /**
          * Construct and establish key position for the elements of a morphism.
@@ -53,7 +57,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          * @param d
          * @param m
          * @param r
-         * @param keys
+         * @param keys The {@link KeySet} of a previous relationship that has the same keys, but perhaps in a different order.
          */
         public Morphism(Comparable d, Comparable m, Comparable r, KeySet keys) {
         	this.domain = d;
@@ -63,7 +67,9 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         }
         
         /**
-         * Construct and establish key position for the elements of a morphism.
+         * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
+         * and provide a default empty KeySet. A template is used for retrieval and checking for
+         * existence of relationships without creating a permanent entry in the database.
          * @param d
          * @param m
          * @param r
@@ -77,6 +83,25 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         
         public KeySet getKeys() { return keys; }
         public void setKeys(KeySet keys) { this.keys = keys; }
+        /**
+         * If true, enforces type checking for components of relationships. If classes are incompatible,
+         * an attempt is made to use a string representation as a default method of providing ordering. If false, STRICT_SCHEMA ignored.
+         * If false, User is responsible for providing compareTo in every class used in relationships that is compatible
+         * with every other class used in relationships for a given database. Default is true.
+         * @param bypass
+         */
+        public static void enforceTypeCheck(boolean enforce) {
+        	ENFORCE_TYPE_CHECK = enforce;
+        }
+        /**
+         * If true, schema if restricted to first relationship type inserted, which means sort
+         * ordering and comparison is based on the domain, map, and range elements remaining of consistent types
+         * which also restricts using relationships as components of other relationships. Default is false.
+         * @param strict
+         */
+        public static void enforceStrictSchema(boolean strict) {
+        	STRICT_SCHEMA = strict;
+        }
         
         /**
          * Transparently process DBKey, returning actual instance
@@ -95,11 +120,12 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				throw new RuntimeException(e);
 			}
 		}
+        
 		public void setDomain(Comparable<?> domain) {
 			try {
 				this.domain = domain;
 				if(domain == null)
-					keys.setDomainKey( new DBKey());
+					keys.setDomainKey(new DBKey());
 				else
 					keys.setDomainKey(DBKey.newKey(domain));
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -173,15 +199,15 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			keys.setRangeKey(new DBKey());
 		}
 		
-        public Morphism() {}
         
         /**
          * Failsafe compareTo.
-         * If classes are not the same and the target is not assignable from the source, that is , not a subclass, toss an error
-         * If none of the above conditions apply, the default is to perform a straight up 'compareTo' as we all implement Comparable
-         * @param from DBKey wrapping instance
-         * @param to DBKey wrapping instance
-         * @return
+         * If classes are not the same and the target is not assignable from the source, that is, not a subclass, toss an error
+         * If none of the above conditions apply, the default is to perform a straight up 'compareTo' as we all implement Comparable.
+         * 
+         * @param from DBKey wrapping instance If null, this element 'less than' to element, for template use
+         * @param to DBKey wrapping instance If null, throw an error, as should never be null
+         * @return result of compareTo unless classes differ, then result of string-based compareTo as we need some form of default comparison
          */
         @SuppressWarnings({ "unchecked", "rawtypes" })
 		public static int fullCompareTo(Comparable from, Comparable to) {
@@ -194,13 +220,17 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	if(from == null)
         		return -1;
          	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
-        	// the string representations as a failsafe.	
-        	Class toClass = to.getClass();
-        	if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass())) {
-        		//compare a universal string representation as a unifying datatype for typed class templates
-        		//return from.toString().compareTo(to.toString());
-        		throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
-        				" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
+        	// the string representations as a failsafe.
+        	if(ENFORCE_TYPE_CHECK) {
+        		Class toClass = to.getClass();
+        		if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass())) {
+        			if(STRICT_SCHEMA)
+        				throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
+        						" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
+        			else
+        				//compare a universal string representation as a unifying datatype for typed class templates
+        				return from.toString().compareTo(to.toString());
+        		}
         	}
         	// Otherwise, use the standard compareTo for all objects which invokes our indicies
         	// DBKey comapreTo handles resolution of key to instance

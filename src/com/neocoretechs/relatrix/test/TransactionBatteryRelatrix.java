@@ -50,13 +50,12 @@ public class TransactionBatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		int recs = 0;
 		Iterator<?> it = Relatrix.findSet("*", "*", "*");
-		//while(it.hasNext()) {
+		while(it.hasNext()) {
 			Object o = it.next();
 			Comparable[] c = (Comparable[])o;
 			System.out.println(++recs+"="+c[0]);
-			Relatrix.transactionalStore("Relation","has relationship",c[0]);
-		//}
-	
+			Relatrix.transactionalStore(c[0],"has identity",c[0]);
+		}
 		Relatrix.transactionCommit();
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
 	}

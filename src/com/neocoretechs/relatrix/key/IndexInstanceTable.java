@@ -18,28 +18,9 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public final class IndexInstanceTable {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	static Object mutex = new Object();
 	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
-	static volatile DBKey lastKey;
-	static volatile DBKey lastGoodKey;
-	static {
-		synchronized(mutex) {
-			Object lastKeyObject = null;
-			try {
-				classCommits.add(DBKey.class);
-				lastKeyObject = RelatrixKV.lastKey(DBKey.class);
-			} catch (IllegalAccessException | IOException e) {
-				System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
-				e.printStackTrace();
-				System.exit(1);
-			}
-		if(lastKeyObject == null)
-			lastKeyObject = new DBKey(0);
-		lastKey = (DBKey) lastKeyObject;
-		lastGoodKey = lastKey;
-		}
-	}
 	
 	/**
 	 * Put the key to the proper tables
@@ -50,6 +31,8 @@ public final class IndexInstanceTable {
 	 */
 	public static void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.put index=%s instance=%s valid=%s%n", index.getClass().getName(), index, instance, String.valueOf(index.isValid()));
 			if(index.isValid() ) {
 				// index is valid
 				if(instance == null) // but instance is null
@@ -61,23 +44,23 @@ public final class IndexInstanceTable {
 					DBKey i = getByInstance(instance);
 					// index by instance valid, instance value present in table, index valid, key fully formed
 					if( i != null) {
-						index.setInstanceIndex(i.getInstanceIndex());
+						if(DEBUG)
+							System.out.printf("%s.put(%s) found DBKey by instance=%s%n", index.getClass().getName(), i, instance);
 						return;
 					}
-					// instance index not valid, object instance present in DBkey, but instance is not indexed in table.
-					lastKey.increment();
-					index.setInstanceIndex(lastKey.getInstanceIndex());
+					// instance index not valid, object instance not null, ok to form key
+					index.setInstanceIndex();
 					if(DEBUG)
-						System.out.printf("%s.put(%s)%n", index.getClass().getName(), index);
+						System.out.printf("%s.put(%s) set index instance=%s%n", index.getClass().getName(), index, instance);
 					try {
 						RelatrixKV.transactionalStore(index, instance);
 					} catch(DuplicateKeyException dke) {
-						throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered contrary to programmatic logic for instance:%s%n",index,instance));
+						throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
 					}
 					try {
 						RelatrixKV.transactionalStore(instance, index);
 					} catch(DuplicateKeyException dke) {
-						throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered contrary to programmatic logic for key:%s%n",instance,index));
+						throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));
 						
 					}
 					classCommits.add(index.getClass());
@@ -97,10 +80,10 @@ public final class IndexInstanceTable {
 				// index is valid
 				instance = (Comparable) getByIndex(index);
 				if(instance == null) // but instance is null
-					throw new IllegalAccessException("DBKey is in an invalid state: valid index but strangeley, no valid instance it refers to.");				
+					throw new IllegalAccessException("DBKey is in an invalid state: valid index but strangeley, no valid instance it refers to. index="+index);				
 			} else {
 				// no instance in DBkey, keys are not valid, nothing to delete.
-				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
+				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index. index="+index);
 			}
 			RelatrixKV.remove(index);
 			RelatrixKV.remove(instance);
@@ -120,7 +103,7 @@ public final class IndexInstanceTable {
 					RelatrixKV.transactionCommit(c);
 				}
 				classCommits.clear();
-				lastGoodKey = lastKey;
+				DBKey.setLastGoodKey();
 			}
 		}
 	}
@@ -133,7 +116,7 @@ public final class IndexInstanceTable {
 					RelatrixKV.transactionRollback(it.next());
 				classCommits.clear();
 			}
-			lastKey = lastGoodKey; // account for increments
+			DBKey.setLastKey(); // account for increments
 		}
 	}
 	

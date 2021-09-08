@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.neocoretechs.relatrix.RelatrixKV;
+
 /**
  * Class fronts the actual instances in the Relatrix relations so as to normalize those actual instances.<p/>
  * Since our relations are composed of multiple indexes of otherwise redundant data, we need to have a means of
@@ -14,13 +16,37 @@ import java.io.Serializable;
  */
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
+	static DBKey lastKey;
+	static DBKey lastGoodKey;
 	private Integer instanceIndex = new Integer(-1);
+	private static Object mutex = new Object();
+	static {
+		synchronized(mutex) {
+			Object lastKeyObject = null;
+			try {
+				IndexInstanceTable.classCommits.add(DBKey.class);
+				lastKeyObject = RelatrixKV.lastKey(DBKey.class);
+			} catch (IllegalAccessException | IOException e) {
+				System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
+				e.printStackTrace();
+				System.exit(1);
+			}
+			if(lastKeyObject == null) {
+				lastKeyObject = new DBKey(0);
+			}
+			lastKey = (DBKey) lastKeyObject;
+			setLastGoodKey();
+			if(DEBUG) {
+				System.out.printf("lastKey=%slastGoodKey=%s%n", lastKey, lastGoodKey);
+			}
+		}
+	}
 	
 	public DBKey() {}
 	
-	public DBKey(int index) {
-		instanceIndex = new Integer(index);
+	private DBKey(Integer instanceIndex) {
+		this.instanceIndex = instanceIndex;
 	}
 	
 	protected Integer getInstanceIndex() {
@@ -29,10 +55,24 @@ public final class DBKey implements Comparable, Serializable {
 		}
 	}
 	
-	protected void setInstanceIndex(Integer index) {
+	protected void setInstanceIndex() {
 		synchronized(instanceIndex) {
-			instanceIndex = new Integer(index);
+			instanceIndex = new Integer(++lastKey.instanceIndex);
 		}
+	}
+	
+	/**
+	 * For commit
+	 */
+	protected static void setLastGoodKey() {
+		lastGoodKey = new DBKey(lastKey.instanceIndex);
+	}
+	
+	/**
+	 * For rollback
+	 */
+	protected static void setLastKey() {
+		lastKey = new DBKey(lastGoodKey.instanceIndex);
 	}
 	
 	public boolean isValid() {
@@ -41,11 +81,6 @@ public final class DBKey implements Comparable, Serializable {
 		}
 	}
 	
-	public void increment() {
-		synchronized(instanceIndex) {
-			++instanceIndex;
-		}
-	}
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
 	 * The instance then receives and index into the instance table and the index table.
@@ -57,6 +92,7 @@ public final class DBKey implements Comparable, Serializable {
 	 */
 	public static DBKey newKey(Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 		DBKey index = new DBKey();
+		index.setInstanceIndex();
 		try {
 			IndexInstanceTable.put(index, (Comparable) instance); // the passed key is updated
 		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {

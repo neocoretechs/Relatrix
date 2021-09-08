@@ -10,7 +10,7 @@ import com.neocoretechs.relatrix.key.KeySet;
 * based on any number of possible operators and objects passed to the various 'findSet' permutations.
 * @author Jonathan Groff (C) NeoCoreTechs 2014,2015,2021
 */ 
-public final class MapDomainRange extends Morphism {
+public class MapDomainRange extends Morphism {
 	private static final long serialVersionUID = -3223516008906545636L;
     public MapDomainRange() {}
     
