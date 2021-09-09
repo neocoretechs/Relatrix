@@ -54,22 +54,22 @@ public class FindSetStreamMode0 extends StreamFactory {
 		Morphism dmr = null;
 		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
 			case 0: // dmr
-				dmr = new DomainMapRange(null, null, null);
+				dmr = new DomainMapRange(null, null, null, true);
 				break;
 			case 1: // drm
-				dmr = new DomainRangeMap(null, null, null);
+				dmr = new DomainRangeMap(null, null, null, true);
 				break;
 			case 2: // mdr
-				dmr = new MapDomainRange(null, null, null);
+				dmr = new MapDomainRange(null, null, null, true);
 				break;
 			case 3: // mrd
-				dmr = new MapRangeDomain(null, null, null);
+				dmr = new MapRangeDomain(null, null, null, true);
 				break;
 			case 4: // rdm
-				dmr = new RangeDomainMap(null, null, null);
+				dmr = new RangeDomainMap(null, null, null, true);
 				break;
 			case 5: // rmd
-				dmr = new RangeMapDomain(null, null, null);
+				dmr = new RangeMapDomain(null, null, null, true);
 				break;
 		}
 		if( DEBUG  )

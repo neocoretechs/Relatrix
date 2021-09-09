@@ -223,9 +223,9 @@ public static synchronized void transactionCheckpoint() throws IOException, Ille
 /**
 * Delete all relationships that this object participates in
 * @exception IOException low-level access or problems modifiying schema
- * @throws IllegalAccessException 
- * @throws ClassNotFoundException 
- * @throws IllegalArgumentException 
+* @throws IllegalAccessException 
+* @throws ClassNotFoundException 
+* @throws IllegalArgumentException 
 */
 public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
@@ -233,15 +233,28 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 		System.out.println("Relatrix.remove prepping to remove:"+c);
 	removeRecursive(c);
 	try {
-		IndexInstanceTable.delete(IndexInstanceTable.getByInstance(c));
+		DBKey dbKey = IndexInstanceTable.getByInstance(c);
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
+		if(dbKey != null) {
+			IndexInstanceTable.delete(dbKey);
+		}
 		RelatrixKV.remove(c);
 	} catch (DuplicateKeyException e) {
 		throw new IOException(e);
 	}
 	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove exiting remove for key:"+c+" should have removed ");
+		System.out.println("Relatrix.remove exiting remove for key:"+c);
 }
-
+/**
+ * Iterate through all possible relationships the given element may participate in, then recursively process those
+ * relationships to remove references to those.
+ * @param c
+ * @throws IOException
+ * @throws IllegalArgumentException
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ */
 private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 	ArrayList<Morphism> m = new ArrayList<Morphism>();
 	try {
@@ -252,7 +265,10 @@ private static synchronized void removeRecursive(Comparable<?> c) throws IOExcep
 				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
 			m.add((Morphism) o[0]); 
 		}
-	} catch(RuntimeException re) { /*re.printStackTrace();*/} // We can get this exception if the class types differ in domain
+	} catch(RuntimeException re) {
+		if( DEBUG || DEBUGREMOVE)
+			re.printStackTrace();
+	} // We can get this exception if the class types differ in domain
 	try {
 		Iterator<?> it = findSet("*",c,"*");
 		while(it.hasNext()) {
@@ -261,7 +277,10 @@ private static synchronized void removeRecursive(Comparable<?> c) throws IOExcep
 				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
 			m.add((Morphism) o[0]); 
 		}
-	} catch(RuntimeException re) {/*re.printStackTrace();*/} // we can get this exception if map class types differ
+	} catch(RuntimeException re) {
+		if( DEBUG || DEBUGREMOVE)
+			re.printStackTrace();
+	} // we can get this exception if map class types differ
 	try {
 		Iterator<?> it = findSet("*","*",c);
 		while(it.hasNext()) {
@@ -270,42 +289,50 @@ private static synchronized void removeRecursive(Comparable<?> c) throws IOExcep
 				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
 			m.add((Morphism) o[0]); 
 		}
-	} catch(RuntimeException re) { /*re.printStackTrace();*/ } // we can get this exception if range class types differ
+	} catch(RuntimeException re) { 
+		if( DEBUG || DEBUGREMOVE)
+			re.printStackTrace(); 
+	} // we can get this exception if range class types differ
 	// Process our array of candidates
 	for(Morphism mo : m) {
 		if( DEBUG || DEBUGREMOVE)
-			System.out.println("Relatrix.remove removing"+mo);
+			System.out.println("Relatrix.remove removing:"+mo);
 		remove(mo.getDomain(), mo.getMap(), mo.getRange());
 		// if this morphism participates in any relationship. remove that relationship recursively
 		removeRecursive(mo);
 	}
 }
 /**
- * Delete specific relationship and all relationships that it participates in
+ * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
+ * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
  * @param d
  * @param m
  * @param r
  * @throws IllegalAccessException 
  */
 public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
-	Morphism dmr = new DomainMapRange(d,m,r);
+	Morphism dmr = new DomainMapRange(d,m,r,true);
 	indexClasses[0] = dmr.getClass();
-	DomainRangeMap drm = new DomainRangeMap(d,m,r);
+	DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
 	indexClasses[1] = drm.getClass();
-	MapDomainRange mdr = new MapDomainRange(d,m,r);
+	MapDomainRange mdr = new MapDomainRange(d,m,r,true);
 	indexClasses[2] = mdr.getClass();
-	MapRangeDomain mrd = new MapRangeDomain(d,m,r);
+	MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
 	indexClasses[3] = mrd.getClass();
-	RangeDomainMap rdm = new RangeDomainMap(d,m,r);
+	RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
 	indexClasses[4] = rdm.getClass();
-	RangeMapDomain rmd = new RangeMapDomain(d,m,r);
+	RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
 	indexClasses[5] = rmd.getClass();
-	Object o = RelatrixKV.get(dmr);
-	if(o == null)
-		return;
-	KeyValue kv = (KeyValue)o;
-	DBKey dbKey = (DBKey) kv.getmValue();
+
 	try {
+		Object o = RelatrixKV.get(dmr);
+		if(o == null) {
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove could not find relationship dmr:"+dmr);
+			return;
+		}
+		KeyValue kv = (KeyValue)o;
+		DBKey dbKey = (DBKey) kv.getmValue();
 		IndexInstanceTable.delete(dbKey);
 		o = RelatrixKV.get(drm);
 		if(o == null)
@@ -341,9 +368,10 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 		throw new IOException(e);
 	}
 
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove removed dmr:"+dmr);
 	try {
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.remove removing dmr:"+dmr);
+			RelatrixKV.remove(dmr);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("Relatrix.remove removing "+drm);
 			RelatrixKV.remove(drm);

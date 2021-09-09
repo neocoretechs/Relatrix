@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  */
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	static DBKey lastKey;
 	static DBKey lastGoodKey;
 	private Integer instanceIndex = new Integer(-1);

@@ -7,7 +7,6 @@ import java.util.LinkedHashSet;
 
 import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -18,7 +17,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public final class IndexInstanceTable {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static Object mutex = new Object();
 	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	
@@ -79,16 +78,16 @@ public final class IndexInstanceTable {
 			if(index.isValid() ) {
 				// index is valid
 				instance = (Comparable) getByIndex(index);
-				if(instance == null) // but instance is null
-					throw new IllegalAccessException("DBKey is in an invalid state: valid index but strangeley, no valid instance it refers to. index="+index);				
+				if(instance != null) {
+					RelatrixKV.remove(instance);
+					classCommits.add(instance.getClass());
+				}						
 			} else {
 				// no instance in DBkey, keys are not valid, nothing to delete.
 				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index. index="+index);
 			}
 			RelatrixKV.remove(index);
-			RelatrixKV.remove(instance);
-			classCommits.add(index.getClass());
-			classCommits.add(instance.getClass());
+			classCommits.add(index.getClass());	
 		}
 	}
 	
@@ -144,11 +143,6 @@ public final class IndexInstanceTable {
 			if(o == null)
 				return null;
 			KeyValue kv = (KeyValue)o;
-			//if(kv.getmValue() instanceof Morphism) {
-			//	Morphism m = ((Morphism)o);
-			//	KeySet ks = m.getKeys();
-			//	getByIndex(ks.getDomainKey());
-			//}				
 			return kv.getmValue();
 		}
 	}
