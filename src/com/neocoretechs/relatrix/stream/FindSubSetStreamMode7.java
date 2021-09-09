@@ -1,10 +1,8 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
@@ -46,7 +44,7 @@ public class FindSubSetStreamMode7 extends FindSetStreamMode7 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return (Stream<?>) new RelatrixSubsetStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return (Stream<?>) new RelatrixSubsetStream( tdmr, templdmr, dmr_return);
 	 }
 
 }

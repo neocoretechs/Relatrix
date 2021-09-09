@@ -1,18 +1,22 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Mode 4.
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
-* [object],*,* [object],*,? [object],?,? [object],?,*
-* [TemplateClass],*,* [TemplateClass],*,? [TemplateClass],?,? [TemplateClass],?,*
-*
+* [object],*,* 
+* [object],*,? 
+* [object],?,? 
+* [object],?,*
+* [TemplateClass],*,* 
+* [TemplateClass],*,? 
+* [TemplateClass],?,? 
+* [TemplateClass],?,*
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
 */
 public class FindSubSetStreamMode4 extends FindSetStreamMode4 {
 	Object[] xarg;
@@ -39,6 +43,6 @@ public class FindSubSetStreamMode4 extends FindSetStreamMode4 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return (Stream<?>) new RelatrixSubsetStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return (Stream<?>) new RelatrixSubsetStream(tdmr, templdmr, dmr_return);
 	   }
 }

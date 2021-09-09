@@ -22,9 +22,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.iterator.SubSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.stream.SubSetStream;
+import com.neocoretechs.relatrix.RelatrixKV;
+
 /**
  * Our main representable analog. Instances of this class deliver the set of keys
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
@@ -32,15 +31,19 @@ import com.neocoretechs.bigsack.stream.SubSetStream;
  *
  */
 public class RelatrixSubmapStream<T> implements Stream<T> {
-	protected SubSetStream stream;
+	protected Stream stream;
     protected boolean needsIter = false;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixSubmapStream(TransactionalTreeMap bts, Comparable template, Comparable template2) throws IOException {
-    	stream = (SubSetStream) bts.subMapStream(template, template2);
+    public RelatrixSubmapStream(Comparable template, Comparable template2) throws IOException {
+    	try {
+			stream = RelatrixKV.findSubMapStream(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override
@@ -60,22 +63,22 @@ public class RelatrixSubmapStream<T> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

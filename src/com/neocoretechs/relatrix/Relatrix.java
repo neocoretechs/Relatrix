@@ -127,6 +127,8 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 		throw new DuplicateKeyException("dmr:"+dmr);//tsr);
 	}
 	((DomainMapRange)dmr).setUniqueKey(false);
+	// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+	// and maintains the classes stores in IndexInstanceTable for future commit.
 	dmr = new DomainMapRange(d,m,r);
 	Morphism identity = dmr;
 	DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
@@ -140,6 +142,8 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
 	indexClasses[5] = rmd.getClass();
 	DBKey dbKey = null;
+	// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
+	indexClasses[0] = null; // remove dmr from our commit lineup
 	try {
 		dbKey = DBKey.newKey(dmr);
 	} catch (ClassNotFoundException e) {
@@ -147,26 +151,26 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	} // store primary key, then use it as value for index keys
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
-	RelatrixKV.transactionalStore(dmr,  dbKey);
+	RelatrixKV.transactionalStore(dmr, dbKey);
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing drm:"+drm);
-	RelatrixKV.transactionalStore(drm,  dbKey);
+	RelatrixKV.transactionalStore(drm, dbKey);
 	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
-	RelatrixKV.transactionalStore(mdr,  dbKey);
+	RelatrixKV.transactionalStore(mdr, dbKey);
 	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
-	RelatrixKV.transactionalStore(mrd,  dbKey);
+	RelatrixKV.transactionalStore(mrd, dbKey);
 
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
-	RelatrixKV.transactionalStore(rdm,  dbKey);
+	RelatrixKV.transactionalStore(rdm, dbKey);
 	
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
-	RelatrixKV.transactionalStore(rmd,  dbKey);
+	RelatrixKV.transactionalStore(rmd, dbKey);
 	
 	return (DomainMapRange) identity;
 }
@@ -175,8 +179,10 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
  * @throws IOException
  */
 public static synchronized void transactionCommit() throws IOException {
+	// first commit components of relationships
 	IndexInstanceTable.commit();
-	for(int i = 0; i < indexClasses.length/*transactionTreeSets.length*/; i++) {
+	// now commit main relationship and index classes
+	for(int i = 0; i < indexClasses.length; i++) {
 		long startTime = System.currentTimeMillis();
 		if(indexClasses[i] != null) {
 			if( DEBUG || TRACE )
@@ -193,8 +199,10 @@ public static synchronized void transactionCommit() throws IOException {
  * @throws IOException
  */
 public static synchronized void transactionRollback() throws IOException {
+	// first roll back components
 	IndexInstanceTable.rollback();
-	for(int i = 0; i < /*transactionTreeSets*/indexClasses.length; i++) {
+	// Now roll back relationships
+	for(int i = 0; i < indexClasses.length; i++) {
 		if(indexClasses[i] != null) {
 			RelatrixKV.transactionRollback(indexClasses[i]);
 			indexClasses[i] = null;
@@ -216,7 +224,7 @@ public static synchronized void transactionRollback() throws IOException {
 public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
 	IndexInstanceTable.checkpoint();
 	for(int i = 0; i < indexClasses.length; i++) {
-		if(indexClasses[1] != null)
+		if(indexClasses[i] != null)
 			RelatrixKV.transactionCheckpoint(indexClasses[i]);
 	}
 }

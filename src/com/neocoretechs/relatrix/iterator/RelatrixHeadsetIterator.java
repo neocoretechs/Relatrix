@@ -3,9 +3,8 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.HeadSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
@@ -21,7 +20,7 @@ import com.neocoretechs.relatrix.Morphism;
  *
  */
 public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
-	protected HeadSetIterator iter;
+	protected Iterator iter;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
 
@@ -32,10 +31,14 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIterator(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIterator(Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
-    	iter = (HeadSetIterator) bts.headSet(template);
+    	try {
+			iter = RelatrixKV.findHeadMap(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override

@@ -22,9 +22,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.bigsack.stream.TailSetStream;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
@@ -50,8 +49,7 @@ import com.neocoretechs.relatrix.Morphism;
  */
 public class RelatrixStream<T> implements Stream<T> {
 	private static boolean DEBUG = false;
-	TransactionalTreeSet deepStore;
-	protected TailSetStream stream;
+	protected Stream stream;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
     private Morphism base;
@@ -64,12 +62,15 @@ public class RelatrixStream<T> implements Stream<T> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixStream(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
-    	this.deepStore = bts;
+    public RelatrixStream(Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
-    	stream = (TailSetStream) bts.tailSetStream(template);
+    	try {
+			stream = RelatrixKV.keySetStream(template.getClass());
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
 
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
@@ -93,22 +94,22 @@ public class RelatrixStream<T> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

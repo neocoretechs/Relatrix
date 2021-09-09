@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.test;
 
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.neocoretechs.bigsack.session.BigSackAdapter;
@@ -36,8 +37,31 @@ public class TransactionBatteryRelatrix {
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
 		BigSackAdapter.setTableSpaceDir(argv[0]);
+		battery0(argv);
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
+		System.exit(1);
+	}
+	/**
+	 * Loads up on keys
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery0(String[] argv) throws Exception {
+		System.out.println("Battery0 ");
+		long tims = System.currentTimeMillis();
+		int dupes = 0;
+		int recs = 0;
+		String fkey = null;
+		for(int i = min; i < max; i++) {
+			fkey = key + String.format(uniqKeyFmt, i);
+			try {
+				Relatrix.transactionalStore(fkey, "Has unit", new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		Relatrix.transactionCommit();
+		 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	/**
 	 * Loads up on keys, we have same domain with multiple maps to test unique keys in multiple domains with same map
@@ -50,11 +74,21 @@ public class TransactionBatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		int recs = 0;
 		Iterator<?> it = Relatrix.findSet("*", "*", "*");
+		ArrayList<Comparable> ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Comparable[] c = (Comparable[])o;
 			System.out.println(++recs+"="+c[0]);
-			Relatrix.transactionalStore(c[0],"has identity",c[0]);
+			//Relatrix.transactionalStore(c[0],"has identity",c[0]);
+			ar.add(c[0]);
+		}
+		for(Comparable c: ar) {
+			System.out.println("About to store functor:"+c);
+			try {
+			Relatrix.transactionalStore(c,"has identity",c);
+			} catch(DuplicateKeyException dce) {
+				System.out.println("Caught a dupe key for functor:"+c);
+			}
 		}
 		Relatrix.transactionCommit();
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);

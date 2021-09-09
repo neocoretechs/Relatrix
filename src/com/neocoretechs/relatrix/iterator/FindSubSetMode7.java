@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
@@ -14,7 +13,7 @@ import com.neocoretechs.relatrix.Morphism;
 * This winds up serving 2 functions. One is identity morphism retrieval if we get 3 objects that are not
 * the argument acts as a wildcard (*) or a tuple (?) for instances of that
 * class.
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
 */
 public class FindSubSetMode7 extends FindSetMode7 {
 	Object[] xarg;
@@ -45,7 +44,7 @@ public class FindSubSetMode7 extends FindSetMode7 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return new RelatrixSubsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return new RelatrixSubsetIterator(tdmr, templdmr, dmr_return);
 	 }
 
 }

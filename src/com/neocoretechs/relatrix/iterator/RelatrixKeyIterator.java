@@ -3,8 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.TailSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
@@ -14,8 +13,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  */
 public class RelatrixKeyIterator implements Iterator<Comparable> {
 	private static boolean DEBUG = false;
-	TransactionalTreeMap deepStore;
-	protected TailSetIterator iter;
+	protected Iterator iter;
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
@@ -24,9 +22,12 @@ public class RelatrixKeyIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixKeyIterator(TransactionalTreeMap bts, Comparable template) throws IOException {
-    	this.deepStore = bts;
-    	iter = (TailSetIterator) bts.tailMap(template);
+    public RelatrixKeyIterator(Comparable template) throws IOException {
+    	try {
+			iter = RelatrixKV.findTailMap(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
     	if( DEBUG )
@@ -68,6 +69,5 @@ public class RelatrixKeyIterator implements Iterator<Comparable> {
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
 	}
-	
 
 }

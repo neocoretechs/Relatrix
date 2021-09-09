@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Morphism;
-//import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 
 /**
 * Identity morphism retrieval.
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105,2017 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021
 */
 public class FindSetMode7 extends IteratorFactory {
 	// mode 7
@@ -36,6 +35,6 @@ public class FindSetMode7 extends IteratorFactory {
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator(/*BigSackAdapter.getBigSackTransactionalTreeSet(tdmr),*/ tdmr, dmr_return);
+	    return new RelatrixIterator( tdmr, dmr_return);
 	}
 }

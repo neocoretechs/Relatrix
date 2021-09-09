@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-//import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
 
@@ -13,7 +12,7 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 * Legal permutations are
 * *,*,[object] *,?,[object] ?,?,[object] ?,*,[object]
 * *,*,[TemplateClass] *,?,[TemplateClass] ?,?,[TemplateClass] ?,*,[TemplateClass]
-* * @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2105
+* * @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
 public class FindSetMode1 extends IteratorFactory {
@@ -40,6 +39,6 @@ public class FindSetMode1 extends IteratorFactory {
 	}
 	
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator(/*BigSackAdapter.getBigSackTransactionalTreeSet(tdmr),*/ tdmr, dmr_return);
+	    return new RelatrixIterator( tdmr, dmr_return);
 	}
 }

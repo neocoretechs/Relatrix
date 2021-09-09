@@ -1,10 +1,8 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
@@ -25,6 +23,6 @@ public class FindHeadSetStreamMode7 extends FindSetStreamMode7 {
  
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return (Stream<?>) new RelatrixHeadsetStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+	    return (Stream<?>) new RelatrixHeadsetStream(tdmr, dmr_return);
 	}
 }

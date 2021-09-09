@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.HeadSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.relatrix.RelatrixKV;
+
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
  * to set the upper bound of the correct range search for the properly ordered set of subclasses;
@@ -14,8 +14,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  */
 public class RelatrixHeadmapIterator implements Iterator<Comparable> {
 	private static boolean DEBUG = false;
-	TransactionalTreeMap deepStore;
-	protected HeadSetIterator iter;
+	protected Iterator iter;
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
@@ -24,9 +23,13 @@ public class RelatrixHeadmapIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadmapIterator(TransactionalTreeMap bts, Comparable template) throws IOException {
-    	this.deepStore = bts;
-    	iter = (HeadSetIterator) bts.headMap(template);
+    public RelatrixHeadmapIterator(Comparable template) throws IOException {
+
+    	try {
+			iter = RelatrixKV.findHeadMap(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
     	if( DEBUG )

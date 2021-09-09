@@ -22,9 +22,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
-import com.neocoretechs.bigsack.stream.HeadSetStream;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array is returned representing the
@@ -40,7 +39,7 @@ import com.neocoretechs.relatrix.Morphism;
  *
  */
 public class RelatrixHeadsetStream<T> implements Stream<T> {
-	protected HeadSetStream stream;
+	protected Stream stream;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
 
@@ -51,10 +50,14 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetStream(TransactionalTreeSet bts, Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetStream(Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
-    	stream = (HeadSetStream) bts.headSetStream(template);
+    	try {
+			stream = RelatrixKV.findHeadMapStream(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override
@@ -74,22 +77,22 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

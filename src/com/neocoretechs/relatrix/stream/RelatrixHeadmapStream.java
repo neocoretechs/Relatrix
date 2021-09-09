@@ -22,8 +22,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.stream.HeadSetStream;
+import com.neocoretechs.relatrix.RelatrixKV;
+
 /**
  * Implementation of the standard stream interface 
  * to set the upper bound of the correct range search for the properly ordered set of subclasses;
@@ -33,16 +33,18 @@ import com.neocoretechs.bigsack.stream.HeadSetStream;
  */
 public class RelatrixHeadmapStream<T> implements Stream<T> {
 	private static boolean DEBUG = false;
-	TransactionalTreeMap deepStore;
-	protected HeadSetStream stream;
+	protected Stream stream;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadmapStream(TransactionalTreeMap bts, Comparable template) throws IOException {
-    	this.deepStore = bts;
-    	stream = (HeadSetStream) bts.headMapStream(template);
+    public RelatrixHeadmapStream(Comparable template) throws IOException {
+    	try {
+			stream = RelatrixKV.findHeadMapStream(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     	if( DEBUG )
 			System.out.println("RelatrixHeadmapStream "+stream);
     }
@@ -64,22 +66,22 @@ public class RelatrixHeadmapStream<T> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

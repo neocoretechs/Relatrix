@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
@@ -14,7 +13,7 @@ import com.neocoretechs.relatrix.Morphism;
 * instance, the class functions as template for the enclosed class to retrieve objects of that class (or subclass).
 * Depending on the subclass of TemplateClass, the argument acts as a wildcard (*) or a tuple (?) for instances of that
 * class. Category theory analog is a representable. 
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105 
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015.2021 
 */
 public class FindHeadSetMode7 extends FindSetMode7 {
 	// mode 7
@@ -24,6 +23,6 @@ public class FindHeadSetMode7 extends FindSetMode7 {
  
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixHeadsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+	    return new RelatrixHeadsetIterator(tdmr, dmr_return);
 	}
 }

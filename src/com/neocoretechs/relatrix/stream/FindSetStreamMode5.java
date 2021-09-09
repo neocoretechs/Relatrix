@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DomainRangeMap;
 
 /**
@@ -14,8 +13,10 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 * in the case of findSet(object,"*",object) where the identity is returned for each relationship where the objects match
 * the specified two objects in the findSet.
 * Legal permutations are
-* [object],*,[object] [object],?,[object]
-* [TemplateClass],*,[TemplateClass] [TemplateClass],?,[TemplateClass]
+* [object],*,[object] 
+* [object],?,[object]
+* [TemplateClass],*,[TemplateClass] 
+* [TemplateClass],?,[TemplateClass]
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105,2021
 * 
 */
@@ -46,6 +47,6 @@ public class FindSetStreamMode5 extends StreamFactory {
 	}
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr)throws IllegalAccessException, IOException {
-		return new RelatrixStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+		return new RelatrixStream(tdmr, dmr_return);
 	}
 }

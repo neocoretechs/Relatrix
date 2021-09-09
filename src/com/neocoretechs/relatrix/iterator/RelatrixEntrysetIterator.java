@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.EntrySetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.relatrix.RelatrixKV;
+
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
@@ -14,8 +14,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  */
 public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 	private static boolean DEBUG = false;
-	TransactionalTreeMap deepStore;
-	protected EntrySetIterator iter;
+	protected Iterator iter;
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
@@ -24,14 +23,21 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetIterator(TransactionalTreeMap bts) throws IOException {
-    	this.deepStore = bts;
-    	iter = (EntrySetIterator) bts.entrySet();
+    public RelatrixEntrysetIterator(Class c) throws IOException {
+    	try {
+			iter = RelatrixKV.entrySet(c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
     	}
+    }
+    
+    public RelatrixEntrysetIterator(Comparable c) throws IOException {
+    	this(c.getClass());
     }
     
 	@Override

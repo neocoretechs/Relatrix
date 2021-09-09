@@ -22,8 +22,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.stream.EntrySetStream;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
@@ -33,19 +32,25 @@ import com.neocoretechs.bigsack.stream.EntrySetStream;
  */
 public class RelatrixEntrysetStream<T> implements Stream<T> {
 	private static boolean DEBUG = false;
-	TransactionalTreeMap deepStore;
-	protected EntrySetStream stream;
+	protected Stream stream;
  
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetStream(TransactionalTreeMap bts) throws IOException {
-    	this.deepStore = bts;
-    	stream = (EntrySetStream) bts.entrySetStream();
+    public RelatrixEntrysetStream(Class c) throws IOException {
+    	try {
+			stream = RelatrixKV.entrySetStream(c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStream "+stream);
+    }
+    
+    public RelatrixEntrysetStream(Comparable c) throws IOException {
+    	this(c.getClass());
     }
     
 	@Override
@@ -65,22 +70,22 @@ public class RelatrixEntrysetStream<T> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

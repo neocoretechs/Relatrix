@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.bigsack.stream.SubSetKVStream;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Our main representable analog. Instances of this class deliver the set of key/value
@@ -32,15 +33,19 @@ import com.neocoretechs.bigsack.stream.SubSetKVStream;
  *
  */
 public class RelatrixSubmapKVStream<T> implements Stream<T> {
-	protected SubSetKVStream stream;
+	protected Stream stream;
 
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixSubmapKVStream(TransactionalTreeMap bts, Comparable template, Comparable template2) throws IOException {
-    	stream = (SubSetKVStream) bts.subMapKVStream(template, template2);
+    public RelatrixSubmapKVStream(Comparable template, Comparable template2) throws IOException {
+    	try {
+			stream = RelatrixKV.findSubMapKVStream(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override
@@ -60,22 +65,22 @@ public class RelatrixSubmapKVStream<T> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

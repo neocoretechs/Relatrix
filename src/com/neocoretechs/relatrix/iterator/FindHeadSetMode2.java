@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 
@@ -25,6 +24,6 @@ public class FindHeadSetMode2 extends FindSetMode2 {
      */
 	@Override
 	public Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-		return new RelatrixHeadsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+		return new RelatrixHeadsetIterator(tdmr, dmr_return);
 	}
 }

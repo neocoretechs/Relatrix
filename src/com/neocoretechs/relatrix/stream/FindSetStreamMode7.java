@@ -1,13 +1,10 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DomainMapRange;
-
 
 /**
 * Identity morphism retrieval.
@@ -37,6 +34,6 @@ public class FindSetStreamMode7 extends StreamFactory {
 	}
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+	    return new RelatrixStream(tdmr, dmr_return);
 	}
 }

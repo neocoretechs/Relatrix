@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 /**
@@ -14,8 +13,12 @@ import com.neocoretechs.relatrix.DomainMapRange;
 * findSet, or the object functioning as the range (codomain) for each iteration where the first 2 objects are domain and
 * map.<br/>
 * Legal permutations are<br/>
-* [object],[object],* [object],[object],?<br/>
-* [TemplateClass],[TemplateClass],* [TemplateClass],[TemplateClass],?<br/>
+* [object],[object],* 
+* [object],[object],?
+* <br/>
+* [TemplateClass],[TemplateClass],* 
+* [TemplateClass],[TemplateClass],?
+* <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -45,6 +48,6 @@ public class FindSetStreamMode6 extends StreamFactory {
 	}
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr)throws IllegalAccessException, IOException {
-	    return new RelatrixStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);
+	    return new RelatrixStream(tdmr, dmr_return);
 	}
 }

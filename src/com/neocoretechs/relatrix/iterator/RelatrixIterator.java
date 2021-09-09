@@ -3,8 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-//import com.neocoretechs.bigsack.iterator.TailSetIterator;
-//import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
@@ -46,7 +44,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixIterator(/*TransactionalTreeSet bts,*/ Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixIterator(Morphism template, short[] dmr_return) throws IOException {
     	//this.deepStore = bts;
     	this.dmr_return = dmr_return;
     	this.base = template;

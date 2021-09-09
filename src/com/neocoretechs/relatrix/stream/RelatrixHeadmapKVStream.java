@@ -22,8 +22,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.bigsack.stream.HeadSetKVStream;
+import com.neocoretechs.relatrix.RelatrixKV;
+
 /**
  * Implementation of the standard Stream interface which operates on K/V keys
  * to set the upper bound of the correct range search for the properly ordered set of subclasses;
@@ -33,16 +33,18 @@ import com.neocoretechs.bigsack.stream.HeadSetKVStream;
  */
 public class RelatrixHeadmapKVStream<T,V> implements Stream<T> {
 	private static boolean DEBUG = false;
-	TransactionalTreeMap deepStore;
-	protected HeadSetKVStream stream;
+	protected Stream stream;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadmapKVStream(TransactionalTreeMap bts, Comparable template) throws IOException {
-    	this.deepStore = bts;
-    	stream = (HeadSetKVStream) bts.headMapKVStream(template);
+    public RelatrixHeadmapKVStream(Comparable template) throws IOException {
+    	try {
+			stream = RelatrixKV.findHeadMapKVStream(template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     	if( DEBUG )
 			System.out.println("RelatrixHeadmapKVIterator "+stream);
     }
@@ -64,22 +66,22 @@ public class RelatrixHeadmapKVStream<T,V> implements Stream<T> {
 
 	@Override
 	public Stream<T> sequential() {
-		return stream.sequential();
+		return (Stream<T>) stream.sequential();
 	}
 
 	@Override
 	public Stream<T> parallel() {
-		return stream.parallel();
+		return (Stream<T>) stream.parallel();
 	}
 
 	@Override
 	public Stream<T> unordered() {
-		return stream.unordered();
+		return (Stream<T>) stream.unordered();
 	}
 
 	@Override
 	public Stream<T> onClose(Runnable closeHandler) {
-		return stream.onClose(closeHandler);
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
 
 	@Override

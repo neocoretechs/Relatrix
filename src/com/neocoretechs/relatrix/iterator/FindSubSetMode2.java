@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 
@@ -13,7 +12,7 @@ import com.neocoretechs.relatrix.Morphism;
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
 * *,[object],* *,[object],? ?,[object],? ?,[object],*
 * *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015, 2021
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
 public class FindSubSetMode2 extends FindSetMode2 {
@@ -41,6 +40,6 @@ public class FindSubSetMode2 extends FindSetMode2 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return new RelatrixSubsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return new RelatrixSubsetIterator(tdmr, templdmr, dmr_return);
 	   }
 }

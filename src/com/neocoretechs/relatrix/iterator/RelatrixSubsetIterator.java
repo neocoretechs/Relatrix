@@ -3,9 +3,8 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.SubSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
@@ -21,7 +20,7 @@ import com.neocoretechs.relatrix.Morphism;
  *
  */
 public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
-	protected SubSetIterator iter;
+	protected Iterator iter;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
 
@@ -32,10 +31,14 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixSubsetIterator(TransactionalTreeSet bts, Morphism template, Morphism template2, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIterator(Morphism template, Morphism template2, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
-    	iter = (SubSetIterator) bts.subSet(template, template2);
+    	try {
+			iter = RelatrixKV.findSubMap(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override

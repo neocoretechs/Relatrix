@@ -3,8 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.SubSetKVIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Our main representable analog. Instances of this class deliver the set of key/value
@@ -13,7 +12,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  *
  */
 public class RelatrixSubmapKVIterator implements Iterator<Comparable> {
-	protected SubSetKVIterator iter;
+	protected Iterator iter;
 	protected Comparable buffer;
     protected boolean needsIter = false;
     /**
@@ -21,8 +20,12 @@ public class RelatrixSubmapKVIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixSubmapKVIterator(TransactionalTreeMap bts, Comparable template, Comparable template2) throws IOException {
-    	iter = (SubSetKVIterator) bts.subMapKV(template, template2);
+    public RelatrixSubmapKVIterator(Comparable template, Comparable template2) throws IOException {
+    	try {
+			iter = RelatrixKV.findSubMapKV(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override

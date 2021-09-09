@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public final class IndexInstanceTable {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	static Object mutex = new Object();
 	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	
@@ -38,37 +38,23 @@ public final class IndexInstanceTable {
 					throw new IllegalAccessException("DBKey is in an invalid state: valid index but strangeley, no valid instance it refers to.");			
 			} else {
 				// instance index not valid, key not fully formed, we may have to add instance value to table and index it
-				if(instance != null) {
-					// index not valid, instance present in key, try to retrieve index by instance value
-					DBKey i = getByInstance(instance);
-					// index by instance valid, instance value present in table, index valid, key fully formed
-					if( i != null) {
-						if(DEBUG)
-							System.out.printf("%s.put(%s) found DBKey by instance=%s%n", index.getClass().getName(), i, instance);
-						return;
-					}
-					// instance index not valid, object instance not null, ok to form key
-					index.setInstanceIndex();
-					if(DEBUG)
-						System.out.printf("%s.put(%s) set index instance=%s%n", index.getClass().getName(), index, instance);
-					try {
-						RelatrixKV.transactionalStore(index, instance);
-					} catch(DuplicateKeyException dke) {
-						throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
-					}
-					try {
-						RelatrixKV.transactionalStore(instance, index);
-					} catch(DuplicateKeyException dke) {
-						throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));
-						
-					}
-					classCommits.add(index.getClass());
-					classCommits.add(instance.getClass());
-				} else {
+				if(instance == null) {
 					// instance is null, no instance in DBkey, keys are not valid, nothing to put.
 					throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
 				}
 			}
+			try {
+				RelatrixKV.transactionalStore(index, instance);
+			} catch(DuplicateKeyException dke) {
+					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
+			}
+			try {
+				RelatrixKV.transactionalStore(instance, index);
+			} catch(DuplicateKeyException dke) {
+					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));	
+			}
+			classCommits.add(index.getClass());
+			classCommits.add(instance.getClass());
 		}
 	}
 	

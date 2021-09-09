@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	 * in the findSet retrieval indicated by the "?" parameter. <br/>
 	 * This factory generates the proper iterator based on our findSet semantics.
 	 * Like all factories, this one is not pretty, but it makes the necessary sausage to feed the rest of the process.
-	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
+	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 	 *
 	 */
 	public abstract class IteratorFactory

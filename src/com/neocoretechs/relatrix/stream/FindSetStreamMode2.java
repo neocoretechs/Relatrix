@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.MapDomainRange;
-
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
@@ -14,8 +12,14 @@ import com.neocoretechs.relatrix.MapDomainRange;
 * or tuples from retrieval. For identity, if we specify findSetStream("*",object,"*") we get a Comparable of 1
 * element containing a Morphism subclass.
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
-* *,[object],* *,[object],? ?,[object],? ?,[object],*
-* *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
+* *,[object],* 
+* *,[object],? 
+* ?,[object],? 
+* ?,[object],*
+* *,[TemplateClass],*
+* *,[TemplateClass],? 
+* ?,[TemplateClass],? 
+* ?,[TemplateClass],*
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
@@ -45,6 +49,6 @@ public class FindSetStreamMode2 extends StreamFactory {
 		return createRelatrixStream(dmr);
 	}
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		return (Stream<?>) new RelatrixStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, dmr_return);	
+		return (Stream<?>) new RelatrixStream(tdmr, dmr_return);	
 	}
 }

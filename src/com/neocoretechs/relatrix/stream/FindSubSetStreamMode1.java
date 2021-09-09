@@ -1,10 +1,8 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
@@ -46,6 +44,6 @@ public class FindSubSetStreamMode1 extends FindSetStreamMode1 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return (Stream<?>) new RelatrixSubsetStream(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return (Stream<?>) new RelatrixSubsetStream(tdmr, templdmr, dmr_return);
 	   }
 }

@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
@@ -45,6 +44,6 @@ public class FindSubSetMode1 extends FindSetMode1 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return new RelatrixSubsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return new RelatrixSubsetIterator( tdmr, templdmr, dmr_return);
 	   }
 }

@@ -3,14 +3,14 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Mode 3. The findSet contains two object references, therefore the subset variable array must also.
 * Find the head set of objects in the relation via the specified predicate. Legal permutations are
-* *,[object],[object] ?,[object],[object]
-* *,[TemplateClass],[TemplateClass] ?,[TemplateClass],[TemplateClass]
+*,[object],[object] ?,[object],[object]
+*,[TemplateClass],[TemplateClass] ?,[TemplateClass],[TemplateClass]
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
 public class FindSubSetMode3 extends FindSetMode3 {
@@ -41,6 +41,6 @@ public class FindSubSetMode3 extends FindSetMode3 {
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
-		   return new RelatrixSubsetIterator(BigSackAdapter.getBigSackTransactionalTreeSet(tdmr), tdmr, templdmr, dmr_return);
+		   return new RelatrixSubsetIterator(tdmr, templdmr, dmr_return);
 	   }
 }

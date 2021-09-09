@@ -3,8 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.bigsack.iterator.SubSetIterator;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Our main representable analog. Instances of this class deliver the set of keys
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
@@ -12,7 +11,7 @@ import com.neocoretechs.bigsack.session.TransactionalTreeMap;
  *
  */
 public class RelatrixSubmapIterator implements Iterator<Comparable> {
-	protected SubSetIterator iter;
+	protected Iterator iter;
 	protected Comparable buffer;
     protected boolean needsIter = false;
     /**
@@ -20,8 +19,12 @@ public class RelatrixSubmapIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixSubmapIterator(TransactionalTreeMap bts, Comparable template, Comparable template2) throws IOException {
-    	iter = (SubSetIterator) bts.subMap(template, template2);
+    public RelatrixSubmapIterator(Comparable template, Comparable template2) throws IOException {
+    	try {
+			iter = RelatrixKV.findSubMap(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
     }
     
 	@Override
