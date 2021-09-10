@@ -4,10 +4,12 @@ package com.neocoretechs.relatrix.test;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Yes, this should be a nice JUnit fixture someday
@@ -84,11 +86,9 @@ public class TransactionBatteryRelatrix {
 		}
 		for(Comparable c: ar) {
 			System.out.println("About to store functor:"+c);
-			try {
+			if(((KeyValue) (RelatrixKV.get(c))).getmValue() == null)
+				continue;
 			Relatrix.transactionalStore(c,"has identity",c);
-			} catch(DuplicateKeyException dce) {
-				System.out.println("Caught a dupe key for functor:"+c);
-			}
 		}
 		Relatrix.transactionCommit();
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);

@@ -116,15 +116,14 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	if( d == null || m == null || r == null)
 		throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 	Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
-	indexClasses[0] = dmr.getClass();
 	// check for domain/map match
 	// Enforce categorical structure; domain->map function uniquely determines range.
 	// If the search winds up at the key or the key is empty or the domain->map exists, the key
 	// cannot be inserted.
 	((DomainMapRange)dmr).setUniqueKey(true);
-	if(RelatrixKV.contains(dmr)) { //tsr.atKey) {
+	if(RelatrixKV.contains(dmr)) {
 		transactionRollback();
-		throw new DuplicateKeyException("dmr:"+dmr);//tsr);
+		throw new DuplicateKeyException("dmr:"+dmr);
 	}
 	((DomainMapRange)dmr).setUniqueKey(false);
 	// re-create it, now that we know its valid, in a form that stores the components with DBKeys
@@ -145,13 +144,10 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 	indexClasses[0] = null; // remove dmr from our commit lineup
 	try {
-		dbKey = DBKey.newKey(dmr);
+		dbKey = DBKey.newKey(dmr); // this stores our new relation, DBKey and instance
 	} catch (ClassNotFoundException e) {
 		throw new IOException(e);
-	} // store primary key, then use it as value for index keys
-	if( DEBUG  )
-		System.out.println("Relatrix.transactionalStore storing dmr:"+dmr);
-	RelatrixKV.transactionalStore(dmr, dbKey);
+	} // Use primary key DBKey as value for index keys
 	if( DEBUG  )
 		System.out.println("Relatrix.transactionalStore storing drm:"+drm);
 	RelatrixKV.transactionalStore(drm, dbKey);

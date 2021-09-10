@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public final class IndexInstanceTable {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static Object mutex = new Object();
 	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	
@@ -144,6 +144,8 @@ public final class IndexInstanceTable {
 		synchronized(mutex) {
 			classCommits.add(instance.getClass());
 			Object o = RelatrixKV.get((Comparable) instance);
+			if(DEBUG)
+				System.out.printf("IndexInstanceTable.getByInstance %s, result=%s%n",instance,o);
 			if(o == null)
 				return null;
 			KeyValue kv = (KeyValue)o;
