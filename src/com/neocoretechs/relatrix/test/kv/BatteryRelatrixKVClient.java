@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Map;
 
+import com.neocoretechs.bigsack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
@@ -25,8 +26,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
+ * program argument is node server is running on, whihc was started on port 9500 with database of your choice
  * @author jg (C) 2020
  *
  */
@@ -43,13 +43,13 @@ public class BatteryRelatrixKVClient {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		/*battery1(argv);	
+		rkvc = new RelatrixKVClient(argv[0], argv[0], 9500);
+		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
-		battery1AR7(argv);*/
+		battery1AR7(argv);
 		battery1AR8(argv);
-		/*battery1AR9(argv);
+		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
 		battery1AR11(argv);
@@ -58,7 +58,7 @@ public class BatteryRelatrixKVClient {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);*/
+		battery1AR17(argv);
 		System.out.println("TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
@@ -133,9 +133,10 @@ public class BatteryRelatrixKVClient {
 		RemoteEntrySetIterator its = rkvc.entrySet(String.class);
 		System.out.println("KV Battery1AR6");
 		while(rkvc.hasNext(its)) {
-			Comparable nex = (Comparable) rkvc.next(its);
+			Object nex =  rkvc.next(its);
+			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
-			if(((Long)nex).intValue() != i)
+			if(((Long)enex.getValue()).intValue() != i)
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
 			++i;
 		}
@@ -198,7 +199,7 @@ public class BatteryRelatrixKVClient {
 			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms." );
 		//i = max-1;
 		tims = System.currentTimeMillis();
-		for(int j = min; j < max; j++) {            
+		for(int j = min; j < min+10; j++) {            
 			// careful here, have to do the conversion explicitly
 			boolean bits = rkvc.containsValue(String.class, (long)j);
 			if( !bits ) {
@@ -208,7 +209,7 @@ public class BatteryRelatrixKVClient {
 		}
 		System.out.println("KV BATTERY1AR8 FORWARD CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > min; j--) {
+		for(int j = max; j > max-10; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = rkvc.containsValue(String.class, (long)j);
 				if( !bits ) {
@@ -456,7 +457,7 @@ public class BatteryRelatrixKVClient {
 		if(siz > 0) {
 			RemoteEntrySetIterator its = rkvc.entrySet(String.class);
 			while(rkvc.hasNext(its)) {
-				Comparable nex = (Comparable) rkvc.next(its);
+				Object nex = rkvc.next(its);
 				//System.out.println(i+"="+nex);
 				System.out.println(nex);
 			}

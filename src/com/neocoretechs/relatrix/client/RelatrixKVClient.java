@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
+import com.neocoretechs.bigsack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -1363,9 +1364,9 @@ public class RelatrixKVClient implements Runnable {
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
 	 * @param rii
-	 * @return
+	 * @return Object of iteration, depends on iterator being used, typically, Map.Entry derived serializable instance of next element
 	 */
-	public Comparable next(RemoteObjectInterface rii) throws NoSuchElementException {
+	public Object next(RemoteObjectInterface rii) throws NoSuchElementException {
 		((RelatrixKVStatement)rii).methodName = "next";
 		((RelatrixKVStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1377,7 +1378,7 @@ public class RelatrixKVClient implements Runnable {
 		Object o = ((RelatrixKVStatement)rii).getObjectReturn();
 		if(o instanceof NoSuchElementException)
 			throw (NoSuchElementException)o;
-		return (Comparable)o;
+		return o;
 
 	}
 	
