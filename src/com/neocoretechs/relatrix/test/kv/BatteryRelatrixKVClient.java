@@ -44,7 +44,7 @@ public class BatteryRelatrixKVClient {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient(argv[0], argv[0], 9500);
-		battery1(argv);	
+		/*battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
@@ -57,7 +57,7 @@ public class BatteryRelatrixKVClient {
 		battery1AR13(argv);
 		battery1AR14(argv);
 		battery1AR15(argv);
-		battery1AR16(argv);
+		battery1AR16(argv);*/
 		battery1AR17(argv);
 		System.out.println("TEST BATTERY COMPLETE.");
 		rkvc.close();
@@ -445,6 +445,7 @@ public class BatteryRelatrixKVClient {
 		// with i at max, should catch them all
 		for(int i = min; i < max; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
+			System.out.println("Removing"+fkey);
 			rkvc.remove(fkey);
 			// Map.Entry
 			if(rkvc.contains(fkey)) { 

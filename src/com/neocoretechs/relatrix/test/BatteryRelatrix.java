@@ -318,10 +318,11 @@ public class BatteryRelatrix {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		Relatrix.remove(fkey);
+		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
 		try {
 			Iterator<?> its = Relatrix.findSet(fkey, "*", "*");
 			if(its.hasNext()) {
-				throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey);
+				throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+((Comparable[])its.next())[0]);
 			}
 		} catch(RuntimeException re) {} // if types differ in domain from fkey
 		try {

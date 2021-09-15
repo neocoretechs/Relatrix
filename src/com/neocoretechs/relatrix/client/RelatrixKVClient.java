@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -1478,8 +1479,10 @@ public class RelatrixKVClient implements Runnable {
 	public String toString() {
 		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
+	
+	static int i = 0;
 	/**
-	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
+	 * Generic call to server localaddr, remote addr, port, class
 	 * @param args
 	 * @throws Exception
 	 */
@@ -1487,8 +1490,13 @@ public class RelatrixKVClient implements Runnable {
 		//RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
 		//RelatrixKVStatement rs = new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
+		i = 0;
 		RelatrixKVClient rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
-		RelatrixKVStatement rs = null;
+		RemoteStream stream = rc.entrySetStream(Class.forName(args[3]));
+		stream.of().forEach(e ->{	
+				System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
+		});
+		/*
 		switch(args.length) {
 			case 4:
 				rs = new RelatrixKVStatement(args[3]);
@@ -1510,6 +1518,7 @@ public class RelatrixKVClient implements Runnable {
 				return;
 		}
 		rc.sendCommand(rs);
+		*/
 		rc.close();
 	}
 	

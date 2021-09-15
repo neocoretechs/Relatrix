@@ -15,12 +15,10 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
- * as examples of Relatrix processing.
+ * This test the client side Java 8 streams obtained from the server
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
+ * program argument is local server, remote server, remote port
  * @author jg (C) 2020
  *
  */
@@ -39,9 +37,11 @@ public class BatteryRelatrixKVClientStream {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
-		battery1(argv);	// build and store
-		battery11(argv);  // build and store
+		//rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
+		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
+		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
+		//battery1(argv);	// build and store
+		//battery11(argv);  // build and store
 		battery1AR6(argv);
 		battery1AR7(argv);
 		//battery1AR8(argv); // search by value, slow operation no key
