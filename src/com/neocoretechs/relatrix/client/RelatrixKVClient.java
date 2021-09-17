@@ -1482,24 +1482,30 @@ public class RelatrixKVClient implements Runnable {
 	
 	static int i = 0;
 	/**
-	 * Generic call to server localaddr, remote addr, port, class
+	 * case 4:
+	 * <dd>Generic call to server: localaddr, remote addr, port, class
+	 * <dd>Displays entry set stream of class from database running on addr and port
+	 * <dd>case 5-8:
+	 * <dd>Call to server method: localaddr, remote addr, port, server_method <arg1> <arg2> ... 
+	 * <dd>Invokes named method on the server at host and port using the given string arguments.<p/>
+	 * Note that method must accept the number of string arguments provided, such as loadClassFromJar <jar>
+	 * and loadClassFromPath <package> <path> and removePackageFromRepository <package>.<p/>
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		//RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
-		//RelatrixKVStatement rs = new RelatrixKVStatement("toString",(Object[])null);
+		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
 		RelatrixKVClient rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
-		RemoteStream stream = rc.entrySetStream(Class.forName(args[3]));
-		stream.of().forEach(e ->{	
-				System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
-		});
-		/*
+
 		switch(args.length) {
 			case 4:
-				rs = new RelatrixKVStatement(args[3]);
+				RemoteStream stream = rc.entrySetStream(Class.forName(args[3]));
+				stream.of().forEach(e ->{	
+					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
+				});
 				break;
 			case 5:
 				rs = new RelatrixKVStatement(args[3],args[4]);
@@ -1518,7 +1524,6 @@ public class RelatrixKVClient implements Runnable {
 				return;
 		}
 		rc.sendCommand(rs);
-		*/
 		rc.close();
 	}
 	

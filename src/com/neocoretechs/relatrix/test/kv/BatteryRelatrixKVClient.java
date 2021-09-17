@@ -57,8 +57,9 @@ public class BatteryRelatrixKVClient {
 		battery1AR13(argv);
 		battery1AR14(argv);
 		battery1AR15(argv);
-		battery1AR16(argv);*/
-		battery1AR17(argv);
+		battery1AR16(argv);
+		battery1AR17(argv);*/
+		battery18(argv);
 		System.out.println("TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
@@ -467,6 +468,38 @@ public class BatteryRelatrixKVClient {
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 
+	}
+	
+	/**
+	 * Loads up on keys, should be 0 to max-1, or min, to max -1
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery18(String[] argv) throws Exception {
+		System.out.println("KV Battery18 ");
+		int max1 = max - 50000;
+		long tims = System.currentTimeMillis();
+		int dupes = 0;
+		int recs = 0;
+		String fkey = null;
+		for(int i = min; i < max1; i++) {
+			fkey = String.format(uniqKeyFmt, i);
+			try {
+				rkvc.transactionalStore(fkey, new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		System.out.println("Checkpointing..");
+		rkvc.transactionCheckpoint(String.class);
+		for(int i = max1; i < max; i++) {
+			fkey = String.format(uniqKeyFmt, i);
+			try {
+				rkvc.transactionalStore(fkey, new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		rkvc.transactionCommit(String.class);
+		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
 }
