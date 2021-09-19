@@ -7,7 +7,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
- * to set the lower bound of the correct range search for the properly ordered set of  subclasses;
+ * to set the lower bound of the correct range search for the properly ordered set of subclasses;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020
  *
  */

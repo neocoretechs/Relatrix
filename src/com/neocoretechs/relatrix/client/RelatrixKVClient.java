@@ -459,7 +459,7 @@ public class RelatrixKVClient implements Runnable {
 	/**
 	 * Get the keyed value
 	 * @param key The Comparable key
-	 * @return
+	 * @return The value for the given key, or null if not found
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -491,6 +491,10 @@ public class RelatrixKVClient implements Runnable {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		// We will have a BigSack Entry, which is a Serializable version of Entry with key/value, so extract value
+		if(o != null) {
+			o = ((Entry)o).getValue();
+		}
 		return o;
 	}
 		
@@ -1475,6 +1479,11 @@ public class RelatrixKVClient implements Runnable {
 		return s;
 	}
 	
+	public Integer getIncrementedLastGoodKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
@@ -1506,7 +1515,7 @@ public class RelatrixKVClient implements Runnable {
 				stream.of().forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
 				});
-				break;
+				System.exit(0);
 			case 5:
 				rs = new RelatrixKVStatement(args[3],args[4]);
 				break;

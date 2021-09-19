@@ -7,6 +7,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
+import com.neocoretechs.bigsack.iterator.Entry;
+import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 
 /**
@@ -170,8 +172,12 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 									} else {
 										if( result.getClass() == com.neocoretechs.bigsack.iterator.KeySetIterator.class) {
 											setObjectReturn( new RemoteKeySetIterator(getSession()) );
-										} else {							
+										} else {
+											if( result.getClass() == com.neocoretechs.bigsack.keyvaluepages.KeyValue.class) {
+												setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
+											} else {
 												throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+											}
 										}
 									}
 								}

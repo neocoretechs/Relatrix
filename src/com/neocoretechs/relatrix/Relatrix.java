@@ -14,6 +14,7 @@ import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
+import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 
 /**
 * Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
@@ -57,6 +58,7 @@ public final class Relatrix {
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
 													  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
+	public static IndexInstanceTableInterface indexInstanceTable = IndexInstanceTable.getInstance(); // may be overwritten in client/server on client side for transport
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -144,7 +146,7 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 	indexClasses[0] = null; // remove dmr from our commit lineup
 	try {
-		dbKey = DBKey.newKey(dmr); // this stores our new relation, DBKey and instance
+		dbKey = DBKey.newKey(indexInstanceTable,dmr); // this stores our new relation, DBKey and instance
 	} catch (ClassNotFoundException e) {
 		throw new IOException(e);
 	} // Use primary key DBKey as value for index keys
@@ -176,7 +178,7 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
  */
 public static synchronized void transactionCommit() throws IOException {
 	// first commit components of relationships
-	IndexInstanceTable.commit();
+	indexInstanceTable.commit();
 	// now commit main relationship and index classes
 	for(int i = 0; i < indexClasses.length; i++) {
 		long startTime = System.currentTimeMillis();
@@ -196,7 +198,7 @@ public static synchronized void transactionCommit() throws IOException {
  */
 public static synchronized void transactionRollback() throws IOException {
 	// first roll back components
-	IndexInstanceTable.rollback();
+	indexInstanceTable.rollback();
 	// Now roll back relationships
 	for(int i = 0; i < indexClasses.length; i++) {
 		if(indexClasses[i] != null) {
@@ -218,7 +220,7 @@ public static synchronized void transactionRollback() throws IOException {
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	IndexInstanceTable.checkpoint();
+	indexInstanceTable.checkpoint();
 	for(int i = 0; i < indexClasses.length; i++) {
 		if(indexClasses[i] != null)
 			RelatrixKV.transactionCheckpoint(indexClasses[i]);
@@ -237,11 +239,11 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 		System.out.println("Relatrix.remove prepping to remove:"+c);
 	removeRecursive(c);
 	try {
-		DBKey dbKey = IndexInstanceTable.getByInstance(c);
+		DBKey dbKey = indexInstanceTable.getByInstance(c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
 		if(dbKey != null) {
-			IndexInstanceTable.delete(dbKey);
+			indexInstanceTable.delete(dbKey);
 		}
 		RelatrixKV.remove(c);
 	} catch (DuplicateKeyException e) {
@@ -337,37 +339,37 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 		}
 		KeyValue kv = (KeyValue)o;
 		DBKey dbKey = (DBKey) kv.getmValue();
-		IndexInstanceTable.delete(dbKey);
+		indexInstanceTable.delete(dbKey);
 		o = RelatrixKV.get(drm);
 		if(o == null)
 			throw new IOException(drm+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		IndexInstanceTable.delete(dbKey);
+		indexInstanceTable.delete(dbKey);
 		o = RelatrixKV.get(mdr);
 		if(o == null)
 			throw new IOException(mdr+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		IndexInstanceTable.delete(dbKey);
+		indexInstanceTable.delete(dbKey);
 		o = RelatrixKV.get(mrd);
 		if(o == null)
 			throw new IOException(mrd+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		IndexInstanceTable.delete(dbKey);
+		indexInstanceTable.delete(dbKey);
 		o = RelatrixKV.get(rdm);
 		if(o == null)
 			throw new IOException(rdm+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		IndexInstanceTable.delete(dbKey);
+		indexInstanceTable.delete(dbKey);
 		o = RelatrixKV.get(rmd);
 		if(o == null)
 			throw new IOException(rmd+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		IndexInstanceTable.delete(dbKey);
+		indexInstanceTable.delete(dbKey);
 	} catch (ClassNotFoundException | DuplicateKeyException e) {
 		throw new IOException(e);
 	}

@@ -114,7 +114,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				if(domain != null)
 					return domain;
 				if(keys.getDomainKey().isValid()) {
-					domain = (Comparable) IndexInstanceTable.getByIndex(keys.getDomainKey());
+					domain = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getDomainKey());
 				}
 				return domain;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -129,11 +129,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					keys.setDomainKey(new DBKey());
 				} else {
 					if(keys.getDomainKey().isValid()) {
-						this.domain = (Comparable) IndexInstanceTable.getByIndex(keys.getDomainKey());
+						this.domain = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getDomainKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexInstanceTable.getByInstance(domain)) == null)
-							keys.setDomainKey(DBKey.newKey(domain));
+						if((dbKey = (DBKey)Relatrix.indexInstanceTable.getByInstance(domain)) == null)
+							keys.setDomainKey(DBKey.newKey(Relatrix.indexInstanceTable,domain));
 						else
 							keys.setDomainKey(dbKey);
 					}
@@ -154,7 +154,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				if(map != null) 
 					return map;
 				if(keys.getMapKey().isValid()) {
-					map = (Comparable) IndexInstanceTable.getByIndex(keys.getMapKey());
+					map = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getMapKey());
 				}
 				return map;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -169,11 +169,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					keys.setMapKey(new DBKey());
 				} else {
 					if(keys.getMapKey().isValid()) {
-						this.map = (Comparable) IndexInstanceTable.getByIndex(keys.getMapKey());
+						this.map = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getMapKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexInstanceTable.getByInstance(map)) == null)
-							keys.setMapKey(DBKey.newKey(map));
+						if((dbKey = (DBKey)Relatrix.indexInstanceTable.getByInstance(map)) == null)
+							keys.setMapKey(DBKey.newKey(Relatrix.indexInstanceTable,map));
 						else
 							keys.setMapKey(dbKey);
 					}
@@ -193,7 +193,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				if(range != null)
 					return range;
 				if(keys.getRangeKey().isValid()) {
-					range = (Comparable) IndexInstanceTable.getByIndex(keys.getRangeKey());
+					range = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getRangeKey());
 				}
 				return range;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -208,11 +208,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					keys.setRangeKey(new DBKey());
 				} else {
 					if(keys.getRangeKey().isValid()) {
-						this.range = (Comparable) IndexInstanceTable.getByIndex(keys.getRangeKey());
+						this.range = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getRangeKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexInstanceTable.getByInstance(range)) == null)
-							keys.setRangeKey(DBKey.newKey(range));
+						if((dbKey = (DBKey)Relatrix.indexInstanceTable.getByInstance(range)) == null)
+							keys.setRangeKey(DBKey.newKey(Relatrix.indexInstanceTable,range));
 						else
 							keys.setRangeKey(dbKey);						
 					}

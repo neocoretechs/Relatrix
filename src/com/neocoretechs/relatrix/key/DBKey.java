@@ -17,35 +17,11 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
-	static DBKey lastKey;
-	static DBKey lastGoodKey;
-	private Integer instanceIndex = new Integer(-1);
-	private static Object mutex = new Object();
-	static {
-		synchronized(mutex) {
-			Object lastKeyObject = null;
-			try {
-				IndexInstanceTable.classCommits.add(DBKey.class);
-				lastKeyObject = RelatrixKV.lastKey(DBKey.class);
-			} catch (IllegalAccessException | IOException e) {
-				System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
-				e.printStackTrace();
-				System.exit(1);
-			}
-			if(lastKeyObject == null) {
-				lastKeyObject = new DBKey(0);
-			}
-			lastKey = (DBKey) lastKeyObject;
-			setLastGoodKey();
-			if(DEBUG) {
-				System.out.printf("lastKey=%slastGoodKey=%s%n", lastKey, lastGoodKey);
-			}
-		}
-	}
+	Integer instanceIndex = new Integer(-1);
 	
 	public DBKey() {}
 	
-	private DBKey(Integer instanceIndex) {
+	DBKey(Integer instanceIndex) {
 		this.instanceIndex = instanceIndex;
 	}
 	
@@ -55,24 +31,10 @@ public final class DBKey implements Comparable, Serializable {
 		}
 	}
 	
-	protected void setInstanceIndex() {
+	protected void setInstanceIndex(IndexInstanceTableInterface indexTable) {
 		synchronized(instanceIndex) {
-			instanceIndex = new Integer(++lastKey.instanceIndex);
+			instanceIndex = new Integer(indexTable.getIncrementedLastGoodKey());
 		}
-	}
-	
-	/**
-	 * For commit
-	 */
-	protected static void setLastGoodKey() {
-		lastGoodKey = new DBKey(lastKey.instanceIndex);
-	}
-	
-	/**
-	 * For rollback
-	 */
-	protected static void setLastKey() {
-		lastKey = new DBKey(lastGoodKey.instanceIndex);
 	}
 	
 	public boolean isValid() {
@@ -90,11 +52,11 @@ public final class DBKey implements Comparable, Serializable {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static DBKey newKey(Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 		DBKey index = new DBKey();
-		index.setInstanceIndex();
+		index.setInstanceIndex(indexTable);
 		try {
-			IndexInstanceTable.put(index, (Comparable) instance); // the passed key is updated
+			indexTable.put(index, (Comparable) instance); // the passed key is updated
 		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 			throw new RuntimeException(e);
 		}

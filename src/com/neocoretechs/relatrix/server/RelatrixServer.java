@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
@@ -13,7 +12,6 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteHeadSetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
-import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
