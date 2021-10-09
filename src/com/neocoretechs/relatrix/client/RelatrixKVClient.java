@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.bigsack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 /**
@@ -40,7 +41,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * for the remote node 'AMI0', for others replace all '0' with '1' etc for other tablespaces.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClient implements Runnable {
+public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
@@ -104,7 +105,21 @@ public class RelatrixKVClient implements Runnable {
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		ThreadPoolManager.getInstance().spin(this);
 	}
-
+	
+	@Override
+	public String getLocalNode() {
+		return bootNode;
+	}
+	
+	@Override
+	public String getRemoteNode() {
+		return remoteNode;
+	}
+	
+	@Override
+	public int getRemotePort( ) {
+		return remotePort;
+	}
 	/**
 	* Set up the socket 
 	 */
@@ -166,6 +181,7 @@ public class RelatrixKVClient implements Runnable {
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
+	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
 			outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
@@ -179,6 +195,7 @@ public class RelatrixKVClient implements Runnable {
 		}
 	}
 	
+	@Override
 	public void close() {
 		shouldRun = false;
 		try {
@@ -221,7 +238,8 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws IOException
 	 * @return 
 	 */
-	public Object sendCommand(RelatrixKVStatement rs) throws IllegalAccessException, IOException, DuplicateKeyException {
+	@Override
+	public Object sendCommand(RelatrixStatementInterface rs) throws IllegalAccessException, IOException, DuplicateKeyException {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -254,6 +272,7 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws IOException
 	 * @return 
 	 */
+	@Override
 	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("store",k,v);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -291,6 +310,7 @@ public class RelatrixKVClient implements Runnable {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
+	@Override
 	public Object transactionalStore(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionalStore",k, v);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -319,6 +339,7 @@ public class RelatrixKVClient implements Runnable {
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
 	 */
+	@Override
 	public void transactionCommit(Class clazz) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -340,6 +361,7 @@ public class RelatrixKVClient implements Runnable {
 	 * Roll back all outstanding transactions on the indicies
 	 * @throws IOException
 	 */
+	@Override
 	public void transactionRollback(Class clazz) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -369,6 +391,7 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@Override
 	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -397,6 +420,7 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	*/
+	@Override
 	public Object remove(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("remove",key);
@@ -427,6 +451,7 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 
+	@Override
 	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",clazz);
@@ -464,6 +489,7 @@ public class RelatrixKVClient implements Runnable {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@Override
 	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("get",key);
@@ -498,6 +524,7 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 		
+	@Override
 	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",clazz);
@@ -528,6 +555,7 @@ public class RelatrixKVClient implements Runnable {
 		return o;
 	}
 	
+	@Override
 	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",clazz);
@@ -558,6 +586,7 @@ public class RelatrixKVClient implements Runnable {
 		return (Comparable) o;
 	}
 	
+	@Override
 	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",clazz);
@@ -677,6 +706,7 @@ public class RelatrixKVClient implements Runnable {
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (boolean) o;
 	}
+	
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	* matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -818,7 +848,6 @@ public class RelatrixKVClient implements Runnable {
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (RemoteStream)o;
 	}
-	
 	
 	public RemoteKeySetIterator keySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -1074,6 +1103,7 @@ public class RelatrixKVClient implements Runnable {
 		return (RemoteHeadMapKVIterator)o;
 
 	}
+	
 	public RemoteStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKVStream",key);
@@ -1364,6 +1394,7 @@ public class RelatrixKVClient implements Runnable {
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return o;
 	}
+	
 	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
 	 * The original request is preserved according to session GUID and upon return of
@@ -1387,6 +1418,7 @@ public class RelatrixKVClient implements Runnable {
 
 	}
 	
+	@Override
 	public boolean hasNext(RemoteObjectInterface rii) {
 		((RelatrixKVStatement)rii).methodName = "hasNext";
 		((RelatrixKVStatement)rii).paramArray = new Object[0];
@@ -1399,6 +1431,7 @@ public class RelatrixKVClient implements Runnable {
 		return (boolean)((RelatrixKVStatement)rii).getObjectReturn();	
 	}
 	
+	@Override
 	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException{
 		((RelatrixKVStatement)rii).methodName = "remove";
 		((RelatrixKVStatement)rii).paramArray = new Object[]{ ((RelatrixKVStatement)rii).getObjectReturn() };
@@ -1424,6 +1457,7 @@ public class RelatrixKVClient implements Runnable {
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
+	@Override
 	public void close(RemoteObjectInterface rii) {
 		((RelatrixKVStatement)rii).methodName = "close";
 		((RelatrixKVStatement)rii).paramArray = new Object[0];
@@ -1446,6 +1480,7 @@ public class RelatrixKVClient implements Runnable {
 	 * @return
 	 * @throws IOException
 	 */
+	@Override
 	public Socket Fopen(String bootNode) throws IOException {
 		// send a remote Fopen request to the node
 		// this consists of sending the running WorkBoot a message to start the worker for a particular
@@ -1479,11 +1514,7 @@ public class RelatrixKVClient implements Runnable {
 		return s;
 	}
 	
-	public Integer getIncrementedLastGoodKey() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
@@ -1507,7 +1538,7 @@ public class RelatrixKVClient implements Runnable {
 		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixKVClient rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixClientInterface rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
 
 		switch(args.length) {
 			case 4:
@@ -1535,5 +1566,30 @@ public class RelatrixKVClient implements Runnable {
 		rc.sendCommand(rs);
 		rc.close();
 	}
+
+	@Override
+	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void transactionCommit() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionRollback() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionCheckpoint() throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

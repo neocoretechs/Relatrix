@@ -9,6 +9,7 @@ import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -19,36 +20,35 @@ import com.neocoretechs.relatrix.client.RelatrixKVClient;
  *
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
-	private static volatile RemoteIndexInstanceTable instance = null;
-	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
-	static DBKey lastKey;
-	static DBKey lastGoodKey;
-	private RelatrixKVClient rc = null;
-
-	public RemoteIndexInstanceTable(RelatrixKVClient rc) {
+	public static boolean DEBUG = true;
+	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
+	DBKey lastKey;
+	DBKey lastGoodKey;
+	private RelatrixClientInterface rc = null;
+	
+	public RemoteIndexInstanceTable(RelatrixClientInterface rc) throws IOException {
 		this.rc = rc;
-			Object lastKeyObject = null;
-			try {
-				classCommits.add(DBKey.class);
-				lastKeyObject = lastKey(DBKey.class);
-			} catch (IllegalAccessException | IOException e) {
-				System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
-				e.printStackTrace();
-				System.exit(1);
-			}
-			// we cant make our own locally, it would be irrelevant
-			if(lastKeyObject == null) {
-				throw new RuntimeException("No remote DBKey was delivered upon request for last key from server.");
-			}
-			lastKey = (DBKey) lastKeyObject;
-			if(DEBUG) {
-				System.out.printf("lastKey=%slastGoodKey=%s%n", lastKey, lastGoodKey);
-			}
+		Object lastKeyObject = null;
+		try {
+			classCommits.add(DBKey.class);
+			lastKeyObject = lastKey(DBKey.class);
+		} catch (IllegalAccessException | IOException e) {
+			System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
+			e.printStackTrace();
+			System.exit(1);
+		}
+		// we cant make our own locally, it would be irrelevant
+		if(lastKeyObject == null) {
+			throw new RuntimeException("No remote DBKey was delivered upon request for last key from server.");
+		}
+		lastKey = (DBKey) lastKeyObject;
+		if(DEBUG) {
+			System.out.printf("lastKey=%slastGoodKey=%s%n", lastKey, lastGoodKey);
+		}
 	}
 	
 	@Override
-	public Integer getIncrementedLastGoodKey() {
+	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		return rc.getIncrementedLastGoodKey();
 		//return ++lastKey.instanceIndex;
 	}

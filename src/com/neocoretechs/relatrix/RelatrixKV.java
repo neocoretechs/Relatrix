@@ -11,13 +11,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
-import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-
+import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-
 
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
@@ -66,6 +64,7 @@ public final class RelatrixKV {
 	public static synchronized String getTableSpaceDirectory() {
 		return BigSackAdapter.getTableSpaceDir();
 	}
+	
 	/**
 	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
 	 * BigSack tablespaces that comprise our database on remote nodes.
@@ -525,6 +524,7 @@ public static synchronized boolean containsValue(Class keyType, Object obj) thro
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(keyType);
 	return ttm.containsValue(obj);
 }
+
 
 }
 

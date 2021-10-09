@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.neocoretechs.bigsack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;

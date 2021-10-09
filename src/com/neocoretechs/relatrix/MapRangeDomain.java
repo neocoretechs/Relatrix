@@ -26,6 +26,8 @@ public class MapRangeDomain extends Morphism {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
+		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
+			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
 		MapRangeDomain dmr = (MapRangeDomain)dmrpk;
 		int cmp = 0;
 		if(dmr.getMap() == null )
@@ -46,6 +48,8 @@ public class MapRangeDomain extends Morphism {
 
 	@Override
 	public boolean equals(Object dmrpk) {
+		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
+			return Morphism.partialEquals(this, (Comparable) dmrpk);
 		MapRangeDomain dmr = (MapRangeDomain)dmrpk;
 		boolean cmp = false;
 		if( dmr.getMap() == null )

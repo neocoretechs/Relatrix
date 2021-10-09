@@ -37,6 +37,8 @@ public class DomainMapRange extends Morphism {
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
+		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
+			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
 		DomainMapRange dmr = (DomainMapRange)dmrpk;
 		if( dmr.getDomain() == null )
 			return 1;
@@ -57,6 +59,8 @@ public class DomainMapRange extends Morphism {
 
 	@Override
 	public boolean equals(Object dmrpk) {
+		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
+			return Morphism.partialEquals(this, (Comparable) dmrpk);
 		DomainMapRange dmr = (DomainMapRange)dmrpk;
 		boolean cmp = false;
 		if( dmr.getDomain() == null )

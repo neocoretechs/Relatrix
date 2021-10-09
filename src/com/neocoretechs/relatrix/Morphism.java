@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 
 /**
@@ -114,7 +115,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				if(domain != null)
 					return domain;
 				if(keys.getDomainKey().isValid()) {
-					domain = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getDomainKey());
+					domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getDomainKey());
 				}
 				return domain;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -129,11 +130,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					keys.setDomainKey(new DBKey());
 				} else {
 					if(keys.getDomainKey().isValid()) {
-						this.domain = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getDomainKey());
+						this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getDomainKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)Relatrix.indexInstanceTable.getByInstance(domain)) == null)
-							keys.setDomainKey(DBKey.newKey(Relatrix.indexInstanceTable,domain));
+						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(domain)) == null)
+							keys.setDomainKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(),domain));
 						else
 							keys.setDomainKey(dbKey);
 					}
@@ -154,7 +155,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				if(map != null) 
 					return map;
 				if(keys.getMapKey().isValid()) {
-					map = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getMapKey());
+					map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getMapKey());
 				}
 				return map;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -169,11 +170,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					keys.setMapKey(new DBKey());
 				} else {
 					if(keys.getMapKey().isValid()) {
-						this.map = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getMapKey());
+						this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getMapKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)Relatrix.indexInstanceTable.getByInstance(map)) == null)
-							keys.setMapKey(DBKey.newKey(Relatrix.indexInstanceTable,map));
+						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(map)) == null)
+							keys.setMapKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(),map));
 						else
 							keys.setMapKey(dbKey);
 					}
@@ -193,7 +194,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 				if(range != null)
 					return range;
 				if(keys.getRangeKey().isValid()) {
-					range = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getRangeKey());
+					range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getRangeKey());
 				}
 				return range;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -208,11 +209,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					keys.setRangeKey(new DBKey());
 				} else {
 					if(keys.getRangeKey().isValid()) {
-						this.range = (Comparable) Relatrix.indexInstanceTable.getByIndex(keys.getRangeKey());
+						this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getRangeKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)Relatrix.indexInstanceTable.getByInstance(range)) == null)
-							keys.setRangeKey(DBKey.newKey(Relatrix.indexInstanceTable,range));
+						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(range)) == null)
+							keys.setRangeKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(),range));
 						else
 							keys.setRangeKey(dbKey);						
 					}
@@ -226,8 +227,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			this.range = range;
 			keys.setRangeKey(new DBKey());
 		}
-		
-        
+		       
         /**
          * Failsafe compareTo.
          * If classes are not the same and the target is not assignable from the source, that is, not a subclass, toss an error
@@ -239,12 +239,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          */
         @SuppressWarnings({ "unchecked", "rawtypes" })
 		public static int fullCompareTo(Comparable from, Comparable to) {
-        	//if( DEBUG ) {
-        		//if( from == null )
-        			//throw new RuntimeException("Morphism.fullCompareTo 'from' element is null, to is "+to);
-        		if( to == null )
-        			throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
-        	//}
+        	if( to == null )
+        		throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
         	if(from == null)
         		return -1;
          	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
@@ -264,6 +260,16 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	// DBKey comapreTo handles resolution of key to instance
         	return from.compareTo(to);
         }
+        
+        public static int partialCompareTo(Comparable from, Comparable to) {
+    		if( to == null )
+    			throw new RuntimeException("Morphism.partialCompareTo 'to' element is null, from is "+from);
+    		if(from == null)
+    			return -1;
+    		// the string representations as a failsafe
+    		//compare a universal string representation as a unifying datatype for typed class templates
+    		return from.toString().compareTo(to.toString());
+        }
         /**
          * we check whether the enclosed class equals the target class.
          * If classes are not the same and the target is not assignable from the source, throw runtime exception
@@ -278,12 +284,25 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
            	Class<?> toClass = to.getClass();
         	// If classes are not the same try a comparison of the string representations as a unifying type
         	if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass()) ) {
-        		//return from.toString().equals(to.toString());
-          		throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
-        				" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
+      			if(STRICT_SCHEMA)
+    				throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
+    						" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
+    			else
+    				//compare a universal string representation as a unifying datatype for typed class templates
+    				return from.toString().equals(to.toString());
         	}
         	return from.equals(to);
         }
+        
+        public static boolean partialEquals(Comparable from, Comparable to) {
+     		if( to == null )
+     			throw new RuntimeException("Morphism.partialEquals 'to' element is null, from is "+from);
+     		if(from == null)
+     			return false;
+     		// the string representations as a failsafe
+     		//compare a universal string representation as a unifying datatype for typed class templates
+     		return from.toString().equals(to.toString());
+         }
         
         public String toString() { 
         	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),

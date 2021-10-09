@@ -2,6 +2,8 @@ package com.neocoretechs.relatrix;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -13,8 +15,8 @@ import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexInstanceTable;
-import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
 * Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
@@ -46,8 +48,8 @@ import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class Relatrix {
-	private static boolean DEBUG = false;
-	private static boolean DEBUGREMOVE = false;
+	private static boolean DEBUG = true;
+	private static boolean DEBUGREMOVE = true;
 	private static boolean TRACE = true;
 	
 	public static char OPERATOR_WILDCARD_CHAR = '*';
@@ -57,8 +59,7 @@ public final class Relatrix {
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
-													  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
-	public static IndexInstanceTableInterface indexInstanceTable = IndexInstanceTable.getInstance(); // may be overwritten in client/server on client side for transport
+												  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -146,7 +147,7 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 	// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 	indexClasses[0] = null; // remove dmr from our commit lineup
 	try {
-		dbKey = DBKey.newKey(indexInstanceTable,dmr); // this stores our new relation, DBKey and instance
+		dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
 	} catch (ClassNotFoundException e) {
 		throw new IOException(e);
 	} // Use primary key DBKey as value for index keys
@@ -178,7 +179,7 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
  */
 public static synchronized void transactionCommit() throws IOException {
 	// first commit components of relationships
-	indexInstanceTable.commit();
+	IndexResolver.getIndexInstanceTable().commit();
 	// now commit main relationship and index classes
 	for(int i = 0; i < indexClasses.length; i++) {
 		long startTime = System.currentTimeMillis();
@@ -198,7 +199,7 @@ public static synchronized void transactionCommit() throws IOException {
  */
 public static synchronized void transactionRollback() throws IOException {
 	// first roll back components
-	indexInstanceTable.rollback();
+	IndexResolver.getIndexInstanceTable().rollback();
 	// Now roll back relationships
 	for(int i = 0; i < indexClasses.length; i++) {
 		if(indexClasses[i] != null) {
@@ -220,7 +221,7 @@ public static synchronized void transactionRollback() throws IOException {
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	indexInstanceTable.checkpoint();
+	IndexResolver.getIndexInstanceTable().checkpoint();
 	for(int i = 0; i < indexClasses.length; i++) {
 		if(indexClasses[i] != null)
 			RelatrixKV.transactionCheckpoint(indexClasses[i]);
@@ -239,13 +240,16 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 		System.out.println("Relatrix.remove prepping to remove:"+c);
 	removeRecursive(c);
 	try {
-		DBKey dbKey = indexInstanceTable.getByInstance(c);
+		DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
 		if(dbKey != null) {
-			indexInstanceTable.delete(dbKey);
+			// Should delete instance and DbKey
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+		} else {
+			// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
+			RelatrixKV.remove(c);
 		}
-		RelatrixKV.remove(c);
 	} catch (DuplicateKeyException e) {
 		throw new IOException(e);
 	}
@@ -339,37 +343,37 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 		}
 		KeyValue kv = (KeyValue)o;
 		DBKey dbKey = (DBKey) kv.getmValue();
-		indexInstanceTable.delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(drm);
 		if(o == null)
 			throw new IOException(drm+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		indexInstanceTable.delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(mdr);
 		if(o == null)
 			throw new IOException(mdr+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		indexInstanceTable.delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(mrd);
 		if(o == null)
 			throw new IOException(mrd+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		indexInstanceTable.delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(rdm);
 		if(o == null)
 			throw new IOException(rdm+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		indexInstanceTable.delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(rmd);
 		if(o == null)
 			throw new IOException(rmd+" not found for delete");
 		kv = (KeyValue)o;
 		dbKey = (DBKey) kv.getmValue();
-		indexInstanceTable.delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(dbKey);
 	} catch (ClassNotFoundException | DuplicateKeyException e) {
 		throw new IOException(e);
 	}
@@ -645,11 +649,6 @@ public static synchronized Object first() throws IOException
 	if( /*transactionTreeSets*/indexClasses[0] == null ) {
 		return null;
 	}
-	/*
-	Stack stack = new Stack();
-	TraversalStackElement tse = new TraversalStackElement(null,0,0);
-	return transactionTreeSets[0].first(tse, stack);
-	*/
 	try {
 		return RelatrixKV.firstKey(indexClasses[0]);
 	} catch (IllegalAccessException e) {
@@ -667,11 +666,6 @@ public static synchronized Object last() throws IOException
 	if( /*transactionTreeSets*/indexClasses[0] == null ) {
 		return null;
 	}
-	/*
-	Stack stack = new Stack();
-	TraversalStackElement tse = new TraversalStackElement(null,0,0);
-	return transactionTreeSets[0].last(tse, stack);
-	*/
 	try {
 		return RelatrixKV.lastKey(indexClasses[0]);
 	} catch (IllegalAccessException e) {
@@ -715,11 +709,141 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	}
 }
 
-public static void main(String[] args) throws Exception {
+/**
+ * Get the highest numbered key in DBkey table, pre-incremented.
+ * @return
+ * @throws IOException 
+ * @throws IllegalAccessException 
+ * @throws ClassNotFoundException 
+ */
+public static synchronized Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	Integer lastGood = IndexResolver.getIndexInstanceTable().getIncrementedLastGoodKey();
+	if(DEBUG)
+		System.out.printf("Returning getIncrementedLastgoodKey=%d%n", lastGood);
+	return lastGood;
+}
+
+/**
+ * Store our permutations of the key/value
+ * This is a transactional store in the context of a previously initiated transaction.
+ * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
+ * to prevent a recovery on the next operation.
+ * @param key of comparable
+ * @param value
+ * @throws IllegalAccessException
+ * @throws IOException
+ * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+ */
+public static synchronized void transactionalStore(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	RelatrixKV.transactionalStore(key,  value);
+}
+/**
+ * Commit the outstanding transaction data in each active transactional treeset.
+ * @throws IOException
+ */
+public static synchronized void transactionCommit(Class clazz) throws IOException {
+	RelatrixKV.transactionCommit(clazz);
+}
+/**
+ * Roll back all outstanding transactions on the given class, overlap with K/V functionality
+ * @throws IOException
+ */
+public static synchronized void transactionRollback(Class clazz) throws IOException {
+	RelatrixKV.transactionRollback(clazz);
+}
+/**
+ * Take a check point of our current indicies. What this means is that we are
+ * going to write a log record such that if we crash will will restore the logs from that point forward.
+ * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
+ * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
+ * if we crash, to restore the data to its state up to that point", hence check, point...
+ * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
+ * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
+ * even the old data before the checkpoint.
+ * @param clazz The class for which the map has been created.
+ * @throws IOException
+ * @throws IllegalAccessException 
+ */
+ public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKV.transactionCheckpoint(clazz);
+ }
+ /**
+  * return lowest valued key.
+  * @param clazz the class to retrieve
+  * @return the The key/value with lowest key value.
+  * @throws IOException
+  * @throws IllegalAccessException 
+  */
+ public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
+ {
+	 return RelatrixKV.firstKey(clazz);
+ }
+ /**
+  * The lowest key value object
+  * @param clazz the class to retrieve
+  * @return The first value of the class with given key
+  * @throws IOException
+  * @throws IllegalAccessException 
+  */
+ public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
+ {
+	 return RelatrixKV.firstValue(clazz);
+ }
+ /**
+  * Return the key/value for the key.
+  * @param key the key to retrieve
+  * @return The key/value for the key.
+  * @throws IOException
+  * @throws IllegalAccessException 
+  */
+ public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
+ {
+	 return RelatrixKV.get(key);
+ }
+ /**
+  * Return the keyset for the given class
+  * @param clazz the class to retrieve
+  * @return the iterator for the keyset
+  * @throws IOException
+  * @throws IllegalAccessException
+  */
+ public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
+ {
+	 return RelatrixKV.keySet(clazz);
+ }
+ /**
+ * Load the stated package from the declared path into the bytecode repository
+ * @param pack
+ * @param path
+ * @throws IOException
+ */
+ public static synchronized void loadClassFromPath(String pack, String path) throws IOException {
+	Path p = FileSystems.getDefault().getPath(path);
+	HandlerClassLoader.setBytesInRepository(pack,p);
+ }
+ /**
+ * Load the jar file located at jar into the repository
+ * @param jar
+ * @throws IOException
+ */
+ public static synchronized void loadClassFromJar(String jar) throws IOException {
+	HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+ }
+ /**
+ * Remove the stated package from the declared package and all subpackages from the bytecode repository
+ * @param pack
+ * @param path
+ * @throws IOException
+ */
+ public static synchronized void removePackageFromRepository(String pack) throws IOException {
+	HandlerClassLoader.removeBytesInRepository(pack);
+ }
+
+ public static void main(String[] args) throws Exception {
 	setTablespaceDirectory(args[0]);
 	Relatrix.findStream("*", "*", "*", false).forEach((s) -> {
 		System.out.println(s.toString());
 	});
+ }
+ 
 }
-}
-

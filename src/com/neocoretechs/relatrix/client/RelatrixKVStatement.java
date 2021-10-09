@@ -16,8 +16,8 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author Jonathan Groff (C) neoCoreTechs 2021
  *
  */
-public class RelatrixKVStatement implements Serializable, RemoteRequestInterface, RemoteResponseInterface {
-	private static boolean DEBUG = false;
+public class RelatrixKVStatement implements Serializable, RelatrixStatementInterface {
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
     private String className = "com.neocoretechs.relatrix.RelatrixKV";
@@ -51,7 +51,8 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 	public String getSession() {
     	if( session == null ) {
     		session = UUID.randomUUID().toString();
-    		if( DEBUG ) System.out.println("Generated ID for RelatrixStatement:"+session);
+    		if( DEBUG ) 
+    			System.out.printf("%s Generated ID for %s%n",this.getClass().getName(),session);
     	}
     	return session; 
     }
@@ -82,10 +83,10 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
                 c[i] = paramArray[i].getClass();
         return c;
     }
-  
-    public String toString() { return "RelatrixKVStatement for Session:"+
-             session+" Class:"+className+" Method:"+methodName+" Arg:"+
-             (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0])); }
+    @Override
+    public String toString() { return String.format("%s for Session:%s Class:%s Method:%s Arg:%s%n",
+            this.getClass().getName(),session,className,methodName,
+            (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0]))); }
     
 	@Override
 	public CountDownLatch getCountDownLatch() {
@@ -145,7 +146,7 @@ public class RelatrixKVStatement implements Serializable, RemoteRequestInterface
 					return;
 			}
 			if( DEBUG ) {
-				System.out.println("RelatrixKVStatement Storing local object reference for "+getSession()+", data:"+result);
+				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			// put it in the array and send our intermediary back
 			RelatrixKVServer.sessionToObject.put(getSession(), result);

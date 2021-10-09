@@ -26,6 +26,7 @@ import java.util.zip.ZipInputStream;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 
@@ -46,7 +47,7 @@ public class HandlerClassLoader extends ClassLoader {
     private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
     private static boolean useEmbedded = false;
     public static String defaultPath = "/etc/"; // bytecode repository path
-    public static RelatrixKVClient remoteRepository = null;
+    public static RelatrixClientInterface remoteRepository = null;
     private ClassLoader parent = null;
 	static int size;
    

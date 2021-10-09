@@ -38,7 +38,7 @@ public class TransactionBatteryRelatrix {
 	*/
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
-		BigSackAdapter.setTableSpaceDir(argv[0]);
+		Relatrix.setTablespaceDirectory(argv[0]);
 		battery0(argv);
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	

@@ -3,7 +3,18 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-
+/**
+ * For Morphisms in the Relatrix, we store Key/Value tables of instance/DBKey DBKey/Instance to reference
+ * instances of classes by an integer index to reduce redundancy in indexing. Since the 6 permutations of the
+ * morphism are stored in various orders (dmr, rmd, mdr, rdm, drm, mrd) to facilitate set retrieval in the proper order, 
+ * to store instances in each indexing class would present unnecessary overhead and redundancy.<p/>
+ * Consequently, it is necessary to resolve these keys to instances remotely in client/server mode.
+ * Since relationships can serve as components of other relationships, to recursively resolve the instances before being
+ * sent down the wire is impractical. This interface allows us to have a local or remote resolver if applicable.
+ * {@see IndexInstanceTable} {@see RemoteIndexInstanceTable} 
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
+ *
+ */
 public interface IndexInstanceTableInterface {
 
 	/**
@@ -45,5 +56,5 @@ public interface IndexInstanceTableInterface {
 
 	Object lastKey(Class<DBKey> class1) throws IllegalAccessException, IOException;
 	
-	Integer getIncrementedLastGoodKey();
+	Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 }

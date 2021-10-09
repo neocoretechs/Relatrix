@@ -31,7 +31,7 @@ public final class DBKey implements Comparable, Serializable {
 		}
 	}
 	
-	protected void setInstanceIndex(IndexInstanceTableInterface indexTable) {
+	protected void setInstanceIndex(IndexInstanceTableInterface indexTable) throws ClassNotFoundException, IllegalAccessException, IOException {
 		synchronized(instanceIndex) {
 			instanceIndex = new Integer(indexTable.getIncrementedLastGoodKey());
 		}

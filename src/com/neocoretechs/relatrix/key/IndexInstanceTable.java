@@ -17,21 +17,12 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
-	private static volatile IndexInstanceTable instance = null;
-	static LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
-	static DBKey lastKey;
-	static DBKey lastGoodKey;
+	public static boolean DEBUG = true;
+	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
+	DBKey lastKey;
+	DBKey lastGoodKey;
 	private static Object mutex = new Object();
-	public static IndexInstanceTable getInstance() {
-		synchronized(IndexInstanceTable.class) { 
-			if( instance == null ) {
-				instance = new IndexInstanceTable();
-			}
-		}
-		return instance;
-	}
-	private IndexInstanceTable() {
+	public IndexInstanceTable() {
 			synchronized(mutex) {
 				Object lastKeyObject = null;
 				try {
@@ -61,14 +52,14 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	/**
 	 * For commit
 	 */
-	protected static void setLastGoodKey() {
+	protected void setLastGoodKey() {
 		lastGoodKey = new DBKey(lastKey.instanceIndex);
 	}
 	
 	/**
 	 * For rollback
 	 */
-	protected static void setLastKey() {
+	protected void setLastKey() {
 		lastKey = new DBKey(lastGoodKey.instanceIndex);
 	}
 	/**
