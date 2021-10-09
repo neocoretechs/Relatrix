@@ -15,6 +15,7 @@ import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
@@ -88,7 +89,6 @@ public final class RelatrixKV {
  * @param value
  * @throws IllegalAccessException
  * @throws IOException
- * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
 public static synchronized void transactionalStore(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
@@ -525,6 +525,19 @@ public static synchronized boolean containsValue(Class keyType, Object obj) thro
 	return ttm.containsValue(obj);
 }
 
+/**
+ * Get the highest numbered key in DBkey table, pre-incremented.
+ * @return
+ * @throws IOException 
+ * @throws IllegalAccessException 
+ * @throws ClassNotFoundException 
+ */
+public static synchronized Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	Integer lastGood = IndexResolver.getIndexInstanceTable().getIncrementedLastGoodKey();
+	if(DEBUG)
+		System.out.printf("Returning getIncrementedLastgoodKey=%d%n", lastGood);
+	return lastGood;
+}
 
 }
 

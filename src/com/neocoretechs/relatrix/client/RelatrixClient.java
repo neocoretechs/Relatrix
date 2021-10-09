@@ -79,6 +79,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
+		IndexResolver.setRemote(this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -99,7 +100,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver.getIndexInstanceTable(this);
 		ThreadPoolManager.getInstance().spin(this);
 	}
 
@@ -176,6 +176,30 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		} catch (IOException e) {
 				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
 		}
+	}
+	
+	@Override
+	public Object sendCommand(RelatrixStatementInterface rs) throws DuplicateKeyException, IllegalAccessException, IOException {
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {}
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof DuplicateKeyException)
+			throw (DuplicateKeyException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+				else
+				if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
 	}
 	
 	@Override
@@ -420,6 +444,48 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 	
 	@Override
+	public void transactionCommit(Class clazz) throws IOException {
+		RelatrixStatement rs = new RelatrixStatement("transactionCommit",clazz);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		Object o = rs.getObjectReturn();		
+		if(o != null) {
+			if(o instanceof IOException)
+				throw (IOException)o;
+			else
+				if(o instanceof Exception)
+					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		}	
+	}
+
+	@Override
+	public void transactionRollback(Class clazz) throws IOException {
+		RelatrixStatement rs = new RelatrixStatement("transactionRollback",clazz);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		outstandingRequests.remove(rs.getSession());
+		Object o = rs.getObjectReturn();		
+		if(o != null) {
+			if(o instanceof IOException)
+				throw (IOException)o;
+			else
+				if(o instanceof Exception)
+					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		}	
+	}
+	
+	@Override
 	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -442,6 +508,35 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		}
 		
+	}
+	
+	/**
+	 * @return null unless error occurs
+	 */
+	@Override
+	public Object transactionalStore(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixStatement("transactionalStore",k,v);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof DuplicateKeyException)
+			throw (DuplicateKeyException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+				else
+					if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
 	}
 
 	@Override
@@ -584,15 +679,39 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 
 	@Override
 	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		// TODO Auto-generated method stub
-		return null;
+		Object o = transactionalStore(k, v);
+		transactionCommit(k.getClass());
+		return o;
 	}
 	
 	@Override
-	public RemoteStream entrySetStream(Class<?> clazz)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		return null;
+	public RemoteStream entrySetStream(Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("entrySetStream",clazz);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof ClassNotFoundException)
+			throw (ClassNotFoundException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+				else
+					if(o instanceof IllegalArgumentException)
+						throw (IllegalArgumentException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteStream) o;
 	}
 
 	@Override
@@ -620,25 +739,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 					if(o instanceof Exception)
 						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return (RemoteKeySetIterator) o;
-	}
-	
-	@Override
-	public Object transactionalStore(Comparable k, Object v)
-			throws IllegalAccessException, IOException, DuplicateKeyException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void transactionCommit(Class clazz) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionRollback(Class clazz) throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/**
@@ -1130,30 +1230,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 		rc.send(rs);
 		rc.close();
-	}
-
-	@Override
-	public Object sendCommand(RelatrixStatementInterface rs) throws DuplicateKeyException, IllegalAccessException, IOException {
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-				if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 
 }

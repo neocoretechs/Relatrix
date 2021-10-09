@@ -812,6 +812,17 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
 	 return RelatrixKV.keySet(clazz);
  }
  /**
+  * Return the entry set for the given class type
+  * @param clazz the class to retrieve
+  * @return Stream for entry set
+  * @throws IOException
+  * @throws IllegalAccessException
+  */
+ public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
+ {
+	 return RelatrixKV.entrySetStream(clazz);
+ }
+ /**
  * Load the stated package from the declared path into the bytecode repository
  * @param pack
  * @param path

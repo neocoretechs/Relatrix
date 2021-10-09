@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.bigsack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 /**
@@ -80,6 +80,7 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
+		IndexResolver.setRemote(this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
