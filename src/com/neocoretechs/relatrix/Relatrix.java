@@ -452,11 +452,11 @@ public static synchronized Iterator<?> findSet(Object darg, Object marg, Object 
 * @throws IllegalAccessException 
 * @return The Stream pipeline with the retrieved elements
  */
-public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
     Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-    return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+    return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -503,7 +503,7 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
 * @throws IllegalAccessException 
 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
 */
-public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
@@ -512,7 +512,7 @@ public static synchronized Stream<?> findTailStream(Object darg, Object marg, Ob
 		throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -553,12 +553,12 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
-public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg, boolean... parallel) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference in our headset factory
 	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, (parallel.length == 0 ? false : parallel[0]));
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
@@ -621,7 +621,7 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
-public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, boolean parallel, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
@@ -636,7 +636,7 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
 		throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-	return (Stream<?>) StreamSupport.stream(spliterator, parallel);
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
@@ -852,7 +852,7 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
 
  public static void main(String[] args) throws Exception {
 	setTablespaceDirectory(args[0]);
-	Relatrix.findStream("*", "*", "*", false).forEach((s) -> {
+	Relatrix.findStream("*", "*", "*").forEach((s) -> {
 		System.out.println(s.toString());
 	});
  }

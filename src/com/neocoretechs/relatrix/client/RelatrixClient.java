@@ -839,14 +839,62 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	*/
 	public RemoteTailSetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		return findTailSet(darg, marg, rarg);
-
+		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteTailSetIterator)o;
 	}
 	
 	public RemoteStream findSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		return findTailSetStream(darg, marg, rarg);
-
+		RelatrixStatement rs = new RelatrixStatement("findStream",darg, marg, rarg);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (RemoteStream)o;
 	}
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -868,7 +916,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	*/
 	public RemoteTailSetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
+		RelatrixStatement rs = new RelatrixStatement("findTailSet",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -899,7 +947,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 
 	public RemoteStream findTailSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixStatement rs = new RelatrixStatement("findSetStream",darg, marg, rarg);
+		RelatrixStatement rs = new RelatrixStatement("findTailStream",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -974,7 +1022,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	
 	public RemoteStream findHeadSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixStatement rs = new RelatrixStatement("findHeadSetStream",darg, marg, rarg);
+		RelatrixStatement rs = new RelatrixStatement("findHeadStream",darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -1050,7 +1098,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	
 	public RemoteStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		RelatrixStatement rs = new RelatrixStatement("findSubSetStream",darg, marg, rarg, endarg);
+		RelatrixStatement rs = new RelatrixStatement("findSubStream",darg, marg, rarg, endarg);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -1228,7 +1276,8 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 				System.out.println("Cant process argument list of length:"+args.length);
 				return;
 		}
-		rc.send(rs);
+		System.out.println(rc.sendCommand(rs));
+		//rc.send(rs);
 		rc.close();
 	}
 

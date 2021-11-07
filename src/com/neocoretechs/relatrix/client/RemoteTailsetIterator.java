@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
  * Used for Relatrix category theoretic and set oriented processing to produce tailset and tailset functors.<p/>
