@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix;
 import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.ArrayList;
+
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -14,8 +14,7 @@ import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
 import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
-import com.neocoretechs.relatrix.key.IndexInstanceTable;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
@@ -30,26 +29,8 @@ public final class RelatrixKV {
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
-	public static char OPERATOR_WILDCARD_CHAR = '*';
-	public static char OPERATOR_TUPLE_CHAR = '?';
-	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
-	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED; 
 
-	/**
-	* Calling these methods allows the user to substitute their own
-	* symbology for the usual Findset semantics. If you absolutely
-	* need to store values confusing to the standard findset *,? semantics.
-	* TODO: In k/v context, are these relevant?
-	* */
-	public static void setWildcard(char wc) {
-		OPERATOR_WILDCARD_CHAR = wc;
-		OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
-	}
-	public static void setTuple(char tp) {
-		OPERATOR_TUPLE_CHAR = tp;
-		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
-	}
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
 	 * @param path
@@ -110,8 +91,8 @@ public static synchronized void transactionalStore(Comparable<?> key, Object val
 public static synchronized void transactionCommit(Class clazz) throws IOException {
 	long startTime = System.currentTimeMillis();
 	BigSackAdapter.commitTransaction(clazz);
-		if( DEBUG || TRACE )
-			System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
+	if( DEBUG || TRACE )
+		System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 }
 /**
  * Roll back all outstanding transactions on the indicies
@@ -135,6 +116,26 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
  */
 public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
 	BigSackAdapter.checkpointTransaction(clazz);
+}
+/**
+ * Supported in Relatrix
+ * @throws IOException
+ */
+public static synchronized void transactionCommit() throws IOException {
+	throw new IOException("Must specify a class");
+}
+/**
+ * @throws IOException
+ */
+public static synchronized void transactionRollback() throws IOException {
+	throw new IOException("Must specify a class");
+}
+/**
+ * @throws IOException
+ * @throws IllegalAccessException 
+ */
+public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
+	throw new IOException("Must specify a class");
 }
 /**
  * Load the stated package from the declared path into the bytecode repository
@@ -526,17 +527,10 @@ public static synchronized boolean containsValue(Class keyType, Object obj) thro
 }
 
 /**
- * Get the highest numbered key in DBkey table, pre-incremented.
- * @return
  * @throws IOException 
- * @throws IllegalAccessException 
- * @throws ClassNotFoundException 
  */
 public static synchronized Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-	Integer lastGood = IndexResolver.getIndexInstanceTable().getIncrementedLastGoodKey();
-	if(DEBUG)
-		System.out.printf("Returning getIncrementedLastgoodKey=%d%n", lastGood);
-	return lastGood;
+	throw new IOException("Not supported in RelatrixKV");
 }
 
 }

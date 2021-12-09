@@ -415,6 +415,107 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		}
 	}
+	@Override
+	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getIncrementedLastGoodKey",(Object[])null);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof ClassNotFoundException)
+				throw (ClassNotFoundException)o;
+			else
+				if(o instanceof IllegalAccessException)
+					throw (IllegalAccessException)o;
+				else
+					if(o instanceof IOException)
+						throw (IOException)o;
+					else
+						if(o instanceof Exception)
+							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return (Integer) o;
+	}
+
+	@Override
+	public void transactionCommit() throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",(Object[])null);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof IOException)
+				throw (IOException)o;
+			else
+				if(o instanceof Exception)
+					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+	}
+
+	@Override
+	public void transactionRollback() throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",(Object[])null);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof IOException)
+				throw (IOException)o;
+			else
+				if(o instanceof Exception)
+					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		
+	}
+
+	@Override
+	public void transactionCheckpoint() throws IOException, IllegalAccessException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",(Object[])null);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof IllegalArgumentException)
+			throw (IllegalArgumentException)o;
+		else
+			if(o instanceof IOException)
+				throw (IOException)o;
+			else
+				if(o instanceof Exception)
+					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		
+	}
+
 	/**
 	* recursively delete all relationships that this object participates in
 	* @exception IOException low-level access or problems modifiying schema
@@ -1568,29 +1669,6 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		rc.close();
 	}
 
-	@Override
-	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void transactionCommit() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionRollback() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionCheckpoint() throws IOException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		
-	}
 
 	
 }
