@@ -172,11 +172,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
-			Object o = RelatrixKV.get(index);
-			if(o == null)
-				return null;
-			KeyValue kv = (KeyValue)o;
-			return kv.getmValue();
+			return RelatrixKV.get(index);
 		}
 	}
 	/**
@@ -190,14 +186,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
-			classCommits.add(instance.getClass());
-			Object o = RelatrixKV.get((Comparable) instance);
-			if(DEBUG)
-				System.out.printf("IndexInstanceTable.getByInstance %s, result=%s%n",instance,o);
-			if(o == null)
-				return null;
-			KeyValue kv = (KeyValue)o;
-			return (DBKey)kv.getmValue();
+			return (DBKey) RelatrixKV.get((Comparable) instance);
 		}
 	}
 

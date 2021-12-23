@@ -432,7 +432,10 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
 public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
-	return ((KeyValue)ttm.get(key)).getmValue(); // gets key/value
+	 Object o = ttm.get(key);
+	 if( o == null )
+		 return null;
+	return ((KeyValue)o).getmValue();
 }
 /**
  * The lowest key value object
