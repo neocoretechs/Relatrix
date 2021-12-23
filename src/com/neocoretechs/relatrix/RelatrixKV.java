@@ -47,19 +47,6 @@ public final class RelatrixKV {
 		return BigSackAdapter.getTableSpaceDir();
 	}
 	
-	/**
-	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
-	 * BigSack tablespaces that comprise our database on remote nodes.
-	 * @param path
-	 * @throws IOException
-	 */
-	public static synchronized void setRemoteDirectory(String path) {
-		BigSackAdapter.setRemoteDir(path);
-	}
-	
-	public static synchronized String getRemoteDirectory() {
-		return BigSackAdapter.getRemoteDir();
-	}
 
 /**
  * Store our permutations of the key/value

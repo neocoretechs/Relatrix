@@ -131,7 +131,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
-		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {
+		if(result != null && !(result instanceof Serializable) && !(result instanceof Externalizable) ) {
 			// Stream..?
 			if( result instanceof Stream) {
 					setObjectReturn( new RemoteStream(result) );

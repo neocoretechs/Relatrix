@@ -111,7 +111,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          */
         public Comparable getDomain() {
 			try {
-				Comparable tdomain = null;
 				if(domain != null)
 					return domain;
 				if(keys.getDomainKey().isValid()) {
@@ -151,7 +150,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		
 		public Comparable getMap() {
 			try {
-				Comparable tmap = null;
 				if(map != null) 
 					return map;
 				if(keys.getMapKey().isValid()) {
@@ -463,10 +461,15 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	throw new RuntimeException("returnTupleOrder invalid tuple "+n);
         }
         
-        
-        private void resolve(Comparable instance, DBKey func) throws IllegalAccessException, ClassNotFoundException, IOException {
-        	if(!instance.getClass().isAssignableFrom(Morphism.class))
-        		return;
+        /**
+         * Assume instance is instanceof Morphism from a previous test. Resolve dbkeys into instances to use downstream
+         * @param instance
+         * @param func
+         * @throws IllegalAccessException
+         * @throws ClassNotFoundException
+         * @throws IOException
+         */
+        public static void resolve(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
          	Comparable tdomain, tmap, trange;
           	tdomain = ((Morphism)instance).getDomain();
         	//((DBKey)map).getInstance();
@@ -474,42 +477,42 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	//((DBKey)range).getInstance();
         	trange = ((Morphism)instance).getRange();
         	if(DEBUG)
-        		System.out.printf("%s.resolve %s %s %s%n", this.getClass().getName(), domain, map, range);
+        		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
   
         		// resolve domain-level relationships derived from original relationship in this morphism we just deserialized
-				while(tdomain != null && tdomain.getClass().isAssignableFrom(Morphism.class)) {
+				while(tdomain instanceof Morphism) {
 					tdomain = (Comparable) ((Morphism)tdomain).getDomain();
-					if( ((Morphism)tdomain).getMap() != null && ((Morphism)tdomain).getMap().getClass().isAssignableFrom(Morphism.class)) {
+					if( ((Morphism)tdomain).getMap() instanceof Morphism) {
 						Comparable txmap = (Comparable) ((Morphism)tdomain).getMap();
-						if( ((Morphism)txmap).getRange() != null && ((Morphism)txmap).getRange().getClass().isAssignableFrom(Morphism.class)) {
+						if( ((Morphism)txmap).getRange() instanceof Morphism) {
 							Comparable txrange = (Comparable) ((Morphism)txmap).getRange();
-							while(txrange != null && txrange.getClass().isAssignableFrom(Morphism.class)) {
+							while(txrange instanceof Morphism) {
 								txrange = (Comparable) ((Morphism)txmap).getRange();
 							}
 						}
 					}
 				}
 				// resolve map-level relationships descended from original relationship
-				while(tmap != null && tmap.getClass().isAssignableFrom(Morphism.class)) {
+				while(tmap instanceof Morphism) {
 					tdomain = (Comparable) ((Morphism)tmap).getDomain();
-					if( ((Morphism)tmap).getMap() != null && ((Morphism)tmap).getMap().getClass().isAssignableFrom(Morphism.class)) {
+					if( ((Morphism)tmap).getMap() instanceof Morphism) {
 						Comparable txmap = (Comparable) ((Morphism)tmap).getMap();
-						if( ((Morphism)txmap).getRange() != null && ((Morphism)txmap).getRange().getClass().isAssignableFrom(Morphism.class)) {
+						if( ((Morphism)txmap).getRange() instanceof Morphism) {
 							Comparable txrange = (Comparable) ((Morphism)txmap).getRange();
-							while(txrange != null && txrange.getClass().isAssignableFrom(Morphism.class)) {
+							while(txrange instanceof Morphism) {
 								txrange = (Comparable) ((Morphism)txmap).getRange();
 							}
 						}
 					}
 				}
 				// resolve range-level relationships descended from original relationship
-				while(trange != null && trange.getClass().isAssignableFrom(Morphism.class)) {
+				while(trange instanceof Morphism) {
 					tdomain = (Comparable) ((Morphism)trange).getDomain();
-					if( ((Morphism)trange).getMap() != null && ((Morphism)trange).getMap().getClass().isAssignableFrom(Morphism.class)) {
+					if( ((Morphism)trange).getMap() instanceof Morphism) {
 						Comparable txmap = (Comparable) ((Morphism)trange).getMap();
-						if( ((Morphism)txmap).getRange() != null && ((Morphism)txmap).getRange().getClass().isAssignableFrom(Morphism.class)) {
+						if( ((Morphism)txmap).getRange() instanceof Morphism) {
 							Comparable txrange = (Comparable) (((Morphism)txmap).getRange());
-							while(txrange != null && txrange.getClass().isAssignableFrom(Morphism.class)) {
+							while(txrange instanceof Morphism) {
 								txrange = (Comparable) ((Morphism)txmap).getRange();
 							}
 						}

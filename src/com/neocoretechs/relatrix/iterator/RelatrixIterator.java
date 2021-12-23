@@ -103,7 +103,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 		}
 		return iterateDmr();
 		
-		} catch (IllegalAccessException | IOException e) {
+		} catch (IllegalAccessException | IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
@@ -126,8 +126,9 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
 	* @throws IOException 
 	* @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
 	*/
-	private Comparable[] iterateDmr() throws IllegalAccessException, IOException {
+	private Comparable[] iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
 	    Comparable[] tuples = new Comparable[getReturnTuples(dmr_return)];
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
@@ -139,9 +140,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	    		if( DEBUG ) {
 	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" tuple:"+tuples[i]);
 	    		}
-	    	
 	    		tuples[i] = buffer.iterate_dmr(dmr_return);
-	    	
 	    		if( DEBUG ) {
 	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" tuple:"+tuples[i]);
 	    		}

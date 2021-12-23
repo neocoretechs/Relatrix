@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -596,6 +597,32 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("get",key);
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		try {
+			cdl.await();
+		} catch (InterruptedException e) {
+		}
+		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof ClassNotFoundException)
+			throw (ClassNotFoundException)o;
+		else
+			if(o instanceof IllegalAccessException)
+				throw (IllegalAccessException)o;
+			else
+				if(o instanceof IOException)
+					throw (IOException)o;
+				else
+					if(o instanceof Exception)
+						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+		return o;
+	}
+	
+	public Object getByIndex(DBKey key) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("getByIndex",key);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);

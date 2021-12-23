@@ -89,19 +89,7 @@ public final class Relatrix {
 	public static synchronized String getTableSpaceDirectory() {
 		return RelatrixKV.getTableSpaceDirectory();
 	}
-	/**
-	 * We cant reasonably check the validity. Set the path to the remote directory that contains the
-	 * BigSack tablespaces that comprise our database on remote nodes.
-	 * @param path
-	 * @throws IOException
-	 */
-	public static synchronized void setRemoteDirectory(String path) {
-		RelatrixKV.setRemoteDirectory(path);
-	}
-	
-	public static synchronized String getRemoteDirectory() {
-		return RelatrixKV.getRemoteDirectory();
-	}
+
 
 /**
  * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
@@ -640,8 +628,8 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
 }
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
- * instance having the lowest valued key.
- * @return the DomainMapRange morphism having the lowest key value.
+ * instance having the lowest valued key value of the index classes.
+ * @return the DomainMapRange morphism having the lowest valued key value.
  * @throws IOException
  */
 public static synchronized Object first() throws IOException
@@ -656,6 +644,55 @@ public static synchronized Object first() throws IOException
 	}
 }
 /**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+ * instance having the lowest valued key value of the index classes.
+ * @return the DomainMapRange morphism having the lowest valued key value.
+ * @throws IOException
+ */
+public static synchronized Object firstKey() throws IOException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.firstKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the lowest valued key value of the index classes.
+ * @return the DomainMapRange morphism having the lowest valued key value.
+ * @throws IOException
+ */
+public static synchronized Object firstValue() throws IOException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.firstValue(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+ * instance having the lowest valued key value.
+ * @return the DomainMapRange morphism having the lowest valued key value.
+ * @throws IOException
+ */
+public static synchronized Object first(Class clazz) throws IOException
+{
+	try {
+		return RelatrixKV.firstKey(clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+/**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
  * instance having the highest valued key.
  * @return the DomainMapRange morphism having the highest key value.
@@ -668,6 +705,82 @@ public static synchronized Object last() throws IOException
 	}
 	try {
 		return RelatrixKV.lastKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the highest valued key.
+ * @return the DomainMapRange morphism having the highest key value.
+ * @throws IOException
+ */
+public static synchronized Object lastKey() throws IOException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.lastKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the value of the highest valued key.
+ * @return the DomainMapRange morphism having the value of highest key.
+ * @throws IOException
+ */
+public static synchronized Object lastValue() throws IOException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.lastValue(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the highest valued key.
+ * @return the DomainMapRange morphism having the highest key value.
+ * @throws IOException
+ */
+public static synchronized Object last(Class clazz) throws IOException
+{
+	try {
+		return RelatrixKV.lastKey(clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the highest valued key.
+ * @return the DomainMapRange morphism having the highest key value.
+ * @throws IOException
+ */
+public static synchronized Object lastKey(Class clazz) throws IOException
+{
+	try {
+		return RelatrixKV.lastKey(clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+/**
+ * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+ * instance having the value of the highest valued key.
+ * @return the DomainMapRange morphism having the value of highest key.
+ * @throws IOException
+ */
+public static synchronized Object lastValue(Class clazz) throws IOException
+{
+	try {
+		return RelatrixKV.lastValue(clazz);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -799,6 +912,18 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
  public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
  {
 	 return RelatrixKV.get(key);
+ }
+ /**
+  * Return the Object pointed to by the DBKey. this is to support remote iterators.
+  * @param key the key to retrieve
+  * @return The instance by DBKey
+  * @throws IOException
+  * @throws IllegalAccessException 
+  * @throws ClassNotFoundException 
+  */
+ public static synchronized Object getByIndex(Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
+ {
+	 return IndexResolver.getIndexInstanceTable().getByIndex((DBKey) key);
  }
  /**
   * Return the keyset for the given class

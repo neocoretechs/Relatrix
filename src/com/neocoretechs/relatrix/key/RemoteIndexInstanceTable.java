@@ -151,11 +151,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-			Object o = rc.get(index);
-			if(o == null)
-				return null;
-			KeyValue kv = (KeyValue)o;
-			return kv.getmValue();
+			return ((RelatrixClient)rc).getByIndex(index);
 	}
 	/**
 	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
