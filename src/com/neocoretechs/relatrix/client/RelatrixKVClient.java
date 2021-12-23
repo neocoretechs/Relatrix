@@ -619,10 +619,6 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		// We will have a BigSack Entry, which is a Serializable version of Entry with key/value, so extract value
-		if(o != null) {
-			o = ((Entry)o).getValue();
-		}
 		return o;
 	}
 		

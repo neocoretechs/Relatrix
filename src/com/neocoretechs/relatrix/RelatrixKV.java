@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
+import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
 import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
 import com.neocoretechs.bigsack.session.BigSackAdapter;
 import com.neocoretechs.bigsack.session.TransactionalTreeMap;
@@ -422,16 +423,16 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
 	return ttm.firstKey(tse, stack);
 }
 /**
- * Return the key/value for the key.
+ * Return the value for the key.
  * @param key the key to retrieve
- * @return The key/value for the key.
+ * @return The value for the key.
  * @throws IOException
  * @throws IllegalAccessException 
  */
 public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
 {
 	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
-	return ttm.get(key); // gets key/value
+	return ((KeyValue)ttm.get(key)).getmValue(); // gets key/value
 }
 /**
  * The lowest key value object

@@ -163,14 +163,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-			classCommits.add(instance.getClass());
-			Object o = rc.get((Comparable) instance);
-			if(DEBUG)
-				System.out.printf("IndexInstanceTable.getByInstance %s, result=%s%n",instance,o);
-			if(o == null)
-				return null;
-			KeyValue kv = (KeyValue)o;
-			return (DBKey)kv.getmValue();
+			return (DBKey)rc.get((Comparable) instance);
 	}
 
 	@Override

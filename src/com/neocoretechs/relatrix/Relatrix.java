@@ -903,9 +903,9 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
 	 return RelatrixKV.firstValue(clazz);
  }
  /**
-  * Return the key/value for the key.
+  * Return the value for the key.
   * @param key the key to retrieve
-  * @return The key/value for the key.
+  * @return The value for the key.
   * @throws IOException
   * @throws IllegalAccessException 
   */

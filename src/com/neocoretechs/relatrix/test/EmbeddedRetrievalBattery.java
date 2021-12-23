@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.test;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -16,9 +15,8 @@ import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 
 /**
  * NOTES:
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * A database unique to this test module should be used.
- * @author jg C 2017
+ * program arguments are local_node remote_node remote_port_for_database
+ * @author Jonathan Groff C 2021
  *
  */
 public class EmbeddedRetrievalBattery {
