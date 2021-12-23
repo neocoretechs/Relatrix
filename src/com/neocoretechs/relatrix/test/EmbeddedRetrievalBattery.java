@@ -36,7 +36,7 @@ public class EmbeddedRetrievalBattery {
 	 * @throws Exception
 	 */
 	public static void battery1(String[] argv) throws Exception {
-		System.out.println("Battery1 ");
+		System.out.println("Iterator Battery1 ");
 		String fmap;
 		long tims = System.currentTimeMillis();
 		int recs = 0;
