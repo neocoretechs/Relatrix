@@ -33,7 +33,7 @@ public final class ServerInvokeMethod {
     */
     public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {  
             //pkmnap.classClass = Class.forName(tclass);
-    		// if we cant load it with handlerclassloader, it cant be loded. period.
+    		// Use custom classloader?
     		pkmnap.classClass = hcl.loadClass(tclass, true);
             pkmnap.className = pkmnap.classClass.getName();
             skipArgs = tskipArgs;
@@ -84,7 +84,7 @@ public final class ServerInvokeMethod {
     	 * @return
     	 * @throws Exception
        */
-       public Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
+       public synchronized Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
     		return invokeMethod(tmc, null);
        }
        /**
@@ -93,7 +93,7 @@ public final class ServerInvokeMethod {
        * it has been used to locate this object. 
        * @return Object of result of method invocation
        */
-       public Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
+       public synchronized Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
                 //NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
                 String targetMethod = tmc.getMethodName();
                 int methodIndex = pkmnap.methodNames.indexOf(targetMethod);

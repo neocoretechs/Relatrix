@@ -48,15 +48,6 @@ public class EmbeddedRetrievalBattery {
 		rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
 		RemoteTailSetIterator it = null;
 		System.out.println("Wildcard queries:");
-	
-		System.out.println("1.) Findset(*,*,*)...");
-		it =  rkvc.findSet("*", "*", "*");
-		while(rkvc.hasNext(it)) {
-			Object o = rkvc.next(it);
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//ar.add(c[0]);
-		}
 		
 		System.out.println("2.) Findset(*,*,?)...");		
 		it = rkvc.findSet("*", "*", "?");
@@ -67,6 +58,16 @@ public class EmbeddedRetrievalBattery {
 			System.out.println(++recs+"="+c[0]);
 			if(ar.size() == 0 ) ar.add(c[0]);
 		}
+		
+		System.out.println("1.) Findset(*,*,*)...");
+		it =  rkvc.findSet("*", "*", "*");
+		while(rkvc.hasNext(it)) {
+			Object o = rkvc.next(it);
+			Comparable[] c = (Comparable[])o;
+			System.out.println(++recs+"="+c[0]);
+			//ar.add(c[0]);
+		}
+		
 		System.out.println("3.) Findset(*,?,*)...");		
 		it = rkvc.findSet("*", "?", "*");
 		//ar = new ArrayList<Comparable>();

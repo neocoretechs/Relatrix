@@ -42,12 +42,12 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
 	 */
     @Override
-	public String getClassName() { return className; }
+	public synchronized String getClassName() { return className; }
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
 	 */
     @Override
-	public String getSession() {
+	public synchronized String getSession() {
     	if( session == null ) {
     		session = UUID.randomUUID().toString();
     		if( DEBUG ) 
@@ -56,24 +56,24 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	return session; 
     }
     
-    protected void setSession(String session) { this.session = session; }
+    protected synchronized void setSession(String session) { this.session = session; }
     
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getMethodName()
 	 */
     @Override
-	public String getMethodName() { return methodName; }
+	public synchronized String getMethodName() { return methodName; }
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParamArray()
 	 */
     @Override
-	public Object[] getParamArray() { return paramArray; }
+	public synchronized Object[] getParamArray() { return paramArray; }
 
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParams()
 	 */
     @Override
-	public Class<?>[] getParams() {
+	public synchronized Class<?>[] getParams() {
     	//System.out.println("params:"+paramArray.length);
     	//for(int i = 0; i < paramArray.length; i++)
     		//System.out.println("paramArray "+i+"="+paramArray[i]);
@@ -83,42 +83,42 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
         return c;
     }
     @Override
-    public String toString() { return String.format("%s for Session:%s Class:%s Method:%s Arg:%s%n",
+    public synchronized String toString() { return String.format("%s for Session:%s Class:%s Method:%s Arg:%s%n",
              this.getClass().getName(),session,className,methodName,
              (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0]))); }
     
 	@Override
-	public CountDownLatch getCountDownLatch() {
+	public synchronized CountDownLatch getCountDownLatch() {
 		return latch;
 	}
 	@Override
-	public void setCountDownLatch(CountDownLatch cdl) {
+	public synchronized void setCountDownLatch(CountDownLatch cdl) {
 		latch = cdl;	
 	}
 	@Override
-	public CyclicBarrier getCyclicBarrier() {
+	public synchronized CyclicBarrier getCyclicBarrier() {
 		return barrier;
 	}
 	@Override
-	public void setCyclicBarrier(CyclicBarrier cb) {
+	public synchronized void setCyclicBarrier(CyclicBarrier cb) {
 		barrier = cb;
 	}
 	@Override
-	public void setLongReturn(long val) {
+	public synchronized void setLongReturn(long val) {
 		retLong = val;
 	}
 	@Override
-	public void setObjectReturn(Object o) {
+	public synchronized void setObjectReturn(Object o) {
 		retObj = o;		
 	}
 
 	@Override
-	public long getLongReturn() {
+	public synchronized long getLongReturn() {
 		return retLong;
 	}
 
 	@Override
-	public Object getObjectReturn() {
+	public synchronized Object getObjectReturn() {
 		return retObj;
 	}
 	/**
@@ -126,7 +126,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	 * in which case we save it server side and link it to the session for later retrieval
 	 */
 	@Override
-	public void process() throws Exception {
+	public synchronized void process() throws Exception {
 		Object result = RelatrixServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
