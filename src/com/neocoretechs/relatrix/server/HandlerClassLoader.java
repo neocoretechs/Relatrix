@@ -598,7 +598,24 @@ public class HandlerClassLoader extends ClassLoader {
     	//Path p = FileSystems.getDefault().getPath("C:/users/jg/workspace/volvex/bin/com/neocoretechs/volvex");
     	//setBytesInRepository("com.neocoretechs.volvex",p);
     	size = 0;
-    	connectToRemoteRepository();
+    	switch(args.length) {
+    		case 0:
+    			connectToRemoteRepository();
+    			break;
+    		case 1:
+    			connectToRemoteRepository(args[0]);
+    			break;
+    		case 2:
+    			connectToRemoteRepository(args[0], Integer.parseInt(args[1]));
+    			break;
+    		case 3:
+    			connectToRemoteRepository(args[0], args[1], Integer.parseInt(args[2]));
+    			break;
+    		default:
+    			System.out.println("Number of arguments is "+args.length+", using first 3 for local host, remote host, remote port...");
+       			connectToRemoteRepository(args[0], args[1], Integer.parseInt(args[2]));
+    			break;
+    	}
     	remoteRepository.entrySetStream(String.class).of().forEach(e-> {
     		System.out.printf("Class: %s size:%d%n",((ClassNameAndBytes)((Map.Entry)e).getValue()).getName(),
     			((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length);

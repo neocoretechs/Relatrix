@@ -88,12 +88,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			try {
 				RelatrixKV.transactionalStore(index, instance);
 			} catch(DuplicateKeyException dke) {
-					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
+					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
 			}
 			try {
 				RelatrixKV.transactionalStore(instance, index);
 			} catch(DuplicateKeyException dke) {
-					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));	
+					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
 			}
 			classCommits.add(index.getClass());
 			classCommits.add(instance.getClass());

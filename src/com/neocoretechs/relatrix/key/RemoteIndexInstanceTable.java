@@ -171,6 +171,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		try {
 			return rc.lastKey(DBKey.class);
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

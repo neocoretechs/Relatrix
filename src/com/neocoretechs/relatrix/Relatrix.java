@@ -329,38 +329,44 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 				System.out.println("Relatrix.remove could not find relationship dmr:"+dmr);
 			return;
 		}
-		KeyValue kv = (KeyValue)o;
-		DBKey dbKey = (DBKey) kv.getmValue();
+		//KeyValue kv = (KeyValue)o;
+		//DBKey dbKey = (DBKey) kv.getmValue();
+		DBKey dbKey = (DBKey)o;
 		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(drm);
 		if(o == null)
 			throw new IOException(drm+" not found for delete");
-		kv = (KeyValue)o;
-		dbKey = (DBKey) kv.getmValue();
+		//kv = (KeyValue)o;
+		//dbKey = (DBKey) kv.getmValue();
+		dbKey = (DBKey)o;
 		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(mdr);
 		if(o == null)
 			throw new IOException(mdr+" not found for delete");
-		kv = (KeyValue)o;
-		dbKey = (DBKey) kv.getmValue();
+		//kv = (KeyValue)o;
+		//dbKey = (DBKey) kv.getmValue();
+		dbKey = (DBKey)o;
 		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(mrd);
 		if(o == null)
 			throw new IOException(mrd+" not found for delete");
-		kv = (KeyValue)o;
-		dbKey = (DBKey) kv.getmValue();
+		//kv = (KeyValue)o;
+		//dbKey = (DBKey) kv.getmValue();
+		dbKey = (DBKey)o;
 		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(rdm);
 		if(o == null)
 			throw new IOException(rdm+" not found for delete");
-		kv = (KeyValue)o;
-		dbKey = (DBKey) kv.getmValue();
+		//kv = (KeyValue)o;
+		//dbKey = (DBKey) kv.getmValue();
+		dbKey = (DBKey)o;
 		IndexResolver.getIndexInstanceTable().delete(dbKey);
 		o = RelatrixKV.get(rmd);
 		if(o == null)
 			throw new IOException(rmd+" not found for delete");
-		kv = (KeyValue)o;
-		dbKey = (DBKey) kv.getmValue();
+		//kv = (KeyValue)o;
+		//dbKey = (DBKey) kv.getmValue();
+		dbKey = (DBKey)o;
 		IndexResolver.getIndexInstanceTable().delete(dbKey);
 	} catch (ClassNotFoundException | DuplicateKeyException e) {
 		throw new IOException(e);

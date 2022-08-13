@@ -52,7 +52,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     	if( session == null ) {
     		session = UUID.randomUUID().toString();
     		if( DEBUG ) 
-    			System.out.printf("%s Generated ID for %s%n",this.getClass().getName(),session);
+    			System.out.printf("%s%n",this.toString());
     	}
     	return session; 
     }
@@ -84,9 +84,27 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
         return c;
     }
     @Override
-    public synchronized String toString() { return String.format("%s for Session:%s Class:%s Method:%s Arg:%s%n",
-            this.getClass().getName(),session,className,methodName,
-            (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0]))); }
+    public synchronized String toString() { 
+    	StringBuilder sb = new StringBuilder(String.format("%s for Session:%s Class/method:%s.%s",this.getClass().getName(),session,className,methodName));
+    	if(paramArray == null || paramArray.length == 0) {
+    			sb.append("(void)");
+    	} else {
+    		sb.append("(");
+    		for(Object param: paramArray) {
+    			if(param == null) {
+    				sb.append(" null,");
+    			} else {
+    				sb.append(" ");
+    				sb.append(param.getClass());
+    				sb.append(" ");
+    				sb.append(param.toString());
+    				sb.append(",");
+    			}
+    		}
+    		sb.append(")\r\n");
+    	}
+    	return sb.toString();
+    }
     
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {
@@ -134,6 +152,8 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	 */
 	@Override
 	public synchronized void process() throws Exception {
+		if(DEBUG)
+			System.out.println(this);
 		Object result = RelatrixKVServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -190,7 +210,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 		} else {
 			setObjectReturn(result);
 		}
-	getCountDownLatch().countDown();
-}	
+		getCountDownLatch().countDown();
+	}	
 
 }
