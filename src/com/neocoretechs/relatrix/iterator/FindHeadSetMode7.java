@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.Morphism;
 * part of TemplateClass retrieval. the second is when one or more params is instanceof TemplateClass. In the second
 * instance, the class functions as template for the enclosed class to retrieve objects of that class (or subclass).
 * Depending on the subclass of TemplateClass, the argument acts as a wildcard (*) or a tuple (?) for instances of that
-* class. Category theory analog is a representable. 
+* class. 
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015.2021 
 */
 public class FindHeadSetMode7 extends FindSetMode7 {

@@ -217,7 +217,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @param marg
 		 * @param rarg
 		 * @param endarg
-		 * @return The IteratorFactory by whcih we may facilitate the creation of our RelatrixIterator
+		 * @return The IteratorFactory by which we may facilitate the creation of our RelatrixIterator
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */

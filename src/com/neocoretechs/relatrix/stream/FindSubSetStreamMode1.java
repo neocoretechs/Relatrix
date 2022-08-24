@@ -10,7 +10,10 @@ import com.neocoretechs.relatrix.Morphism;
  * To get the subSet iterator from the BigSack we need 2 arguments, start and end range. We use the overridden 
  * clone method to render an instance for our template that we fill in with the arguments from the additional semantics.
  * It takes the form of a variable parameter argument to the findSet method at the highest levels of the Relatrix
- * API. 
+ * API. <br/>
+ * The number of Comparable objects returned is the sum of the number of "?" PLUS the number of concrete object instances
+ * specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
+ * these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
  * @author Jonathan Groff Copyright (C) 2015,2021 NeoCoreTechs
  *
  */
@@ -19,6 +22,7 @@ public class FindSubSetStreamMode1 extends FindSetStreamMode1 {
 	   // By our model, xarg should only be of length 1
 	   public FindSubSetStreamMode1(char dop, char mop, Object rarg, Object ... xarg) { 
 		   super(dop,mop,rarg);
+		   dmr_return[3] = 1;
 		   this.xarg = xarg;
 		   if(xarg.length != 1) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 1, got "+xarg.length);
 	   }

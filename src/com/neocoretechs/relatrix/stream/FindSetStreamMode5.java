@@ -12,11 +12,11 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 * where the map is returned where it is a component of the relationship, or an identity Morphism subclass
 * in the case of findSet(object,"*",object) where the identity is returned for each relationship where the objects match
 * the specified two objects in the findSet.
-* Legal permutations are
-* [object],*,[object] 
-* [object],?,[object]
-* [TemplateClass],*,[TemplateClass] 
-* [TemplateClass],?,[TemplateClass]
+* Legal permutations are:<br/>
+* [object],*,[object]  <br/>
+* [object],?,[object] <br/>
+* [TemplateClass],*,[TemplateClass] <br/>
+* [TemplateClass],?,[TemplateClass] <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105,2021
 * 
 */

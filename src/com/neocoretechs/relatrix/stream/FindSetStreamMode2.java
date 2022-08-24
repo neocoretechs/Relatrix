@@ -11,15 +11,16 @@ import com.neocoretechs.relatrix.MapDomainRange;
 * value. Mode 2 findSet("?|*",object,"?|*") returning a Comparable of 1 or 2 elements containing the identity
 * or tuples from retrieval. For identity, if we specify findSetStream("*",object,"*") we get a Comparable of 1
 * element containing a Morphism subclass.
-* Find the set of objects in the relation via the specified predicate. Legal permutations are
-* *,[object],* 
-* *,[object],? 
-* ?,[object],? 
-* ?,[object],*
-* *,[TemplateClass],*
-* *,[TemplateClass],? 
-* ?,[TemplateClass],? 
-* ?,[TemplateClass],*
+* Find the set of objects in the relation via the specified predicate. * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
+* *,[object],* <br/>
+* *,[object],? <br/>
+* ?,[object],? <br/>
+* ?,[object],* <br/>
+* *,[TemplateClass],* <br/>
+* *,[TemplateClass],? <br/>
+* ?,[TemplateClass],? <br/>
+* ?,[TemplateClass],* <br/>
+*  <p/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */

@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Morphism;
 /**
- * 
+ * Find elements strictly less than 'to' target.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */

@@ -10,9 +10,15 @@ import com.neocoretechs.relatrix.DomainMapRange;
 * Find the set of objects in the relation via the specified predicate. 
 * This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
 * for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
-* Legal permutations are
-* [object],*,* [object],*,? [object],?,? [object],?,*
-* [TemplateClass],*,* [TemplateClass],*,? [TemplateClass],?,? [TemplateClass],?,*
+* Legal permutations are:<br/>
+* [object],*,* <br/>
+* [object],*,?  <br/>
+* [object],?,?  <br/>
+* [object],?,* <br/>
+* [TemplateClass],*,* <br/>
+* [TemplateClass],*,? <br/>
+* [TemplateClass],?,? <br/>
+* [TemplateClass],?,* <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */

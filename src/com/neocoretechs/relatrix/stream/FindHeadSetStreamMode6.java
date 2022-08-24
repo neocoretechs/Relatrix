@@ -8,11 +8,11 @@ import com.neocoretechs.relatrix.Morphism;
 /**
 * Find the set of objects in the relation via the specified predicate. 
 * Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
-* Legal permutations are
-* [object],[object],* 
-* [object],[object],?
-* [TemplateClass],[TemplateClass],* 
-* [TemplateClass],[TemplateClass],?
+* Legal permutations are:<br/>
+* [object],[object],* <br/>
+* [object],[object],? <br/>
+* [TemplateClass],[TemplateClass],* <br/>
+* [TemplateClass],[TemplateClass],? <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
 */
 public class FindHeadSetStreamMode6 extends FindSetStreamMode6 {

@@ -621,13 +621,13 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
 		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-		throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
+		throw new IllegalArgumentException("At least one argument to findSubStream must contain an object reference");
 	int numberObjects = 0;
 	if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 	if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 	if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 	if( numberObjects != endarg.length)
-		throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
+		throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
 	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);

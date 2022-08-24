@@ -11,11 +11,11 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 * returns a 1 element Comparable with the identity findSet("*",object,object) for all elements matching the
 * last 2 objects. In the case of findSet("?",object,object) a Comparable[1] is return for each iteration
 * and it contains the object functioning as the domain in all relationships where the last 2 objects are the map and range.
-* Legal permutations are
-* *,[object],[object] 
-* ?,[object],[object]
-* *,[TemplateClass],[TemplateClass] 
-* ?,[TemplateClass],[TemplateClass]
+* Legal permutations are:<br/>
+* *,[object],[object] <br/>
+* *,?,[object],[object] <br/>
+* *,[TemplateClass],[TemplateClass] <br/>
+* *,?,[TemplateClass],[TemplateClass] <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */

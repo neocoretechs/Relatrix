@@ -9,9 +9,19 @@ import com.neocoretechs.relatrix.Morphism;
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
 * value. 
-* Find the set of objects in the relation via the specified predicate. Legal permutations are
-* *,[object],* *,[object],? ?,[object],? ?,[object],*
-* *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
+* Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
+* *,[object],* <br/>
+* *,[object],? <br/>
+* ?,[object],? <br/>
+* ?,[object],* <br/>
+* *,[TemplateClass],* <br/>
+* *,[TemplateClass],? <br/>
+* ?,[TemplateClass],? <br/>
+* ?,[TemplateClass],* <br/>
+*  <p/>
+* The number of Comparable objects returned is the sum of the number of "?" PLUS the number of concrete object instances
+* specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
+* these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
@@ -19,8 +29,9 @@ public class FindSubSetMode2 extends FindSetMode2 {
 	Object[] xarg;
     public FindSubSetMode2(char dop, Object marg, char rop, Object ... xarg ) { 	
     	super(dop, marg, rop);
+       	dmr_return[2] = 1;
 		this.xarg = xarg;
-		if(xarg.length != 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 2 got "+xarg.length);
+		if(xarg.length != 1) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 1 got "+xarg.length);
     }
     /**
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s

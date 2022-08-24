@@ -7,21 +7,25 @@ import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Mode 4.
-* Find the set of objects in the relation via the specified predicate. Legal permutations are
-* [object],*,* 
-* [object],*,? 
-* [object],?,? 
-* [object],?,*
-* [TemplateClass],*,* 
-* [TemplateClass],*,? 
-* [TemplateClass],?,? 
-* [TemplateClass],?,*
+* Find the set of objects in the relation via the specified predicate.Legal permutations are:<br/>
+* [object],*,* <br/>
+* [object],*,?  <br/>
+* [object],?,?  <br/>
+* [object],?,* <br/>
+* [TemplateClass],*,* <br/>
+* [TemplateClass],*,? <br/>
+* [TemplateClass],?,? <br/>
+* [TemplateClass],?,* <br/>
+* The number of Comparable objects returned is the sum of the number of "?" PLUS the number of concrete object instances
+* specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
+* these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
 */
 public class FindSubSetStreamMode4 extends FindSetStreamMode4 {
 	Object[] xarg;
     public FindSubSetStreamMode4(Object darg, char mop, char rop, Object ... xarg) { 	
     	super(darg, mop, rop);
+    	dmr_return[1] = 1; // set to return range of target objects
 		this.xarg = xarg;
 		if(xarg.length != 1) throw new RuntimeException("Wrong number of end range arguments for 'findSubSet', expected 1 got "+xarg.length);
     }

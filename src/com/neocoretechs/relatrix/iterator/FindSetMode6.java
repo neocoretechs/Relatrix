@@ -12,9 +12,11 @@ import com.neocoretechs.relatrix.DomainMapRange;
 * The array has either the identity where the first 2 objects are components of the relationship for each iterated element of the 
 * findSet, or the object functioning as the range (codomain) for each iteration where the first 2 objects are domain and
 * map.
-* Legal permutations are
-* [object],[object],* [object],[object],?
-* [TemplateClass],[TemplateClass],* [TemplateClass],[TemplateClass],?
+* Legal permutations are:<br/>
+* [object],[object],* <br/>
+* [object],[object],? <br/>
+* [TemplateClass],[TemplateClass],* <br/>
+* [TemplateClass],[TemplateClass],? <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */

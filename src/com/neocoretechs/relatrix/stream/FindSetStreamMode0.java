@@ -16,17 +16,19 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 * Construct an iterator from findSet or one of its subclasses (headSet, subset, tailSet is the default).
 * Permutation for predicate *,*,* or ?,?,? or return identity relationships or 
 * domain,map,range 3 element array for each iteration. This mode return a one to three element Comparable[]
-* depending on the configuration of the findSet. The number of "?" elements determines the size of the returned Comparable array.
+* depending on the configuration of the findSet. The number of "?" elements PLUS the number of concrete
+* target range objects specified determines the size of the returned Comparable array.<p/>
 * This mode represents the equivalent of 'SELECT ALL' for identities or morphisms where identities return 1 array element of the
-* Morphism object and the ("?","?","?") returns 3 elements of each of the independent objects
-* ?,*,* domainmaprange
-* *,?,* mapdomainrange
-* *,*,? rangemapdomain
-* ?,?,* domainmaprange
-* *,?,? rangedomainmap
-* ?,*,? domainrangemap
-* ?,?,? domainmaprange separate tuple elements
-* *,*,* domainmaprange identity
+* Morphism object and the ("?","?","?") returns 3 elements of each of the independent objects.<p/>
+* Examples:<br/>
+* ?,*,* domain,map,range order return domain in Comparable[0] <br/>
+* *,?,* map,domain,range order return map in Comparable[0] <br/>
+* *,*,? range,map,domain order return range in Comparable[0] <br/>
+* ?,?,* domain,map,range order return domain,map in Comparable[0], Comparable[1] <br/>
+* *,?,? range,domain,map order return map,range in Comparable[0], Comparable[1] <br/>
+* ?,*,? domain,range,map order return domain,range in Comparable[0],Comparable[1] <br/>
+* ?,?,? domain,map,range order, return domain,map,range in Comparable[0],Comparable[1],Comparable[2] <br/>
+* *,*,* domain,map,range order, return identity dmr instance in Comparable[0] <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindSetStreamMode0 extends StreamFactory {
