@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
@@ -58,7 +59,8 @@ public final class RelatrixKV {
  * @throws IOException
  */
 public static synchronized void transactionalStore(Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(key);
 	if( DEBUG  )
 		System.out.println("RelatrixKV.transactionalStore storing dmr:"+key+"/"+value);
 	ttm.put(key, value);
@@ -73,7 +75,7 @@ public static synchronized void transactionalStore(Comparable key, Object value)
  */
 public static synchronized void transactionCommit(Class clazz) throws IOException, IllegalAccessException {
 	long startTime = System.currentTimeMillis();
-	RockSackAdapter.getRockSackTransactionalMap(clazz).Commit();
+	//RockSackAdapter.getRockSackTransactionalMap(clazz).Commit();
 	if( DEBUG || TRACE )
 		System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 }
@@ -83,7 +85,7 @@ public static synchronized void transactionCommit(Class clazz) throws IOExceptio
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionRollback(Class clazz) throws IOException, IllegalAccessException {
-	RockSackAdapter.getRockSackTransactionalMap(clazz).Rollback();
+	//RockSackAdapter.getRockSackTransactionalMap(clazz).Rollback();
 }
 /**
  * Take a check point of our current indicies. What this means is that we are
@@ -99,7 +101,7 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-	RockSackAdapter.getRockSackTransactionalMap(clazz).Checkpoint();
+	//RockSackAdapter.getRockSackTransactionalMap(clazz).Checkpoint();
 }
 /**
  * Supported in Relatrix
@@ -158,7 +160,8 @@ public static synchronized void removePackageFromRepository(String pack) throws 
 */
 public static synchronized void remove(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(c);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(c);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(c);
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("RelatrixKV.remove prepping to remove:"+c);
 		ttm.remove(c);
@@ -178,7 +181,8 @@ public static synchronized void remove(Comparable c) throws IOException, Illegal
 */
 public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	return ttm.tailMap(darg);
 }
 /**
@@ -193,7 +197,8 @@ public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOExc
 */
 public static synchronized Stream<?> findTailMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -210,7 +215,8 @@ public static synchronized Stream<?> findTailMapStream(Comparable darg) throws I
 */
 public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	return ttm.tailMapKV(darg);
 }
 /**
@@ -225,7 +231,8 @@ public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOE
 */
 public static synchronized Stream<?> findTailMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -239,7 +246,8 @@ public static synchronized Stream<?> findTailMapKVStream(Comparable darg) throws
  */
 public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	// check for at least one object reference in our headset factory
 	return ttm.headMap(darg);
 }
@@ -253,7 +261,8 @@ public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOExc
  */
 public static synchronized Stream<?> findHeadMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	// check for at least one object reference in our headset factory
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -268,7 +277,8 @@ public static synchronized Stream<?> findHeadMapStream(Comparable darg) throws I
  */
 public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	// check for at least one object reference in our headset factory
 	return ttm.headMapKV(darg);
 }
@@ -283,7 +293,8 @@ public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOE
  */
 public static synchronized Stream<?> findHeadMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	// check for at least one object reference in our headset factory
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -300,7 +311,8 @@ public static synchronized Stream<?> findHeadMapKVStream(Comparable darg) throws
  */
 public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	return ttm.subMap(darg, marg);
 }
 /**
@@ -315,7 +327,8 @@ public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable ma
  */
 public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -332,7 +345,8 @@ public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparabl
 public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	return ttm.subMapKV(darg, marg);
 }
 /**
@@ -349,7 +363,8 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
 public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -362,7 +377,8 @@ public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Compara
  */
 public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.entrySet();
 }
 
@@ -375,7 +391,8 @@ public static synchronized Iterator<?> entrySet(Class clazz) throws IOException,
  */
 public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
 }
@@ -388,7 +405,8 @@ public static synchronized Stream<?> entrySetStream(Class clazz) throws IOExcept
  */
 public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.keySet();
 }
 /**
@@ -400,7 +418,8 @@ public static synchronized Iterator<?> keySet(Class clazz) throws IOException, I
  */
 public static synchronized Stream<?> keySetStream(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -413,7 +432,8 @@ public static synchronized Stream<?> keySetStream(Class clazz) throws IOExceptio
  */
 public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.firstKey();
 }
 /**
@@ -425,7 +445,8 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
  */
 public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(key);
 	 Object o = ttm.get(key);
 	 if( o == null )
 		 return null;
@@ -440,7 +461,8 @@ public static synchronized Object get(Comparable key) throws IOException, Illega
  */
 public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.first();
 }
 /**
@@ -452,7 +474,8 @@ public static synchronized Object firstValue(Class clazz) throws IOException, Il
  */
 public static synchronized Object lastKey(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.lastKey();
 }
 /**
@@ -464,7 +487,8 @@ public static synchronized Object lastKey(Class clazz) throws IOException, Illeg
  */
 public static synchronized Object lastValue(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.last();
 }
 /**
@@ -476,7 +500,8 @@ public static synchronized Object lastValue(Class clazz) throws IOException, Ill
  */
 public static synchronized long size(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(clazz);
 	return ttm.size();
 }
 /**
@@ -488,7 +513,8 @@ public static synchronized long size(Class clazz) throws IOException, IllegalAcc
  */
 public static synchronized boolean contains(Comparable obj) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(obj);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(obj);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(obj);
 	return ttm.containsKey(obj);
 }
 /**
@@ -501,7 +527,8 @@ public static synchronized boolean contains(Comparable obj) throws IOException, 
  */
 public static synchronized boolean containsValue(Class keyType, Object obj) throws IOException, IllegalAccessException
 {
-	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(keyType);
+	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(keyType);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(keyType);
 	return ttm.containsValue(obj);
 }
 
