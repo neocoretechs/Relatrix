@@ -119,7 +119,7 @@ public final class WorkerRequestProcessor implements Runnable {
 				} else {
 					Relatrix.transactionRollback();
 				}
-			} catch (IOException e) {
+			} catch (IOException | IllegalAccessException e) {
 				System.out.println("Exception on transaction rollback due to fault:"+e);
 				e.printStackTrace();
 			}

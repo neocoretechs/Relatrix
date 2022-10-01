@@ -1,16 +1,7 @@
 package com.neocoretechs.relatrix.test;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
-import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
-import com.neocoretechs.relatrix.DuplicateKeyException;
-
-import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixClient;
-import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 
 /**

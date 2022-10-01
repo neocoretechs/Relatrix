@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
+import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 import com.neocoretechs.relatrix.Relatrix;

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
+import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
@@ -88,12 +88,14 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			try {
 				RelatrixKV.transactionalStore(index, instance);
 			} catch(DuplicateKeyException dke) {
-					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
+				dke.printStackTrace();
+				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
 			}
 			try {
 				RelatrixKV.transactionalStore(instance, index);
 			} catch(DuplicateKeyException dke) {
-					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
+				dke.printStackTrace();
+				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
 			}
 			classCommits.add(index.getClass());
 			classCommits.add(instance.getClass());
@@ -121,7 +123,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	@Override
-	public void commit() throws IOException {
+	public void commit() throws IOException, IllegalAccessException {
 		synchronized(mutex) {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
@@ -138,7 +140,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	@Override
-	public void rollback() throws IOException {
+	public void rollback() throws IOException, IllegalAccessException {
 		synchronized(mutex) {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();

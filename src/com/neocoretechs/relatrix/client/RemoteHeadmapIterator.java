@@ -8,7 +8,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  */
 public class RemoteHeadMapIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -6767314283313398274L;
-	public static final String className = "com.neocoretechs.bigsack.iterator.HeadSetIterator";
+	public static final String className = "com.neocoretechs.rocksack.iterator.HeadSetIterator";
 	public RemoteHeadMapIterator(String session) {
 		super();
 		paramArray = new Object[0];

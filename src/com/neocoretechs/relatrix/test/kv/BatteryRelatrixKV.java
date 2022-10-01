@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.neocoretechs.bigsack.iterator.Entry;
+import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 
@@ -20,7 +20,6 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * VM argument is props file i.e. -DBigSack.properties="c:/users/you/Relatrix/BigSack.properties"
  * @author jg (C) 2020
  *
  */

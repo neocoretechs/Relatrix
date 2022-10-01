@@ -28,9 +28,9 @@ public interface IndexInstanceTableInterface {
 
 	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
-	void commit() throws IOException;
+	void commit() throws IOException, IllegalAccessException;
 
-	void rollback() throws IOException;
+	void rollback() throws IOException, IllegalAccessException;
 
 	void checkpoint() throws IllegalAccessException, IOException;
 

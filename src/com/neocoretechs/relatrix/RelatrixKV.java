@@ -10,11 +10,9 @@ import java.util.Stack;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.neocoretechs.bigsack.keyvaluepages.KeySearchResult;
-import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
-import com.neocoretechs.bigsack.keyvaluepages.TraversalStackElement;
-import com.neocoretechs.bigsack.session.BigSackAdapter;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.TransactionalMap;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
@@ -41,11 +39,11 @@ public final class RelatrixKV {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
-		BigSackAdapter.setTableSpaceDir(path);
+		RockSackAdapter.setTableSpaceDir(path);
 	}
 	
 	public static synchronized String getTableSpaceDirectory() {
-		return BigSackAdapter.getTableSpaceDir();
+		return RockSackAdapter.getTableSpaceDir();
 	}
 	
 
@@ -59,35 +57,33 @@ public final class RelatrixKV {
  * @throws IllegalAccessException
  * @throws IOException
  */
-public static synchronized void transactionalStore(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
+public static synchronized void transactionalStore(Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 	if( DEBUG  )
 		System.out.println("RelatrixKV.transactionalStore storing dmr:"+key+"/"+value);
-	Stack stack = new Stack();
-	KeySearchResult tsr = ttm.locate(key, stack);
-	if( DEBUG )
-		System.out.println("RelatrixKV.store Tree Search Result: "+tsr);
-	if(tsr.atKey) {
-			throw new DuplicateKeyException("Key:"+key+" tsr:"+tsr);
-	}
 	ttm.put(key, value);
+	if( DEBUG )
+		System.out.println("RelatrixKV.store Tree Search Result: ");
+
 }
 /**
  * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized void transactionCommit(Class clazz) throws IOException {
+public static synchronized void transactionCommit(Class clazz) throws IOException, IllegalAccessException {
 	long startTime = System.currentTimeMillis();
-	BigSackAdapter.commitTransaction(clazz);
+	RockSackAdapter.getRockSackTransactionalMap(clazz).Commit();
 	if( DEBUG || TRACE )
 		System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 }
 /**
  * Roll back all outstanding transactions on the indicies
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized void transactionRollback(Class clazz) throws IOException {
-	BigSackAdapter.rollbackTransaction(clazz);
+public static synchronized void transactionRollback(Class clazz) throws IOException, IllegalAccessException {
+	RockSackAdapter.getRockSackTransactionalMap(clazz).Rollback();
 }
 /**
  * Take a check point of our current indicies. What this means is that we are
@@ -103,7 +99,7 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
  * @throws IllegalAccessException 
  */
 public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-	BigSackAdapter.checkpointTransaction(clazz);
+	RockSackAdapter.getRockSackTransactionalMap(clazz).Checkpoint();
 }
 /**
  * Supported in Relatrix
@@ -162,7 +158,7 @@ public static synchronized void removePackageFromRepository(String pack) throws 
 */
 public static synchronized void remove(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(c);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(c);
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("RelatrixKV.remove prepping to remove:"+c);
 		ttm.remove(c);
@@ -182,7 +178,7 @@ public static synchronized void remove(Comparable c) throws IOException, Illegal
 */
 public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	return ttm.tailMap(darg);
 }
 /**
@@ -197,7 +193,7 @@ public static synchronized Iterator<?> findTailMap(Comparable darg) throws IOExc
 */
 public static synchronized Stream<?> findTailMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -214,7 +210,7 @@ public static synchronized Stream<?> findTailMapStream(Comparable darg) throws I
 */
 public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	return ttm.tailMapKV(darg);
 }
 /**
@@ -229,7 +225,7 @@ public static synchronized Iterator<?> findTailMapKV(Comparable darg) throws IOE
 */
 public static synchronized Stream<?> findTailMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -243,7 +239,7 @@ public static synchronized Stream<?> findTailMapKVStream(Comparable darg) throws
  */
 public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	// check for at least one object reference in our headset factory
 	return ttm.headMap(darg);
 }
@@ -257,7 +253,7 @@ public static synchronized Iterator<?> findHeadMap(Comparable darg) throws IOExc
  */
 public static synchronized Stream<?> findHeadMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	// check for at least one object reference in our headset factory
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -272,7 +268,7 @@ public static synchronized Stream<?> findHeadMapStream(Comparable darg) throws I
  */
 public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	// check for at least one object reference in our headset factory
 	return ttm.headMapKV(darg);
 }
@@ -287,7 +283,7 @@ public static synchronized Iterator<?> findHeadMapKV(Comparable darg) throws IOE
  */
 public static synchronized Stream<?> findHeadMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	// check for at least one object reference in our headset factory
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -304,7 +300,7 @@ public static synchronized Stream<?> findHeadMapKVStream(Comparable darg) throws
  */
 public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	return ttm.subMap(darg, marg);
 }
 /**
@@ -319,7 +315,7 @@ public static synchronized Iterator<?> findSubMap(Comparable darg, Comparable ma
  */
 public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -336,7 +332,7 @@ public static synchronized Stream<?> findSubMapStream(Comparable darg, Comparabl
 public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	return ttm.subMapKV(darg, marg);
 }
 /**
@@ -353,7 +349,7 @@ public static synchronized Iterator<?> findSubMapKV(Comparable darg, Comparable 
 public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(darg);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -366,7 +362,7 @@ public static synchronized Stream<?> findSubMapKVStream(Comparable darg, Compara
  */
 public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 	return ttm.entrySet();
 }
 
@@ -379,7 +375,7 @@ public static synchronized Iterator<?> entrySet(Class clazz) throws IOException,
  */
 public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
 }
@@ -392,7 +388,7 @@ public static synchronized Stream<?> entrySetStream(Class clazz) throws IOExcept
  */
 public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 	return ttm.keySet();
 }
 /**
@@ -404,7 +400,7 @@ public static synchronized Iterator<?> keySet(Class clazz) throws IOException, I
  */
 public static synchronized Stream<?> keySetStream(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -417,10 +413,8 @@ public static synchronized Stream<?> keySetStream(Class clazz) throws IOExceptio
  */
 public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	Stack stack = new Stack();
-	TraversalStackElement tse = new TraversalStackElement(null,0,0);
-	return ttm.firstKey(tse, stack);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	return ttm.firstKey();
 }
 /**
  * Return the value for the key.
@@ -431,7 +425,7 @@ public static synchronized Object firstKey(Class clazz) throws IOException, Ille
  */
 public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(key);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 	 Object o = ttm.get(key);
 	 if( o == null )
 		 return null;
@@ -446,10 +440,8 @@ public static synchronized Object get(Comparable key) throws IOException, Illega
  */
 public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	Stack stack = new Stack();
-	TraversalStackElement tse = new TraversalStackElement(null,0,0);
-	return ttm.first(tse, stack);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	return ttm.first();
 }
 /**
  * Return instance having the highest valued key.
@@ -460,10 +452,8 @@ public static synchronized Object firstValue(Class clazz) throws IOException, Il
  */
 public static synchronized Object lastKey(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	Stack stack = new Stack();
-	TraversalStackElement tse = new TraversalStackElement(null,0,0);
-	return ttm.lastKey(tse, stack);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	return ttm.lastKey();
 }
 /**
  * Return the instance having the value for  the greatest key.
@@ -474,10 +464,8 @@ public static synchronized Object lastKey(Class clazz) throws IOException, Illeg
  */
 public static synchronized Object lastValue(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
-	Stack stack = new Stack();
-	TraversalStackElement tse = new TraversalStackElement(null,0,0);
-	return ttm.last(tse, stack);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
+	return ttm.last();
 }
 /**
  * Size of all elements
@@ -488,7 +476,7 @@ public static synchronized Object lastValue(Class clazz) throws IOException, Ill
  */
 public static synchronized long size(Class clazz) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(clazz);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 	return ttm.size();
 }
 /**
@@ -500,7 +488,7 @@ public static synchronized long size(Class clazz) throws IOException, IllegalAcc
  */
 public static synchronized boolean contains(Comparable obj) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(obj);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(obj);
 	return ttm.containsKey(obj);
 }
 /**
@@ -513,7 +501,7 @@ public static synchronized boolean contains(Comparable obj) throws IOException, 
  */
 public static synchronized boolean containsValue(Class keyType, Object obj) throws IOException, IllegalAccessException
 {
-	TransactionalTreeMap ttm = BigSackAdapter.getBigSackTransactionalTreeMap(keyType);
+	TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(keyType);
 	return ttm.containsValue(obj);
 }
 

@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.bigsack.io.ThreadPoolManager;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteHeadSetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
@@ -124,7 +123,6 @@ public final class RelatrixServer extends TCPServer {
 	}
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
-	 * The path to the database must conform to that of the the tablespace layout created by {@code com.neocoretechs.bigsack.CreateDatabaseVolume}<p/> 
 	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database.
 	 * @throws Exception If problem starting server.
 	 */

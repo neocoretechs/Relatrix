@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
+import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 
@@ -71,7 +71,7 @@ public class ApacheLogFOODBMS {
 		String agent = " \"([^\"]+|(.+?))\""; // Agent
 		return clientHost+shouldBDash+clientRequest+requestTime+requestMethodUrl+httpStatusCode+numOfBytes+referer+agent;
 	}
-	public void getFiles(String dir) throws IOException, ParseException {
+	public void getFiles(String dir) throws IOException, ParseException, IllegalAccessException {
 		Path path = FileSystems.getDefault().getPath(dir);
 		DirectoryStream<Path> files = Files.newDirectoryStream(path); 
 		Iterator<Path> it = files.iterator();
@@ -197,11 +197,11 @@ public class ApacheLogFOODBMS {
 		return "Remote host:"+remoteHost+" Remote user:"+remoteUser+" Request time:"+accessLogEntryEpoch+" Client Request:"+clientRequest+
 				" Status:"+httpStatusCode+" Referer:"+referer+" User Agent:"+userAgent+" Os:"+Os+" ver:"+OsVer;
 	}
-	public static void main(String[] args) throws ParseException, IOException {
+	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException {
 		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
 		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
 		lin += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
-		BigSackAdapter.setTableSpaceDir("C:/users/jg/Relatrix/logs");
+		RockSackAdapter.setTableSpaceDir("C:/users/jg/Relatrix/logs");
 		ApacheLogFOODBMS alfoo = new ApacheLogFOODBMS();
 		//alfoo.readAndProcess(lin);
 		alfoo.getFiles(args[0]);

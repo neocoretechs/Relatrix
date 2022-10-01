@@ -23,8 +23,8 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.neocoretechs.bigsack.session.BigSackAdapter;
-import com.neocoretechs.bigsack.session.TransactionalTreeMap;
+import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
@@ -53,7 +53,7 @@ public class HandlerClassLoader extends ClassLoader {
    
     public HandlerClassLoader() { }
     /**
-     * Variation when specified on command line as -Djava.system.class.loader=com.neocoretechs.relatrix.server.HandlerClassLoader -DBigSack.properties="../BigSack.properties"
+     * Variation when specified on command line as -Djava.system.class.loader=com.neocoretechs.relatrix.server.HandlerClassLoader 
      * System environment variable RemoteClassLoader is set as remote node name, port is assumed default of 9999
      * @param parent
      */
@@ -130,7 +130,7 @@ public class HandlerClassLoader extends ClassLoader {
     			path += "/";
     		defaultPath = path;
     	}
-    	BigSackAdapter.setTableSpaceDir(defaultPath+"BytecodeRepository/Bytecodes");
+    	RockSackAdapter.setTableSpaceDir(defaultPath+"BytecodeRepository/Bytecodes");
     }
     /**
     * Find a class by the given name
@@ -333,7 +333,7 @@ public class HandlerClassLoader extends ClassLoader {
         }
     }
     /**
-    * Retrieve the bytecodes from BigSack repository
+    * Retrieve the bytecodes from RockSack repository
     * @param name The class name to get
     * @return The byte array or null
     */
@@ -344,7 +344,7 @@ public class HandlerClassLoader extends ClassLoader {
 	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get for "+name);
         try {
         	if(useEmbedded) {
-        	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackTransactionalTreeMap(String.class); // class type of key
+        	 	TransactionalMap localRepository = RockSackAdapter.getRockSackTransactionalMap(String.class); // class type of key
         	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
                 cnab = (ClassNameAndBytes) localRepository.get(name);	
@@ -381,11 +381,12 @@ public class HandlerClassLoader extends ClassLoader {
  	 	if(DEBUG)
 	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository for "+name);
     	ClassNameAndBytes cnab = new ClassNameAndBytes(name, bytes);
+ 		TransactionalMap localRepository = null;
         try {
         	if(useEmbedded) {
-        	 		TransactionalTreeMap localRepository = BigSackAdapter.getBigSackTransactionalTreeMap(String.class); // class type of key
+        	 		localRepository = RockSackAdapter.getRockSackTransactionalMap(String.class); // class type of key
         			localRepository.put(name, cnab);
-                   	BigSackAdapter.commitTransaction(String.class);
+                   	localRepository.Commit();
                	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in local repository for class:"+name);
         	} else {
@@ -416,7 +417,7 @@ public class HandlerClassLoader extends ClassLoader {
 					try {
 	             	 	if(DEBUG || DEBUGSETREPOSITORY)
 	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in local repository for class:"+name);
-					 	BigSackAdapter.rollbackTransaction(String.class); // class type of key
+					 	localRepository.Rollback(); 
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -437,12 +438,13 @@ public class HandlerClassLoader extends ClassLoader {
      * @param name The value that the class STARTS WITH, to remove packages at any level desired
      */
     public static void removeBytesInRepository(String name) {
+    	TransactionalMap localRepository = null;
  	 	if(DEBUG || DEBUGSETREPOSITORY)
 	 		System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository for "+name);
       try {
       	if(useEmbedded) {
       		ArrayList<String> remo = new ArrayList<String>();
-      	 	TransactionalTreeMap localRepository = BigSackAdapter.getBigSackTransactionalTreeMap(String.class); // class type of key
+      	 	localRepository = RockSackAdapter.getRockSackTransactionalMap(String.class); // class type of key
       			Iterator<?> it = localRepository.keySet();
       			while(it.hasNext()) {
       				Comparable key = (Comparable) it.next();
@@ -456,7 +458,7 @@ public class HandlerClassLoader extends ClassLoader {
              	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+s);
       			}
-                BigSackAdapter.commitTransaction(String.class);
+                localRepository.Commit();
       	} else {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
@@ -483,7 +485,7 @@ public class HandlerClassLoader extends ClassLoader {
               e.printStackTrace();
               if( useEmbedded )
 					try {
-						BigSackAdapter.rollbackTransaction(String.class);
+						localRepository.Rollback();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -498,7 +500,7 @@ public class HandlerClassLoader extends ClassLoader {
  }
 
     /**
-    * Put the bytecodes to BigSack repository.  This function to be
+    * Put the bytecodes to RockSack repository.  This function to be
     * performed outside of class loading cause it happens rarely.
     * @param name The class name to put
     * @param bytes The associated bytecode array

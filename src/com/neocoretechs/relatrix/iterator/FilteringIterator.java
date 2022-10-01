@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 
-//import com.neocoretechs.bigsack.session.TransactionalTreeSet;
 import com.neocoretechs.relatrix.Morphism;
 
 /**

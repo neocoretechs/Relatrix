@@ -7,7 +7,7 @@ import com.neocoretechs.relatrix.Morphism;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
  * to the crucial methods that represents the ending range of the set valued results of our findSet query.
- * To get the subSet iterator from the BigSack we need 2 arguments, start and end range. We use the overridden 
+ * To get the subSet iterator from the RockSack we need 2 arguments, start and end range. We use the overridden 
  * clone method to render an instance for our template that we fill in with the arguments from the additional semantics.
  * It takes the form of a variable parameter argument to the findSet method at the highest levels of the Relatrix
  * API. <p/>

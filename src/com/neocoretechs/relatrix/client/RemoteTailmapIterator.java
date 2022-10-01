@@ -4,7 +4,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
 
 public class RemoteTailMapIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
-	public static final String className = "com.neocoretechs.bigsack.iterator.TailSetIterator";
+	public static final String className = "com.neocoretechs.rocksack.iterator.TailSetIterator";
 	public RemoteTailMapIterator(String session) {
 		super();
 		paramArray = new Object[0];

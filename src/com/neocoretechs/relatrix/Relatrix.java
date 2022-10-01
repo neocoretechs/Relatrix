@@ -11,7 +11,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.neocoretechs.bigsack.keyvaluepages.KeyValue;
+import com.neocoretechs.rocksack.KeyValue;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -164,8 +164,9 @@ public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Co
 /**
  * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized void transactionCommit() throws IOException {
+public static synchronized void transactionCommit() throws IOException, IllegalAccessException {
 	// first commit components of relationships
 	IndexResolver.getIndexInstanceTable().commit();
 	// now commit main relationship and index classes
@@ -184,8 +185,9 @@ public static synchronized void transactionCommit() throws IOException {
 /**
  * Roll back all outstanding transactions on the indicies
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized void transactionRollback() throws IOException {
+public static synchronized void transactionRollback() throws IOException, IllegalAccessException {
 	// first roll back components
 	IndexResolver.getIndexInstanceTable().rollback();
 	// Now roll back relationships
@@ -859,15 +861,17 @@ public static synchronized void transactionalStore(Comparable<?> key, Object val
 /**
  * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized void transactionCommit(Class clazz) throws IOException {
+public static synchronized void transactionCommit(Class clazz) throws IOException, IllegalAccessException {
 	RelatrixKV.transactionCommit(clazz);
 }
 /**
  * Roll back all outstanding transactions on the given class, overlap with K/V functionality
  * @throws IOException
+ * @throws IllegalAccessException 
  */
-public static synchronized void transactionRollback(Class clazz) throws IOException {
+public static synchronized void transactionRollback(Class clazz) throws IOException, IllegalAccessException {
 	RelatrixKV.transactionRollback(clazz);
 }
 /**
