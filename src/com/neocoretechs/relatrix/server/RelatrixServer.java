@@ -109,7 +109,7 @@ public final class RelatrixServer extends TCPServer {
                     ThreadPoolManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixServer starting new worker"+uworker+
+                    	System.out.println("RelatrixServer starting new worker "+uworker+
                     			//( rdb != null ? "remote db:"+rdb : "" ) +
                     			" master port:"+o.getMasterPort());
                     }

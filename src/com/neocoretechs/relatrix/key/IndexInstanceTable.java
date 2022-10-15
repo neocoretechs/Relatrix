@@ -173,9 +173,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			return RelatrixKV.get(index);
-		}
+		//}
 	}
 	/**
 	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
@@ -187,9 +187,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			return (DBKey) RelatrixKV.get((Comparable) instance);
-		}
+		//}
 	}
 
 	@Override
