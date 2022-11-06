@@ -2,8 +2,8 @@ package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Used by category theoretic and set valued operations to produce subset functors etc.
- * @author groff
+ * Used by to produce subsets for remote delivery.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
 public class RemoteSubSetIterator extends RelatrixStatement implements RemoteObjectInterface{

@@ -69,7 +69,7 @@ public static void transactionalStore(Comparable key, Object value) throws Illeg
 
 }
 /**
- * Commit the outstanding transaction data in each active transactional treeset.
+ * Commit the outstanding transaction data in each active transaction.
  * @throws IOException
  * @throws IllegalAccessException 
  */
@@ -103,19 +103,7 @@ public static void transactionRollback(Class clazz) throws IOException, IllegalA
 public static void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
 	//RockSackAdapter.getRockSackTransactionalMap(clazz).Checkpoint();
 }
-/**
- * Supported in Relatrix
- * @throws IOException
- */
-public static void transactionCommit() throws IOException {
-	throw new IOException("Must specify a class");
-}
-/**
- * @throws IOException
- */
-public static void transactionRollback() throws IOException {
-	throw new IOException("Must specify a class");
-}
+
 /**
  * @throws IOException
  * @throws IllegalAccessException 

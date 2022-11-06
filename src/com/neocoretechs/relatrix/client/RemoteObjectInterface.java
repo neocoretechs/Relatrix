@@ -4,9 +4,8 @@ package com.neocoretechs.relatrix.client;
  * those iterators issued by 'findSet' and actions on the client. The only real difference
  * is the close operation which is necessary to dispose of the remote object on the server.
  * We get object with persistent remote references returned in a RelatrixStatement that calls a 
- * findSet permutation that return an iterator and perhaps other incarnations later..
- * @author jg
- * Copyright (C) 2015 NeoCoreTechs
+ * findSet permutation that return an iterator and perhaps other incarnations later.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015
  */
 public interface RemoteObjectInterface {
 	/**

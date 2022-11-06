@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.client;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Used by the category theoretic Relatrix server to produce headsets for remote delivery
- * @author Groff
+ * Used by the category theoretic Relatrix server to produce headsets for remote delivery.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
 public class RemoteHeadSetIterator extends RelatrixStatement implements RemoteObjectInterface{

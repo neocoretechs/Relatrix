@@ -36,7 +36,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
+public class RelatrixKVClientTransaction implements Runnable, RelatrixClientInterface {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
@@ -71,11 +71,12 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
+	public RelatrixKVClientTransaction(String bootNode, String remoteNode, int remotePort)  throws IOException {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemote(this);
+		IndexResolver.setTransaction(true);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -1631,7 +1632,7 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixClientInterface rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixClientInterface rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
 
 		switch(args.length) {
 			case 4:

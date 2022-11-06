@@ -7,7 +7,7 @@ import java.util.*;
 * Passed to client on RemoteObject creation.  This will contain the
 * methods to be advertised to the rest of the world.  A call
 * from remote client will verify the method before remote call
-* @author Groff Copyright (C) NeoCoreTechs, Inc. 1998-2000,2015
+* @author Jonathan Groff Copyright (C) NeoCoreTechs, Inc. 1998-2000,2015
 */
 public final class RelatrixMethodNamesAndParams implements Serializable {
        static final long serialVersionUID = 8837760295724028863L;

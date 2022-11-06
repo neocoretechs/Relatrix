@@ -24,11 +24,11 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
- * On the client and server the following are present as conventions:
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it
+ * On the client and server the following are present as conventions:<br/>
+ * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
+ * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
+ * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
+ * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
  * which is the RelatrixServer. The client contacts the boot time server port, the desired database
@@ -36,11 +36,6 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.
- * In general for a cluster configuration the remote directory is 
- * 'Database path + 'tablespace'+ tablespace# + tablename' where tablename is 'DBname+class+'.'+tablespace#'
- * so if your remote db path is /home/relatrix/AMI as passed to the server then its translation is:
- *  /home/relatrix/tablespace0/AMIcom.yourpack.yourclass.0
- * for the remote node 'AMI0', for others replace all '0' with '1' etc for other tablespaces.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixClient implements Runnable, RelatrixClientInterface {

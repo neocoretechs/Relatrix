@@ -7,7 +7,11 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.key.DBKey;
-
+/**
+ * Defines the contract for client side communications with remote Relatrix server.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
+ *
+ */
 public interface RelatrixClientInterface {
 
 	/**
