@@ -58,9 +58,6 @@ public final class RelatrixTransaction {
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
 												  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
-	static {
-		IndexResolver.setTransaction(true);
-	}
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -91,369 +88,366 @@ public final class RelatrixTransaction {
 		return RelatrixKVTransaction.getTableSpaceDirectory();
 	}
 
-/**
- * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
- * This is a transactional store in the context of a previously initiated transaction.
- * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
- * to prevent a recovery on the next operation.
- * @param d The Comparable representing the domain object for this morphism relationship.
- * @param m The Comparable representing the map object for this morphism relationship.
- * @param r The Comparable representing the range or codomain object for this morphism relationship.
- * @throws IllegalAccessException
- * @throws IOException
- * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
- */
-public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
-	if( d == null || m == null || r == null)
-		throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-	Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
-	// check for domain/map match
-	// Enforce categorical structure; domain->map function uniquely determines range.
-	// If the search winds up at the key or the key is empty or the domain->map exists, the key
-	// cannot be inserted.
-	((DomainMapRange)dmr).setUniqueKey(true);
-	if(RelatrixKVTransaction.contains(dmr)) {
-		transactionRollback();
-		throw new DuplicateKeyException("dmr:"+dmr);
-	}
-	((DomainMapRange)dmr).setUniqueKey(false);
-	// re-create it, now that we know its valid, in a form that stores the components with DBKeys
-	// and maintains the classes stores in IndexInstanceTable for future commit.
-	dmr = new DomainMapRange(d,m,r);
-	Morphism identity = dmr;
-	DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
-	indexClasses[1] = drm.getClass();
-	MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
-	indexClasses[2] = mdr.getClass();
-	MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
-	indexClasses[3] = mrd.getClass();
-	RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
-	indexClasses[4] = rdm.getClass();
-	RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
-	indexClasses[5] = rmd.getClass();
-	DBKey dbKey = null;
-	// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
-	indexClasses[0] = null; // remove dmr from our commit lineup
-	try {
-		dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
-	} catch (ClassNotFoundException e) {
-		throw new IOException(e);
-	} // Use primary key DBKey as value for index keys
-	if( DEBUG  )
-		System.out.println("RelatrixTransaction.transactionalStore storing drm:"+drm);
-	RelatrixKVTransaction.transactionalStore(drm, dbKey);
+	/**
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * This is a transactional store in the context of a previously initiated transaction.
+	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
+	 * to prevent a recovery on the next operation.
+	 * @param d The Comparable representing the domain object for this morphism relationship.
+	 * @param m The Comparable representing the map object for this morphism relationship.
+	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 */
+	public static synchronized DomainMapRange transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+		if( d == null || m == null || r == null)
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+		Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
+		// check for domain/map match
+		// Enforce categorical structure; domain->map function uniquely determines range.
+		// If the search winds up at the key or the key is empty or the domain->map exists, the key
+		// cannot be inserted.
+		((DomainMapRange)dmr).setUniqueKey(true);
+		if(RelatrixKVTransaction.contains(xid, dmr)) {
+			transactionRollback(xid);
+			throw new DuplicateKeyException("dmr:"+dmr);
+		}
+		((DomainMapRange)dmr).setUniqueKey(false);
+		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+		// and maintains the classes stores in IndexInstanceTable for future commit.
+		dmr = new DomainMapRange(d,m,r);
+		Morphism identity = dmr;
+		DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
+		indexClasses[1] = drm.getClass();
+		MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
+		indexClasses[2] = mdr.getClass();
+		MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
+		indexClasses[3] = mrd.getClass();
+		RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
+		indexClasses[4] = rdm.getClass();
+		RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
+		indexClasses[5] = rmd.getClass();
+		DBKey dbKey = null;
+		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
+		indexClasses[0] = null; // remove dmr from our commit lineup
+		try {
+			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		} // Use primary key DBKey as value for index keys
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing drm:"+drm);
+		RelatrixKVTransaction.transactionalStore(xid, drm, dbKey);
 	
-	if( DEBUG  )
-		System.out.println("RelatrixTransaction.transactionalStore storing mdr:"+mdr);
-	RelatrixKVTransaction.transactionalStore(mdr, dbKey);
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing mdr:"+mdr);
+		RelatrixKVTransaction.transactionalStore(xid, mdr, dbKey);
 	
-	if( DEBUG  )
-		System.out.println("RelatrixTransaction.transactionalStore storing mrd:"+mrd);
-	RelatrixKVTransaction.transactionalStore(mrd, dbKey);
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing mrd:"+mrd);
+		RelatrixKVTransaction.transactionalStore(xid, mrd, dbKey);
 
-	if( DEBUG  )
-		System.out.println("RelatrixTransaction.transactionalStore storing rdm:"+rdm);
-	RelatrixKVTransaction.transactionalStore(rdm, dbKey);
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rdm:"+rdm);
+		RelatrixKVTransaction.transactionalStore(xid,rdm, dbKey);
 	
-	if( DEBUG  )
-		System.out.println("RelatrixTransaction.transactionalStore storing rmd:"+rmd);
-	RelatrixKVTransaction.transactionalStore(rmd, dbKey);
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rmd:"+rmd);
+		RelatrixKVTransaction.transactionalStore(xid, rmd, dbKey);
 	
-	return (DomainMapRange) identity;
-}
-/**
- * Commit the outstanding transaction data in each active transactional treeset.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionCommit() throws IOException, IllegalAccessException {
-	// first commit components of relationships
-	IndexResolver.getIndexInstanceTable().commit();
-	// now commit main relationship and index classes
-	for(int i = 0; i < indexClasses.length; i++) {
-		long startTime = System.currentTimeMillis();
-		if(indexClasses[i] != null) {
-			if( DEBUG || TRACE )
-				System.out.println("Committing "+indexClasses[i]);		
-			RelatrixKVTransaction.transactionCommit(indexClasses[i]);
-			if( DEBUG || TRACE )
-				System.out.println("Committed "+indexClasses[i] + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
-			indexClasses[i] = null;
+		return (DomainMapRange) identity;
+	}
+	/**
+	 * Commit the outstanding transaction data in each active transactional treeset.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized void transactionCommit(String xid) throws IOException, IllegalAccessException {
+		// first commit components of relationships
+		IndexResolver.getIndexInstanceTable().commit();
+		// now commit main relationship and index classes
+		for(int i = 0; i < indexClasses.length; i++) {
+			long startTime = System.currentTimeMillis();
+			if(indexClasses[i] != null) {
+				if( DEBUG || TRACE )
+					System.out.println("Committing "+indexClasses[i]+" with transaction:"+xid);		
+				RelatrixKVTransaction.transactionCommit(xid, indexClasses[i]);
+				if( DEBUG || TRACE )
+					System.out.println("Committed "+indexClasses[i] + " with transaction " + xid + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
+				indexClasses[i] = null;
+			}
 		}
 	}
-}
-/**
- * Roll back all outstanding transactions on the indicies
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionRollback() throws IOException, IllegalAccessException {
-	// first roll back components
-	IndexResolver.getIndexInstanceTable().rollback();
-	// Now roll back relationships
-	for(int i = 0; i < indexClasses.length; i++) {
-		if(indexClasses[i] != null) {
-			RelatrixKVTransaction.transactionRollback(indexClasses[i]);
-			indexClasses[i] = null;
+	/**
+	 * Roll back all outstanding transactions on the indicies
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized void transactionRollback(String xid) throws IOException, IllegalAccessException {
+		// first roll back components
+		IndexResolver.getIndexInstanceTable().rollback();
+		// Now roll back relationships
+		for(int i = 0; i < indexClasses.length; i++) {
+			if(indexClasses[i] != null) {
+				RelatrixKVTransaction.transactionRollback(xid, indexClasses[i]);
+				indexClasses[i] = null;
+			}
 		}
 	}
-}
-/**
- * Take a check point of our current indicies. What this means is that we are
- * going to write a log record such that if we crash will will restore the logs from that point forward.
- * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
- * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
- * if we crash, to restore the data to its state up to that point", hence check, point...
- * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
- * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
- * even the old data before the checkpoint.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	IndexResolver.getIndexInstanceTable().checkpoint();
-	for(int i = 0; i < indexClasses.length; i++) {
-		if(indexClasses[i] != null)
-			RelatrixKVTransaction.transactionCheckpoint(indexClasses[i]);
+	/**
+	 * Take a check point of our current indicies. What this means is that we are
+	 * going to write a log record such that if we crash will will restore the logs from that point forward.
+	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
+	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
+	 * if we crash, to restore the data to its state up to that point", hence check, point...
+	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
+	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
+	 * even the old data before the checkpoint.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
+		IndexResolver.getIndexInstanceTable().checkpoint();
+		for(int i = 0; i < indexClasses.length; i++) {
+			if(indexClasses[i] != null)
+				RelatrixKVTransaction.transactionCheckpoint(xid, indexClasses[i]);
+		}
 	}
-}
-/**
-* Delete all relationships that this object participates in
-* @exception IOException low-level access or problems modifiying schema
-* @throws IllegalAccessException 
-* @throws ClassNotFoundException 
-* @throws IllegalArgumentException 
-*/
-public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-{
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
-	removeRecursive(c);
-	try {
-		DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
+	/**
+	 * Delete all relationships that this object participates in
+	 * @exception IOException low-level access or problems modifiying schema
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalArgumentException 
+	 */
+	public static synchronized void remove(String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.remove prepping to remove DBKey:"+dbKey);
-		if(dbKey != null) {
-			// Should delete instance and DbKey
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-		} else {
-			// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-			RelatrixKVTransaction.remove(c);
+			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
+		removeRecursive(xid, c);
+		try {
+			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
+			if(dbKey != null) {
+				// Should delete instance and DbKey
+				IndexResolver.getIndexInstanceTable().delete(dbKey);
+			} else {
+				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
+				RelatrixKVTransaction.remove(xid, c);
+			}
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-	} catch (DuplicateKeyException e) {
-		throw new IOException(e);
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("RelatrixTransaction.remove Id:"+xid+" exiting remove for key:"+c);
 	}
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("RelatrixTransaction.remove exiting remove for key:"+c);
-}
-/**
- * Iterate through all possible relationships the given element may participate in, then recursively process those
- * relationships to remove references to those.
- * @param c
- * @throws IOException
- * @throws IllegalArgumentException
- * @throws ClassNotFoundException
- * @throws IllegalAccessException
- */
-private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-	ArrayList<Morphism> m = new ArrayList<Morphism>();
-	try {
-		Iterator<?> it = findSet(c,"*","*");
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+	/**
+	 * Iterate through all possible relationships the given element may participate in, then recursively process those
+	 * relationships to remove references to those.
+	 * @param c
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	private static synchronized void removeRecursive(String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		ArrayList<Morphism> m = new ArrayList<Morphism>();
+		try {
+			Iterator<?> it = findSet(xid, c,"*","*");
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE)
+					System.out.println("RelatrixTransaction.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) {
 			if( DEBUG || DEBUGREMOVE)
-				System.out.println("RelatrixTransaction.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
+				re.printStackTrace();
+		} // We can get this exception if the class types differ in domain
+		try {
+			Iterator<?> it = findSet(xid, "*",c,"*");
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) {
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace();
+		} // we can get this exception if map class types differ
+		try {
+			Iterator<?> it = findSet(xid, "*","*",c);
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) { 
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace(); 
+		} // we can get this exception if range class types differ
+		// Process our array of candidates
+		for(Morphism mo : m) {
+			if( DEBUG || DEBUGREMOVE)
+				System.out.println("RelatrixTransaction.remove Id: "+xid+" removing:"+mo);
+			remove(xid, mo.getDomain(), mo.getMap(), mo.getRange());
+			// if this morphism participates in any relationship. remove that relationship recursively
+			removeRecursive(xid, mo);
 		}
-	} catch(RuntimeException re) {
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace();
-	} // We can get this exception if the class types differ in domain
-	try {
-		Iterator<?> it = findSet("*",c,"*");
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
-		}
-	} catch(RuntimeException re) {
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace();
-	} // we can get this exception if map class types differ
-	try {
-		Iterator<?> it = findSet("*","*",c);
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
-		}
-	} catch(RuntimeException re) { 
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace(); 
-	} // we can get this exception if range class types differ
-	// Process our array of candidates
-	for(Morphism mo : m) {
-		if( DEBUG || DEBUGREMOVE)
-			System.out.println("RelatrixTransaction.remove removing:"+mo);
-		remove(mo.getDomain(), mo.getMap(), mo.getRange());
-		// if this morphism participates in any relationship. remove that relationship recursively
-		removeRecursive(mo);
 	}
-}
-/**
- * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
- * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
- * @param d
- * @param m
- * @param r
- * @throws IllegalAccessException 
- */
-public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
-	Morphism dmr = new DomainMapRange(d,m,r,true);
-	indexClasses[0] = dmr.getClass();
-	DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
-	indexClasses[1] = drm.getClass();
-	MapDomainRange mdr = new MapDomainRange(d,m,r,true);
-	indexClasses[2] = mdr.getClass();
-	MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
-	indexClasses[3] = mrd.getClass();
-	RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
-	indexClasses[4] = rdm.getClass();
-	RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
-	indexClasses[5] = rmd.getClass();
+	/**
+	 * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
+	 * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
+	 * @param d
+	 * @param m
+	 * @param r
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized void remove(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
+		Morphism dmr = new DomainMapRange(d,m,r,true);
+		indexClasses[0] = dmr.getClass();
+		DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
+		indexClasses[1] = drm.getClass();
+		MapDomainRange mdr = new MapDomainRange(d,m,r,true);
+		indexClasses[2] = mdr.getClass();
+		MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
+		indexClasses[3] = mrd.getClass();
+		RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
+		indexClasses[4] = rdm.getClass();
+		RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
+		indexClasses[5] = rmd.getClass();
 
-	try {
-		Object o = RelatrixKVTransaction.get(dmr);
-		if(o == null) {
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove could not find relationship dmr:"+dmr);
-			return;
-		}
+		try {
+			Object o = RelatrixKVTransaction.get(xid, dmr);
+			if(o == null) {
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove Id:"+xid+" could not find relationship dmr:"+dmr);
+				return;
+			}
 		//KeyValue kv = (KeyValue)o;
 		//DBKey dbKey = (DBKey) kv.getmValue();
-		DBKey dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable().delete(dbKey);
-		o = RelatrixKVTransaction.get(drm);
-		if(o == null)
-			throw new IOException(drm+" not found for delete");
+			DBKey dbKey = (DBKey)o;
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			o = RelatrixKVTransaction.get(xid, drm);
+			if(o == null)
+				throw new IOException(drm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
-		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable().delete(dbKey);
-		o = RelatrixKVTransaction.get(mdr);
-		if(o == null)
-			throw new IOException(mdr+" not found for delete");
+			dbKey = (DBKey)o;
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			o = RelatrixKVTransaction.get(xid, mdr);
+			if(o == null)
+				throw new IOException(mdr+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
-		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable().delete(dbKey);
-		o = RelatrixKVTransaction.get(mrd);
-		if(o == null)
-			throw new IOException(mrd+" not found for delete");
+			dbKey = (DBKey)o;
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			o = RelatrixKVTransaction.get(xid, mrd);
+			if(o == null)
+				throw new IOException(mrd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
-		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable().delete(dbKey);
-		o = RelatrixKVTransaction.get(rdm);
-		if(o == null)
-			throw new IOException(rdm+" not found for delete");
+			dbKey = (DBKey)o;
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			o = RelatrixKVTransaction.get(xid, rdm);
+			if(o == null)
+				throw new IOException(rdm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
-		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable().delete(dbKey);
-		o = RelatrixKVTransaction.get(rmd);
-		if(o == null)
-			throw new IOException(rmd+" not found for delete");
+			dbKey = (DBKey)o;
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			o = RelatrixKVTransaction.get(xid, rmd);
+			if(o == null)
+				throw new IOException(rmd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
-		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable().delete(dbKey);
-	} catch (ClassNotFoundException | DuplicateKeyException e) {
-		throw new IOException(e);
-	}
+			dbKey = (DBKey)o;
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
+		} catch (ClassNotFoundException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 
-	try {
-		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.remove removing dmr:"+dmr);
-			RelatrixKVTransaction.remove(dmr);
+		try {
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove removing "+drm);
-			RelatrixKVTransaction.remove(drm);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove removing "+mdr);
-			RelatrixKVTransaction.remove(mdr);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove removing "+mrd);
-			RelatrixKVTransaction.remove(mrd);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove removing "+rdm);
-			RelatrixKVTransaction.remove(rdm);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+rmd);
-			RelatrixKVTransaction.remove(rmd);
-	} catch (IllegalArgumentException | ClassNotFoundException e) {
-		throw new IOException(e);
-	}
+				System.out.println("RelatrixTransaction.remove Id:"+xid+" removing dmr:"+dmr);
+				RelatrixKVTransaction.remove(xid, dmr);
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+drm);
+				RelatrixKVTransaction.remove(xid, drm);
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+mdr);
+				RelatrixKVTransaction.remove(xid, mdr);
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+mrd);
+				RelatrixKVTransaction.remove(xid, mrd);
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+rdm);
+				RelatrixKVTransaction.remove(xid, rdm);
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("Relatrix.remove removing Id:"+xid+" "+rmd);
+				RelatrixKVTransaction.remove(xid, rmd);
+		} catch (IllegalArgumentException | ClassNotFoundException e) {
+			throw new IOException(e);
+		}
 	
-}
+	}
 
-/**
-* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-* matching the given set of operators and/or objects. Essentially this is the default permutation which
-* retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
-* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-* The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
-* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
-* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-* relationships of the 3 objects, of the type DomainMapRange. 
-* The returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
-* the mathematical identity, or constitute the unique key in database terms.
-* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
-* @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
-* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
-* @exception IOException low-level access or problems modifiying schema
-* @exception IllegalArgumentException the operator is invalid
-* @exception ClassNotFoundException if the Class of Object is invalid
-* @throws IllegalAccessException 
-* @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
-*/
-public static synchronized Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-{
-	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-	return ifact.createIterator();
-}
-/**
-* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-* matching the given set of operators and/or objects. Essentially this is the default permutation which
-* retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
-* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-* The returned Stream is always of dimension n="# of question marks" or a one element array of a single object.
-* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
-* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-* relationships of the 3 objects, of the type DomainMapRange. 
-* The returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
-* the mathematical identity, or constitute the unique key in database terms.
-* 
-* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
-* @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
-* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
-* @param parallel Optional argument to invoke parallel stream
-* @exception IOException low-level access or problems modifiying schema
-* @exception IllegalArgumentException the operator is invalid
-* @exception ClassNotFoundException if the Class of Object is invalid
-* @throws IllegalAccessException 
-* @return The Stream pipeline with the retrieved elements
- */
-public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-{
-	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-    Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-    return (Stream<?>) StreamSupport.stream(spliterator, true);
-}
+	/**
+	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
+	 * retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
+	 * the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
+	 * The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
+	 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
+	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
+	 * relationships of the 3 objects, of the type DomainMapRange. 
+	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
+	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
+	 * the mathematical identity, or constitute the unique key in database terms.
+	 * @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @exception IOException low-level access or problems modifiying schema
+	 * @exception IllegalArgumentException the operator is invalid
+	 * @exception ClassNotFoundException if the Class of Object is invalid
+	 * @throws IllegalAccessException 
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 */
+	public static synchronized Iterator<?> findSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
+		return ifact.createIterator();
+	}
+	/**
+	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
+	 * retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
+	 * the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
+	 * The returned Stream is always of dimension n="# of question marks" or a one element array of a single object.
+	 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
+	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
+	 * relationships of the 3 objects, of the type DomainMapRange. 
+	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
+	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
+	 * the mathematical identity, or constitute the unique key in database terms.
+	 * 
+	 * @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @param parallel Optional argument to invoke parallel stream
+	 * @exception IOException low-level access or problems modifiying schema
+	 * @exception IllegalArgumentException the operator is invalid
+	 * @exception ClassNotFoundException if the Class of Object is invalid
+	 * @throws IllegalAccessException 
+	 * @return The Stream pipeline with the retrieved elements
+	 */
+	public static synchronized Stream<?> findStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects.
@@ -471,14 +465,14 @@ public static synchronized Stream<?> findStream(Object darg, Object marg, Object
 * @throws IllegalAccessException 
 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 */
-public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Iterator<?> findTailSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
 		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
 		throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
-	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+	IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
 	return ifact.createIterator();
 }
 /**
@@ -499,14 +493,14 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
 * @throws IllegalAccessException 
 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
 */
-public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findTailStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
 		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
 		throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+	IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -526,10 +520,10 @@ public static synchronized Stream<?> findTailStream(Object darg, Object marg, Ob
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
-public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Iterator<?> findHeadSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference in our headset factory
-	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg);
 	return ifact.createIterator();
 }
 /**
@@ -549,10 +543,10 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
-public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findHeadStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference in our headset factory
-	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -578,7 +572,7 @@ public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Ob
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
-public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Iterator<?> findSubSet(String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
@@ -591,7 +585,7 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
 	if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 	if( numberObjects != endarg.length)
 		throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
-	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+	IteratorFactory ifact = IteratorFactory.createSubsetFactory(xid, darg, marg, rarg, endarg);
 	return ifact.createIterator();
 }
 /**
@@ -617,7 +611,7 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
  * @throws ClassNotFoundException
  * @throws IllegalAccessException
  */
-public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+public static synchronized Stream<?> findSubStream(String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 {
 	// check for at least one object reference
 	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
@@ -630,7 +624,7 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
 	if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 	if( numberObjects != endarg.length)
 		throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
-	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+	IteratorFactory ifact = IteratorFactory.createSubsetFactory(xid, darg, marg, rarg, endarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
@@ -640,13 +634,13 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
  * @return the DomainMapRange morphism having the lowest valued key value.
  * @throws IOException
  */
-public static synchronized Object first() throws IOException
+public static synchronized Object first(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return null;
 	}
 	try {
-		return RelatrixKVTransaction.firstKey(indexClasses[0]);
+		return RelatrixKVTransaction.firstKey(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -657,13 +651,13 @@ public static synchronized Object first() throws IOException
  * @return the DomainMapRange morphism having the lowest valued key value.
  * @throws IOException
  */
-public static synchronized Object firstKey() throws IOException
+public static synchronized Object firstKey(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return null;
 	}
 	try {
-		return RelatrixKVTransaction.firstKey(indexClasses[0]);
+		return RelatrixKVTransaction.firstKey(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -674,13 +668,13 @@ public static synchronized Object firstKey() throws IOException
  * @return the DomainMapRange morphism having the lowest valued key value.
  * @throws IOException
  */
-public static synchronized Object firstValue() throws IOException
+public static synchronized Object firstValue(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return null;
 	}
 	try {
-		return RelatrixKVTransaction.firstValue(indexClasses[0]);
+		return RelatrixKVTransaction.firstValue(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -691,10 +685,10 @@ public static synchronized Object firstValue() throws IOException
  * @return the DomainMapRange morphism having the lowest valued key value.
  * @throws IOException
  */
-public static synchronized Object first(Class clazz) throws IOException
+public static synchronized Object first(String xid, Class clazz) throws IOException
 {
 	try {
-		return RelatrixKVTransaction.firstKey(clazz);
+		return RelatrixKVTransaction.firstKey(xid, clazz);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -706,13 +700,13 @@ public static synchronized Object first(Class clazz) throws IOException
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
  */
-public static synchronized Object last() throws IOException
+public static synchronized Object last(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return null;
 	}
 	try {
-		return RelatrixKVTransaction.lastKey(indexClasses[0]);
+		return RelatrixKVTransaction.lastKey(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -723,13 +717,13 @@ public static synchronized Object last() throws IOException
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
  */
-public static synchronized Object lastKey() throws IOException
+public static synchronized Object lastKey(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return null;
 	}
 	try {
-		return RelatrixKVTransaction.lastKey(indexClasses[0]);
+		return RelatrixKVTransaction.lastKey(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -740,13 +734,13 @@ public static synchronized Object lastKey() throws IOException
  * @return the DomainMapRange morphism having the value of highest key.
  * @throws IOException
  */
-public static synchronized Object lastValue() throws IOException
+public static synchronized Object lastValue(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return null;
 	}
 	try {
-		return RelatrixKVTransaction.lastValue(indexClasses[0]);
+		return RelatrixKVTransaction.lastValue(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -757,10 +751,10 @@ public static synchronized Object lastValue() throws IOException
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
  */
-public static synchronized Object last(Class clazz) throws IOException
+public static synchronized Object last(String xid, Class clazz) throws IOException
 {
 	try {
-		return RelatrixKVTransaction.lastKey(clazz);
+		return RelatrixKVTransaction.lastKey(xid, clazz);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -771,10 +765,10 @@ public static synchronized Object last(Class clazz) throws IOException
  * @return the DomainMapRange morphism having the highest key value.
  * @throws IOException
  */
-public static synchronized Object lastKey(Class clazz) throws IOException
+public static synchronized Object lastKey(String xid, Class clazz) throws IOException
 {
 	try {
-		return RelatrixKVTransaction.lastKey(clazz);
+		return RelatrixKVTransaction.lastKey(xid, clazz);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -785,10 +779,10 @@ public static synchronized Object lastKey(Class clazz) throws IOException
  * @return the DomainMapRange morphism having the value of highest key.
  * @throws IOException
  */
-public static synchronized Object lastValue(Class clazz) throws IOException
+public static synchronized Object lastValue(String xid, Class clazz) throws IOException
 {
 	try {
-		return RelatrixKVTransaction.lastValue(clazz);
+		return RelatrixKVTransaction.lastValue(xid, clazz);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -799,14 +793,13 @@ public static synchronized Object lastValue(Class clazz) throws IOException
  * @return the number of DomainMapRange morphisms.
  * @throws IOException
  */
-public static synchronized long size() throws IOException
+public static synchronized long size(String xid) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return -1;
 	}
-	//return transactionTreeSets[0].size();
 	try {
-		return RelatrixKVTransaction.size(indexClasses[0]);
+		return RelatrixKVTransaction.size(xid, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -817,14 +810,13 @@ public static synchronized long size() throws IOException
  * @return true if the passed DomainMapRAnge exists.
  * @throws IOException
  */
-public static synchronized boolean contains(Comparable obj) throws IOException
+public static synchronized boolean contains(String xid, Comparable obj) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return false;
 	}
-	//return transactionTreeSets[0].contains(obj);
 	try {
-		return RelatrixKVTransaction.contains(obj);
+		return RelatrixKVTransaction.contains(xid, obj);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -855,24 +847,24 @@ public static synchronized Integer getIncrementedLastGoodKey() throws ClassNotFo
  * @throws IOException
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
-public static synchronized void transactionalStore(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-	RelatrixKVTransaction.transactionalStore(key,  value);
+public static synchronized void transactionalStore(String xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	RelatrixKVTransaction.transactionalStore(xid, key,  value);
 }
 /**
  * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static synchronized void transactionCommit(Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.transactionCommit(clazz);
+public static synchronized void transactionCommit(String xid, Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKVTransaction.transactionCommit(xid, clazz);
 }
 /**
  * Roll back all outstanding transactions on the given class, overlap with K/V functionality
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static synchronized void transactionRollback(Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.transactionRollback(clazz);
+public static synchronized void transactionRollback(String xid, Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKVTransaction.transactionRollback(xid, clazz);
 }
 /**
  * Take a check point of our current indicies. What this means is that we are
@@ -887,8 +879,8 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
  * @throws IOException
  * @throws IllegalAccessException 
  */
- public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.transactionCheckpoint(clazz);
+ public static synchronized void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKVTransaction.transactionCheckpoint(xid, clazz);
  }
  /**
   * return lowest valued key.
@@ -897,9 +889,9 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
   * @throws IOException
   * @throws IllegalAccessException 
   */
- public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
+ public static synchronized Object firstKey(String xid, Class clazz) throws IOException, IllegalAccessException
  {
-	 return RelatrixKVTransaction.firstKey(clazz);
+	 return RelatrixKVTransaction.firstKey(xid, clazz);
  }
  /**
   * The lowest key value object
@@ -908,9 +900,9 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
   * @throws IOException
   * @throws IllegalAccessException 
   */
- public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
+ public static synchronized Object firstValue(String xid, Class clazz) throws IOException, IllegalAccessException
  {
-	 return RelatrixKVTransaction.firstValue(clazz);
+	 return RelatrixKVTransaction.firstValue(xid, clazz);
  }
  /**
   * Return the value for the key.
@@ -919,9 +911,9 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
   * @throws IOException
   * @throws IllegalAccessException 
   */
- public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
+ public static synchronized Object get(String xid, Comparable key) throws IOException, IllegalAccessException
  {
-	 return RelatrixKVTransaction.get(key);
+	 return RelatrixKVTransaction.get(xid, key);
  }
  /**
   * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -942,9 +934,9 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
   * @throws IOException
   * @throws IllegalAccessException
   */
- public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
+ public static synchronized Iterator<?> keySet(String xid, Class clazz) throws IOException, IllegalAccessException
  {
-	 return RelatrixKVTransaction.keySet(clazz);
+	 return RelatrixKVTransaction.keySet(xid, clazz);
  }
  /**
   * Return the entry set for the given class type
@@ -953,9 +945,9 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
   * @throws IOException
   * @throws IllegalAccessException
   */
- public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
+ public static synchronized Stream<?> entrySetStream(String xid, Class clazz) throws IOException, IllegalAccessException
  {
-	 return RelatrixKVTransaction.entrySetStream(clazz);
+	 return RelatrixKVTransaction.entrySetStream(xid, clazz);
  }
  /**
  * Load the stated package from the declared path into the bytecode repository
@@ -987,7 +979,7 @@ public static synchronized void transactionRollback(Class clazz) throws IOExcept
 
  public static void main(String[] args) throws Exception {
 	setTablespaceDirectory(args[0]);
-	RelatrixTransaction.findStream("*", "*", "*").forEach((s) -> {
+	RelatrixTransaction.findStream(args[1], "*", "*", "*").forEach((s) -> {
 		System.out.println(s.toString());
 	});
  }

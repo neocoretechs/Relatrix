@@ -36,11 +36,13 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	protected Iterator iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
-    private Morphism base;
+    protected Morphism base;
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = true;
     protected boolean identity = false;
+    
+    public RelatrixIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
@@ -186,7 +188,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	 * @param dmr_return
 	 * @return
 	 */
-	private static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
+	protected static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
 			System.out.println("RelatrixIterator.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		if( dmr_return[1] == 0 && template.getDomain().compareTo(record.getDomain()) != 0 ) return false;

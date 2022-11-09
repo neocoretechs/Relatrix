@@ -77,7 +77,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemote(this);
-		IndexResolver.setTransaction(true);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {

@@ -76,7 +76,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientInte
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemote(this);
-		IndexResolver.setTransaction(true);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {

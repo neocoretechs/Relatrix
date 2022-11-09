@@ -26,6 +26,8 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
 
     protected boolean needsIter = false;
     protected boolean identity = false;
+    
+    public RelatrixHeadsetIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
