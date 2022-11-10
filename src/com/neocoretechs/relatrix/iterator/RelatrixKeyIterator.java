@@ -17,6 +17,8 @@ public class RelatrixKeyIterator implements Iterator<Comparable> {
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
+    
+    public RelatrixKeyIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return

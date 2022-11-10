@@ -58,33 +58,33 @@ public class RelatrixTransactionStatement extends RelatrixStatement {
 			// put it in the array and send our intermediary back
 			RelatrixTransactionServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction.class) {
-				setObjectReturn( new RemoteTailSetIterator(getSession()) );
+				setObjectReturn( new RemoteTailSetIteratorTransaction(getSession()) );
 			} else {
-				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
+				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction.class ) {
 					setObjectReturn( new RemoteSubSetIterator(getSession()) );
 				} else {
-					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
+					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction.class ) {
 						setObjectReturn( new RemoteHeadSetIterator(getSession()) );
 					} else {
-						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeyIterator.class) {
+						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeyIteratorTransaction.class) {
 							setObjectReturn( new RemoteKeySetIterator(getSession()) );
 						} else {
-							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator.class ) {
+							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapIteratorTransaction.class ) {
 								setObjectReturn( new RemoteSubMapIterator(getSession()) );
 							} else {
-								if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator.class ) {
+								if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapIteratorTransaction.class ) {
 									setObjectReturn( new RemoteHeadMapIterator(getSession()) );
 								} else {
-									if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
+									if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
 										setObjectReturn( new RemoteEntrySetIterator(getSession()) );
 									} else {
-										if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKVIterator.class ) {
+										if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKVIteratorTransaction.class ) {
 											setObjectReturn( new RemoteTailMapKVIterator(getSession()) );
 										} else {
-											if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapKVIterator.class ) {
+											if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapKVIteratorTransaction.class ) {
 												setObjectReturn( new RemoteHeadMapKVIterator(getSession()) );
 											} else {
-												if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapKVIterator.class ) {
+												if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapKVIteratorTransaction.class ) {
 													setObjectReturn( new RemoteSubMapKVIterator(getSession()) );
 												} else {
 													throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);

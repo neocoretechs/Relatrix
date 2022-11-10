@@ -15,6 +15,8 @@ public class RelatrixSubmapKVIterator implements Iterator<Comparable> {
 	protected Iterator iter;
 	protected Comparable buffer;
     protected boolean needsIter = false;
+    
+    public RelatrixSubmapKVIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return

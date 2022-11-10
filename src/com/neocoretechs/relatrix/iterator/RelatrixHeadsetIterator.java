@@ -92,9 +92,4 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
 		needsIter = true;
 		return tuples;
 	}
-	
-	
-
-	
-
 }

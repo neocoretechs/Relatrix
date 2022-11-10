@@ -18,13 +18,14 @@ public class RelatrixHeadmapIterator implements Iterator<Comparable> {
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
+    
+    public RelatrixHeadmapIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
      * @throws IOException 
      */
     public RelatrixHeadmapIterator(Comparable template) throws IOException {
-
     	try {
 			iter = RelatrixKV.findHeadMap(template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
