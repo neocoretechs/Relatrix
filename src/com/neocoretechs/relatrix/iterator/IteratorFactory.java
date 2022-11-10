@@ -492,19 +492,19 @@ import com.neocoretechs.relatrix.Relatrix;
 	               case 0:
 	           			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
 	               case 1:
-	                       return new FindSubSetMode1(dop, mop, rarg, endarg);
+	                       return new FindSubSetMode1Transaction(xid, dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindSubSetMode2(dop, marg, rop, endarg);
+	                       return new FindSubSetMode2Transaction(xid, dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindSubSetMode3(dop, marg, rarg, endarg);
+	                       return new FindSubSetMode3Transaction(xid, dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindSubSetMode4(darg, mop, rop, endarg);
+	                       return new FindSubSetMode4Transaction(xid, darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindSubSetMode5(darg, mop, rarg, endarg);
+	                       return new FindSubSetMode5Transaction(xid, darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindSubSetMode6(darg, marg, rop, endarg);
+	                       return new FindSubSetMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	           			   return new FindSubSetMode7(darg, marg, marg, endarg);
+	           			   return new FindSubSetMode7Transaction(xid, darg, marg, marg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findSubset factory mode "+mode+" is not supported.");
 			}	
