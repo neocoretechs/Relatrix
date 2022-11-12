@@ -1,15 +1,16 @@
 package com.neocoretechs.relatrix.client;
 
+import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 /**
- * Used to produce tailsets for remote delivery in a transaction context.
- * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
+ * Used by to produce subsets for remote delivery.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailSetIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface {
-	private static final long serialVersionUID = -7652502684740120088L;
-	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction";
-	public RemoteTailSetIteratorTransaction(String session) {
+public class RemoteSubSetIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface{
+	private static final long serialVersionUID = -7652502684740120087L;
+	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator";
+	public RemoteSubSetIteratorTransaction(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
@@ -30,7 +31,7 @@ public class RemoteTailSetIteratorTransaction extends RelatrixTransactionStateme
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixTransactionServer.relatrixTailsetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixTransactionServer.relatrixSubsetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters

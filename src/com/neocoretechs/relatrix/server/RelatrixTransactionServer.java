@@ -9,8 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteHeadSetIterator;
+import com.neocoretechs.relatrix.client.RemoteHeadSetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
+import com.neocoretechs.relatrix.client.RemoteSubSetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
+import com.neocoretechs.relatrix.client.RemoteTailSetIteratorTransaction;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -61,9 +64,9 @@ public final class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
-		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod(RemoteSubSetIterator.className, 0);
-		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod(RemoteHeadSetIterator.className, 0);
-		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailSetIterator.className, 0);
+		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod(RemoteSubSetIteratorTransaction.className, 0);
+		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod(RemoteHeadSetIteratorTransaction.className, 0);
+		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailSetIteratorTransaction.className, 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}

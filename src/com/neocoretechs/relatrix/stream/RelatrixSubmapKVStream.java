@@ -33,6 +33,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public class RelatrixSubmapKVStream<T> implements Stream<T> {
 	protected Stream stream;
 
+	public RelatrixSubmapKVStream() {}
+	
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return

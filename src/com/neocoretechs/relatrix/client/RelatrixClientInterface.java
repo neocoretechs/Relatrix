@@ -37,33 +37,6 @@ public interface RelatrixClientInterface {
 	 */
 	Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 
-
-	/**
-	 * Commit the outstanding indicies to their transactional data.
-	 * @throws IOException
-	 */
-	void transactionCommit() throws IOException;
-
-	/**
-	 * Roll back all outstanding transactions on the indicies
-	 * @throws IOException
-	 */
-	void transactionRollback() throws IOException;
-
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	void transactionCheckpoint() throws IOException, IllegalAccessException;
-
 	/**
 	* recursively delete all relationships that this object participates in
 	* @exception IOException low-level access or problems modifiying schema
@@ -108,20 +81,6 @@ public interface RelatrixClientInterface {
 	 * @return 
 	 */
 	Object sendCommand(RelatrixStatementInterface rs) throws IllegalAccessException, IOException, DuplicateKeyException;
-
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException;
 
 	Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
 
@@ -176,6 +135,28 @@ public interface RelatrixClientInterface {
 	 * @throws IOException
 	 */
 	void transactionRollback(Class clazz) throws IOException;
+
+	/**
+	 * Take a check point of our current indicies. What this means is that we are
+	 * going to write a log record such that if we crash will will restore the logs from that point forward.
+	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
+	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
+	 * if we crash, to restore the data to its state up to that point", hence check, point...
+	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
+	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
+	 * even the old data before the checkpoint.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException;
+
+	void transactionCommit() throws IOException;
+
+	void transactionRollback() throws IOException;
+
+	void transactionCheckpoint() throws IOException, IllegalAccessException;
+
+
 
 
 }

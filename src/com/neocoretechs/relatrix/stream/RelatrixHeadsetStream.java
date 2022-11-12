@@ -45,6 +45,8 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
 
     protected boolean needsIter = false;
     protected boolean identity = false;
+    
+    public RelatrixHeadsetStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return

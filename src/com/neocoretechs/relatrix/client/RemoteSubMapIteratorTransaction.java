@@ -1,15 +1,16 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
+import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 /**
  * Used by the Key/Value subsystem to produce submaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteSubMapIterator extends RelatrixKVStatement implements RemoteObjectInterface {
+public class RemoteSubMapIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface {
 	private static final long serialVersionUID = -112309448424952343L;
 	public static final String className = "com.neocoretechs.rocksack.iterator.SubSetIterator";
-	public RemoteSubMapIterator(String session) {
+	public RemoteSubMapIteratorTransaction(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
@@ -26,11 +27,11 @@ public class RemoteSubMapIterator extends RelatrixKVStatement implements RemoteO
 			close();
 		} else {
 			// Get the iterator linked to this session
-			Object itInst = RelatrixKVServer.sessionToObject.get(getSession());
+			Object itInst = RelatrixKVTransactionServer.sessionToObject.get(getSession());
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixKVServer.relatrixSubmapMethods.invokeMethod(this, itInst);
+			Object result = RelatrixKVTransactionServer.relatrixSubmapMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
@@ -39,6 +40,6 @@ public class RemoteSubMapIterator extends RelatrixKVStatement implements RemoteO
 
 	@Override
 	public void close() {
-		RelatrixKVServer.sessionToObject.remove(getSession());
+		RelatrixKVTransactionServer.sessionToObject.remove(getSession());
 	}
 }

@@ -33,9 +33,12 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public class RelatrixSubmapStream<T> implements Stream<T> {
 	protected Stream stream;
     protected boolean needsIter = false;
+    
+    public RelatrixSubmapStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
-     * @param dmr_return
+     * @param template the starting position of the retrieval
+     * @param template2 The ending position of the retrieval
      * @throws IOException 
      */
     public RelatrixSubmapStream(Comparable template, Comparable template2) throws IOException {

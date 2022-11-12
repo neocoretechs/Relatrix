@@ -25,8 +25,7 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
- * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
- * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
+ * Instances of this class deliver an stream of objects representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in the stream, since 1 full tuple element is streamed, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
@@ -35,7 +34,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * element of a RelatrixStream is dependent on the number of "?" operators in a 'findSetStream'. For example,
  * if we declare findHeadSetStream("*","?","*") we get back a Comparable[] of one element. For findSetStream("?",object,"?") we
  * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
- * @author Joonathan Groff Copyright (C) NeoCoreTechs 2014,2015(iterator), 2021 (stream)
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015(iterator), 2021 (stream), 2022
  *
  */
 public class RelatrixSubsetStream<T> implements Stream<T> {
@@ -44,9 +43,13 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
     protected short dmr_return[] = new short[4];
 
     protected boolean identity = false;
+    
+    public RelatrixSubsetStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
-     * @param dmr_return
+     * @param template The starting position of the retrieval
+     * @param template2 The ending position of the retrieval
+     * @param dmr_return The encoded tuple control array that here just tells us if we have an identity
      * @throws IOException 
      */
     public RelatrixSubsetStream(Morphism template, Morphism template2, short[] dmr_return) throws IOException {

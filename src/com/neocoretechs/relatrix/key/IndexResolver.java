@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
  * instance of {@link IndexInstanceTable} can be used to resolve database index to object instances, or whether an
@@ -46,5 +47,6 @@ public class IndexResolver {
 		local = false;
 		remoteIndexInstanceTable = remoteClient;
 	}
+	
 
 }

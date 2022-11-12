@@ -1,15 +1,16 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.server.RelatrixKVServer;
+import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 /**
- * Used by the category theoretic Relatrix server to produce headsets for remote delivery.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
+ * Used to produce tailmaps for remote delivery.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteHeadSetIterator extends RelatrixStatement implements RemoteObjectInterface{
+public class RemoteTailMapIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
-	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator";
-	public RemoteHeadSetIterator(String session) {
+	public static final String className = "com.neocoretechs.rocksack.iterator.TailSetIterator";
+	public RemoteTailMapIteratorTransaction(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
@@ -26,11 +27,11 @@ public class RemoteHeadSetIterator extends RelatrixStatement implements RemoteOb
 			close();
 		} else {
 			// Get the iterator linked to this session
-			Object itInst = RelatrixServer.sessionToObject.get(getSession());
+			Object itInst = RelatrixKVTransactionServer.sessionToObject.get(getSession());
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixServer.relatrixHeadsetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixKVTransactionServer.relatrixTailmapMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
@@ -39,6 +40,6 @@ public class RemoteHeadSetIterator extends RelatrixStatement implements RemoteOb
 
 	@Override
 	public void close() {
-		RelatrixServer.sessionToObject.remove(getSession());
+		RelatrixKVTransactionServer.sessionToObject.remove(getSession());
 	}
 }

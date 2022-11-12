@@ -52,11 +52,13 @@ public class RelatrixStream<T> implements Stream<T> {
 	protected Stream stream;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
-    private Morphism base;
+    protected Morphism base;
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = true;
     protected boolean identity = false;
+    
+    public RelatrixStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return

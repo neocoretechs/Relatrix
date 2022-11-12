@@ -34,6 +34,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public class RelatrixKVStream<T> implements Stream<T> {
 	private static boolean DEBUG = false;
 	protected Stream stream;
+	
+    public RelatrixKVStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return

@@ -211,7 +211,80 @@ import com.neocoretechs.relatrix.Relatrix;
 	                    throw new IllegalArgumentException("The findHeadset factory mode "+mode+" is not supported.");
 			}
 		}
-
+		/**
+		 * Create a factory generating headSet sets for the specified objects from a transaction context
+		 * @param xid the transaction Id
+		 * @param darg
+		 * @param marg
+		 * @param rarg
+		 * @return
+		 * @throws IOException 
+		 * @throws IllegalArgumentException 
+		 */
+		public static StreamFactory createHeadsetFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
+		    byte mode = 0;
+		    char dop, mop, rop;
+			//
+			dop = mop = rop = ' ';
+			//
+			if( (darg instanceof String) ) {
+			          	// see if its user operator
+			         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
+			         		dop = '?';
+			            else
+			            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
+			                     	dop = '*';
+			                else
+			                        mode = 4;                
+			} else
+			        mode = 4;
+			if( (marg instanceof String) ) {
+			         	// see if its user operator
+			           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
+			           		mop = '?';
+			            else
+			            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
+			                      	mop = '*';
+			                else
+			                       	mode ^= 2;                
+			} else
+				   mode ^= 2;
+			if( (rarg instanceof String) ) {
+			            // see if its user operator
+			        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
+			        		rop = '?';
+			            else
+			            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
+			            		rop = '*';
+			            	else
+			            		mode ^= 1;                
+			} else
+				   mode ^= 1;
+			    
+			if( DEBUG )
+			        System.out.println("Relatrix StreamFactoryTransaction findHeadSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+				
+			switch(mode) {
+	               case 0:
+	           			throw new IllegalArgumentException("At least one argument to findHeadSet must contain an object reference");
+	               case 1:
+	                       return new FindHeadSetStreamMode1Transaction(xid, dop, mop, rarg);
+	               case 2:
+	                       return new FindHeadSetStreamMode2Transaction(xid, dop, marg, rop);
+	               case 3:
+	                       return new FindHeadSetStreamMode3Transaction(xid, dop, marg, rarg);
+	               case 4:
+	                       return new FindHeadSetStreamMode4Transaction(xid, darg, mop, rop);
+	               case 5:
+	                       return new FindHeadSetStreamMode5Transaction(xid, darg, mop, rarg);
+	               case 6:
+	                       return new FindHeadSetStreamMode6Transaction(xid, darg, marg, rop);
+	               case 7:
+	            	   	   return new FindHeadSetStreamMode7Transaction(xid, darg, marg, rarg);
+	        	    default:
+	                    throw new IllegalArgumentException("The findHeadset transaction factory mode "+mode+" is not supported.");
+			}
+		}
 		/**
 		 * Create subset stream factory in preparation for creating a subset stream for a findSet operation.
 		 * @param darg

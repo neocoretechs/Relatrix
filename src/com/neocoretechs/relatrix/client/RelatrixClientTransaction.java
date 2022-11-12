@@ -23,7 +23,8 @@ import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
- * This class functions as client to the RelatrixServer Worker threads located on a remote node.
+ * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
+ * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
  * On the client and server the following are present as conventions:<br/>
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
  * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
@@ -35,10 +36,13 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.
+ * The client thread initiates with a CommandPacketInterface.<p/>
+ * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
+ * The transaction Id may outlive the session, as the session is transitory for communication purposes.
+ * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction implements Runnable, RelatrixClientInterface {
+public class RelatrixClientTransaction implements Runnable, RelatrixClientInterface, RelatrixClientTransactionInterface {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
@@ -60,7 +64,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 	
-	private ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();
+	private ConcurrentHashMap<String, RelatrixTransactionStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixTransactionStatement>();
 
 	/**
 	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -83,7 +87,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
+			System.out.println("RelatrixClientTransaction constructed with remote:"+IPAddress);
 		}
 		localIPAddress = InetAddress.getByName(bootNode);
 		//
@@ -132,10 +136,10 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 				Object o = iori.getObjectReturn();
 				if( o instanceof Exception ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
-						System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+						System.out.println("RelatrixClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					 o = ((Throwable)o).getCause();
 				}
-				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
+				RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
@@ -164,7 +168,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
-			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
+			outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
 			oos.flush();
@@ -298,8 +302,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws IOException
 	 * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
 	 */
-	public DomainMapRange store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixStatement("store",d, m, r);
+	public DomainMapRange store(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "store", d, m, r);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -336,8 +340,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	public DomainMapRange transactionalStore(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixStatement("transactionalStore",d, m, r);
+	public DomainMapRange transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", d, m, r);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -365,8 +369,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws IOException
 	 */
 	@Override
-	public void transactionCommit() throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionCommit",new Object[0]);
+	public void transactionCommit(String xid) throws IOException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "transactionCommit", new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -387,7 +391,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws IOException
 	 */
 	@Override
-	public void transactionRollback() throws IOException {
+	public void transactionRollback(String xid) throws IOException {
 		RelatrixStatement rs = new RelatrixStatement("transactionRollback",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -417,7 +421,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws IllegalAccessException 
 	 */
 	@Override
-	public void transactionCheckpoint() throws IOException, IllegalAccessException {
+	public void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",new Object[0]);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -441,7 +445,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 	
 	@Override
-	public void transactionCommit(Class clazz) throws IOException {
+	public void transactionCommit(String xid, Class clazz) throws IOException {
 		RelatrixStatement rs = new RelatrixStatement("transactionCommit",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -462,7 +466,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 
 	@Override
-	public void transactionRollback(Class clazz) throws IOException {
+	public void transactionRollback(String xid, Class clazz) throws IOException {
 		RelatrixStatement rs = new RelatrixStatement("transactionRollback",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -483,7 +487,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 	
 	@Override
-	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
+	public void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -511,7 +515,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @return null unless error occurs
 	 */
 	@Override
-	public Object transactionalStore(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public Object transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixStatement("transactionalStore",k,v);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -537,7 +541,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 
 	@Override
-	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+	public Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("firstKey",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -701,14 +705,14 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 
 	@Override
-	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		Object o = transactionalStore(k, v);
-		transactionCommit(k.getClass());
+	public Object store(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		Object o = transactionalStore(xid, k, v);
+		transactionCommit(xid, k.getClass());
 		return o;
 	}
 	
 	@Override
-	public RemoteStream entrySetStream(Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public RemoteStream entrySetStream(String xid, Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("entrySetStream",clazz);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
@@ -771,9 +775,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	* @throws IllegalAccessException 
 	*/
 	@Override
-	public Object remove(Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("remove",c);
+	public Object remove(String xid, Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", c);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -809,8 +812,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 */
-	public Object remove(Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("remove",d,m,r);
+	public Object remove(String xid, Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", d, m, r);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -860,9 +863,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public RemoteTailSetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
+	public RemoteTailSetIteratorTransaction findSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findSet", darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -887,12 +889,11 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 					else
 						if(o instanceof Exception)
 							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailSetIterator)o;
+		return (RemoteTailSetIteratorTransaction)o;
 	}
 	
-	public RemoteStream findSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findStream",darg, marg, rarg);
+	public RemoteStream findSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findStream", darg, marg, rarg);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -1302,6 +1303,74 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 		System.out.println(rc.sendCommand(rs));
 		//rc.send(rs);
 		rc.close();
+	}
+
+	@Override
+	public Object remove(Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RemoteStream entrySetStream(Class<?> forName)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object transactionalStore(Comparable k, Object v)
+			throws IllegalAccessException, IOException, DuplicateKeyException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void transactionCommit(Class clazz) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionRollback(Class clazz) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionCommit() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionRollback() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transactionCheckpoint() throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
