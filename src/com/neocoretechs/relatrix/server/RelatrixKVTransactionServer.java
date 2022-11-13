@@ -81,14 +81,14 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
-		RelatrixKVTransactionServer.relatrixSubmapMethods = new ServerInvokeMethod(RemoteSubMapIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixSubmapKVMethods = new ServerInvokeMethod(RemoteSubMapKVIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixHeadmapMethods = new ServerInvokeMethod(RemoteHeadMapIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixHeadmapKVMethods = new ServerInvokeMethod(RemoteHeadMapKVIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixTailmapMethods = new ServerInvokeMethod(RemoteTailMapIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixTailmapKVMethods = new ServerInvokeMethod(RemoteTailMapKVIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod(RemoteEntrySetIteratorTransaction.className, 0);
-		RelatrixKVTransactionServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeySetIteratorTransaction.className, 0);
+		RelatrixKVTransactionServer.relatrixSubmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetIterator", 0);
+		RelatrixKVTransactionServer.relatrixSubmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetKVIterator", 0);
+		RelatrixKVTransactionServer.relatrixHeadmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetIterator", 0);
+		RelatrixKVTransactionServer.relatrixHeadmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetKVIterator", 0);
+		RelatrixKVTransactionServer.relatrixTailmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetIterator", 0);
+		RelatrixKVTransactionServer.relatrixTailmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetKVIterator", 0);
+		RelatrixKVTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.EntrySetIterator", 0);
+		RelatrixKVTransactionServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.KeySetIterator", 0);
 	
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);

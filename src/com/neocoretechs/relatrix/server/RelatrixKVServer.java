@@ -72,14 +72,14 @@ public final class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixSubmapMethods = new ServerInvokeMethod(RemoteSubMapIterator.className, 0);
-		RelatrixKVServer.relatrixSubmapKVMethods = new ServerInvokeMethod(RemoteSubMapKVIterator.className, 0);
-		RelatrixKVServer.relatrixHeadmapMethods = new ServerInvokeMethod(RemoteHeadMapIterator.className, 0);
-		RelatrixKVServer.relatrixHeadmapKVMethods = new ServerInvokeMethod(RemoteHeadMapKVIterator.className, 0);
-		RelatrixKVServer.relatrixTailmapMethods = new ServerInvokeMethod(RemoteTailMapIterator.className, 0);
-		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod(RemoteTailMapKVIterator.className, 0);
-		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod(RemoteEntrySetIterator.className, 0);
-		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod(RemoteKeySetIterator.className, 0);
+		RelatrixKVServer.relatrixSubmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetIterator", 0);
+		RelatrixKVServer.relatrixSubmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetKVIterator", 0);
+		RelatrixKVServer.relatrixHeadmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetIterator", 0);
+		RelatrixKVServer.relatrixHeadmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetKVIterator", 0);
+		RelatrixKVServer.relatrixTailmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetIterator", 0);
+		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetKVIterator", 0);
+		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.EntrySetIterator", 0);
+		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.KeySetIterator", 0);
 	
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);

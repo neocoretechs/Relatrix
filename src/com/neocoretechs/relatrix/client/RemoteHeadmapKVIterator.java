@@ -8,17 +8,11 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  */
 public class RemoteHeadMapKVIterator extends RelatrixKVStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -3324485838278832306L;
-	public static final String className = "com.neocoretechs.rocksack.iterator.HeadSetKVIterator";
 	public RemoteHeadMapKVIterator(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
 	}
-	/* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
-	 */
-	@Override
-	public String getClassName() { return className; }
 	
 	@Override
 	public void process() throws Exception {

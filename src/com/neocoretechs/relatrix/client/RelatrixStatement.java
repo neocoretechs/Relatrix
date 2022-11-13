@@ -20,7 +20,6 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
-    private String className = "com.neocoretechs.relatrix.Relatrix";
     protected String methodName;
     protected Object[] paramArray;
     private Object retObj;
@@ -38,11 +37,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
              paramArray = o1;
     }
   
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
-	 */
-    @Override
-	public synchronized String getClassName() { return className; }
+
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
 	 */
@@ -83,8 +78,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
         return c;
     }
     @Override
-    public synchronized String toString() { return String.format("%s for Session:%s Class:%s Method:%s Arg:%s%n",
-             this.getClass().getName(),session,className,methodName,
+    public synchronized String toString() { return String.format("%s for Session:%s Method:%s Arg:%s%n",
+             this.getClass().getName(),session,methodName,
              (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0]))); }
     
 	@Override

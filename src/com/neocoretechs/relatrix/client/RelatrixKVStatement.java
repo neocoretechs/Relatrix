@@ -20,7 +20,6 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
-    private String className = "com.neocoretechs.relatrix.RelatrixKV";
     protected String methodName;
     protected Object[] paramArray;
     private Object retObj;
@@ -38,11 +37,6 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
              paramArray = o1;
     }
   
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
-	 */
-    @Override
-	public synchronized String getClassName() { return className; }
     
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
@@ -85,7 +79,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     @Override
     public synchronized String toString() { 
-    	StringBuilder sb = new StringBuilder(String.format("%s for Session:%s Class/method:%s.%s",this.getClass().getName(),session,className,methodName));
+    	StringBuilder sb = new StringBuilder(String.format("%s for Session:%s method:%s",this.getClass().getName(),session,methodName));
     	if(paramArray == null || paramArray.length == 0) {
     			sb.append("(void)");
     	} else {

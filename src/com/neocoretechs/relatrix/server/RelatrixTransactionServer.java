@@ -64,9 +64,9 @@ public final class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
-		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod(RemoteSubSetIteratorTransaction.className, 0);
-		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod(RemoteHeadSetIteratorTransaction.className, 0);
-		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod(RemoteTailSetIteratorTransaction.className, 0);
+		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}

@@ -9,18 +9,12 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class RemoteSubSetIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
-	public static final String className = "com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator";
 	public RemoteSubSetIteratorTransaction(String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
 	}
-	/* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getClassName()
-	 */
-	@Override
-	public String getClassName() { return className; }
-	
+
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
