@@ -33,6 +33,6 @@ public class FindSetStreamMode2Transaction extends FindSetStreamMode2 {
     }
  
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		return (Stream<?>) new RelatrixStreamTransaction(xid, tdmr, dmr_return);	
+		return new RelatrixStreamTransaction(xid, tdmr, dmr_return);	
 	}
 }

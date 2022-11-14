@@ -25,6 +25,6 @@ public class FindHeadSetStreamMode5Transaction extends FindHeadSetStreamMode5 {
 	
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		return (Stream<?>) new RelatrixHeadsetStreamTransaction(xid, tdmr, dmr_return);
+		return new RelatrixHeadsetStreamTransaction(xid, tdmr, dmr_return);
 	}
 }

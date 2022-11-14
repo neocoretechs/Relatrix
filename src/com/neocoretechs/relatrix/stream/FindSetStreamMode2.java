@@ -50,6 +50,6 @@ public class FindSetStreamMode2 extends StreamFactory {
 		return createRelatrixStream(dmr);
 	}
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		return (Stream<?>) new RelatrixStream(tdmr, dmr_return);	
+		return new RelatrixStream(tdmr, dmr_return);	
 	}
 }

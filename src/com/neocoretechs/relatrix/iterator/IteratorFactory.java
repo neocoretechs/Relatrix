@@ -10,13 +10,12 @@ import com.neocoretechs.relatrix.Relatrix;
 	 * of findSet: HeadSet from selected result set,SubSet from result set, or tailSet from findSet return ordered set.
 	 * The iterator will, in general, return an array of Comparable corresponding to the number of elements specified 
 	 * in the findSet retrieval indicated by the "?" parameter. <br/>
-	 * This factory generates the proper iterator based on our findSet semantics.
-	 * Like all factories, this one is not pretty, but it makes the necessary sausage to feed the rest of the process.
-	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
+	 * This factory generates the proper iterator based on our findSet semantics.<p/>
+	 * Overloaded methods support transaction context.
+	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2022
 	 *
 	 */
-	public abstract class IteratorFactory
-	{
+	public abstract class IteratorFactory {
 		private static boolean DEBUG = false; 
 		/**
 		 * Create the iterator. Factory method, abstract.
@@ -32,6 +31,38 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IOException
 		 */
 		protected abstract Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException;
+		/**
+		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
+		* @param marg the char operator
+		* @return the translated ordinal, either 1 for ? or 2 for *
+		* @exception IllegalArgumentException the operator is invalid
+		*/
+		protected static short checkOp(char marg) throws IllegalArgumentException
+		{
+		        if( marg == Relatrix.OPERATOR_TUPLE_CHAR )
+		                return 1;
+		        else
+		        	if( marg == Relatrix.OPERATOR_WILDCARD_CHAR)
+		                	return 2;
+		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
+		}
+		/**
+		 * Determine if we are returning identity relationship morphisms
+		 * @param dop The domain predicate from retrieval operation
+		 * @param mop Map predicate
+		 * @param rop Range
+		 * @return true if all arguments are wildcard values
+		 */
+		protected static boolean isReturnRelationships(char dop, char mop, char rop) {
+			return( dop == Relatrix.OPERATOR_WILDCARD_CHAR && 
+					mop == Relatrix.OPERATOR_WILDCARD_CHAR && 
+					rop == Relatrix.OPERATOR_WILDCARD_CHAR );
+		}
+		
+		protected static boolean isReturnRelationships(short[] dmr_return) {
+			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );
+		}
+
 		/**
 		 * Factory method, create the abstract factory which will manufacture our specific iterator instances.
 		 * @param darg The domain argument from the driving findSet method being invoked. 
@@ -180,38 +211,7 @@ import com.neocoretechs.relatrix.Relatrix;
                     throw new IllegalArgumentException("The findSet transaction factory mode "+mode+" is not supported.");
 		    }
 		}
-		/**
-		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
-		* @param marg the char operator
-		* @return the translated ordinal, either 1 for ? or 2 for *
-		* @exception IllegalArgumentException the operator is invalid
-		*/
-		protected static short checkOp(char marg) throws IllegalArgumentException
-		{
-		        if( marg == Relatrix.OPERATOR_TUPLE_CHAR )
-		                return 1;
-		        else
-		        	if( marg == Relatrix.OPERATOR_WILDCARD_CHAR)
-		                	return 2;
-		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
-		}
-		/**
-		 * Determine if we are returning identity relationship morphisms
-		 * @param dop The domain predicate from retrieval operation
-		 * @param mop Map predicate
-		 * @param rop Range
-		 * @return true if all arguments are wildcard values
-		 */
-		protected static boolean isReturnRelationships(char dop, char mop, char rop) {
-			return( dop == Relatrix.OPERATOR_WILDCARD_CHAR && 
-					mop == Relatrix.OPERATOR_WILDCARD_CHAR && 
-					rop == Relatrix.OPERATOR_WILDCARD_CHAR );
-		}
-		
-		protected static boolean isReturnRelationships(short[] dmr_return) {
-			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );
-		}
-
+	
 		/**
 		 * Create a factory generating headSet sets for the specified objects
 		 * @param darg
@@ -346,15 +346,15 @@ import com.neocoretechs.relatrix.Relatrix;
 	               case 2:
 	                       return new FindHeadSetMode2Transaction(xid, dop, marg, rop);
 	               case 3:
-	                       return new FindHeadSetMode3(dop, marg, rarg);
+	                       return new FindHeadSetMode3Transaction(xid, dop, marg, rarg);
 	               case 4:
-	                       return new FindHeadSetMode4(darg, mop, rop);
+	                       return new FindHeadSetMode4Transaction(xid, darg, mop, rop);
 	               case 5:
-	                       return new FindHeadSetMode5(darg, mop, rarg);
+	                       return new FindHeadSetMode5Transaction(xid, darg, mop, rarg);
 	               case 6:
-	                       return new FindHeadSetMode6(darg, marg, rop);
+	                       return new FindHeadSetMode6Transaction(xid, darg, marg, rop);
 	               case 7:
-	            	   	   return new FindHeadSetMode7(darg, marg, rarg);
+	            	   	   return new FindHeadSetMode7Transaction(xid, darg, marg, rarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findHeadset factory mode "+mode+" is not supported.");
 			}

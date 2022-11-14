@@ -27,6 +27,6 @@ public class FindHeadSetStreamMode3 extends FindSetStreamMode3 {
 	 */
     @Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return (Stream<?>) new RelatrixHeadsetStream(tdmr, dmr_return);
+	    return new RelatrixHeadsetStream(tdmr, dmr_return);
 	}
 }
