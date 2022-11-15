@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 /**
  * Used by the Key/Value RelatrixKVServer to produce headmaps for remote delivery.
@@ -9,10 +8,11 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteHeadMapKVIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -3324485838278832306L;
-	public RemoteHeadMapKVIteratorTransaction(String session) {
+	public RemoteHeadMapKVIteratorTransaction(String xid, String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
+		this.xid = xid;
 	}
 	
 	@Override

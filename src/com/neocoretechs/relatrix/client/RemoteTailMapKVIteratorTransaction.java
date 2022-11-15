@@ -9,10 +9,11 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteTailMapKVIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteTailMapKVIteratorTransaction(String session) {
+	public RemoteTailMapKVIteratorTransaction(String xid, String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
+		this.xid = xid;
 	}
 
 	@Override

@@ -1,10 +1,8 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 /**
  * Implementation of the standard Iterator interface which operates on Morphisms formed into a template

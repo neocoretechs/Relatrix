@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 /**
  * Used by the category theoretic Relatrix server to produce headsets for remote delivery.
@@ -9,7 +8,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class RemoteHeadSetIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface {
 	private static final long serialVersionUID = -7652502684740120088L;
-	public RemoteHeadSetIteratorTransaction(String session) {
+	public RemoteHeadSetIteratorTransaction(String xid, String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);

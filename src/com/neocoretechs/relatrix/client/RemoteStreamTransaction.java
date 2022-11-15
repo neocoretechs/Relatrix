@@ -11,25 +11,22 @@ import java.util.stream.Stream;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteStream implements Serializable {
+public class RemoteStreamTransaction extends RemoteStream implements Serializable {
 	private static final long serialVersionUID = 3064585530528835745L;
 	private static boolean DEBUG = false;
 	Object[] retArray;
-	
-	public RemoteStream() {}
+	String xid;
 	/**
 	 * 
 	 * @param result instance of stream to build collection that is serializable to return to client for
 	 * construction of client side stream
 	 */
-	public RemoteStream(Object result) {
-		retArray = ((Stream)result).toArray();
-		if(DEBUG)
-			System.out.printf("Setting return object:%s length:%d%n", (retArray != null ? retArray : "NULL"), (retArray != null ? retArray.length : 0));
+	public RemoteStreamTransaction(String xid, Object result) {
+		super(result);
+		this.xid = xid;
 	}
 
-	public Stream<?> of() {
-		return Stream.of(retArray);
-	}
+	
+	public String getTransactionId() { return xid; }
 	
 }

@@ -17,10 +17,19 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
-    private String className = "com.neocoretechs.relatrix.RelatrixKVTransaction";
+    String xid;
     
     public RelatrixKVTransactionStatement() {}
     
+    public RelatrixKVTransactionStatement(String xid, String tmeth, Object ... o1) {
+    	super(tmeth, o1);
+    	this.xid = xid;
+    }
+    
+    public String getTransactionId() {
+    	return xid;
+    }
+
 	/**
 	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p/>
 	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p/>

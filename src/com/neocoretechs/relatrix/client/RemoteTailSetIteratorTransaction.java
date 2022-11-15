@@ -8,10 +8,11 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class RemoteTailSetIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface {
 	private static final long serialVersionUID = -7652502684740120088L;
-	public RemoteTailSetIteratorTransaction(String session) {
+	public RemoteTailSetIteratorTransaction(String xid, String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
+		this.xid = xid;
 	}
 	
 	@Override

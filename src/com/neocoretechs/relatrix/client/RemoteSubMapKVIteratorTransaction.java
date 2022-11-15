@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 /**
  * Used by the Key/Value subsystem to produce submaps for remote delivery.
@@ -9,10 +8,11 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteSubMapKVIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface{
 	private static final long serialVersionUID = -112309448424952343L;
-	public RemoteSubMapKVIteratorTransaction(String session) {
+	public RemoteSubMapKVIteratorTransaction(String xid, String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
+		this.xid = xid;
 	}
 	
 	@Override
