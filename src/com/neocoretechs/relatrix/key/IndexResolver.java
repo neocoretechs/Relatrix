@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
@@ -17,6 +18,7 @@ public class IndexResolver {
 	static IndexInstanceTableInterface instanceTable = null;
 	static boolean local = true;
 	static RelatrixClientInterface remoteIndexInstanceTable;
+	static RelatrixClientTransactionInterface remoteIndexInstanceTableTransaction;
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
@@ -29,6 +31,16 @@ public class IndexResolver {
 		return instanceTable;
 	}
 	
+	public static IndexInstanceTableInterface getIndexInstanceTable(String xid) throws IOException {
+		if(instanceTable == null) {
+			if(local) {
+				instanceTable = new IndexInstanceTable(xid);
+			} else {
+				instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTableTransaction);
+			}
+		}
+		return instanceTable;
+	}
 	/**
 	 * Determine if the instance of this class will be operating on a local or remote resolver table.
 	 * By calling this, local is set to true, by default, it is also true.
@@ -47,6 +59,11 @@ public class IndexResolver {
 		local = false;
 		remoteIndexInstanceTable = remoteClient;
 	}
-	
+
+	public static void setRemote(RelatrixClientTransactionInterface remoteClient) {
+		local = false;
+		remoteIndexInstanceTableTransaction = remoteClient;
+	}
+
 
 }

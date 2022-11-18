@@ -2,11 +2,10 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.NoSuchElementException;
+import java.util.UUID;
 
-import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.key.DBKey;
+
 /**
  * Defines the contract for client side communications with remote Relatrix server.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
@@ -28,14 +27,6 @@ public interface RelatrixClientInterface {
 
 	int getRemotePort();
 
-	/**
-	 * Get the last good DBKey from the DBKey table, which is the highest numbered last key delivered.
-	 * @return The last good key
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
-	 * @throws IOException 
-	 */
-	Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 
 	/**
 	* recursively delete all relationships that this object participates in
@@ -156,7 +147,13 @@ public interface RelatrixClientInterface {
 
 	void transactionCheckpoint() throws IOException, IllegalAccessException;
 
-
-
+	/**
+	 * Get the last good DBKey from the DBKey table, which is the highest numbered last key delivered.
+	 * @return The last good key
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws IOException 
+	 */
+	UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 
 }

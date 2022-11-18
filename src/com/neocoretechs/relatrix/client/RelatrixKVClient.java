@@ -11,6 +11,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -271,28 +272,7 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("store",k,v);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
-	
+		return sendCommand(rs);
 	}
 	/**
 	 * Store our k/v
@@ -309,27 +289,7 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public Object transactionalStore(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionalStore",k, v);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
+		return sendCommand(rs);
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -338,20 +298,11 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public void transactionCommit(Class clazz) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();		
-		outstandingRequests.remove(rs.getSession());
-		if(o != null && o instanceof IOException)
-			throw (IOException)o;
-		else
-			if(o instanceof Exception)
-				throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 	/**
 	 * Roll back all outstanding transactions on the indicies
@@ -360,20 +311,11 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public void transactionRollback(Class clazz) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();		
-		outstandingRequests.remove(rs.getSession());
-		if(o != null && o instanceof IOException)
-			throw (IOException)o;
-		else
-			if(o instanceof Exception)
-				throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -390,124 +332,51 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		outstandingRequests.remove(rs.getSession());
-		Object o = rs.getObjectReturn();		
-		if(o != null) {
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+			sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
 	}
 	@Override
-	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getIncrementedLastGoodKey",(Object[])null);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getNewKey",(Object[])null);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (UUID)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Integer) o;
 	}
 
 	@Override
 	public void transactionCommit() throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",(Object[])null);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof Exception)
-					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 
 	@Override
 	public void transactionRollback() throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",(Object[])null);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof Exception)
-					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		
 	}
 
 	@Override
 	public void transactionCheckpoint() throws IOException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",(Object[])null);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof Exception)
-					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		
 	}
 
@@ -518,65 +387,23 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws IllegalAccessException 
 	*/
 	@Override
-	public Object remove(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object remove(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("remove",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 
 	@Override
-	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	/**
 	 * Get the keyed value
@@ -587,217 +414,70 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws IllegalAccessException
 	 */
 	@Override
-	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("get",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 		
 	@Override
-	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	
 	@Override
-	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Comparable) o;
 	}
 	
 	@Override
-	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (Comparable) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Comparable) o;
 	}
 
-	public long size(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public long size(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("size",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (long) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (long) o;
 	}
 	
-	public boolean contains(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public boolean contains(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("contains",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (boolean) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (boolean) o;
 	}
 	
-	public boolean containsValue(Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public boolean containsValue(Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("containsValue",keyType, value);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (boolean) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (boolean) o;
 	}
 	
 	/**
@@ -811,195 +491,69 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 	* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 	* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-	* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
+	* the requirement to be 'categorical'. In general, all 3 element arrays return by the Cat->set representable operators are
 	* the mathematical identity, or constitute the unique key in database terms.
 	* @param darg Object for domain of relationship or a class template
 	* @param marg Object for the map of relationship or a class template
 	* @param rarg Object for the range of the relationship or a class template
-	* @exception IOException low-level access or problems modifiying schema
+	* @exception IOException low-level access or problems modifying schema
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public RemoteTailMapIterator findTailMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteTailMapIterator findTailMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteTailMapIterator)sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailMapIterator)o;
 	}
 
-	public RemoteStream findTailMapSteam(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream findTailMapSteam(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapStream",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
 	}
 
-	public RemoteEntrySetIterator entrySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteEntrySetIterator entrySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteEntrySetIterator)sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteEntrySetIterator)o;
 	}
 	
-	public RemoteStream entrySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream entrySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("entrySetStream",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
 	}
 	
-	public RemoteKeySetIterator keySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteKeySetIterator keySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteKeySetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKeySetIterator)o;
 	}
 	
-	public RemoteStream keySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream keySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("keySetStream",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
 
 
 	}
@@ -1021,65 +575,23 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public RemoteTailMapKVIterator findTailMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteTailMapKVIterator findTailMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKV",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteTailMapKVIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailMapKVIterator)o;
 
 	}
 
-	public RemoteStream findTailMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream findTailMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKVStream",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
 
 	}
 	/**
@@ -1096,64 +608,23 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteHeadMapIterator findHeadMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteHeadMapIterator findHeadMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteHeadMapIterator)sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteHeadMapIterator)o;
 
 	}
 	
-	public RemoteStream findHeadMapStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream findHeadMapStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapStream",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
-
 	}
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -1167,64 +638,22 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteHeadMapKVIterator findHeadMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteHeadMapKVIterator findHeadMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKV",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteHeadMapKVIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteHeadMapKVIterator)o;
-
 	}
 	
-	public RemoteStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKVStream",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
-
 	}
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
@@ -1241,64 +670,22 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteSubMapIterator findSubMap(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteSubMapIterator findSubMap(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMap",key1, key2);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteSubMapIterator)sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteSubMapIterator)o;
-
 	}
 	
-	public RemoteStream findSubMapStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream findSubMapStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapStream",key1, key2);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
-
 	}
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
@@ -1315,64 +702,22 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteSubMapKVIterator findSubMapKV(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteSubMapKVIterator findSubMapKV(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKV",key1, key2);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteSubMapKVIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteSubMapKVIterator)o;
-
 	}
 	
-	public RemoteStream findSubMapKVStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	public RemoteStream findSubMapKVStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKVStream",key1, key2);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
-
 	}
 	/**
 	 * Load a class into the handlerclassloader from remote repository via jar file
@@ -1382,34 +727,13 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public Object loadClassFromJar(String jar) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object loadClassFromJar(String jar) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("loadClassFromJar",jar);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	/**
 	 * Load a class in to handlerclassloader via package and directory path.
@@ -1420,34 +744,13 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public Object loadClassFromPath(String pack, String path) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object loadClassFromPath(String pack, String path) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("loadClassFromPath", pack, path);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	/**
 	 * Remove package in handlerclassloader and from repository.
@@ -1458,34 +761,13 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public Object removePackageFromRepository(String pack) throws IOException, ClassNotFoundException, IllegalAccessException
-	{
+	public Object removePackageFromRepository(String pack) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("removePackageFromRepository", pack);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	
 	/**

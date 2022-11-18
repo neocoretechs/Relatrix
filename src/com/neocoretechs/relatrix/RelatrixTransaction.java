@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -823,17 +824,17 @@ public static synchronized boolean contains(String xid, Comparable obj) throws I
 }
 
 /**
- * Get the highest numbered key in DBkey table, pre-incremented.
+ * Get the new DBkey.
  * @return
  * @throws IOException 
  * @throws IllegalAccessException 
  * @throws ClassNotFoundException 
  */
-public static synchronized Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-	Integer lastGood = IndexResolver.getIndexInstanceTable().getIncrementedLastGoodKey();
+public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	UUID nkey = UUID.randomUUID();
 	if(DEBUG)
-		System.out.printf("Returning getIncrementedLastgoodKey=%d%n", lastGood);
-	return lastGood;
+		System.out.printf("Returning getIncrementedLastgoodKey=%s%n", nkey.toString());
+	return nkey;
 }
 
 /**

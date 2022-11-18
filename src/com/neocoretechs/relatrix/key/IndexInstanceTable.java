@@ -5,63 +5,39 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
  * lookup of the Integer index. We use the DBKey wrapper class to carry the integer index inside the Morphism.
- * which also adds validation.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
+ * which also adds validation. A constructor carrying a transaction Id sets up methods for calls to the
+ * transaction oriented classes.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
 	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
-	DBKey lastKey;
-	DBKey lastGoodKey;
-	private static Object mutex = new Object();
+	String transactionId = null;
+	private Object mutex = new Object();
+	/**
+	 * Set up for non transaction context. 
+	 */
 	public IndexInstanceTable() {
-			synchronized(mutex) {
-				Object lastKeyObject = null;
-				try {
-					classCommits.add(DBKey.class);
-					lastKeyObject = lastKey(DBKey.class);
-				} catch (IllegalAccessException | IOException e) {
-					System.out.printf("<<Cannot establish index for object instance storage, must reconcile tables and directories in %s before continuing", RelatrixKV.getTableSpaceDirectory());
-					e.printStackTrace();
-					System.exit(1);
-				}
-				if(lastKeyObject == null) {
-					lastKeyObject = new DBKey(0);
-				}
-				lastKey = (DBKey) lastKeyObject;
-				setLastGoodKey();
-				if(DEBUG) {
-					System.out.printf("lastKey=%slastGoodKey=%s%n", lastKey, lastGoodKey);
-				}
-			}
 	}
-	
-	@Override
-	public Integer getIncrementedLastGoodKey() {
-		return ++lastKey.instanceIndex;
-	}
-	
 	/**
-	 * For commit
+	 * Set up for transaction context. Ensure elsewhere that lifecycle of this instance is per transaction.
+	 * @param xid
 	 */
-	protected void setLastGoodKey() {
-		lastGoodKey = new DBKey(lastKey.instanceIndex);
+	public IndexInstanceTable(String xid) {
+			this.transactionId = xid;
 	}
 	
-	/**
-	 * For rollback
-	 */
-	protected void setLastKey() {
-		lastKey = new DBKey(lastGoodKey.instanceIndex);
-	}
+
 	/**
 	 * Put the key to the proper tables
 	 * @param index
@@ -73,26 +49,21 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
 			if(DEBUG)
-				System.out.printf("%s.put index=%s instance=%s valid=%s%n", index.getClass().getName(), index, instance, String.valueOf(index.isValid()));
-			if(index.isValid() ) {
-				// index is valid
-				if(instance == null) // but instance is null
-					throw new IllegalAccessException("DBKey is in an invalid state: valid index but strangeley, no valid instance it refers to.");			
-			} else {
-				// instance index not valid, key not fully formed, we may have to add instance value to table and index it
-				if(instance == null) {
-					// instance is null, no instance in DBkey, keys are not valid, nothing to put.
-					throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
-				}
-			}
+				System.out.printf("%s.put index=%s instance=%s%n", index.getClass().getName(), index, instance);
 			try {
-				RelatrixKV.transactionalStore(index, instance);
+				if(transactionId == null)
+					RelatrixKV.transactionalStore(index, instance);
+				else
+					RelatrixKVTransaction.transactionalStore(transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
 				dke.printStackTrace();
 				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
 			}
 			try {
-				RelatrixKV.transactionalStore(instance, index);
+				if(transactionId == null)
+					RelatrixKV.transactionalStore(instance, index);
+				else
+					RelatrixKVTransaction.transactionalStore(transactionId, instance, index);
 			} catch(DuplicateKeyException dke) {
 				dke.printStackTrace();
 				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
@@ -106,18 +77,19 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		synchronized(mutex) {
 			Comparable instance = null;
-			if(index.isValid() ) {
-				// index is valid
-				instance = (Comparable) getByIndex(index);
-				if(instance != null) {
+			// index is valid
+			instance = (Comparable) getByIndex(index);
+			if(instance != null) {
+				if(transactionId == null)
 					RelatrixKV.remove(instance);
-					classCommits.add(instance.getClass());
-				}						
-			} else {
-				// no instance in DBkey, keys are not valid, nothing to delete.
-				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index. index="+index);
+				else
+					RelatrixKVTransaction.remove(transactionId, instance);
+				classCommits.add(instance.getClass());
 			}
-			RelatrixKV.remove(index);
+			if(transactionId == null)
+				RelatrixKV.remove(index);
+			else
+				RelatrixKVTransaction.remove(transactionId, index);
 			classCommits.add(index.getClass());	
 		}
 	}
@@ -131,10 +103,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					Class c = it.next();
 					if(DEBUG)
 						System.out.printf("IndexInstanceTable.commit committing class %s%n",c);
-					RelatrixKV.transactionCommit(c);
+					if(transactionId == null)
+						RelatrixKV.transactionCommit(c);
+					else
+						RelatrixKVTransaction.transactionCommit(transactionId, c);
 				}
 				classCommits.clear();
-				setLastGoodKey();
 			}
 		}
 	}
@@ -145,10 +119,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
-					RelatrixKV.transactionRollback(it.next());
+					if(transactionId == null)
+						RelatrixKV.transactionRollback(it.next());
+					else
+						RelatrixKVTransaction.transactionRollback(transactionId, it.next());
 				classCommits.clear();
 			}
-			setLastKey(); // account for increments
 		}
 	}
 	
@@ -158,7 +134,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
-					RelatrixKV.transactionCheckpoint(it.next());
+					if(transactionId == null)
+						RelatrixKV.transactionCheckpoint(it.next());
+					else
+						RelatrixKVTransaction.transactionCheckpoint(transactionId, it.next());
 				}
 			}
 		}	
@@ -174,7 +153,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
+		if(transactionId == null)
 			return RelatrixKV.get(index);
+		else
+			return RelatrixKVTransaction.get(transactionId, index);
 		//}
 	}
 	/**
@@ -188,13 +170,24 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
+		if(transactionId == null)
 			return (DBKey) RelatrixKV.get((Comparable) instance);
+		else
+			return (DBKey) RelatrixKVTransaction.get(transactionId, (Comparable) instance);
 		//}
 	}
 
 	@Override
-	public Object lastKey(Class<DBKey> class1) throws IllegalAccessException, IOException {
-		return RelatrixKV.lastKey(DBKey.class);
+	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		if(transactionId == null)
+			return new DBKey(Relatrix.getNewKey());
+		else
+			return new DBKey(RelatrixTransaction.getNewKey());	
+	}
+	
+	@Override
+	public void setTransactionId(String xid) {
+		this.transactionId = xid;	
 	}
 
 }

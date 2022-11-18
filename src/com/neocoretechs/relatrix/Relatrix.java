@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -830,19 +831,19 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	}
 }
 
-/**
- * Get the highest numbered key in DBkey table, pre-incremented.
- * @return
- * @throws IOException 
- * @throws IllegalAccessException 
- * @throws ClassNotFoundException 
- */
-public static synchronized Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-	Integer lastGood = IndexResolver.getIndexInstanceTable().getIncrementedLastGoodKey();
-	if(DEBUG)
-		System.out.printf("Returning getIncrementedLastgoodKey=%d%n", lastGood);
-	return lastGood;
-}
+	/**
+	 * Get the new DBkey.
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID nkey = UUID.randomUUID();
+		if(DEBUG)
+			System.out.printf("Returning getIncrementedLastgoodKey=%s%n", nkey.toString());
+		return nkey;
+	}
 
 /**
  * Store our permutations of the key/value

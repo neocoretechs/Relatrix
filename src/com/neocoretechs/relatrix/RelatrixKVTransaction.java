@@ -460,12 +460,7 @@ public final class RelatrixKVTransaction {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(keyType, xid);
 		return ttm.containsValue(obj);
 	}
-	/**
-	 * @throws IOException 
-	 */
-	public static Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		throw new IOException("Not supported in RelatrixKV");
-	}
+
 
 }
 

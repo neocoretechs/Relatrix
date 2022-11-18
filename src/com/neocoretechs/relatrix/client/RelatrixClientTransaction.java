@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -42,7 +43,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction implements Runnable, RelatrixClientInterface, RelatrixClientTransactionInterface {
+public class RelatrixClientTransaction implements Runnable, RelatrixClientTransactionInterface {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
@@ -202,6 +203,49 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return o;
 	}
+	/**
+	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
+	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc. The fname should be full qualified.
+	 * If remote is null, the defaults will all be used, otherwise, database name will be massaged for cluster
+	 * @param fname
+	 * @param remote remote database name
+	 * @param port remote port
+	 * @return
+	 * @throws IOException
+	 */
+	@Override
+	public Socket Fopen(String bootNode) throws IOException {
+		// send a remote Fopen request to the node
+		// this consists of sending the running WorkBoot a message to start the worker for a particular
+		// database on the node we hand down
+		//if(workerSocket == null ) {
+		//	workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
+		//	workerSocket = new Socket();
+		//	workerSocket.connect(workerSocketAddress);
+		//}
+		Socket s = new Socket(IPAddress, SLAVEPORT);
+		s.setKeepAlive(true);
+		s.setReceiveBufferSize(32767);
+		s.setSendBufferSize(32767);
+		System.out.println("Socket created to "+s);
+		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
+		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
+		/*
+		if( remoteDBName != null )
+			cpi.setDatabase(remoteDBName);
+		else
+			cpi.setDatabase(DBName);
+		cpi.setMasterPort(String.valueOf(MASTERPORT));
+		cpi.setSlavePort(String.valueOf(SLAVEPORT));
+		cpi.setRemoteMaster(InetAddress.getLocalHost().getHostAddress());
+		cpi.setTransport("TCP");
+		*/
+		os.writeObject(cpi);
+		os.flush();
+		//os.close();
+		//s.close();
+		return s;
+	}
 	
 	@Override
 	public void close() {
@@ -262,33 +306,13 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws IOException 
 	 */
 	@Override
-	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixStatement rs = new RelatrixStatement("getIncrementedLastGoodKey",(Object[])null);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public UUID getNewKey(String xid) throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "getNewKey", (Object[])null);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (UUID) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Integer) o;
 	}
 	
 	/**
@@ -303,28 +327,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
 	 */
 	public DomainMapRange store(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "store", d, m, r);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (DomainMapRange)o;
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", d, m, r);
+		return (DomainMapRange)sendCommand(rs);
 	
 	}
 	/**
@@ -341,28 +345,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws DuplicateKeyException 
 	 */
 	public DomainMapRange transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", d, m, r);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (DomainMapRange)o;
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", d, m, r);
+		return (DomainMapRange)sendCommand(rs);
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -370,21 +354,12 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 */
 	@Override
 	public void transactionCommit(String xid) throws IOException {
-		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "transactionCommit", new Object[0]);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionCommit", new Object[0]);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();		
-		outstandingRequests.remove(rs.getSession());
-		if(o != null && o instanceof IOException)
-			throw (IOException)o;
-		else
-			if(o instanceof Exception)
-				throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 	/**
 	 * Roll back all outstanding transactions on the indicies
@@ -392,21 +367,12 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 */
 	@Override
 	public void transactionRollback(String xid) throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionRollback",new Object[0]);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionRollback", new Object[0]);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();		
-		outstandingRequests.remove(rs.getSession());
-		if(o != null && o instanceof IOException)
-			throw (IOException)o;
-		else
-			if(o instanceof Exception)
-				throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 	}
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -422,93 +388,42 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 */
 	@Override
 	public void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",new Object[0]);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionCheckpoint", new Object[0]);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		outstandingRequests.remove(rs.getSession());
-		Object o = rs.getObjectReturn();		
-		if(o != null) {
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+			sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
 	}
 	
 	@Override
 	public void transactionCommit(String xid, Class clazz) throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionCommit",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionCommit", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		outstandingRequests.remove(rs.getSession());
-		Object o = rs.getObjectReturn();		
-		if(o != null) {
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof Exception)
-					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		}	
 	}
 
 	@Override
 	public void transactionRollback(String xid, Class clazz) throws IOException {
-		RelatrixStatement rs = new RelatrixStatement("transactionRollback",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionRollback", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		outstandingRequests.remove(rs.getSession());
-		Object o = rs.getObjectReturn();		
-		if(o != null) {
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof Exception)
-					throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		}	
 	}
 	
 	@Override
 	public void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("transactionCheckpoint",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionCheckpoint", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		outstandingRequests.remove(rs.getSession());
-		Object o = rs.getObjectReturn();		
-		if(o != null) {
-			if(o instanceof IOException)
-				throw (IOException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		}
-		
 	}
 	
 	/**
@@ -516,192 +431,67 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 */
 	@Override
 	public Object transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixStatement("transactionalStore",k,v);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", k, v);
+		return sendCommand(rs);
 	}
 
 	@Override
 	public Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("firstKey",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "firstKey", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Comparable) o;
 	}
 
 	@Override
-	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("firstValue",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public Object firstValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "firstValue", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 
 	@Override
-	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("get",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public Object get(String xid, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "get", key);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	
-	public Object getByIndex(DBKey key) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("getByIndex",key);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public Object getByIndex(String xid, DBKey key) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid,"getByIndex", key);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 
 	@Override
-	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("lastKey",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public Comparable lastKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "lastKey", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Comparable) o;
 	}
 
 	@Override
-	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("lastValue",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public Object lastValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "lastValue", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 
 	@Override
@@ -713,59 +503,22 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	
 	@Override
 	public RemoteStream entrySetStream(String xid, Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("entrySetStream",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "entrySetStream", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof IllegalArgumentException)
-						throw (IllegalArgumentException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream) o;
 	}
 
 	@Override
-	public RemoteKeySetIterator keySet(Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("keySet",clazz);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public RemoteKeySetIterator keySet(String xid, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "keySet", clazz);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteKeySetIterator) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof ClassNotFoundException)
-			throw (ClassNotFoundException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteKeySetIterator) o;
 	}
 	
 	/**
@@ -777,31 +530,11 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	@Override
 	public Object remove(String xid, Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", c);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 	
 	/**
@@ -812,33 +545,14 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 */
+	@Override
 	public Object remove(String xid, Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", d, m, r);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return o;
 	}
 
 	/**
@@ -863,62 +577,24 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
+	@Override
 	public RemoteTailSetIteratorTransaction findSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findSet", darg, marg, rarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteTailSetIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailSetIteratorTransaction)o;
 	}
-	
+
+	@Override
 	public RemoteStream findSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findStream", darg, marg, rarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
 	}
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -938,66 +614,24 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	public RemoteTailSetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findTailSet",darg, marg, rarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	@Override
+	public RemoteTailSetIterator findTailSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findTailSet", darg, marg, rarg);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteTailSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteTailSetIterator)o;
-
 	}
 
-	public RemoteStream findTailSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findTailStream",darg, marg, rarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	@Override
+	public RemoteStream findTailSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findTailStream", darg, marg, rarg);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
-
 	}
 
 	/**
@@ -1014,63 +648,24 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteHeadSetIterator findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findHeadSet",darg, marg, rarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	@Override
+	public RemoteHeadSetIterator findHeadSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findHeadSet", darg, marg, rarg);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteHeadSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteHeadSetIterator)o;
-
 	}
 	
-	public RemoteStream findHeadSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	@Override
+	public RemoteStream findHeadSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findHeadStream",darg, marg, rarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
 
 	}
 	/**
@@ -1090,65 +685,26 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public RemoteSubSetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
+	@Override
+	public RemoteSubSetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findSubSet",darg, marg, rarg, endarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (RemoteSubSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteSubSetIterator)o;
+	}
 
+	@Override
+	public RemoteStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("findSubStream",darg, marg, rarg, endarg);
+		try {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 	}
 	
-	public RemoteStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-	{
-		RelatrixStatement rs = new RelatrixStatement("findSubStream",darg, marg, rarg, endarg);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (RemoteStream)o;
-
-	}
 	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
 	 * The original request is preserved according to session GUID and upon return of
@@ -1156,7 +712,9 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @param rii
 	 * @return
 	 */
-	public Comparable[] next(RemoteObjectInterface rii) throws NoSuchElementException {
+	@Override
+	public Comparable[] next(String xid, RemoteObjectInterface rii) throws NoSuchElementException {
+		((RelatrixTransactionStatement)rii).xid = xid;
 		((RelatrixStatement)rii).methodName = "next";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1173,7 +731,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 	
 	@Override
-	public boolean hasNext(RemoteObjectInterface rii) {
+	public boolean hasNext(String xid, RemoteObjectInterface rii) {
+		((RelatrixTransactionStatement)rii).xid = xid;
 		((RelatrixStatement)rii).methodName = "hasNext";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1186,9 +745,10 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	}
 	
 	@Override
-	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException{
+	public void remove(String xid, RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException {
+		((RelatrixTransactionStatement)rii).xid = xid;
 		((RelatrixStatement)rii).methodName = "remove";
-		((RelatrixStatement)rii).paramArray = new Object[]{ ((RelatrixStatement)rii).getObjectReturn() };
+		((RelatrixStatement)rii).paramArray = new Object[]{ ((RelatrixKVStatement)rii).getObjectReturn() };
 		CountDownLatch cdl = new CountDownLatch(1);
 		((RelatrixStatement) rii).setCountDownLatch(cdl);
 		send((RemoteRequestInterface) rii);
@@ -1212,7 +772,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 	 * @param rii
 	 */
 	@Override
-	public void close(RemoteObjectInterface rii) {
+	public void close(String xid, RemoteObjectInterface rii) {
+		((RelatrixTransactionStatement)rii).xid = xid;
 		((RelatrixStatement)rii).methodName = "close";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -1222,49 +783,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 			cdl.await();
 		} catch (InterruptedException e) {}
 		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
-	}
-	/**
-	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
-	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc. The fname should be full qualified.
-	 * If remote is null, the defaults will all be used, otherwise, database name will be massaged for cluster
-	 * @param fname
-	 * @param remote remote database name
-	 * @param port remote port
-	 * @return
-	 * @throws IOException
-	 */
-	@Override
-	public Socket Fopen(String bootNode) throws IOException {
-		// send a remote Fopen request to the node
-		// this consists of sending the running WorkBoot a message to start the worker for a particular
-		// database on the node we hand down
-		//if(workerSocket == null ) {
-		//	workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-		//	workerSocket = new Socket();
-		//	workerSocket.connect(workerSocketAddress);
-		//}
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		/*
-		if( remoteDBName != null )
-			cpi.setDatabase(remoteDBName);
-		else
-			cpi.setDatabase(DBName);
-		cpi.setMasterPort(String.valueOf(MASTERPORT));
-		cpi.setSlavePort(String.valueOf(SLAVEPORT));
-		cpi.setRemoteMaster(InetAddress.getLocalHost().getHostAddress());
-		cpi.setTransport("TCP");
-		*/
-		os.writeObject(cpi);
-		os.flush();
-		//os.close();
-		//s.close();
-		return s;
 	}
 	
 	@Override
@@ -1305,72 +823,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientInterf
 		rc.close();
 	}
 
-	@Override
-	public Object remove(Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public RemoteStream entrySetStream(Class<?> forName)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object transactionalStore(Comparable k, Object v)
-			throws IllegalAccessException, IOException, DuplicateKeyException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void transactionCommit(Class clazz) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionRollback(Class clazz) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionCommit() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionRollback() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void transactionCheckpoint() throws IOException, IllegalAccessException {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 }

@@ -54,7 +54,7 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
-	Object lastKey(Class<DBKey> class1) throws IllegalAccessException, IOException;
-	
-	Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException;
+	void setTransactionId(String xid);
+
+	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 }

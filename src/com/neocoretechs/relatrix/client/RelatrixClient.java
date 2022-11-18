@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -258,33 +259,13 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * @throws IOException 
 	 */
 	@Override
-	public Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixStatement rs = new RelatrixStatement("getIncrementedLastGoodKey",(Object[])null);
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
-		send(rs);
+	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixStatement("getNewKey",(Object[])null);
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {
+			return (UUID) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-		//IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof IllegalArgumentException)
-			throw (IllegalArgumentException)o;
-		else
-			if(o instanceof ClassNotFoundException)
-				throw (ClassNotFoundException)o;
-			else
-				if(o instanceof IllegalAccessException)
-					throw (IllegalAccessException)o;
-				else
-					if(o instanceof IOException)
-						throw (IOException)o;
-					else
-						if(o instanceof Exception)
-							throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
-		return (Integer) o;
 	}
 	
 	/**
