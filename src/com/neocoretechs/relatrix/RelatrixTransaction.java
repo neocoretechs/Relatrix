@@ -16,6 +16,8 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.TransactionalMap;
 
 /**
 * Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
@@ -89,6 +91,10 @@ public final class RelatrixTransaction {
 		return RelatrixKVTransaction.getTableSpaceDirectory();
 	}
 
+	public static String getTransactionId(Comparable key) throws IllegalAccessException, IOException {
+		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
+		return ttm.getTransaction().getName();
+	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
 	 * This is a transactional store in the context of a previously initiated transaction.
@@ -133,7 +139,7 @@ public final class RelatrixTransaction {
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		try {
-			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
+			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(xid),dmr); // this stores our new relation, DBKey and instance
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys
@@ -151,7 +157,7 @@ public final class RelatrixTransaction {
 
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rdm:"+rdm);
-		RelatrixKVTransaction.transactionalStore(xid,rdm, dbKey);
+		RelatrixKVTransaction.transactionalStore(xid, rdm, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rmd:"+rmd);
@@ -166,7 +172,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void transactionCommit(String xid) throws IOException, IllegalAccessException {
 		// first commit components of relationships
-		IndexResolver.getIndexInstanceTable().commit();
+		IndexResolver.getIndexInstanceTable(xid).commit();
 		// now commit main relationship and index classes
 		for(int i = 0; i < indexClasses.length; i++) {
 			long startTime = System.currentTimeMillis();
@@ -187,7 +193,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void transactionRollback(String xid) throws IOException, IllegalAccessException {
 		// first roll back components
-		IndexResolver.getIndexInstanceTable().rollback();
+		IndexResolver.getIndexInstanceTable(xid).rollback();
 		// Now roll back relationships
 		for(int i = 0; i < indexClasses.length; i++) {
 			if(indexClasses[i] != null) {
@@ -209,7 +215,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
-		IndexResolver.getIndexInstanceTable().checkpoint();
+		IndexResolver.getIndexInstanceTable(xid).checkpoint();
 		for(int i = 0; i < indexClasses.length; i++) {
 			if(indexClasses[i] != null)
 				RelatrixKVTransaction.transactionCheckpoint(xid, indexClasses[i]);
@@ -227,12 +233,12 @@ public final class RelatrixTransaction {
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
 		removeRecursive(xid, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
+			DBKey dbKey = IndexResolver.getIndexInstanceTable(xid).getByInstance(c);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
 			if(dbKey != null) {
 				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable().delete(dbKey);
+				IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 			} else {
 				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
 				RelatrixKVTransaction.remove(xid, c);
@@ -331,42 +337,42 @@ public final class RelatrixTransaction {
 		//KeyValue kv = (KeyValue)o;
 		//DBKey dbKey = (DBKey) kv.getmValue();
 			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(xid, drm);
 			if(o == null)
 				throw new IOException(drm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(xid, mdr);
 			if(o == null)
 				throw new IOException(mdr+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(xid, mrd);
 			if(o == null)
 				throw new IOException(mrd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(xid, rdm);
 			if(o == null)
 				throw new IOException(rdm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(xid, rmd);
 			if(o == null)
 				throw new IOException(rmd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
+			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
 		} catch (ClassNotFoundException | DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -924,9 +930,9 @@ public static synchronized void transactionRollback(String xid, Class clazz) thr
   * @throws IllegalAccessException 
   * @throws ClassNotFoundException 
   */
- public static synchronized Object getByIndex(Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
+ public static synchronized Object getByIndex(String xid,Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
  {
-	 return IndexResolver.getIndexInstanceTable().getByIndex((DBKey) key);
+	 return IndexResolver.getIndexInstanceTable(xid).getByIndex((DBKey) key);
  }
  /**
   * Return the keyset for the given class

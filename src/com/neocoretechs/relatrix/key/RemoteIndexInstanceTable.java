@@ -33,7 +33,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		this.rc = rc;
 	}	
 	
-	public RemoteIndexInstanceTable(RelatrixClientTransactionInterface rc) throws IOException {
+	public RemoteIndexInstanceTable(String xid, RelatrixClientTransactionInterface rc) throws IOException {
+		this.transactionId = xid;
 		this.rcx = rc;
 	}	
 	/**

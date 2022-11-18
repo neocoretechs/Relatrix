@@ -51,7 +51,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
 		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {					
 			// Stream..?
 			if( result instanceof Stream) {
-					setObjectReturn( new RemoteStream(result) );
+					setObjectReturn( new RemoteStreamTransaction(xid, result) );
 					getCountDownLatch().countDown();
 					return;
 			}
@@ -61,28 +61,28 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
 			// put it in the array and send our intermediary back
 			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.rocksack.iterator.TailSetKVIterator.class) {
-				setObjectReturn( new RemoteTailMapKVIterator(getSession()) );
+				setObjectReturn( new RemoteTailMapKVIteratorTransaction(xid, getSession()) );
 			} else {
 				if(result.getClass() == com.neocoretechs.rocksack.iterator.SubSetKVIterator.class ) {
-					setObjectReturn( new RemoteSubMapKVIterator(getSession()) );
+					setObjectReturn( new RemoteSubMapKVIteratorTransaction(xid, getSession()) );
 				} else {
 					if(result.getClass() == com.neocoretechs.rocksack.iterator.HeadSetKVIterator.class ) {
-						setObjectReturn( new RemoteHeadMapKVIterator(getSession()) );
+						setObjectReturn( new RemoteHeadMapKVIteratorTransaction(xid, getSession()) );
 					} else {
 						if( result.getClass() == com.neocoretechs.rocksack.iterator.TailSetIterator.class) {
-							setObjectReturn( new RemoteTailMapIterator(getSession()) );
+							setObjectReturn( new RemoteTailMapIteratorTransaction(xid, getSession()) );
 						} else {
 							if( result.getClass() == com.neocoretechs.rocksack.iterator.SubSetIterator.class) {
-								setObjectReturn( new RemoteSubMapIterator(getSession()) );
+								setObjectReturn( new RemoteSubMapIteratorTransaction(xid, getSession()) );
 							} else {
 								if( result.getClass() == com.neocoretechs.rocksack.iterator.HeadSetIterator.class) {
-									setObjectReturn( new RemoteHeadMapIterator(getSession()) );
+									setObjectReturn( new RemoteHeadMapIteratorTransaction(xid, getSession()) );
 								} else {
 									if( result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
-										setObjectReturn( new RemoteEntrySetIterator(getSession()) );
+										setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
 									} else {
 										if( result.getClass() == com.neocoretechs.rocksack.iterator.KeySetIterator.class) {
-											setObjectReturn( new RemoteKeySetIterator(getSession()) );
+											setObjectReturn( new RemoteKeySetIteratorTransaction(xid, getSession()) );
 										} else {
 											if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
 												setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));

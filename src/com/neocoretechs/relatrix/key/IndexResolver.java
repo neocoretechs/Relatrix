@@ -36,9 +36,10 @@ public class IndexResolver {
 			if(local) {
 				instanceTable = new IndexInstanceTable(xid);
 			} else {
-				instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTableTransaction);
+				instanceTable = new RemoteIndexInstanceTable(xid, remoteIndexInstanceTableTransaction);
 			}
-		}
+		} else
+			instanceTable.setTransactionId(xid);
 		return instanceTable;
 	}
 	/**
