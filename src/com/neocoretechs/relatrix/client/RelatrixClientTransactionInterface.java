@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 /**
@@ -67,7 +68,7 @@ public interface RelatrixClientTransactionInterface {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	Object transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException;
+	Object transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException;
 
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -83,7 +84,6 @@ public interface RelatrixClientTransactionInterface {
 
 	Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
 
-	Object store(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException;
 
 	RemoteStream entrySetStream(String xid, Class<?> clazz)
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
@@ -269,5 +269,8 @@ public interface RelatrixClientTransactionInterface {
 	 */
 	void close(String xid, RemoteObjectInterface rii);
 
+	DomainMapRangeTransaction transactionalStore(String xid, Comparable k, Comparable v) throws IllegalAccessException, IOException, DuplicateKeyException;
+
+	String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException;
 
 }

@@ -333,4 +333,6 @@ public interface RelatrixKVClientTransactionInterface {
 	 */
 	Socket Fopen(String bootNode) throws IOException;
 
+	String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException;
+
 }

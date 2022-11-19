@@ -45,8 +45,21 @@ public final class RelatrixKVTransaction {
 		return RockSackAdapter.getTableSpaceDir();
 	}
 	
-	public static String getTransactionId(Comparable key) throws IllegalAccessException, IOException {
+	public static String getTransactionId(Class key) throws IllegalAccessException, IOException {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
+		return ttm.getTransaction().getName();
+	}
+	/**
+	 * For remote client calls, we are passing the string representation of class to provide
+	 * a serializable wire friendly instance.
+	 * @param key
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException 
+	 */
+	public static String getTransactionId(String key) throws IllegalAccessException, IOException, ClassNotFoundException {
+		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(Class.forName(key));
 		return ttm.getTransaction().getName();
 	}
 	/**

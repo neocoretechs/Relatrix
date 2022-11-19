@@ -260,6 +260,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTr
 	
 	}
 	
+	@Override
+	public String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("", "getTransactionId", clazz.getName());
+		try {
+			return (String) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	 * Call the remote server method to store an object.
 	 * @param k The Comparable representing the key relationship
