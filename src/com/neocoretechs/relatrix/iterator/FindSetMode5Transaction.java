@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.MorphismTransaction;
 import com.neocoretechs.relatrix.DomainRangeMap;
+import com.neocoretechs.relatrix.DomainRangeMapTransaction;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
@@ -27,6 +29,16 @@ public class FindSetMode5Transaction extends FindSetMode5 {
     	super(darg, mop, rarg);
     	this.xid = xid;
     }
+    
+    /**
+     * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+		MorphismTransaction dmr = new DomainRangeMapTransaction(xid, (Comparable)darg, null, (Comparable)rarg, true);
+		return createRelatrixIterator(dmr);
+	}
+	
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
 		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);

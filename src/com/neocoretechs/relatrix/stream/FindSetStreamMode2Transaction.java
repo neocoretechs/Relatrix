@@ -3,7 +3,9 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.MapDomainRangeTransaction;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
@@ -32,6 +34,16 @@ public class FindSetStreamMode2Transaction extends FindSetStreamMode2 {
     	this.xid = xid;
     }
  
+    /**
+     * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Stream<?> createStream() throws IllegalAccessException, IOException {
+		MorphismTransaction dmr = new MapDomainRangeTransaction(xid, null, (Comparable)marg, null);
+		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
+		return createRelatrixStream(dmr);
+	}
+	
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixStreamTransaction(xid, tdmr, dmr_return);	
 	}

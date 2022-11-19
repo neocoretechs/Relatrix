@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.MorphismTransaction;
 import com.neocoretechs.relatrix.MapDomainRange;
+import com.neocoretechs.relatrix.MapDomainRangeTransaction;
 
 
 /**
@@ -25,6 +27,17 @@ public class FindSetMode2Transaction extends FindSetMode2 {
     	super(dop, marg, rop);
     	this.xid = xid;
     }
+    
+    /**
+     * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+		MorphismTransaction dmr = new MapDomainRangeTransaction(xid, null, (Comparable)marg, null, true);
+		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
+		return createRelatrixIterator(dmr);
+	}
+	
     @Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);	

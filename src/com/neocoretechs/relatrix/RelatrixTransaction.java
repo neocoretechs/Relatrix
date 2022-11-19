@@ -107,33 +107,33 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 */
-	public static synchronized DomainMapRange transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static synchronized DomainMapRangeTransaction transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
+		MorphismTransaction dmr = new DomainMapRangeTransaction(xid,d,m,r,true); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted.
-		((DomainMapRange)dmr).setUniqueKey(true);
+		((DomainMapRangeTransaction)dmr).setUniqueKey(true);
 		if(RelatrixKVTransaction.contains(xid, dmr)) {
 			transactionRollback(xid);
 			throw new DuplicateKeyException("dmr:"+dmr);
 		}
-		((DomainMapRange)dmr).setUniqueKey(false);
+		((DomainMapRangeTransaction)dmr).setUniqueKey(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		dmr = new DomainMapRange(d,m,r);
-		Morphism identity = dmr;
-		DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
+		dmr = new DomainMapRangeTransaction(xid,d,m,r);
+		MorphismTransaction identity = dmr;
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(xid,d,m,r,dmr.getKeys());
 		indexClasses[1] = drm.getClass();
-		MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(xid,d,m,r,dmr.getKeys());
 		indexClasses[2] = mdr.getClass();
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(xid,d,m,r,dmr.getKeys());
 		indexClasses[3] = mrd.getClass();
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(xid,d,m,r,dmr.getKeys());
 		indexClasses[4] = rdm.getClass();
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(xid,d,m,r,dmr.getKeys());
 		indexClasses[5] = rmd.getClass();
 		DBKey dbKey = null;
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
@@ -163,7 +163,7 @@ public final class RelatrixTransaction {
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rmd:"+rmd);
 		RelatrixKVTransaction.transactionalStore(xid, rmd, dbKey);
 	
-		return (DomainMapRange) identity;
+		return (DomainMapRangeTransaction) identity;
 	}
 	/**
 	 * Commit the outstanding transaction data in each active transactional treeset.
@@ -314,17 +314,17 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void remove(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
-		Morphism dmr = new DomainMapRange(d,m,r,true);
+		MorphismTransaction dmr = new DomainMapRangeTransaction(xid,d,m,r,true);
 		indexClasses[0] = dmr.getClass();
-		DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(xid,d,m,r,true);
 		indexClasses[1] = drm.getClass();
-		MapDomainRange mdr = new MapDomainRange(d,m,r,true);
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(xid,d,m,r,true);
 		indexClasses[2] = mdr.getClass();
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(xid,d,m,r,true);
 		indexClasses[3] = mrd.getClass();
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(xid,d,m,r,true);
 		indexClasses[4] = rdm.getClass();
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(xid,d,m,r,true);
 		indexClasses[5] = rmd.getClass();
 
 		try {

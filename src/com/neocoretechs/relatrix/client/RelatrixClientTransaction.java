@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 
 
 import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -326,9 +327,9 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @throws IOException
 	 * @return The identity morphism relationship element - The DomainMapRange of stored object composed of d,m,r
 	 */
-	public DomainMapRange store(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public DomainMapRangeTransaction store(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", d, m, r);
-		return (DomainMapRange)sendCommand(rs);
+		return (DomainMapRangeTransaction)sendCommand(rs);
 	
 	}
 	/**
@@ -344,9 +345,9 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	public DomainMapRange transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public DomainMapRangeTransaction transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", d, m, r);
-		return (DomainMapRange)sendCommand(rs);
+		return (DomainMapRangeTransaction)sendCommand(rs);
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.

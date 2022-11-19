@@ -32,11 +32,11 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
         static final long serialVersionUID = -9129948317265641091L;
         
-		private transient Comparable  domain;       // domain object
-        private transient Comparable  map;          // map object
-        private transient Comparable  range;        // range
+		protected transient Comparable  domain;       // domain object
+        protected transient Comparable  map;          // map object
+        protected transient Comparable  range;        // range
         
-        private KeySet keys;
+        protected KeySet keys;
         
         public Morphism() {}
         

@@ -3,7 +3,9 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.DomainRangeMapTransaction;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Find the set of objects in the transaction relation via the specified predicate. 
@@ -27,6 +29,15 @@ public class FindSetStreamMode5Transaction extends FindSetStreamMode5 {
     	this.xid = xid;
     }
 
+    /**
+     * @return stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Stream<?> createStream() throws IllegalAccessException, IOException {
+		MorphismTransaction dmr = new DomainRangeMapTransaction(xid, (Comparable)darg, null, (Comparable)rarg);
+		return createRelatrixStream(dmr);
+	}
+	
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr)throws IllegalAccessException, IOException {
 		return new RelatrixStreamTransaction(xid, tdmr, dmr_return);

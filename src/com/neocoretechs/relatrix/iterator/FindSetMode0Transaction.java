@@ -3,13 +3,21 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DomainRangeMap;
+import com.neocoretechs.relatrix.DomainRangeMapTransaction;
 import com.neocoretechs.relatrix.MapDomainRange;
+import com.neocoretechs.relatrix.MapDomainRangeTransaction;
 import com.neocoretechs.relatrix.MapRangeDomain;
+import com.neocoretechs.relatrix.MapRangeDomainTransaction;
+import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.MorphismTransaction;
 import com.neocoretechs.relatrix.RangeDomainMap;
+import com.neocoretechs.relatrix.RangeDomainMapTransaction;
 import com.neocoretechs.relatrix.RangeMapDomain;
+import com.neocoretechs.relatrix.RangeMapDomainTransaction;
+
 
 /**
 * Construct an iterator from findSet or one of its subclasses (headSet, subset, tailSet is the default).
@@ -40,7 +48,36 @@ public class FindSetMode0Transaction extends FindSetMode0 {
     	super(dop, mop, rop);
     	this.xid = xid;
     }
-	
+    /**
+     * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+     */
+ 	@Override
+ 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+ 		MorphismTransaction dmr = null;
+ 		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
+ 			case 0: // dmr
+ 				dmr = new DomainMapRangeTransaction(xid, null, null, null, true);
+ 				break;
+ 			case 1: // drm
+ 				dmr = new DomainRangeMapTransaction(xid, null, null, null, true);
+ 				break;
+ 			case 2: // mdr
+ 				dmr = new MapDomainRangeTransaction(xid, null, null, null, true);
+ 				break;
+ 			case 3: // mrd
+ 				dmr = new MapRangeDomainTransaction(xid, null, null, null, true);
+ 				break;
+ 			case 4: // rdm
+ 				dmr = new RangeDomainMapTransaction(xid, null, null, null, true);
+ 				break;
+ 			case 5: // rmd
+ 				dmr = new RangeMapDomainTransaction(xid, null, null, null, true);
+ 				break;
+ 		}
+ 		if( DEBUG  )
+ 			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
+ 	    return createRelatrixIterator(dmr);
+ 	}	
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
