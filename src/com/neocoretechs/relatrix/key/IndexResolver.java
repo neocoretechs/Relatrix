@@ -1,9 +1,9 @@
 package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
@@ -18,7 +18,7 @@ public class IndexResolver {
 	static IndexInstanceTableInterface instanceTable = null;
 	static boolean local = true;
 	static RelatrixClientInterface remoteIndexInstanceTable;
-	static RelatrixClientTransactionInterface remoteIndexInstanceTableTransaction;
+	static ConcurrentHashMap<String,IndexInstanceTableInterface> indexInstanceTableTransaction = new ConcurrentHashMap<String,IndexInstanceTableInterface>();
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
@@ -32,16 +32,23 @@ public class IndexResolver {
 	}
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable(String xid) throws IOException {
-		if(instanceTable == null) {
-			if(local) {
-				instanceTable = new IndexInstanceTable(xid);
-			} else {
-				instanceTable = new RemoteIndexInstanceTable(xid, remoteIndexInstanceTableTransaction);
-			}
-		} else
-			instanceTable.setTransactionId(xid);
-		return instanceTable;
+		IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
+		if(local) {
+				if(iTable == null) {
+					iTable = new IndexInstanceTable(xid);
+					indexInstanceTableTransaction.put(xid,iTable);
+				}
+		} else {
+			if(iTable == null)
+				throw new IOException("Must call 'setRemote' in 'IndexResolver' with remote client for transaction:"+xid);
+		}
+		return iTable;
 	}
+	
+	public static void remove(String xid) {
+		indexInstanceTableTransaction.remove(xid);
+	}
+	
 	/**
 	 * Determine if the instance of this class will be operating on a local or remote resolver table.
 	 * By calling this, local is set to true, by default, it is also true.
@@ -49,7 +56,6 @@ public class IndexResolver {
 	public static void setLocal() {
 		local = true;
 	}
-	
 	
 	/**
 	 * Set the remote client to resolve the remote indexes. If transaction is true, instance of {@link RelatrixClientInterface}
@@ -61,10 +67,10 @@ public class IndexResolver {
 		remoteIndexInstanceTable = remoteClient;
 	}
 
-	public static void setRemote(RelatrixClientTransactionInterface remoteClient) {
+	public static void setRemote(String xid, RelatrixClientTransactionInterface remoteClient) throws IOException {
 		local = false;
-		remoteIndexInstanceTableTransaction = remoteClient;
+		if(!indexInstanceTableTransaction.containsKey(xid))
+			indexInstanceTableTransaction.put(xid, new RemoteIndexInstanceTable(xid, remoteClient));
 	}
-
 
 }

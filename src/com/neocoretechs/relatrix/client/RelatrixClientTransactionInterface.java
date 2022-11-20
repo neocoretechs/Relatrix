@@ -273,4 +273,6 @@ public interface RelatrixClientTransactionInterface {
 
 	String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException;
 
+	String endTransaction(String xid) throws ClassNotFoundException, IllegalAccessException, IOException;
+
 }

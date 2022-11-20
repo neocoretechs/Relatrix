@@ -82,7 +82,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote(this);
+		// We have to set remote key resolver when we get a transaction Id
+		//IndexResolver.setRemote(this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -205,25 +206,13 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		return o;
 	}
 	/**
-	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
-	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc. The fname should be full qualified.
-	 * If remote is null, the defaults will all be used, otherwise, database name will be massaged for cluster
-	 * @param fname
-	 * @param remote remote database name
-	 * @param port remote port
-	 * @return
+	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
+	 * @param bootNode local MASTER node name to connect back to
+	 * @return Open Socket
 	 * @throws IOException
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
-		// send a remote Fopen request to the node
-		// this consists of sending the running WorkBoot a message to start the worker for a particular
-		// database on the node we hand down
-		//if(workerSocket == null ) {
-		//	workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-		//	workerSocket = new Socket();
-		//	workerSocket.connect(workerSocketAddress);
-		//}
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
@@ -231,20 +220,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		System.out.println("Socket created to "+s);
 		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		/*
-		if( remoteDBName != null )
-			cpi.setDatabase(remoteDBName);
-		else
-			cpi.setDatabase(DBName);
-		cpi.setMasterPort(String.valueOf(MASTERPORT));
-		cpi.setSlavePort(String.valueOf(SLAVEPORT));
-		cpi.setRemoteMaster(InetAddress.getLocalHost().getHostAddress());
-		cpi.setTransport("TCP");
-		*/
 		os.writeObject(cpi);
 		os.flush();
-		//os.close();
-		//s.close();
 		return s;
 	}
 	
@@ -319,6 +296,18 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	@Override
 	public String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException {
 		RelatrixStatement rs = new RelatrixTransactionStatement("", "getTransactionId", clazz.getName());
+		try {
+			String xid = (String) sendCommand(rs);
+			IndexResolver.setRemote(xid, this);
+			return xid;
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public String endTransaction(String xid) throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "endTransaction", xid);
 		try {
 			return (String) sendCommand(rs);
 		} catch (DuplicateKeyException e) {

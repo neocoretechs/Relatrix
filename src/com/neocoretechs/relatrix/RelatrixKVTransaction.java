@@ -62,6 +62,17 @@ public final class RelatrixKVTransaction {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(Class.forName(key));
 		return ttm.getTransaction().getName();
 	}
+	
+	/**
+	 * @param xid
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException 
+	 */
+	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+		RockSackAdapter.removeRockSackTransactionalMap(xid);
+	}
 	/**
 	 * Store our permutations of the key/value
 	 * This is a transactional store in the context of a previously initiated transaction.

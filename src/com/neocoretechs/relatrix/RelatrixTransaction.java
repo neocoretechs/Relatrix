@@ -108,6 +108,18 @@ public final class RelatrixTransaction {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(Class.forName(key));
 		return ttm.getTransaction().getName();
 	}
+	
+	/**
+	 * @param xid
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException 
+	 */
+	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+		RockSackAdapter.removeRockSackTransactionalMap(xid);
+		IndexResolver.remove(xid);
+	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
 	 * This is a transactional store in the context of a previously initiated transaction.

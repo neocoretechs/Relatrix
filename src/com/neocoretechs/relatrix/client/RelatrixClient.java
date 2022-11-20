@@ -68,7 +68,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * database and get back the master and slave ports of the remote server. The main client thread then
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
+	 * @param bootNode Name of local master socket to coonect back to
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
@@ -1204,25 +1204,13 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
 	}
 	/**
-	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
-	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc. The fname should be full qualified.
-	 * If remote is null, the defaults will all be used, otherwise, database name will be massaged for cluster
-	 * @param fname
-	 * @param remote remote database name
-	 * @param port remote port
-	 * @return
+	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
+	 * @param bootNode local MASTER node name to connect back to
+	 * @return Opened socket
 	 * @throws IOException
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
-		// send a remote Fopen request to the node
-		// this consists of sending the running WorkBoot a message to start the worker for a particular
-		// database on the node we hand down
-		//if(workerSocket == null ) {
-		//	workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-		//	workerSocket = new Socket();
-		//	workerSocket.connect(workerSocketAddress);
-		//}
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
@@ -1230,20 +1218,8 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		System.out.println("Socket created to "+s);
 		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		/*
-		if( remoteDBName != null )
-			cpi.setDatabase(remoteDBName);
-		else
-			cpi.setDatabase(DBName);
-		cpi.setMasterPort(String.valueOf(MASTERPORT));
-		cpi.setSlavePort(String.valueOf(SLAVEPORT));
-		cpi.setRemoteMaster(InetAddress.getLocalHost().getHostAddress());
-		cpi.setTransport("TCP");
-		*/
 		os.writeObject(cpi);
 		os.flush();
-		//os.close();
-		//s.close();
 		return s;
 	}
 	
