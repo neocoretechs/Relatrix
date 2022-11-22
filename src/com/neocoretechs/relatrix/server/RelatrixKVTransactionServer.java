@@ -7,23 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -62,7 +46,6 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	public static ServerInvokeMethod relatrixTailmapKVMethods = null;// Tailmap KV methods
 	public static ServerInvokeMethod relatrixEntrysetMethods = null;// EntrySet KV methods
 	public static ServerInvokeMethod relatrixKeysetMethods = null; // Keyset KV methods
-	//
 
 	// in server, we are using local repository for handlerclassloader, but only one
 	// and that one will be located on port 9999
@@ -116,10 +99,6 @@ public final class RelatrixKVTransactionServer extends TCPServer {
                     CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Transaction Server command received:"+o);
-                   // db = (new File(db)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getDatabase()).getName());
-                    // if we get a command packet with no statement, assume it to start a new instance
-                   
                     TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
                     if( uworker != null ) {
                     	if(o.getTransport().equals("TCP")) {
@@ -127,18 +106,6 @@ public final class RelatrixKVTransactionServer extends TCPServer {
                     			uworker.stopWorker();
                     	}
                     }
-                    // determine if this worker has started, if so, cancel thread and start a new one.
-                    //Relatrix.setTablespaceDirectory(db);
-                    
-                    // set the remote tablespace directory
-                    //String rdb = o.getRemoteDirectory();
-                    //if( rdb != null ) {
-                    //	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getRemoteDirectory()).getName());
-                    //	String sdb = rdb.replace('\\', '/');
-                    //	Relatrix.setRemoteDirectory(sdb);
-                    //}              
-                    // Create the worker, it in turn creates a WorkerRequestProcessor
                     uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);
@@ -158,7 +125,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	}
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixKVServer.<p/>
-	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database.
+	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database. If port 9999, start as byte code repository server.
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
@@ -170,7 +137,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
         String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
         		(new File(args[0]).getName());
         System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
-        RelatrixKV.setTablespaceDirectory(db);
+        RelatrixKVTransaction.setTablespaceDirectory(db);
         // if we get a command packet with no statement, assume it to start a new instance
 		new RelatrixKVTransactionServer(WORKBOOTPORT);
 		System.out.println("Relatrix K/V Transaction Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -67,6 +68,19 @@ public final class RelatrixKVTransaction {
 	 */
 	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
 		RockSackAdapter.removeRockSackTransactionalMap(xid);
+	}	
+	/**
+	 * Get the new DBkey.
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID nkey = UUID.randomUUID();
+		if(DEBUG)
+			System.out.printf("Returning getIncrementedLastgoodKey=%s%n", nkey.toString());
+		return nkey;
 	}
 	/**
 	 * Store our permutations of the key/value
@@ -81,11 +95,8 @@ public final class RelatrixKVTransaction {
 	public static void transactionalStore(String xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key.getClass(), xid);
 		if( DEBUG  )
-			System.out.println("RelatrixKVTransaction.transactionalStore storing dmr:"+key+"/"+value);
+			System.out.println("RelatrixKVTransaction.transactionalStore Id:"+xid+" storing key:"+key+" value:"+value);
 		ttm.put(key, value);
-		if( DEBUG )
-			System.out.println("RelatrixKVTransaction.store Tree Search Result: ");
-
 	}
 	/**
 	 * Commit the outstanding transaction data in each active transaction.

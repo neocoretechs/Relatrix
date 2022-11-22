@@ -30,6 +30,11 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
     	return xid;
     }
 
+    @Override
+    public synchronized String toString() { 
+    	String s = super.toString();
+    	return "Xid:"+xid+" "+s;
+    }
 	/**
 	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p/>
 	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p/>

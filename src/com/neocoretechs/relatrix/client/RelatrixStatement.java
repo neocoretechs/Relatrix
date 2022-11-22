@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -80,7 +81,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     @Override
     public synchronized String toString() { return String.format("%s for Session:%s Method:%s Arg:%s%n",
              this.getClass().getName(),session,methodName,
-             (paramArray == null || paramArray.length == 0 ? "nil" : (paramArray[0] == null ? "NULL PARAM!" : paramArray[0]))); }
+             (paramArray == null || paramArray.length == 0 ? "nil" : Arrays.toString(paramArray))); }
     
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {

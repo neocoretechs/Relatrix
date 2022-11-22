@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
@@ -25,12 +26,17 @@ public class RelatrixTransactionStatement extends RelatrixStatement {
     	super(tmeth, o1);
     	this.xid = xid;
     	if(DEBUG)
-    		System.out.println(this.getClass().getName()+" "+xid+" meth:"+tmeth+" o1:"+o1);
+    		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
     }
     
     public String getTransactionId() {
     	return xid;
     }
+    
+    @Override
+    public synchronized String toString() { return String.format("%s for Session:%s XId:%s Method:%s Arg:%s%n",
+             this.getClass().getName(), getSession(), this.xid, methodName,
+             (paramArray == null || paramArray.length == 0 ? "nil" : Arrays.toString(paramArray))); }
     
     @Override
  	public synchronized Class<?>[] getParams() {
