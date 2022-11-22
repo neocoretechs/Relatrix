@@ -106,6 +106,9 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 				e1.printStackTrace();
 			//}
+			// RocksDBException contains Status, which does not serialize, so trap and resend all possible permutations
+			// Initial exception will always be InvocationTargetException from ServerInvokeMethod reflection call
+			// depending on exception hierarchy, db exception may be wrapped one or 2 layers down
 			if(((Throwable)e1).getCause().getCause() instanceof RocksDBException) {
 				StringBuilder sb = new StringBuilder(e1.getCause().getCause().getMessage());
 				sb.append(" RocksDBException Status:");
@@ -114,8 +117,21 @@ public final class WorkerRequestProcessor implements Runnable {
 				e.initCause(new Exception(sb.toString()));
 				iori.setObjectReturn(e);
 				System.out.println("Queuing RocksDBException:"+sb.toString());
-			} else
-				iori.setObjectReturn(e1);
+			} else {
+				if(((Throwable)e1).getCause() instanceof RuntimeException && 
+						((Throwable)e1).getCause().getCause() instanceof IOException &&
+						((Throwable)e1).getCause().getCause().getCause() instanceof RocksDBException) {
+					StringBuilder sb = new StringBuilder(e1.getCause().getCause().getCause().getMessage());
+					sb.append(" RocksDBException Status:");
+					sb.append(((RocksDBException)e1.getCause().getCause().getCause()).getStatus().getCodeString());
+					Exception e = new Exception();
+					e.initCause(new Exception(sb.toString()));
+					iori.setObjectReturn(e);
+					System.out.println("Queuing RocksDBException:"+sb.toString());
+				} else {
+					iori.setObjectReturn(e1);
+				}
+			}
 			// clear the request queue
 			requestQueue.clear();	
 			// And finally, send the package back up the line

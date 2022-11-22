@@ -35,6 +35,8 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		protected transient Comparable  domain;       // domain object
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
+        //
+        protected transient String transactionId = null;
         
         protected KeySet keys;
         
@@ -47,7 +49,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          * @param r
          */
         public Morphism(Comparable d, Comparable m, Comparable r) {
-        	keys = new KeySet();
+        	this.keys = new KeySet();
         	setDomain(d);
             setMap(m);
             setRange(r);
@@ -77,7 +79,53 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          * @param r
          */
         public Morphism(Comparable d, Comparable m, Comparable r, boolean template) {
-        	keys = new KeySet();
+        	this.keys = new KeySet();
+        	setDomainTemplate(d);
+            setMapTemplate(m);
+            setRangeTemplate(r);
+        }
+        
+        /**
+         * Construct and establish key position for the elements of a morphism.
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(String xid, Comparable d, Comparable m, Comparable r) {
+        	this.transactionId = xid;
+        	this.keys = new KeySet();
+        	setDomain(d);
+            setMap(m);
+            setRange(r);
+        }
+        
+        /**
+         * Constructor for the event when we have a keyset from a previous morphism.
+         * We assume keyset is valid, and so no need to resolve elements.
+         * @param d
+         * @param m
+         * @param r
+         * @param keys The {@link KeySet} of a previous relationship that has the same keys, but perhaps in a different order.
+         */
+        public Morphism(String xid, Comparable d, Comparable m, Comparable r, KeySet keys) {
+        	this.transactionId = xid;
+        	this.keys = keys;
+          	this.domain = d;
+            this.map = m;
+            this.range = r;
+        }
+        
+        /**
+         * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
+         * and provide a default empty KeySet. A template is used for retrieval and checking for
+         * existence of relationships without creating a permanent entry in the database.
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(String xid, Comparable d, Comparable m, Comparable r, boolean template) {
+        	this.transactionId = xid;
+        	this.keys = new KeySet();
         	setDomainTemplate(d);
             setMapTemplate(m);
             setRangeTemplate(r);

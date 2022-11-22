@@ -29,7 +29,6 @@ import com.neocoretechs.relatrix.key.KeySet;
 public abstract class MorphismTransaction extends Morphism {
 		private static boolean DEBUG = false;
         static final long serialVersionUID = -9129948317265641092L;
-        protected transient String transactionId;
         
         public MorphismTransaction() {}
         
@@ -40,8 +39,7 @@ public abstract class MorphismTransaction extends Morphism {
          * @param r
          */
         public MorphismTransaction(String xid, Comparable d, Comparable m, Comparable r) {
-        	super(d,m,r);
-        	this.transactionId = xid;
+        	super(xid,d,m,r);
         }
         
         /**
@@ -53,8 +51,7 @@ public abstract class MorphismTransaction extends Morphism {
          * @param keys The {@link KeySet} of a previous relationship that has the same keys, but perhaps in a different order.
          */
         public MorphismTransaction(String xid, Comparable d, Comparable m, Comparable r, KeySet keys) {
-        	super(d,m,r,keys);
-        	this.transactionId = xid;
+        	super(xid,d,m,r,keys);
         }
         
         /**
@@ -66,8 +63,7 @@ public abstract class MorphismTransaction extends Morphism {
          * @param r
          */
         public MorphismTransaction(String xid, Comparable d, Comparable m, Comparable r, boolean template) {
-        	super(d,m,r,template);
-        	this.transactionId = xid;
+        	super(xid,d,m,r,template);
         }
         
         /**

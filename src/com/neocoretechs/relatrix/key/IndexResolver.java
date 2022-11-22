@@ -15,6 +15,7 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
  *
  */
 public class IndexResolver {
+	public static boolean DEBUG = true;
 	static IndexInstanceTableInterface instanceTable = null;
 	static boolean local = true;
 	static RelatrixClientInterface remoteIndexInstanceTable;
@@ -32,6 +33,8 @@ public class IndexResolver {
 	}
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable(String xid) throws IOException {
+		if(DEBUG)
+			System.out.println("IndexResolver.getIndexInstanceTable for XId:"+xid+" from table sized:"+indexInstanceTableTransaction.size());
 		IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
 		if(local) {
 				if(iTable == null) {
