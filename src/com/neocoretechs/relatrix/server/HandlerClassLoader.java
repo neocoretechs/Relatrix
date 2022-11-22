@@ -23,6 +23,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
@@ -344,7 +345,7 @@ public class HandlerClassLoader extends ClassLoader {
 	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get for "+name);
         try {
         	if(useEmbedded) {
-        	 	TransactionalMap localRepository = RockSackAdapter.getRockSackTransactionalMap(String.class); // class type of key
+        	 	BufferedMap localRepository = RockSackAdapter.getRockSackMap(String.class); // class type of key
         	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
                 cnab = (ClassNameAndBytes) localRepository.get(name);	
@@ -381,12 +382,12 @@ public class HandlerClassLoader extends ClassLoader {
  	 	if(DEBUG)
 	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository for "+name);
     	ClassNameAndBytes cnab = new ClassNameAndBytes(name, bytes);
- 		TransactionalMap localRepository = null;
+ 		BufferedMap localRepository = null;
         try {
         	if(useEmbedded) {
-        	 		localRepository = RockSackAdapter.getRockSackTransactionalMap(String.class); // class type of key
+        	 		localRepository = RockSackAdapter.getRockSackMap(String.class); // class type of key
         			localRepository.put(name, cnab);
-                   	localRepository.Commit();
+                   	//localRepository.Commit();
                	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in local repository for class:"+name);
         	} else {
@@ -414,13 +415,9 @@ public class HandlerClassLoader extends ClassLoader {
         } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
                 e.printStackTrace();
                 if( useEmbedded ) {
-					try {
-	             	 	if(DEBUG || DEBUGSETREPOSITORY)
-	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in local repository for class:"+name);
-					 	localRepository.Rollback(); 
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+					if(DEBUG || DEBUGSETREPOSITORY)
+						System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in local repository for class:"+name);
+					//localRepository.Rollback(); 
                 } else {
                 	try {
 	             	 	if(DEBUG || DEBUGSETREPOSITORY)
@@ -438,13 +435,13 @@ public class HandlerClassLoader extends ClassLoader {
      * @param name The value that the class STARTS WITH, to remove packages at any level desired
      */
     public static void removeBytesInRepository(String name) {
-    	TransactionalMap localRepository = null;
+    	BufferedMap localRepository = null;
  	 	if(DEBUG || DEBUGSETREPOSITORY)
 	 		System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository for "+name);
       try {
       	if(useEmbedded) {
       		ArrayList<String> remo = new ArrayList<String>();
-      	 	localRepository = RockSackAdapter.getRockSackTransactionalMap(String.class); // class type of key
+      	 	localRepository = RockSackAdapter.getRockSackMap(String.class); // class type of key
       			Iterator<?> it = localRepository.keySet();
       			while(it.hasNext()) {
       				Comparable key = (Comparable) it.next();
@@ -458,7 +455,7 @@ public class HandlerClassLoader extends ClassLoader {
              	 	if(DEBUG || DEBUGSETREPOSITORY)
             	 		System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+s);
       			}
-                localRepository.Commit();
+                //localRepository.Commit();
       	} else {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
@@ -475,7 +472,7 @@ public class HandlerClassLoader extends ClassLoader {
 		             	 	if(DEBUG || DEBUGSETREPOSITORY)
 		            	 		System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+s);
       	      			}
-      	                remoteRepository.transactionCommit(String.class);
+      	                //remoteRepository.transactionCommit(String.class);
   
       		} else
 	      		System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
@@ -483,18 +480,18 @@ public class HandlerClassLoader extends ClassLoader {
       } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
               System.out.println(e);
               e.printStackTrace();
-              if( useEmbedded )
-					try {
-						localRepository.Rollback();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-              else
-              	try {
-              		remoteRepository.transactionRollback(String.class);
-              	} catch (IOException e1) {
-						e1.printStackTrace();
-				}
+              //if( useEmbedded )
+					//try {
+						//localRepository.Rollback();
+					//} catch (IOException e1) {
+						//e1.printStackTrace();
+					//}
+              //else
+              	//try {
+              	//	remoteRepository.transactionRollback(String.class);
+              	//} catch (IOException e1) {
+				//		e1.printStackTrace();
+				//}
       }
 
  }

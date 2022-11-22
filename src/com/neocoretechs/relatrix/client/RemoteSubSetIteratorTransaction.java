@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 /**
  * Used by to produce subsets for remote delivery.

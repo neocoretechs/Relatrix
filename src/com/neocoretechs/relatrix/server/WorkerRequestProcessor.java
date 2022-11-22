@@ -6,6 +6,8 @@ import java.util.concurrent.BlockingQueue;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.rocksdb.RocksDBException;
+
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
@@ -24,7 +26,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  */
 public final class WorkerRequestProcessor implements Runnable {
 	private static boolean DEBUG = false;
-	public static boolean SHOWDUPEKEYEXCEPTION = false;
+	//public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
 
@@ -100,30 +102,24 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("Response queued:"+iori);
 			}
 		} catch (Exception e1) {
-			if( !(((Throwable)e1).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION ) {
+			//if( !(((Throwable)e1).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION ) {
 				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 				e1.printStackTrace();
-			}
-			
-			iori.setObjectReturn(e1);
+			//}
+			if(((Throwable)e1).getCause().getCause() instanceof RocksDBException) {
+				StringBuilder sb = new StringBuilder(e1.getCause().getCause().getMessage());
+				sb.append(" RocksDBException Status:");
+				sb.append(((RocksDBException)e1.getCause().getCause()).getStatus().getCodeString());
+				Exception e = new Exception();
+				e.initCause(new Exception(sb.toString()));
+				iori.setObjectReturn(e);
+				System.out.println("Queuing RocksDBException:"+sb.toString());
+			} else
+				iori.setObjectReturn(e1);
 			// clear the request queue
-			requestQueue.clear();
-			
+			requestQueue.clear();	
 			// And finally, send the package back up the line
 			queueResponse((RemoteResponseInterface) iori);
-			// roll back changes
-			try {
-				if(e1.getCause() instanceof DuplicateKeyException) {
-					if(SHOWDUPEKEYEXCEPTION)
-						System.out.println("CANCELLING AUTOMATIC TRANSACTION ROLLBACK FOR DUPLICATE KEY EXCEPTION");
-				} else {
-					Relatrix.transactionRollback();
-				}
-			} catch (IOException | IllegalAccessException e) {
-				System.out.println("Exception on transaction rollback due to fault:"+e);
-				e.printStackTrace();
-			}
-			
 		}
 	  } //shouldRun
 	  synchronized(waitHalt) {

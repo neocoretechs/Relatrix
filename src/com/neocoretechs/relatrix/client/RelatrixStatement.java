@@ -46,7 +46,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	if( session == null ) {
     		session = UUID.randomUUID().toString();
     		if( DEBUG ) 
-      			System.out.printf("%s Generated ID for %s%n",this.getClass().getName(),session);
+      			System.out.printf("%s Generated ID for session:%s%n",this.getClass().getName(),session);
     	}
     	return session; 
     }

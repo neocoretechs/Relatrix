@@ -294,8 +294,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 	
 	@Override
-	public String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixStatement rs = new RelatrixTransactionStatement("", "getTransactionId", clazz.getName());
+	public String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixTransactionStatement("", "getTransactionId", (Object[])null);
 		try {
 			String xid = (String) sendCommand(rs);
 			IndexResolver.setRemote(xid, this);
@@ -328,15 +328,15 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @throws DuplicateKeyException 
 	 */
 	@Override
-	public DomainMapRangeTransaction transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public DomainMapRangeTransaction transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", d, m, r);
 		return (DomainMapRangeTransaction)sendCommand(rs);
 	}
 	
 	@Override
-	public DomainMapRangeTransaction transactionalStore(String xid, Comparable k, Comparable v) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public void transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", k, v);
-		return (DomainMapRangeTransaction)sendCommand(rs);
+		sendCommand(rs);
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -637,7 +637,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	
 	@Override
 	public RemoteStream findHeadSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("findHeadStream",darg, marg, rarg);
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findHeadStream",darg, marg, rarg);
 		try {
 			return (RemoteStream)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -662,9 +662,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	@Override
-	public RemoteSubSetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("findSubSet",darg, marg, rarg, endarg);
+	public RemoteSubSetIterator findSubSet(String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findSubSet",darg, marg, rarg, endarg);
 		try {
 			return (RemoteSubSetIterator)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -672,9 +671,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 
-	@Override
-	public RemoteStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("findSubStream",darg, marg, rarg, endarg);
+	public RemoteStream findSubSetStream(String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findSubStream",darg, marg, rarg, endarg);
 		try {
 			return (RemoteStream)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -768,39 +766,38 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 	
 	/**
-	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
+	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
-		RelatrixStatement rs = null;
+		String xid = rc.getTransactionId();
+		RelatrixTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
-				rs = new RelatrixStatement(args[3]);
+				rs = new RelatrixTransactionStatement(xid,args[3]);
 				break;
 			case 5:
-				rs = new RelatrixStatement(args[3],args[4]);
+				rs = new RelatrixTransactionStatement(xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixStatement(args[3],args[4],args[5]);
+				rs = new RelatrixTransactionStatement(xid,args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(xid,args[3],args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixTransactionStatement(xid,args[3],args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
 				return;
 		}
 		System.out.println(rc.sendCommand(rs));
-		//rc.send(rs);
+		rc.endTransaction(xid);
 		rc.close();
 	}
-
-
 
 	
 }

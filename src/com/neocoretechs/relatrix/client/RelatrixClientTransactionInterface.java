@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.key.DBKey;
 
 /**
  * Defines the contract for client side communications with remote Relatrix server.
@@ -68,8 +69,9 @@ public interface RelatrixClientTransactionInterface {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	Object transactionalStore(String xid, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException;
+	Object transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException;
 
+	void transactionalStore(String xid, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException;
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
@@ -198,29 +200,6 @@ public interface RelatrixClientTransactionInterface {
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
 
 	/**
-	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
-	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
-	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
-	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
-	 * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed.
-	 * @param darg The domain of the relationship to retrieve
-	 * @param marg The map of the relationship to retrieve
-	 * @param rarg The range or codomain of the relationship
-	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
-	RemoteSubSetIterator findSubSet(Object darg, Object marg, Object rarg, Object[] endarg)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
-
-	RemoteStream findSubSetStream(Object darg, Object marg, Object rarg, Object[] endarg)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
-
-	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
@@ -269,10 +248,9 @@ public interface RelatrixClientTransactionInterface {
 	 */
 	void close(String xid, RemoteObjectInterface rii);
 
-	DomainMapRangeTransaction transactionalStore(String xid, Comparable k, Comparable v) throws IllegalAccessException, IOException, DuplicateKeyException;
-
-	String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException;
+	String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException;
 
 	String endTransaction(String xid) throws ClassNotFoundException, IllegalAccessException, IOException;
 
+	
 }

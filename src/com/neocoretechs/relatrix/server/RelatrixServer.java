@@ -8,9 +8,6 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.client.RemoteHeadSetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubSetIterator;
-import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -43,9 +40,6 @@ public final class RelatrixServer extends TCPServer {
 	public static ServerInvokeMethod relatrixSubsetMethods = null; // Subset iterator methods
 	public static ServerInvokeMethod relatrixHeadsetMethods = null; // Headset iterator methods
 	public static ServerInvokeMethod relatrixTailsetMethods = null; // Standard Tailset iterator methods
-	public static ServerInvokeMethod relatrixSubstreamMethods = null; // Subset stream methods
-	public static ServerInvokeMethod relatrixHeadstreamMethods = null; // Headset stream methods
-	public static ServerInvokeMethod relatrixTailstreamMethods = null; // Standard Tailset stream methods
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 	
@@ -80,8 +74,6 @@ public final class RelatrixServer extends TCPServer {
                     CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
                     if( DEBUGCOMMAND )
                     	System.out.println("Relatrix Server command received:"+o);
-                   // db = (new File(db)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getDatabase()).getName());
                     // if we get a command packet with no statement, assume it to start a new instance
                    
                     TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
@@ -90,19 +82,7 @@ public final class RelatrixServer extends TCPServer {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
                     	}
-                    }
-                    // determine if this worker has started, if so, cancel thread and start a new one.
-                    //Relatrix.setTablespaceDirectory(db);
-                    
-                    // set the remote tablespace directory
-                    //String rdb = o.getRemoteDirectory();
-                    //if( rdb != null ) {
-                    //	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getRemoteDirectory()).getName());
-                    //	String sdb = rdb.replace('\\', '/');
-                    //	Relatrix.setRemoteDirectory(sdb);
-                    //}
-                    
+                    }                   
                     // Create the worker, it in turn creates a WorkerRequestProcessor
                     uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 

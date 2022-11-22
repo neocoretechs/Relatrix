@@ -24,18 +24,34 @@ public class RelatrixTransactionStatement extends RelatrixStatement {
     public RelatrixTransactionStatement(String xid, String tmeth, Object ... o1) {
     	super(tmeth, o1);
     	this.xid = xid;
+    	if(DEBUG)
+    		System.out.println(this.getClass().getName()+" "+xid+" meth:"+tmeth+" o1:"+o1);
     }
     
     public String getTransactionId() {
     	return xid;
     }
     
+    @Override
+ 	public synchronized Class<?>[] getParams() {
+     	//System.out.println("params:"+paramArray.length);
+     	//for(int i = 0; i < paramArray.length; i++)
+     		//System.out.println("paramArray "+i+"="+paramArray[i]);
+    	if( paramArray == null )
+    		paramArray = new Object[0];
+         Class<?>[] c = new Class[paramArray.length];
+         for(int i = 0; i < paramArray.length; i++)
+                 c[i] = paramArray[i].getClass();
+         return c;
+     }
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
 	 * in which case we save it server side and link it to the session for later retrieval.
 	 */
 	@Override
 	public synchronized void process() throws Exception {
+		if(DEBUG)
+			System.out.println(this);
 		Object result = RelatrixTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it

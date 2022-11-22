@@ -261,8 +261,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTr
 	}
 	
 	@Override
-	public String getTransactionId(Class clazz) throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("", "getTransactionId", clazz.getName());
+	public String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("", "getTransactionId", (Object[])null);
 		try {
 			return (String) sendCommand(rs);
 		} catch (DuplicateKeyException e) {

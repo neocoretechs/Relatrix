@@ -49,7 +49,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class RelatrixTransaction {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = true;
 	private static boolean TRACE = true;
 	
@@ -91,22 +91,8 @@ public final class RelatrixTransaction {
 		return RelatrixKVTransaction.getTableSpaceDirectory();
 	}
 
-	public static String getTransactionId(Class key) throws IllegalAccessException, IOException {
-		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
-		return ttm.getTransaction().getName();
-	}
-	/**
-	 * For remote client calls, we are passing the string representation of class to provide
-	 * a serializable wire friendly instance.
-	 * @param key
-	 * @return
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException 
-	 */
-	public static String getTransactionId(String key) throws IllegalAccessException, IOException, ClassNotFoundException {
-		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(Class.forName(key));
-		return ttm.getTransaction().getName();
+	public static String getTransactionId() throws IllegalAccessException, IOException {
+		return RockSackAdapter.getRockSackTransactionId();
 	}
 	
 	/**
@@ -117,7 +103,7 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
-		RockSackAdapter.removeRockSackTransactionalMap(xid);
+		RockSackAdapter.removeRockSackTransaction(xid);
 		IndexResolver.remove(xid);
 	}
 	/**
