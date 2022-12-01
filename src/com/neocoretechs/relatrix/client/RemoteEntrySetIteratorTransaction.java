@@ -7,12 +7,15 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  *
  */
 public class RemoteEntrySetIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface {
+	private static boolean DEBUG = true;
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteEntrySetIteratorTransaction(String xid, String session) {
 		super();
 		paramArray = new Object[0];
 		setSession(session);
 		this.xid = xid;
+		if(DEBUG)
+			System.out.println(this);
 	}
 	
 	@Override

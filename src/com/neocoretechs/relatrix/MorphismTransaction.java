@@ -38,8 +38,8 @@ public abstract class MorphismTransaction extends Morphism {
          * @param m
          * @param r
          */
-        public MorphismTransaction(String xid, Comparable d, Comparable m, Comparable r) {
-        	super(xid,d,m,r);
+        public MorphismTransaction(Comparable d, Comparable m, Comparable r) {
+        	super(d,m,r);
         }
         
         /**
@@ -50,8 +50,8 @@ public abstract class MorphismTransaction extends Morphism {
          * @param r
          * @param keys The {@link KeySet} of a previous relationship that has the same keys, but perhaps in a different order.
          */
-        public MorphismTransaction(String xid, Comparable d, Comparable m, Comparable r, KeySet keys) {
-        	super(xid,d,m,r,keys);
+        public MorphismTransaction(Comparable d, Comparable m, Comparable r, KeySet keys) {
+        	super(d,m,r,keys);
         }
         
         /**
@@ -62,20 +62,20 @@ public abstract class MorphismTransaction extends Morphism {
          * @param m
          * @param r
          */
-        public MorphismTransaction(String xid, Comparable d, Comparable m, Comparable r, boolean template) {
-        	super(xid,d,m,r,template);
+        public MorphismTransaction(Comparable d, Comparable m, Comparable r, boolean template) {
+        	super(d,m,r,template);
         }
         
         /**
          * Transparently process DBKey, returning actual instance
          * @return The real Comparable instance, pointed to by DBKey
-         */
+        */ 
         public Comparable getDomain() {
 			try {
 				if(domain != null)
 					return domain;
 				if(keys.getDomainKey().isValid()) {
-					domain = (Comparable) IndexResolver.getIndexInstanceTable(transactionId).getByIndex(keys.getDomainKey());
+					domain = (Comparable) IndexResolver.getCurrentIndexInstanceTable().getByIndex(keys.getDomainKey());
 				}
 				return domain;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -90,11 +90,11 @@ public abstract class MorphismTransaction extends Morphism {
 					keys.setDomainKey(new DBKey());
 				} else {
 					if(keys.getDomainKey().isValid()) {
-						this.domain = (Comparable) IndexResolver.getIndexInstanceTable(transactionId).getByIndex(keys.getDomainKey());
+						this.domain = (Comparable) IndexResolver.getCurrentIndexInstanceTable().getByIndex(keys.getDomainKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable(transactionId).getByInstance(domain)) == null)
-							keys.setDomainKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(transactionId),domain));
+						if((dbKey = (DBKey)IndexResolver.getCurrentIndexInstanceTable().getByInstance(domain)) == null)
+							keys.setDomainKey(DBKey.newKey(IndexResolver.getCurrentIndexInstanceTable(),domain));
 						else
 							keys.setDomainKey(dbKey);
 					}
@@ -109,7 +109,7 @@ public abstract class MorphismTransaction extends Morphism {
 				if(map != null) 
 					return map;
 				if(keys.getMapKey().isValid()) {
-					map = (Comparable) IndexResolver.getIndexInstanceTable(transactionId).getByIndex(keys.getMapKey());
+					map = (Comparable) IndexResolver.getCurrentIndexInstanceTable().getByIndex(keys.getMapKey());
 				}
 				return map;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -124,11 +124,11 @@ public abstract class MorphismTransaction extends Morphism {
 					keys.setMapKey(new DBKey());
 				} else {
 					if(keys.getMapKey().isValid()) {
-						this.map = (Comparable) IndexResolver.getIndexInstanceTable(transactionId).getByIndex(keys.getMapKey());
+						this.map = (Comparable) IndexResolver.getCurrentIndexInstanceTable().getByIndex(keys.getMapKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable(transactionId).getByInstance(map)) == null)
-							keys.setMapKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(transactionId),map));
+						if((dbKey = (DBKey)IndexResolver.getCurrentIndexInstanceTable().getByInstance(map)) == null)
+							keys.setMapKey(DBKey.newKey(IndexResolver.getCurrentIndexInstanceTable(),map));
 						else
 							keys.setMapKey(dbKey);
 					}
@@ -148,7 +148,7 @@ public abstract class MorphismTransaction extends Morphism {
 				if(range != null)
 					return range;
 				if(keys.getRangeKey().isValid()) {
-					range = (Comparable) IndexResolver.getIndexInstanceTable(transactionId).getByIndex(keys.getRangeKey());
+					range = (Comparable) IndexResolver.getCurrentIndexInstanceTable().getByIndex(keys.getRangeKey());
 				}
 				return range;
 			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -163,11 +163,11 @@ public abstract class MorphismTransaction extends Morphism {
 					keys.setRangeKey(new DBKey());
 				} else {
 					if(keys.getRangeKey().isValid()) {
-						this.range = (Comparable) IndexResolver.getIndexInstanceTable(transactionId).getByIndex(keys.getRangeKey());
+						this.range = (Comparable) IndexResolver.getCurrentIndexInstanceTable().getByIndex(keys.getRangeKey());
 					} else {
 						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable(transactionId).getByInstance(range)) == null)
-							keys.setRangeKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(transactionId),range));
+						if((dbKey = (DBKey)IndexResolver.getCurrentIndexInstanceTable().getByInstance(range)) == null)
+							keys.setRangeKey(DBKey.newKey(IndexResolver.getCurrentIndexInstanceTable(),range));
 						else
 							keys.setRangeKey(dbKey);						
 					}
@@ -176,5 +176,4 @@ public abstract class MorphismTransaction extends Morphism {
 				throw new RuntimeException(e);
 			}
 		}
-  
 }

@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	String transactionId = null;
 	private Object mutex = new Object();
@@ -49,7 +49,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		synchronized(mutex) {
 			if(DEBUG)
-				System.out.printf("%s.put index=%s instance=%s%n", index.getClass().getName(), index, instance);
+				System.out.printf("%s.put Xid:%s index=%s instance=%s%n", index.getClass().getName(), transactionId, index, instance);
 			try {
 				if(transactionId == null)
 					RelatrixKV.transactionalStore(index, instance);

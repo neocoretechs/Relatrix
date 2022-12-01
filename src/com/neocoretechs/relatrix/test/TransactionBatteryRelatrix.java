@@ -51,7 +51,7 @@ public class TransactionBatteryRelatrix {
 		System.out.println("Test battery got trans Id:"+xid);
 		//Relatrix.setTablespaceDirectory(argv[0]);
 		battery0(session, xid);
-		battery1(session, xid);
+		//battery1(session, xid);
 		session.transactionCommit(xid);
 		session.endTransaction(xid);
 		System.out.println("TEST BATTERY COMPLETE.");	
@@ -68,13 +68,14 @@ public class TransactionBatteryRelatrix {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		int i = min;
+		//for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
 				rct.transactionalStore(xid, fkey, "Has unit", new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
+		//}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	/**

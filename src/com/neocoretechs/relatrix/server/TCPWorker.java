@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -35,7 +35,7 @@ public class TCPWorker implements Runnable {
     //private byte[] sendData;
 	private InetAddress IPAddress = null;
 	//private ServerSocketChannel workerSocketChannel;
-	private SocketAddress workerSocketAddress;
+	//private SocketAddress workerSocketAddress;
 	//private SocketChannel masterSocketChannel;
 	private SocketAddress masterSocketAddress;
 	
@@ -71,10 +71,6 @@ public class TCPWorker implements Runnable {
 		//masterSocket.setTcpNoDelay(true);
 		masterSocket.setReceiveBufferSize(32767);
 		masterSocket.setSendBufferSize(32767);
-		// start listening on the required worker port
-		//workerSocketAddress = new InetSocketAddress(SLAVEPORT);
-		//workerSocket = new ServerSocket();
-		//workerSocket.bind(workerSocketAddress);
 		// spin the request processor thread for the worker
 		workerRequestProcessor = new WorkerRequestProcessor(this);
 		ThreadPoolManager.getInstance().spin(workerRequestProcessor);
@@ -115,24 +111,8 @@ public class TCPWorker implements Runnable {
 	 */
 	@Override
 	public void run() {
-
-		//Socket s = null;
-		//try {
-			//s = workerSocket.accept();
-			//s.setKeepAlive(true);
-			//s.setTcpNoDelay(true);
-			//s.setSendBufferSize(32767);
-			//s.setReceiveBufferSize(32767);
-		//} catch (IOException e) {
-			//System.out.println("TCPWorker socket accept exception "+e+" on port "+SLAVEPORT);
-			//return;
-		//}
 		try {
 			while(shouldRun) {
-				//s.read(b);
-				// extract the serialized request
-				//final CompletionLatchInterface iori = (CompletionLatchInterface)GlobalDBIO.deserializeObject(b);
-				//b.clear();
 				InputStream ins = workerSocket.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)ois.readObject();
@@ -143,16 +123,13 @@ public class TCPWorker implements Runnable {
 				workerRequestProcessor.getQueue().put(iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (IOException |ClassNotFoundException | InterruptedException ie) {
-			//ie.printStackTrace();
-			System.out.println("Remote client disconnect with exception "+ie.getMessage());
+		} catch (IOException | ClassNotFoundException | InterruptedException ie) {
+			ie.printStackTrace();
+			System.out.println("Remote client disconnect with exception "+ie);
 		}
 		finally {
 			shouldRun = false;
 			workerRequestProcessor.stop();
-			//try {
-			//	s.close();
-			//} catch (IOException e) {}
 			try {
 				workerSocket.close();
 			} catch (IOException e) {}
@@ -189,12 +166,11 @@ public class TCPWorker implements Runnable {
      * @throws Exception
      */
 	public static void main(String args[]) throws Exception {
-		if( args.length < 4 ) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [database] [remote master] [master port] [slave port]");
+		if( args.length != 2 ) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [remote master node] [remote master port]");
 		}
-		// Use mmap mode 0
 		ThreadPoolManager.getInstance().spin(new TCPWorker(new Socket(),
-				args[1], // remote master node
-				Integer.valueOf(args[2]))); // master port
+				args[0], // remote master node
+				Integer.valueOf(args[1]))); // master port
 	}
 }

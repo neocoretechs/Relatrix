@@ -27,7 +27,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     private transient CountDownLatch latch;
     private transient CyclicBarrier barrier;
     
-    public RelatrixKVStatement() {}
+    public RelatrixKVStatement() {if(DEBUG)System.out.println("Default Constructor:"+this);}
     
     /**
     * Prep RelatrixStatement to send remote method call
@@ -35,6 +35,8 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     public RelatrixKVStatement(String tmeth, Object ... o1) {
              methodName = tmeth;
              paramArray = o1;
+             if(DEBUG)
+            	 System.out.println("Constructor:"+this);
     }
   
     
@@ -79,9 +81,10 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     @Override
     public synchronized String toString() { 
-    	StringBuilder sb = new StringBuilder(String.format("%s for Session:%s method:%s",this.getClass().getName(),session,methodName));
+    	StringBuilder sb = new StringBuilder(String.format("<<<<<%s%n" ,this.getClass().getName()));
+    	sb.append(String.format("for Session:%s%nMethod:%s",session,methodName));
     	if(paramArray == null || paramArray.length == 0) {
-    			sb.append("(void)");
+    			sb.append("()");
     	} else {
     		sb.append("(");
     		for(Object param: paramArray) {
@@ -95,8 +98,16 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     				sb.append(",");
     			}
     		}
-    		sb.append(")\r\n");
+    		sb.append(")");
     	}
+  		sb.append("\r\nReturn Object: ");
+  		if(retObj != null) {
+  			sb.append("Class ");
+  			sb.append(retObj.getClass().getName());
+  			sb.append(", ");
+  		}
+		sb.append(retObj);
+		sb.append(" >>>>>\r\n");
     	return sb.toString();
     }
     

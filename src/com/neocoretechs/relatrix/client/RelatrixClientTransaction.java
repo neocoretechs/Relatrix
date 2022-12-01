@@ -153,8 +153,9 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 				}
 		  }
 		} catch(Exception e) {
-			// we lost the remote, try to close worker and wait for reconnect
-			//System.out.println("RelatrixClient: receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			// we lost the remote master, try to close worker and wait for reconnect
+			e.printStackTrace();
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 		} finally {
 			shutdown();
   	    }
@@ -169,6 +170,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
+			if(((RelatrixTransactionStatement)iori).getTransactionId() != null && ((RelatrixTransactionStatement)iori).getTransactionId() != "")
+				IndexResolver.setCurrentTransactionId(((RelatrixTransactionStatement)iori).getTransactionId());
 			outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
@@ -325,16 +328,15 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	@Override
 	public DomainMapRangeTransaction transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", xid, d, m, r);
 		return (DomainMapRangeTransaction)sendCommand(rs);
 	}
 	
 	@Override
-	public void transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public Object transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionalStore", xid, k, v);
-		sendCommand(rs);
+		return sendCommand(rs);
 	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -405,6 +407,16 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 	
 	@Override
+	public void transactionRollbackToCheckpoint(String xid) throws IOException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionRollbackTocheckpoint", xid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "transactionCheckpoint", xid, clazz);
 		try {
@@ -414,7 +426,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 	
-
 	@Override
 	public Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "firstKey", xid, clazz);
@@ -487,10 +498,10 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 
 	@Override
-	public RemoteKeySetIterator keySet(String xid, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+	public RemoteKeySetIteratorTransaction keySet(String xid, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "keySet", xid, clazz);
 		try {
-			return (RemoteKeySetIterator) sendCommand(rs);
+			return (RemoteKeySetIteratorTransaction) sendCommand(rs);
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -520,7 +531,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 */
-	@Override
 	public Object remove(String xid, Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", xid, d, m, r);
 		try {
@@ -552,7 +562,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	@Override
 	public RemoteTailSetIteratorTransaction findSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findSet", xid, darg, marg, rarg);
 		try {
@@ -562,7 +571,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 
-	@Override
 	public RemoteStream findSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findStream", xid, darg, marg, rarg);
 		try {
@@ -589,7 +597,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	* @throws IllegalAccessException 
 	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	*/
-	@Override
 	public RemoteTailSetIterator findTailSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findTailSet", xid, darg, marg, rarg);
 		try {
@@ -599,7 +606,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 
-	@Override
 	public RemoteStream findTailSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findTailStream", xid, darg, marg, rarg);
 		try {
@@ -623,7 +629,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	@Override
 	public RemoteHeadSetIterator findHeadSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findHeadSet", xid, darg, marg, rarg);
 		try {
@@ -633,7 +638,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 	
-	@Override
 	public RemoteStream findHeadSetStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findHeadStream", xid, darg, marg, rarg);
 		try {

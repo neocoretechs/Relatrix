@@ -1,10 +1,9 @@
 package com.neocoretechs.relatrix;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
+
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 
@@ -35,8 +34,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 		protected transient Comparable  domain;       // domain object
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
-        //
-        protected transient String transactionId = null;
         
         protected KeySet keys;
         
@@ -79,52 +76,6 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          * @param r
          */
         public Morphism(Comparable d, Comparable m, Comparable r, boolean template) {
-        	this.keys = new KeySet();
-        	setDomainTemplate(d);
-            setMapTemplate(m);
-            setRangeTemplate(r);
-        }
-        
-        /**
-         * Construct and establish key position for the elements of a morphism.
-         * @param d
-         * @param m
-         * @param r
-         */
-        public Morphism(String xid, Comparable d, Comparable m, Comparable r) {
-        	this.transactionId = xid;
-        	this.keys = new KeySet();
-        	setDomain(d);
-            setMap(m);
-            setRange(r);
-        }
-        
-        /**
-         * Constructor for the event when we have a keyset from a previous morphism.
-         * We assume keyset is valid, and so no need to resolve elements.
-         * @param d
-         * @param m
-         * @param r
-         * @param keys The {@link KeySet} of a previous relationship that has the same keys, but perhaps in a different order.
-         */
-        public Morphism(String xid, Comparable d, Comparable m, Comparable r, KeySet keys) {
-        	this.transactionId = xid;
-        	this.keys = keys;
-          	this.domain = d;
-            this.map = m;
-            this.range = r;
-        }
-        
-        /**
-         * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
-         * and provide a default empty KeySet. A template is used for retrieval and checking for
-         * existence of relationships without creating a permanent entry in the database.
-         * @param d
-         * @param m
-         * @param r
-         */
-        public Morphism(String xid, Comparable d, Comparable m, Comparable r, boolean template) {
-        	this.transactionId = xid;
         	this.keys = new KeySet();
         	setDomainTemplate(d);
             setMapTemplate(m);
@@ -306,7 +257,14 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         	// DBKey comapreTo handles resolution of key to instance
         	return from.compareTo(to);
         }
-        
+        /**
+         * This mechanism needs refinement to allow incompatible classes in relationships to work under
+         * comparison. ultimately the user may need schema-specific implementations.
+         * This implementation merely compares the string representation.
+         * @param from
+         * @param to
+         * @return
+         */
         public static int partialCompareTo(Comparable from, Comparable to) {
     		if( to == null )
     			throw new RuntimeException("Morphism.partialCompareTo 'to' element is null, from is "+from);

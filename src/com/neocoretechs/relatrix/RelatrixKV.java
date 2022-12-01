@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -521,10 +522,17 @@ public static boolean containsValue(Class keyType, Object obj) throws IOExceptio
 }
 
 /**
+ * Get the new DBkey.
+ * @return
  * @throws IOException 
+ * @throws IllegalAccessException 
+ * @throws ClassNotFoundException 
  */
-public static Integer getIncrementedLastGoodKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-	throw new IOException("Not supported in RelatrixKV");
+public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	UUID nkey = UUID.randomUUID();
+	if(DEBUG)
+		System.out.printf("Returning NewKey=%s%n", nkey.toString());
+	return nkey;
 }
 
 }

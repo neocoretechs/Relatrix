@@ -17,14 +17,14 @@ public class DomainMapRangeTransaction extends MorphismTransaction {
 	
     public DomainMapRangeTransaction() {}
     
-    public DomainMapRangeTransaction(String xid, Comparable d, Comparable m, Comparable r) {
-    	super(xid,d,m,r);
+    public DomainMapRangeTransaction(Comparable d, Comparable m, Comparable r) {
+    	super(d,m,r);
     }
-    public DomainMapRangeTransaction(String xid, Comparable d, Comparable m, Comparable r, KeySet keys) {
-    	super(xid,d,m,r,keys);
+    public DomainMapRangeTransaction(Comparable d, Comparable m, Comparable r, KeySet keys) {
+    	super(d,m,r,keys);
     }
-    public DomainMapRangeTransaction(String xid, Comparable d, Comparable m, Comparable r, boolean template) {
-    	super(xid,d,m,r,template);
+    public DomainMapRangeTransaction(Comparable d, Comparable m, Comparable r, boolean template) {
+    	super(d,m,r,template);
     }
     /**
      * The purpose here is to control the compareTo method such that when storing, the range portion
@@ -90,7 +90,7 @@ public class DomainMapRangeTransaction extends MorphismTransaction {
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new DomainMapRangeTransaction(transactionId, getDomain(), getMap(), getRange(), getKeys());
+    	return new DomainMapRangeTransaction(getDomain(), getMap(), getRange(), getKeys());
     }
 
 }

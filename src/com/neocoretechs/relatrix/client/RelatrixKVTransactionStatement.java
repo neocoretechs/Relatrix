@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 
 /**
@@ -14,21 +15,36 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  * @author Jonathan Groff (C) neoCoreTechs 2022
  *
  */
-public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
+public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements Serializable {
+	private static final long serialVersionUID = 1452088222610286234L;
 	private static boolean DEBUG = true;
-    static final long serialVersionUID = 8649844374668828845L;
     String xid;
     
-    public RelatrixKVTransactionStatement() {}
+    public RelatrixKVTransactionStatement() { if(DEBUG)System.out.println("Default Constructor:"+this);}
     
     public RelatrixKVTransactionStatement(String xid, String tmeth, Object ... o1) {
     	super(tmeth, o1);
     	this.xid = xid;
+    	if(DEBUG)
+    		System.out.println("Constructor:"+this);
     }
     
     public String getTransactionId() {
     	return xid;
     }
+
+    @Override
+  	public synchronized Class<?>[] getParams() {
+      	//System.out.println("params:"+paramArray.length);
+      	//for(int i = 0; i < paramArray.length; i++)
+      		//System.out.println("paramArray "+i+"="+paramArray[i]);
+     	if( paramArray == null )
+     		paramArray = new Object[0];
+          Class<?>[] c = new Class[paramArray.length];
+          for(int i = 0; i < paramArray.length; i++)
+                  c[i] = paramArray[i].getClass();
+          return c;
+      }
 
     @Override
     public synchronized String toString() { 
@@ -49,6 +65,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
+		IndexResolver.setCurrentTransactionId(xid);
 		Object result = RelatrixKVTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -61,7 +78,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement {
 					return;
 			}
 			if( DEBUG ) {
-				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+				System.out.printf("%s Storing nonserializable object reference using Transport:%s result:%s%n",this.getClass().getName(),this,result);
 			}
 			// put it in the array and send our intermediary back
 			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);

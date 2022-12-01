@@ -14,14 +14,14 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
 	private static final long serialVersionUID = -1694888225034392347L;
     public DomainRangeMapTransaction() {}
     
-    public DomainRangeMapTransaction(String xid, Comparable d, Comparable m, Comparable r) {
-       	super(xid,d,m,r);
+    public DomainRangeMapTransaction(Comparable d, Comparable m, Comparable r) {
+       	super(d,m,r);
     }
-	public DomainRangeMapTransaction(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
-		super(xid,d,m,r,keys);
+	public DomainRangeMapTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
+		super(d,m,r,keys);
 	}
-	public DomainRangeMapTransaction(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
-		super(xid,d,m,r,template);
+	public DomainRangeMapTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
+		super(d,m,r,template);
 	}
 	@SuppressWarnings("unchecked")
 	@Override
@@ -94,7 +94,7 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new DomainRangeMapTransaction(transactionId, getDomain(), getMap(), getRange(), getKeys());
+    	return new DomainRangeMapTransaction(getDomain(), getMap(), getRange(), getKeys());
     }
 
 }

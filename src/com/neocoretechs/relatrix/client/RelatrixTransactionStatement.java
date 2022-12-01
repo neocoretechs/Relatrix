@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 
 /**
@@ -12,9 +13,9 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
  */
-public class RelatrixTransactionStatement extends RelatrixStatement {
+public class RelatrixTransactionStatement extends RelatrixStatement implements Serializable {
+	private static final long serialVersionUID = -503217108835099285L;
 	private static boolean DEBUG = true;
-    static final long serialVersionUID = 8649844374668828846L;
     String xid;
     
     public RelatrixTransactionStatement() {}
@@ -58,6 +59,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement {
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
+		IndexResolver.setCurrentTransactionId(xid);
 		Object result = RelatrixTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it

@@ -8,8 +8,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.rocksdb.RocksDBException;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
@@ -25,7 +23,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  *
  */
 public final class WorkerRequestProcessor implements Runnable {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	//public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
@@ -102,14 +100,24 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("Response queued:"+iori);
 			}
 		} catch (Exception e1) {
-			//if( !(((Throwable)e1).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION ) {
+			//if( !((e1.getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION ) {
 				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 				e1.printStackTrace();
 			//}
+			if(e1 instanceof NoSuchMethodException) {
+				Exception e = new Exception();
+				e.initCause(e1);
+				iori.setObjectReturn(e);
+				// clear the request queue
+				requestQueue.clear();	
+				// And finally, send the package back up the line
+				queueResponse((RemoteResponseInterface) iori);
+				continue;
+			}
 			// RocksDBException contains Status, which does not serialize, so trap and resend all possible permutations
 			// Initial exception will always be InvocationTargetException from ServerInvokeMethod reflection call
 			// depending on exception hierarchy, db exception may be wrapped one or 2 layers down
-			if(((Throwable)e1).getCause().getCause() instanceof RocksDBException) {
+			if(e1.getCause().getCause() instanceof RocksDBException) {
 				StringBuilder sb = new StringBuilder(e1.getCause().getCause().getMessage());
 				sb.append(" RocksDBException Status:");
 				sb.append(((RocksDBException)e1.getCause().getCause()).getStatus().getCodeString());
@@ -118,9 +126,9 @@ public final class WorkerRequestProcessor implements Runnable {
 				iori.setObjectReturn(e);
 				System.out.println("Queuing RocksDBException:"+sb.toString());
 			} else {
-				if(((Throwable)e1).getCause() instanceof RuntimeException && 
-						((Throwable)e1).getCause().getCause() instanceof IOException &&
-						((Throwable)e1).getCause().getCause().getCause() instanceof RocksDBException) {
+				if(e1.getCause() instanceof RuntimeException && 
+						e1.getCause().getCause() instanceof IOException &&
+						e1.getCause().getCause().getCause() instanceof RocksDBException) {
 					StringBuilder sb = new StringBuilder(e1.getCause().getCause().getCause().getMessage());
 					sb.append(" RocksDBException Status:");
 					sb.append(((RocksDBException)e1.getCause().getCause().getCause()).getStatus().getCodeString());
@@ -145,9 +153,6 @@ public final class WorkerRequestProcessor implements Runnable {
 	}
 
 	public void queueResponse(RemoteResponseInterface iori) {
-		responseQueue.queueResponse(iori);
-		
+		responseQueue.queueResponse(iori);		
 	}
-
-
 }

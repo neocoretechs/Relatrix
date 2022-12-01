@@ -56,7 +56,9 @@ public final class RelatrixKVTransaction {
 	 * @throws ClassNotFoundException 
 	 */
 	public static String getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
-		return RockSackAdapter.getRockSackTransactionId();
+		String xid = RockSackAdapter.getRockSackTransactionId();
+		IndexResolver.setIndexInstanceTable(xid);
+		return xid;
 	}
 	
 	/**
@@ -79,7 +81,7 @@ public final class RelatrixKVTransaction {
 	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		UUID nkey = UUID.randomUUID();
 		if(DEBUG)
-			System.out.printf("Returning getIncrementedLastgoodKey=%s%n", nkey.toString());
+			System.out.printf("Returning NewKey=%s%n", nkey.toString());
 		return nkey;
 	}
 	/**
@@ -99,7 +101,18 @@ public final class RelatrixKVTransaction {
 		ttm.put(key, value);
 	}
 	/**
-	 * Commit the outstanding transaction data in each active transaction.
+	 * Commit the outstanding transaction data in each active class.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static void transactionCommit(String xid) throws IOException, IllegalAccessException {
+		long startTime = System.currentTimeMillis();
+		RockSackAdapter.commitRockSackTransaction(xid);
+		if( DEBUG || TRACE )
+			System.out.println("Committed transaction:"+xid+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
+	}
+	/**
+	 * Commit the outstanding transaction data in specified class.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
@@ -110,12 +123,39 @@ public final class RelatrixKVTransaction {
 			System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 	}
 	/**
+	 * Rollback the outstanding transaction data in each active class.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static void transactionRollback(String xid) throws IOException, IllegalAccessException {
+		long startTime = System.currentTimeMillis();
+		RockSackAdapter.rollbackRockSackTransaction(xid);
+		if( DEBUG || TRACE )
+			System.out.println("Rolled back transaction:"+xid+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
+	}
+	/**
 	 * Roll back all outstanding transactions on the indicies
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
 	public static void transactionRollback(String xid, Class clazz) throws IOException, IllegalAccessException {
 		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Rollback();
+	}
+	/**
+	 * @param xid transaction id
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
+		RockSackAdapter.checkpointRockSackTransaction(xid);
+	}
+	/**
+	 * @param xid transaction id
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static void transactionRollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
+		RockSackAdapter.rollbackToCheckpoint(xid);
 	}
 	/**
 	 * Take a check point of our current indicies. What this means is that we are

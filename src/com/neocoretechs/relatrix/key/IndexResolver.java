@@ -20,6 +20,7 @@ public class IndexResolver {
 	static boolean local = true;
 	static RelatrixClientInterface remoteIndexInstanceTable;
 	static ConcurrentHashMap<String,IndexInstanceTableInterface> indexInstanceTableTransaction = new ConcurrentHashMap<String,IndexInstanceTableInterface>();
+	static String currentTransactionId = null;
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
@@ -32,9 +33,13 @@ public class IndexResolver {
 		return instanceTable;
 	}
 	
-	public static IndexInstanceTableInterface getIndexInstanceTable(String xid) throws IOException {
+	public static synchronized IndexInstanceTableInterface getIndexInstanceTable(String xid) throws IOException {
 		if(DEBUG)
 			System.out.println("IndexResolver.getIndexInstanceTable for XId:"+xid+" from table sized:"+indexInstanceTableTransaction.size());
+		if(xid == null) {
+			new Exception().printStackTrace();
+			throw new IOException("Transaction Id null");
+		}
 		IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
 		if(local) {
 				if(iTable == null) {
@@ -48,7 +53,29 @@ public class IndexResolver {
 		return iTable;
 	}
 	
-	public static void remove(String xid) {
+	public static synchronized IndexInstanceTableInterface getCurrentIndexInstanceTable() throws IOException {
+		return getIndexInstanceTable(currentTransactionId);
+	}
+	/**
+	 * If we are operating in a local transaction context, such as a server, ensure we have an index resolution table for DBKeys
+	 * for this transaction id. If non-local, do nothing as setRemote should be handling things.
+	 * This should be called before processing a RelatrixTransactionStatement or variant.
+	 * @param xid
+	 * @throws IOException
+	 */
+	public static synchronized void setIndexInstanceTable(String xid) throws IOException {
+		if(local) {
+			if(xid == null)
+				throw new IOException("Transaction Id null");
+			IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
+			if(iTable == null) {
+				iTable = new IndexInstanceTable(xid);
+				indexInstanceTableTransaction.put(xid,iTable);
+			}
+		}
+	}
+	
+	public static synchronized void remove(String xid) {
 		indexInstanceTableTransaction.remove(xid);
 	}
 	
@@ -70,10 +97,17 @@ public class IndexResolver {
 		remoteIndexInstanceTable = remoteClient;
 	}
 
-	public static void setRemote(String xid, RelatrixClientTransactionInterface remoteClient) throws IOException {
+	public static synchronized void setRemote(String xid, RelatrixClientTransactionInterface remoteClient) throws IOException {
 		local = false;
 		if(!indexInstanceTableTransaction.containsKey(xid))
 			indexInstanceTableTransaction.put(xid, new RemoteIndexInstanceTable(xid, remoteClient));
+	}
+	
+	public static synchronized void setCurrentTransactionId(String xid) {
+		currentTransactionId = xid;
+	}
+	public static synchronized String getCurrentTransactionId() {
+		return currentTransactionId;
 	}
 
 }

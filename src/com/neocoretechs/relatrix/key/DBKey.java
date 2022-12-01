@@ -51,13 +51,19 @@ public final class DBKey implements Comparable, Serializable {
 	@Override
 	public boolean equals(Object o) {
 		synchronized(instanceIndex) {
-			return instanceIndex.equals(((DBKey)o).instanceIndex);
+			if(instanceIndex != null && ((DBKey)o).instanceIndex != null)
+				return instanceIndex.equals(((DBKey)o).instanceIndex);
+			if(instanceIndex == null && ((DBKey)o).instanceIndex == null)
+				return true;
+			return false;
 		}
 	}
 	
 	@Override
 	public int hashCode() {
 		synchronized(instanceIndex) {
+			if(instanceIndex == null)
+				return 0;
 			return instanceIndex.hashCode();
 		}
 	}
@@ -65,14 +71,20 @@ public final class DBKey implements Comparable, Serializable {
 	@Override
 	public int compareTo(Object o) {
 		synchronized(instanceIndex) {
-			return instanceIndex.compareTo(((DBKey)o).instanceIndex);
+			if(instanceIndex != null && ((DBKey)o).instanceIndex != null)
+				return instanceIndex.compareTo(((DBKey)o).instanceIndex);
+			if(instanceIndex == null && ((DBKey)o).instanceIndex == null)
+				return 0;
+			if(instanceIndex != null && ((DBKey)o).instanceIndex == null)
+				return 1;
+			return -1;
 		}
 	}
 
 	@Override
 	public String toString() {
 		synchronized(instanceIndex) {
-			return String.format("%s: key:%s%n", this.getClass().getName(), instanceIndex.toString());
+			return String.format("%s: key:%s%n", this.getClass().getName(), instanceIndex != null ? instanceIndex.toString() : "NULL");
 		}
 	}
 

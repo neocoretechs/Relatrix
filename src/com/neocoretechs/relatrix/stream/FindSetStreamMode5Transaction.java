@@ -34,7 +34,7 @@ public class FindSetStreamMode5Transaction extends FindSetStreamMode5 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new DomainRangeMapTransaction(xid, (Comparable)darg, null, (Comparable)rarg);
+		MorphismTransaction dmr = new DomainRangeMapTransaction((Comparable)darg, null, (Comparable)rarg);
 		return createRelatrixStream(dmr);
 	}
 	

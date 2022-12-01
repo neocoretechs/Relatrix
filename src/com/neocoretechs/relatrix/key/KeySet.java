@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.Serializable;
 
-public class KeySet implements Serializable {
+public class KeySet implements Serializable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private DBKey domainKey = new DBKey();
     private DBKey mapKey = new DBKey();
@@ -26,5 +26,50 @@ public class KeySet implements Serializable {
 	public void setRangeKey(DBKey rangeKey) {
 		this.rangeKey = rangeKey;
 	}
-    
+	@Override
+	public boolean equals(Object o) {
+		return domainKey.equals(((KeySet)o).domainKey) &&
+				mapKey.equals(((KeySet)o).mapKey) &&
+				rangeKey.equals(((KeySet)o).rangeKey);
+	}
+	@Override
+	public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + domainKey.hashCode();
+	    result = prime * result + (int) (mapKey.hashCode() ^ (mapKey.hashCode() >>> 32));
+	    result = prime * result + rangeKey.hashCode();
+	    return result;
+	}
+	public boolean isValid() {
+		return domainKey.isValid() && mapKey.isValid() && rangeKey.isValid();
+	}
+	public boolean isDomainKeyValid() {
+		return domainKey.isValid();
+	}
+	public boolean isMapKeyValid() {
+		return mapKey.isValid();
+	}
+	public boolean isRangeKeyValid() {
+		return rangeKey.isValid();
+	}
+	public boolean domainKeyEquals(KeySet o) {
+		return domainKey.equals(o.domainKey);
+	}
+	public boolean mapKeyEquals(KeySet o) {
+		return mapKey.equals(o.mapKey);
+	}
+	public boolean rangeKeyEquals(KeySet o) {
+		return rangeKey.equals(o.rangeKey);
+	}
+	@Override
+	public int compareTo(Object o) {
+		int i = domainKey.compareTo(((KeySet)o).domainKey);
+		if(i != 0)
+			return i;
+		i = mapKey.compareTo(((KeySet)o).mapKey);
+		if(i != 0)
+			return i;
+		return rangeKey.compareTo(((KeySet)o).rangeKey);
+	}   
 }
