@@ -36,7 +36,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTransactionInterface {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	private String bootNode, remoteNode;
@@ -162,9 +162,11 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		  if(DEBUG)
 			  System.out.printf("%s Exiting run loop shouldRun:%b%n", this.getClass().getName(),shouldRun);
 		} catch(Exception e) {
-			// we lost the remote master, try to close worker and wait for reconnect
-			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			if(!(e instanceof SocketException)) {
+				// we lost the remote master, try to close worker and wait for reconnect
+				e.printStackTrace();
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			}
 		} finally {
 			shutdown();
   	    }

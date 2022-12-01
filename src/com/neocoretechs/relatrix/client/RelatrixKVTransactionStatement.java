@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements Serializable {
 	private static final long serialVersionUID = 1452088222610286234L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     String xid;
     
     public RelatrixKVTransactionStatement() { if(DEBUG)System.out.println("Default Constructor:"+this);}

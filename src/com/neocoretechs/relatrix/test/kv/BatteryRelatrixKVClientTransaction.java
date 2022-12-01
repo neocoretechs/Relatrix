@@ -49,6 +49,7 @@ public class BatteryRelatrixKVClientTransaction {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
+	private static int dupes;
 	/**
 	* Main test fixture driver
 	*/
@@ -59,22 +60,22 @@ public class BatteryRelatrixKVClientTransaction {
 		}
 		rkvc = new RelatrixKVClientTransaction(argv[0], argv[0], Integer.parseInt(argv[1]));
 		String xid = rkvc.getTransactionId();
-		/*battery1(xid);*/	
-		/*battery11(argv);*/
+		battery1(xid);	
+		battery11(xid);
 		battery1AR6(xid);
-		/*battery1AR7(argv);
-		battery1AR8(argv);
-		battery1AR9(argv);
-		battery1AR10(argv);
-		battery1AR101(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
-		battery1AR13(argv);
-		battery1AR14(argv);
-		battery1AR15(argv);
-		battery1AR16(argv);
-		battery1AR17(argv);
-		battery18(argv);*/
+		battery1AR7(xid);
+		battery1AR8(xid);
+		battery1AR9(xid);
+		battery1AR10(xid);
+		battery1AR101(xid);
+		battery1AR11(xid);
+		battery1AR12(xid);
+		battery1AR13(xid);
+		battery1AR14(xid);
+		battery1AR15(xid);
+		battery1AR16(xid);
+		battery1AR17(xid);
+		battery18(xid);
 		System.out.println("TEST BATTERY COMPLETE.");
 		rkvc.endTransaction(xid);
 		rkvc.close();
@@ -103,30 +104,28 @@ public class BatteryRelatrixKVClientTransaction {
 	}
 	
 	/**
-	 * Tries to store partial key that should match existing keys, should reject all
+	 * Store another transaction then roll it back.
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery11(String xid) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
-		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		String xid2 = rkvc.getTransactionId();
+		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid, fkey, new Long(fkey));
+				rkvc.transactionalStore(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
-			System.out.println("KV BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
-			rkvc.transactionRollback(xid);
-		} else {
-			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-			rkvc.transactionCommit(xid);
+			rkvc.transactionRollback(xid2);
+			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
+		rkvc.endTransaction(xid2);
 	}
 	
 	/**
@@ -150,15 +149,12 @@ public class BatteryRelatrixKVClientTransaction {
 		RemoteEntrySetIteratorTransaction its = rkvc.entrySet(xid, String.class);
 		System.out.println("KV Battery1AR6 "+its);
 		while(rkvc.hasNext(xid, its)) {
-			System.out.println("hasnext");
 			Object nex =  rkvc.next(xid, its);
-			System.out.println(i+" "+nex);
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
 			++i;
-			System.out.println(i+" "+enex);
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
@@ -458,7 +454,7 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		//int i = min;
 		//int j = max;
-
+		String xid2 = rkvc.getTransactionId();
 		// with j at max, should get them all since we stored to max -1
 		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("KV Battery1AR17");
@@ -466,25 +462,26 @@ public class BatteryRelatrixKVClientTransaction {
 		for(int i = min; i < max; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
 			System.out.println("Removing"+fkey);
-			rkvc.remove(xid, fkey);
+			rkvc.remove(xid2, fkey);
 			// Map.Entry
-			if(rkvc.contains(xid, fkey)) { 
+			if(rkvc.contains(xid2, fkey)) { 
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		rkvc.transactionCommit(xid, String.class);
-		long siz = rkvc.size(xid, String.class);
+		rkvc.transactionCommit(xid2, String.class);
+		long siz = rkvc.size(xid2, String.class);
 		if(siz > 0) {
-			RemoteEntrySetIteratorTransaction its = rkvc.entrySet(xid, String.class);
-			while(rkvc.hasNext(xid, its)) {
-				Object nex = rkvc.next(xid, its);
+			RemoteEntrySetIteratorTransaction its = rkvc.entrySet(xid2, String.class);
+			while(rkvc.hasNext(xid2, its)) {
+				Object nex = rkvc.next(xid2, its);
 				//System.out.println(i+"="+nex);
 				System.out.println(nex);
 			}
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
+		rkvc.endTransaction(xid2);
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 
 	}
@@ -496,6 +493,7 @@ public class BatteryRelatrixKVClientTransaction {
 	 */
 	public static void battery18(String xid) throws Exception {
 		System.out.println("KV Battery18 ");
+		String xid2 = rkvc.getTransactionId();
 		int max1 = max - 50000;
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -504,20 +502,21 @@ public class BatteryRelatrixKVClientTransaction {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid, fkey, new Long(i));
+				rkvc.transactionalStore(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		System.out.println("Checkpointing..");
-		rkvc.transactionCheckpoint(xid, String.class);
+		rkvc.transactionCheckpoint(xid2);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid, fkey, new Long(i));
+				rkvc.transactionalStore(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.transactionCommit(xid, String.class);
+		rkvc.transactionCommit(xid2, String.class);
+		rkvc.endTransaction(xid2);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	

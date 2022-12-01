@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  *
  */
 public class RelatrixKVStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
     protected String methodName;

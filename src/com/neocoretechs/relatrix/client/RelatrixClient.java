@@ -149,9 +149,11 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 				}
 		  }
 		} catch(Exception e) {
-			// we lost the remote master, try to close worker and wait for reconnect
-			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			if(!(e instanceof SocketException)) {
+				// we lost the remote master, try to close worker and wait for reconnect
+				e.printStackTrace();
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			}
 		} finally {
 			shutdown();
   	    }
