@@ -538,7 +538,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 
-	public RemoteStream findTailMapSteam(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public RemoteStream findTailMapStream(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapStream", xid, key);
 		try {
 			return (RemoteStream)sendCommand(rs);
