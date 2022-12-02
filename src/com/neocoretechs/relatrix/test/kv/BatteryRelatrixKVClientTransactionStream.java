@@ -437,7 +437,6 @@ public class BatteryRelatrixKVClientTransactionStream {
 		// with i at max, should catch them all
 		for(int i = min; i < max; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
-			System.out.println("Removing"+fkey);
 			rkvc.remove(xid2, fkey);
 			// Map.Entry
 			if(rkvc.contains(xid2, fkey)) { 
