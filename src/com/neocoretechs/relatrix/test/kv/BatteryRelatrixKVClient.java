@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
 import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
 
 /**
- * Yes, this should be a nice JUnit fixture someday
+ * Client side test of KV server. Yes, this should be a nice JUnit fixture someday.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -27,7 +27,8 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is node server is running on, whihc was started on port 9500 with database of your choice
+ * program argument is node server is running on, which was started on port 9500 with database of your choice.
+ * Assumption is database is running on same node as client. Change arg 2 of RelatrixKVClient ctor for different remote node.
  * @author jg (C) 2020
  *
  */
@@ -45,7 +46,7 @@ public class BatteryRelatrixKVClient {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient(argv[0], argv[0], 9500);
-		/*battery1(argv);	
+		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
@@ -59,9 +60,9 @@ public class BatteryRelatrixKVClient {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);*/
+		battery1AR17(argv);
 		battery18(argv);
-		System.out.println("TEST BATTERY COMPLETE.");
+		System.out.println("BatteryRelatrixKVClient TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
 	}
@@ -76,14 +77,19 @@ public class BatteryRelatrixKVClient {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		int j = min;
+		j = (int) rkvc.size(String.class);
+		if(j > 0) {
+			System.out.println("Cleaning DB of "+j+" elements.");
+			battery1AR17(argv);		
+		}
+		for(int i = j; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(fkey, new Long(i));
+				rkvc.store(fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.transactionCommit(String.class);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -95,22 +101,20 @@ public class BatteryRelatrixKVClient {
 	public static void battery11(String[] argv) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
-		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.transactionalStore(fkey, new Long(fkey));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+				Object o = rkvc.get(fkey);
+				if(i != ((Long)o).intValue()) {
+					System.out.println("RANGE KEY MISMATCH for 'get':"+i+" - "+o);
+					++recs;
+				}
 		}
 		if( recs > 0) {
-			System.out.println("KV BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
-			rkvc.transactionRollback(String.class);
+			System.out.println("KV BATTERY11 FAIL, failed to get "+recs);
 		} else {
-			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-			rkvc.transactionCommit(String.class);
+			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
 	}
 	
@@ -140,7 +144,8 @@ public class BatteryRelatrixKVClient {
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
-			++i;
+			else
+				++i;
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
@@ -163,7 +168,8 @@ public class BatteryRelatrixKVClient {
 			// Map.Entry
 			if(Integer.parseInt(nex) != i)
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-			++i;
+			else
+				++i;
 		}
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
@@ -455,7 +461,6 @@ public class BatteryRelatrixKVClient {
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		rkvc.transactionCommit(String.class);
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
 			RemoteEntrySetIterator its = rkvc.entrySet(String.class);
@@ -486,20 +491,20 @@ public class BatteryRelatrixKVClient {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(fkey, new Long(i));
+				rkvc.store(fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		System.out.println("Checkpointing..");
-		rkvc.transactionCheckpoint(String.class);
+		long s = rkvc.size(String.class);
+		if(s != max1)
+			System.out.println("Size at halway point of restore incorrect:"+s+" should be "+max1);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(fkey, new Long(i));
+				rkvc.store(fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.transactionCommit(String.class);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	

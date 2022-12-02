@@ -48,18 +48,14 @@ public final class RelatrixKV {
 		return RockSackAdapter.getTableSpaceDir();
 	}
 	
-
 /**
  * Store our permutations of the key/value
- * This is a transactional store in the context of a previously initiated transaction.
- * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
- * to prevent a recovery on the next operation.
  * @param key of comparable
  * @param value
  * @throws IllegalAccessException
  * @throws IOException
  */
-public static void transactionalStore(Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+public static void store(Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 	BufferedMap ttm = RockSackAdapter.getRockSackMap(key);
 	if( DEBUG  )
@@ -67,51 +63,8 @@ public static void transactionalStore(Comparable key, Object value) throws Illeg
 	ttm.put(key, value);
 	if( DEBUG )
 		System.out.println("RelatrixKV.store Tree Search Result: ");
-
-}
-/**
- * Commit the outstanding transaction data in each active transaction.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static void transactionCommit(Class clazz) throws IOException, IllegalAccessException {
-	long startTime = System.currentTimeMillis();
-	//RockSackAdapter.getRockSackTransactionalMap(clazz).Commit();
-	if( DEBUG || TRACE )
-		System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
-}
-/**
- * Roll back all outstanding transactions on the indicies
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static void transactionRollback(Class clazz) throws IOException, IllegalAccessException {
-	//RockSackAdapter.getRockSackTransactionalMap(clazz).Rollback();
-}
-/**
- * Take a check point of our current indicies. What this means is that we are
- * going to write a log record such that if we crash will will restore the logs from that point forward.
- * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
- * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
- * if we crash, to restore the data to its state up to that point", hence check, point...
- * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
- * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
- * even the old data before the checkpoint.
- * @param clazz The class for which the map has been created.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-	//RockSackAdapter.getRockSackTransactionalMap(clazz).Checkpoint();
 }
 
-/**
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static void transactionCheckpoint() throws IOException, IllegalAccessException {
-	throw new IOException("Must specify a class");
-}
 /**
  * Load the stated package from the declared path into the bytecode repository
  * @param pack

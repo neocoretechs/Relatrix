@@ -1,16 +1,13 @@
 package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
- * Yes, this should be a nice JUnit fixture someday
+ * Yes, this should be a nice JUnit fixture someday. Test of client side KV server stream ops.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -35,6 +32,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	static int numDelete = 100; // for delete test
 	static int i;
 	static int j;
+	private static int dupes;
 	/**
 	* Main test fixture driver
 	*/
@@ -43,11 +41,11 @@ public class BatteryRelatrixKVClientTransactionStream {
 		System.out.println("local="+argv[0]+" remote="+argv[0]+" port="+argv[1]);
 		rkvc = new RelatrixKVClientTransaction(argv[0], argv[0], Integer.parseInt(argv[1]));
 		String xid = rkvc.getTransactionId();
-		//battery1(xid);	// build and store
-		//battery11(xid);  // build and store
+		battery1(xid);	// build and store
+		battery11(xid);  // build and store
 		battery1AR6(xid);
-		/*battery1AR7(xid);
-		//battery1AR8(xid); // search by value, slow operation no key
+		battery1AR7(xid);
+		battery1AR8(xid); // search by value, slow operation no key
 		battery1AR9(xid);
 		battery1AR10(xid);
 		battery1AR101(xid);
@@ -57,8 +55,9 @@ public class BatteryRelatrixKVClientTransactionStream {
 		battery1AR14(xid);
 		battery1AR15(xid);
 		battery1AR16(xid);
-		battery1AR17(xid);*/
-		System.out.println("TEST BATTERY COMPLETE.");
+		battery1AR17(xid);
+		battery18(xid);
+		System.out.println("BatteryRelatrixKVClientTransactionStream TEST BATTERY COMPLETE.");
 		rkvc.endTransaction(xid);
 		rkvc.close();
 		
@@ -74,7 +73,13 @@ public class BatteryRelatrixKVClientTransactionStream {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		int j = min;
+		j = (int) rkvc.size(xid, String.class);
+		if(j > 0) {
+			System.out.println("Cleaning DB of "+j+" elements.");
+			battery1AR17(xid);		
+		}
+		for(int i = j; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				rkvc.transactionalStore(xid, fkey, new Long(i));
@@ -86,30 +91,28 @@ public class BatteryRelatrixKVClientTransactionStream {
 	}
 	
 	/**
-	 * Tries to store partial key that should match existing keys, should reject all
+	 * Store another transaction then roll it back.
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery11(String xid) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
-		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		String xid2 = rkvc.getTransactionId();
+		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid, fkey, new Long(fkey));
+				rkvc.transactionalStore(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
-			System.out.println("KV BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
-			rkvc.transactionRollback(xid, String.class);
-		} else {
-			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-			rkvc.transactionCommit(xid, String.class);
+			rkvc.transactionRollback(xid2);
+			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
+		rkvc.endTransaction(xid2);
 	}
 	
 	/**
@@ -135,9 +138,8 @@ public class BatteryRelatrixKVClientTransactionStream {
 		stream.of().forEach(e ->{
 			if(((Map.Entry<String,Long>)e).getValue() != i) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
-			}
-			System.out.println(i+"="+e);
-			++i;
+			} else
+				++i;
 		});
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
@@ -158,8 +160,8 @@ public class BatteryRelatrixKVClientTransactionStream {
 		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
-			}
-			++i;
+			} else
+				++i;
 		});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
@@ -419,38 +421,78 @@ public class BatteryRelatrixKVClientTransactionStream {
 	}
 	/**
 	 * remove entries
-	 * @param xid
+	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR17(String xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		//int i = min;
 		//int j = max;
+		String xid2 = rkvc.getTransactionId();
 		// with j at max, should get them all since we stored to max -1
 		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("KV Battery1AR17");
 		// with i at max, should catch them all
 		for(int i = min; i < max; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
-			rkvc.remove(xid, fkey);
+			System.out.println("Removing"+fkey);
+			rkvc.remove(xid2, fkey);
 			// Map.Entry
-			if(rkvc.contains(xid, fkey)) { 
+			if(rkvc.contains(xid2, fkey)) { 
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		rkvc.transactionCommit(xid, String.class);
-		long siz = rkvc.size(xid, String.class);
+		rkvc.transactionCommit(xid2, String.class);
+		long siz = rkvc.size(xid2, String.class);
+		i = 0;
 		if(siz > 0) {
-			RemoteStream stream = rkvc.entrySetStream(xid, String.class);
+			RemoteStream stream = rkvc.entrySetStream(xid,String.class);
 			stream.of().forEach(e ->{
-				//System.out.println(i+"="+key);
-				System.out.println(key+"="+e);
+				if(((Map.Entry<String,Long>)e).getValue() != i) {
+					System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
+				}
+				System.out.println(i+"="+e);
+				++i;
 			});
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
+			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed. Total="+i);
 			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
-		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		rkvc.endTransaction(xid2);
+		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	/**
+	 * Loads up on keys, should be 0 to max-1, or min, to max -1
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery18(String xid) throws Exception {
+		System.out.println("KV Battery18 ");
+		String xid2 = rkvc.getTransactionId();
+		int max1 = max - 50000;
+		long tims = System.currentTimeMillis();
+		int dupes = 0;
+		int recs = 0;
+		String fkey = null;
+		for(int i = min; i < max1; i++) {
+			fkey = String.format(uniqKeyFmt, i);
+			try {
+				rkvc.transactionalStore(xid2, fkey, new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		System.out.println("Checkpointing..");
+		rkvc.transactionCheckpoint(xid2);
+		for(int i = max1; i < max; i++) {
+			fkey = String.format(uniqKeyFmt, i);
+			try {
+				rkvc.transactionalStore(xid2, fkey, new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		rkvc.transactionCommit(xid2, String.class);
+		rkvc.endTransaction(xid2);
+		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
 }

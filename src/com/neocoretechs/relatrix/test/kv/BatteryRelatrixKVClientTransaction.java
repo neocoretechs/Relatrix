@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteTailMapKVIteratorTransaction;
 
 /**
- * Transaction KV client test battery.
+ * Transaction KV client test battery. Test of client side transaction KV server.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -76,7 +76,7 @@ public class BatteryRelatrixKVClientTransaction {
 		battery1AR16(xid);
 		battery1AR17(xid);
 		battery18(xid);
-		System.out.println("TEST BATTERY COMPLETE.");
+		System.out.println("BatteryRelatrixKVClientTransaction TEST BATTERY COMPLETE.");
 		rkvc.endTransaction(xid);
 		rkvc.close();
 		
@@ -92,7 +92,13 @@ public class BatteryRelatrixKVClientTransaction {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		int j = min;
+		j = (int) rkvc.size(xid, String.class);
+		if(j > 0) {
+			System.out.println("Cleaning DB of "+j+" elements.");
+			battery1AR17(xid);		
+		}
+		for(int i = j; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				rkvc.transactionalStore(xid, fkey, new Long(i));
@@ -154,7 +160,8 @@ public class BatteryRelatrixKVClientTransaction {
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
-			++i;
+			else
+				++i;
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
@@ -177,7 +184,8 @@ public class BatteryRelatrixKVClientTransaction {
 			// Map.Entry
 			if(Integer.parseInt(nex) != i)
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-			++i;
+			else
+				++i;
 		}
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);

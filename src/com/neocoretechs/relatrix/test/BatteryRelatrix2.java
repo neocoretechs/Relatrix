@@ -62,11 +62,10 @@ public class BatteryRelatrix2 {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.transactionalStore(fkey, "Has unit", new Long(i));
+				Relatrix.store(fkey, "Has unit", new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		Relatrix.transactionCommit();
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	

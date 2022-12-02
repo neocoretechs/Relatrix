@@ -65,11 +65,10 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.transactionalStore(fkey, "Has unit", new Long(i));
+				Relatrix.store(fkey, "Has unit", new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		Relatrix.transactionCommit();
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -88,16 +87,14 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.transactionalStore(fkey, "Has unit", new Long(99999));
+				Relatrix.store(fkey, "Has unit", new Long(99999));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
 			System.out.println("BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
-			Relatrix.transactionRollback();
 		} else {
 			System.out.println("BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-			Relatrix.transactionCommit();
 		}
 	}
 	

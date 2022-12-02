@@ -277,70 +277,7 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		RelatrixKVStatement rs = new RelatrixKVStatement("store",k,v);
 		return sendCommand(rs);
 	}
-	/**
-	 * Store our k/v
-	 * This is a transactional store in the context of a previously initiated transaction.
-	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
-	 * to prevent a recovery on the next operation
-	 * @param d The Comparable representing the key object for this morphism relationship.
-	 * @param m The value object
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
-	 * @throws DuplicateKeyException 
-	 */
-	@Override
-	public Object transactionalStore(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionalStore",k, v);
-		return sendCommand(rs);
-	}
-	/**
-	 * Commit the outstanding indicies to their transactional data.
-	 * @throws IOException
-	 */
-	@Override
-	public void transactionCommit(Class clazz) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Roll back all outstanding transactions on the indicies
-	 * @throws IOException
-	 */
-	@Override
-	public void transactionRollback(Class clazz) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	@Override
-	public void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",clazz);
-		try {
-			sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
+
 	@Override
 	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("getNewKey",(Object[])null);
@@ -349,38 +286,6 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-	}
-
-	@Override
-	public void transactionCommit() throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCommit",(Object[])null);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public void transactionRollback() throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionRollback",(Object[])null);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-		
-	}
-
-	@Override
-	public void transactionCheckpoint() throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("transactionCheckpoint",(Object[])null);
-		try {
-			sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-		
 	}
 
 	/**

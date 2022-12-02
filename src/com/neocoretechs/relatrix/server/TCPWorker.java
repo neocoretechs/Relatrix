@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -124,7 +125,7 @@ public class TCPWorker implements Runnable {
 			}
 		// Call to shut down has been received from stopWorker
 		} catch (IOException | ClassNotFoundException | InterruptedException ie) {
-			if(!(ie instanceof SocketException)) {
+			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
 				System.out.println("Remote client disconnect with exception "+ie);
 			}

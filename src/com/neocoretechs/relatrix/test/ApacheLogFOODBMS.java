@@ -102,7 +102,7 @@ public class ApacheLogFOODBMS {
 				e.printStackTrace();
 			}
 		}
-		Relatrix.transactionCommit();
+		//Relatrix.transactionCommit();
 		System.out.println("FINISHED! with "+totalRecords+" processed");
 	}
 	
@@ -134,16 +134,16 @@ public class ApacheLogFOODBMS {
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess(line);
-				Comparable rel = Relatrix.transactionalStore(accessLogEntryEpoch,"accessed by",remoteHost);
-				Relatrix.transactionalStore(rel, "remote user", remoteUser); // unreliable info field remoteUser
+				Comparable rel = Relatrix.store(accessLogEntryEpoch,"accessed by",remoteHost);
+				Relatrix.store(rel, "remote user", remoteUser); // unreliable info field remoteUser
 				//Relatrix.transactionalStore(rel, "access time",accessLogEntryEpoch);
-				Relatrix.transactionalStore(rel, "client request",clientRequest);
-				Relatrix.transactionalStore(rel, "http status",httpStatusCode);
-				Relatrix.transactionalStore(rel, "bytes returned",numBytes);
-				Relatrix.transactionalStore(rel, "referer",referer);
-				Relatrix.transactionalStore(rel, "user agent",userAgent);
-				Relatrix.transactionalStore(rel, "OS",Os);
-				Relatrix.transactionalStore(rel,"OS Ver.",OsVer);
+				Relatrix.store(rel, "client request",clientRequest);
+				Relatrix.store(rel, "http status",httpStatusCode);
+				Relatrix.store(rel, "bytes returned",numBytes);
+				Relatrix.store(rel, "referer",referer);
+				Relatrix.store(rel, "user agent",userAgent);
+				Relatrix.store(rel, "OS",Os);
+				Relatrix.store(rel,"OS Ver.",OsVer);
 			} catch(ParseException pe) { //its in chinese
 				
 			} catch (IllegalAccessException e) {

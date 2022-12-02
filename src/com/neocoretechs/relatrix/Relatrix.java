@@ -94,9 +94,6 @@ public final class Relatrix {
 
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * This is a transactional store in the context of a previously initiated transaction.
-	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
-	 * to prevent a recovery on the next operation.
 	 * @param d The Comparable representing the domain object for this morphism relationship.
 	 * @param m The Comparable representing the map object for this morphism relationship.
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
@@ -104,7 +101,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 */
-	public static synchronized DomainMapRange transactionalStore(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
@@ -114,7 +111,6 @@ public final class Relatrix {
 		// cannot be inserted.
 		((DomainMapRange)dmr).setUniqueKey(true);
 		if(RelatrixKV.contains(dmr)) {
-			transactionRollback();
 			throw new DuplicateKeyException("dmr:"+dmr);
 		}
 		((DomainMapRange)dmr).setUniqueKey(false);
@@ -142,82 +138,28 @@ public final class Relatrix {
 		} // Use primary key DBKey as value for index keys
 		if( DEBUG  )
 			System.out.println("Relatrix.transactionalStore storing drm:"+drm);
-		RelatrixKV.transactionalStore(drm, dbKey);
+		RelatrixKV.store(drm, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
-		RelatrixKV.transactionalStore(mdr, dbKey);
+		RelatrixKV.store(mdr, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
-		RelatrixKV.transactionalStore(mrd, dbKey);
+		RelatrixKV.store(mrd, dbKey);
 
 		if( DEBUG  )
 			System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
-		RelatrixKV.transactionalStore(rdm, dbKey);
+		RelatrixKV.store(rdm, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
-		RelatrixKV.transactionalStore(rmd, dbKey);
+		RelatrixKV.store(rmd, dbKey);
 	
 		return (DomainMapRange) identity;
 	}
-/**
- * Commit the outstanding transaction data in each active transactional treeset.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionCommit() throws IOException, IllegalAccessException {
-	// first commit components of relationships
-	IndexResolver.getIndexInstanceTable().commit();
-	// now commit main relationship and index classes
-	for(int i = 0; i < indexClasses.length; i++) {
-		long startTime = System.currentTimeMillis();
-		if(indexClasses[i] != null) {
-			if( DEBUG || TRACE )
-				System.out.println("Committing "+indexClasses[i]);		
-			RelatrixKV.transactionCommit(indexClasses[i]);
-			if( DEBUG || TRACE )
-				System.out.println("Committed "+indexClasses[i] + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
-			indexClasses[i] = null;
-		}
-	}
-}
-/**
- * Roll back all outstanding transactions on the indicies
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionRollback() throws IOException, IllegalAccessException {
-	// first roll back components
-	IndexResolver.getIndexInstanceTable().rollback();
-	// Now roll back relationships
-	for(int i = 0; i < indexClasses.length; i++) {
-		if(indexClasses[i] != null) {
-			RelatrixKV.transactionRollback(indexClasses[i]);
-			indexClasses[i] = null;
-		}
-	}
-}
-/**
- * Take a check point of our current indicies. What this means is that we are
- * going to write a log record such that if we crash will will restore the logs from that point forward.
- * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
- * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
- * if we crash, to restore the data to its state up to that point", hence check, point...
- * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
- * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
- * even the old data before the checkpoint.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionCheckpoint() throws IOException, IllegalAccessException {
-	IndexResolver.getIndexInstanceTable().checkpoint();
-	for(int i = 0; i < indexClasses.length; i++) {
-		if(indexClasses[i] != null)
-			RelatrixKV.transactionCheckpoint(indexClasses[i]);
-	}
-}
+
+
 /**
 * Delete all relationships that this object participates in
 * @exception IOException low-level access or problems modifiying schema
@@ -845,52 +787,7 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 		return nkey;
 	}
 
-/**
- * Store our permutations of the key/value
- * This is a transactional store in the context of a previously initiated transaction.
- * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
- * to prevent a recovery on the next operation.
- * @param key of comparable
- * @param value
- * @throws IllegalAccessException
- * @throws IOException
- * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
- */
-public static synchronized void transactionalStore(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-	RelatrixKV.transactionalStore(key,  value);
-}
-/**
- * Commit the outstanding transaction data in each active transactional treeset.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionCommit(Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKV.transactionCommit(clazz);
-}
-/**
- * Roll back all outstanding transactions on the given class, overlap with K/V functionality
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void transactionRollback(Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKV.transactionRollback(clazz);
-}
-/**
- * Take a check point of our current indicies. What this means is that we are
- * going to write a log record such that if we crash will will restore the logs from that point forward.
- * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
- * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
- * if we crash, to restore the data to its state up to that point", hence check, point...
- * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
- * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
- * even the old data before the checkpoint.
- * @param clazz The class for which the map has been created.
- * @throws IOException
- * @throws IllegalAccessException 
- */
- public static synchronized void transactionCheckpoint(Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKV.transactionCheckpoint(clazz);
- }
+
  /**
   * return lowest valued key.
   * @param clazz the class to retrieve

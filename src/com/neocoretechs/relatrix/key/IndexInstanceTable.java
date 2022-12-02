@@ -52,7 +52,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				System.out.printf("%s.put Xid:%s index=%s instance=%s%n", index.getClass().getName(), transactionId, index, instance);
 			try {
 				if(transactionId == null)
-					RelatrixKV.transactionalStore(index, instance);
+					RelatrixKV.store(index, instance);
 				else
 					RelatrixKVTransaction.transactionalStore(transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
@@ -61,7 +61,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			}
 			try {
 				if(transactionId == null)
-					RelatrixKV.transactionalStore(instance, index);
+					RelatrixKV.store(instance, index);
 				else
 					RelatrixKVTransaction.transactionalStore(transactionId, instance, index);
 			} catch(DuplicateKeyException dke) {
@@ -103,9 +103,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					Class c = it.next();
 					if(DEBUG)
 						System.out.printf("IndexInstanceTable.commit committing class %s%n",c);
-					if(transactionId == null)
-						RelatrixKV.transactionCommit(c);
-					else
+					if(transactionId != null)
 						RelatrixKVTransaction.transactionCommit(transactionId, c);
 				}
 				classCommits.clear();
@@ -119,9 +117,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
-					if(transactionId == null)
-						RelatrixKV.transactionRollback(it.next());
-					else
+					if(transactionId != null)
 						RelatrixKVTransaction.transactionRollback(transactionId, it.next());
 				classCommits.clear();
 			}
@@ -134,9 +130,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
-					if(transactionId == null)
-						RelatrixKV.transactionCheckpoint(it.next());
-					else
+					if(transactionId != null)
 						RelatrixKVTransaction.transactionCheckpoint(transactionId, it.next());
 				}
 			}

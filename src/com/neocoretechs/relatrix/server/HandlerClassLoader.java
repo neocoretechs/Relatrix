@@ -393,8 +393,8 @@ public class HandlerClassLoader extends ClassLoader {
         	} else {
         		if(remoteRepository != null) {
 					try {
-						remoteRepository.transactionalStore(name, cnab);
-						remoteRepository.transactionCommit(String.class);
+						remoteRepository.store(name, cnab);
+						//remoteRepository.transactionCommit(String.class);
 	             	 	if(DEBUG || DEBUGSETREPOSITORY)
 	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in remote repository for class:"+name);
 					} catch (DuplicateKeyException dce) {
@@ -402,8 +402,8 @@ public class HandlerClassLoader extends ClassLoader {
 	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Removing existing bytecode in remote repository prior to replace for class "+name);
 						remoteRepository.remove(name);
 						try {
-							remoteRepository.transactionalStore(name, cnab);
-							remoteRepository.transactionCommit(String.class);
+							remoteRepository.store(name, cnab);
+							//remoteRepository.transactionCommit(String.class);
 		             	 	if(DEBUG || DEBUGSETREPOSITORY)
 		            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Replaced and committed bytecode in remote repository for class:"+name);
 						} catch (DuplicateKeyException e) {}
@@ -414,19 +414,19 @@ public class HandlerClassLoader extends ClassLoader {
         	}
         } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
                 e.printStackTrace();
-                if( useEmbedded ) {
-					if(DEBUG || DEBUGSETREPOSITORY)
-						System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in local repository for class:"+name);
+                //if( useEmbedded ) {
+					//if(DEBUG || DEBUGSETREPOSITORY)
+						//System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in local repository for class:"+name);
 					//localRepository.Rollback(); 
-                } else {
-                	try {
-	             	 	if(DEBUG || DEBUGSETREPOSITORY)
-	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in remote repository for class:"+name);
-                		remoteRepository.transactionRollback(String.class);
-                	} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-                }
+                //} else {
+                	//try {
+	             	 	//if(DEBUG || DEBUGSETREPOSITORY)
+	            	 		//System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Rolling back bytecode in remote repository for class:"+name);
+                		//remoteRepository.transactionRollback(String.class);
+                	//} catch (IOException e1) {
+						//e1.printStackTrace();
+					//}
+                //}
         }
  
    }

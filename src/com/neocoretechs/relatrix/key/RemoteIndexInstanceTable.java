@@ -54,17 +54,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
 			}
 			try {
-				if(rc != null)
-					rc.transactionalStore(index, instance);
-				else
+				if(rcx != null)
 					rcx.transactionalStore(transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
 					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
 			}
 			try {
-				if(rc != null)
-					rc.transactionalStore(instance, index);
-				else
+				if(rcx != null)
 					rcx.transactionalStore(transactionId, instance, index);
 			} catch(DuplicateKeyException dke) {
 					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));	
@@ -99,9 +95,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					Class c = it.next();
 					if(DEBUG)
 						System.out.printf("RemoteIndexInstanceTable.commit committing class %s%n",c);
-					if(rc != null)
-						rc.transactionCommit(c);
-					else
+					if(rcx != null)
 						rcx.transactionCommit(transactionId, c);
 				}
 				classCommits.clear();
@@ -113,9 +107,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
-					if(rc != null)
-						rc.transactionRollback(it.next());
-					else
+					if(rcx != null)
 						rcx.transactionRollback(transactionId, it.next());
 				classCommits.clear();
 			}
@@ -126,9 +118,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
-					if(rc != null)
-						rc.transactionCheckpoint(it.next());
-					else
+					if(rcx != null)
 						rcx.transactionCheckpoint(transactionId, it.next());
 				}
 			}
