@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-
+import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
@@ -41,6 +41,7 @@ public class BatteryRelatrixKVClient {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
+	private static int numLookupByValue = 100;
 	/**
 	* Main test fixture driver
 	*/
@@ -207,7 +208,7 @@ public class BatteryRelatrixKVClient {
 			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms." );
 		//i = max-1;
 		tims = System.currentTimeMillis();
-		for(int j = min; j < min+10; j++) {            
+		for(int j = min; j < min+numLookupByValue; j++) {
 			// careful here, have to do the conversion explicitly
 			boolean bits = rkvc.containsValue(String.class, (long)j);
 			if( !bits ) {
@@ -215,9 +216,9 @@ public class BatteryRelatrixKVClient {
 				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
 		}
-		System.out.println("KV BATTERY1AR8 FORWARD CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > max-10; j--) {
+		for(int j = max; j > max-numLookupByValue; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = rkvc.containsValue(String.class, (long)j);
 				if( !bits ) {
@@ -225,7 +226,7 @@ public class BatteryRelatrixKVClient {
 					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
 		}
-		System.out.println("KV BATTERY1AR8 REVERSE CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * 

@@ -50,6 +50,7 @@ public class BatteryRelatrixKVClientTransaction {
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
 	private static int dupes;
+	private static int numLookupByValue = 100;;
 	/**
 	* Main test fixture driver
 	*/
@@ -223,7 +224,7 @@ public class BatteryRelatrixKVClientTransaction {
 			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms." );
 		//i = max-1;
 		tims = System.currentTimeMillis();
-		for(int j = min; j < min+10; j++) {            
+		for(int j = min; j < min+numLookupByValue; j++) {
 			// careful here, have to do the conversion explicitly
 			boolean bits = rkvc.containsValue(xid, String.class, (long)j);
 			if( !bits ) {
@@ -231,9 +232,9 @@ public class BatteryRelatrixKVClientTransaction {
 				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
 		}
-		System.out.println("KV BATTERY1AR8 FORWARD CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > max-10; j--) {
+		for(int j = max; j > max-numLookupByValue ; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = rkvc.containsValue(xid, String.class, (long)j);
 				if( !bits ) {
@@ -241,7 +242,7 @@ public class BatteryRelatrixKVClientTransaction {
 					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
 		}
-		System.out.println("KV BATTERY1AR8 REVERSE CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * 
