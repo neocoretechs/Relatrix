@@ -24,7 +24,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2022
 */
 public final class RelatrixKVTransaction {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
@@ -212,10 +212,10 @@ public final class RelatrixKVTransaction {
 	public static void remove(String xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(c.getClass(), xid);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixKV.remove prepping to remove:"+c);
-			ttm.remove(c);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove exiting remove for key:"+c+" should have removed"+c);
+			System.out.println("RelatrixKVTransaction.remove prepping to remove:"+c);
+		ttm.remove(c);
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("RelatrixKVTransaction.remove exiting remove for key:"+c+" should have removed"+c);
 	}
 
 	/**

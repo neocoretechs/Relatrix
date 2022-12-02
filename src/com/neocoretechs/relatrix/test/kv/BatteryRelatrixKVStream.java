@@ -33,7 +33,7 @@ public class BatteryRelatrixKVStream {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
-	static int numLookupByValue = 100; // lookup by value quite slow
+	static int numLookupByValue = 10; // lookup by value quite slow
 	static int i;
 	static int j;
 	/**
@@ -198,7 +198,7 @@ public class BatteryRelatrixKVStream {
 			// careful here, have to do the conversion explicitly
 			boolean bits = RelatrixKV.containsValue(String.class, (long)j);
 			if( !bits ) {
-				System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
+				System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
 		}
@@ -208,7 +208,7 @@ public class BatteryRelatrixKVStream {
 				// careful here, have to do the conversion explicitly
 				boolean bits = RelatrixKV.containsValue(String.class, (long)j);
 				if( !bits ) {
-					System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
+					System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
 		}

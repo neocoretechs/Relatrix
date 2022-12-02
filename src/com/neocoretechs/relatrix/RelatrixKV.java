@@ -108,7 +108,7 @@ public static void remove(Comparable c) throws IOException, IllegalArgumentExcep
 		System.out.println("RelatrixKV.remove prepping to remove:"+c);
 		ttm.remove(c);
 	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove exiting remove for key:"+c+" should have removed"+c);
+		System.out.println("RelatrixKV.remove exiting remove for key:"+c+" should have removed"+c);
 }
 
 /**

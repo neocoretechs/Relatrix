@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Map;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
@@ -33,7 +34,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	static int i;
 	static int j;
 	private static int dupes;
-	private static int numLookupByValue = 100;
+	private static int numLookupByValue = 10;
 	/**
 	* Main test fixture driver
 	*/
@@ -78,9 +79,9 @@ public class BatteryRelatrixKVClientTransactionStream {
 		j = (int) rkvc.size(xid, String.class);
 		if(j > 0) {
 			System.out.println("Cleaning DB of "+j+" elements.");
-			battery1AR17(xid);		
+			batteryCleanDB(xid);		
 		}
-		for(int i = j; i < max; i++) {
+		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				rkvc.transactionalStore(xid, fkey, new Long(i));
@@ -204,7 +205,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			// careful here, have to do the conversion explicitly
 			boolean bits = rkvc.containsValue(xid, String.class, (long)j);
 			if( !bits ) {
-				System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
+				System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
 		}
@@ -214,7 +215,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 				// careful here, have to do the conversion explicitly
 				boolean bits = rkvc.containsValue(xid, String.class, (long)j);
 				if( !bits ) {
-					System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
+					System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
 		}
@@ -421,7 +422,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * remove entries
+	 * remove entries, this is done in a new transaction
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -494,6 +495,26 @@ public class BatteryRelatrixKVClientTransactionStream {
 		rkvc.transactionCommit(xid2, String.class);
 		rkvc.endTransaction(xid2);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+	}
+	
+	/**
+	 * remove entries, we do this in the current transaction
+	 * @param argv
+	 * @throws Exception
+	 */
+	private static void batteryCleanDB(String xid) throws Exception {
+		long tims = System.currentTimeMillis();
+		//int i = min;
+		//int j = max;
+		// with j at max, should get them all since we stored to max -1
+		//String tkey = String.format(uniqKeyFmt, j);
+		System.out.println("CleanDB");
+		// with i at max, should catch them all
+		for(int i = min; i < max; i++) {
+			String fkey = String.format(uniqKeyFmt, i);
+			RelatrixKVTransaction.remove(xid, fkey);
+		}
+		 System.out.println("CleanDB SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 }
