@@ -19,6 +19,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * This test the client side Java 8 streams obtained from the server
  * NOTES:
+ * start server RelatrixKVServer.
  * A database unique to this test module should be used.
  * program argument is local server, remote server, remote port
  * @author jg (C) 2020

@@ -36,8 +36,9 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIteratorTransaction;
  * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
  * as examples of Relatrix processing.
  * NOTES:
+ * start server RelatrixKVTransactionServer.
  * A database unique to this test module should be used.
- * program argument is node server is running on, which was started on port designated by command line arg 2, with database of your choice
+ * program argument is node of local client, node server is running on, port of server started with database of your choice.
  * @author jg (C) 2022
  *
  */
@@ -57,10 +58,10 @@ public class BatteryRelatrixKVClientTransaction {
 	*/
 	public static void main(String[] argv) throws Exception {
 		if(argv.length < 2) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransaction <DB NODE> <DB PORT>");
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransaction <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
-		rkvc = new RelatrixKVClientTransaction(argv[0], argv[0], Integer.parseInt(argv[1]));
+		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
 		String xid = rkvc.getTransactionId();
 		battery1(xid);	
 		battery11(xid);

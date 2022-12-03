@@ -26,10 +26,10 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
  * as examples of Relatrix processing.
  * NOTES:
+ * start server RelatrixKVServer.
  * A database unique to this test module should be used.
- * program argument is node server is running on, which was started on port 9500 with database of your choice.
- * Assumption is database is running on same node as client. Change arg 2 of RelatrixKVClient ctor for different remote node.
- * @author jg (C) 2020
+ * program argument is node of local client, node server is running on, port of server started with database of your choice.
+ * @author jg (C) 2020,2022
  *
  */
 public class BatteryRelatrixKVClient {
@@ -41,12 +41,12 @@ public class BatteryRelatrixKVClient {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
-	private static int numLookupByValue = 100;
+	private static int numLookupByValue = 10;
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		rkvc = new RelatrixKVClient(argv[0], argv[0], 9500);
+		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
 		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
@@ -84,7 +84,7 @@ public class BatteryRelatrixKVClient {
 			System.out.println("Cleaning DB of "+j+" elements.");
 			battery1AR17(argv);		
 		}
-		for(int i = j; i < max; i++) {
+		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				rkvc.store(fkey, new Long(i));

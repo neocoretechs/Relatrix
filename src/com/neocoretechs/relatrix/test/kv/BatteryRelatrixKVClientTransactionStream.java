@@ -17,6 +17,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * This test the client side Java 8 streams obtained from the server
  * NOTES:
+ * start server RelatrixKVTransactionServer.
  * A database unique to this test module should be used.
  * program argument is local server, remote server, remote port
  * @author jg (C) 2022
@@ -39,9 +40,8 @@ public class BatteryRelatrixKVClientTransactionStream {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		//rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
 		System.out.println("local="+argv[0]+" remote="+argv[0]+" port="+argv[1]);
-		rkvc = new RelatrixKVClientTransaction(argv[0], argv[0], Integer.parseInt(argv[1]));
+		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
 		String xid = rkvc.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  // build and store
