@@ -55,13 +55,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			}
 			try {
 				if(rcx != null)
-					rcx.transactionalStore(transactionId, index, instance);
+					rcx.store(transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
 					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
 			}
 			try {
 				if(rcx != null)
-					rcx.transactionalStore(transactionId, instance, index);
+					rcx.store(transactionId, instance, index);
 			} catch(DuplicateKeyException dke) {
 					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));	
 			}
@@ -96,7 +96,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					if(DEBUG)
 						System.out.printf("RemoteIndexInstanceTable.commit committing class %s%n",c);
 					if(rcx != null)
-						rcx.transactionCommit(transactionId, c);
+						rcx.commit(transactionId, c);
 				}
 				classCommits.clear();
 			}
@@ -108,7 +108,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
 					if(rcx != null)
-						rcx.transactionRollback(transactionId, it.next());
+						rcx.rollback(transactionId, it.next());
 				classCommits.clear();
 			}
 	}
@@ -119,7 +119,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
 					if(rcx != null)
-						rcx.transactionCheckpoint(transactionId, it.next());
+						rcx.checkpoint(transactionId, it.next());
 				}
 			}
 	}

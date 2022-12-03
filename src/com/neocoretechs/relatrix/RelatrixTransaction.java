@@ -120,7 +120,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 */
-	public static synchronized DomainMapRangeTransaction transactionalStore(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static synchronized DomainMapRangeTransaction store(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		MorphismTransaction dmr = new DomainMapRangeTransaction(d,m,r,true); // form it as template for duplicate key search
@@ -130,7 +130,7 @@ public final class RelatrixTransaction {
 		// cannot be inserted.
 		((DomainMapRangeTransaction)dmr).setUniqueKey(true);
 		if(RelatrixKVTransaction.contains(xid, dmr)) {
-			transactionRollback(xid);
+			rollback(xid);
 			throw new DuplicateKeyException("dmr:"+dmr);
 		}
 		((DomainMapRangeTransaction)dmr).setUniqueKey(false);
@@ -158,23 +158,23 @@ public final class RelatrixTransaction {
 		} // Use primary key DBKey as value for index keys
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing drm:"+drm);
-		RelatrixKVTransaction.transactionalStore(xid, drm, dbKey);
+		RelatrixKVTransaction.store(xid, drm, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing mdr:"+mdr);
-		RelatrixKVTransaction.transactionalStore(xid, mdr, dbKey);
+		RelatrixKVTransaction.store(xid, mdr, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing mrd:"+mrd);
-		RelatrixKVTransaction.transactionalStore(xid, mrd, dbKey);
+		RelatrixKVTransaction.store(xid, mrd, dbKey);
 
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rdm:"+rdm);
-		RelatrixKVTransaction.transactionalStore(xid, rdm, dbKey);
+		RelatrixKVTransaction.store(xid, rdm, dbKey);
 	
 		if( DEBUG  )
 			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rmd:"+rmd);
-		RelatrixKVTransaction.transactionalStore(xid, rmd, dbKey);
+		RelatrixKVTransaction.store(xid, rmd, dbKey);
 	
 		return (DomainMapRangeTransaction) identity;
 	}
@@ -183,7 +183,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static synchronized void transactionCommit(String xid) throws IOException, IllegalAccessException {
+	public static synchronized void commit(String xid) throws IOException, IllegalAccessException {
 		// first commit components of relationships
 		IndexResolver.getIndexInstanceTable(xid).commit();
 		// now commit main relationship and index classes
@@ -192,7 +192,7 @@ public final class RelatrixTransaction {
 			if(indexClasses[i] != null) {
 				if( DEBUG || TRACE )
 					System.out.println("Committing "+indexClasses[i]+" with transaction:"+xid);		
-				RelatrixKVTransaction.transactionCommit(xid, indexClasses[i]);
+				RelatrixKVTransaction.commit(xid, indexClasses[i]);
 				if( DEBUG || TRACE )
 					System.out.println("Committed "+indexClasses[i] + " with transaction " + xid + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
 				indexClasses[i] = null;
@@ -204,13 +204,13 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static synchronized void transactionRollback(String xid) throws IOException, IllegalAccessException {
+	public static synchronized void rollback(String xid) throws IOException, IllegalAccessException {
 		// first roll back components
 		IndexResolver.getIndexInstanceTable(xid).rollback();
 		// Now roll back relationships
 		for(int i = 0; i < indexClasses.length; i++) {
 			if(indexClasses[i] != null) {
-				RelatrixKVTransaction.transactionRollback(xid, indexClasses[i]);
+				RelatrixKVTransaction.rollback(xid, indexClasses[i]);
 				indexClasses[i] = null;
 			}
 		}
@@ -227,11 +227,11 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static synchronized void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
+	public static synchronized void checkpoint(String xid) throws IOException, IllegalAccessException {
 		IndexResolver.getIndexInstanceTable(xid).checkpoint();
 		for(int i = 0; i < indexClasses.length; i++) {
 			if(indexClasses[i] != null)
-				RelatrixKVTransaction.transactionCheckpoint(xid, indexClasses[i]);
+				RelatrixKVTransaction.checkpoint(xid, indexClasses[i]);
 		}
 	}
 	/**
@@ -867,24 +867,24 @@ public static synchronized UUID getNewKey() throws ClassNotFoundException, Illeg
  * @throws IOException
  * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
  */
-public static synchronized void transactionalStore(String xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-	RelatrixKVTransaction.transactionalStore(xid, key,  value);
+public static synchronized void store(String xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	RelatrixKVTransaction.store(xid, key,  value);
 }
 /**
  * Commit the outstanding transaction data in each active transactional treeset.
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static synchronized void transactionCommit(String xid, Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.transactionCommit(xid, clazz);
+public static synchronized void commit(String xid, Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKVTransaction.commit(xid, clazz);
 }
 /**
  * Roll back all outstanding transactions on the given class, overlap with K/V functionality
  * @throws IOException
  * @throws IllegalAccessException 
  */
-public static synchronized void transactionRollback(String xid, Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.transactionRollback(xid, clazz);
+public static synchronized void rollback(String xid, Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKVTransaction.rollback(xid, clazz);
 }
 /**
  * Take a check point of our current indicies. What this means is that we are
@@ -899,8 +899,8 @@ public static synchronized void transactionRollback(String xid, Class clazz) thr
  * @throws IOException
  * @throws IllegalAccessException 
  */
- public static synchronized void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.transactionCheckpoint(xid, clazz);
+ public static synchronized void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
+	RelatrixKVTransaction.checkpoint(xid, clazz);
  }
  /**
   * return lowest valued key.

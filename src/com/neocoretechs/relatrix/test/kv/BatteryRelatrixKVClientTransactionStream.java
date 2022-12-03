@@ -84,11 +84,11 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid, fkey, new Long(i));
+				rkvc.store(xid, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.transactionCommit(xid, String.class);
+		rkvc.commit(xid, String.class);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -106,12 +106,12 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid2, fkey, new Long(fkey));
+				rkvc.store(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
-			rkvc.transactionRollback(xid2);
+			rkvc.rollback(xid2);
 			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
 		rkvc.endTransaction(xid2);
@@ -444,7 +444,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		rkvc.transactionCommit(xid2, String.class);
+		rkvc.commit(xid2, String.class);
 		long siz = rkvc.size(xid2, String.class);
 		i = 0;
 		if(siz > 0) {
@@ -478,20 +478,20 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid2, fkey, new Long(i));
+				rkvc.store(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		System.out.println("Checkpointing..");
-		rkvc.transactionCheckpoint(xid2);
+		rkvc.checkpoint(xid2);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.transactionalStore(xid2, fkey, new Long(i));
+				rkvc.store(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.transactionCommit(xid2, String.class);
+		rkvc.commit(xid2, String.class);
 		rkvc.endTransaction(xid2);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}

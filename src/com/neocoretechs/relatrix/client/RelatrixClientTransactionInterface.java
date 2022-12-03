@@ -83,19 +83,19 @@ public interface RelatrixClientTransactionInterface {
 
 	Object lastValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
 	
-	Object transactionalStore(String xid, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException;
+	Object store(String xid, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException;
 
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
 	 */
-	void transactionCommit(String xid) throws IOException;
+	void commit(String xid) throws IOException;
 
 	/**
 	 * Roll back all outstanding transactions on the indicies
 	 * @throws IOException
 	 */
-	void transactionRollback(String xid) throws IOException;
+	void rollback(String xid) throws IOException;
 
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -109,7 +109,7 @@ public interface RelatrixClientTransactionInterface {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	void transactionCheckpoint(String xid) throws IOException, IllegalAccessException;
+	void checkpoint(String xid) throws IOException, IllegalAccessException;
 
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -123,21 +123,21 @@ public interface RelatrixClientTransactionInterface {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException;
+	void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException;
 
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
 	 */
-	void transactionCommit(String xid, Class clazz) throws IOException;
+	void commit(String xid, Class clazz) throws IOException;
 
 	/**
 	 * Roll back all outstanding transactions on the indicies
 	 * @throws IOException
 	 */
-	void transactionRollback(String xid, Class clazz) throws IOException;
+	void rollback(String xid, Class clazz) throws IOException;
 	
-	void transactionRollbackToCheckpoint(String xid) throws IOException, IllegalAccessException;
+	void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException;
 
 	/**
 	 * Get the last good DBKey from the DBKey table, which is the highest numbered last key delivered.

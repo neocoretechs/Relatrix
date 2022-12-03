@@ -94,7 +94,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static void transactionalStore(String xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static void store(String xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key.getClass(), xid);
 		if( DEBUG  )
 			System.out.println("RelatrixKVTransaction.transactionalStore Id:"+xid+" storing key:"+key+" value:"+value);
@@ -105,7 +105,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionCommit(String xid) throws IOException, IllegalAccessException {
+	public static void commit(String xid) throws IOException, IllegalAccessException {
 		long startTime = System.currentTimeMillis();
 		RockSackAdapter.commitRockSackTransaction(xid);
 		if( DEBUG || TRACE )
@@ -116,7 +116,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionCommit(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static void commit(String xid, Class clazz) throws IOException, IllegalAccessException {
 		long startTime = System.currentTimeMillis();
 		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Commit();
 		if( DEBUG || TRACE )
@@ -127,7 +127,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionRollback(String xid) throws IOException, IllegalAccessException {
+	public static void rollback(String xid) throws IOException, IllegalAccessException {
 		long startTime = System.currentTimeMillis();
 		RockSackAdapter.rollbackRockSackTransaction(xid);
 		if( DEBUG || TRACE )
@@ -138,7 +138,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionRollback(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static void rollback(String xid, Class clazz) throws IOException, IllegalAccessException {
 		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Rollback();
 	}
 	/**
@@ -146,7 +146,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
+	public static void checkpoint(String xid) throws IOException, IllegalAccessException {
 		RockSackAdapter.checkpointRockSackTransaction(xid);
 	}
 	/**
@@ -154,7 +154,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionRollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
+	public static void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
 		RockSackAdapter.rollbackToCheckpoint(xid);
 	}
 	/**
@@ -170,7 +170,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
 		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Checkpoint();
 	}
 

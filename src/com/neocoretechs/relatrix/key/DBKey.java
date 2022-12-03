@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	UUID instanceIndex = null;
 	
 	public DBKey() {}
@@ -73,11 +73,18 @@ public final class DBKey implements Comparable, Serializable {
 		synchronized(instanceIndex) {
 			if(instanceIndex != null && ((DBKey)o).instanceIndex != null)
 				return instanceIndex.compareTo(((DBKey)o).instanceIndex);
-			if(instanceIndex == null && ((DBKey)o).instanceIndex == null)
-				return 0;
-			if(instanceIndex != null && ((DBKey)o).instanceIndex == null)
-				return 1;
-			return -1;
+			if(instanceIndex == null && ((DBKey)o).instanceIndex == null) {
+				//if(DEBUG) {
+					throw new RuntimeException("DBKEY BOTH INSTANCES NULL IN COMPARETO");
+				//}
+				//return 0;
+			}
+			if(instanceIndex != null && ((DBKey)o).instanceIndex == null) {
+				throw new RuntimeException("DBKEY TARGET INSTANCE NULL IN COMPARETO");
+				//return 1;
+			}
+			//return -1;
+			throw new RuntimeException("DBKEY SOURCE INSTANCE NULL IN COMPARETO");
 		}
 	}
 

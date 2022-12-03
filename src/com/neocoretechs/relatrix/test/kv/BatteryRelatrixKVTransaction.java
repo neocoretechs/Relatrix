@@ -103,11 +103,11 @@ public class BatteryRelatrixKVTransaction {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.transactionalStore(xid, fkey, new Long(i));
+				RelatrixKVTransaction.store(xid, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixKVTransaction.transactionCommit(xid);
+		RelatrixKVTransaction.commit(xid);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -125,12 +125,12 @@ public class BatteryRelatrixKVTransaction {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.transactionalStore(xid2, fkey, new Long(fkey));
+				RelatrixKVTransaction.store(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
-			RelatrixKVTransaction.transactionRollback(xid2);
+			RelatrixKVTransaction.rollback(xid2);
 			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
 		RelatrixKVTransaction.endTransaction(xid2);
@@ -478,7 +478,7 @@ public class BatteryRelatrixKVTransaction {
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		RelatrixKVTransaction.transactionCommit(xid2, String.class);
+		RelatrixKVTransaction.commit(xid2, String.class);
 		long siz = RelatrixKVTransaction.size(xid2, String.class);
 		if(siz > 0) {
 			Iterator its = RelatrixKVTransaction.entrySet(xid2, String.class);
@@ -511,20 +511,20 @@ public class BatteryRelatrixKVTransaction {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.transactionalStore(xid2, fkey, new Long(i));
+				RelatrixKVTransaction.store(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		System.out.println("Checkpointing..");
-		RelatrixKVTransaction.transactionCheckpoint(xid2);
+		RelatrixKVTransaction.checkpoint(xid2);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.transactionalStore(xid2, fkey, new Long(i));
+				RelatrixKVTransaction.store(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixKVTransaction.transactionCommit(xid2, String.class);
+		RelatrixKVTransaction.commit(xid2, String.class);
 		RelatrixKVTransaction.endTransaction(xid2);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}

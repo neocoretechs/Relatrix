@@ -290,18 +290,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}
 	}
-	/**
-	 * Call the remote server method to store an object.
-	 * @param k The Comparable representing the key relationship
-	 * @param v The value
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @return 
-	 */
-	public Object store(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "store", xid, k, v);
-		return sendCommand(rs);
-	}
+	
 	/**
 	 * Store our k/v
 	 * This is a transactional store in the context of a previously initiated transaction.
@@ -315,8 +304,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	 * @throws DuplicateKeyException 
 	 */
 	@Override
-	public Object transactionalStore(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionalStore", xid, k, v);
+	public Object store(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "store", xid, k, v);
 		return sendCommand(rs);
 	}
 
@@ -333,8 +322,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	 * @throws IllegalAccessException 
 	 */
 	@Override
-	public void transactionCheckpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionCheckpoint", xid, clazz);
+	public void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "checkpoint", xid, clazz);
 		try {
 			sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -353,8 +342,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 
 	@Override
-	public void transactionCommit(String xid) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionCommit", xid);
+	public void commit(String xid) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "commit", xid);
 		try {
 			sendCommand(rs);
 		} catch (IllegalAccessException | DuplicateKeyException e) {
@@ -363,8 +352,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 	
 	@Override
-	public void transactionCommit(String xid, Class clazz) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionCommit", xid, clazz);
+	public void commit(String xid, Class clazz) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "commit", xid, clazz);
 		try {
 			sendCommand(rs);
 		} catch (IllegalAccessException | DuplicateKeyException e) {
@@ -372,8 +361,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	@Override
-	public void transactionRollback(String xid) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionRollback", xid);
+	public void rollback(String xid) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", xid);
 		try {
 			sendCommand(rs);
 		} catch (IllegalAccessException |DuplicateKeyException e) {
@@ -381,8 +370,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}	
 	}
 	@Override
-	public void transactionRollback(String xid, Class clazz) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionRollback", xid, clazz);
+	public void rollback(String xid, Class clazz) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", xid, clazz);
 		try {
 			sendCommand(rs);
 		} catch (IllegalAccessException |DuplicateKeyException e) {
@@ -390,8 +379,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}	
 	}
 	@Override
-	public void transactionCheckpoint(String xid) throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionCheckpoint", xid);
+	public void checkpoint(String xid) throws IOException, IllegalAccessException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "checkpoint", xid);
 		try {
 			sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -399,8 +388,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}	
 	}
 	@Override
-	public void transactionRollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "transactionRollbackToCheckpoint", xid);
+	public void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollbackToCheckpoint", xid);
 		try {
 			sendCommand(rs);
 		} catch (DuplicateKeyException e) {

@@ -52,7 +52,7 @@ public class TransactionBatteryRelatrix {
 		//Relatrix.setTablespaceDirectory(argv[0]);
 		battery0(session, xid);
 		//battery1(session, xid);
-		session.transactionCommit(xid);
+		session.commit(xid);
 		session.endTransaction(xid);
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);
@@ -72,7 +72,7 @@ public class TransactionBatteryRelatrix {
 		//for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				rct.transactionalStore(xid, fkey, "Has unit", new Long(i));
+				rct.store(xid, fkey, "Has unit", new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		//}
@@ -99,7 +99,7 @@ public class TransactionBatteryRelatrix {
 		}
 		for(Comparable c: ar) {
 			System.out.println("About to store functor:"+c);
-			rct.transactionalStore(xid, c,"has identity",c);
+			rct.store(xid, c,"has identity",c);
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
 	}

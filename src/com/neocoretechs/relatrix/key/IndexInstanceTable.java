@@ -54,7 +54,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				if(transactionId == null)
 					RelatrixKV.store(index, instance);
 				else
-					RelatrixKVTransaction.transactionalStore(transactionId, index, instance);
+					RelatrixKVTransaction.store(transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
 				dke.printStackTrace();
 				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
@@ -63,7 +63,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				if(transactionId == null)
 					RelatrixKV.store(instance, index);
 				else
-					RelatrixKVTransaction.transactionalStore(transactionId, instance, index);
+					RelatrixKVTransaction.store(transactionId, instance, index);
 			} catch(DuplicateKeyException dke) {
 				dke.printStackTrace();
 				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
@@ -104,7 +104,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					if(DEBUG)
 						System.out.printf("IndexInstanceTable.commit committing class %s%n",c);
 					if(transactionId != null)
-						RelatrixKVTransaction.transactionCommit(transactionId, c);
+						RelatrixKVTransaction.commit(transactionId, c);
 				}
 				classCommits.clear();
 			}
@@ -118,7 +118,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
 					if(transactionId != null)
-						RelatrixKVTransaction.transactionRollback(transactionId, it.next());
+						RelatrixKVTransaction.rollback(transactionId, it.next());
 				classCommits.clear();
 			}
 		}
@@ -131,7 +131,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
 					if(transactionId != null)
-						RelatrixKVTransaction.transactionCheckpoint(transactionId, it.next());
+						RelatrixKVTransaction.checkpoint(transactionId, it.next());
 				}
 			}
 		}	
