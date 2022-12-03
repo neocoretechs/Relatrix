@@ -1,1 +1,0 @@
-java -ea -Djava.library.path=C:/Users/groff/downloads/librocksdbjni-win64.dll -cp \Progra~1\apache\apache-tomcat\lib\BigSack.jar;\Progra~1\apache\apache-tomcat\lib\Relatrix.jar. com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStream "C:/users/jg/Relatrix/Test/TESTRelatrix/"
