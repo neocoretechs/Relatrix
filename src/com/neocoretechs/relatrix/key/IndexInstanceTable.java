@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	String transactionId = null;
 	private Object mutex = new Object();

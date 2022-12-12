@@ -23,7 +23,7 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
  *
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	private RelatrixClientInterface rc = null;
 	private RelatrixClientTransactionInterface rcx = null;

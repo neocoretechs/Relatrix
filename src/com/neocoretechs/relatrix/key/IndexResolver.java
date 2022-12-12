@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
  *
  */
 public class IndexResolver {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static IndexInstanceTableInterface instanceTable = null;
 	static boolean local = true;
 	static RelatrixClientInterface remoteIndexInstanceTable;
