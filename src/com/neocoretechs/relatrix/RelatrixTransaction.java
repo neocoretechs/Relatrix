@@ -49,7 +49,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class RelatrixTransaction {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = true;
 	private static boolean TRACE = true;
 	

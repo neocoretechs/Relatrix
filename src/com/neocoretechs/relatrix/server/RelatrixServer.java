@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.Relatrix;
  *
  */
 public final class RelatrixServer extends TCPServer {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
 	

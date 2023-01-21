@@ -77,7 +77,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote(this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -181,6 +180,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	
 	@Override
 	public Object sendCommand(RelatrixStatementInterface rs) throws DuplicateKeyException, IllegalAccessException, IOException {
+		IndexResolver.setRemote(this);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
