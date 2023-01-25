@@ -207,7 +207,8 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	public void close() {
 		shouldRun = false;
 		try {
-			sock.close();
+			if(sock != null)
+				sock.close();
 		} catch (IOException e) {}
 		sock = null;
 		synchronized(waitHalt) {
@@ -621,7 +622,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	
 	@Override
 	public String toString() {
-		return String.format("Relatrix server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
+		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
 	
 	/**

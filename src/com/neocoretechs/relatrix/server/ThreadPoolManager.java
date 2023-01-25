@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadFactory;
  *
  */
 public class ThreadPoolManager {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static String DEFAULT_THREAD_POOL = "SACKIO";
 	private int threadNum = 0;
     private static Map<String, ExecutorService> executor = new HashMap<String, ExecutorService>();// = Executors.newCachedThreadPool(dtf);
@@ -151,7 +151,8 @@ public class ThreadPoolManager {
      */
     public static void waitForCompletion(Future<?>[] futures)
     {
-    	System.out.println("waitForCompletion on:"+futures.length);
+    	if(DEBUG)
+    		System.out.println("waitForCompletion on:"+futures.length);
         int size = futures.length;
         try {
             for (int j = 0; j < size; j++) {
