@@ -291,8 +291,8 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	/**
 	* recursively delete all relationships that this object participates in
 	* @exception IOException low-level access or problems modifiying schema
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
+	* @throws ClassNotFoundException 
+	* @throws IllegalAccessException 
 	*/
 	@Override
 	public Object remove(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
@@ -389,26 +389,14 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	}
 	
 	/**
-	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	* matching the given set of operators and/or objects. Essentially this is the default permutation which
-	* retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
-	* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return an identity composed of those 3 or
-	* a set composed of identity elements matching the class of the template(s) in the argument(s)
-	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
-	* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
-	* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-	* the requirement to be 'categorical'. In general, all 3 element arrays return by the Cat->set representable operators are
-	* the mathematical identity, or constitute the unique key in database terms.
-	* @param darg Object for domain of relationship or a class template
-	* @param marg Object for the map of relationship or a class template
-	* @param rarg Object for the range of the relationship or a class template
+	* Provides a persistent collection iterator greater or equal to 'from' element based on RockSack tailset iterator.
+	* Returns the KEYS from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
 	* @exception IOException low-level access or problems modifying schema
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @exception IllegalAccessException 
+	* @return The RemoteTailMapIterator from which the data may be retrieved. Follows rocksack tailset Iterator interface, return Iterator of Object returning Comparable objects.
 	*/
 	public RemoteTailMapIterator findTailMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",key);
@@ -418,7 +406,17 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-
+	/**
+	* Provides a persistent collection stream greater or equal to 'from' element based on RockSack tailset stream.
+	* Returns the KEYS from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteStream from which the data may be retrieved. Follows rocksack tailset stream interface, return Stream of Comparable objects.
+	* 
+	* */
 	public RemoteStream findTailMapSteam(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapStream",key);
 		try {
@@ -462,26 +460,16 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
-
 	}
 	/**
-	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	* matching the given set of operators and/or objects.
-	* The parameters can be objects and/or operators. Semantically,
-	* this set-based retrieval makes no sense without at least one object to supply a value to
-	* work against, so in this method that check is performed.
-	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return a
-	* a set composed of elements matching the class of the template(s) in the argument(s)
-	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
-	* @param darg Object for domain of relationship or a class template
-	* @param marg Object for the map of relationship or a class template
-	* @param rarg Object for the range of the relationship or a class template
-	* @exception IOException low-level access or problems modifiying schema
+	* Provides a persistent collection iterator greater or equal to 'from' element based on RockSack tailsetKV iterator.
+	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @exception IllegalAccessException 
+	* @return The RemoteTailMapKVIterator from which the data may be retrieved. Follows rocksack tailsetKV Iterator interface, return Iterator of Object returning KeyValuePair objects.
 	*/
 	public RemoteTailMapKVIterator findTailMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKV",key);
@@ -492,7 +480,16 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		}
 
 	}
-
+	/**
+	* Provides a persistent collection iterator greater or equal to 'from' element based on RockSack tailsetKV stream.
+	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteStream from which the data may be retrieved. Follows rocksack tailsetKV stream interface, return stream of KeyValuePair objects.
+	*/
 	public RemoteStream findTailMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKVStream",key);
 		try {
@@ -503,19 +500,15 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 
 	}
 	/**
-	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
-	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
-	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed.
-	 * @param darg Domain of morphism
-	 * @param marg Map of morphism relationship
-	 * @param rarg Range or codomain or morphism relationship
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
+	* Iterator for items of persistent collection strictly less than 'to' element.
+	* Returns the KEYS from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteHeadMapIterator from which the data may be retrieved. Follows rocksack headSet Iterator interface, return Iterator of Object returning Comparable objects.
+	*/
 	public RemoteHeadMapIterator findHeadMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",key);
 		try {
@@ -525,7 +518,16 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		}
 
 	}
-	
+	/**
+	* Stream for items of persistent collection strictly less than 'to' element.
+	* Returns the KEYS from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteStream from which the data may be retrieved. Follows rocksack headSet stream interface, return stream of Comparable objects.
+	*/
 	public RemoteStream findHeadMapStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapStream",key);
 		try {
@@ -535,17 +537,15 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	/**
-	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
-	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
-	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed.
-	 * @param darg Domain of morphism
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
+	* Iterator for items of persistent collection strictly less than 'to' element.
+	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteHeadMapKVIterator from which the data may be retrieved. Follows rocksack headSetKV Iterator interface, return Iterator of Object returning KeyValuePair objects.
+	*/
 	public RemoteHeadMapKVIterator findHeadMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKV",key);
 		try {
@@ -554,7 +554,16 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-	
+	/**
+	* Stream for items of persistent collection strictly less than 'to' element.
+	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
+	* @param key Comparable for the starting key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @throws IllegalAccessException 
+	* @return The RemoteStream from which the data may be retrieved. Follows rocksack headSetKV stream interface, return stream of KeyValuePair objects.
+	*/
 	public RemoteStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKVStream",key);
 		try {
@@ -564,20 +573,15 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	/**
-	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
-	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
-	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
-	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
-	 * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed.
-	 * @param darg The domain of the relationship to retrieve
-	 * @param marg The map of the relationship to retrieve
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable>
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
+ 	* Provides a persistent collection iterator 'from' element inclusive, 'to' element exclusive
+ 	* @param key1 Comparable for the starting key of the relationship
+ 	* @param key2 Comparable for the element before the ending key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteSubMapIterator from which the data may be retrieved. Follows rocksack subSet Iterator interface, return Iterator of Object returning Comparable objects.
+	*/
 	public RemoteSubMapIterator findSubMap(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMap",key1, key2);
 		try {
@@ -586,7 +590,17 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-	
+	/**
+ 	* Provides a persistent collection stream 'from' element inclusive, 'to' element exclusive.
+ 	* Returns KEYS of key/value pairs.
+ 	* @param key1 Comparable for the starting key of the relationship
+ 	* @param key2 Comparable for the element before the ending key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteStream from which the data may be retrieved. Follows rocksack subSetStream interface, return Stream of Comparable objects.
+	*/
 	public RemoteStream findSubMapStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapStream",key1, key2);
 		try {
@@ -596,20 +610,16 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	/**
-	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
-	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
-	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
-	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
-	 * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed.
-	 * @param darg The domain of the relationship to retrieve
-	 * @param marg The map of the relationship to retrieve
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable>
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
+ 	* Provides a persistent collection Iterator 'from' element inclusive, 'to' element exclusive.
+ 	* Returns com.neocoretechs.rocksack.iterator.KeyValuePair of key/value pairs.
+ 	* @param key1 Comparable for the starting key of the relationship
+ 	* @param key2 Comparable for the element before the ending key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteSubMapKVIterator from which the data may be retrieved. Follows rocksack subSetKVIterator interface, return Iterator of KeyValuePair objects.
+	*/
 	public RemoteSubMapKVIterator findSubMapKV(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKV",key1, key2);
 		try {
@@ -618,7 +628,17 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-	
+	/**
+ 	* Provides a persistent collection stream 'from' element inclusive, 'to' element exclusive.
+ 	* Returns com.neocoretechs.rocksack.iterator.KeyValuePair of key/value pairs.
+ 	* @param key1 Comparable for the starting key of the relationship
+ 	* @param key2 Comparable for the element before the ending key of the relationship
+	* @exception IOException low-level access or problems modifying schema
+	* @exception IllegalArgumentException the operator is invalid
+	* @exception ClassNotFoundException if the Class of Object is invalid
+	* @exception IllegalAccessException 
+	* @return The RemoteStream from which the data may be retrieved. Follows rocksack subSetKVStream interface, return Stream of KeyValuePair objects.
+	*/
 	public RemoteStream findSubMapKVStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKVStream",key1, key2);
 		try {
