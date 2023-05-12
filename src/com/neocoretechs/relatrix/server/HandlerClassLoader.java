@@ -131,7 +131,7 @@ public class HandlerClassLoader extends ClassLoader {
     			path += "/";
     		defaultPath = path;
     	}
-    	RockSackAdapter.setTableSpaceDir(defaultPath+"BytecodeRepository/Bytecodes");
+    	RockSackAdapter.setTableSpaceDir(defaultPath);
     }
     /**
     * Find a class by the given name

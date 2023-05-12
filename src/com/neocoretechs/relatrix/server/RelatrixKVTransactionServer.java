@@ -79,7 +79,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(null); // use default path
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpaceDirectory()); // use default path
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
