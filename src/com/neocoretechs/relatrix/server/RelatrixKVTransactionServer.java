@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
 /**
@@ -85,6 +86,36 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 	}
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
+	 * @throws IOException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
+	 */
+	public RelatrixKVTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
+		RelatrixKVTransactionServer.relatrixSubmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetIterator", 0);
+		RelatrixKVTransactionServer.relatrixSubmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetKVIterator", 0);
+		RelatrixKVTransactionServer.relatrixHeadmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetIterator", 0);
+		RelatrixKVTransactionServer.relatrixHeadmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetKVIterator", 0);
+		RelatrixKVTransactionServer.relatrixTailmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetIterator", 0);
+		RelatrixKVTransactionServer.relatrixTailmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetKVIterator", 0);
+		RelatrixKVTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.EntrySetIterator", 0);
+		RelatrixKVTransactionServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.KeySetIterator", 0);
+	
+		WORKBOOTPORT = port;
+		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpaceDirectory()); // use default path
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public void run() {
 			while(!shouldStop) {
@@ -129,18 +160,20 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length > 0) {
-			WORKBOOTPORT = Integer.parseInt(args[1]);
+		if(args.length > 1) {
+		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+		        		(new File(args[0]).getName());
+		    System.out.println("Bringing up Relatrix K/V Transaction database:"+db);
+		    RelatrixKVTransaction.setTablespaceDirectory(db);
+			if( args.length > 2) {
+				new RelatrixKVTransactionServer(args[1], Integer.parseInt(args[2]));
+			} else {
+				new RelatrixKVTransactionServer(Integer.parseInt(args[1]));
+			}
 		} else {
-			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer /path/to/database/databasename <port>");
+			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer /path/to/database/databasename [address] <port>");
 		}
-        String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-        		(new File(args[0]).getName());
-        System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
-        RelatrixKVTransaction.setTablespaceDirectory(db);
-        // if we get a command packet with no statement, assume it to start a new instance
-		new RelatrixKVTransactionServer(WORKBOOTPORT);
-		System.out.println("Relatrix K/V Transaction Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
+ 
 	}
 	
 

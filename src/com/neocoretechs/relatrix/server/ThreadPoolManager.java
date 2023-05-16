@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadFactory;
  *
  */
 public class ThreadPoolManager {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static String DEFAULT_THREAD_POOL = "SACKIO";
 	private int threadNum = 0;
     private static Map<String, ExecutorService> executor = new HashMap<String, ExecutorService>();// = Executors.newCachedThreadPool(dtf);

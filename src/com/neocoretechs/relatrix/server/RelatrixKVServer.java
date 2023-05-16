@@ -8,14 +8,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
+
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -93,7 +86,31 @@ public final class RelatrixKVServer extends TCPServer {
 			}
 		}
 	}
-
+	
+	public RelatrixKVServer(String address, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		RelatrixKVServer.relatrixSubmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetIterator", 0);
+		RelatrixKVServer.relatrixSubmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.SubSetKVIterator", 0);
+		RelatrixKVServer.relatrixHeadmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetIterator", 0);
+		RelatrixKVServer.relatrixHeadmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.HeadSetKVIterator", 0);
+		RelatrixKVServer.relatrixTailmapMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetIterator", 0);
+		RelatrixKVServer.relatrixTailmapKVMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.TailSetKVIterator", 0);
+		RelatrixKVServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.EntrySetIterator", 0);
+		RelatrixKVServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.KeySetIterator", 0);
+	
+		WORKBOOTPORT = port;
+		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpaceDirectory());
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	public void run() {
 			while(!shouldStop) {
 				try {
@@ -153,18 +170,20 @@ public final class RelatrixKVServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length > 0) {
-			WORKBOOTPORT = Integer.parseInt(args[1]);
+		if(args.length > 1) {
+		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+		        		(new File(args[0]).getName());
+		    System.out.println("Bringing up Relatrix K/V database:"+db);
+		    RelatrixKV.setTablespaceDirectory(db);
+			if( args.length > 2) {
+				new RelatrixKVServer(args[1], Integer.parseInt(args[2]));
+			} else {
+				new RelatrixKVServer(Integer.parseInt(args[1]));
+			}
 		} else {
-			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVServer /path/to/database/databasename <port>");
+			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVServer /path/to/database/databasename [address] <port>");
 		}
-        String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-        		(new File(args[0]).getName());
-        System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
-        RelatrixKV.setTablespaceDirectory(db);
-        // if we get a command packet with no statement, assume it to start a new instance
-		new RelatrixKVServer(WORKBOOTPORT);
-		System.out.println("Relatrix K/V Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
+ 
 	}
 	
 

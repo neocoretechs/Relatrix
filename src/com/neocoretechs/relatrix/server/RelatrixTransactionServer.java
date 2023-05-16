@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 
 /**
@@ -61,7 +62,24 @@ public final class RelatrixTransactionServer extends TCPServer {
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
-
+	
+	/**
+	 * Construct the server bound to stated address
+	 * @param address
+	 * @param port
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public RelatrixTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
+		WORKBOOTPORT = port;
+		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+	}
+	
 	public void run() {
 			while(!shouldStop) {
 				try {
@@ -108,18 +126,20 @@ public final class RelatrixTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length > 0) {
-			WORKBOOTPORT = Integer.parseInt(args[1]);
+		if(args.length > 1) {
+		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+		        		(new File(args[0]).getName());
+		    System.out.println("Bringing up Relatrix Transaction database:"+db);
+		    RelatrixTransaction.setTablespaceDirectory(db);
+			if( args.length > 2) {
+				new RelatrixTransactionServer(args[1], Integer.parseInt(args[2]));
+			} else {
+				new RelatrixTransactionServer(Integer.parseInt(args[1]));
+			}
 		} else {
-			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixTransactionServer /path/to/database/databasename <port>");
+			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixTransactionServer /path/to/database/databasename [address] <port>");
 		}
-        String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-        		(new File(args[0]).getName());
-        System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
-        RelatrixTransaction.setTablespaceDirectory(db);
-        // if we get a command packet with no statement, assume it to start a new instance
-		new RelatrixTransactionServer(WORKBOOTPORT);
-		System.out.println("Relatrix Transaction Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
+ 
 	}
 
 }

@@ -15,7 +15,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-import com.neocoretechs.rocksack.iterator.Entry;
+//import com.neocoretechs.rocksack.SerializedComparator;
+//import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
@@ -184,10 +185,22 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
+			if(DEBUG)
+				System.out.println("Attempting to send "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 			outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
+			//if(DEBUG) {
+			//	byte[] b = SerializedComparator.serializeObject(iori);
+			//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+			//}
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
+			if(DEBUG)
+				System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 			oos.writeObject(iori);
+			if(DEBUG)
+				System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 			oos.flush();
+			if(DEBUG)
+				System.out.println(iori+" sent to "+workerSocket);
 		} catch (SocketException e) {
 				System.out.println("Exception setting up socket to remote KV host:"+IPAddress+" port "+SLAVEPORT+" "+e);
 		} catch (IOException e) {

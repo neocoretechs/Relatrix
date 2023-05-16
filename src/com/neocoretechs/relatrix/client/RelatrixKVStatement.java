@@ -27,7 +27,10 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     private transient CountDownLatch latch;
     private transient CyclicBarrier barrier;
     
-    public RelatrixKVStatement() {if(DEBUG)System.out.println("Default Constructor:"+this);}
+    public RelatrixKVStatement() {
+   		session = UUID.randomUUID().toString();
+    	if(DEBUG)System.out.println("Default Constructor:"+this);
+    }
     
     /**
     * Prep RelatrixStatement to send remote method call
@@ -35,6 +38,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     public RelatrixKVStatement(String tmeth, Object ... o1) {
              methodName = tmeth;
              paramArray = o1;
+        	 session = UUID.randomUUID().toString();
              if(DEBUG)
             	 System.out.println("Constructor:"+this);
     }
@@ -45,11 +49,6 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	 */
     @Override
 	public synchronized String getSession() {
-    	if( session == null ) {
-    		session = UUID.randomUUID().toString();
-    		if( DEBUG ) 
-    			System.out.printf("%s%n",this.toString());
-    	}
     	return session; 
     }
     

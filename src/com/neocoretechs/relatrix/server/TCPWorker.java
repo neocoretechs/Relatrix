@@ -114,8 +114,14 @@ public class TCPWorker implements Runnable {
 	public void run() {
 		try {
 			while(shouldRun) {
+				if(DEBUG)
+					System.out.println("TCPWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				InputStream ins = workerSocket.getInputStream();
+				if(DEBUG)
+					System.out.println("TCPWorker ObjectInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				ObjectInputStream ois = new ObjectInputStream(ins);
+				if(DEBUG)
+					System.out.println("TCPWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)ois.readObject();
 				if( DEBUG ) {
 					System.out.println("TCPWorker FROM REMOTE on port:"+workerSocket+" "+iori);

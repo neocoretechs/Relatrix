@@ -11,6 +11,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 	volatile boolean shouldStop = false;
 	public synchronized void startServer(int port) throws IOException {
 		if( server == null ) {
+			System.out.println("Server starting on "+InetAddress.getLocalHost().getHostName()+" port "+port);
 			server = new ServerSocket(port);
 			//runner = new Thread(this);
 			//runner.start();
@@ -20,10 +21,11 @@ public abstract class TCPServer implements Cloneable, Runnable {
 	}
 	public synchronized void startServer(int port, InetAddress binder) throws IOException {
 		if( server == null ) {
-            System.out.println("TCPServer attempt local bind "+binder+" port "+port);
+            System.out.println("Server starting on "+binder+" port "+port);
 			server = new ServerSocket(port, 1000, binder);
 			//runner = new Thread(this);
 			//runner.start();
+			ThreadPoolManager.init(new String[]{"TCPSERVER"}, false);
 			ThreadPoolManager.getInstance().spin(this,"TCPSERVER");
 		}
 	}

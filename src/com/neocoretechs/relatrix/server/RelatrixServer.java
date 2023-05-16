@@ -60,7 +60,23 @@ public final class RelatrixServer extends TCPServer {
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
-
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param address IP address
+	 * @param port Port upon which to start server
+	 * @throws IOException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
+	 */
+	public RelatrixServer(String address, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator", 0);
+		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
+		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
+		WORKBOOTPORT = port;
+		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+	}
+	
 	public void run() {
 			while(!shouldStop) {
 				try {
@@ -107,18 +123,20 @@ public final class RelatrixServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length > 0) {
-			WORKBOOTPORT = Integer.parseInt(args[1]);
+		if(args.length > 1) {
+		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+		        		(new File(args[0]).getName());
+		    System.out.println("Bringing up Relatrix database:"+db);
+		    Relatrix.setTablespaceDirectory(db);
+			if( args.length > 2) {
+				new RelatrixServer(args[1], Integer.parseInt(args[2]));
+			} else {
+				new RelatrixServer(Integer.parseInt(args[1]));
+			}
 		} else {
-			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer /path/to/database/databasename <port>");
+			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer /path/to/database/databasename [address] <port>");
 		}
-        String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-        		(new File(args[0]).getName());
-        System.out.println("Bringing up database:"+db+" on port "+WORKBOOTPORT);
-        Relatrix.setTablespaceDirectory(db);
-        // if we get a command packet with no statement, assume it to start a new instance
-		new RelatrixServer(WORKBOOTPORT);
-		System.out.println("Relatrix Server started on "+InetAddress.getLocalHost().getHostName()+" port "+WORKBOOTPORT);
+ 
 	}
 
 }

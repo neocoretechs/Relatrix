@@ -26,14 +26,17 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     private transient CountDownLatch latch;
     private transient CyclicBarrier barrier;
     
-    public RelatrixStatement() {}
+    public RelatrixStatement() {
+   		session = UUID.randomUUID().toString();
+    }
     
     /**
     * Prep RelatrixStatement to send remote method call
     */
     public RelatrixStatement(String tmeth, Object ... o1) {
-             methodName = tmeth;
-             paramArray = o1;
+            methodName = tmeth;
+            paramArray = o1;
+        	session = UUID.randomUUID().toString();
     }
   
 
@@ -42,11 +45,6 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	 */
     @Override
 	public synchronized String getSession() {
-    	if( session == null ) {
-    		session = UUID.randomUUID().toString();
-    		if( DEBUG ) 
-      			System.out.printf("%s Generated ID for session:%s%n",this.getClass().getName(),session);
-    	}
     	return session; 
     }
     
