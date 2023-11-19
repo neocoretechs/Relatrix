@@ -2,6 +2,8 @@ package com.neocoretechs.relatrix;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -475,55 +477,23 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
          * @throws ClassNotFoundException
          * @throws IOException
          */
-        public static void resolve(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+        public static void resolve(Comparable target, List<Comparable> res) {
+        	if(!(target instanceof Morphism)) {
+        		res.add(target);
+        		return;
+        	}
          	Comparable tdomain, tmap, trange;
-          	tdomain = ((Morphism)instance).getDomain();
+          	tdomain = (Comparable) ((Morphism)target).getDomain();
         	//((DBKey)map).getInstance();
-        	tmap = ((Morphism)instance).getMap();
+        	tmap = (Comparable) ((Morphism)target).getMap();
         	//((DBKey)range).getInstance();
-        	trange = ((Morphism)instance).getRange();
+        	trange = (Comparable) ((Morphism)target).getRange();
+        	resolve(tdomain, res);
+        	resolve(tmap, res);
+        	resolve(trange, res);
         	if(DEBUG)
         		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
-  
-        		// resolve domain-level relationships derived from original relationship in this morphism we just deserialized
-				while(tdomain instanceof Morphism) {
-					tdomain = (Comparable) ((Morphism)tdomain).getDomain();
-					if( ((Morphism)tdomain).getMap() instanceof Morphism) {
-						Comparable txmap = (Comparable) ((Morphism)tdomain).getMap();
-						if( ((Morphism)txmap).getRange() instanceof Morphism) {
-							Comparable txrange = (Comparable) ((Morphism)txmap).getRange();
-							while(txrange instanceof Morphism) {
-								txrange = (Comparable) ((Morphism)txmap).getRange();
-							}
-						}
-					}
-				}
-				// resolve map-level relationships descended from original relationship
-				while(tmap instanceof Morphism) {
-					tdomain = (Comparable) ((Morphism)tmap).getDomain();
-					if( ((Morphism)tmap).getMap() instanceof Morphism) {
-						Comparable txmap = (Comparable) ((Morphism)tmap).getMap();
-						if( ((Morphism)txmap).getRange() instanceof Morphism) {
-							Comparable txrange = (Comparable) ((Morphism)txmap).getRange();
-							while(txrange instanceof Morphism) {
-								txrange = (Comparable) ((Morphism)txmap).getRange();
-							}
-						}
-					}
-				}
-				// resolve range-level relationships descended from original relationship
-				while(trange instanceof Morphism) {
-					tdomain = (Comparable) ((Morphism)trange).getDomain();
-					if( ((Morphism)trange).getMap() instanceof Morphism) {
-						Comparable txmap = (Comparable) ((Morphism)trange).getMap();
-						if( ((Morphism)txmap).getRange() instanceof Morphism) {
-							Comparable txrange = (Comparable) (((Morphism)txmap).getRange());
-							while(txrange instanceof Morphism) {
-								txrange = (Comparable) ((Morphism)txmap).getRange();
-							}
-						}
-					}
-				}
+   
         }
 
 }

@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.UUID;
@@ -854,6 +855,12 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
  {
 	 return RelatrixKV.entrySetStream(clazz);
+ }
+ 
+ public static synchronized List<Comparable> resolve(Comparable morphism) {
+	 ArrayList<Comparable> res = new ArrayList<Comparable>();
+	 Morphism.resolve(morphism, res);
+	 return res;
  }
  /**
  * Load the stated package from the declared path into the bytecode repository
