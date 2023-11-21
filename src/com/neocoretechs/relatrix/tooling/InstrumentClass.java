@@ -1,5 +1,8 @@
 package com.neocoretechs.relatrix.tooling;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectStreamClass;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -53,6 +56,7 @@ public class InstrumentClass {
         return rewrite(javaFile, elements);
 	}
 
+
 	/**
 	 * Rewrite the java file supplied with a compareTo method implementing Comparable,
 	 * Serializable interface, and a serialversionUID if necessary.
@@ -76,6 +80,16 @@ public class InstrumentClass {
         }
     }
 
+	static String resolveClass(String classname) throws ClassNotFoundException {
+        Class<?> cl = Class.forName(classname);
+        ObjectStreamClass desc = ObjectStreamClass.lookup(cl);
+        if (desc != null) {
+            return "    private static final long serialVersionUID = " +
+                desc.getSerialVersionUID() + "L;";
+        } else {
+            return null;
+        }
+    }
    /* private void initializeObject(Object object) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Class<?> clazz = object.getClass();
         for (Method method : clazz.getDeclaredMethods()) {

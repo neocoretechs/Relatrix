@@ -5,7 +5,7 @@ import com.neocoretechs.relatrix.ComparisonOrderField;
 import com.neocoretechs.relatrix.ComparisonOrderMethod;
 
 @CompareAndSerialize
-public class TestTooling implements java.lang.Comparable{
+public class TestTooling /*implements java.io.Serializable,java.lang.Comparable*/{
 	@ComparisonOrderField(order=1)
 	int i;
 	@ComparisonOrderField(order=2)
@@ -15,6 +15,7 @@ public class TestTooling implements java.lang.Comparable{
 	public String getj() {
 		return j;
 	}
+	/*
     @Override
     public int compareTo(Object o) {
             int n;
@@ -30,4 +31,5 @@ public class TestTooling implements java.lang.Comparable{
                     return n;
             return 0;
     }
+    */
 }
