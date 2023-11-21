@@ -44,12 +44,15 @@ public class InstrumentClass {
         Map<Integer, NameAndType> elements = getFieldOrder(object);
         getMethodOrder(object, elements);
         List<String> compareToElements = generateCompareTo(object, elements);
+        String compareToStatement = generateCompareTo(compareToElements);
         if(DEBUG ) {
         	elements.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ":" + e.getValue()));
         	compareToElements.stream().forEach(e -> System.out.println(e));
+        	System.out.println(compareToStatement);
         }
         return rewrite(javaFile, elements);
 	}
+
 	/**
 	 * Rewrite the java file supplied with a compareTo method implementing Comparable,
 	 * Serializable interface, and a serialversionUID if necessary.
@@ -150,6 +153,21 @@ public class InstrumentClass {
    	 return method.getAnnotation(ComparisonOrderMethod.class).order();
     }
     
+	private String generateCompareTo(List<String> compareToElements) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\t@Override\r\n");
+		sb.append("\tpublic int compareTo(Object o) {\r\n");
+		if(hasAtLeastOneMethod) {
+			sb.append("\t\tint n;\r\n");
+		}
+		compareToElements.stream().forEach(e -> {
+			sb.append(e.toString());
+		});
+		sb.append("\t\treturn 0;\r\n");
+		sb.append("\t}\r\n");
+		return sb.toString();
+	}
+	
     private List<String> generateCompareTo(Object object, Map<Integer, NameAndType> elements) {
     	ArrayList<String> compareToComponents = new ArrayList<String>();
     	Stream<Map.Entry<Integer, NameAndType>> sorted =
@@ -160,7 +178,7 @@ public class InstrumentClass {
    			// primitive or object field or method?
     		if(key.isField) {
     			if(key.type.isPrimitive()) {
-    				s.append("\tif(");
+    				s.append("\t\tif(");
     				s.append(key.name);
     				s.append(" < ");
     				s.append("((");
@@ -168,9 +186,9 @@ public class InstrumentClass {
     				s.append(")o).");
     				s.append(key.name);
     				s.append(")");
-    				s.append("\r\n\treturn -1;\r\n");
+    				s.append("\r\n\t\t\treturn -1;\r\n");
     				//
-    				s.append("\tif(");
+    				s.append("\t\tif(");
     				s.append(key.name);
     				s.append(" > ");
     				s.append("((");
@@ -178,25 +196,25 @@ public class InstrumentClass {
     				s.append(")o).");
     				s.append(key.name);
     				s.append(")");
-    				s.append("\r\n\treturn 1;\r\n");
+    				s.append("\r\n\t\t\treturn 1;\r\n");
     			} else { // object field
     	 			// use of hasAtLeastOneMethod to generate n temp var
     	   			if(!Comparable.class.isAssignableFrom(key.type))
-        				throw new RuntimeException("Object Field "+key.name+" does not implement Comparable interface");
-    	   			s.append("\tn = ");
+        				throw new RuntimeException("Object Field "+key.name+" must implement Comparable interface");
+    	   			s.append("\t\tn = ");
     	   			s.append(key.name);
-    	   			s.append(".compareTo((");
+    	   			s.append(".compareTo(((");
     				s.append(object.getClass().getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     				s.append(");\r\n");
-      				s.append("\tif(n != 0)");
-    				s.append("\r\n\treturn n;\r\n");
+      				s.append("\t\tif(n != 0)");
+    				s.append("\r\n\t\t\treturn n;\r\n");
     				//
     			}
     		} else { // accessor method
     			if(key.type.isPrimitive()) { //accessor method type is returnType
-    				s.append("\tif(");
+    				s.append("\t\tif(");
     				s.append(key.name);
     				s.append("() < ");
     				s.append("((");
@@ -204,9 +222,9 @@ public class InstrumentClass {
     				s.append(")o).");
     				s.append(key.name);
     				s.append("())");
-    				s.append("\r\n\treturn -1;\r\n");
+    				s.append("\r\n\t\t\treturn -1;\r\n");
     				//
-    				s.append("\tif(");
+    				s.append("\t\tif(");
     				s.append(key.name);
     				s.append("() > ");
     				s.append("((");
@@ -214,21 +232,21 @@ public class InstrumentClass {
     				s.append(")o).");
     				s.append(key.name);
     				s.append("())");
-    				s.append("\r\n\treturn 1;\r\n");
+    				s.append("\r\n\t\t\treturn 1;\r\n");
     			} else { // accessor returns object
       	 			// use of hasAtLeastOneMethod to generate n temp var
     	   			if(!Comparable.class.isAssignableFrom(key.type))
-        				throw new RuntimeException("Accessor Object return Field "+key.name+" does not implement Comparable interface");
-    	   			s.append("\tn = ");
+        				throw new RuntimeException("Accessor Object return Field "+key.name+" must implement Comparable interface");
+    	   			s.append("\t\tn = ");
     	   			s.append(key.name);
     	   			s.append("()");
-    	   			s.append(".compareTo((");
+    	   			s.append(".compareTo(((");
     				s.append(object.getClass().getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
-    	   			s.append("())\r\n");
-      				s.append("\tif(n != 0)");
-    				s.append("\r\n\treturn n;\r\n");
+    	   			s.append("());\r\n");
+      				s.append("\t\tif(n != 0)");
+    				s.append("\r\n\t\t\treturn n;\r\n");
     			}
     		}
     		compareToComponents.add(s.toString());
