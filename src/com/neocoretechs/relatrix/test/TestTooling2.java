@@ -5,7 +5,7 @@ import com.neocoretechs.relatrix.ComparisonOrderField;
 import com.neocoretechs.relatrix.ComparisonOrderMethod;
 
 @CompareAndSerialize
-public class TestTooling2 {
+public class TestTooling2{
 	@ComparisonOrderField
 	private int i;
 	@ComparisonOrderField

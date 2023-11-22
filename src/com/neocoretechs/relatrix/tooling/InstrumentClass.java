@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.ComparisonOrderMethod;
  *
  */
 public class InstrumentClass {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private boolean hasAtLeastOneMethod = false; // if we have at least one accessor generate an int in compareTo to hold results
 	/**
 	 * Does it implement Serializable and Comparable already? Does it extend a Comparable such
@@ -48,28 +48,14 @@ public class InstrumentClass {
         getMethodOrder(object, elements);
         List<String> compareToElements = generateCompareTo(object, elements);
         String compareToStatement = generateCompareTo(compareToElements);
-        if(DEBUG ) {
+        if(DEBUG) {
         	elements.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ":" + e.getValue()));
         	compareToElements.stream().forEach(e -> System.out.println(e));
         	System.out.println(compareToStatement);
         }
-        return rewrite(javaFile, elements);
+        return compareToStatement;
 	}
 
-
-	/**
-	 * Rewrite the java file supplied with a compareTo method implementing Comparable,
-	 * Serializable interface, and a serialversionUID if necessary.
-	 * @param javaFile
-	 * @param elements
-	 * @return
-	 */
-    private String rewrite(String javaFile, Map<Integer, NameAndType> elements) {
-		// TODO Auto-generated method stub
-    	
-		return null;
-	}
-    
 	private void checkIfSerializable(Object object) throws IOException {
         if (Objects.isNull(object)) {
             throw new IOException("Can't serialize a null object");
@@ -80,11 +66,11 @@ public class InstrumentClass {
         }
     }
 
-	static String resolveClass(String classname) throws ClassNotFoundException {
-        Class<?> cl = Class.forName(classname);
-        ObjectStreamClass desc = ObjectStreamClass.lookup(cl);
+	static String resolveClass(Class classname) throws ClassNotFoundException {
+        //Class<?> cl = Class.forName(classname);
+        ObjectStreamClass desc = ObjectStreamClass.lookup(classname);
         if (desc != null) {
-            return "    private static final long serialVersionUID = " +
+            return "\tprivate static final long serialVersionUID = " +
                 desc.getSerialVersionUID() + "L;";
         } else {
             return null;
