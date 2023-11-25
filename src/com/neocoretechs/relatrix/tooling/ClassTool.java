@@ -40,13 +40,14 @@ public class ClassTool {
 			System.out.println("Backup file already exists, will not overwrite");
 			return;
 		}
-		String fqn = packageName+"."+className;
 		if(DEBUG)
-			System.out.println("Processing class:"+fqn);
-		Class targetClass = Class.forName(fqn);
+			System.out.println("Processing class:"+packageName+"."+className);
+		Class targetClass = Class.forName(packageName+"."+className);
 		Object classToTool = targetClass.newInstance();
 		// see if we need to create Serializable interface tooling
 		if(implLine == -1) {
+			if(DEBUG)
+				System.out.println("NO detected 'implements'. class line "+classLine+" end class decl pos "+classLineEnd);
 			// no implements
 			String newImpl = fileLines.get(classLine).substring(0,classLineEnd)+
 					" implements java.io.Serializable,java.lang.Comparable"+
@@ -59,14 +60,20 @@ public class ClassTool {
 			// return with compateTo statement constructed
 			String compareToStatement = instrument.process(args[0], classToTool);
 			findLastLine();
+			if(DEBUG)
+				System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
 			fileLines.add(lineLast, compareToStatement);
 		} else {
+			if(DEBUG)
+				System.out.println("Detected 'implements' at line "+implLine+" position "+implPos+" class line "+classLine+" end class decl pos "+classLineEnd);
 			if(implPos == -1) {
 				System.out.println("System failed to locate implements decl though one was indicated to exist..");
 				System.exit(1);
 			}
 			if(!Serializable.class.isAssignableFrom(targetClass) && !Comparable.class.isAssignableFrom(targetClass)) {
 				// implements, but not our interfaces
+				if(DEBUG)
+					System.out.println("Detected 'implements', but not with required interfaces.");
 				String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
 						"java.io.Serializable,java.lang.Comparable,"+
 						fileLines.get(implLine).substring(implPos+12);
@@ -80,11 +87,15 @@ public class ClassTool {
 				// return with compateTo statement constructed
 				String compareToStatement = instrument.process(args[0], classToTool);
 				findLastLine();
+				if(DEBUG)
+					System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
 				fileLines.add(lineLast, compareToStatement);
 			} else {
 				// just Serializable?
 				if(!Serializable.class.isAssignableFrom(targetClass)) {
 					// implements, but not Serializable
+					if(DEBUG)
+						System.out.println("Detected 'implements', but not with Serializable interface.");
 					String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
 							"java.io.Serializable,"+
 							fileLines.get(implLine).substring(implPos+12);
@@ -94,10 +105,14 @@ public class ClassTool {
 					// is curly on class line or line following?
 					// insert serialVersionUID
 					findLastLine();
+					if(DEBUG)
+						System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
 					fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
 				} else {
 					// just comparable?
 					if(!Comparable.class.isAssignableFrom(targetClass)) {
+						if(DEBUG)
+							System.out.println("Detected 'implements', but not with Comparable interface.");
 						// implements, but not our Comparable
 						String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
 								"java.lang.Comparable,"+
@@ -110,6 +125,8 @@ public class ClassTool {
 						// return with compateTo statement constructed
 						String compareToStatement = instrument.process(args[0], classToTool);
 						findLastLine();
+						if(DEBUG)
+							System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
 						fileLines.add(lineLast, compareToStatement);
 					} else {
 						System.out.println("Seems as if all tooling is already complete...");
@@ -137,7 +154,8 @@ public class ClassTool {
 	 classPos+" = position of class");
 	}
 	/**
-	 * Set all static vars that indicate positions of parsed entities of interest
+	 * Set all static vars that indicate positions of parsed entities of interest.
+	 * We will parse until the first occurrence of "{" indicating end of class decl
 	 * @param javaFile
 	 * @throws IOException
 	 * @throws IllegalArgumentException
