@@ -61,11 +61,15 @@ public class ClassTool {
 			findLastLine();
 			fileLines.add(lineLast, compareToStatement);
 		} else {
+			if(implPos == -1) {
+				System.out.println("System failed to locate implements decl though one was indicated to exist..");
+				System.exit(1);
+			}
 			if(!Serializable.class.isAssignableFrom(targetClass) && !Comparable.class.isAssignableFrom(targetClass)) {
 				// implements, but not our interfaces
-				String newImpl = fileLines.get(implLine).substring(0,implPos+11)+
+				String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
 						"java.io.Serializable,java.lang.Comparable,"+
-						fileLines.get(implLine).substring(implPos+11);
+						fileLines.get(implLine).substring(implPos+12);
 				if(DEBUG)
 					System.out.println("New impl:"+newImpl);
 				fileLines.set(implLine, newImpl);
@@ -81,22 +85,23 @@ public class ClassTool {
 				// just Serializable?
 				if(!Serializable.class.isAssignableFrom(targetClass)) {
 					// implements, but not Serializable
-					String newImpl = fileLines.get(implLine).substring(0,implPos+11)+
+					String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
 							"java.io.Serializable,"+
-							fileLines.get(implLine).substring(implPos+11);
+							fileLines.get(implLine).substring(implPos+12);
 					if(DEBUG)
 						System.out.println("New impl:"+newImpl);
 					fileLines.set(implLine, newImpl);
 					// is curly on class line or line following?
 					// insert serialVersionUID
+					findLastLine();
 					fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
 				} else {
 					// just comparable?
 					if(!Comparable.class.isAssignableFrom(targetClass)) {
 						// implements, but not our Comparable
-						String newImpl = fileLines.get(implLine).substring(0,implPos+11)+
+						String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
 								"java.lang.Comparable,"+
-								fileLines.get(implLine).substring(implPos+11);
+								fileLines.get(implLine).substring(implPos+12);
 						if(DEBUG)
 							System.out.println("New impl:"+newImpl);
 						fileLines.set(implLine, newImpl);
@@ -144,15 +149,18 @@ public class ClassTool {
 		for(String s: fileLines) {
 			if(classPos == -1) {
 				classPos = s.indexOf("class ");
-				classLine = cnt;
+				if(classPos != -1)
+					classLine = cnt;
 			}
 			if(packPos == -1) {
 				packPos = s.indexOf("package ");
-				packLine = cnt;
+				if(packPos != -1)
+					packLine = cnt;
 			}
 			if(implLine == -1) {
-				implPos = s.indexOf("implements ");	
-				implLine = cnt;
+				implPos = s.indexOf(" implements ");
+				if(implPos != -1)
+					implLine = cnt;
 			}
 			classDeclPosEnd = s.indexOf("{");
 			if(classDeclPosEnd != -1) {
@@ -178,7 +186,10 @@ public class ClassTool {
 		}
 		className = fileLines.get(classLine).substring(classPos+6,classLineEnd);
 	}
-	
+	/**
+	 * Find the last curl brace of class declaration to place our compareTo method
+	 * If we cant find it, exit, if found, set lineLast variable at that line -1
+	 */
 	private static void findLastLine() {
 		// find last curly in file for location of compareTo if necessary
 		lineLast = fileLines.size()-1;
@@ -186,6 +197,11 @@ public class ClassTool {
 			if(fileLines.get(lineLast).contains("}"))
 				break;
 			--lineLast;
+		}
+		--lineLast;
+		if(lineLast <= 0) {
+			System.out.println("System could not locate last curly brace of class declaration, will exit..");
+			System.exit(1);
 		}
 	}
 	
