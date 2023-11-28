@@ -171,6 +171,7 @@ public class InstrumentClass {
     private List<String> generateCompareTo(Object object, Map<Integer, NameAndType> elements, boolean callSuper) {
     	ArrayList<String> compareToComponents = new ArrayList<String>();
     	if(callSuper) {
+    		hasAtLeastOneMethod = true;
     		StringBuilder s = new StringBuilder();
 	   		s.append("\t\tn = super.compareTo(o);\r\n");
   			s.append("\t\tif(n != 0)");
