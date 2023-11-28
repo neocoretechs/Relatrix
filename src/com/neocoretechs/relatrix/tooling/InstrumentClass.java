@@ -41,12 +41,12 @@ public class InstrumentClass {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public String process(String javaFile, Object object, boolean callSuperCompareTo) throws IOException, IllegalArgumentException, IllegalAccessException {
-        checkIfSerializable(object);
+	public String process(String javaFile, Class clazz, boolean callSuperCompareTo) throws IOException, IllegalArgumentException, IllegalAccessException {
+        checkIfSerializable(clazz);
         //initializeObject(object);
-        Map<Integer, NameAndType> elements = getFieldOrder(object);
-        getMethodOrder(object, elements);
-        List<String> compareToElements = generateCompareTo(object, elements, callSuperCompareTo);
+        Map<Integer, NameAndType> elements = getFieldOrder(clazz);
+        getMethodOrder(clazz, elements);
+        List<String> compareToElements = generateCompareTo(clazz, elements, callSuperCompareTo);
         String compareToStatement = generateCompareTo(compareToElements);
         if(DEBUG) {
         	elements.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ":" + e.getValue()));
@@ -56,11 +56,11 @@ public class InstrumentClass {
         return compareToStatement;
 	}
 
-	private void checkIfSerializable(Object object) throws IOException {
-        if (Objects.isNull(object)) {
-            throw new IOException("Can't serialize a null object");
-        }
-        Class<?> clazz = object.getClass();
+	private void checkIfSerializable(Class clazz) throws IOException {
+        //if (Objects.isNull(object)) {
+         //   throw new IOException("Can't serialize a null object");
+        //}
+        //Class<?> clazz = object.getClass();
         if (!clazz.isAnnotationPresent(CompareAndSerialize.class)) {
             throw new IOException("The class " + clazz.getSimpleName() + " is not annotated with CompareAndSerialize");
         }
@@ -95,9 +95,9 @@ public class InstrumentClass {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-    private Map<Integer, NameAndType> getFieldOrder(Object object) throws IllegalArgumentException, IllegalAccessException {
+    private Map<Integer, NameAndType> getFieldOrder(Class clazz) throws IllegalArgumentException, IllegalAccessException {
     	int defaultOrder = 0;
-        Class<?> clazz = object.getClass();
+        //Class<?> clazz = object.getClass();
         Map<Integer, NameAndType> elementsMap = new HashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
@@ -125,9 +125,9 @@ public class InstrumentClass {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-    private void getMethodOrder(Object object, Map<Integer, NameAndType> elementsMap) throws IllegalArgumentException, IllegalAccessException {
+    private void getMethodOrder(Class clazz, Map<Integer, NameAndType> elementsMap) throws IllegalArgumentException, IllegalAccessException {
     	int defaultOrder = elementsMap.size();
-        Class<?> clazz = object.getClass();
+        //Class<?> clazz = object.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(ComparisonOrderMethod.class)) {
             	hasAtLeastOneMethod = true;
@@ -168,7 +168,7 @@ public class InstrumentClass {
 		return sb.toString();
 	}
 	
-    private List<String> generateCompareTo(Object object, Map<Integer, NameAndType> elements, boolean callSuper) {
+    private List<String> generateCompareTo(Class clazz, Map<Integer, NameAndType> elements, boolean callSuper) {
     	ArrayList<String> compareToComponents = new ArrayList<String>();
     	if(callSuper) {
     		hasAtLeastOneMethod = true;
@@ -190,7 +190,7 @@ public class InstrumentClass {
     				s.append(key.name);
     				s.append(" < ");
     				s.append("((");
-    				s.append(object.getClass().getSimpleName());
+    				s.append(clazz.getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     				s.append(")");
@@ -200,7 +200,7 @@ public class InstrumentClass {
     				s.append(key.name);
     				s.append(" > ");
     				s.append("((");
-    				s.append(object.getClass().getSimpleName());
+    				s.append(clazz.getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     				s.append(")");
@@ -212,7 +212,7 @@ public class InstrumentClass {
     	   			s.append("\t\tn = ");
     	   			s.append(key.name);
     	   			s.append(".compareTo(((");
-    				s.append(object.getClass().getSimpleName());
+    				s.append(clazz.getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     				s.append(");\r\n");
@@ -226,7 +226,7 @@ public class InstrumentClass {
     				s.append(key.name);
     				s.append("() < ");
     				s.append("((");
-    				s.append(object.getClass().getSimpleName());
+    				s.append(clazz.getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     				s.append("())");
@@ -236,7 +236,7 @@ public class InstrumentClass {
     				s.append(key.name);
     				s.append("() > ");
     				s.append("((");
-    				s.append(object.getClass().getSimpleName());
+    				s.append(clazz.getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     				s.append("())");
@@ -249,7 +249,7 @@ public class InstrumentClass {
     	   			s.append(key.name);
     	   			s.append("()");
     	   			s.append(".compareTo(((");
-    				s.append(object.getClass().getSimpleName());
+    				s.append(clazz.getSimpleName());
     				s.append(")o).");
     				s.append(key.name);
     	   			s.append("());\r\n");

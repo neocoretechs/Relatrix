@@ -31,27 +31,24 @@ import javax.tools.ToolProvider;
  */
 public class ClassTool {
 	private static boolean DEBUG = true;
-	private static String packageName;
-	private static String className;
-	private static int packLine = -1; // package line
-	private static int classLine = -1; // class decl line
-	private static int implPos = -1; // implements position if any
-	private static int implLine = -1; // implements line if any
-	private static int classLineEnd = -1; // location of space after class space name decl
-	private static int classDeclPosEnd = -1; // location of curly at end of class decl
-	private static int classDeclLineEnd = -1; // line containing curly at end of class decl
-	private static int lineLast = -1; // last curly
-	private static int packPos = -1; // position of package
-	private static int classPos = -1; // position of class
-	private static int serializeLine = -1;
-	private static int serializePos = -1;
-	private static int comparableLine = -1;
-	private static int comparablePos = -1;
+	private static int classLine = -1; // location of space after class space name decl
+	private static int classPosEnd = -1; // location of curly at end of class decl
+
 	private static int serialVerLine = -1;
+	private static int serialVerPos = -1;
+	private static int lineLast = -1; // location of last { line
 	static int cnt = 0;
 
 	private static List<String> fileLines;
-	
+	/**
+	 * Must declare extends BEFORE implements.
+	 * @param args
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalArgumentException
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, IOException {
 		fileLines = readLines(args[0]);
 		postprocess();
@@ -64,106 +61,70 @@ public class ClassTool {
 			System.out.println("Backup file already exists, will not overwrite");
 			return;
 		}
-		if(DEBUG)
-			System.out.println("Processing class:"+packageName+"."+className);
 		//Class targetClass = Class.forName(packageName+"."+className);
 		//Object classToTool = targetClass.newInstance();
-		Object classToTool = null;
-		if(packageName == "")
-			classToTool = compile(args[0],className);
-		else
-			classToTool = compile(args[0],packageName+"."+className);
-		Class targetClass = classToTool.getClass();
+		Class targetClass =  compile(args[0]);
+		Class<?>[] interfaces = targetClass.getInterfaces();
+		boolean hasSerializable = false;
+		boolean hasComparable = false;
+		for(Class c: interfaces) {
+			if(c.equals(java.lang.Comparable.class))
+				hasComparable = true;
+			else
+				if(c.equals(java.io.Serializable.class))
+					hasSerializable = true;
+		}
+		Class<?> superclass = targetClass.getSuperclass();
 		if(DEBUG)
-			System.out.println("Compiled instance:"+classToTool+" of class:"+targetClass);
+			System.out.println("Compiled instance:"/*"+classToTool*/+" of class:"+targetClass+" superclass:"+superclass);
 		// see if we need to create Serializable interface tooling
-		if(implLine == -1) {
+		String newImpl;
+		if(interfaces.length == 0) {
 			if(DEBUG)
-				System.out.println("NO detected 'implements'. class line "+classLine+" end class decl pos "+classLineEnd);
+				System.out.println("NO detected 'implements'. class line "+classLine);
 			// no implements
-			String newImpl = fileLines.get(classLine).substring(0,classLineEnd)+
+			// no extends? put implements directly above class line end decl
+			newImpl = fileLines.get(classLine).substring(0,classPosEnd)+
 					" implements java.io.Serializable,java.lang.Comparable"+
-					fileLines.get(classLine).substring(classLineEnd);
-			fileLines.set(classLine, newImpl);
-			// is curly on class line or line following?
-			// insert serialVersionUID
-			//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
-			InstrumentClass instrument = new InstrumentClass();
-			// return with compareTo statement constructed
-			// If we dont implement Comparable, but superclass does, call superclass compareTo in our new method
-			String compareToStatement = instrument.process(args[0], classToTool, Comparable.class.isAssignableFrom(targetClass));
-			findLastLine();
-			if(DEBUG)
-				System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
-			fileLines.add(lineLast, compareToStatement);
+					fileLines.get(classLine).substring(classPosEnd);
+			generateCompareTo(args[0], targetClass, newImpl);
 		} else {
 			if(DEBUG)
-				System.out.println("Detected 'implements' at line "+implLine+" position "+implPos+" class line "+classLine+" end class decl pos "+classLineEnd);
-			if(implPos == -1) {
-				System.out.println("System failed to locate implements decl though one was indicated to exist..");
-				System.exit(1);
-			}
+				System.out.println("Detected interfaces, class line "+classLine);
 			//if(!Serializable.class.isAssignableFrom(targetClass) && !Comparable.class.isAssignableFrom(targetClass)) {
-			if(serializeLine == -1 && comparableLine == -1) {
+			if(!hasSerializable && !hasComparable) {
 				// implements, but not our interfaces
 				if(DEBUG)
-					System.out.println("Detected 'implements', but not with required interfaces.");
-				String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
-						"java.io.Serializable,java.lang.Comparable,"+
-						fileLines.get(implLine).substring(implPos+12);
+					System.out.println("Detected interfaces, but not required interfaces.");
+				newImpl = fileLines.get(classLine).substring(0,classPosEnd)+
+						",java.io.Serializable,java.lang.Comparable"+
+						fileLines.get(classLine).substring(classPosEnd);
 				if(DEBUG)
 					System.out.println("New impl:"+newImpl);
-				fileLines.set(implLine, newImpl);
-				// is curly on class line or line following?
-				// insert serialVersionUID
-				//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
-				InstrumentClass instrument = new InstrumentClass();
-				// return with compateTo statement constructed
-				String compareToStatement = instrument.process(args[0], classToTool, Comparable.class.isAssignableFrom(targetClass));
-				findLastLine();
-				if(DEBUG)
-					System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
-				fileLines.add(lineLast, compareToStatement);
+				generateCompareTo(args[0], targetClass, newImpl);
 			} else {
-				// just Serializable?
-				//if(!Serializable.class.isAssignableFrom(targetClass)) {
-				if(serializeLine == -1) {
-					// implements, but not Serializable
+				if(!hasSerializable) {
+					// implements, but not Serializable, has compareTo
 					if(DEBUG)
-						System.out.println("Detected 'implements', but not with Serializable interface.");
-					String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
-							"java.io.Serializable,"+
-							fileLines.get(implLine).substring(implPos+12);
+						System.out.println("Detected interfaces, but not with Serializable interface.");
+					newImpl = fileLines.get(classLine).substring(0,classPosEnd)+
+							",java.io.Serializable"+
+							fileLines.get(classLine).substring(classPosEnd);
 					if(DEBUG)
 						System.out.println("New impl:"+newImpl);
-					fileLines.set(implLine, newImpl);
-					// is curly on class line or line following?
-					// insert serialVersionUID
-					findLastLine();
-					if(DEBUG)
-						System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
-					//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
+					fileLines.set(classLine, newImpl);
 				} else {
-					// just comparable?
-					//if(!Comparable.class.isAssignableFrom(targetClass)) {
-					if(comparableLine == -1) {
+					if(!hasComparable) {
+						// implements but no Comparable, add compareTo
 						if(DEBUG)
-							System.out.println("Detected 'implements', but not with Comparable interface.");
+							System.out.println("Detected interfaces, but not with Comparable interface.");
 						// implements, but not our Comparable
-						String newImpl = fileLines.get(implLine).substring(0,implPos+12)+
-								"java.lang.Comparable,"+
-								fileLines.get(implLine).substring(implPos+12);
+						newImpl = fileLines.get(classLine).substring(0,classPosEnd)+
+								",java.lang.Comparable"+
+								fileLines.get(classLine).substring(classPosEnd);
 						if(DEBUG)
 							System.out.println("New impl:"+newImpl);
-						fileLines.set(implLine, newImpl);
-						// is curly on class line or line following?
-						InstrumentClass instrument = new InstrumentClass();
-						// return with compateTo statement constructed
-						String compareToStatement = instrument.process(args[0], classToTool, Comparable.class.isAssignableFrom(targetClass));
-						findLastLine();
-						if(DEBUG)
-							System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
-						fileLines.add(lineLast, compareToStatement);
+						generateCompareTo(args[0], targetClass, newImpl);
 					} else {
 						System.out.println("Seems as if all tooling is already complete...");
 						return;
@@ -174,33 +135,33 @@ public class ClassTool {
 		writeLines(args[0]);
 		System.out.println("Tooling complete, backup of original source file is in "+args[0]+".bak");
 		// compile new class
-		if(packageName == "")
-			classToTool = compile(args[0],className);
-		else
-			classToTool = compile(args[0],packageName+"."+className);
-		targetClass = classToTool.getClass();
+		//classToTool = compile(args[0]);
+		//targetClass = classToTool.getClass();
+		targetClass = compile(args[0]);
 		if(DEBUG)
-			System.out.println("New Compiled instance:"+classToTool+" of class:"+targetClass);
+			System.out.println("New Compiled instance:"+/*classToTool+*/" of class:"+targetClass);
 	}
 	
+	private static void generateCompareTo(String javaFile, Class targetClass, String newImpl) throws IllegalArgumentException, IllegalAccessException, IOException {
+		fileLines.set(classLine, newImpl);
+		// is curly on class line or line following?
+		// insert serialVersionUID
+		//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
+		InstrumentClass instrument = new InstrumentClass();
+		// return with compareTo statement constructed
+		// If we dont implement Comparable, but superclass does, call superclass compareTo in our new method
+		String compareToStatement = instrument.process(javaFile, targetClass, Comparable.class.isAssignableFrom(targetClass));
+		findLastLine();
+		if(DEBUG)
+			System.out.println("last line of class decl (EOF)"+lineLast);
+		fileLines.add(lineLast, compareToStatement);
+		
+	}
+
 	private static void debugParse() {
-	System.out.println("\r\nPackage:"+ packageName+
-	 "\r\nClass:"+className+" "+
-	 packLine+"= package line \r\n"+
+	System.out.println(
 	 classLine+"= class decl line \r\n"+
-	 implPos+"= implements position \r\n "+
-	 implLine+"= implements line \r\n"+
-	 comparablePos+"= Comparable decl pos \r\n"+
-	 comparableLine+"= Comparable decl line \r\n"+
-	 serializePos+"= Serializable decl pos \r\n"+
-	 serializeLine+"= Serializable decl line \r\n"+
-	 serialVerLine+"= serialVersionUID line\r\n"+
-	 classLineEnd+" = location of space after class name \r\n"+
-	 classDeclPosEnd+" = location of curly at end of class \r\n"+
-	 classDeclLineEnd+"= line containing curly at end of class decl\r\n"+
-	 lineLast+" =  last curly,"+
-	 packPos+" = position of package,"+
-	 classPos+" = position of class");
+	 serialVerLine+"= serialVersionUID line\r\n");
 	}
 	/**
 	 * Set all static vars that indicate positions of parsed entities of interest.
@@ -212,63 +173,26 @@ public class ClassTool {
 	private static void preprocess(String s) throws IOException, IllegalArgumentException {
 		if(DEBUG)
 			System.out.println("parse:"+s);
-			if(classPos == -1) {
-				classPos = s.indexOf("class ");
-				if(classPos != -1)
-					classLine = cnt;
-			}
-			if(packPos == -1) {
-				packPos = s.indexOf("package ");
-				if(packPos != -1)
-					packLine = cnt;
-			}
-			if(implLine == -1) {
-				implPos = s.indexOf(" implements ");
-				if(implPos != -1)
-					implLine = cnt;
-			}
-			if(serializePos == -1) {
-				serializePos = s.indexOf("Serializable");
-				if(serializePos != -1)
-					serializeLine = cnt;
-			}
-			if(comparablePos == -1) {
-				comparablePos = s.indexOf("Comparable");
-				if(comparablePos != -1)
-					comparableLine = cnt;
-			}
+
 			if(serialVerLine == -1) {
-				serialVerLine = s.indexOf("serialVersionUID");
-				if(serialVerLine != -1)
+				serialVerPos = s.indexOf("serialVersionUID");
+				if(serialVerPos != -1)
 					serialVerLine = cnt;
 			}
-			
-			classDeclPosEnd = s.indexOf("{");
-			if(classDeclPosEnd != -1) {
-				classDeclLineEnd = cnt;
+			if(classLine == -1) {
+				classPosEnd = s.indexOf("{");
+				if(classPosEnd != -1) {
+					classLine = cnt;
+				}
 			}
 			cnt++;
 	}
 	
 	private static void postprocess() {
-		if(classPos == -1) {
-			throw new IllegalArgumentException("Can't find class declaration");
+		if(classPosEnd == -1) {
+			throw new IllegalArgumentException("Can't find end of class declaration");
 		}
-		if(packPos == -1) {
-			packageName = "";
-		} else {
-			int semi = fileLines.get(packLine).indexOf(";");
-			if(semi == -1)
-				throw new IllegalArgumentException("Malformed package declaration '"+fileLines.get(packLine)+"'");
-			packageName = fileLines.get(packLine).substring(packPos+8,semi);
-		}
-		classLineEnd = fileLines.get(classLine).indexOf(" ",classPos+6);
-		if(classLineEnd == -1) { // no space after class name
-			classLineEnd = fileLines.get(classLine).indexOf("{",classPos+6);
-			if(classLineEnd == -1) // no curly brace after class name
-				throw new IllegalArgumentException("Malformed class declaration. Cannot locate end delimiter of space or curly brace after class name:'"+fileLines.get(classLine)+"'");
-		}
-		className = fileLines.get(classLine).substring(classPos+6,classLineEnd);
+
 	}
 	
 	/**
@@ -291,7 +215,7 @@ public class ClassTool {
 	}
 	/**
 	 * Read and parse, if we detect comment embedded, send to method to parse and return array of
-	 * elements interspersed with comments
+	 * elements interspersed with comments.
 	 * @param javaFile
 	 * @return
 	 * @throws IOException
@@ -355,8 +279,8 @@ public class ClassTool {
 		writer.close();
 	}
 	
-	private static Object compile(String javaFileName, String fqn) {
-		try {
+	private static Class compile(String javaFileName) {
+	  try {
 		File javaFile = new File(javaFileName);
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -377,15 +301,18 @@ public class ClassTool {
           optionList, 
           null, 
           compilationUnit);
-        if (task.call()) {
-          /* Load and execute */
-          // Create a new custom class loader, pointing to the directory that contains the compiled
-          // classes, this should point to the top of the package structure!
-          URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
-          // Load the class from the classloader by name....
-          Class<?> loadedClass = classLoader.loadClass(fqn);
-       // Create a new instance...
-          return loadedClass.newInstance();
+
+        if(task.call()) {
+        	// Load and execute
+        	// Create a new custom class loader, pointing to the directory that contains the compiled
+        	// classes, this should point to the top of the package structure!
+        	URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
+        	// Load the class from the classloader by name....
+        	Class<?> loadedClass = classLoader.loadClass(javaFileName.substring(0,javaFileName.indexOf(".")));
+        	// Create a new instance...this requires default ctor explicit
+        	//return loadedClass.newInstance();
+        	fileManager.close();
+        	return loadedClass;
           /************************************************************************************************* Load and execute **/
         } else {
           for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
@@ -395,9 +322,9 @@ public class ClassTool {
           }
         }
         fileManager.close();
-      } catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException exp) {
+      } catch (IOException | ClassNotFoundException exp) {//| InstantiationException | IllegalAccessException exp) {
         exp.printStackTrace();
       }
-		return null;
+	  return null;
 	}
 }
