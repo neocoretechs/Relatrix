@@ -41,12 +41,12 @@ public class InstrumentClass {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public String process(String javaFile, Object object) throws IOException, IllegalArgumentException, IllegalAccessException {
+	public String process(String javaFile, Object object, boolean callSuperCompareTo) throws IOException, IllegalArgumentException, IllegalAccessException {
         checkIfSerializable(object);
         //initializeObject(object);
         Map<Integer, NameAndType> elements = getFieldOrder(object);
         getMethodOrder(object, elements);
-        List<String> compareToElements = generateCompareTo(object, elements);
+        List<String> compareToElements = generateCompareTo(object, elements, callSuperCompareTo);
         String compareToStatement = generateCompareTo(compareToElements);
         if(DEBUG) {
         	elements.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ":" + e.getValue()));
@@ -168,8 +168,15 @@ public class InstrumentClass {
 		return sb.toString();
 	}
 	
-    private List<String> generateCompareTo(Object object, Map<Integer, NameAndType> elements) {
+    private List<String> generateCompareTo(Object object, Map<Integer, NameAndType> elements, boolean callSuper) {
     	ArrayList<String> compareToComponents = new ArrayList<String>();
+    	if(callSuper) {
+    		StringBuilder s = new StringBuilder();
+	   		s.append("\t\tn = super.compareTo(o);\r\n");
+  			s.append("\t\tif(n != 0)");
+			s.append("\r\n\t\t\treturn n;\r\n");
+			compareToComponents.add(s.toString());
+    	}
     	Stream<Map.Entry<Integer, NameAndType>> sorted =
     		    elements.entrySet().stream().sorted(Map.Entry.comparingByKey());
     	sorted.forEach(e ->  {

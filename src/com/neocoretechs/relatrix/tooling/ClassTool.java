@@ -89,8 +89,9 @@ public class ClassTool {
 			// insert serialVersionUID
 			//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
 			InstrumentClass instrument = new InstrumentClass();
-			// return with compateTo statement constructed
-			String compareToStatement = instrument.process(args[0], classToTool);
+			// return with compareTo statement constructed
+			// If we dont implement Comparable, but superclass does, call superclass compareTo in our new method
+			String compareToStatement = instrument.process(args[0], classToTool, Comparable.class.isAssignableFrom(targetClass));
 			findLastLine();
 			if(DEBUG)
 				System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
@@ -118,7 +119,7 @@ public class ClassTool {
 				//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
 				InstrumentClass instrument = new InstrumentClass();
 				// return with compateTo statement constructed
-				String compareToStatement = instrument.process(args[0], classToTool);
+				String compareToStatement = instrument.process(args[0], classToTool, Comparable.class.isAssignableFrom(targetClass));
 				findLastLine();
 				if(DEBUG)
 					System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
@@ -158,7 +159,7 @@ public class ClassTool {
 						// is curly on class line or line following?
 						InstrumentClass instrument = new InstrumentClass();
 						// return with compateTo statement constructed
-						String compareToStatement = instrument.process(args[0], classToTool);
+						String compareToStatement = instrument.process(args[0], classToTool, Comparable.class.isAssignableFrom(targetClass));
 						findLastLine();
 						if(DEBUG)
 							System.out.println("End line of class decl (start of body):"+classDeclLineEnd+" last line of class decl (EOF)"+lineLast);
@@ -263,7 +264,9 @@ public class ClassTool {
 		}
 		classLineEnd = fileLines.get(classLine).indexOf(" ",classPos+6);
 		if(classLineEnd == -1) { // no space after class name
-				throw new IllegalArgumentException("Malformed class declaration '"+fileLines.get(classLine)+"'");
+			classLineEnd = fileLines.get(classLine).indexOf("{",classPos+6);
+			if(classLineEnd == -1) // no curly brace after class name
+				throw new IllegalArgumentException("Malformed class declaration. Cannot locate end delimiter of space or curly brace after class name:'"+fileLines.get(classLine)+"'");
 		}
 		className = fileLines.get(classLine).substring(classPos+6,classLineEnd);
 	}
