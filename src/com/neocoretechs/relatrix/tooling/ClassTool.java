@@ -26,6 +26,7 @@ import javax.tools.ToolProvider;
 /**
  * TODO: check to see if class extends class that implements compareTo, then call superclass compareTo if we
  * need to add Comparable interface.
+ * If we want to generate a serialVersionUID we need a default constructor as well.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2023
  *
  */
@@ -50,6 +51,13 @@ public class ClassTool {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, IOException {
+		classLine = -1; // location of space after class space name decl
+		classPosEnd = -1; // location of curly at end of class decl
+		serialVerLine = -1;
+		serialVerPos = -1;
+		lineLast = -1; // location of last { line
+		cnt = 0;
+		//
 		fileLines = readLines(args[0]);
 		postprocess();
 		if(DEBUG)
@@ -68,6 +76,8 @@ public class ClassTool {
 		boolean hasSerializable = false;
 		boolean hasComparable = false;
 		for(Class c: interfaces) {
+			if(DEBUG)
+				System.out.println("Interface:"+c);
 			if(c.equals(java.lang.Comparable.class))
 				hasComparable = true;
 			else
@@ -142,8 +152,12 @@ public class ClassTool {
 			String serialVer = InstrumentClass.resolveClass(targetClass);
 			if(DEBUG)
 				System.out.println("Serial UID="+serialVer);
-			fileLines.add(classLine+1, serialVer);
-			writeLines(args[0]);
+			if(serialVer != null) {
+				fileLines.add(classLine+1, serialVer);
+				writeLines(args[0]);
+			} else {
+				System.out.println("** WARNING: unable to generate serialVersionUID for class "+targetClass);
+			}
 		}
 		System.out.println("Tooling complete, backup of original source file is in "+args[0]+".bak");
 	}
@@ -167,6 +181,7 @@ public class ClassTool {
 	private static void debugParse() {
 	System.out.println(
 	 classLine+"= class decl line \r\n"+
+	 classPosEnd+"= end position of class decl \r\n"+
 	 serialVerLine+"= serialVersionUID line\r\n");
 	}
 	/**
@@ -176,9 +191,9 @@ public class ClassTool {
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 */
-	private static void preprocess(String s) throws IOException, IllegalArgumentException {
+	private static void preprocess(String s) {
 		if(DEBUG)
-			System.out.println("parse:"+s);
+			System.out.println(cnt+" parse:"+s);
 
 			if(serialVerLine == -1) {
 				serialVerPos = s.indexOf("serialVersionUID");
@@ -192,6 +207,39 @@ public class ClassTool {
 				}
 			}
 			cnt++;
+	}
+	
+	/**
+	 * Parse array of inline comments interspersed with valid code.
+	 * Maintain length of actual line, skipping comment chunks, adding offset to valid parse elements
+	 * @param s
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 */
+	private static void preprocess(List<String> ss) {
+		int ccnt = 0;
+		for(String s: ss) {
+			if(DEBUG)
+				System.out.println(cnt+" parse:"+s);
+			if(s.startsWith("/*")) {
+				ccnt += s.length();
+				continue;
+			}
+			if(serialVerLine == -1) {
+				serialVerPos = s.indexOf("serialVersionUID");
+				if(serialVerPos != -1)
+					serialVerLine = cnt;
+			}
+			if(classLine == -1) {
+				classPosEnd = s.indexOf("{");
+				if(classPosEnd != -1) {
+					classPosEnd += ccnt;
+					classLine = cnt;
+				}
+			}
+			ccnt += s.length();
+		}
+		cnt++;
 	}
 	
 	private static void postprocess() {
@@ -245,8 +293,13 @@ public class ClassTool {
 				continue;
 			}
 			if(line.contains("/*") && line.contains("*/")) {
-				parseLine = line.substring(0,line.indexOf("/*"))+line.substring(line.indexOf("*/")+2);
-				preprocess(parseLine);
+				// if the number of starting comment blocks greater than ending comments blocks, commentBlk true
+				// because we can end a comment on this line, then proceed to include another blocked comment
+				if(occurrences(line,"/*") > occurrences(line,"*/"))
+					commentBlk = true;
+				//parseLine = line.substring(0,line.indexOf("/*"))+line.substring(line.indexOf("*/")+2);
+				List<String> cmts = parseAllInlineComments(line);
+				preprocess(cmts);
 				lines.add(line);
 				line = reader.readLine();
 				continue;
@@ -283,6 +336,45 @@ public class ClassTool {
 		}
 		writer.flush();
 		writer.close();
+	}
+	
+	/**
+	 * Parse all the inline comments in this line
+	 * @param line
+	 * @return
+	 */
+	private static List<String> parseAllInlineComments(String line) {
+		int ccnt = 0;
+		int ccnt2 = 0;
+		int dcnt = 0;
+		ArrayList<String> list = new ArrayList<String>();
+		while(ccnt != -1) {
+			ccnt = line.indexOf("/*",dcnt);
+			if(ccnt != -1) {
+				list.add(line.substring(dcnt,ccnt));
+				ccnt2 = line.indexOf("*/",ccnt+2);
+				if(ccnt2 != -1) {
+					dcnt = ccnt2+2;
+					list.add(line.substring(ccnt,ccnt2+2));
+				}
+			} else {
+				if(ccnt2 > 0 && ccnt2+3 <= line.length())
+					list.add(line.substring(ccnt2+2));
+			}
+		}
+		if(DEBUG)
+			Arrays.toString(list.toArray());
+		return list;
+	}
+	
+	static int occurrences(String str, String substr) {
+		int occurrences = 0;
+		int index = str.indexOf(substr);
+		while (index != -1) {
+			occurrences++;
+			index = str.indexOf(substr, index + 1);
+		}
+		return occurrences;
 	}
 	
 	private static Class compile(String javaFileName) {
