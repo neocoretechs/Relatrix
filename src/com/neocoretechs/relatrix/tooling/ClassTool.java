@@ -91,7 +91,6 @@ public class ClassTool {
 		} else {
 			if(DEBUG)
 				System.out.println("Detected interfaces, class line "+classLine);
-			//if(!Serializable.class.isAssignableFrom(targetClass) && !Comparable.class.isAssignableFrom(targetClass)) {
 			if(!hasSerializable && !hasComparable) {
 				// implements, but not our interfaces
 				if(DEBUG)
@@ -125,21 +124,28 @@ public class ClassTool {
 						if(DEBUG)
 							System.out.println("New impl:"+newImpl);
 						generateCompareTo(args[0], targetClass, newImpl);
-					} else {
-						System.out.println("Seems as if all tooling is already complete...");
-						return;
 					}
+					// all tooling was already complete, but check for serial version UID
 				}
 			}
 		}
 		writeLines(args[0]);
-		System.out.println("Tooling complete, backup of original source file is in "+args[0]+".bak");
+
 		// compile new class
 		//classToTool = compile(args[0]);
 		//targetClass = classToTool.getClass();
 		targetClass = compile(args[0]);
 		if(DEBUG)
 			System.out.println("New Compiled instance:"+/*classToTool+*/" of class:"+targetClass);
+		// Now we can insert serialVersionUID since we have a guaranteed serializable class
+		if(serialVerLine == -1) {
+			String serialVer = InstrumentClass.resolveClass(targetClass);
+			if(DEBUG)
+				System.out.println("Serial UID="+serialVer);
+			fileLines.add(classLine+1, serialVer);
+			writeLines(args[0]);
+		}
+		System.out.println("Tooling complete, backup of original source file is in "+args[0]+".bak");
 	}
 	
 	private static void generateCompareTo(String javaFile, Class targetClass, String newImpl) throws IllegalArgumentException, IllegalAccessException, IOException {
@@ -308,7 +314,8 @@ public class ClassTool {
         	// classes, this should point to the top of the package structure!
         	URLClassLoader classLoader = new URLClassLoader(new URL[]{new File("./").toURI().toURL()});
         	// Load the class from the classloader by name....
-        	Class<?> loadedClass = classLoader.loadClass(javaFileName.substring(0,javaFileName.indexOf(".")));
+        	String javaPackage = javaFileName.substring(0,javaFileName.indexOf(".")).replaceAll("/",".");
+        	Class<?> loadedClass = classLoader.loadClass(javaPackage);
         	// Create a new instance...this requires default ctor explicit
         	//return loadedClass.newInstance();
         	fileManager.close();
