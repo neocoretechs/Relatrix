@@ -69,8 +69,6 @@ public class ClassTool {
 			System.out.println("Backup file already exists, will not overwrite");
 			return;
 		}
-		//Class targetClass = Class.forName(packageName+"."+className);
-		//Object classToTool = targetClass.newInstance();
 		Class targetClass =  compile(args[0]);
 		Class<?>[] interfaces = targetClass.getInterfaces();
 		boolean hasSerializable = false;
@@ -148,8 +146,15 @@ public class ClassTool {
 		if(DEBUG)
 			System.out.println("New Compiled instance:"+/*classToTool+*/" of class:"+targetClass);
 		// Now we can insert serialVersionUID since we have a guaranteed serializable class
+		String serialVer = InstrumentClass.resolveClass(targetClass);
+		// we may have to generate default constructor
+		if(serialVer == null) {
+			generateDefaultCtor(targetClass);
+			writeLines(args[0]);
+			targetClass = compile(args[0]);
+		}
 		if(serialVerLine == -1) {
-			String serialVer = InstrumentClass.resolveClass(targetClass);
+			serialVer = InstrumentClass.resolveClass(targetClass);
 			if(DEBUG)
 				System.out.println("Serial UID="+serialVer);
 			if(serialVer != null) {
@@ -162,19 +167,32 @@ public class ClassTool {
 		System.out.println("Tooling complete, backup of original source file is in "+args[0]+".bak");
 	}
 	
+	private static void generateDefaultCtor(Class targetClass) {
+		StringBuilder defCtor = new StringBuilder("\tpublic ");
+		defCtor.append(targetClass.getSimpleName());
+		defCtor.append("() {}\r\n");
+		findLastLine();
+		fileLines.add(lineLast, defCtor.toString());
+	}
+
 	private static void generateCompareTo(String javaFile, Class targetClass, String newImpl) throws IllegalArgumentException, IllegalAccessException, IOException {
 		fileLines.set(classLine, newImpl);
-		// is curly on class line or line following?
-		// insert serialVersionUID
-		//fileLines.add(classDeclLineEnd+1,InstrumentClass.resolveClass(targetClass));
-		InstrumentClass instrument = new InstrumentClass();
-		// return with compareTo statement constructed
-		// If we dont implement Comparable, but superclass does, call superclass compareTo in our new method
-		String compareToStatement = instrument.process(javaFile, targetClass, Comparable.class.isAssignableFrom(targetClass));
-		findLastLine();
-		if(DEBUG)
-			System.out.println("last line of class decl (EOF)"+lineLast);
-		fileLines.add(lineLast, compareToStatement);
+		// if we have method already, dont duplicate it
+		try {
+			targetClass.getMethod("compareTo", Object.class);
+			if(DEBUG) {
+				System.out.println("** WARNING compareTo method already declared");
+			}
+		} catch (NoSuchMethodException | SecurityException e) {
+			InstrumentClass instrument = new InstrumentClass();
+			// return with compareTo statement constructed
+			// If we dont implement Comparable, but superclass does, call superclass compareTo in our new method
+			String compareToStatement = instrument.process(javaFile, targetClass, Comparable.class.isAssignableFrom(targetClass));
+			findLastLine();
+			if(DEBUG)
+				System.out.println("Inserting compareTo @ last line of class decl (EOF):"+lineLast);
+			fileLines.add(lineLast, compareToStatement);
+		}
 		
 	}
 
