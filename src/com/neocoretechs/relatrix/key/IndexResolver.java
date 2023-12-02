@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
+import com.neocoretechs.rocksack.session.RockSackAdapter;
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
  * instance of {@link IndexInstanceTable} can be used to resolve database index to object instances, or whether an
@@ -18,6 +19,7 @@ public class IndexResolver {
 	public static boolean DEBUG = false;
 	static IndexInstanceTableInterface instanceTable = null;
 	static boolean local = true;
+	static String alias = null;
 	static RelatrixClientInterface remoteIndexInstanceTable;
 	static ConcurrentHashMap<String,IndexInstanceTableInterface> indexInstanceTableTransaction = new ConcurrentHashMap<String,IndexInstanceTableInterface>();
 	static String currentTransactionId = null;
@@ -25,7 +27,10 @@ public class IndexResolver {
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
 			if(local) {
-				instanceTable = new IndexInstanceTable();
+				if(alias == null)
+					instanceTable = new IndexInstanceTable();
+				else
+					instanceTable = new IndexInstanceTableAlias(alias);
 			} else {
 				instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTable);
 			}
@@ -43,7 +48,11 @@ public class IndexResolver {
 		IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
 		if(local) {
 				if(iTable == null) {
-					iTable = new IndexInstanceTable(xid);
+					if(alias == null) {
+						iTable = new IndexInstanceTable(xid);
+					} else {
+						iTable = new IndexInstanceTableAlias(alias, xid);
+					}
 					indexInstanceTableTransaction.put(xid,iTable);
 				}
 		} else {
@@ -56,6 +65,7 @@ public class IndexResolver {
 	public static synchronized IndexInstanceTableInterface getCurrentIndexInstanceTable() throws IOException {
 		return getIndexInstanceTable(currentTransactionId);
 	}
+	
 	/**
 	 * If we are operating in a local transaction context, such as a server, ensure we have an index resolution table for DBKeys
 	 * for this transaction id. If non-local, do nothing as setRemote should be handling things.
@@ -69,7 +79,11 @@ public class IndexResolver {
 				throw new IOException("Transaction Id null");
 			IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
 			if(iTable == null) {
-				iTable = new IndexInstanceTable(xid);
+				if(alias == null) {
+					iTable = new IndexInstanceTable(xid);
+				} else {
+					iTable = new IndexInstanceTableAlias(alias, xid);
+				}
 				indexInstanceTableTransaction.put(xid,iTable);
 			}
 		}
@@ -86,7 +100,13 @@ public class IndexResolver {
 	public static void setLocal() {
 		local = true;
 	}
-	
+	/**
+	 * Set alias to null for default tablespace
+	 * @param talias
+	 */
+	public static void setAlias(String talias) {
+		alias = talias;
+	}
 	/**
 	 * Set the remote client to resolve the remote indexes. If transaction is true, instance of {@link RelatrixClientInterface}
 	 * must be transactional.
