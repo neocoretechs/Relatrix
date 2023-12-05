@@ -764,6 +764,66 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
 	}
 	
+
+	@Override
+	public DBKey get(String alias, String xid, Comparable instance) throws IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "get", alias, xid, instance);
+		try {
+			return (DBKey) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public void checkpoint(String alias, String xid, Class clazz) throws IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "checkpoint", alias, xid, clazz);
+		try {
+			sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public void rollback(String alias, String xid, Class clazz) throws IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "rollback", xid, clazz);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+		
+	}
+
+	@Override
+	public Object remove(String alias, String xid, Comparable instance) throws IOException, NoSuchElementException {
+		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", alias, xid, instance);
+		try {
+			return sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+		
+	}
+
+	@Override
+	public void commit(String alias, String xid, Class clazz) throws IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "commit", alias, xid, clazz);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+		
+	}
+
+	@Override
+	public void storeAlias(String alias, String xid, Comparable index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", alias, xid, index, instance);
+		sendCommand(rs);	
+	}
+
 	@Override
 	public String toString() {
 		return String.format("Relatrix server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
@@ -803,5 +863,4 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		rc.close();
 	}
 
-	
 }

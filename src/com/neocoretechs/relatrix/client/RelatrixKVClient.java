@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 //import com.neocoretechs.rocksack.SerializedComparator;
 //import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -830,6 +831,26 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		return s;
 	}
 	
+	@Override
+	public Object get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("get",alias, instance);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("remove",alias, instance);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
 
 	@Override
 	public String toString() {

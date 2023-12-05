@@ -32,7 +32,10 @@ public class IndexResolver {
 				else
 					instanceTable = new IndexInstanceTableAlias(alias);
 			} else {
-				instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTable);
+				if(alias == null)
+					instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTable);
+				else
+					instanceTable = new RemoteIndexInstanceTableAlias(alias, remoteIndexInstanceTable);
 			}
 		}
 		return instanceTable;

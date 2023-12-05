@@ -2,9 +2,11 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.key.DBKey;
 
 /**
  * Defines the contract for client side communications with remote Relatrix server.
@@ -26,7 +28,6 @@ public interface RelatrixClientInterface {
 	String getRemoteNode();
 
 	int getRemotePort();
-
 
 	/**
 	* recursively delete all relationships that this object participates in
@@ -110,5 +111,9 @@ public interface RelatrixClientInterface {
 	 * @throws IOException 
 	 */
 	UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException;
+
+	Object get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
+
+	Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
 
 }

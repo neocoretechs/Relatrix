@@ -19,21 +19,24 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
  * lookup of the Integer index. We use the DBKey wrapper class to carry the integer index inside the Morphism.
  * which also adds validation.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2023
  *
  */
-public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
+public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
 	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
+	String alias = null;
 	private RelatrixClientInterface rc = null;
 	private RelatrixClientTransactionInterface rcx = null;
 	private String transactionId;
 	
-	public RemoteIndexInstanceTable(RelatrixClientInterface rc) throws IOException {
+	public RemoteIndexInstanceTableAlias(String alias, RelatrixClientInterface rc) throws IOException {
+		this.alias = alias;
 		this.rc = rc;
 	}	
 	
-	public RemoteIndexInstanceTable(String xid, RelatrixClientTransactionInterface rc) throws IOException {
+	public RemoteIndexInstanceTableAlias(String alias, String xid, RelatrixClientTransactionInterface rc) throws IOException {
+		this.alias = alias;
 		this.transactionId = xid;
 		this.rcx = rc;
 	}	
@@ -55,13 +58,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			}
 			try {
 				if(rcx != null)
-					rcx.store(transactionId, index, instance);
+					rcx.storeAlias(alias, transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
 					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
 			}
 			try {
 				if(rcx != null)
-					rcx.store(transactionId, index, instance);
+					rcx.storeAlias(alias, transactionId, index, instance);
 			} catch(DuplicateKeyException dke) {
 					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));	
 			}
@@ -75,15 +78,15 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			instance = (Comparable) getByIndex(index);
 			if(instance != null) {
 				if(rc != null)
-					rc.remove(instance);
+					rc.remove(alias, instance);
 				else
-					rcx.remove(transactionId, instance);
+					rcx.remove(alias, transactionId, instance);
 				classCommits.add(instance.getClass());
 			}
 			if(rc != null)
-				rc.remove(index);
+				rc.remove(alias, index);
 			else
-				rcx.remove(transactionId, index);
+				rcx.remove(alias, transactionId, index);
 			classCommits.add(index.getClass());	
 	}
 	
@@ -96,7 +99,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					if(DEBUG)
 						System.out.printf("RemoteIndexInstanceTable.commit committing class %s%n",c);
 					if(rcx != null)
-						rcx.commit(transactionId, c);
+						rcx.commit(alias, transactionId, c);
 				}
 				classCommits.clear();
 			}
@@ -108,7 +111,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext())
 					if(rcx != null)
-						rcx.rollback(transactionId, it.next());
+						rcx.rollback(alias, transactionId, it.next());
 				classCommits.clear();
 			}
 	}
@@ -119,7 +122,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
 					if(rcx != null)
-						rcx.checkpoint(transactionId, it.next());
+						rcx.checkpoint(alias, transactionId, it.next());
 				}
 			}
 	}
@@ -149,9 +152,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(rc != null)
-			return (DBKey)rc.get((Comparable) instance);
+			return (DBKey)rc.get(alias, (Comparable) instance);
 		else
-			return (DBKey)rcx.get(transactionId, (Comparable) instance);
+			return (DBKey)rcx.get(alias, transactionId, (Comparable) instance);
 	}
 
 	@Override

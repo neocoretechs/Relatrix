@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.key.DBKey;
 
 /**
  * Defines the contract for client side communications with remote RelatrixTransaction and RelatrixKVTransaction server.
@@ -152,6 +153,20 @@ public interface RelatrixClientTransactionInterface {
 	String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException;
 
 	String endTransaction(String xid) throws ClassNotFoundException, IllegalAccessException, IOException;
+	
+	// Alias methods
+
+	Object get(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, NoSuchElementException;
+
+	void checkpoint(String alias, String transactionId, Class next) throws IllegalAccessException, IOException, NoSuchElementException;
+
+	void rollback(String alias, String transactionId, Class next) throws IOException, NoSuchElementException;
+
+	Object remove(String alias, String transactionId, Comparable instance) throws IOException, NoSuchElementException;
+
+	void commit(String alias, String transactionId, Class c) throws IOException, NoSuchElementException;
+
+	void storeAlias(String alias, String transactionId, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
 
 	
 }

@@ -625,6 +625,26 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
 	
+
+	@Override
+	public DBKey get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("get",alias, instance);
+		try {
+			return (DBKey) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("remove",alias, instance);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}	
+	}
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
 	 * @param args
@@ -657,5 +677,4 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		//rc.send(rs);
 		rc.close();
 	}
-
 }
