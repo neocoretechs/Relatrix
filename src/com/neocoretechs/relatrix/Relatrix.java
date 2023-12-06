@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.rocksack.KeyValue;
-
+import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -92,7 +93,27 @@ public final class Relatrix {
 		return RelatrixKV.getTableSpaceDirectory();
 	}
 
-
+	/**
+	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
+	 * @param alias
+	 * @param path
+	 * @throws IOException
+	 */
+	public static void setAlias(String alias, String path) throws IOException {
+		File p = new File(path);
+		if(!new File(p.getParent()).isDirectory())
+			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
+		RockSackAdapter.setTableSpaceDir(alias, path);
+	}
+	
+	/**
+	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
+	 * @param alias
+	 * @throws NoSuchElementException if the alias was not ofund
+	 */
+	public static void removeAlias(String alias) throws NoSuchElementException {
+		RockSackAdapter.removeAlias(alias);
+	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
 	 * @param d The Comparable representing the domain object for this morphism relationship.

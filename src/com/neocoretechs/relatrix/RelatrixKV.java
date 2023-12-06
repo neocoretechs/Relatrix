@@ -45,6 +45,10 @@ public final class RelatrixKV {
 		RockSackAdapter.setTableSpaceDir(path);
 	}
 	
+	public static String getTableSpaceDirectory() {
+		return RockSackAdapter.getTableSpaceDir();
+	}
+	
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
 	 * @param alias
@@ -58,9 +62,15 @@ public final class RelatrixKV {
 		RockSackAdapter.setTableSpaceDir(alias, path);
 	}
 	
-	public static String getTableSpaceDirectory() {
-		return RockSackAdapter.getTableSpaceDir();
+	/**
+	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
+	 * @param alias
+	 * @throws NoSuchElementException if the alias was not ofund
+	 */
+	public static void removeAlias(String alias) throws NoSuchElementException {
+		RockSackAdapter.removeAlias(alias);
 	}
+	
 	/**
 	 * Will retrun null if alias does not exist
 	 * @param alias
