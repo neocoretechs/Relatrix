@@ -287,7 +287,18 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		RelatrixStatement rs = new RelatrixStatement("store",d, m, r);
 		return (DomainMapRange)sendCommand(rs);
 	}
-
+	
+	public DomainMapRange store(String alias, Comparable d, Comparable m, Comparable r) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixStatement("store",alias, d, m, r);
+		return (DomainMapRange)sendCommand(rs);
+	}
+	
+	@Override
+	public Object store(String alias, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("store", k, v);
+		return (DomainMapRange)sendCommand(rs);
+	}
+	
 	@Override
 	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("firstKey",clazz);
@@ -299,8 +310,28 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
+	public Comparable firstKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("firstKey",alias,clazz);
+		try {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("firstValue",clazz);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public Object firstValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("firstValue",alias,clazz);
 		try {
 			return sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -328,8 +359,28 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
+	public Object getByIndex(String alias, DBKey index) throws IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixStatement("getByIndex",alias,index);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
 	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("lastKey",clazz);
+		try {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public Comparable lastKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("lastKey",alias,clazz);
 		try {
 			return (Comparable) sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -346,7 +397,17 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-
+	
+	@Override
+	public Object lastValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("lastValue",alias,clazz);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	@Override
 	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixStatement("store", k, v);
@@ -677,4 +738,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		//rc.send(rs);
 		rc.close();
 	}
+
+
 }

@@ -468,6 +468,16 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 
 	@Override
+	public Object getByIndex(String alias, String xid, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid,"getByIndex", alias, xid, index);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public Comparable lastKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "lastKey", xid, clazz);
 		try {
@@ -862,5 +872,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		rc.endTransaction(xid);
 		rc.close();
 	}
+
 
 }

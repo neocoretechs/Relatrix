@@ -42,7 +42,8 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 	}	
 	/**
 	 * Put the key to the proper tables
-	 * @param index
+	 * @param index The DBKey index
+	 * @param instance the Comparable instance payload
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -57,16 +58,17 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
 			}
 			try {
-				if(rcx != null)
-					rcx.storeAlias(alias, transactionId, index, instance);
+				if(rc != null) {
+					rc.store(alias, index, instance);
+				} else {
+					if(rcx != null) {
+						rcx.storeAlias(alias, transactionId, index, instance);
+					} else {
+						throw new IOException("RelatrixClient is null");
+					}
+				}
 			} catch(DuplicateKeyException dke) {
-					throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
-			}
-			try {
-				if(rcx != null)
-					rcx.storeAlias(alias, transactionId, index, instance);
-			} catch(DuplicateKeyException dke) {
-					throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Existing entry=%s/%s%n",instance,index,((KeyValue)RelatrixKV.get(instance)).getmKey(),((KeyValue)RelatrixKV.get(instance)).getmValue()));	
+				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
 			}
 			classCommits.add(index.getClass());
 			classCommits.add(instance.getClass());
@@ -77,16 +79,26 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 			Comparable instance = null;
 			instance = (Comparable) getByIndex(index);
 			if(instance != null) {
-				if(rc != null)
+				if(rc != null) {
 					rc.remove(alias, instance);
-				else
-					rcx.remove(alias, transactionId, instance);
+				} else {
+					if(rcx != null) {
+						rcx.remove(alias, transactionId, instance);
+					} else {
+						throw new IOException("RelatrixClient is null");
+					}
+				}
 				classCommits.add(instance.getClass());
 			}
-			if(rc != null)
+			if(rc != null) {
 				rc.remove(alias, index);
-			else
-				rcx.remove(alias, transactionId, index);
+			} else {
+				if(rcx != null) {
+					rcx.remove(alias, transactionId, index);
+				} else {
+					throw new IOException("RelatrixClient is null");
+				}
+			}
 			classCommits.add(index.getClass());	
 	}
 	
@@ -98,8 +110,11 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 					Class c = it.next();
 					if(DEBUG)
 						System.out.printf("RemoteIndexInstanceTable.commit committing class %s%n",c);
-					if(rcx != null)
+					if(rcx != null) {
 						rcx.commit(alias, transactionId, c);
+					} else {
+						throw new IOException("RelatrixClient is null");
+					}
 				}
 				classCommits.clear();
 			}
@@ -109,9 +124,13 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 	public void rollback() throws IOException {
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext())
-					if(rcx != null)
+				while(it.hasNext()) {
+					if(rcx != null) {
 						rcx.rollback(alias, transactionId, it.next());
+					} else {
+						throw new IOException("RelatrixClient is null");
+					}
+				}
 				classCommits.clear();
 			}
 	}
@@ -121,8 +140,11 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 			synchronized(classCommits) {
 				Iterator<Class> it = classCommits.iterator();
 				while(it.hasNext()) {
-					if(rcx != null)
+					if(rcx != null) {
 						rcx.checkpoint(alias, transactionId, it.next());
+					} else {
+						throw new IOException("RelatrixClient is null");
+					}
 				}
 			}
 	}
@@ -136,14 +158,19 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 	 */
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		if(rc != null)
-			return ((RelatrixClient)rc).getByIndex(index);
-		else
-			return ((RelatrixClientTransaction)rcx).getByIndex(transactionId, index);
+		if(rc != null) {
+			return rc.getByIndex(alias, index);
+		} else {	
+			if(rcx != null) {
+				return rcx.getByIndex(alias, transactionId, index);
+			} else { 
+				throw new IOException("RelatrixClient is null");
+			}
+		}
 	}
 	/**
 	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
-	 * @param instance the DbKey containing the instance
+	 * @param instance the DBKey containing the instance
 	 * @return The Integer index contained in the retrieved InstanceIndex
 	 * @throws IllegalAccessException
 	 * @throws IOException
@@ -151,10 +178,15 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 	 */
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		if(rc != null)
-			return (DBKey)rc.get(alias, (Comparable) instance);
-		else
-			return (DBKey)rcx.get(alias, transactionId, (Comparable) instance);
+		if(rc != null) {
+			return (DBKey)rc.get((Comparable) instance);
+		} else {
+			if(rcx != null) {
+				return (DBKey)rcx.get(alias, transactionId, (Comparable) instance);
+			} else { 
+				throw new IOException("RelatrixClient is null");
+			}
+		}
 	}
 
 	@Override
@@ -164,10 +196,15 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		if(rc != null)
+		if(rc != null) {
 			return new DBKey(rc.getNewKey());
-		else
-			return new DBKey(rcx.getNewKey(transactionId));
+		} else {
+			if(rcx != null) {
+				return new DBKey(rcx.getNewKey(transactionId));
+			} else { 
+				throw new IOException("RelatrixClient is null");
+			}
+		}
 	}
 
 }

@@ -116,4 +116,27 @@ public interface RelatrixClientInterface {
 
 	Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
 
+	/**
+	 * Call the remote server method to store an object.
+	 * @param alias The database alias
+	 * @param k The Comparable representing the key relationship
+	 * @param v The value
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws DuplicateKeyException if the storage of a duplicate key was attempted
+	 * @throws NoSuchElementException if the alias was not found
+	 * @return 
+	 */
+	Object store(String alias, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
+
+	Object firstValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Object lastValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Comparable firstKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Comparable lastKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Object getByIndex(String alias, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
+
 }
