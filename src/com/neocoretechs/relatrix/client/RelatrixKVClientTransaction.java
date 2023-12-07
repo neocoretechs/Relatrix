@@ -292,7 +292,55 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}
 	}
+	public String getTablespace() {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpaceDirectory",(Object[])null);
+		try {
+			return (String) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
+	public String getTablespace(String alias) {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpaceDirectory",alias);
+		try {
+			return (String) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public String[][] getAliases() {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getAliases",(Object[])null);
+		try {
+			return (String[][]) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Object setAlias(String alias, String path) {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","setAlias",alias, path);
+		try {
+			return sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Object removeAlias(String alias) {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("removeAlias",alias);
+		try {
+			return sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/**
 	 * Store our k/v
 	 * This is a transactional store in the context of a previously initiated transaction.

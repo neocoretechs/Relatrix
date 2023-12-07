@@ -79,6 +79,13 @@ public final class RelatrixKV {
 	public static String getTableSpaceDirectory(String alias) {
 		return RockSackAdapter.getTableSpaceDir(alias);
 	}
+	/**
+	 * 
+	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
+	 */
+	public static String[][] getAliases() {
+		return RockSackAdapter.getAliases();
+	}
 /**
  * Store our permutations of the key/value
  * @param key of comparable

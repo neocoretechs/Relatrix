@@ -278,6 +278,55 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	
 	}
 	
+	public String getTablespace() {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpaceDirectory",(Object[])null);
+		try {
+			return (String) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public String getTablespace(String alias) {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpaceDirectory",alias);
+		try {
+			return (String) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public String[][] getAliases() {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getAliases",(Object[])null);
+		try {
+			return (String[][]) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Object setAlias(String alias, String path) {
+		RelatrixKVStatement rs = new RelatrixKVStatement("setAlias",alias, path);
+		try {
+			return sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Object removeAlias(String alias) {
+		RelatrixKVStatement rs = new RelatrixKVStatement("removeAlias",alias);
+		try {
+			return sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/**
 	 * Call the remote server method to store an object.
 	 * @param k The Comparable representing the key relationship
