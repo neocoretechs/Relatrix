@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 
@@ -38,8 +39,30 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
     	}
     }
     
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param dmr_return
+     * @throws IOException 
+     */
+    public RelatrixEntrysetIterator(String alias, Class c) throws IOException, NoSuchElementException {
+    	try {
+			iter = RelatrixKV.entrySet(alias, c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( iter.hasNext() ) {
+			buffer = (Comparable) iter.next();
+    	if( DEBUG )
+			System.out.println("RelatrixEntrysetIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
+    	}
+    }
+    
     public RelatrixEntrysetIterator(Comparable c) throws IOException {
     	this(c.getClass());
+    }
+    
+    public RelatrixEntrysetIterator(String alias, Comparable c) throws IOException, NoSuchElementException {
+    	this(alias, c.getClass());
     }
     
 	@Override

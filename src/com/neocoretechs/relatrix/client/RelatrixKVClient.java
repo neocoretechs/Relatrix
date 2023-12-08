@@ -278,8 +278,12 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 	
 	}
 	
+	//-------------------------------------------------------------------
+	// Start of remote command sequence
+	//-------------------------------------------------------------------
+	
 	public String getTablespace() {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpaceDirectory",(Object[])null);
+		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpace",(Object[])null);
 		try {
 			return (String) sendCommand(rs);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -288,10 +292,20 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		return null;
 	}
 	
-	public String getTablespace(String alias) {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpaceDirectory",alias);
+	public String setTablespace(String path) {
+		RelatrixKVStatement rs = new RelatrixKVStatement("setTableSpace",path);
 		try {
 			return (String) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public String[][] getAlias(String alias) {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getAlias",alias);
+		try {
+			return (String[][]) sendCommand(rs);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 			e.printStackTrace();
 		}

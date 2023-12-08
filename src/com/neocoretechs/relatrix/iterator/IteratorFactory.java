@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
@@ -9,7 +10,8 @@ import com.neocoretechs.relatrix.Relatrix;
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors
 	 * of findSet: HeadSet from selected result set,SubSet from result set, or tailSet from findSet return ordered set.
 	 * The iterator will, in general, return an array of Comparable corresponding to the number of elements specified 
-	 * in the findSet retrieval indicated by the "?" parameter. <br/>
+	 * in the findSet retrieval indicated by the "?" parameter. 
+	 * {@link Relatrix.OPERATOR_TUPLE_CHAR} {@link Relatrix.OPERATOR_WILDCARD_CHAR} <br/>
 	 * This factory generates the proper iterator based on our findSet semantics.<p/>
 	 * Overloaded methods support transaction context.
 	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2022
@@ -19,22 +21,45 @@ import com.neocoretechs.relatrix.Relatrix;
 		private static boolean DEBUG = false; 
 		/**
 		 * Create the iterator. Factory method, abstract.
-		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixIterator subclass that returns Comparable[] tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
 		public abstract Iterator<?> createIterator() throws IllegalAccessException, IOException;
+		
+		/**
+		* Create the iterator. Factory method, abstract.
+		* @param alias the database alias
+		* @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+		* @throws IllegalAccessException
+		* @throws IOException
+		* @throws NoSuchElementException if the alias is not found
+		*/
+		public abstract Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException;
+		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
+		 * @param tdmr the Morphism template that defines the selection parameters for the iterator
 		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
 		protected abstract Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException;
+		
+		/**
+		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
+		 * @param alias the database alias
+		 * @param tdmr the Morphism template that defines the selection parameters for the iterator
+		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms
+		 * @throws IllegalAccessException
+		 * @throws IOException
+		 */
+		protected abstract Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
+		
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
-		* @param marg the char operator
-		* @return the translated ordinal, either 1 for ? or 2 for *
+		* @param marg the char operator that specifies a wildcard or tuple return (* or ?)
+		* @return the translated ordinal, either 1 for ? {@link Relatrix.OPERATOR_TUPLE_CHAR} or 2 for * {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
 		* @exception IllegalArgumentException the operator is invalid
 		*/
 		protected static short checkOp(char marg) throws IllegalArgumentException
@@ -47,10 +72,10 @@ import com.neocoretechs.relatrix.Relatrix;
 		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
 		}
 		/**
-		 * Determine if we are returning identity relationship morphisms
-		 * @param dop The domain predicate from retrieval operation
-		 * @param mop Map predicate
-		 * @param rop Range
+		 * Determine if we are returning identity relationship morphisms. {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
+		 * @param dop The domain predicate from retrieval operation, either wildcard or tuple return
+		 * @param mop Map predicate, wildcard or tuple return
+		 * @param rop Range predicate, wildcard or tuple return
 		 * @return true if all arguments are wildcard values
 		 */
 		protected static boolean isReturnRelationships(char dop, char mop, char rop) {
@@ -58,7 +83,12 @@ import com.neocoretechs.relatrix.Relatrix;
 					mop == Relatrix.OPERATOR_WILDCARD_CHAR && 
 					rop == Relatrix.OPERATOR_WILDCARD_CHAR );
 		}
-		
+		/**
+		 * Determine if we are returning relationships; i.e. if we have specified all wildcard operators in our
+		 * parameters. (*,*,*)
+		 * @param dmr_return the retrun value domain/map/range template
+		 * @return true if all 3 values are 0 indicating all wildcards specified
+		 */
 		protected static boolean isReturnRelationships(short[] dmr_return) {
 			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );
 		}

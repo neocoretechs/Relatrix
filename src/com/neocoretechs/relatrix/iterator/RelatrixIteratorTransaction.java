@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -31,11 +32,13 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  */
 public class RelatrixIteratorTransaction extends RelatrixIterator {
 	private static boolean DEBUG = false;
-    /**
-     * Pass the array we use to indicate which values to return and element 0 counter
-     * @param dmr_return
-     * @throws IOException 
-     */
+	/**
+	 * Pass the array we use to indicate which values to return and element 0 counter
+	 * @param xid the transaction id
+	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
+	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @throws IOException
+	 */
     public RelatrixIteratorTransaction(String xid, Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
@@ -58,6 +61,35 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	if( DEBUG )
 			System.out.println("RelatrixIteratorTransaction Id:"+xid+" hasNext:"+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
     }
-    
+	/**
+	 * Pass the array we use to indicate which values to return and element 0 counter
+	 * @param alias
+	 * @param xid the transaction id
+	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
+	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @throws IOException
+	 */
+    public RelatrixIteratorTransaction(String alias, String xid, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.dmr_return = dmr_return;
+    	this.base = template;
+    	identity = isIdentity(this.dmr_return);
+    	try {
+			iter = RelatrixKVTransaction.findTailMap(alias, xid, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}//(TailSetIterator) bts.tailSet(template);
+    	if( iter.hasNext() ) {
+			buffer = (Morphism) iter.next();
+			if( !templateMatches(base, buffer, dmr_return) ) {
+				buffer = null;
+				needsIter = false;
+			}
+    	} else {
+    		buffer = null;
+    		needsIter = false;
+    	}
+    	if( DEBUG )
+			System.out.println("RelatrixIteratorTransaction Id:"+xid+" hasNext:"+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
+    }
 	
 }

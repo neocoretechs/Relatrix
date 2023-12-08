@@ -40,7 +40,7 @@ public class BatteryRelatrixKVStream {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixKV.setTablespaceDirectory(argv[0]);
+		RelatrixKV.setTablespace(argv[0]);
 		battery1(argv);	// build and store
 		battery11(argv);  // build and store
 		battery1AR6(argv);

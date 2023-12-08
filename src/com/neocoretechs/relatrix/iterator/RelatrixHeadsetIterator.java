@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -43,6 +44,15 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
 		}
     }
     
+    public RelatrixHeadsetIterator(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.dmr_return = dmr_return;
+    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	try {
+			iter = RelatrixKV.findHeadMap(alias, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    }
 	@Override
 	public boolean hasNext() {
 		return iter.hasNext();

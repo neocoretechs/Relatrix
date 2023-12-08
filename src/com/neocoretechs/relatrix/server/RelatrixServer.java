@@ -127,7 +127,7 @@ public final class RelatrixServer extends TCPServer {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix database:"+db);
-		    Relatrix.setTablespaceDirectory(db);
+		    Relatrix.setTablespace(db);
 			if( args.length > 2) {
 				new RelatrixServer(args[1], Integer.parseInt(args[2]));
 			} else {

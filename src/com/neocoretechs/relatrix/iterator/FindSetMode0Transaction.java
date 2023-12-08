@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainMapRangeTransaction;
@@ -77,9 +78,46 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  		if( DEBUG  )
  			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
  	    return createRelatrixIterator(dmr);
- 	}	
+ 	}
+ 	
+    /**
+     * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+     */
+ 	@Override
+ 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+ 		MorphismTransaction dmr = null;
+ 		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
+ 			case 0: // dmr
+ 				dmr = new DomainMapRangeTransaction(null, null, null, true);
+ 				break;
+ 			case 1: // drm
+ 				dmr = new DomainRangeMapTransaction(null, null, null, true);
+ 				break;
+ 			case 2: // mdr
+ 				dmr = new MapDomainRangeTransaction(null, null, null, true);
+ 				break;
+ 			case 3: // mrd
+ 				dmr = new MapRangeDomainTransaction(null, null, null, true);
+ 				break;
+ 			case 4: // rdm
+ 				dmr = new RangeDomainMapTransaction(null, null, null, true);
+ 				break;
+ 			case 5: // rmd
+ 				dmr = new RangeMapDomainTransaction(null, null, null, true);
+ 				break;
+ 		}
+ 		if( DEBUG  )
+ 			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
+ 	    return createRelatrixIterator(alias, dmr);
+ 	}
+ 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	}
+	
+	@Override
+	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

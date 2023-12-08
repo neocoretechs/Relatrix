@@ -14,8 +14,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.neocoretechs.rocksack.KeyValue;
-import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -82,15 +80,12 @@ public final class Relatrix {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static synchronized void setTablespaceDirectory(String path) throws IOException {
-		File p = new File(path);
-		if(!new File(p.getParent()).isDirectory())
-			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
-		RelatrixKV.setTablespaceDirectory(path);
+	public static synchronized void setTablespace(String path) throws IOException {
+		RelatrixKV.setTablespace(path);
 	}
 	
-	public static synchronized String getTableSpaceDirectory() {
-		return RelatrixKV.getTableSpaceDirectory();
+	public static synchronized String getTableSpace() {
+		return RelatrixKV.getTableSpace();
 	}
 
 	/**
@@ -100,19 +95,32 @@ public final class Relatrix {
 	 * @throws IOException
 	 */
 	public static void setAlias(String alias, String path) throws IOException {
-		File p = new File(path);
-		if(!new File(p.getParent()).isDirectory())
-			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
-		RockSackAdapter.setTableSpaceDir(alias, path);
+		RelatrixKV.setAlias(alias, path);
 	}
 	
+	/**
+	 * Will return null if alias does not exist
+	 * @param alias
+	 * @return
+	 */
+	public static String getAlias(String alias) {
+		return RelatrixKV.getAlias(alias);
+	}
+	
+	/**
+	 * 
+	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
+	 */
+	public static String[][] getAliases() {
+		return RelatrixKV.getAliases();
+	}
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
 	 * @param alias
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
 	public static void removeAlias(String alias) throws NoSuchElementException {
-		RockSackAdapter.removeAlias(alias);
+		RelatrixKV.removeAlias(alias);
 	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
@@ -180,6 +188,73 @@ public final class Relatrix {
 	
 		return (DomainMapRange) identity;
 	}
+	
+	/**
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * @param d The Comparable representing the domain object for this morphism relationship.
+	 * @param m The Comparable representing the map object for this morphism relationship.
+	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 */
+	public static synchronized DomainMapRange store(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+		if( d == null || m == null || r == null)
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+		Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
+		// check for domain/map match
+		// Enforce categorical structure; domain->map function uniquely determines range.
+		// If the search winds up at the key or the key is empty or the domain->map exists, the key
+		// cannot be inserted.
+		((DomainMapRange)dmr).setUniqueKey(true);
+		if(RelatrixKV.contains(dmr)) {
+			throw new DuplicateKeyException("dmr:"+dmr);
+		}
+		((DomainMapRange)dmr).setUniqueKey(false);
+		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+		// and maintains the classes stores in IndexInstanceTable for future commit.
+		dmr = new DomainMapRange(d,m,r);
+		Morphism identity = dmr;
+		DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
+		indexClasses[1] = drm.getClass();
+		MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
+		indexClasses[2] = mdr.getClass();
+		MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
+		indexClasses[3] = mrd.getClass();
+		RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
+		indexClasses[4] = rdm.getClass();
+		RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
+		indexClasses[5] = rmd.getClass();
+		DBKey dbKey = null;
+		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
+		indexClasses[0] = null; // remove dmr from our commit lineup
+		try {
+			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		} // Use primary key DBKey as value for index keys
+		if( DEBUG  )
+			System.out.println("Relatrix.transactionalStore storing drm:"+drm);
+		RelatrixKV.store(alias, drm, dbKey);
+	
+		if( DEBUG  )
+			System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
+		RelatrixKV.store(alias, mdr, dbKey);
+	
+		if( DEBUG  )
+			System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
+		RelatrixKV.store(alias, mrd, dbKey);
+
+		if( DEBUG  )
+			System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
+		RelatrixKV.store(alias, rdm, dbKey);
+	
+		if( DEBUG  )
+			System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
+		RelatrixKV.store(alias, rmd, dbKey);
+	
+		return (DomainMapRange) identity;
+	}
 
 
 /**
@@ -189,8 +264,7 @@ public final class Relatrix {
 * @throws ClassNotFoundException 
 * @throws IllegalArgumentException 
 */
-public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-{
+public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove prepping to remove:"+c);
 	removeRecursive(c);
@@ -211,6 +285,36 @@ public static synchronized void remove(Comparable<?> c) throws IOException, Ille
 	if( DEBUG || DEBUGREMOVE )
 		System.out.println("Relatrix.remove exiting remove for key:"+c);
 }
+
+/**
+* Delete all relationships that this object participates in
+* @exception IOException low-level access or problems modifiying schema
+* @throws IllegalAccessException 
+* @throws ClassNotFoundException 
+* @throws IllegalArgumentException 
+*/
+public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	if( DEBUG || DEBUGREMOVE )
+		System.out.println("Relatrix.remove prepping to remove:"+c);
+	removeRecursive(alias, c);
+	try {
+		DBKey dbKey = IndexResolver.getIndexInstanceTable(alias).getByInstance(c);
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
+		if(dbKey != null) {
+			// Should delete instance and DbKey
+			IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		} else {
+			// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
+			RelatrixKV.remove(alias, c);
+		}
+	} catch (DuplicateKeyException e) {
+		throw new IOException(e);
+	}
+	if( DEBUG || DEBUGREMOVE )
+		System.out.println("Relatrix.remove exiting remove for key:"+c);
+}
+
 /**
  * Iterate through all possible relationships the given element may participate in, then recursively process those
  * relationships to remove references to those.
@@ -265,6 +369,62 @@ private static synchronized void removeRecursive(Comparable<?> c) throws IOExcep
 		remove(mo.getDomain(), mo.getMap(), mo.getRange());
 		// if this morphism participates in any relationship. remove that relationship recursively
 		removeRecursive(mo);
+	}
+}
+/**
+ * Iterate through all possible relationships the given element may participate in, then recursively process those
+ * relationships to remove references to those.
+ * @param c
+ * @throws IOException
+ * @throws IllegalArgumentException
+ * @throws ClassNotFoundException
+ * @throws IllegalAccessException
+ */
+private static synchronized void removeRecursive(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	ArrayList<Morphism> m = new ArrayList<Morphism>();
+	try {
+		Iterator<?> it = findSet(alias,c,"*","*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE)
+				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+			m.add((Morphism) o[0]); 
+		}
+	} catch(RuntimeException re) {
+		if( DEBUG || DEBUGREMOVE)
+			re.printStackTrace();
+	} // We can get this exception if the class types differ in domain
+	try {
+		Iterator<?> it = findSet(alias,"*",c,"*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+			m.add((Morphism) o[0]); 
+		}
+	} catch(RuntimeException re) {
+		if( DEBUG || DEBUGREMOVE)
+			re.printStackTrace();
+	} // we can get this exception if map class types differ
+	try {
+		Iterator<?> it = findSet(alias,"*","*",c);
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+			m.add((Morphism) o[0]); 
+		}
+	} catch(RuntimeException re) { 
+		if( DEBUG || DEBUGREMOVE)
+			re.printStackTrace(); 
+	} // we can get this exception if range class types differ
+	// Process our array of candidates
+	for(Morphism mo : m) {
+		if( DEBUG || DEBUGREMOVE)
+			System.out.println("Relatrix.remove removing:"+mo);
+		remove(alias, mo.getDomain(), mo.getMap(), mo.getRange());
+		// if this morphism participates in any relationship. remove that relationship recursively
+		removeRecursive(alias, mo);
 	}
 }
 /**
@@ -365,6 +525,90 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 }
 
 /**
+ * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
+ * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
+ * @param d
+ * @param m
+ * @param r
+ * @throws IllegalAccessException 
+ */
+public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
+	Morphism dmr = new DomainMapRange(d,m,r,true);
+	indexClasses[0] = dmr.getClass();
+	DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
+	indexClasses[1] = drm.getClass();
+	MapDomainRange mdr = new MapDomainRange(d,m,r,true);
+	indexClasses[2] = mdr.getClass();
+	MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
+	indexClasses[3] = mrd.getClass();
+	RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
+	indexClasses[4] = rdm.getClass();
+	RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
+	indexClasses[5] = rmd.getClass();
+
+	try {
+		Object o = RelatrixKV.get(alias, dmr);
+		if(o == null) {
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove could not find relationship dmr:"+dmr);
+			return;
+		}
+		DBKey dbKey = (DBKey)o;
+		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		o = RelatrixKV.get(drm);
+		if(o == null)
+			throw new IOException(drm+" not found for delete");
+		dbKey = (DBKey)o;
+		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		o = RelatrixKV.get(alias, mdr);
+		if(o == null)
+			throw new IOException(mdr+" not found for delete");
+		dbKey = (DBKey)o;
+		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		o = RelatrixKV.get(alias, mrd);
+		if(o == null)
+			throw new IOException(mrd+" not found for delete");
+		dbKey = (DBKey)o;
+		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		o = RelatrixKV.get(alias, rdm);
+		if(o == null)
+			throw new IOException(rdm+" not found for delete");
+		dbKey = (DBKey)o;
+		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		o = RelatrixKV.get(alias, rmd);
+		if(o == null)
+			throw new IOException(rmd+" not found for delete");
+		dbKey = (DBKey)o;
+		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+	} catch (ClassNotFoundException | DuplicateKeyException e) {
+		throw new IOException(e);
+	}
+
+	try {
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.remove removing dmr:"+dmr);
+			RelatrixKV.remove(alias, dmr);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+drm);
+			RelatrixKV.remove(alias, drm);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+mdr);
+			RelatrixKV.remove(alias, mdr);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+mrd);
+			RelatrixKV.remove(alias, mrd);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+rdm);
+			RelatrixKV.remove(alias, rdm);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove removing "+rmd);
+			RelatrixKV.remove(alias, rmd);
+	} catch (IllegalArgumentException | ClassNotFoundException e) {
+		throw new IOException(e);
+	}	
+}
+
+/**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects. Essentially this is the default permutation which
 * retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
@@ -385,8 +629,32 @@ public static synchronized void remove(Comparable<?> d, Comparable<?> m, Compara
 * @throws IllegalAccessException 
 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 */
-public static synchronized Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
-{
+public static synchronized Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+	return ifact.createIterator();
+}
+/**
+* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
+* matching the given set of operators and/or objects. Essentially this is the default permutation which
+* retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
+* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
+* The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
+* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
+* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
+* relationships of the 3 objects, of the type DomainMapRange. 
+* The returned elements(s) constitute identities in the sense of these morphisms satisfying
+* the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
+* the mathematical identity, or constitute the unique key in database terms.
+* @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param marg Object for the map of relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
+* @exception IOException low-level access or problems modifiying schema
+* @exception IllegalArgumentException the operator is invalid
+* @exception ClassNotFoundException if the Class of Object is invalid
+* @throws IllegalAccessException 
+* @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+*/
+public static synchronized Iterator<?> findSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 	return ifact.createIterator();
 }
@@ -912,7 +1180,7 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  }
 
  public static void main(String[] args) throws Exception {
-	setTablespaceDirectory(args[0]);
+	setTablespace(args[0]);
 	Relatrix.findStream("*", "*", "*").forEach((s) -> {
 		System.out.println(s.toString());
 	});

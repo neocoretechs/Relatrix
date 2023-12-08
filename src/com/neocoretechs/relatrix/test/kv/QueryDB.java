@@ -19,7 +19,7 @@ public class QueryDB {
 	* Dump key/value store
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespaceDirectory(argv[0]);
+		Relatrix.setTablespace(argv[0]);
 		dump1(argv[1],argv[2],argv[3]);
 		System.out.println("Dump COMPLETE.");
 		System.exit(0);

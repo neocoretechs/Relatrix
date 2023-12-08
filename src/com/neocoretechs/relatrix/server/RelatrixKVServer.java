@@ -80,7 +80,7 @@ public final class RelatrixKVServer extends TCPServer {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpaceDirectory());
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
@@ -105,7 +105,7 @@ public final class RelatrixKVServer extends TCPServer {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpaceDirectory());
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
@@ -174,7 +174,7 @@ public final class RelatrixKVServer extends TCPServer {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix K/V database:"+db);
-		    RelatrixKV.setTablespaceDirectory(db);
+		    RelatrixKV.setTablespace(db);
 			if( args.length > 2) {
 				new RelatrixKVServer(args[1], Integer.parseInt(args[2]));
 			} else {

@@ -18,7 +18,7 @@ public class DumpKVStore {
 	* Dump key/value store
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixKV.setTablespaceDirectory(argv[0]);
+		RelatrixKV.setTablespace(argv[0]);
 		dump1(argv);
 		System.out.println("Dump COMPLETE.");
 		System.exit(0);

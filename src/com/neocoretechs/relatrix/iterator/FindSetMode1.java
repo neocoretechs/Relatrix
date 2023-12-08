@@ -47,4 +47,17 @@ public class FindSetMode1 extends IteratorFactory {
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIterator( tdmr, dmr_return);
 	}
+	
+    /**
+     *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException {
+	    Morphism dmr = new RangeDomainMap(null, null, (Comparable)rarg, true);
+	    return createRelatrixIterator(alias, dmr);
+	}
+	
+	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException {
+	    return new RelatrixIterator(alias, tdmr, dmr_return);
+	}
 }

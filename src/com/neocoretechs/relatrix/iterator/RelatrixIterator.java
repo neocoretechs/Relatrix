@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -43,13 +44,13 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
     protected boolean identity = false;
     
     public RelatrixIterator() {}
-    /**
-     * Pass the array we use to indicate which values to return and element 0 counter
-     * @param dmr_return
-     * @throws IOException 
-     */
+	/**
+	 * Pass the array we use to indicate which values to return and element 0 counter
+	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
+	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @throws IOException
+	 */
     public RelatrixIterator(Morphism template, short[] dmr_return) throws IOException {
-    	//this.deepStore = bts;
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
@@ -71,7 +72,36 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
     	if( DEBUG )
 			System.out.println("RelatrixIterator "+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
     }
-    
+	/**
+	 * Pass the array we use to indicate which values to return and element 0 counter
+	 * @param alias
+	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
+	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @throws IOException
+	 */
+	public RelatrixIterator(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+	   	this.dmr_return = dmr_return;
+    	this.base = template;
+    	identity = isIdentity(this.dmr_return);
+    	try {
+			iter = RelatrixKV.findTailMap(alias, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( iter.hasNext() ) {
+			buffer = (Morphism) iter.next();
+			if( !templateMatches(base, buffer, dmr_return) ) {
+				buffer = null;
+				needsIter = false;
+			}
+    	} else {
+    		buffer = null;
+    		needsIter = false;
+    	}
+    	if( DEBUG )
+			System.out.println("RelatrixIterator "+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
+	}
+	
 	@Override
 	public boolean hasNext() {
 		if( DEBUG )

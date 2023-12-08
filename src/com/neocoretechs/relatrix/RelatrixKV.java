@@ -38,14 +38,14 @@ public final class RelatrixKV {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void setTablespaceDirectory(String path) throws IOException {
+	public static void setTablespace(String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
 		RockSackAdapter.setTableSpaceDir(path);
 	}
 	
-	public static String getTableSpaceDirectory() {
+	public static String getTableSpace() {
 		return RockSackAdapter.getTableSpaceDir();
 	}
 	
@@ -72,11 +72,11 @@ public final class RelatrixKV {
 	}
 	
 	/**
-	 * Will retrun null if alias does not exist
+	 * Will return null if alias does not exist
 	 * @param alias
 	 * @return
 	 */
-	public static String getTableSpaceDirectory(String alias) {
+	public static String getAlias(String alias) {
 		return RockSackAdapter.getTableSpaceDir(alias);
 	}
 	/**

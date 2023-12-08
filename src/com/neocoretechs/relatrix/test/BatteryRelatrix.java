@@ -36,7 +36,7 @@ public class BatteryRelatrix {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespaceDirectory(argv[0]);
+		Relatrix.setTablespace(argv[0]);
 		battery1(argv);
 		battery11(argv);
 		battery1AR6(argv);

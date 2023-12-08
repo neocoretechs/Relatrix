@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.MorphismTransaction;
@@ -42,5 +43,18 @@ public class FindSetMode1Transaction extends FindSetMode1 {
 	
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	}
+	
+	  /**
+     *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	    MorphismTransaction dmr = new RangeDomainMapTransaction(null, null, (Comparable)rarg, true);
+	    return createRelatrixIterator(alias, dmr);
+	}
+	
+	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }
