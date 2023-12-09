@@ -19,6 +19,7 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 * depending on the configuration of the findSet. The number of "?" elements determines the size of the returned Comparable array.
 * This mode represents the equivalent of 'SELECT ALL' for identities or morphisms where identities return 1 array element of the
 * morphism object itself, and the ("?","?","?") returns 3 elements of each of the independent objects that comprise the morphism relationship.
+* {@link Morphism}
 * <p/>
 * Examples:<br/>
 * ?,*,* domain,map,range order return domain in Comparable[0] <br/>

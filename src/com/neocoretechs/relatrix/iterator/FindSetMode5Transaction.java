@@ -6,7 +6,6 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.MorphismTransaction;
-import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DomainRangeMapTransaction;
 
 /**

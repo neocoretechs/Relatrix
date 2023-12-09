@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -38,6 +39,16 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKV.findSubMap(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    }
+    
+    public RelatrixSubsetIterator(String alias, Morphism template, Morphism template2, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.dmr_return = dmr_return;
+    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	try {
+			iter = RelatrixKV.findSubMap(alias, template, template2);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}

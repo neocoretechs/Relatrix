@@ -656,7 +656,7 @@ public static synchronized Iterator<?> findSet(Object darg, Object marg, Object 
 */
 public static synchronized Iterator<?> findSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-	return ifact.createIterator();
+	return ifact.createIterator(alias);
 }
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -687,6 +687,13 @@ public static synchronized Stream<?> findStream(Object darg, Object marg, Object
     Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
     return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
+
+public static synchronized Stream<?> findStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+    Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+    return (Stream<?>) StreamSupport.stream(spliterator, true);
+}
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 * matching the given set of operators and/or objects.
@@ -713,6 +720,17 @@ public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Obj
 		throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
 	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 	return ifact.createIterator();
+}
+
+public static synchronized Iterator<?> findTailSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	// check for at least one object reference
+	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
+		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
+		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
+		throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
+	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+	return ifact.createIterator(alias);
 }
 /**
 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -743,6 +761,18 @@ public static synchronized Stream<?> findTailStream(Object darg, Object marg, Ob
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
+
+public static synchronized Stream<?> findTailStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	// check for at least one object reference
+	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
+		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
+		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
+		throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
+	IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
+}
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
  * passed, to the given relationship, should the relationship contain an object as at least one of its components.
@@ -764,6 +794,13 @@ public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Obj
 	// check for at least one object reference in our headset factory
 	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 	return ifact.createIterator();
+}
+
+public static synchronized Iterator<?> findHeadSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	// check for at least one object reference in our headset factory
+	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+	return ifact.createIterator(alias);
 }
 /**
  * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -787,6 +824,14 @@ public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Ob
 	// check for at least one object reference in our headset factory
 	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
+}
+
+public static synchronized Stream<?> findHeadStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	// check for at least one object reference in our headset factory
+	IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
 /**
@@ -826,6 +871,23 @@ public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Obje
 		throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 	return ifact.createIterator();
+}
+
+public static synchronized Iterator<?> findSubSet(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	// check for at least one object reference
+	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
+		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
+		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
+		throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
+	int numberObjects = 0;
+	if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
+	if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
+	if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
+	if( numberObjects != endarg.length)
+		throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
+	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+	return ifact.createIterator(alias);
 }
 /**
  * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
@@ -867,6 +929,24 @@ public static synchronized Stream<?> findSubStream(Object darg, Object marg, Obj
 	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 	return (Stream<?>) StreamSupport.stream(spliterator, true);
 }
+
+public static synchronized Stream<?> findSubStream(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+{
+	// check for at least one object reference
+	if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
+		(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
+		(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
+		throw new IllegalArgumentException("At least one argument to findSubStream must contain an object reference");
+	int numberObjects = 0;
+	if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
+	if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
+	if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
+	if( numberObjects != endarg.length)
+		throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
+	IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+	return (Stream<?>) StreamSupport.stream(spliterator, true);
+}
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
  * instance having the lowest valued key value of the index classes.
@@ -880,6 +960,18 @@ public static synchronized Object first() throws IOException
 	}
 	try {
 		return RelatrixKV.firstKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+public static synchronized Object first(String alias) throws IOException, NoSuchElementException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.firstKey(alias, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -901,6 +993,18 @@ public static synchronized Object firstKey() throws IOException
 		throw new IOException(e);
 	}
 }
+
+public static synchronized Object firstKey(String alias) throws IOException, NoSuchElementException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.firstKey(alias, indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
  * instance having the lowest valued key value of the index classes.
@@ -914,6 +1018,18 @@ public static synchronized Object firstValue() throws IOException
 	}
 	try {
 		return RelatrixKV.firstValue(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+public static synchronized Object firstValue(String alias) throws IOException, NoSuchElementException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.firstValue(alias, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -933,6 +1049,14 @@ public static synchronized Object first(Class clazz) throws IOException
 	}
 }
 
+public static synchronized Object first(String alias, Class clazz) throws IOException, NoSuchElementException
+{
+	try {
+		return RelatrixKV.firstKey(alias, clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
  * instance having the highest valued key.
@@ -946,6 +1070,18 @@ public static synchronized Object last() throws IOException
 	}
 	try {
 		return RelatrixKV.lastKey(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+public static synchronized Object last(String alias) throws IOException, NoSuchElementException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.lastKey(alias, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -967,6 +1103,18 @@ public static synchronized Object lastKey() throws IOException
 		throw new IOException(e);
 	}
 }
+
+public static synchronized Object lastKey(String alias) throws IOException, NoSuchElementException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.lastKey(alias, indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
  * instance having the value of the highest valued key.
@@ -980,6 +1128,18 @@ public static synchronized Object lastValue() throws IOException
 	}
 	try {
 		return RelatrixKV.lastValue(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+public static synchronized Object lastValue(String alias) throws IOException, NoSuchElementException
+{
+	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+		return null;
+	}
+	try {
+		return RelatrixKV.lastValue(alias, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -998,6 +1158,15 @@ public static synchronized Object last(Class clazz) throws IOException
 		throw new IOException(e);
 	}
 }
+
+public static synchronized Object last(String alias, Class clazz) throws IOException, NoSuchElementException
+{
+	try {
+		return RelatrixKV.lastKey(alias, clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
  * instance having the highest valued key.
@@ -1008,6 +1177,15 @@ public static synchronized Object lastKey(Class clazz) throws IOException
 {
 	try {
 		return RelatrixKV.lastKey(clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+public static synchronized Object lastKey(String alias, Class clazz) throws IOException, NoSuchElementException
+{
+	try {
+		return RelatrixKV.lastKey(alias, clazz);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -1026,6 +1204,15 @@ public static synchronized Object lastValue(Class clazz) throws IOException
 		throw new IOException(e);
 	}
 }
+
+public static synchronized Object lastValue(String alias, Class clazz) throws IOException, NoSuchElementException
+{
+	try {
+		return RelatrixKV.lastValue(alias, clazz);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
 /**
  * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
  * instances.
@@ -1034,12 +1221,23 @@ public static synchronized Object lastValue(Class clazz) throws IOException
  */
 public static synchronized long size() throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if( indexClasses[0] == null ) {
 		return -1;
 	}
-	//return transactionTreeSets[0].size();
 	try {
 		return RelatrixKV.size(indexClasses[0]);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
+
+public static synchronized long size(String alias) throws IOException, NoSuchElementException
+{
+	if( indexClasses[0] == null ) {
+		return -1;
+	}
+	try {
+		return RelatrixKV.size(alias, indexClasses[0]);
 	} catch (IllegalAccessException e) {
 		throw new IOException(e);
 	}
@@ -1052,10 +1250,9 @@ public static synchronized long size() throws IOException
  */
 public static synchronized boolean contains(Comparable obj) throws IOException
 {
-	if( /*transactionTreeSets*/indexClasses[0] == null ) {
+	if(indexClasses[0] == null ) {
 		return false;
 	}
-	//return transactionTreeSets[0].contains(obj);
 	try {
 		return RelatrixKV.contains(obj);
 	} catch (IllegalAccessException e) {
@@ -1063,6 +1260,17 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	}
 }
 
+public static synchronized boolean contains(String alias, Comparable obj) throws IOException, NoSuchElementException
+{
+	if(indexClasses[0] == null ) {
+		return false;
+	}
+	try {
+		return RelatrixKV.contains(alias, obj);
+	} catch (IllegalAccessException e) {
+		throw new IOException(e);
+	}
+}
 	/**
 	 * Get the new DBkey.
 	 * @return
@@ -1089,6 +1297,11 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  {
 	 return RelatrixKV.firstKey(clazz);
  }
+ 
+ public static synchronized Object firstKey(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+ {
+	 return RelatrixKV.firstKey(alias, clazz);
+ }
  /**
   * The lowest key value object
   * @param clazz the class to retrieve
@@ -1100,6 +1313,11 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  {
 	 return RelatrixKV.firstValue(clazz);
  }
+ 
+ public static synchronized Object firstValue(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+ {
+	 return RelatrixKV.firstValue(alias, clazz);
+ }
  /**
   * Return the value for the key.
   * @param key the key to retrieve
@@ -1110,6 +1328,11 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
  {
 	 return RelatrixKV.get(key);
+ }
+ 
+ public static synchronized Object get(String alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
+ {
+	 return RelatrixKV.get(alias, key);
  }
  /**
   * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -1123,6 +1346,11 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  {
 	 return IndexResolver.getIndexInstanceTable().getByIndex((DBKey) key);
  }
+ 
+ public static synchronized Object getByIndex(String alias, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
+ {
+	 return IndexResolver.getIndexInstanceTable(alias).getByIndex((DBKey) key);
+ }
  /**
   * Return the keyset for the given class
   * @param clazz the class to retrieve
@@ -1133,6 +1361,11 @@ public static synchronized boolean contains(Comparable obj) throws IOException
  public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
  {
 	 return RelatrixKV.keySet(clazz);
+ }
+ 
+ public static synchronized Iterator<?> keySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+ {
+	 return RelatrixKV.keySet(alias, clazz);
  }
  /**
   * Return the entry set for the given class type
@@ -1146,6 +1379,17 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	 return RelatrixKV.entrySetStream(clazz);
  }
  
+ public static synchronized Stream<?> entrySetStream(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+ {
+	 return RelatrixKV.entrySetStream(alias, clazz);
+ }
+ 
+ /**
+  * Generate the recursively resolved list of relationships in the given Morphism. If none of the components
+  * of the relationship are themselves relationships, the original set of related objects in the tuple is returned as a list.
+  * @param morphism the target for resolution
+  * @return the recursively resolved list of relationships depth first from domain to range
+  */
  public static synchronized List<Comparable> resolve(Comparable morphism) {
 	 ArrayList<Comparable> res = new ArrayList<Comparable>();
 	 Morphism.resolve(morphism, res);
@@ -1179,6 +1423,12 @@ public static synchronized boolean contains(Comparable obj) throws IOException
 	HandlerClassLoader.removeBytesInRepository(pack);
  }
 
+ /**
+  * Print the set of identity relationships for the tablespace given in param line argument.
+  * Executes a Relatrix.findStream("*","*","*") and for each stream element prints to console.
+  * @param args
+  * @throws Exception
+  */
  public static void main(String[] args) throws Exception {
 	setTablespace(args[0]);
 	Relatrix.findStream("*", "*", "*").forEach((s) -> {

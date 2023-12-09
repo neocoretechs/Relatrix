@@ -1,6 +1,8 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
+
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
 /**
@@ -19,6 +21,19 @@ public class RelatrixKVIteratorTransaction extends RelatrixKVIterator {
     public RelatrixKVIteratorTransaction(String xid, Comparable template) throws IOException {
     	try {
 			iter = RelatrixKVTransaction.findTailMapKV(xid, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( iter.hasNext() ) {
+			buffer = (Comparable) iter.next();
+    	if( DEBUG )
+			System.out.println("RelatrixKVIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
+    	}
+    }
+    
+    public RelatrixKVIteratorTransaction(String alias, String xid, Comparable template) throws IOException, NoSuchElementException {
+    	try {
+			iter = RelatrixKVTransaction.findTailMapKV(alias, xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}

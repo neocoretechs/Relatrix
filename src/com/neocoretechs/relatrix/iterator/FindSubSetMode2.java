@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 
@@ -52,5 +53,23 @@ public class FindSubSetMode2 extends FindSetMode2 {
 			   throw new IOException(e);
 		   }
 		   return new RelatrixSubsetIterator(tdmr, templdmr, dmr_return);
+	   }
+	  
+	  @Override
+	  protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		   // make a new Morphism template
+		   Morphism templdmr;
+		   try {
+			   // primarily for class type than values of instance
+			   templdmr = (Morphism) tdmr.clone();
+			   // move the end range into the new template in the proper position
+			   int ipos = 0;
+			   if( tdmr.getMap() != null ) {
+					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
+			   }
+		   } catch (CloneNotSupportedException e) {
+			   throw new IOException(e);
+		   }
+		   return new RelatrixSubsetIterator(alias, tdmr, templdmr, dmr_return);
 	   }
 }

@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -31,6 +32,17 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKVTransaction.findSubMap(xid, template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    }
+    
+    public RelatrixSubsetIteratorTransaction(String alias, String xid, Morphism template, Morphism template2, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.xid = xid;
+    	this.dmr_return = dmr_return;
+    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	try {
+			iter = RelatrixKVTransaction.findSubMap(alias, xid, template, template2);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}

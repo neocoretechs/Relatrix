@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 
@@ -25,5 +26,10 @@ public class FindHeadSetMode5Transaction extends FindSetMode5Transaction {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, dmr_return);
+	}
+	
+	@Override
+	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

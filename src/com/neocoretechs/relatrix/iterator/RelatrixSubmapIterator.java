@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 /**
@@ -24,6 +25,14 @@ public class RelatrixSubmapIterator implements Iterator<Comparable> {
     public RelatrixSubmapIterator(Comparable template, Comparable template2) throws IOException {
     	try {
 			iter = RelatrixKV.findSubMap(template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    }
+    
+    public RelatrixSubmapIterator(String alias, Comparable template, Comparable template2) throws IOException, NoSuchElementException {
+    	try {
+			iter = RelatrixKV.findSubMap(alias, template, template2);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}

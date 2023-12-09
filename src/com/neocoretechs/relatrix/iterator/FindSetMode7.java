@@ -7,7 +7,6 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.DomainMapRange;
 
-
 /**
 * Identity morphism retrieval.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021

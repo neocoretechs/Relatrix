@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -23,6 +24,19 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     public RelatrixEntrysetIteratorTransaction(String xid, Class c) throws IOException {
     	try {
 			iter = RelatrixKVTransaction.entrySet(xid, c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( iter.hasNext() ) {
+			buffer = (Comparable) iter.next();
+    	if( DEBUG )
+			System.out.println("RelatrixEntrysetIterator Id:"+xid+" hasNext:"+iter.hasNext()+" "+needsIter+" "+buffer);
+    	}
+    }
+    
+    public RelatrixEntrysetIteratorTransaction(String alias, String xid, Class c) throws IOException, NoSuchElementException {
+    	try {
+			iter = RelatrixKVTransaction.entrySet(alias, xid, c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}

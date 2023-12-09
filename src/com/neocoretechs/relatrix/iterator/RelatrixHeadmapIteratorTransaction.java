@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
@@ -22,6 +23,19 @@ public class RelatrixHeadmapIteratorTransaction extends RelatrixHeadmapIterator 
     public RelatrixHeadmapIteratorTransaction(String xid, Comparable template) throws IOException {
     	try {
 			iter = RelatrixKVTransaction.findHeadMap(xid, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( iter.hasNext() ) {
+			buffer = (Comparable) iter.next();
+    	if( DEBUG )
+			System.out.println("RelatrixHeadmapIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
+    	}
+    }
+    
+    public RelatrixHeadmapIteratorTransaction(String alias, String xid, Comparable template) throws IOException, NoSuchElementException {
+    	try {
+			iter = RelatrixKVTransaction.findHeadMap(alias, xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}

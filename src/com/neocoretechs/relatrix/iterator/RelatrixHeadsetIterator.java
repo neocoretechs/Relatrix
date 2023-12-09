@@ -53,6 +53,7 @@ public class RelatrixHeadsetIterator implements Iterator<Comparable[]> {
 			throw new IOException(e);
 		}
     }
+    
 	@Override
 	public boolean hasNext() {
 		return iter.hasNext();
