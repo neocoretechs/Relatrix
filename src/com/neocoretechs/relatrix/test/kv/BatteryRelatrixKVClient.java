@@ -35,8 +35,6 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
 public class BatteryRelatrixKVClient {
 	public static boolean DEBUG = false;
 	public static RelatrixKVClient rkvc;
-	static String key = "This is a test"; // holds the base random key string for tests
-	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
 	static int max = 100000;
@@ -179,7 +177,6 @@ public class BatteryRelatrixKVClient {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "?", "*");
 	 * @param argv
 	 * @throws Exception
 	 */

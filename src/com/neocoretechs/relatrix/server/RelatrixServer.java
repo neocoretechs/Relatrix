@@ -123,18 +123,24 @@ public final class RelatrixServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length > 1) {
+		if(args.length == 3) {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix database:"+db);
+		    System.out.println("Bringing up Relatrix tablespace:"+db);
 		    Relatrix.setTablespace(db);
-			if( args.length > 2) {
-				new RelatrixServer(args[1], Integer.parseInt(args[2]));
-			} else {
-				new RelatrixServer(Integer.parseInt(args[1]));
-			}
+			new RelatrixServer(args[1], Integer.parseInt(args[2]));
 		} else {
-			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer /path/to/database/databasename [address] <port>");
+			if( args.length == 2) {
+			    System.out.println("Bringing up Relatrix default tablespace:");
+				new RelatrixServer(args[0], Integer.parseInt(args[1]));
+			} else {
+				if(args.length == 1) {
+					System.out.println("Bringing up Relatrix default tablespace:");
+					new RelatrixServer(Integer.parseInt(args[0]));
+				} else {
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [/path/to/database/databasename] [address] <port>");
+				}
+			}
 		}
  
 	}

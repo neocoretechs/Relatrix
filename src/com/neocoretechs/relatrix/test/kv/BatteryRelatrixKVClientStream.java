@@ -28,8 +28,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
 public class BatteryRelatrixKVClientStream {
 	public static boolean DEBUG = false;
 	public static RelatrixKVClient rkvc;
-	static String key = "This is a test"; // holds the base random key string for tests
-	static String val = "Of a Relatrix element!"; // holds base random value string
+
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
 	static int max = 100000;
@@ -446,7 +445,7 @@ public class BatteryRelatrixKVClientStream {
 			RemoteStream stream = rkvc.entrySetStream(String.class);
 			stream.of().forEach(e ->{
 				//System.out.println(i+"="+key);
-				System.out.println(key+"="+e);
+				System.out.println(e);
 			});
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");

@@ -126,20 +126,25 @@ public final class RelatrixTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length > 1) {
+		if(args.length == 3) {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix Transaction database:"+db);
+		    System.out.println("Bringing up Relatrix Transaction tablespace:"+db);
 		    RelatrixTransaction.setTablespaceDirectory(db);
-			if( args.length > 2) {
-				new RelatrixTransactionServer(args[1], Integer.parseInt(args[2]));
-			} else {
-				new RelatrixTransactionServer(Integer.parseInt(args[1]));
-			}
+			new RelatrixTransactionServer(args[1], Integer.parseInt(args[2]));
 		} else {
-			System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixTransactionServer /path/to/database/databasename [address] <port>");
+			if( args.length == 2) {
+			    System.out.println("Bringing up Relatrix Transaction default tablespace:");
+				new RelatrixTransactionServer(args[0], Integer.parseInt(args[1]));
+			} else {
+				if(args.length == 1) {
+				    System.out.println("Bringing up Relatrix Transaction default tablespace:");
+				    new RelatrixTransactionServer(Integer.parseInt(args[0]));
+				} else {
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixTransactionServer [/path/to/database/databasename] [address] <port>");
+				}
+			}
 		}
- 
 	}
 
 }
