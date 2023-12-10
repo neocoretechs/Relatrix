@@ -82,7 +82,7 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias1, fkey, new Long(i));
+				RelatrixKV.store(alias1, fkey+alias1, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -95,7 +95,7 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias2, fkey, new Long(i));
+				RelatrixKV.store(alias2, fkey+alias2, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -108,7 +108,7 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias3, fkey, new Long(i));
+				RelatrixKV.store(alias3, fkey+alias3, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -123,22 +123,21 @@ public class BatteryRelatrixKVAlias {
 	public static void battery11(String[] argv) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
-		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-				Object o = RelatrixKV.get(alias1,fkey);
+				Object o = RelatrixKV.get(alias1,fkey+alias1);
 				if(i != ((Long)o).intValue()) {
 					System.out.println(alias1+" RANGE KEY MISMATCH for 'get':"+i+" - "+o);
 					++recs;
 				}
-				o = RelatrixKV.get(alias2,fkey);
+				o = RelatrixKV.get(alias2,fkey+alias2);
 				if(i != ((Long)o).intValue()) {
 					System.out.println(alias2+" RANGE KEY MISMATCH for 'get':"+i+" - "+o);
 					++recs;
 				}
-				o = RelatrixKV.get(alias3,fkey);
+				o = RelatrixKV.get(alias3,fkey+alias3);
 				if(i != ((Long)o).intValue()) {
 					System.out.println(alias3+" RANGE KEY MISMATCH for 'get':"+i+" - "+o);
 					++recs;
@@ -208,9 +207,9 @@ public class BatteryRelatrixKVAlias {
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
 			// Map.Entry
-			if(Integer.parseInt(nex1) != i ||
-					Integer.parseInt(nex2) != i	||
-					Integer.parseInt(nex3) != i)
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3))
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			else
 				++i;
@@ -229,9 +228,9 @@ public class BatteryRelatrixKVAlias {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = String.format(uniqKeyFmt, i);
-		boolean bits1 = RelatrixKV.contains(alias1,fkey);
-		boolean bits2 = RelatrixKV.contains(alias2,fkey);
-		boolean bits3 = RelatrixKV.contains(alias3,fkey);
+		boolean bits1 = RelatrixKV.contains(alias1,fkey+alias1);
+		boolean bits2 = RelatrixKV.contains(alias2,fkey+alias2);
+		boolean bits3 = RelatrixKV.contains(alias3,fkey+alias3);
 		System.out.println("KV Battery1AR8");
 		if( !bits1 || !bits2 || !bits3 ) {
 			System.out.println("KV BATTERY1A8 cant find contains key "+i);
@@ -261,9 +260,9 @@ public class BatteryRelatrixKVAlias {
 		Object k2 = RelatrixKV.firstKey(alias2, String.class); // first key
 		Object k3 = RelatrixKV.firstKey(alias3, String.class); // first key
 		System.out.println("KV Battery1AR9");
-		if( Integer.parseInt((String)k1) != i ||
-				Integer.parseInt((String)k2) != i ||
-				Integer.parseInt((String)k3) != i) {
+		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1) ||
+				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2) ||
+				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3)) {
 			System.out.println("KV BATTERY1A9 cant find first key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find first key "+i);
 		}
@@ -289,9 +288,9 @@ public class BatteryRelatrixKVAlias {
 		Object k2 = RelatrixKV.lastKey(alias2, String.class); // last key
 		Object k3 = RelatrixKV.lastKey(alias3, String.class); // last key
 		System.out.println("KV Battery1AR10");
-		if( Integer.parseInt((String)k1) != i ||
-				Integer.parseInt((String)k2) != i ||
-				Integer.parseInt((String)k3) != i) {
+		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1) ||
+				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2) ||
+				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3)) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last key "+i);
 		}
@@ -323,7 +322,7 @@ public class BatteryRelatrixKVAlias {
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMap test, basically tailmap returning keys
+	 * findMap test, basically tailmap returning keys indicated by partial key retrieval of numerical part
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -340,9 +339,9 @@ public class BatteryRelatrixKVAlias {
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
 			// Map.Entry
-			if(Integer.parseInt(nex1) != i
-					|| Integer.parseInt(nex2) != i
-					|| Integer.parseInt(nex3) != i) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) 
+					|| Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) 
+					|| Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			}
@@ -370,9 +369,9 @@ public class BatteryRelatrixKVAlias {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey()) != i ||
-					Integer.parseInt(nexf.getKey()) != i ||
-					Integer.parseInt(nexg.getKey()) != i) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -401,10 +400,9 @@ public class BatteryRelatrixKVAlias {
 			String nex1 = (String) its1.next();
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
-			if(Integer.parseInt(nex1) != i ||
-					Integer.parseInt(nex2) != i ||
-					Integer.parseInt(nex3) != i) {
-			// Map.Entry
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			}
@@ -434,9 +432,9 @@ public class BatteryRelatrixKVAlias {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey()) != i ||
-					Integer.parseInt(nexf.getKey()) != i ||
-					Integer.parseInt(nexg.getKey()) != i) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -467,9 +465,9 @@ public class BatteryRelatrixKVAlias {
 			String nex1 = (String) its1.next();
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
-			if(Integer.parseInt(nex1) != i ||
-					Integer.parseInt(nex2) != i	||
-					Integer.parseInt(nex3) != i) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
@@ -503,9 +501,9 @@ public class BatteryRelatrixKVAlias {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey()) != i ||
-					Integer.parseInt(nexe.getKey()) != i ||
-					Integer.parseInt(nexe.getKey()) != i) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -530,9 +528,9 @@ public class BatteryRelatrixKVAlias {
 		// with i at max, should catch them all
 		for(int i = min; i < max; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKV.remove(alias12, fkey);
+			RelatrixKV.remove(alias12, fkey+alias12);
 			// Map.Entry
-			if(RelatrixKV.contains(alias12, fkey)) { 
+			if(RelatrixKV.contains(alias12, fkey+alias12)) { 
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
@@ -565,9 +563,9 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias1, fkey, new Long(i));
-				RelatrixKV.store(alias2, fkey, new Long(i));
-				RelatrixKV.store(alias3, fkey, new Long(i));
+				RelatrixKV.store(alias1, fkey+alias1, new Long(i));
+				RelatrixKV.store(alias2, fkey+alias2, new Long(i));
+				RelatrixKV.store(alias3, fkey+alias3, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -577,9 +575,9 @@ public class BatteryRelatrixKVAlias {
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias1, fkey, new Long(i));
-				RelatrixKV.store(alias2, fkey, new Long(i));
-				RelatrixKV.store(alias3, fkey, new Long(i));
+				RelatrixKV.store(alias1, fkey+alias1, new Long(i));
+				RelatrixKV.store(alias2, fkey+alias2, new Long(i));
+				RelatrixKV.store(alias3, fkey+alias3, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
