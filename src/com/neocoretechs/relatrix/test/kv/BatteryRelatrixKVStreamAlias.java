@@ -39,7 +39,12 @@ public class BatteryRelatrixKVStreamAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixKV.setTablespace(argv[0]);
+		String tablespace = argv[0];
+		if(!tablespace.endsWith("/"))
+			tablespace += "/";
+		RelatrixKV.setAlias(alias1,tablespace+alias1);
+		RelatrixKV.setAlias(alias2,tablespace+alias2);
+		RelatrixKV.setAlias(alias3,tablespace+alias3);
 		battery1(argv);	// build and store
 		battery1AR6(argv);
 		battery1AR7(argv);
