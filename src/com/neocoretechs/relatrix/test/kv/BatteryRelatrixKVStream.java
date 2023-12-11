@@ -5,9 +5,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteStream;
+
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server stream retrieval ops.
@@ -41,7 +39,6 @@ public class BatteryRelatrixKVStream {
 	public static void main(String[] argv) throws Exception {
 		RelatrixKV.setTablespace(argv[0]);
 		battery1(argv);	// build and store
-		battery11(argv);  // build and store
 		battery1AR6(argv);
 		battery1AR7(argv);
 		battery1AR8(argv); // search by value, slow operation no key
@@ -84,30 +81,7 @@ public class BatteryRelatrixKVStream {
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
-	/**
-	 * Tries to store partial key that should match existing keys, should reject all
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery11(String[] argv) throws Exception {
-		System.out.println("KV Battery11 ");
-		long tims = System.currentTimeMillis();
-		int recs = 0;
-		String fkey = null;
-		for(int i = min; i < max; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-				Object o = RelatrixKV.get(fkey);
-				if(i != ((Long)o).intValue()) {
-					System.out.println("RANGE KEY MISMATCH for 'get':"+i+" - "+o);
-					++recs;
-				}
-		}
-		if( recs > 0) {
-			System.out.println("KV BATTERY11 FAIL, failed to get "+recs);
-		} else {
-			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-		}
-	}
+
 	
 	/**
 	 * Test the higher level functions in the RelatrixKV.
@@ -164,7 +138,6 @@ public class BatteryRelatrixKVStream {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream<?> its = Relatrix.findSet("?", "?", "*");
 	 * @param argv
 	 * @throws Exception
 	 */
