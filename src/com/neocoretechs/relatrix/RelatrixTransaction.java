@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.UUID;
@@ -80,17 +81,64 @@ public final class RelatrixTransaction {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static synchronized void setTablespaceDirectory(String path) throws IOException {
+	public static void setTablespace(String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
-		RelatrixKVTransaction.setTablespaceDirectory(path);
+		RockSackAdapter.setTableSpaceDir(path);
 	}
 	
-	public static synchronized String getTableSpaceDirectory() {
-		return RelatrixKVTransaction.getTableSpaceDirectory();
+	/**
+	 * Get the default tablespace directory
+	 * @return the path/dbname of current default tablespace
+	 */
+	public static String getTableSpace() {
+		return RockSackAdapter.getTableSpaceDir();
 	}
-
+	/**
+	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
+	 * @param alias
+	 * @param path
+	 * @throws IOException
+	 */
+	public static void setAlias(String alias, String path) throws IOException {
+		File p = new File(path);
+		if(!new File(p.getParent()).isDirectory())
+			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
+		RockSackAdapter.setTableSpaceDir(alias, path);
+	}
+	
+	/**
+	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
+	 * @param alias
+	 * @throws NoSuchElementException if the alias was not ofund
+	 */
+	public static void removeAlias(String alias) throws NoSuchElementException {
+		RockSackAdapter.removeAlias(alias);
+	}
+	
+	/**
+	 * Will return null if alias does not exist
+	 * @param alias
+	 * @return
+	 */
+	public static String getAlias(String alias) {
+		return RockSackAdapter.getTableSpaceDir(alias);
+	}
+	/**
+	 * 
+	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
+	 */
+	public static String[][] getAliases() {
+		return RockSackAdapter.getAliases();
+	}
+	
+	/**
+	 * Get a new transaction ID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
 	public static String getTransactionId() throws IllegalAccessException, IOException {
 		String xid =  RockSackAdapter.getRockSackTransactionId();
 		IndexResolver.setIndexInstanceTable(xid);
@@ -998,7 +1046,7 @@ public static synchronized void rollback(String xid, Class clazz) throws IOExcep
  }
 
  public static void main(String[] args) throws Exception {
-	setTablespaceDirectory(args[0]);
+	setTablespace(args[0]);
 	RelatrixTransaction.findStream(args[1], "*", "*", "*").forEach((s) -> {
 		System.out.println(s.toString());
 	});

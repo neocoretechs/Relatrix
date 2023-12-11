@@ -80,7 +80,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpaceDirectory()); // use default path
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
@@ -110,7 +110,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpaceDirectory()); // use default path
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
@@ -164,7 +164,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix K/V Transaction tablespace:"+db);
-		    RelatrixKVTransaction.setTablespaceDirectory(db);
+		    RelatrixKVTransaction.setTablespace(db);
 		    new RelatrixKVTransactionServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {

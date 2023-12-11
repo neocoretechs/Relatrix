@@ -130,7 +130,7 @@ public final class RelatrixTransactionServer extends TCPServer {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix Transaction tablespace:"+db);
-		    RelatrixTransaction.setTablespaceDirectory(db);
+		    RelatrixTransaction.setTablespace(db);
 			new RelatrixTransactionServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {

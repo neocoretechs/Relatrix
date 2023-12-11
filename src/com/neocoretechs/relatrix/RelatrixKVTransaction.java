@@ -37,11 +37,19 @@ public final class RelatrixKVTransaction {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void setTablespaceDirectory(String path) throws IOException {
+	public static void setTablespace(String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
 		RockSackAdapter.setTableSpaceDir(path);
+	}
+	
+	/**
+	 * Get the default tablespace directory
+	 * @return the path/dbname of current default tablespace
+	 */
+	public static String getTableSpace() {
+		return RockSackAdapter.getTableSpaceDir();
 	}
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
@@ -55,23 +63,31 @@ public final class RelatrixKVTransaction {
 			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
 		RockSackAdapter.setTableSpaceDir(alias, path);
 	}
+	
 	/**
-	 * Get the default tablespace directory
-	 * @return the path/dbname of current default tablespace
+	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
+	 * @param alias
+	 * @throws NoSuchElementException if the alias was not ofund
 	 */
-	public static String getTableSpaceDirectory() {
-		return RockSackAdapter.getTableSpaceDir();
+	public static void removeAlias(String alias) throws NoSuchElementException {
+		RockSackAdapter.removeAlias(alias);
 	}
 	
 	/**
-	 * Will retrun null if alias does not exist
+	 * Will return null if alias does not exist
 	 * @param alias
 	 * @return
 	 */
-	public static String getTableSpaceDirectory(String alias) {
+	public static String getAlias(String alias) {
 		return RockSackAdapter.getTableSpaceDir(alias);
 	}
-	
+	/**
+	 * 
+	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
+	 */
+	public static String[][] getAliases() {
+		return RockSackAdapter.getAliases();
+	}
 	/**
 	 * @return the transaction id
 	 * @throws IllegalAccessException

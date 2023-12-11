@@ -60,7 +60,7 @@ public class BatteryRelatrixKVTransaction {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransaction <DB>");
 			System.exit(1);
 		}
-		RelatrixKVTransaction.setTablespaceDirectory(argv[0]);
+		RelatrixKVTransaction.setTablespace(argv[0]);
 		String xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);	
 		battery11(xid);
