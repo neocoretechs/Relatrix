@@ -102,20 +102,6 @@ public final class RelatrixKVTransaction {
 	}
 	
 	/**
-	 * Get the transaction id for the given alias
-	 * @param alias the database alias
-	 * @return the transaction id
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException 
-	 */
-	public static String getTransactionId(String alias) throws IllegalAccessException, IOException, ClassNotFoundException {
-		String xid = RockSackAdapter.getRockSackTransactionId();
-		IndexResolver.setAlias(alias);
-		IndexResolver.setIndexInstanceTable(xid);
-		return xid;
-	}
-	/**
 	 * @param xid the transaction id
 	 * @throws IllegalAccessException
 	 * @throws IOException
