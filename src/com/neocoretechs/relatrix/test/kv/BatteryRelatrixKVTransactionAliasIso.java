@@ -61,6 +61,17 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		battery1AR17(alias1, xid1,xid2,xid3);
 		battery1AR17(alias2, xid2,xid1,xid3);
 		battery1AR17(alias3, xid3,xid1,xid2);
+		// roll back deletes
+		RelatrixKVTransaction.rollback(alias1, xid1);
+		RelatrixKVTransaction.rollback(alias2, xid2);
+		RelatrixKVTransaction.rollback(alias3, xid3);
+		// re-run check to verify rollback
+		battery1AR16(xid1,xid2,xid3);
+		// now delete
+		battery1AR17(alias1, xid1,xid2,xid3);
+		battery1AR17(alias2, xid2,xid1,xid3);
+		battery1AR17(alias3, xid3,xid1,xid2);
+		// re-load and commit
 		battery18(xid1,xid2,xid3);
 		RelatrixKVTransaction.commit(alias1, xid1);
 		RelatrixKVTransaction.commit(alias2, xid2);
@@ -598,6 +609,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
+	 * First perform rollback of all previous
 	 * @param xid3 
 	 * @param xid2 
 	 * @param argv
@@ -610,24 +622,51 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
+
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				RelatrixKVTransaction.store(alias1, xid, fkey+alias1, new Long(i));
-				RelatrixKVTransaction.store(alias2, xid, fkey+alias2, new Long(i));
-				RelatrixKVTransaction.store(alias3, xid, fkey+alias3, new Long(i));
+				RelatrixKVTransaction.store(alias2, xid2, fkey+alias2, new Long(i));
+				RelatrixKVTransaction.store(alias3, xid3, fkey+alias3, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
+		// take a checkpoint
+		RelatrixKVTransaction.checkpoint(xid);
+		RelatrixKVTransaction.checkpoint(xid2);
+		RelatrixKVTransaction.checkpoint(xid3);
 		long s = RelatrixKVTransaction.size(alias1, xid, String.class);
 		if(s != max1)
-			System.out.println("Size at halway point of restore incorrect:"+s+" should be "+max1);
+			System.out.println("Size at halfway point of restore incorrect:"+s+" should be "+max1);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				RelatrixKVTransaction.store(alias1, xid, fkey+alias1, new Long(i));
-				RelatrixKVTransaction.store(alias2, xid, fkey+alias2, new Long(i));
-				RelatrixKVTransaction.store(alias3, xid, fkey+alias3, new Long(i));
+				RelatrixKVTransaction.store(alias2, xid2, fkey+alias2, new Long(i));
+				RelatrixKVTransaction.store(alias3, xid3, fkey+alias3, new Long(i));
+				++recs;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		// roll back to checkpoint
+		RelatrixKVTransaction.rollback(alias1, xid);
+		RelatrixKVTransaction.rollback(alias2, xid2);
+		RelatrixKVTransaction.rollback(alias3, xid3);
+		s = RelatrixKVTransaction.size(alias1, xid, String.class);
+		if(s != max1)
+			System.out.println("Size at halfway point of restore incorrect:"+s+" should be "+max1+" "+alias1+" "+xid);
+		s = RelatrixKVTransaction.size(alias2, xid2, String.class);
+		if(s != max1)
+			System.out.println("Size at halfway point of restore incorrect:"+s+" should be "+max1+" "+alias2+" "+xid2);
+		s = RelatrixKVTransaction.size(alias3, xid3, String.class);
+		if(s != max1)
+			System.out.println("Size at halfway point of restore incorrect:"+s+" should be "+max1+" "+alias3+" "+xid3);
+		for(int i = max1; i < max; i++) {
+			fkey = String.format(uniqKeyFmt, i);
+			try {
+				RelatrixKVTransaction.store(alias1, xid, fkey+alias1, new Long(i));
+				RelatrixKVTransaction.store(alias2, xid2, fkey+alias2, new Long(i));
+				RelatrixKVTransaction.store(alias3, xid3, fkey+alias3, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
