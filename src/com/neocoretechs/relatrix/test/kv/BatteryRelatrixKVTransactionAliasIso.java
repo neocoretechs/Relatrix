@@ -633,9 +633,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		// take a checkpoint
-		RelatrixKVTransaction.checkpoint(xid);
-		RelatrixKVTransaction.checkpoint(xid2);
-		RelatrixKVTransaction.checkpoint(xid3);
+		RelatrixKVTransaction.checkpoint(alias1,xid);
+		RelatrixKVTransaction.checkpoint(alias2,xid2);
+		RelatrixKVTransaction.checkpoint(alias3,xid3);
 		long s = RelatrixKVTransaction.size(alias1, xid, String.class);
 		if(s != max1)
 			System.out.println("Size at halfway point of restore incorrect:"+s+" should be "+max1);
