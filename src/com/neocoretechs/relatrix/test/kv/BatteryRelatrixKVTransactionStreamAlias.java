@@ -39,7 +39,10 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixKVTransaction.setTablespace(argv[0]);
+		String tablespace = argv[0];
+		if(!tablespace.endsWith("/"))
+			tablespace += "/";
+		RelatrixKV.setAlias(alias1,tablespace+alias1);
 		String xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  // build and store
