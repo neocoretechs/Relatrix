@@ -297,42 +297,6 @@ public final class RelatrixKVTransaction {
 	public static void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		RockSackAdapter.rollbackToCheckpoint(alias, xid);
 	}
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @param xid the transaction id
-	 * @param clazz The class for which the map has been created.
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	public static void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Checkpoint();
-	}
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @param alias the database alias
-	 * @param xid the transaction id
-	 * @param clazz The class for which the map has been created.
-	 * @throws IOException
-	 * @throws IllegalAccessException
-	 * @throws NoSuchElementException If the alias was not found 
-	 */
-	public static void checkpoint(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
-		RockSackAdapter.getRockSackTransactionalMap(alias, clazz, xid).Checkpoint();
-	}
 
 	/**
 	 * Load the stated package from the declared path into the bytecode repository

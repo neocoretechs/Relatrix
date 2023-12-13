@@ -573,9 +573,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 
 		// with j at max, should get them all since we stored to max -1
 		//String tkey = String.format(uniqKeyFmt, j);
-		System.out.println("KV Battery1AR17 for alias:"+alias12);
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
+		int j = (int) RelatrixKVTransaction.size(alias1, xid, String.class);
+		System.out.println("KV Battery1AR17 for alias:"+alias12+" removing "+j+" elements.");
+		for(int i = min; i < j; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
 			RelatrixKVTransaction.remove(alias12, xid, fkey+alias12);
 			// each entry should exist in transaction 2 isolation
@@ -649,9 +649,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		// roll back to checkpoint
-		RelatrixKVTransaction.rollback(alias1, xid);
-		RelatrixKVTransaction.rollback(alias2, xid2);
-		RelatrixKVTransaction.rollback(alias3, xid3);
+		RelatrixKVTransaction.rollbackToCheckpoint(alias1, xid);
+		RelatrixKVTransaction.rollbackToCheckpoint(alias2, xid2);
+		RelatrixKVTransaction.rollbackToCheckpoint(alias3, xid3);
 		s = RelatrixKVTransaction.size(alias1, xid, String.class);
 		if(s != max1)
 			System.out.println("Size at halfway point of restore incorrect:"+s+" should be "+max1+" "+alias1+" "+xid);

@@ -129,14 +129,9 @@ public final class IndexInstanceTableAlias implements IndexInstanceTableInterfac
 	@Override
 	public void checkpoint() throws IllegalAccessException, IOException {
 		synchronized(mutex) {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext()) {
-					if(transactionId != null)
-						RelatrixKVTransaction.checkpoint(transactionId, it.next());
-				}
-			}
-		}	
+			if(transactionId != null)
+				RelatrixKVTransaction.checkpoint(transactionId);
+		}
 	}
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey

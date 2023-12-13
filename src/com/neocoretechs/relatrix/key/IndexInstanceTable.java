@@ -127,13 +127,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public void checkpoint() throws IllegalAccessException, IOException {
 		synchronized(mutex) {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext()) {
-					if(transactionId != null)
-						RelatrixKVTransaction.checkpoint(transactionId, it.next());
-				}
-			}
+			if(transactionId != null)
+				RelatrixKVTransaction.checkpoint(transactionId);
 		}	
 	}
 	/**

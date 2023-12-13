@@ -276,11 +276,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void checkpoint(String xid) throws IOException, IllegalAccessException {
-		IndexResolver.getIndexInstanceTable(xid).checkpoint();
-		for(int i = 0; i < indexClasses.length; i++) {
-			if(indexClasses[i] != null)
-				RelatrixKVTransaction.checkpoint(xid, indexClasses[i]);
-		}
+		RelatrixKVTransaction.checkpoint(xid);
 	}
 	/**
 	 * Delete all relationships that this object participates in
@@ -934,22 +930,7 @@ public static synchronized void commit(String xid, Class clazz) throws IOExcepti
 public static synchronized void rollback(String xid, Class clazz) throws IOException, IllegalAccessException {
 	RelatrixKVTransaction.rollback(xid, clazz);
 }
-/**
- * Take a check point of our current indicies. What this means is that we are
- * going to write a log record such that if we crash will will restore the logs from that point forward.
- * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
- * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
- * if we crash, to restore the data to its state up to that point", hence check, point...
- * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
- * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
- * even the old data before the checkpoint.
- * @param clazz The class for which the map has been created.
- * @throws IOException
- * @throws IllegalAccessException 
- */
- public static synchronized void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.checkpoint(xid, clazz);
- }
+
  /**
   * return lowest valued key.
   * @param clazz the class to retrieve
