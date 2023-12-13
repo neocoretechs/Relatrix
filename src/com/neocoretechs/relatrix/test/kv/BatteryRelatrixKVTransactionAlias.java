@@ -64,6 +64,9 @@ public class BatteryRelatrixKVTransactionAlias {
 		RelatrixKVTransaction.commit(alias2, xid);
 		RelatrixKVTransaction.commit(alias3, xid);
 		 System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
+		RelatrixKVTransaction.endTransaction(alias1,xid);
+		RelatrixKVTransaction.endTransaction(alias2,xid);
+		RelatrixKVTransaction.endTransaction(alias3,xid);
 		
 	}
 	/**

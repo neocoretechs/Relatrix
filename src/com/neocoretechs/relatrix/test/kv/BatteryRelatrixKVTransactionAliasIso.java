@@ -76,8 +76,10 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		RelatrixKVTransaction.commit(alias1, xid1);
 		RelatrixKVTransaction.commit(alias2, xid2);
 		RelatrixKVTransaction.commit(alias3, xid3);
-		 System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
-		
+		System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
+		RelatrixKVTransaction.endTransaction(alias1,xid1);
+		RelatrixKVTransaction.endTransaction(alias2,xid2);
+		RelatrixKVTransaction.endTransaction(alias3,xid3);
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1

@@ -107,10 +107,24 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
-	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public static void endTransaction(String xid) {
 		RockSackAdapter.removeRockSackTransactionalMap(xid);
 		IndexResolver.remove(xid);
-	}	
+	}
+	
+	/**
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException 
+	 * @throws NoSuchElementException
+	 */
+	public static void endTransaction(String alias, String xid) throws NoSuchElementException {
+		RockSackAdapter.removeRockSackTransactionalMap(alias, xid);
+		IndexResolver.remove(xid);
+	}
+	
 	/**
 	 * Get the new DBkey.
 	 * @return The UUID of new key
