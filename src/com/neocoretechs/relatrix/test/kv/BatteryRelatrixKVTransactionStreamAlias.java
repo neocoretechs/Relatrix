@@ -1,5 +1,7 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -33,6 +35,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	static int numDelete = 100; // for delete test
 	static int i;
 	static int j;
+	static long timx = System.currentTimeMillis();
 	private static int dupes;
 	private static int numLookupByValue = 10;
 	/**
@@ -58,8 +61,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		battery1AR14(xid);
 		battery1AR15(xid);
 		battery1AR16(xid);
-		battery1AR17(xid);
-		battery18(xid);
+		battery17(xid);
 		System.out.println("BatteryRelatrixKVTransactionStreamAlias TEST BATTERY COMPLETE.");
 		RelatrixKVTransaction.endTransaction(alias1, xid);
 	}
@@ -188,7 +190,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		}
 		 System.out.println("KV BATTERY1AR8 FORWARD CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		 tims = System.currentTimeMillis();
-		 for(int j = max; j > min; j--) {
+		 for(int j = max-1; j > min; j--) {
 				String fkey = String.format(uniqKeyFmt, j);
 				boolean bits = RelatrixKVTransaction.contains(alias1, xid, fkey);
 				if( !bits ) {
@@ -209,7 +211,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		}
 		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > max-numLookupByValue  ; j--) {
+		for(int j = max-1; j > max-numLookupByValue  ; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = RelatrixKVTransaction.containsValue(alias1, xid, String.class, (long)j);
 				if( !bits ) {
@@ -419,79 +421,50 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		});
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
+
 	/**
-	 * remove entries, this is done in a new transaction
+	 * Write beyond current key range, then roll back in different transaction
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String xid) throws Exception {
-		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
+	public static void battery17(String xid) throws Exception {
+		System.out.println("KV Battery17 ");
 		String xid2 = RelatrixKVTransaction.getTransactionId();
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
-		System.out.println("KV Battery1AR17");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(alias1, xid2, fkey);
-			// Map.Entry
-			if(RelatrixKVTransaction.contains(alias1, xid2, fkey)) { 
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
-				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
-			}
-		}
-		RelatrixKVTransaction.commit(alias1, xid2, String.class);
-		long siz = RelatrixKVTransaction.size(alias1, xid2, String.class);
-		i = 0;
-		if(siz > 0) {
-			Stream stream = RelatrixKVTransaction.entrySetStream(alias1, xid,String.class);
-			stream.forEach(e ->{
-				if(((Map.Entry<String,Long>)e).getValue() != i) {
-					System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
-				}
-				System.out.println(i+"="+e);
-				++i;
-			});
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed. Total="+i);
-			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		RelatrixKVTransaction.endTransaction(xid2);
-		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery18(String xid) throws Exception {
-		System.out.println("KV Battery18 ");
-		String xid2 = RelatrixKVTransaction.getTransactionId();
-		int max1 = max - 50000;
+		int max1 = max + 50000;
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max1; i++) {
+		for(int i = max; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
 				RelatrixKVTransaction.store(alias1, xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		System.out.println("Checkpointing..");
-		RelatrixKVTransaction.checkpoint(alias1, xid2);
-		for(int i = max1; i < max; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				RelatrixKVTransaction.store(alias1, xid2, fkey, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		RelatrixKVTransaction.commit(alias1, xid2, String.class);
+		System.out.println("Rollback..");
+		RelatrixKVTransaction.rollback(alias1, xid2);
 		RelatrixKVTransaction.endTransaction(alias1, xid2);
-		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+		// check status using original transaction
+		timx = System.currentTimeMillis();
+		System.out.println("KV Battery17");
+		long siz = RelatrixKVTransaction.size(alias1, xid, String.class);
+		i = 0;
+		Stream stream = RelatrixKVTransaction.entrySetStream(alias1, xid, String.class);
+		stream.forEach(e ->{
+			if(((Map.Entry<String,Long>)e).getValue() != i) {
+				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
+			}
+			if((System.currentTimeMillis()-timx) > 5000) {
+					System.out.println(i+" "+e);
+					timx = System.currentTimeMillis();
+			}
+			++i;
+		});
+		siz = RelatrixKVTransaction.size(alias1, xid, String.class);
+		if(siz != max || siz != i || i != max)
+			System.out.println("KV RANGE BATTERY17 SIZE MISMATCH: size="+siz+" max="+max+" count="+i);
+		System.out.println("KV BATTERY17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. ");
 	}
 	
 	/**
@@ -501,15 +474,18 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 */
 	private static void batteryCleanDB(String xid) throws Exception {
 		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("CleanDB");
+		long s = RelatrixKVTransaction.size(alias1, xid, String.class);
+		Iterator it = RelatrixKVTransaction.keySet(alias1,  xid, String.class);
 		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(alias1, xid, fkey);
+		long timx = System.currentTimeMillis();
+		for(int i = 0; i < s; i++) {
+			Object fkey = it.next();
+			RelatrixKVTransaction.remove(alias1, xid, (Comparable) fkey);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(i+" "+fkey);
+				timx = System.currentTimeMillis();
+			}
 		}
 		 System.out.println("CleanDB SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

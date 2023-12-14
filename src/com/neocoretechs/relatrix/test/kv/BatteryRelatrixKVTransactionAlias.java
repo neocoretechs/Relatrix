@@ -528,28 +528,25 @@ public class BatteryRelatrixKVTransactionAlias {
 	 */
 	public static void battery1AR17(String alias12, String xid) throws Exception {
 		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("KV Battery1AR17 for alias:"+alias12);
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(alias12, xid, fkey+alias12);
-			// Map.Entry
-			if(RelatrixKVTransaction.contains(alias12, xid, fkey+alias12)) { 
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
-				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
+		System.out.println("CleanDB");
+		long s = RelatrixKVTransaction.size(alias12, xid, String.class);
+		Iterator it = RelatrixKVTransaction.keySet(alias12, xid, String.class);
+		long timx = System.currentTimeMillis();
+		for(int i = 0; i < s; i++) {
+			Object fkey = it.next();
+			RelatrixKVTransaction.remove(alias12, xid, (Comparable) fkey);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(i+" "+fkey);
+				timx = System.currentTimeMillis();
 			}
 		}
+
 		long siz = RelatrixKVTransaction.size(alias12, xid, String.class);
 		if(siz > 0) {
 			Iterator<?> its = RelatrixKVTransaction.entrySet(alias12, xid, String.class);
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
 				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 			}
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");

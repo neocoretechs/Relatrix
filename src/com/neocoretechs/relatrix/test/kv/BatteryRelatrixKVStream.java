@@ -1,10 +1,12 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
 
 /**
@@ -393,21 +395,19 @@ public class BatteryRelatrixKVStream {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
-		System.out.println("KV Battery1AR17");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKV.remove(fkey);
-			// Map.Entry
-			if(RelatrixKV.contains(fkey)) { 
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
-				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
+		System.out.println("CleanDB");
+		long s = RelatrixKV.size(String.class);
+		Iterator it = RelatrixKV.keySet(String.class);
+		long timx = System.currentTimeMillis();
+		for(int i = 0; i < s; i++) {
+			Object fkey = it.next();
+			RelatrixKV.remove((Comparable) fkey);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(i+" "+fkey);
+				timx = System.currentTimeMillis();
 			}
 		}
+		// verify
 		long siz = RelatrixKV.size(String.class);
 		if(siz > 0) {
 			Stream stream = RelatrixKV.entrySetStream(String.class);

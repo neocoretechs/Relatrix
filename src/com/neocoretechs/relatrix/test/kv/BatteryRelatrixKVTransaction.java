@@ -533,15 +533,17 @@ public class BatteryRelatrixKVTransaction {
 	 */
 	private static void batteryCleanDB(String xid) throws Exception {
 		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("CleanDB");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(xid, fkey);
+		long s = RelatrixKVTransaction.size(xid, String.class);
+		Iterator it = RelatrixKVTransaction.keySet(xid, String.class);
+		long timx = System.currentTimeMillis();
+		for(int i = 0; i < s; i++) {
+			Object fkey = it.next();
+			RelatrixKVTransaction.remove(xid, (Comparable) fkey);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(i+" "+fkey);
+				timx = System.currentTimeMillis();
+			}
 		}
 		 System.out.println("CleanDB SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
