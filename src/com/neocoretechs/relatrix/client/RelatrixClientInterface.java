@@ -139,4 +139,8 @@ public interface RelatrixClientInterface {
 
 	Object getByIndex(String alias, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
 
+	RemoteStream entrySetStream(String alias, Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
+
+	RemoteKeySetIterator keySet(String alias, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+
 }

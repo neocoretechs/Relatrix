@@ -62,7 +62,7 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 					rc.store(alias, index, instance);
 				} else {
 					if(rcx != null) {
-						rcx.storeAlias(alias, transactionId, index, instance);
+						rcx.storekv(alias, transactionId, index, instance);
 					} else {
 						throw new IOException("RelatrixClient is null");
 					}

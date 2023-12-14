@@ -340,6 +340,17 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", xid, k, v);
 		return sendCommand(rs);
 	}
+	
+	@Override
+	public void storekv(String alias, String xid, Comparable index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "storekv", alias, xid, index, instance);
+		sendCommand(rs);	
+	}
+
+	public Object storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "storekv", k, v);
+		return sendCommand(rs);
+	}
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
@@ -826,12 +837,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 			throw new IOException(e);
 		}
 		
-	}
-
-	@Override
-	public void storeAlias(String alias, String xid, Comparable index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", alias, xid, index, instance);
-		sendCommand(rs);	
 	}
 
 	@Override

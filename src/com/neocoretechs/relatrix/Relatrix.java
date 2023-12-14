@@ -256,7 +256,13 @@ public final class Relatrix {
 		return (DomainMapRange) identity;
 	}
 
+	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
+		RelatrixKV.store(key, value);
+	}
 
+	public static void storekv(String alias, Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
+		RelatrixKV.store(alias, key, value);
+	}
 /**
 * Delete all relationships that this object participates in
 * @exception IOException low-level access or problems modifiying schema

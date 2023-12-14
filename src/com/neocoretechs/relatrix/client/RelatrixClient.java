@@ -295,8 +295,14 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	
 	@Override
 	public Object store(String alias, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("store", k, v);
+		RelatrixStatement rs = new RelatrixStatement("storekv", alias, k, v);
 		return (DomainMapRange)sendCommand(rs);
+	}
+	
+	@Override
+	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixStatement("storekv", k, v);
+		return sendCommand(rs);
 	}
 	
 	@Override
@@ -349,6 +355,16 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
+	@Override
+	public DBKey get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("get",alias, instance);
+		try {
+			return (DBKey) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
 	public Object getByIndex(DBKey key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("getByIndex",key);
 		try {
@@ -409,12 +425,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 	
 	@Override
-	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixStatement("store", k, v);
-		return sendCommand(rs);
-	}
-	
-	@Override
 	public RemoteStream entrySetStream(Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("entrySetStream",clazz);
 		try {
@@ -423,7 +433,17 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-
+	
+	@Override
+	public RemoteStream entrySetStream(String alias, Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("entrySetStream",alias, clazz);
+		try {
+			return (RemoteStream) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	@Override
 	public RemoteKeySetIterator keySet(Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("keySet",clazz);
@@ -434,6 +454,15 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
+	@Override
+	public RemoteKeySetIterator keySet(String alias, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("keySet",alias,clazz);
+		try {
+			return (RemoteKeySetIterator) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	* recursively delete all relationships that this object participates in
 	* @exception IOException low-level access or problems modifiying schema
@@ -449,6 +478,17 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
+	
+	@Override
+	public Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("remove", alias, instance);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}	
+	}
+
 	
 	/**
 	 * Delete specific relationship and all relationships that it participates in
@@ -466,7 +506,23 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-
+	
+	/**
+	 * Delete specific relationship and all relationships that it participates in
+	 * @param d
+	 * @param m
+	 * @param r
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 */
+	public Object remove(String alias, Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("remove",alias,d,m,r);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	* matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -498,8 +554,26 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
+	public RemoteTailSetIterator findSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findSet",alias, darg, marg, rarg);
+		try {
+			return (RemoteTailSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findStream",darg, marg, rarg);
+		try {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public RemoteStream findSetStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findStream",alias, darg, marg, rarg);
 		try {
 			return (RemoteStream)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -533,6 +607,15 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 
+	public RemoteTailSetIterator findTailSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findTailSet",alias, darg, marg, rarg);
+		try {
+			return (RemoteTailSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findTailSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findTailStream",darg, marg, rarg);
 		try {
@@ -541,7 +624,15 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 			throw new IOException(e);
 		}
 	}
-
+	
+	public RemoteStream findTailSetStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findTailStream",alias, darg, marg, rarg);
+		try {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
 	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
@@ -565,8 +656,27 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
+	public RemoteHeadSetIterator findHeadSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findHeadSet",alias, darg, marg, rarg);
+		try {
+			return (RemoteHeadSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findHeadSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findHeadStream",darg, marg, rarg);
+		try {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+
+	}
+	
+	public RemoteStream findHeadSetStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findHeadStream",alias, darg, marg, rarg);
 		try {
 			return (RemoteStream)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -600,8 +710,26 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
+	public RemoteSubSetIterator findSubSet(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findSubSet",alias, darg, marg, rarg, endarg);
+		try {
+			return (RemoteSubSetIterator)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findSubSetStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findSubStream",darg, marg, rarg, endarg);
+		try {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public RemoteStream findSubSetStream(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("findSubStream",alias, darg, marg, rarg, endarg);
 		try {
 			return (RemoteStream)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -687,25 +815,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 	
 
-	@Override
-	public DBKey get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("get",alias, instance);
-		try {
-			return (DBKey) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("remove",alias, instance);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}	
-	}
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
 	 * @param args

@@ -360,7 +360,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 	
 	@Override
-	public void storeAlias(String alias, String xid, Comparable index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+	public void storekv(String alias, String xid, Comparable index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "store", alias, xid, index, instance);
 		sendCommand(rs);
 	}

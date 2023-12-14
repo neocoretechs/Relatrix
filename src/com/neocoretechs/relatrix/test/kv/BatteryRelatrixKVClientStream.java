@@ -1,12 +1,10 @@
 package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
+import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
@@ -425,32 +423,29 @@ public class BatteryRelatrixKVClientStream {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("KV Battery1AR17");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
+		RemoteKeySetIterator its = rkvc.keySet(String.class);
+		System.out.println("KV Battery1AR7");
+		long timx = System.currentTimeMillis();
+		while(rkvc.hasNext(its)) {
+			String fkey = (String) rkvc.next(its);
 			rkvc.remove(fkey);
-			// Map.Entry
-			if(rkvc.contains(fkey)) { 
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
-				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(fkey);
+				timx = System.currentTimeMillis();
 			}
 		}
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
-			RemoteStream stream = rkvc.entrySetStream(String.class);
-			stream.of().forEach(e ->{
-				//System.out.println(i+"="+key);
-				System.out.println(e);
-			});
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
+				RemoteStream stream = rkvc.entrySetStream(String.class);
+				stream.of().forEach(e ->{
+					//System.out.println(i+"="+key);
+					System.out.println(e);
+				});
+				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
+			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
-		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1

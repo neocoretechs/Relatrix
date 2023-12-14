@@ -166,9 +166,10 @@ public interface RelatrixClientTransactionInterface {
 
 	void commit(String alias, String transactionId, Class c) throws IOException, NoSuchElementException;
 
-	void storeAlias(String alias, String transactionId, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
+	void storekv(String alias, String transactionId, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
 
 	Object getByIndex(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException;
+
 
 	
 }
