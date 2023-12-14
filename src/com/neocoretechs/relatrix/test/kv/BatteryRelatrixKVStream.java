@@ -6,8 +6,6 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server stream retrieval ops.
@@ -151,17 +149,17 @@ public class BatteryRelatrixKVStream {
 			String fkey = String.format(uniqKeyFmt, j);
 			boolean bits = RelatrixKV.contains(fkey);
 			if( !bits ) {
-				System.out.println("KV BATTERY1A8 cant find contains key "+j);
+				System.out.println("KV BATTERY1AR8 cant find contains key "+j);
 				//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 			}
 		}
 		 System.out.println("KV BATTERY1AR8 FORWARD CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		 tims = System.currentTimeMillis();
-		 for(int j = max; j > min; j--) {
+		 for(int j = max-1; j > min; j--) {
 				String fkey = String.format(uniqKeyFmt, j);
 				boolean bits = RelatrixKV.contains(fkey);
 				if( !bits ) {
-					System.out.println("KV BATTERY1A8 cant find contains key "+j);
+					System.out.println("KV BATTERY1AR8 cant find contains key "+j);
 					//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 				}
 			}
@@ -178,7 +176,7 @@ public class BatteryRelatrixKVStream {
 		}
 		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > max-numLookupByValue; j--) {
+		for(int j = max-1; j > max-numLookupByValue; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = RelatrixKV.containsValue(String.class, (long)j);
 				if( !bits ) {
