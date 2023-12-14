@@ -211,7 +211,7 @@ public class BatteryRelatrixKVTransaction {
 		}
 		 System.out.println("KV BATTERY1AR8 FORWARD CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		 tims = System.currentTimeMillis();
-		 for(int j = max; j > min; j--) {
+		 for(int j = max-1; j > min; j--) {
 				String fkey = String.format(uniqKeyFmt, j);
 				boolean bits = RelatrixKVTransaction.contains(xid, fkey);
 				if( !bits ) {
@@ -232,7 +232,7 @@ public class BatteryRelatrixKVTransaction {
 		}
 		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > max-numLookupByValue ; j--) {
+		for(int j = max-1; j > max-numLookupByValue ; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = RelatrixKVTransaction.containsValue(xid, String.class, (long)j);
 				if( !bits ) {
