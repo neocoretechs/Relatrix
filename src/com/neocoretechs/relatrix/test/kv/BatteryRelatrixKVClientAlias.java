@@ -111,9 +111,9 @@ public class BatteryRelatrixKVClientAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.store(fkey+alias1, new Long(i));
-				rkvc.store(fkey+alias2, new Long(i));
-				rkvc.store(fkey+alias3, new Long(i));
+				rkvc.store(alias1, fkey+alias1, new Long(i));
+				rkvc.store(alias2, fkey+alias2, new Long(i));
+				rkvc.store(alias3, fkey+alias3, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -135,7 +135,7 @@ public class BatteryRelatrixKVClientAlias {
 				Object o1 = rkvc.get(alias1,fkey+alias1);
 				Object o2 = rkvc.get(alias2,fkey+alias2);
 				Object o3 = rkvc.get(alias3,fkey+alias3);
-				System.out.println(i+"="+o1+", "+o2+", "+o3);
+				//System.out.println(i+"="+o1+", "+o2+", "+o3);
 				if(i != ((Long)o1).intValue() || i != ((Long)o2).intValue() || i != ((Long)o3).intValue()) {
 					System.out.println("RANGE KEY MISMATCH for 'get':"+i+" - "+o1+" or "+o2+" or "+o3);
 					++recs;
