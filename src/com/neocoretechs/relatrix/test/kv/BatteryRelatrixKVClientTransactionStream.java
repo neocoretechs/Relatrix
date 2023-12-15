@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Map;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
+import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
@@ -77,7 +77,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		j = (int) rkvc.size(xid, String.class);
 		if(j > 0) {
 			System.out.println("Cleaning DB of "+j+" elements.");
-			batteryCleanDB(xid);		
+			battery1AR17(xid);		
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
@@ -143,7 +143,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		});
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
-			//throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -165,7 +165,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
-			//throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
 		}
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -187,7 +187,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		}
 		 System.out.println("KV BATTERY1AR8 FORWARD CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		 tims = System.currentTimeMillis();
-		 for(int j = max; j > min; j--) {
+		 for(int j = max-1; j > min; j--) {
 				String fkey = String.format(uniqKeyFmt, j);
 				boolean bits = rkvc.contains(xid, fkey);
 				if( !bits ) {
@@ -203,17 +203,17 @@ public class BatteryRelatrixKVClientTransactionStream {
 			boolean bits = rkvc.containsValue(xid, String.class, (long)j);
 			if( !bits ) {
 				System.out.println("KV BATTERY1AR8 cant find contains value "+j);
-				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+				throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
 		}
 		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 		tims = System.currentTimeMillis();
-		for(int j = max; j > max-numLookupByValue  ; j--) {
+		for(int j = max-1; j > max-numLookupByValue  ; j--) {
 				// careful here, have to do the conversion explicitly
 				boolean bits = rkvc.containsValue(xid, String.class, (long)j);
 				if( !bits ) {
 					System.out.println("KV BATTERY1AR8 cant find contains value "+j);
-					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+					throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
 		}
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
@@ -231,12 +231,12 @@ public class BatteryRelatrixKVClientTransactionStream {
 		System.out.println("KV Battery1AR9");
 		if( Integer.parseInt((String)k) != i ) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
-			//throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
 		long ks = (long) rkvc.firstValue(xid, String.class);
 		if( ks != i) {
 			System.out.println("KV BATTERY1A9 cant find contains value "+i);
-			//throw new Exception("KV BATTERY1AR9 unexpected cant find contains of value "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of value "+i);
 		}
 		System.out.println("KV BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -253,12 +253,12 @@ public class BatteryRelatrixKVClientTransactionStream {
 		System.out.println("KV Battery1AR10");
 		if( Long.parseLong((String) k) != (long)i ) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
-			//throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
+			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
 		long ks = (long)rkvc.lastValue(xid, String.class);
 		if( ks != i) {
 			System.out.println("KV BATTERY1AR10 cant find last value "+i);
-			//throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
+			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -274,7 +274,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		System.out.println("KV Battery1AR101");
 		if( bits != i ) {
 			System.out.println("KV BATTERY1AR101 size mismatch "+bits+" should be:"+i);
-			//throw new Exception("KV BATTERY1AR101 size mismatch "+bits+" should be "+i);
+			throw new Exception("KV BATTERY1AR101 size mismatch "+bits+" should be "+i);
 		}
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -292,7 +292,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
@@ -313,7 +313,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
@@ -337,7 +337,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			if(Integer.parseInt((String)e) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
-				//throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
@@ -360,7 +360,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
@@ -386,7 +386,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			if(Integer.parseInt((String) e) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
-				//throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
@@ -412,7 +412,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
-				//throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
@@ -425,22 +425,19 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 */
 	public static void battery1AR17(String xid) throws Exception {
 		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
 		String xid2 = rkvc.getTransactionId();
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
 		System.out.println("KV Battery1AR17");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
+		long timx = System.currentTimeMillis();
+		RemoteKeySetIteratorTransaction its = rkvc.keySet(xid2,String.class);
+		while(rkvc.hasNext(xid2, its)) {
+			String fkey = (String) rkvc.next(xid2, its);
 			rkvc.remove(xid2, fkey);
-			// Map.Entry
-			if(rkvc.contains(xid2, fkey)) { 
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
-				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(fkey);
+				timx = System.currentTimeMillis();
 			}
 		}
+		its.close();
 		rkvc.commit(xid2, String.class);
 		long siz = rkvc.size(xid2, String.class);
 		i = 0;
@@ -454,7 +451,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 				++i;
 			});
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed. Total="+i);
-			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
+			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		rkvc.endTransaction(xid2);
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
@@ -493,24 +490,5 @@ public class BatteryRelatrixKVClientTransactionStream {
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
-	/**
-	 * remove entries, we do this in the current transaction
-	 * @param argv
-	 * @throws Exception
-	 */
-	private static void batteryCleanDB(String xid) throws Exception {
-		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
-		System.out.println("CleanDB");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(xid, fkey);
-		}
-		 System.out.println("CleanDB SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
 	
 }
