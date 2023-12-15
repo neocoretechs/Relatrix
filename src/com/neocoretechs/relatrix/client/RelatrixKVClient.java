@@ -302,10 +302,10 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		return null;
 	}
 	
-	public String[][] getAlias(String alias) {
+	public String getAlias(String alias) {
 		RelatrixKVStatement rs = new RelatrixKVStatement("getAlias",alias);
 		try {
-			return (String[][]) sendCommand(rs);
+			return (String) sendCommand(rs);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 			e.printStackTrace();
 		}

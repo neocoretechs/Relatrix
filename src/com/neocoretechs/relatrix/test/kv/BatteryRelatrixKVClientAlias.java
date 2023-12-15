@@ -28,7 +28,8 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * NOTES:
  * start server RelatrixKVServer.
  * A database unique to this test module should be used.
- * program argument is node of local client, node server is running on, port of server started with database of your choice.
+ * program argument is node of local client, node server is running on, port of server and remote tablespace alias designator.
+ * i.e. java BatteryRelatrixKVClientAlias localnode remotenode 9010 "C:/etc/db/test"
  * @author jg (C) 2020,2022
  *
  */
@@ -48,12 +49,15 @@ public class BatteryRelatrixKVClientAlias {
 	*/
 	public static void main(String[] argv) throws Exception {
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
-		String tablespace = argv[0];
+		String tablespace = argv[3];
 		if(!tablespace.endsWith("/"))
 			tablespace += "/";
-		rkvc.setAlias(alias1,tablespace+alias1);
-		rkvc.setAlias(alias2,tablespace+alias2);
-		rkvc.setAlias(alias3,tablespace+alias3);
+		if(rkvc.getAlias(alias1) == null)
+			rkvc.setAlias(alias1,tablespace+alias1);
+		if(rkvc.getAlias(alias2) == null)
+			rkvc.setAlias(alias2,tablespace+alias2);
+		if(rkvc.getAlias(alias3) == null)
+			rkvc.setAlias(alias3,tablespace+alias3);
 		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);
@@ -131,6 +135,7 @@ public class BatteryRelatrixKVClientAlias {
 				Object o1 = rkvc.get(alias1,fkey+alias1);
 				Object o2 = rkvc.get(alias2,fkey+alias2);
 				Object o3 = rkvc.get(alias3,fkey+alias3);
+				System.out.println(i+"="+o1+", "+o2+", "+o3);
 				if(i != ((Long)o1).intValue() || i != ((Long)o2).intValue() || i != ((Long)o3).intValue()) {
 					System.out.println("RANGE KEY MISMATCH for 'get':"+i+" - "+o1+" or "+o2+" or "+o3);
 					++recs;
