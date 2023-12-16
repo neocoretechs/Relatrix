@@ -351,7 +351,7 @@ public static Iterator<?> findHeadMap(Comparable darg) throws IOException, Illeg
 public static Iterator<?> findHeadMap(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 {
 	//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
-	BufferedMap ttm = RockSackAdapter.getRockSackMap(darg);
+	BufferedMap ttm = RockSackAdapter.getRockSackMap(alias, darg);
 	// check for at least one object reference in our headset factory
 	return ttm.headMap(darg);
 }

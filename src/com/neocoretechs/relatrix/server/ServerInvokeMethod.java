@@ -1,7 +1,7 @@
 package com.neocoretechs.relatrix.server;
 
-
 import java.lang.reflect.*;
+import java.util.Arrays;
 
 import com.neocoretechs.relatrix.client.RelatrixMethodNamesAndParams;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
@@ -85,7 +85,13 @@ public final class ServerInvokeMethod {
     	 * @throws Exception
        */
        public synchronized Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
-    		return invokeMethod(tmc, null);
+    	   if(DEBUG) {
+    		   System.out.println("ServerInvoke Invoking method:"+tmc);
+    		   Object oret = invokeMethod(tmc, null);
+    		   System.out.println("ServerInvoke return from invocation:"+oret);
+    		   return oret;
+    	   }
+    	   return invokeMethod(tmc, null);
        }
        /**
        * For an incoming RelatrixStatement, verify and invoke the proper
@@ -96,6 +102,9 @@ public final class ServerInvokeMethod {
        public synchronized Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
                 //NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
                 String targetMethod = tmc.getMethodName();
+                if(DEBUG) {
+                	System.out.println("ServerInvoke Target method:"+targetMethod+" remote request:"+tmc+" localObject:"+localObject);
+                }
                 int methodIndex = pkmnap.methodNames.indexOf(targetMethod);
                 String whyNotFound = "No such method";
                 while( methodIndex != -1 && methodIndex < pkmnap.methodNames.size()) {
@@ -105,10 +114,10 @@ public final class ServerInvokeMethod {
                         //
                         if (DEBUG) {
                         	for(int iparm1 = 0; iparm1 < params.length ; iparm1++) {        
-                                System.out.println("Calling param: "+params[iparm1]);
+                                System.out.println("ServerInvoke Target method:"+targetMethod+" Calling param: "+params[iparm1]);
                         	}
                         	for(int iparm2 = skipArgIndex ; iparm2 < pkmnap.methodParams[methodIndex].length; iparm2++) {
-                                System.out.println("Method param: "+pkmnap.methodParams[methodIndex][iparm2]);
+                                System.out.println("ServerInvoke Target method:"+targetMethod+" Method param: "+pkmnap.methodParams[methodIndex][iparm2]);
                         	}
                         }
                         //
@@ -126,10 +135,22 @@ public final class ServerInvokeMethod {
                                 }
                                 if( found ) {
                                         if( skipArgs > 0) {
-                                                Object o1[] = tmc.getParamArray(); 
-                                                return methods[methodIndex].invoke( localObject, o1 );
+                                        	Object o1[] = tmc.getParamArray();
+                                        	if(DEBUG) {
+                                        		   System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
+                                        		   Object oret = methods[methodIndex].invoke( localObject, o1 );
+                                        		   System.out.println("ServerInvoke return from invocation:"+oret);
+                                        		   return oret;
+                                        	}
+                                        	return methods[methodIndex].invoke( localObject, o1 );
                                         } 
                                         // invoke it for return
+                                    	if(DEBUG) {
+                                 		   System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
+                                 		   Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
+                                 		   System.out.println("ServerInvoke return from invocation:"+oret);
+                                 		   return oret;
+                                    	}
                                         return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
                                }
                         } else

@@ -485,6 +485,7 @@ public class BatteryRelatrixKVClientAlias {
 		RemoteHeadMapIterator its = rkvc.findHeadMap(alias1,fkey);
 		RemoteHeadMapIterator itt = rkvc.findHeadMap(alias2,fkey);
 		RemoteHeadMapIterator itu = rkvc.findHeadMap(alias3,fkey);
+		//System.out.println(its+", "+itt+", "+itu);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
@@ -492,6 +493,7 @@ public class BatteryRelatrixKVClientAlias {
 			Comparable nex1 = (Comparable) rkvc.next(its);
 			Comparable nex2 = (Comparable) rkvc.next(itt);
 			Comparable nex3 = (Comparable) rkvc.next(itu);
+			//System.out.println(i+"="+nex1+", "+nex2+", "+nex3);
 			if( Long.parseLong(((String)nex1).substring(0,100)) != (long)i || !((String)nex1).endsWith(alias1) ||
 				Long.parseLong(((String)nex2).substring(0,100)) != (long)i || !((String)nex2).endsWith(alias2) ||
 				Long.parseLong(((String)nex3).substring(0,100)) != (long)i || !((String)nex3).endsWith(alias3) ) {
@@ -504,7 +506,7 @@ public class BatteryRelatrixKVClientAlias {
 	}
 	
 	/**
-	 *  findHeadMapKV
+	 * findHeadMapKV
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -562,6 +564,7 @@ public class BatteryRelatrixKVClientAlias {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+" or "+nex2+" or "+nex3);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex1+" or "+nex2+" or "+nex3);
 			}
+			++i;
 		}
 		 System.out.println("BATTERY1AR15 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -596,6 +599,7 @@ public class BatteryRelatrixKVClientAlias {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+" or "+nexf+" or "+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+" or "+nexf+" or "+nexg);
 			}
+			++i;
 		}
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
