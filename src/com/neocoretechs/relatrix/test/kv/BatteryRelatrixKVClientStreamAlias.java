@@ -269,10 +269,10 @@ public class BatteryRelatrixKVClientStreamAlias {
 		Object j = rkvc.firstKey(alias2, String.class); // first key
 		Object l = rkvc.firstKey(alias3, String.class); // first key
 		System.out.println("KV Battery1AR9");
-		if( Integer.parseInt(((String)k).substring(0,100)) != i  || ((String)k).endsWith(alias1) ||
-				Integer.parseInt(((String)j).substring(0,100)) != i  || ((String)j).endsWith(alias2) ||
-				Integer.parseInt(((String)l).substring(0,100)) != i  || ((String)l).endsWith(alias3)) {
-			System.out.println("KV BATTERY1A9 cant find contains key "+i);
+		if( Integer.parseInt(((String)k).substring(0,100)) != i  || !((String)k).endsWith(alias1) ||
+				Integer.parseInt(((String)j).substring(0,100)) != i  || !((String)j).endsWith(alias2) ||
+				Integer.parseInt(((String)l).substring(0,100)) != i  || !((String)l).endsWith(alias3)) {
+			System.out.println("KV BATTERY1A9 cant find contains key "+i+" found "+k+", "+j+", "+l);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
 		long ks = (long) rkvc.firstValue(alias1, String.class);
@@ -297,9 +297,9 @@ public class BatteryRelatrixKVClientStreamAlias {
 		Object j = rkvc.lastKey(alias2, String.class); // first key
 		Object l = rkvc.lastKey(alias3, String.class); // first key
 		System.out.println("KV Battery1AR10");
-		if( Integer.parseInt(((String)k).substring(0,100)) != i  || ((String)k).endsWith(alias1) ||
-				Integer.parseInt(((String)j).substring(0,100)) != i  || ((String)j).endsWith(alias2) ||
-				Integer.parseInt(((String)l).substring(0,100)) != i  || ((String)l).endsWith(alias3)) {
+		if( Integer.parseInt(((String)k).substring(0,100)) != i  || !((String)k).endsWith(alias1) ||
+				Integer.parseInt(((String)j).substring(0,100)) != i  || !((String)j).endsWith(alias2) ||
+				Integer.parseInt(((String)l).substring(0,100)) != i  || !((String)l).endsWith(alias3)) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
@@ -342,7 +342,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		RemoteStream stream = rkvc.findTailMapSteam(alias, fkey); // intentionally leave off suffix for no exact match
 		System.out.println(alias+" KV Battery1AR11");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((String)e).substring(0,100)) != i) {
+			if(Integer.parseInt(((String)e).substring(0,100)) != i || !((String)e).endsWith(alias)) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
@@ -362,7 +362,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		RemoteStream stream = rkvc.findTailMapKVStream(alias, fkey);
 		System.out.println(alias+" KV Battery1AR12");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i) {
+			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias)) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
@@ -385,7 +385,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		System.out.println(alias+" KV Battery1AR13");
 		i = min;
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((String)e).substring(0,100)) != i) {
+			if(Integer.parseInt(((String)e).substring(0,100)) != i || !((String)e).endsWith(alias)) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
@@ -408,7 +408,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		System.out.println(alias+" KV Battery1AR14");
 		i = min;
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((((Map.Entry<String,Long>)e).getKey()).substring(0,100)) != i) {
+			if(Integer.parseInt((((Map.Entry<String,Long>)e).getKey()).substring(0,100)) != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias)) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
@@ -433,7 +433,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		RemoteStream stream = rkvc.findSubMapStream(alias, fkey, tkey); // no exact match
 		System.out.println(alias+" KV Battery1AR15");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((String) e).substring(0,100)) != i) {
+			if(Integer.parseInt(((String) e).substring(0,100)) != i || !((String)e).endsWith(alias)) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
@@ -458,7 +458,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		RemoteStream stream = rkvc.findSubMapKVStream(alias, fkey, tkey); // no exact match
 		System.out.println(alias+" KV Battery1AR16");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((((Map.Entry<String,Long>)e).getKey()).substring(0,100)) != i) {
+			if(Integer.parseInt((((Map.Entry<String,Long>)e).getKey()).substring(0,100)) != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias)) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
