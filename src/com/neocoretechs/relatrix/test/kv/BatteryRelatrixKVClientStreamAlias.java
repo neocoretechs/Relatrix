@@ -8,22 +8,23 @@ import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
- * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream retrieval ops.
+ * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream ops.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals
+ * a series of canonically correct sort order strings for the DB in the range of min to max vals with variation to differentiate databases.
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * This test the client side Java 8 streams obtained from the server
+ * This tests the complete set of client side Java 8 stream calls with database alias directed to the server.
  * NOTES:
  * start server RelatrixKVServer.
  * A database unique to this test module should be used.
- * program argument is local server, remote server, remote port
- * @author jg (C) 2020
+ * program argument is local server, remote server, remote port, remote tablespace prefix.<br/>
+ * Remote tablespace prefix will be appended with alias1, alias2, alias3 variables for tests.
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2023
  *
  */
-public class BatteryRelatrixKVClientStream {
+public class BatteryRelatrixKVClientStreamAlias {
 	public static boolean DEBUG = false;
 	public static RelatrixKVClient rkvc;
 
@@ -33,6 +34,10 @@ public class BatteryRelatrixKVClientStream {
 	static int numDelete = 100; // for delete test
 	static int i;
 	static int j;
+	// database aliases
+	static String alias1 = "ALIAS1";
+	static String alias2 = "ALIAS2";
+	static String alias3 = "ALIAS3";
 	private static int numLookupByValue = 10;
 	/**
 	* Main test fixture driver
@@ -41,22 +46,52 @@ public class BatteryRelatrixKVClientStream {
 		//rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
 		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
-		battery1(argv);	// build and store
-		battery11(argv);  // build and store
-		battery1AR6(argv);
-		battery1AR7(argv);
+		String tablespace = argv[3];
+		if(!tablespace.endsWith("/"))
+			tablespace += "/";
+		if(rkvc.getAlias(alias1) == null)
+			rkvc.setAlias(alias1,tablespace+alias1);
+		if(rkvc.getAlias(alias2) == null)
+			rkvc.setAlias(alias2,tablespace+alias2);
+		if(rkvc.getAlias(alias3) == null)
+			rkvc.setAlias(alias3,tablespace+alias3);
+		battery1(alias1);	// build and store
+		battery1(alias2);	// build and store
+		battery1(alias3);	// build and store
+		battery11(alias1);
+		battery11(alias2);
+		battery11(alias3);
+		battery1AR6(alias1);
+		battery1AR6(alias2);
+		battery1AR6(alias3);
+		battery1AR7(alias1);
+		battery1AR7(alias2);
+		battery1AR7(alias3);
 		battery1AR8(argv); // search by value, slow operation no key
 		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
-		battery1AR13(argv);
-		battery1AR14(argv);
-		battery1AR15(argv);
-		battery1AR16(argv);
-		battery1AR17(argv);
-		battery18(argv);
+		battery1AR11(alias1);
+		battery1AR11(alias2);
+		battery1AR11(alias3);
+		battery1AR12(alias1);
+		battery1AR12(alias2);
+		battery1AR12(alias3);
+		battery1AR13(alias1);
+		battery1AR13(alias2);
+		battery1AR13(alias3);
+		battery1AR14(alias1);
+		battery1AR14(alias2);
+		battery1AR14(alias3);
+		battery1AR15(alias1);
+		battery1AR15(alias2);
+		battery1AR15(alias3);
+		battery1AR16(alias1);
+		battery1AR16(alias2);
+		battery1AR16(alias3);
+		battery1AR17(alias1);
+		battery1AR17(alias2);
+		battery1AR17(alias3);
 		System.out.println("BatteryRelatrixKVClientStream TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
@@ -66,25 +101,25 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1(String alias) throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		long j = rkvc.size(String.class);
+		long j = rkvc.size(alias, String.class);
 		if(j > 0) {
-			System.out.println("Cleaning DB of "+j+" elements.");
-			battery1AR17(argv);		
+			System.out.println(alias+" Cleaning DB of "+j+" elements.");
+			battery1AR17(alias);		
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.store(fkey, new Long(i));
+				rkvc.store(alias, fkey+alias, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+		System.out.println(alias+" KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
 	/**
@@ -92,19 +127,19 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv) throws Exception {
-		System.out.println("KV Battery11 ");
+	public static void battery11(String alias) throws Exception {
+		System.out.println(alias+" KV Battery11 ");
 		long tims = System.currentTimeMillis();
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			Object o = rkvc.get(fkey);
+			Object o = rkvc.get(alias, fkey+alias);
 			if(i != ((Long)o).intValue()) {
 				System.out.println("RANGE KEY MISMATCH for 'get':"+i+" - "+o);
 				throw new Exception("RANGE KEY MISMATCH for 'get':"+i+" - "+o);
 			}
 		}
-		System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println(alias+" KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
@@ -122,11 +157,11 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6(String alias) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = rkvc.entrySetStream(String.class);
-		System.out.println("KV Battery1AR6");
+		RemoteStream stream = rkvc.entrySetStream(alias, String.class);
+		System.out.println(alias+" KV Battery1AR6");
 		stream.of().forEach(e ->{
 			if(((Map.Entry<String,Long>)e).getValue() != i) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
@@ -138,21 +173,22 @@ public class BatteryRelatrixKVClientStream {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
 			throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
 		}
-		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * Testing of Stream<?> its = RelatrixKV.keySet;
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7(String alias) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = rkvc.keySetStream(String.class);
-		System.out.println("KV Battery1AR7");
+		RemoteStream stream = rkvc.keySetStream(alias, String.class);
+		System.out.println(alias+" KV Battery1AR7");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((String)e) != i) {
+			if(Integer.parseInt(((String)e).substring(0,100)) != i || !((String)e).endsWith(alias)) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
+				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
 		});
@@ -173,8 +209,10 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		for(int j = min; j < max; j++) {
 			String fkey = String.format(uniqKeyFmt, j);
-			boolean bits = rkvc.contains(fkey);
-			if( !bits ) {
+			boolean bits1 = rkvc.contains(alias1, fkey+alias1);
+			boolean bits2 = rkvc.contains(alias2, fkey+alias2);
+			boolean bits3 = rkvc.contains(alias3, fkey+alias3);
+			if( !bits1 || !bits2 || !bits3 ) {
 				System.out.println("KV BATTERY1A8 cant find contains key "+j);
 				throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 			}
@@ -183,8 +221,10 @@ public class BatteryRelatrixKVClientStream {
 		 tims = System.currentTimeMillis();
 		 for(int j = max-1; j > min; j--) {
 				String fkey = String.format(uniqKeyFmt, j);
-				boolean bits = rkvc.contains(fkey);
-				if( !bits ) {
+				boolean bits1 = rkvc.contains(alias1, fkey+alias1);
+				boolean bits2 = rkvc.contains(alias2, fkey+alias2);
+				boolean bits3 = rkvc.contains(alias3, fkey+alias3);
+				if( !bits1 || !bits2 || !bits3 ) {
 					System.out.println("KV BATTERY1A8 cant find contains key "+j);
 					throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 				}
@@ -194,8 +234,10 @@ public class BatteryRelatrixKVClientStream {
 		tims = System.currentTimeMillis();
 		for(int j = min; j < min+numLookupByValue; j++) {
 			// careful here, have to do the conversion explicitly
-			boolean bits = rkvc.containsValue(String.class, (long)j);
-			if( !bits ) {
+			boolean bits1 = rkvc.containsValue(alias1, String.class, (long)j);
+			boolean bits2 = rkvc.containsValue(alias2, String.class, (long)j);
+			boolean bits3 = rkvc.containsValue(alias3, String.class, (long)j);
+			if( !bits1 || !bits2 || !bits3 ) {
 				System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 				throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
@@ -204,8 +246,10 @@ public class BatteryRelatrixKVClientStream {
 		tims = System.currentTimeMillis();
 		for(int j = max-1; j > max-numLookupByValue; j--) {
 				// careful here, have to do the conversion explicitly
-				boolean bits = rkvc.containsValue(String.class, (long)j);
-				if( !bits ) {
+				boolean bits1 = rkvc.containsValue(alias1, String.class, (long)j);
+				boolean bits2 = rkvc.containsValue(alias2, String.class, (long)j);
+				boolean bits3 = rkvc.containsValue(alias3, String.class, (long)j);
+				if( !bits1 || !bits2 || !bits3 ) {
 					System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 					throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
@@ -221,14 +265,20 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Object k = rkvc.firstKey(String.class); // first key
+		Object k = rkvc.firstKey(alias1, String.class); // first key
+		Object j = rkvc.firstKey(alias2, String.class); // first key
+		Object l = rkvc.firstKey(alias3, String.class); // first key
 		System.out.println("KV Battery1AR9");
-		if( Integer.parseInt((String)k) != i ) {
+		if( Integer.parseInt(((String)k).substring(0,100)) != i  || ((String)k).endsWith(alias1) ||
+				Integer.parseInt(((String)j).substring(0,100)) != i  || ((String)j).endsWith(alias2) ||
+				Integer.parseInt(((String)l).substring(0,100)) != i  || ((String)l).endsWith(alias3)) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
-		long ks = (long) rkvc.firstValue(String.class);
-		if( ks != i) {
+		long ks = (long) rkvc.firstValue(alias1, String.class);
+		long kt = (long) rkvc.firstValue(alias2, String.class);
+		long ku = (long) rkvc.firstValue(alias3, String.class);
+		if( ks != i || kt != i || ku != i) {
 			System.out.println("KV BATTERY1A9 cant find contains value "+i);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of value "+i);
 		}
@@ -243,14 +293,20 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Object k = rkvc.lastKey(String.class); // key
+		Object k = rkvc.lastKey(alias1, String.class); // first key
+		Object j = rkvc.lastKey(alias2, String.class); // first key
+		Object l = rkvc.lastKey(alias3, String.class); // first key
 		System.out.println("KV Battery1AR10");
-		if( Long.parseLong((String) k) != (long)i ) {
+		if( Integer.parseInt(((String)k).substring(0,100)) != i  || ((String)k).endsWith(alias1) ||
+				Integer.parseInt(((String)j).substring(0,100)) != i  || ((String)j).endsWith(alias2) ||
+				Integer.parseInt(((String)l).substring(0,100)) != i  || ((String)l).endsWith(alias3)) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
-		long ks = (long)rkvc.lastValue(String.class);
-		if( ks != i) {
+		long ks = (long)rkvc.lastValue(alias1, String.class);
+		long kt = (long)rkvc.lastValue(alias2, String.class);
+		long ku = (long)rkvc.lastValue(alias3, String.class);
+		if( ks != (long)i || kt != (long)i || ku != (long)i) {
 			System.out.println("KV BATTERY1AR10 cant find last value "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
@@ -264,11 +320,13 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = rkvc.size(String.class);
+		long bits1 = rkvc.size(alias1, String.class);
+		long bits2 = rkvc.size(alias2, String.class);
+		long bits3 = rkvc.size(alias3, String.class);
 		System.out.println("KV Battery1AR101");
-		if( bits != i ) {
-			System.out.println("KV BATTERY1AR101 size mismatch "+bits+" should be:"+i);
-			throw new RuntimeException("KV BATTERY1AR101 size mismatch "+bits+" should be "+i);
+		if( bits1 != i || bits2 != i || bits3 != i) {
+			System.out.println("KV BATTERY1AR101 size mismatch "+bits1+" or "+bits2+" or "+bits3+" should be:"+i);
+			throw new RuntimeException("KV BATTERY1AR101 size mismatch "+bits1+" or "+bits2+" or "+bits3+" should be "+i);
 		}
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -277,41 +335,41 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv) throws Exception {
+	public static void battery1AR11(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findTailMapSteam(fkey);
-		System.out.println("KV Battery1AR11");
+		RemoteStream stream = rkvc.findTailMapSteam(alias, fkey); // intentionally leave off suffix for no exact match
+		System.out.println(alias+" KV Battery1AR11");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((String)e) != i) {
+			if(Integer.parseInt(((String)e).substring(0,100)) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
-		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * findMapKV tailmapKV
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv) throws Exception {
+	public static void battery1AR12(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findTailMapKVStream(fkey);
-		System.out.println("KV Battery1AR12");
+		RemoteStream stream = rkvc.findTailMapKVStream(alias, fkey);
+		System.out.println(alias+" KV Battery1AR12");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
+			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
-		 System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
@@ -319,23 +377,22 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String[] argv) throws Exception {
+	public static void battery1AR13(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findHeadMapStream(fkey);
-		System.out.println("KV Battery1AR13");
-		// with i at max, should catch them all
+		RemoteStream stream = rkvc.findHeadMapStream(alias, fkey); // no exact match
+		System.out.println(alias+" KV Battery1AR13");
 		i = min;
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((String)e) != i) {
+			if(Integer.parseInt(((String)e).substring(0,100)) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
-		 System.out.println("BATTERY1AR13 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR13 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
@@ -343,22 +400,22 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String[] argv) throws Exception {
+	public static void battery1AR14(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findHeadMapKVStream(fkey);
-		System.out.println("KV Battery1AR14");
+		RemoteStream stream = rkvc.findHeadMapKVStream(alias, fkey); // no exact match
+		System.out.println(alias+" KV Battery1AR14");
 		i = min;
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
+			if(Integer.parseInt((((Map.Entry<String,Long>)e).getKey()).substring(0,100)) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
-		 System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
@@ -366,25 +423,24 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String[] argv) throws Exception {
+	public static void battery1AR15(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteStream stream = rkvc.findSubMapStream(fkey, tkey);
-		System.out.println("KV Battery1AR15");
-		// with i at max, should catch them all
+		RemoteStream stream = rkvc.findSubMapStream(alias, fkey, tkey); // no exact match
+		System.out.println(alias+" KV Battery1AR15");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((String) e) != i) {
+			if(Integer.parseInt(((String) e).substring(0,100)) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
-		 System.out.println("BATTERY1AR15 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR15 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
@@ -392,88 +448,56 @@ public class BatteryRelatrixKVClientStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String[] argv) throws Exception {
+	public static void battery1AR16(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteStream stream = rkvc.findSubMapKVStream(fkey, tkey);
-		System.out.println("KV Battery1AR16");
-		// with i at max, should catch them all
+		RemoteStream stream = rkvc.findSubMapKVStream(alias, fkey, tkey); // no exact match
+		System.out.println(alias+" KV Battery1AR16");
 		stream.of().forEach(e ->{
-			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
+			if(Integer.parseInt((((Map.Entry<String,Long>)e).getKey()).substring(0,100)) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+e);
 			}
 			++i;
 		});
-		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println(alias+" BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * remove entries
-	 * @param argv
+	 * @param alias
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("KV Battery1AR17");
-		RemoteKeySetIterator its = rkvc.keySet(String.class);
-		System.out.println("KV Battery1AR7");
+		System.out.println("KV Battery1AR17 for alias "+alias);
+		RemoteKeySetIterator its = rkvc.keySet(alias, String.class);
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(its)) {
 			String fkey = (String) rkvc.next(its);
-			rkvc.remove(fkey);
+			rkvc.remove(alias, fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println(fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
 		its.close();
-		long siz = rkvc.size(String.class);
+		long siz = rkvc.size(alias, String.class);
 		if(siz > 0) {
-				RemoteStream stream = rkvc.entrySetStream(String.class);
+				RemoteStream stream = rkvc.entrySetStream(alias, String.class);
 				stream.of().forEach(e ->{
 					//System.out.println(i+"="+key);
 					System.out.println(e);
 				});
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
+				System.out.println(alias+" KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
+			throw new Exception(alias+" KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
-		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println(alias+" BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery18(String[] argv) throws Exception {
-		System.out.println("KV Battery18 ");
-		int max1 = max - 50000;
-		long tims = System.currentTimeMillis();
-		int dupes = 0;
-		int recs = 0;
-		String fkey = null;
-		for(int i = min; i < max1; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(fkey, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		long s = rkvc.size(String.class);
-		if(s != max1)
-			System.out.println("Size at halway point of restore incorrect:"+s+" should be "+max1);
-		for(int i = max1; i < max; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(fkey, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-	}
+	
 	
 }
