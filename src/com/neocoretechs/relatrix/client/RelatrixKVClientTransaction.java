@@ -341,6 +341,25 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 		return null;
 	}
+	
+	public Object[] getTransactionState() {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTransactionState",(Object[])null);
+		try {
+			return (Object[]) sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public void rollbackOutstandingTransactions() {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","rollbackAllTransactions",(Object[])null);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Store our k/v
 	 * This is a transactional store in the context of a previously initiated transaction.

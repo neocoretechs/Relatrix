@@ -1,8 +1,9 @@
 package com.neocoretechs.relatrix;
-import java.io.*;
+
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
@@ -14,6 +15,8 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.RockSackAdapter;
 import com.neocoretechs.rocksack.session.TransactionalMap;
+import com.neocoretechs.rocksack.session.VolumeManager;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
@@ -137,6 +140,14 @@ public final class RelatrixKVTransaction {
 		if(DEBUG)
 			System.out.printf("Returning NewKey=%s%n", nkey.toString());
 		return nkey;
+	}
+	
+	public static synchronized void rollbackAllTransactions() {
+		VolumeManager.clearAllOutstandingTransactions();
+	}
+	
+	public static synchronized Object[] getTransactionState() {
+		return VolumeManager.getOutstandingTransactionState().toArray();
 	}
 	/**
 	 * Store our permutations of the key/value

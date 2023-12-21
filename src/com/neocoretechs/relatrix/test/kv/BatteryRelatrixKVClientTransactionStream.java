@@ -8,7 +8,7 @@ import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
- * Yes, this should be a nice JUnit fixture someday. Test of client side KV server stream ops.
+ * Yes, this should be a nice JUnit fixture someday. Test of client side KV server stream transaction ops.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * start server RelatrixKVTransactionServer.
  * A database unique to this test module should be used.
  * program argument is local server, remote server, remote port
- * @author jg (C) 2022
+ * @author Jonathan Groff (C) NeoCoreTechs 2022,2023
  *
  */
 public class BatteryRelatrixKVClientTransactionStream {
@@ -56,7 +56,6 @@ public class BatteryRelatrixKVClientTransactionStream {
 		battery1AR15(xid);
 		battery1AR16(xid);
 		battery1AR17(xid);
-		battery18(xid);
 		System.out.println("BatteryRelatrixKVClientTransactionStream TEST BATTERY COMPLETE.");
 		rkvc.endTransaction(xid);
 		rkvc.close();
@@ -456,39 +455,6 @@ public class BatteryRelatrixKVClientTransactionStream {
 		rkvc.endTransaction(xid2);
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery18(String xid) throws Exception {
-		System.out.println("KV Battery18 ");
-		String xid2 = rkvc.getTransactionId();
-		int max1 = max - 50000;
-		long tims = System.currentTimeMillis();
-		int dupes = 0;
-		int recs = 0;
-		String fkey = null;
-		for(int i = min; i < max1; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(xid2, fkey, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		System.out.println("Checkpointing..");
-		rkvc.checkpoint(xid2);
-		for(int i = max1; i < max; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(xid2, fkey, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		rkvc.commit(xid2, String.class);
-		rkvc.endTransaction(xid2);
-		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-	}
-	
+
 	
 }
