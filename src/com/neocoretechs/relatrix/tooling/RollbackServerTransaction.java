@@ -1,0 +1,35 @@
+package com.neocoretechs.relatrix.tooling;
+
+import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
+
+public class RollbackServerTransaction {
+	public static void main(String[] args) throws Exception {
+		RelatrixKVClientTransaction rkvc = new RelatrixKVClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
+		Object[] states = rkvc.getTransactionState();
+		int i = 0;
+		for(Object s : states) {
+			System.out.println(++i+".) "+s);
+		}
+		if(i == 0) {
+			System.out.println("No transactions found.");
+			rkvc.close();
+			System.exit(0);
+		}
+		if(i == 1)
+			System.out.println("Enter '1' to confirm");
+		else
+			System.out.println("Select transaction to rollback 1.-"+i+".)");
+		int j = 0;
+		StringBuilder asc = new StringBuilder(0);
+		while(j != 10) {
+			j = System.in.read();
+			if((char)j >= '0' && (char)j <= '9')
+				asc.append((char)j);
+		}
+		int select = Integer.parseInt(asc.toString());
+		System.out.println("Removing "+select+".) "+((String)states[select-1]).substring(12,48));
+		rkvc.rollbackOutstandingTransaction(((String)states[select-1]).substring(12,48));
+		rkvc.close();
+		System.exit(0);
+	}
+}

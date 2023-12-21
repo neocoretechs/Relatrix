@@ -360,6 +360,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			e.printStackTrace();
 		}
 	}
+	
+	public void rollbackOutstandingTransaction(String uid) {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","rollbackTransaction",uid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Store our k/v
 	 * This is a transactional store in the context of a previously initiated transaction.

@@ -146,6 +146,10 @@ public final class RelatrixKVTransaction {
 		VolumeManager.clearAllOutstandingTransactions();
 	}
 	
+	public static synchronized void rollbackTransaction(String uid) {
+		VolumeManager.clearOutstandingTransaction(uid);
+	}
+	
 	public static synchronized Object[] getTransactionState() {
 		return VolumeManager.getOutstandingTransactionState().toArray();
 	}
