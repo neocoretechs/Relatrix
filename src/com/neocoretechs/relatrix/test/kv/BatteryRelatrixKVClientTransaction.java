@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -30,16 +31,16 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIteratorTransaction;
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
- * In general most of the testing relies on checking order against expected values hence the importance of
+ * In general most of the testing relies on checking order against expected values, hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
- * as examples of Relatrix processing.
+ * The set of tests verifies the higher level client side transactional store and 'findSet' functions in the KV Relatrix, 
+ * which can be used as examples as well.
  * NOTES:
  * start server RelatrixKVTransactionServer.
  * A database unique to this test module should be used.
  * program argument is node of local client, node server is running on, port of server started with database of your choice.
- * @author jg (C) 2022
+ * @author Jonathan Groff (C) NeoCoreTechs 2022,2023
  *
  */
 public class BatteryRelatrixKVClientTransaction {
@@ -488,7 +489,7 @@ public class BatteryRelatrixKVClientTransaction {
 		rkvc.endTransaction(xid2);
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	
+
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * @param argv
@@ -518,7 +519,13 @@ public class BatteryRelatrixKVClientTransaction {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.commit(xid2, String.class);
+		rkvc.rollbackToCheckpoint(xid2);
+		String lkey = (String) rkvc.lastKey(xid2, String.class);
+		if(Integer.parseInt(lkey.substring(0,100)) != max1-1 || rkvc.size(xid2, String.class) != max1) {
+			System.out.println("KV Battery18 consistency mismatch: last record doesnt match predicted ");
+			throw new Exception("KV Battery18 consistency mismatch: last record doesnt match predicted ");
+		}
+		rkvc.rollback(xid2);
 		rkvc.endTransaction(xid2);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
