@@ -26,7 +26,7 @@ public class RollbackServerTransaction {
 			System.exit(0);
 		}
 		if(i == 1)
-			System.out.println("Enter '1' to confirm");
+			System.out.println("Enter '1' to confirm, then hit return, or <ctrl>-C to terminate.");
 		else
 			System.out.println("Select transaction to rollback 1.-"+i+".) then hit return, or <ctrl>-C to terminate.");
 		int j = 0;
