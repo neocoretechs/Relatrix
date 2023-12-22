@@ -516,7 +516,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
-		rkvc.endTransaction(xid2);
+		rkvc.endTransaction(alias,xid2);
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 

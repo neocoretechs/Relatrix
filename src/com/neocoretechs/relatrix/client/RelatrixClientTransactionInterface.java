@@ -196,6 +196,9 @@ public interface RelatrixClientTransactionInterface {
 	RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz)
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
 
+	String endTransaction(String alias, String xid)
+			throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
+
 
 	
 }

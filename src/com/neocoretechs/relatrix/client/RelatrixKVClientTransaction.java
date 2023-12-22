@@ -293,6 +293,16 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	
+	@Override
+	public String endTransaction(String alias, String xid) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "endTransaction", alias, xid);
+		try {
+			return (String) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public String getTablespace() {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpace",(Object[])null);
 		try {

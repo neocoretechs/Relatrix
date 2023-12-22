@@ -317,6 +317,16 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 			throw new IOException(e);
 		}
 	}
+	
+	@Override
+	public String endTransaction(String alias, String xid) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "endTransaction", alias, xid);
+		try {
+			return (String) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
 	 * This is a transactional store in the context of a previously initiated transaction.
