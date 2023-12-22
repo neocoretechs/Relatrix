@@ -497,7 +497,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(xid2,its)) {
 			String fkey = (String) rkvc.next(xid2,its);
-			rkvc.remove(xid2,fkey);
+			rkvc.remove(alias,xid2,fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println(fkey);
 				timx = System.currentTimeMillis();
@@ -510,7 +510,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 			RemoteEntrySetIteratorTransaction itt = rkvc.entrySet(alias, xid2, String.class);
 			while(rkvc.hasNext(xid2, itt)) {
 				Object nex = rkvc.next(xid2, itt);
-				//System.out.println(nex);
+				System.out.println(nex);
 			}
 			itt.close();
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
