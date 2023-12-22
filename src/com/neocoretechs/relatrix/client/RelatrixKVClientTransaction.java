@@ -292,8 +292,9 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}
 	}
+	
 	public String getTablespace() {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpaceDirectory",(Object[])null);
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpace",(Object[])null);
 		try {
 			return (String) sendCommand(rs);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -302,8 +303,17 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		return null;
 	}
 	
-	public String getTablespace(String alias) {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpaceDirectory",alias);
+	public void setTablespace(String tablespace) {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","setTableSpace",tablespace);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String getAlias(String alias) {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getAlias",alias);
 		try {
 			return (String) sendCommand(rs);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -332,7 +342,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		return null;
 	}
 	
-	public Object removeAlias(String alias) {
+	public Object removeAlias(String alias) throws NoSuchElementException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("removeAlias",alias);
 		try {
 			return sendCommand(rs);
@@ -435,6 +445,16 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 	
 	@Override
+	public void checkpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException  {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "checkpoint", alias, xid);
+		try {
+			sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}	
+	}
+	
+	@Override
 	public UUID getNewKey(String xid) throws ClassNotFoundException, IllegalAccessException, IOException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "getNewKey",(Object[])null);
 		try {
@@ -447,6 +467,16 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	@Override
 	public void commit(String xid) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "commit", xid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public void commit(String alias, String xid) throws IOException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "commit", alias, xid);
 		try {
 			sendCommand(rs);
 		} catch (IllegalAccessException | DuplicateKeyException e) {
@@ -473,6 +503,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}	
 	}
+	
 	@Override
 	public void rollback(String xid) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", xid);
@@ -482,6 +513,17 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}	
 	}
+	
+	@Override
+	public void rollback(String alias, String xid) throws IOException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", alias, xid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException |DuplicateKeyException e) {
+			throw new IOException(e);
+		}	
+	}
+	
 	@Override
 	public void rollback(String xid, Class clazz) throws IOException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", xid, clazz);
@@ -505,6 +547,16 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	@Override
 	public void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollbackToCheckpoint", xid);
+		try {
+			sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}	
+	}
+	
+	@Override
+	public void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollbackToCheckpoint", alias, xid);
 		try {
 			sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -546,6 +598,17 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}
 	}
+	
+	@Override
+	public Object firstValue(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "firstValue", xid, clazz);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	/**
 	 * Get the keyed value
 	 * @param key The Comparable key
@@ -590,8 +653,28 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 	
 	@Override
+	public Object lastValue(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "lastValue", alias, xid, clazz);
+		try {
+			return sendCommand(rs);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "firstKey", xid, clazz);
+		try {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public Comparable firstKey(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "firstKey", alias, xid, clazz);
 		try {
 			return (Comparable) sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -609,8 +692,27 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 
+	@Override
+	public Comparable lastKey(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "lastKey", alias, xid, clazz);
+		try {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public long size(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "size", xid, clazz);
+		try {
+			return (long) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public long size(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "size", alias, xid, clazz);
 		try {
 			return (long) sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -627,6 +729,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	
+	public boolean contains(String alias, String xid, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "contains", alias, xid, key);
+		try {
+			return (boolean) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public boolean containsValue(String xid, Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "containsValue", xid, keyType, value);
 		try {
@@ -636,6 +747,14 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	
+	public boolean containsValue(String alias, String xid, Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "containsValue", alias, xid, keyType, value);
+		try {
+			return (boolean) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	* matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -667,6 +786,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 
+	public RemoteTailMapIteratorTransaction findTailMap(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMap", alias, xid, key);
+		try {
+			return (RemoteTailMapIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findTailMapStream(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapStream", xid, key);
 		try {
@@ -676,9 +804,26 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 
-
+	public RemoteStream findTailMapStream(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapStream", alias, xid, key);
+		try {
+			return (RemoteStream)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteEntrySetIteratorTransaction entrySet(String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "entrySet", xid, clazz);
+		try {
+			return (RemoteEntrySetIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public RemoteEntrySetIteratorTransaction entrySet(String alias, String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "entrySet", alias, xid, clazz);
 		try {
 			return (RemoteEntrySetIteratorTransaction)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -697,8 +842,29 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 	
 	@Override
+	public RemoteStream entrySetStream(String alias, String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "entrySetStream", alias, xid, clazz);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	
+	@Override
 	public RemoteKeySetIteratorTransaction keySet(String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "keySet", xid, clazz);
+		try {
+			return (RemoteKeySetIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "keySet", alias, xid, clazz);
 		try {
 			return (RemoteKeySetIteratorTransaction)sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -714,6 +880,16 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}
 	}
+	
+	public RemoteStream keySetStream(String alias, String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "keySetStream", alias, xid, clazz);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	/**
 	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	* matching the given set of operators and/or objects.
@@ -739,9 +915,17 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
 	}
 
+	public RemoteTailMapKVIteratorTransaction findTailMapKV(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapKV", alias, xid, key);
+		try {
+			return (RemoteTailMapKVIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findTailMapKVStream(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapKVStream", xid, key);
 		try {
@@ -749,7 +933,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
+	}
+	
+	public RemoteStream findTailMapKVStream(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapKVStream", alias, xid, key);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 	}
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -772,7 +964,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
+	}
+	
+	public RemoteHeadMapIteratorTransaction findHeadMap(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findHeadMap", alias, xid, key);
+		try {
+			return (RemoteHeadMapIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 	}
 	
 	public RemoteStream findHeadMapStream(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
@@ -782,7 +982,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
+	}
+	
+	public RemoteStream findHeadMapStream(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findHeadMapStream", alias, xid, key);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 	}
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -803,7 +1011,24 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
+	}
+	
+	public RemoteHeadMapKVIteratorTransaction findHeadMapKV(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findHeadMapKV", alias, xid, key);
+		try {
+			return (RemoteHeadMapKVIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public RemoteStream findHeadMapKVStream(String alias, String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findHeadMapKVStream", alias, xid, key);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 	}
 	
 	public RemoteStream findHeadMapKVStream(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
@@ -813,8 +1038,8 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
 	}
+	
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
@@ -837,10 +1062,17 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
 	}
 	
-
+	public RemoteSubMapIteratorTransaction findSubMap(String alias, String xid, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findSubMap", alias, xid, key1, key2);
+		try {
+			return (RemoteSubMapIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findSubMapStream(String xid, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findSubMapStream", xid, key1, key2);
 		try {
@@ -848,7 +1080,15 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-
+	}
+	
+	public RemoteStream findSubMapStream(String alias, String xid, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findSubMapStream", alias, xid, key1, key2);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
 	}
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
@@ -874,8 +1114,26 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	
+	public RemoteSubMapKVIteratorTransaction findSubMapKV(String alias, String xid, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findSubMapKV", alias, xid, key1, key2);
+		try {
+			return (RemoteSubMapKVIteratorTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	public RemoteStream findSubMapKVStream(String xid, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findSubMapKVStream", xid, key1, key2);
+		try {
+			return (RemoteStreamTransaction)sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public RemoteStream findSubMapKVStream(String alias, String xid, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findSubMapKVStream", alias, xid, key1, key2);
 		try {
 			return (RemoteStreamTransaction)sendCommand(rs);
 		} catch (DuplicateKeyException e) {

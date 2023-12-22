@@ -351,6 +351,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "storekv", k, v);
 		return sendCommand(rs);
 	}
+	
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException
@@ -364,6 +365,21 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 			throw new IOException(e);
 		}
 	}
+	
+	/**
+	 * Commit the outstanding indicies to their transactional data.
+	 * @throws IOException
+	 */
+	@Override
+	public void commit(String alias, String xid) throws IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "commit", alias, xid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	/**
 	 * Roll back all outstanding transactions on the indicies
 	 * @throws IOException
@@ -420,8 +436,28 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 	
 	@Override
+	public void rollback(String alias, String xid) throws IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "rollback", alias, xid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public void rollbackToCheckpoint(String xid) throws IOException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "rollbackTocheckpoint", xid);
+		try {
+			sendCommand(rs);
+		} catch (IllegalAccessException | DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public void rollbackToCheckpoint(String alias, String xid) throws IOException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "rollbackTocheckpoint", alias, xid);
 		try {
 			sendCommand(rs);
 		} catch (IllegalAccessException | DuplicateKeyException e) {
@@ -440,8 +476,28 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 	
 	@Override
+	public void checkpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "checkpoint", alias, xid);
+		try {
+			sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "firstKey", xid, clazz);
+		try {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public Comparable firstKey(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "firstKey", alias, xid, clazz);
 		try {
 			return (Comparable) sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -459,6 +515,16 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 
+	@Override
+	public Object firstValue(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "firstValue", alias, xid, clazz);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
 	@Override
 	public Object get(String xid, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "get", xid, key);
@@ -499,6 +565,16 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 
 	@Override
+	public Comparable lastKey(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "lastKey", alias, xid, clazz);
+		try {
+			return (Comparable) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public Object lastValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "lastValue", xid, clazz);
 		try {
@@ -507,11 +583,18 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 			throw new IOException(e);
 		}
 	}
-
-
 	
 	@Override
-	public RemoteStream entrySetStream(String xid, Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public Object lastValue(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "lastValue", alias, xid, clazz);
+		try {
+			return sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	@Override
+	public RemoteStream entrySetStream(String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "entrySetStream", xid, clazz);
 		try {
 			return (RemoteStream) sendCommand(rs);
@@ -521,8 +604,28 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 
 	@Override
-	public RemoteKeySetIteratorTransaction keySet(String xid, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
+	public RemoteStream entrySetStream(String alias, String xid, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "entrySetStream", alias, xid, clazz);
+		try {
+			return (RemoteStream) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public RemoteKeySetIteratorTransaction keySet(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "keySet", xid, clazz);
+		try {
+			return (RemoteKeySetIteratorTransaction) sendCommand(rs);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "keySet", alias, xid, clazz);
 		try {
 			return (RemoteKeySetIteratorTransaction) sendCommand(rs);
 		} catch (DuplicateKeyException e) {

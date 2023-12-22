@@ -170,6 +170,32 @@ public interface RelatrixClientTransactionInterface {
 
 	Object getByIndex(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException;
 
+	void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException;
+
+	void rollback(String alias, String xid) throws IOException;
+
+	void commit(String alias, String xid) throws IOException;
+
+	void checkpoint(String alias, String xid) throws IOException, IllegalAccessException;
+
+	Object firstValue(String alias, String xid, Class clazz)
+			throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Object lastValue(String alias, String xid, Class clazz)
+			throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Comparable firstKey(String alias, String xid, Class clazz)
+			throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	Comparable lastKey(String alias, String xid, Class clazz)
+			throws IOException, ClassNotFoundException, IllegalAccessException;
+
+	RemoteStream entrySetStream(String alias, String xid, Class clazz)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
+
+	RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
+
 
 	
 }
