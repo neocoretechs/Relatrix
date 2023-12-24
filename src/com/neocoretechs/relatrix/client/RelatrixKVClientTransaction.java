@@ -344,7 +344,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	}
 	
 	public Object removeAlias(String alias) throws NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("removeAlias",alias);
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","removeAlias",alias);
 		try {
 			return sendCommand(rs);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
