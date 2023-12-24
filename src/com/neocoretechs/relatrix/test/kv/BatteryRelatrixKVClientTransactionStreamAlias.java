@@ -384,7 +384,7 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 		// with i at max, should catch them all
 		i = min;
 		stream.of().forEach(e ->{
-			if(Integer.parseInt((String)e) != i || !((String)e).endsWith(alias)) {
+			if(Integer.parseInt(((String)e).substring(0,100)) != i || !((String)e).endsWith(alias)) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
 				throw new RuntimeException("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+e);
