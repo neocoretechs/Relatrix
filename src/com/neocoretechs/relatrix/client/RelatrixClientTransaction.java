@@ -318,15 +318,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 	
-	@Override
-	public String endTransaction(String alias, String xid) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "endTransaction", alias, xid);
-		try {
-			return (String) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
 	 * This is a transactional store in the context of a previously initiated transaction.
@@ -425,25 +416,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 	
-	@Override
-	public void commit(String xid, Class clazz) throws IOException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "commit", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public void rollback(String xid, Class clazz) throws IOException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "rollback", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	@Override
 	public void rollback(String alias, String xid) throws IOException, NoSuchElementException {
@@ -475,15 +447,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		}
 	}
 	
-	@Override
-	public void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "checkpoint", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	@Override
 	public void checkpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
@@ -910,27 +873,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 
 	@Override
-	public void checkpoint(String alias, String xid, Class clazz) throws IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "checkpoint", alias, xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public void rollback(String alias, String xid, Class clazz) throws IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "rollback", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-		
-	}
-
-	@Override
 	public Object remove(String alias, String xid, Comparable instance) throws IOException, NoSuchElementException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "remove", alias, xid, instance);
 		try {
@@ -941,16 +883,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		
 	}
 
-	@Override
-	public void commit(String alias, String xid, Class clazz) throws IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "commit", alias, xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-		
-	}
 
 	@Override
 	public String toString() {

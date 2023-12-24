@@ -84,7 +84,7 @@ public class BatteryRelatrixKVTransactionStream {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixKVTransaction.commit(xid, String.class);
+		RelatrixKVTransaction.commit(xid);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -439,7 +439,7 @@ public class BatteryRelatrixKVTransactionStream {
 				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		RelatrixKVTransaction.commit(xid2, String.class);
+		RelatrixKVTransaction.commit(xid2);
 		long siz = RelatrixKVTransaction.size(xid2, String.class);
 		i = 0;
 		if(siz > 0) {
@@ -486,7 +486,7 @@ public class BatteryRelatrixKVTransactionStream {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixKVTransaction.commit(xid2, String.class);
+		RelatrixKVTransaction.commit(xid2);
 		RelatrixKVTransaction.endTransaction(xid2);
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}

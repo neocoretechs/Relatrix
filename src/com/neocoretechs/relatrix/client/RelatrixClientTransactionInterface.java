@@ -99,45 +99,11 @@ public interface RelatrixClientTransactionInterface {
 	void rollback(String xid) throws IOException;
 
 	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
 	void checkpoint(String xid) throws IOException, IllegalAccessException;
 
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException;
-
-	/**
-	 * Commit the outstanding indicies to their transactional data.
-	 * @throws IOException
-	 */
-	void commit(String xid, Class clazz) throws IOException;
-
-	/**
-	 * Roll back all outstanding transactions on the indicies
-	 * @throws IOException
-	 */
-	void rollback(String xid, Class clazz) throws IOException;
-	
 	void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException;
 
 	/**
@@ -158,13 +124,8 @@ public interface RelatrixClientTransactionInterface {
 
 	Object get(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, NoSuchElementException;
 
-	void checkpoint(String alias, String transactionId, Class next) throws IllegalAccessException, IOException, NoSuchElementException;
-
-	void rollback(String alias, String transactionId, Class next) throws IOException, NoSuchElementException;
 
 	Object remove(String alias, String transactionId, Comparable instance) throws IOException, NoSuchElementException;
-
-	void commit(String alias, String transactionId, Class c) throws IOException, NoSuchElementException;
 
 	void storekv(String alias, String transactionId, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
 
@@ -195,10 +156,6 @@ public interface RelatrixClientTransactionInterface {
 
 	RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz)
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
-
-	String endTransaction(String alias, String xid)
-			throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
-
 
 	
 }

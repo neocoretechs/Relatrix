@@ -293,15 +293,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	
-	@Override
-	public String endTransaction(String alias, String xid) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "endTransaction", alias, xid);
-		try {
-			return (String) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	public String getTablespace() {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("","getTableSpace",(Object[])null);
@@ -413,36 +404,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		sendCommand(rs);
 	}
 	
-	@Override
-	public void checkpoint(String alias, String xid, Class clazz) throws IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "checkpoint", alias, xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}	
-	}
-	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	@Override
-	public void checkpoint(String xid, Class clazz) throws IOException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "checkpoint", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	@Override
 	public void checkpoint(String xid) throws IOException, IllegalAccessException {
@@ -494,25 +455,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}
 	}
 	
-	@Override
-	public void commit(String xid, Class clazz) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "commit", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public void commit(String alias, String xid, Class clazz) throws IOException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "commit", alias, xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (DuplicateKeyException | IllegalAccessException e) {
-			throw new IOException(e);
-		}	
-	}
 	
 	@Override
 	public void rollback(String xid) throws IOException {
@@ -534,25 +476,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		}	
 	}
 	
-	@Override
-	public void rollback(String xid, Class clazz) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", xid, clazz);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException |DuplicateKeyException e) {
-			throw new IOException(e);
-		}	
-	}
-	
-	@Override
-	public void rollback(String alias, String xid, Class next) throws IOException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "rollback", alias, xid);
-		try {
-			sendCommand(rs);
-		} catch (IllegalAccessException |DuplicateKeyException e) {
-			throw new IOException(e);
-		}	
-	}
 
 	@Override
 	public void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
@@ -611,7 +534,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	
 	@Override
 	public Object firstValue(String alias, String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "firstValue", xid, clazz);
+		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "firstValue", alias, xid, clazz);
 		try {
 			return sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -1236,7 +1159,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	@Override
 	public void remove(String xid, RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException {
 		((RelatrixKVTransactionStatement)rii).xid = xid;
-		((RelatrixKVStatement)rii).methodName = "hasNext";
+		((RelatrixKVStatement)rii).methodName = "remove";
 		((RelatrixKVStatement)rii).paramArray = new Object[]{xid,((RelatrixKVTransactionStatement)rii).getObjectReturn()};	
 		try {
 			sendCommand((RelatrixStatementInterface) rii);

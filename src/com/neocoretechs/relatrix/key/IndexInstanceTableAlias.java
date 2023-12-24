@@ -22,7 +22,6 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
  */
 public final class IndexInstanceTableAlias implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
-	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	String alias = null;
 	String transactionId = null;
 	private Object mutex = new Object();
@@ -70,8 +69,7 @@ public final class IndexInstanceTableAlias implements IndexInstanceTableInterfac
 				dke.printStackTrace();
 				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s alias:%s Index class=%s%n",instance,index,instance.getClass().getName(),alias,index.getClass().getName()));	
 			}
-			classCommits.add(index.getClass());
-			classCommits.add(instance.getClass());
+
 		}
 	}
 	
@@ -86,43 +84,27 @@ public final class IndexInstanceTableAlias implements IndexInstanceTableInterfac
 					RelatrixKV.remove(alias, instance);
 				else
 					RelatrixKVTransaction.remove(alias, transactionId, instance);
-				classCommits.add(instance.getClass());
 			}
 			if(transactionId == null)
 				RelatrixKV.remove(alias, index);
 			else
 				RelatrixKVTransaction.remove(alias, transactionId, index);
-			classCommits.add(index.getClass());	
 		}
 	}
 	
 	@Override
 	public void commit() throws IOException, IllegalAccessException {
 		synchronized(mutex) {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext()) {
-					Class c = it.next();
-					if(DEBUG)
-						System.out.printf("IndexInstanceTable.commit committing class %s%n",c);
-					if(transactionId != null)
-						RelatrixKVTransaction.commit(transactionId, c);
-				}
-				classCommits.clear();
-			}
+			if(transactionId != null)
+				RelatrixKVTransaction.commit(transactionId);
 		}
 	}
 	
 	@Override
 	public void rollback() throws IOException, IllegalAccessException {
 		synchronized(mutex) {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext())
-					if(transactionId != null)
-						RelatrixKVTransaction.rollback(transactionId, it.next());
-				classCommits.clear();
-			}
+			if(transactionId != null)
+				RelatrixKVTransaction.rollback(transactionId);
 		}
 	}
 	

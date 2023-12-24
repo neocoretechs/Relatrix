@@ -462,7 +462,7 @@ public class BatteryRelatrixKVClientTransaction {
 			}
 		}
 		its.close();
-		rkvc.commit(xid2, String.class);
+		rkvc.commit(xid2);
 		long siz = rkvc.size(xid2, String.class);
 		if(siz > 0) {
 			RemoteEntrySetIteratorTransaction itt = rkvc.entrySet(xid2, String.class);

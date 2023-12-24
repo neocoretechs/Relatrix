@@ -24,7 +24,6 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
-	LinkedHashSet<Class> classCommits = new LinkedHashSet<Class>();
 	private RelatrixClientInterface rc = null;
 	private RelatrixClientTransactionInterface rcx = null;
 	private String transactionId = null;
@@ -67,8 +66,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			} catch(DuplicateKeyException dke) {
 				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
 			}
-			classCommits.add(index.getClass());
-			classCommits.add(instance.getClass());
 	}
 	
 	@Override
@@ -85,7 +82,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 						throw new IOException("RelatrixClient is null");
 					}
 				}
-				classCommits.add(instance.getClass());
 			}
 			if(rc != null) {
 				rc.remove(index);
@@ -96,54 +92,33 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					throw new IOException("RelatrixClient is null");
 				}
 			}
-			classCommits.add(index.getClass());	
 	}
 	
 	@Override
 	public void commit() throws IOException {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext()) {
-					Class c = it.next();
-					if(DEBUG)
-						System.out.printf("RemoteIndexInstanceTable.commit committing class %s%n",c);
-					if(rcx != null) {
-						rcx.commit(transactionId, c);
-					} else {
-						throw new IOException("RelatrixClient is null");
-					}
-				}
-				classCommits.clear();
-			}
+		if(rcx != null) {
+			rcx.commit(transactionId);
+		} else {
+			throw new IOException("RelatrixClient is null");
+		}
 	}
 	
 	@Override
 	public void rollback() throws IOException {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext()) {
-					if(rcx != null) {
-						rcx.rollback(transactionId, it.next());
-					} else {
-						throw new IOException("RelatrixClient is null");
-					}
-				}
-				classCommits.clear();
-			}
+		if(rcx != null) {
+			rcx.rollback(transactionId);
+		} else {
+			throw new IOException("RelatrixClient is null");
+		}
 	}
 	
 	@Override
 	public void checkpoint() throws IllegalAccessException, IOException {
-			synchronized(classCommits) {
-				Iterator<Class> it = classCommits.iterator();
-				while(it.hasNext()) {
-					if(rcx != null) {
-						rcx.checkpoint(transactionId, it.next());
-					} else {
-						throw new IOException("RelatrixClient is null");
-					}
-				}
-			}
+		if(rcx != null) {
+			rcx.checkpoint(transactionId);
+		} else {
+			throw new IOException("RelatrixClient is null");
+		}
 	}
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey

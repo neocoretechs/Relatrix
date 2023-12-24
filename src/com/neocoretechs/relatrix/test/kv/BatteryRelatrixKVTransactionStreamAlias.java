@@ -63,7 +63,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		battery1AR16(xid);
 		battery17(xid);
 		System.out.println("BatteryRelatrixKVTransactionStreamAlias TEST BATTERY COMPLETE.");
-		RelatrixKVTransaction.endTransaction(alias1, xid);
+		RelatrixKVTransaction.endTransaction(xid);
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -89,7 +89,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixKVTransaction.commit(alias1, xid, String.class);
+		RelatrixKVTransaction.commit(alias1, xid);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -115,7 +115,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 			RelatrixKVTransaction.rollback(alias1, xid2);
 			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
-		RelatrixKVTransaction.endTransaction(alias1, xid2);
+		RelatrixKVTransaction.endTransaction(xid2);
 	}
 	
 	/**
@@ -444,7 +444,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		}
 		System.out.println("Rollback..");
 		RelatrixKVTransaction.rollback(alias1, xid2);
-		RelatrixKVTransaction.endTransaction(alias1, xid2);
+		RelatrixKVTransaction.endTransaction(xid2);
 		// check status using original transaction
 		timx = System.currentTimeMillis();
 		System.out.println("KV Battery17");

@@ -492,7 +492,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 	public static void battery1AR17(String alias, String xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		String xid2 = rkvc.getTransactionId();
-		System.out.println(alias+" KV Battery1AR17");
+		System.out.println(alias+" KV Battery1AR17 for trans:"+xid2);
 		RemoteKeySetIteratorTransaction its = rkvc.keySet(alias,xid2,String.class);
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(xid2,its)) {
@@ -504,7 +504,6 @@ public class BatteryRelatrixKVClientTransactionAlias {
 			}
 		}
 		its.close();
-		rkvc.commit(alias, xid2, String.class);
 		long siz = rkvc.size(alias, xid2, String.class);
 		if(siz > 0) {
 			RemoteEntrySetIteratorTransaction itt = rkvc.entrySet(alias, xid2, String.class);
@@ -516,7 +515,9 @@ public class BatteryRelatrixKVClientTransactionAlias {
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
-		rkvc.endTransaction(alias,xid2);
+		rkvc.commit(alias, xid2);
+		rkvc.endTransaction(xid2);
+		System.out.println("end trans:"+xid2+" now using:"+xid);
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 

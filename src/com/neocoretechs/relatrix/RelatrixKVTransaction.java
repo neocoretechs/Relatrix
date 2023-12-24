@@ -110,23 +110,10 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
-	public static void endTransaction(String xid) {
-		RockSackAdapter.removeRockSackTransactionalMap(xid);
+	public static void endTransaction(String xid) throws IOException {
+		VolumeManager.removeTransaction(xid);
 		IndexResolver.remove(xid);
-	}
-	
-	/**
-	 * @param alias the database alias
-	 * @param xid the transaction id
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException 
-	 * @throws NoSuchElementException
-	 */
-	public static void endTransaction(String alias, String xid) throws NoSuchElementException {
-		RockSackAdapter.removeRockSackTransactionalMap(alias, xid);
-		IndexResolver.remove(xid);
-	}
+	}	
 	
 	/**
 	 * Get the new DBkey.
@@ -214,34 +201,7 @@ public final class RelatrixKVTransaction {
 		if( DEBUG || TRACE )
 			System.out.println("Committed transaction:"+xid+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 	}
-	/**
-	 * Commit the outstanding transaction data in specified class.
-	 * @param xid transaction id
-	 * @param clazz class to commit
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	public static void commit(String xid, Class clazz) throws IOException, IllegalAccessException {
-		long startTime = System.currentTimeMillis();
-		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Commit();
-		if( DEBUG || TRACE )
-			System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
-	}
-	/**
-	 * Commit the outstanding transaction data in specified class.
-	 * @param alias the database alias
-	 * @param xid transaction id
-	 * @param clazz class to commit
-	 * @throws IOException
-	 * @throws IllegalAccessException
-	 * @throws NoSuchElementException if alias not found
-	 */
-	public static void commit(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
-		long startTime = System.currentTimeMillis();
-		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Commit();
-		if( DEBUG || TRACE )
-			System.out.println("Committed "+clazz+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
-	}
+	
 	/**
 	 * Rollback the outstanding transaction data in each active class.
 	 * @param xid the transaction id
@@ -268,28 +228,7 @@ public final class RelatrixKVTransaction {
 		if( DEBUG || TRACE )
 			System.out.println("Rolled back transaction:"+xid+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 	}
-	/**
-	 * Roll back all outstanding transactions on the indicies
-	 * @param xid the transaction id
-	 * @param clazz the class to roll back
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	public static void rollback(String xid, Class clazz) throws IOException, IllegalAccessException {
-		RockSackAdapter.getRockSackTransactionalMap(clazz, xid).Rollback();
-	}
-	/**
-	 * Roll back all outstanding transactions on the indicies
-	 * @param alias the alias of the database
-	 * @param xid the transaction id
-	 * @param clazz the class to roll back
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 * @throws NoSuchElementException if the alias was not found
-	 */
-	public static void rollback(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
-		RockSackAdapter.getRockSackTransactionalMap(alias, clazz, xid).Rollback();
-	}
+
 	/**
 	 * @param xid transaction id
 	 * @throws IOException

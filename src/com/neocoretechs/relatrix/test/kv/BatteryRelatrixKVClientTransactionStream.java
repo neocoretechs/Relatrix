@@ -85,7 +85,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		rkvc.commit(xid, String.class);
+		rkvc.commit(xid);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -439,7 +439,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			}
 		}
 		its.close();
-		rkvc.commit(xid2, String.class);
+		rkvc.commit(xid2);
 		long siz = rkvc.size(xid2, String.class);
 		i = 0;
 		if(siz > 0) {

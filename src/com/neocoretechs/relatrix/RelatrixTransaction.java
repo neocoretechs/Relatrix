@@ -234,18 +234,7 @@ public final class RelatrixTransaction {
 	public static synchronized void commit(String xid) throws IOException, IllegalAccessException {
 		// first commit components of relationships
 		IndexResolver.getIndexInstanceTable(xid).commit();
-		// now commit main relationship and index classes
-		for(int i = 0; i < indexClasses.length; i++) {
-			long startTime = System.currentTimeMillis();
-			if(indexClasses[i] != null) {
-				if( DEBUG || TRACE )
-					System.out.println("Committing "+indexClasses[i]+" with transaction:"+xid);		
-				RelatrixKVTransaction.commit(xid, indexClasses[i]);
-				if( DEBUG || TRACE )
-					System.out.println("Committed "+indexClasses[i] + " with transaction " + xid + " in " + (System.currentTimeMillis() - startTime) + "ms.");		
-				indexClasses[i] = null;
-			}
-		}
+		RelatrixKVTransaction.commit(xid);
 	}
 	/**
 	 * Roll back all outstanding transactions on the indicies
@@ -255,13 +244,7 @@ public final class RelatrixTransaction {
 	public static synchronized void rollback(String xid) throws IOException, IllegalAccessException {
 		// first roll back components
 		IndexResolver.getIndexInstanceTable(xid).rollback();
-		// Now roll back relationships
-		for(int i = 0; i < indexClasses.length; i++) {
-			if(indexClasses[i] != null) {
-				RelatrixKVTransaction.rollback(xid, indexClasses[i]);
-				indexClasses[i] = null;
-			}
-		}
+		RelatrixKVTransaction.rollback(xid);
 	}
 	/**
 	 * Take a check point of our current indicies. What this means is that we are
@@ -914,22 +897,7 @@ public static synchronized UUID getNewKey() throws ClassNotFoundException, Illeg
 public static synchronized void store(String xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 	RelatrixKVTransaction.store(xid, key,  value);
 }
-/**
- * Commit the outstanding transaction data in each active transactional treeset.
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void commit(String xid, Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.commit(xid, clazz);
-}
-/**
- * Roll back all outstanding transactions on the given class, overlap with K/V functionality
- * @throws IOException
- * @throws IllegalAccessException 
- */
-public static synchronized void rollback(String xid, Class clazz) throws IOException, IllegalAccessException {
-	RelatrixKVTransaction.rollback(xid, clazz);
-}
+
 
  /**
   * return lowest valued key.
