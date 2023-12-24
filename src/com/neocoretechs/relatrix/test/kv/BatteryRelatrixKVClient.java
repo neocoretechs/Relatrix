@@ -44,6 +44,10 @@ public class BatteryRelatrixKVClient {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		if(argv.length < 3) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClient <DB local client NODE> <DB remote server node> <DB PORT>");
+			System.exit(1);
+		}
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
 		battery1(argv);	
 		battery11(argv);

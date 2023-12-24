@@ -27,7 +27,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * as examples of Relatrix processing.
  * NOTES:
  * start server RelatrixKVServer.
- * A database unique to this test module should be used.
+ * A database unique to this test module should be used. When starting the server to allow alias, a default tablespace isnt necessary.
  * program argument is node of local client, node server is running on, port of server and remote tablespace alias designator.
  * i.e. java BatteryRelatrixKVClientAlias localnode remotenode 9010 "C:/etc/db/test"
  * @author jg (C) 2020,2022
@@ -48,6 +48,10 @@ public class BatteryRelatrixKVClientAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		if(argv.length < 4) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientAlias <DB local client NODE> <DB remote server node> <DB PORT> <server_directory_path_to_tablespace_alias");
+			System.exit(1);
+		}
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
 		String tablespace = argv[3];
 		if(!tablespace.endsWith("/"))

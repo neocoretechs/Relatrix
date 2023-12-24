@@ -32,6 +32,10 @@ public class BatteryRelatrixKV {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		if(argv.length < 1) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKV <directory_tablespace_path>");
+			System.exit(1);
+		}
 		RelatrixKV.setTablespace(argv[0]);
 		battery1(argv);
 		battery11(argv);

@@ -57,7 +57,7 @@ public class BatteryRelatrixKVTransaction {
 	*/
 	public static void main(String[] argv) throws Exception {
 		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransaction <DB>");
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransaction <directory_path_to_tablespace>");
 			System.exit(1);
 		}
 		RelatrixKVTransaction.setTablespace(argv[0]);

@@ -44,7 +44,7 @@ public class BatteryRelatrixKVClientTransaction {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 2) {
+		if(argv.length < 3) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransaction <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}

@@ -43,6 +43,10 @@ public class BatteryRelatrixKVClientStreamAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		if(argv.length < 4) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStreamAlias <DB local client NODE> <DB remote server node> <DB PORT> <server_directory_path_to_tablespace_alias");
+			System.exit(1);
+		}
 		//rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
 		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));

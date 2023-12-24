@@ -34,6 +34,10 @@ public class BatteryRelatrixKVAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		if(argv.length < 1) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVAlias <directory_tablespace_path>");
+			System.exit(1);
+		}
 		String tablespace = argv[0];
 		if(!tablespace.endsWith("/"))
 			tablespace += "/";
