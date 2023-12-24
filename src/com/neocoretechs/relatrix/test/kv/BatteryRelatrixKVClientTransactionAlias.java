@@ -252,7 +252,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		 tims = System.currentTimeMillis();
 		 for(int j = max-1; j > min; j--) {
 				String fkey = String.format(uniqKeyFmt, j);
-				boolean bits = rkvc.contains(xid, fkey+alias);
+				boolean bits = rkvc.contains(alias, xid, fkey+alias);
 				if( !bits ) {
 					System.out.println("KV BATTERY1A8 cant find contains key "+j);
 					throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
@@ -263,7 +263,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		tims = System.currentTimeMillis();
 		for(int j = min; j < min+numLookupByValue; j++) {
 			// careful here, have to do the conversion explicitly
-			boolean bits = rkvc.containsValue(xid, String.class, (long)j);
+			boolean bits = rkvc.containsValue(alias, xid, String.class, (long)j);
 			if( !bits ) {
 				System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 				throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
@@ -273,7 +273,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		tims = System.currentTimeMillis();
 		for(int j = max-1; j > max-numLookupByValue ; j--) {
 				// careful here, have to do the conversion explicitly
-				boolean bits = rkvc.containsValue(xid, String.class, (long)j);
+				boolean bits = rkvc.containsValue(alias, xid, String.class, (long)j);
 				if( !bits ) {
 					System.out.println("KV BATTERY1AR8 cant find contains value "+j);
 					throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
@@ -319,7 +319,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
-		long kv = (long)rkvc.lastValue(xid, String.class);
+		long kv = (long)rkvc.lastValue(alias, xid, String.class);
 		if( kv != i) {
 			System.out.println("KV BATTERY1AR10 cant find last value "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
