@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 
@@ -201,7 +201,7 @@ public class ApacheLogFOODBMS {
 		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
 		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
 		lin += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
-		RockSackAdapter.setTableSpaceDir("C:/users/jg/Relatrix/logs");
+		DatabaseManager.setTableSpaceDir("C:/users/jg/Relatrix/logs");
 		ApacheLogFOODBMS alfoo = new ApacheLogFOODBMS();
 		//alfoo.readAndProcess(lin);
 		alfoo.getFiles(args[0]);

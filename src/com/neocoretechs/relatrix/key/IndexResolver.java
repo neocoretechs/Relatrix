@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
-import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
  * instance of {@link IndexInstanceTable} can be used to resolve database index to object instances, or whether an

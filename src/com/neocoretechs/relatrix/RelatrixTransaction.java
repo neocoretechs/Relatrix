@@ -17,8 +17,9 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
+import com.neocoretechs.rocksack.session.VolumeManager;
 
 /**
 * Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
@@ -85,7 +86,7 @@ public final class RelatrixTransaction {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
-		RockSackAdapter.setTableSpaceDir(path);
+		DatabaseManager.setTableSpaceDir(path);
 	}
 	
 	/**
@@ -93,7 +94,7 @@ public final class RelatrixTransaction {
 	 * @return the path/dbname of current default tablespace
 	 */
 	public static String getTableSpace() {
-		return RockSackAdapter.getTableSpaceDir();
+		return DatabaseManager.getTableSpaceDir();
 	}
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
@@ -105,7 +106,7 @@ public final class RelatrixTransaction {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
-		RockSackAdapter.setTableSpaceDir(alias, path);
+		DatabaseManager.setTableSpaceDir(alias, path);
 	}
 	
 	/**
@@ -114,7 +115,7 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
 	public static void removeAlias(String alias) throws NoSuchElementException {
-		RockSackAdapter.removeAlias(alias);
+		DatabaseManager.removeAlias(alias);
 	}
 	
 	/**
@@ -123,14 +124,14 @@ public final class RelatrixTransaction {
 	 * @return
 	 */
 	public static String getAlias(String alias) {
-		return RockSackAdapter.getTableSpaceDir(alias);
+		return DatabaseManager.getTableSpaceDir(alias);
 	}
 	/**
 	 * 
 	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
 	 */
 	public static String[][] getAliases() {
-		return RockSackAdapter.getAliases();
+		return DatabaseManager.getAliases();
 	}
 	
 	/**
@@ -140,7 +141,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 */
 	public static String getTransactionId() throws IllegalAccessException, IOException {
-		String xid =  RockSackAdapter.getRockSackTransactionId();
+		String xid =  DatabaseManager.getTransactionId();
 		IndexResolver.setIndexInstanceTable(xid);
 		return xid;
 	}
@@ -153,7 +154,7 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
-		RockSackAdapter.removeRockSackTransaction(xid);
+		DatabaseManager.endTransaction(xid);
 		IndexResolver.remove(xid);
 	}
 	/**

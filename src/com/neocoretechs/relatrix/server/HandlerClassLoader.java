@@ -24,7 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.neocoretechs.rocksack.session.BufferedMap;
-import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
@@ -131,7 +131,7 @@ public class HandlerClassLoader extends ClassLoader {
     			path += "/";
     		defaultPath = path;
     	}
-    	RockSackAdapter.setTableSpaceDir(defaultPath);
+    	DatabaseManager.setTableSpaceDir(defaultPath);
     }
     /**
     * Find a class by the given name
@@ -345,7 +345,7 @@ public class HandlerClassLoader extends ClassLoader {
 	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get for "+name);
         try {
         	if(useEmbedded) {
-        	 	BufferedMap localRepository = RockSackAdapter.getRockSackMap(String.class); // class type of key
+        	 	BufferedMap localRepository = DatabaseManager.getMap(String.class); // class type of key
         	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
                 cnab = (ClassNameAndBytes) localRepository.get(name);	
@@ -385,7 +385,7 @@ public class HandlerClassLoader extends ClassLoader {
  		BufferedMap localRepository = null;
         try {
         	if(useEmbedded) {
-        	 		localRepository = RockSackAdapter.getRockSackMap(String.class); // class type of key
+        	 		localRepository = DatabaseManager.getMap(String.class); // class type of key
         			localRepository.put(name, cnab);
                    	//localRepository.Commit();
                	 	if(DEBUG || DEBUGSETREPOSITORY)
@@ -441,7 +441,7 @@ public class HandlerClassLoader extends ClassLoader {
       try {
       	if(useEmbedded) {
       		ArrayList<String> remo = new ArrayList<String>();
-      	 	localRepository = RockSackAdapter.getRockSackMap(String.class); // class type of key
+      	 	localRepository = DatabaseManager.getMap(String.class); // class type of key
       			Iterator<?> it = localRepository.keySet();
       			while(it.hasNext()) {
       				Comparable key = (Comparable) it.next();

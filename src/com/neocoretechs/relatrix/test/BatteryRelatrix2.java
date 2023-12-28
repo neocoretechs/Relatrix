@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
@@ -36,7 +36,7 @@ public class BatteryRelatrix2 {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RockSackAdapter.setTableSpaceDir(argv[0]);
+		DatabaseManager.setTableSpaceDir(argv[0]);
 		battery1(argv);
 		battery1A(argv);
 		battery1B(argv);

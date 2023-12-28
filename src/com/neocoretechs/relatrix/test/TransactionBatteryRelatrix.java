@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import com.neocoretechs.rocksack.KeyValue;
-import com.neocoretechs.rocksack.session.RockSackAdapter;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
