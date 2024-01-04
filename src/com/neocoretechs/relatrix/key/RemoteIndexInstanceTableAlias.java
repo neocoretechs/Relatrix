@@ -2,16 +2,10 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.UUID;
-
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 
 /**
@@ -155,7 +149,7 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(rc != null) {
-			return (DBKey)rc.get((Comparable) instance);
+			return (DBKey)rc.get(alias, (Comparable) instance);
 		} else {
 			if(rcx != null) {
 				return (DBKey)rcx.get(alias, transactionId, (Comparable) instance);
