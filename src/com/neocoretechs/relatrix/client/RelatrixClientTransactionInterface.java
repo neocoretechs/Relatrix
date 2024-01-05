@@ -34,7 +34,7 @@ public interface RelatrixClientTransactionInterface {
 	* @throws ClassNotFoundException 
 	* @throws IllegalAccessException 
 	*/
-	Object remove(String xid, Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException;
+	void remove(String xid, Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException;
 	
 	boolean hasNext(String xid, RemoteObjectInterface rii);
 	
@@ -122,7 +122,7 @@ public interface RelatrixClientTransactionInterface {
 
 	Object get(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, NoSuchElementException;
 
-	Object remove(String alias, String transactionId, Comparable instance) throws IOException, NoSuchElementException;
+	void remove(String alias, String transactionId, Comparable instance) throws IOException, NoSuchElementException;
 	
 	void storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException;
 	

@@ -503,20 +503,20 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	 * @throws IllegalAccessException 
 	*/
 	@Override
-	public Object remove(String xid, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
+	public void remove(String xid, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "remove", xid, key);
 		try {
-			return sendCommand(rs);
+			sendCommand(rs);
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public Object remove(String alias, String xid, Comparable instance) throws IOException, NoSuchElementException {
+	public void remove(String alias, String xid, Comparable instance) throws IOException, NoSuchElementException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "remove", alias, xid, instance);
 		try {
-			return sendCommand(rs);
+			sendCommand(rs);
 		} catch (DuplicateKeyException | IllegalAccessException e) {
 			throw new IOException(e);
 		}	

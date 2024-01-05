@@ -1568,6 +1568,24 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
+	
+	/**
+	 * This method returns the last value for the given class
+	 * instance having the value of the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class table to query
+	 * @return the instance having the value of highest key.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastValue(String alias, String xid, Class clazz) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.lastValue(alias, xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
 	/**
 	 * This method returns the number of relationship
 	 * instances in the scope of this transaction.
@@ -1582,6 +1600,26 @@ public final class RelatrixTransaction {
 		}
 		try {
 			return RelatrixKVTransaction.size(xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * This method returns the number of relationship
+	 * instances in the scope of this transaction.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @throws NoSuchElementException if the alias is not found
+	 * @return the number of DomainMapRange relationships.
+	 * @throws IOException
+	 */
+	public static synchronized long size(String alias, String xid) throws IOException, NoSuchElementException
+	{
+		if( indexClasses[0] == null ) {
+			return -1;
+		}
+		try {
+			return RelatrixKVTransaction.size(alias, xid, indexClasses[0]);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1664,6 +1702,21 @@ public final class RelatrixTransaction {
 	public static synchronized Object get(String xid, Comparable key) throws IOException, IllegalAccessException
 	{
 		return RelatrixKVTransaction.get(xid, key);
+	}
+	
+	/**
+	 * Return the value for the key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param key the key to retrieve
+	 * @return The value for the key.
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException if the alias isnt found 
+	 */
+	public static synchronized Object get(String alias, String xid, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		return RelatrixKVTransaction.get(alias, xid, key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
