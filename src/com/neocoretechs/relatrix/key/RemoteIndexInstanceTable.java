@@ -58,7 +58,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					rc.store(index, instance);
 				} else {
 					if(rcx != null) {
-						rcx.store(transactionId, index, instance);
+						rcx.storekv(transactionId, index, instance);
 					} else {
 						throw new IOException("RelatrixClient is null");
 					}

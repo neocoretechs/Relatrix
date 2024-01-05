@@ -554,6 +554,7 @@ public final class RelatrixKVTransaction {
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
+	 * @param xid the transaction id
 	 * @param darg Comparable key
 	 * @param parallel true for parallel stream
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?

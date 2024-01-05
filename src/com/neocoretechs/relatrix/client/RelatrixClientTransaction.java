@@ -323,6 +323,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * This is a transactional store in the context of a previously initiated transaction.
 	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
 	 * to prevent a recovery on the next operation
+	 * @param xid the transaction id
 	 * @param d The Comparable representing the domain object for this morphism relationship.
 	 * @param m The Comparable representing the map object for this morphism relationship.
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
@@ -336,10 +337,25 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		return (DomainMapRangeTransaction)sendCommand(rs);
 	}
 	
-	@Override
-	public Object store(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", xid, k, v);
-		return sendCommand(rs);
+	/**
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * This is a transactional store in the context of a previously initiated transaction.
+	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
+	 * to prevent a recovery on the next operation
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param d The Comparable representing the domain object for this morphism relationship.
+	 * @param m The Comparable representing the map object for this morphism relationship.
+	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias is not found
+	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @throws DuplicateKeyException 
+	 */
+	public DomainMapRangeTransaction store(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", alias, xid, d, m, r);
+		return (DomainMapRangeTransaction)sendCommand(rs);
 	}
 	
 	@Override
@@ -348,9 +364,10 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		sendCommand(rs);	
 	}
 
-	public Object storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+	@Override
+	public void storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "storekv", k, v);
-		return sendCommand(rs);
+		sendCommand(rs);
 	}
 	
 	/**

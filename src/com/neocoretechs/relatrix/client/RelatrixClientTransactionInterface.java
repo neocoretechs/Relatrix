@@ -83,8 +83,6 @@ public interface RelatrixClientTransactionInterface {
 	Comparable lastKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
 
 	Object lastValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
-	
-	Object store(String xid, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException;
 
 	/**
 	 * Commit the outstanding indicies to their transactional data.
@@ -124,9 +122,10 @@ public interface RelatrixClientTransactionInterface {
 
 	Object get(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, NoSuchElementException;
 
-
 	Object remove(String alias, String transactionId, Comparable instance) throws IOException, NoSuchElementException;
-
+	
+	void storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException;
+	
 	void storekv(String alias, String transactionId, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
 
 	Object getByIndex(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException;
@@ -156,6 +155,7 @@ public interface RelatrixClientTransactionInterface {
 
 	RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz)
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
+
 
 	
 }

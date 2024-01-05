@@ -393,9 +393,9 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 	 * @throws DuplicateKeyException 
 	 */
 	@Override
-	public Object store(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public void storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "store", xid, k, v);
-		return sendCommand(rs);
+		sendCommand(rs);
 	}
 	
 	@Override

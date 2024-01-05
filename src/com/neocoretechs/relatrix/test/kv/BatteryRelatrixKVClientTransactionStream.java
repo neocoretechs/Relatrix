@@ -85,7 +85,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.store(xid, fkey, new Long(i));
+				rkvc.storekv(xid, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -107,7 +107,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.store(xid2, fkey, new Long(fkey));
+				rkvc.storekv(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
