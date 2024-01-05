@@ -36,7 +36,8 @@ public final class IndexInstanceTableAlias implements IndexInstanceTableInterfac
 	 * @param xid
 	 */
 	public IndexInstanceTableAlias(String alias, String xid) {
-			this.transactionId = xid;
+		this.alias = alias;
+		this.transactionId = xid;
 	}
 	
 	/**
@@ -113,6 +114,14 @@ public final class IndexInstanceTableAlias implements IndexInstanceTableInterfac
 		synchronized(mutex) {
 			if(transactionId != null)
 				RelatrixKVTransaction.checkpoint(transactionId);
+		}
+	}
+	
+	@Override
+	public void rollbackToCheckpoint() throws IOException, IllegalAccessException {
+		synchronized(mutex) {
+			if(transactionId != null)
+				RelatrixKVTransaction.rollbackToCheckpoint(transactionId);
 		}
 	}
 	/**

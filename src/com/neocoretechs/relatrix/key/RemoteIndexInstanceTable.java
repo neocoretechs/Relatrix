@@ -179,4 +179,14 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		}
 	}
 
+	@Override
+	public void rollbackToCheckpoint() throws IOException, IllegalAccessException {
+		if(rcx != null) {
+			rcx.rollbackToCheckpoint(transactionId);
+		} else {
+			throw new IOException("RelatrixClient is null");
+		}
+		
+	}
+
 }

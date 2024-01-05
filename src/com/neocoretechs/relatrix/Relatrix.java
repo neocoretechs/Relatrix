@@ -191,11 +191,13 @@ public final class Relatrix {
 	
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * @param alias the database alias
 	 * @param d The Comparable representing the domain object for this morphism relationship.
 	 * @param m The Comparable representing the map object for this morphism relationship.
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
+	 * @throws NoSuchElementException if the alias does not exist
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 */
 	public static synchronized DomainMapRange store(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
@@ -263,176 +265,182 @@ public final class Relatrix {
 	public static void storekv(String alias, Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
 		RelatrixKV.store(alias, key, value);
 	}
-/**
-* Delete all relationships that this object participates in
-* @exception IOException low-level access or problems modifiying schema
-* @throws IllegalAccessException 
-* @throws ClassNotFoundException 
-* @throws IllegalArgumentException 
-*/
-public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove prepping to remove:"+c);
-	removeRecursive(c);
-	try {
-		DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
+	/**
+	 * Delete all relationships that this object participates in
+	 * @param c The Comparable key to remove
+	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalArgumentException 
+	 */
+	public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
-		if(dbKey != null) {
+			System.out.println("Relatrix.remove prepping to remove:"+c);
+		removeRecursive(c);
+		try {
+			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
+			if(dbKey != null) {
 			// Should delete instance and DbKey
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-		} else {
-			// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-			RelatrixKV.remove(c);
+				IndexResolver.getIndexInstanceTable().delete(dbKey);
+			} else {
+				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
+				RelatrixKV.remove(c);
+			}
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-	} catch (DuplicateKeyException e) {
-		throw new IOException(e);
-	}
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove exiting remove for key:"+c);
-}
-
-/**
-* Delete all relationships that this object participates in
-* @exception IOException low-level access or problems modifiying schema
-* @throws IllegalAccessException 
-* @throws ClassNotFoundException 
-* @throws IllegalArgumentException 
-*/
-public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove prepping to remove:"+c);
-	removeRecursive(alias, c);
-	try {
-		DBKey dbKey = IndexResolver.getIndexInstanceTable(alias).getByInstance(c);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
-		if(dbKey != null) {
-			// Should delete instance and DbKey
-			IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
-		} else {
-			// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-			RelatrixKV.remove(alias, c);
-		}
-	} catch (DuplicateKeyException e) {
-		throw new IOException(e);
+			System.out.println("Relatrix.remove exiting remove for key:"+c);
 	}
-	if( DEBUG || DEBUGREMOVE )
-		System.out.println("Relatrix.remove exiting remove for key:"+c);
-}
 
-/**
- * Iterate through all possible relationships the given element may participate in, then recursively process those
- * relationships to remove references to those.
- * @param c
- * @throws IOException
- * @throws IllegalArgumentException
- * @throws ClassNotFoundException
- * @throws IllegalAccessException
- */
-private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-	ArrayList<Morphism> m = new ArrayList<Morphism>();
-	try {
-		Iterator<?> it = findSet(c,"*","*");
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
-			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
-		}
-	} catch(RuntimeException re) {
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace();
-	} // We can get this exception if the class types differ in domain
-	try {
-		Iterator<?> it = findSet("*",c,"*");
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+	/**
+	 * Delete all relationships that this object participates in
+	 * @param alias the database alias
+	 * @param c the Comparable key
+	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalArgumentException 
+	 * @throws NoSuchElementException if the alias is not found
+	 */
+	public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.remove prepping to remove:"+c);
+		removeRecursive(alias, c);
+		try {
+			DBKey dbKey = IndexResolver.getIndexInstanceTable(alias).getByInstance(c);
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
+				System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
+			if(dbKey != null) {
+				// Should delete instance and DbKey
+				IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+			} else {
+				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
+				RelatrixKV.remove(alias, c);
+			}
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
 		}
-	} catch(RuntimeException re) {
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace();
-	} // we can get this exception if map class types differ
-	try {
-		Iterator<?> it = findSet("*","*",c);
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
-		}
-	} catch(RuntimeException re) { 
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace(); 
-	} // we can get this exception if range class types differ
-	// Process our array of candidates
-	for(Morphism mo : m) {
-		if( DEBUG || DEBUGREMOVE)
-			System.out.println("Relatrix.remove removing:"+mo);
-		remove(mo.getDomain(), mo.getMap(), mo.getRange());
-		// if this morphism participates in any relationship. remove that relationship recursively
-		removeRecursive(mo);
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.remove exiting remove for key:"+c);
 	}
-}
-/**
- * Iterate through all possible relationships the given element may participate in, then recursively process those
- * relationships to remove references to those.
- * @param c
- * @throws IOException
- * @throws IllegalArgumentException
- * @throws ClassNotFoundException
- * @throws IllegalAccessException
- */
-private static synchronized void removeRecursive(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-	ArrayList<Morphism> m = new ArrayList<Morphism>();
-	try {
-		Iterator<?> it = findSet(alias,c,"*","*");
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+
+	/**
+	 * Iterate through all possible relationships the given element may participate in, then recursively process those
+	 * relationships to remove references to those.
+	 * @param c The Comparable key
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		ArrayList<Morphism> m = new ArrayList<Morphism>();
+		try {
+			Iterator<?> it = findSet(c,"*","*");
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE)
+					System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) {
 			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
+				re.printStackTrace();
+		} // We can get this exception if the class types differ in domain
+		try {
+			Iterator<?> it = findSet("*",c,"*");
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) {
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace();
+		} // we can get this exception if map class types differ
+		try {
+			Iterator<?> it = findSet("*","*",c);
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) { 
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace(); 
+		} // we can get this exception if range class types differ
+		// Process our array of candidates
+		for(Morphism mo : m) {
+			if( DEBUG || DEBUGREMOVE)
+				System.out.println("Relatrix.remove removing:"+mo);
+			remove(mo.getDomain(), mo.getMap(), mo.getRange());
+			// if this morphism participates in any relationship. remove that relationship recursively
+			removeRecursive(mo);
 		}
-	} catch(RuntimeException re) {
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace();
-	} // We can get this exception if the class types differ in domain
-	try {
-		Iterator<?> it = findSet(alias,"*",c,"*");
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
-		}
-	} catch(RuntimeException re) {
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace();
-	} // we can get this exception if map class types differ
-	try {
-		Iterator<?> it = findSet(alias,"*","*",c);
-		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-			m.add((Morphism) o[0]); 
-		}
-	} catch(RuntimeException re) { 
-		if( DEBUG || DEBUGREMOVE)
-			re.printStackTrace(); 
-	} // we can get this exception if range class types differ
-	// Process our array of candidates
-	for(Morphism mo : m) {
-		if( DEBUG || DEBUGREMOVE)
-			System.out.println("Relatrix.remove removing:"+mo);
-		remove(alias, mo.getDomain(), mo.getMap(), mo.getRange());
-		// if this morphism participates in any relationship. remove that relationship recursively
-		removeRecursive(alias, mo);
 	}
-}
+	/**
+	 * Iterate through all possible relationships the given element may participate in, then recursively process those
+	 * relationships to remove references to those.
+	 * @param alias the database alias
+	 * @param c The Comparable key
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException if the alias is not found
+	 */
+	private static synchronized void removeRecursive(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		ArrayList<Morphism> m = new ArrayList<Morphism>();
+		try {
+			Iterator<?> it = findSet(alias,c,"*","*");
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE)
+					System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) {
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace();
+		} // We can get this exception if the class types differ in domain
+		try {
+			Iterator<?> it = findSet(alias,"*",c,"*");
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) {
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace();
+		} // we can get this exception if map class types differ
+		try {
+			Iterator<?> it = findSet(alias,"*","*",c);
+			while(it.hasNext()) {
+				Comparable[] o = (Comparable[]) it.next();
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+				m.add((Morphism) o[0]); 
+			}
+		} catch(RuntimeException re) { 
+			if( DEBUG || DEBUGREMOVE)
+				re.printStackTrace(); 
+		} // we can get this exception if range class types differ
+		// Process our array of candidates
+		for(Morphism mo : m) {
+			if( DEBUG || DEBUGREMOVE)
+				System.out.println("Relatrix.remove removing:"+mo);
+			remove(alias, mo.getDomain(), mo.getMap(), mo.getRange());
+			// if this morphism participates in any relationship. remove that relationship recursively
+			removeRecursive(alias, mo);
+		}
+	}
 /**
  * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
  * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
@@ -1355,7 +1363,7 @@ public static synchronized boolean contains(String alias, Comparable obj) throws
  
  public static synchronized Object getByIndex(String alias, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
  {
-	 return IndexResolver.getIndexInstanceTable(alias).getByIndex((DBKey) key);
+	 return IndexResolver.getIndexInstanceTableAlias(alias).getByIndex((DBKey) key);
  }
  /**
   * Return the keyset for the given class

@@ -28,6 +28,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	public IndexInstanceTable() {
 	}
+	
 	/**
 	 * Set up for transaction context. Ensure elsewhere that lifecycle of this instance is per transaction.
 	 * @param xid
@@ -36,7 +37,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			this.transactionId = xid;
 	}
 	
-
 	/**
 	 * Put the key to the proper tables
 	 * @param index
@@ -119,6 +119,19 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				RelatrixKVTransaction.checkpoint(transactionId);
 		}	
 	}
+	
+	@Override
+	public void rollbackToCheckpoint() throws IOException, IllegalAccessException {
+		synchronized(mutex) {
+			if(transactionId != null) {
+				if(DEBUG)
+					System.out.printf("IndexInstanceTable.rollback "+transactionId);
+				RelatrixKVTransaction.rollbackToCheckpoint(transactionId);
+			}
+		}
+		
+	}
+
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey
 	 * @param index

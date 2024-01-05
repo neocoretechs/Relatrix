@@ -57,4 +57,6 @@ public interface IndexInstanceTableInterface {
 	void setTransactionId(String xid);
 
 	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
+
+	void rollbackToCheckpoint() throws IOException, IllegalAccessException;
 }

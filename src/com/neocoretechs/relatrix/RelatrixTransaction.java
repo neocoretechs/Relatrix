@@ -73,10 +73,12 @@ public final class RelatrixTransaction {
 		OPERATOR_WILDCARD_CHAR = wc;
 		OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	}
+	
 	public static void setTuple(char tp) {
 		OPERATOR_TUPLE_CHAR = tp;
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	}
+	
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
 	 * @param path
@@ -96,6 +98,7 @@ public final class RelatrixTransaction {
 	public static String getTableSpace() {
 		return DatabaseManager.getTableSpaceDir();
 	}
+	
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
 	 * @param alias
@@ -159,9 +162,10 @@ public final class RelatrixTransaction {
 	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * This is a transactional store in the context of a previously initiated transaction.
+	 * This is a transactional store in the context of a previously initiated transaction, for the default tablespace.
 	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
 	 * to prevent a recovery on the next operation.
+	 * @param xid the transaction id
 	 * @param d The Comparable representing the domain object for this morphism relationship.
 	 * @param m The Comparable representing the map object for this morphism relationship.
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
@@ -228,7 +232,80 @@ public final class RelatrixTransaction {
 		return (DomainMapRangeTransaction) identity;
 	}
 	/**
-	 * Commit the outstanding transaction data in each active transactional treeset.
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * This is a transactional store in the context of a previously initiated transaction, for a specific database alias.
+	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
+	 * to prevent a recovery on the next operation.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param d The Comparable representing the domain object for this morphism relationship.
+	 * @param m The Comparable representing the map object for this morphism relationship.
+	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 */
+	public static synchronized DomainMapRangeTransaction store(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+		if( d == null || m == null || r == null)
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+		MorphismTransaction dmr = new DomainMapRangeTransaction(d,m,r,true); // form it as template for duplicate key search
+		// check for domain/map match
+		// Enforce categorical structure; domain->map function uniquely determines range.
+		// If the search winds up at the key or the key is empty or the domain->map exists, the key
+		// cannot be inserted.
+		((DomainMapRangeTransaction)dmr).setUniqueKey(true);
+		if(RelatrixKVTransaction.contains(alias, xid, dmr)) {
+			rollback(alias, xid);
+			throw new DuplicateKeyException("dmr:"+dmr);
+		}
+		((DomainMapRangeTransaction)dmr).setUniqueKey(false);
+		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+		// and maintains the classes stores in IndexInstanceTable for future commit.
+		dmr = new DomainMapRangeTransaction(d,m,r);
+		MorphismTransaction identity = dmr;
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(d,m,r,dmr.getKeys());
+		indexClasses[1] = drm.getClass();
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(d,m,r,dmr.getKeys());
+		indexClasses[2] = mdr.getClass();
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(d,m,r,dmr.getKeys());
+		indexClasses[3] = mrd.getClass();
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(d,m,r,dmr.getKeys());
+		indexClasses[4] = rdm.getClass();
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(d,m,r,dmr.getKeys());
+		indexClasses[5] = rmd.getClass();
+		DBKey dbKey = null;
+		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
+		indexClasses[0] = null; // remove dmr from our commit lineup
+		try {
+			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTableAlias(xid),dmr); // this stores our new relation, DBKey and instance
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		} // Use primary key DBKey as value for index keys
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing drm:"+drm);
+		RelatrixKVTransaction.store(alias, xid, drm, dbKey);
+	
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing mdr:"+mdr);
+		RelatrixKVTransaction.store(alias, xid, mdr, dbKey);
+	
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing mrd:"+mrd);
+		RelatrixKVTransaction.store(alias, xid, mrd, dbKey);
+
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rdm:"+rdm);
+		RelatrixKVTransaction.store(alias, xid, rdm, dbKey);
+	
+		if( DEBUG  )
+			System.out.println("RelatrixTransaction.transactionalStore Id:"+xid+" storing rmd:"+rmd);
+		RelatrixKVTransaction.store(alias, xid, rmd, dbKey);
+	
+		return (DomainMapRangeTransaction) identity;
+	}
+	/**
+	 * Commit the outstanding transaction data in the transaction context.
+	 * @param the transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
@@ -238,17 +315,21 @@ public final class RelatrixTransaction {
 		RelatrixKVTransaction.commit(xid);
 	}
 	/**
-	 * Commit the outstanding transaction data in each active transactional treeset.
+	 * Commit the outstanding transaction data in given transaction for the stated database alias.
+	 * @param alias the database alias
+	 * @param xid the transaction id
 	 * @throws IOException
-	 * @throws IllegalAccessException 
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException if the database alias doesnt exist.
 	 */
 	public static synchronized void commit(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		// first commit components of relationships
-		IndexResolver.getIndexInstanceTable(xid).commit();
+		IndexResolver.getIndexInstanceTableAlias(alias, xid).commit();
 		RelatrixKVTransaction.commit(alias, xid);
 	}
 	/**
-	 * Roll back all outstanding transactions on the indicies
+	 * Roll back all outstanding transactions on for each relationship in the transaction context.
+	 * @param xid the transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
@@ -259,49 +340,73 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * Roll back all outstanding transactions on the indicies
+	 * Roll back all outstanding transactions for each relationship in the transaction context for the given database alias.
+	 * @param alias the database alias
+	 * @param xid the transaction id
 	 * @throws IOException
-	 * @throws IllegalAccessException 
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException if the alias doesnt exist 
 	 */
 	public static synchronized void rollback(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		// first roll back components
-		IndexResolver.getIndexInstanceTable(xid).rollback();
+		IndexResolver.getIndexInstanceTableAlias(alias, xid).rollback();
 		RelatrixKVTransaction.rollback(alias, xid);
 	}
 	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
+	 * Roll back all outstanding transactions on for each relationship in the transaction context to established checkpoint.
+	 * @param xid the transaction id
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
+		// first roll back components
+		IndexResolver.getIndexInstanceTable(xid).rollbackToCheckpoint();
+		RelatrixKVTransaction.rollbackToCheckpoint(xid);
+	}
+	
+	/**
+	 * Roll back all outstanding transactions for each relationship in the transaction context for the given database alias to established checkpoint.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException if the alias doesnt exist 
+	 */
+	public static synchronized void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+		// first roll back components
+		IndexResolver.getIndexInstanceTableAlias(alias,xid).rollbackToCheckpoint();
+		RelatrixKVTransaction.rollbackToCheckpoint(alias, xid);
+	}
+	/**
+	 * Take a check point of our current written relationships in the given transaction context. We can then
+	 * issue a 'rollbackToCheckpoint' and remove further written data after this point.
+	 * @param xid the transaction id.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void checkpoint(String xid) throws IOException, IllegalAccessException {
+		IndexResolver.getIndexInstanceTable(xid).checkpoint();
 		RelatrixKVTransaction.checkpoint(xid);
 	}
 	
 	/**
-	 * Take a check point of our current indicies. What this means is that we are
-	 * going to write a log record such that if we crash will will restore the logs from that point forward.
-	 * We have to have confidence that we are doing this at a legitimate point, so this should only be called if things are well
-	 * and processing is proceeding normally. Its a way to say "start from here and go forward in time 
-	 * if we crash, to restore the data to its state up to that point", hence check, point...
-	 * If we are loading lots of data and we want to partially confirm it as part of the database, we do this.
-	 * It does not perform a 'commit' because if we chose to do so we could start a roll forward recovery and restore
-	 * even the old data before the checkpoint.
+	 * Take a check point of our current written relationships in the given transaction context for a given database alias. We can then
+	 * issue a 'rollbackToCheckpoint' and remove further written data after this point for this database.
+	 * @param alis the database alias
+	 * @param xid the transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
+	 * @throws NoSuchElementException if the alias doesnt exist.
 	 */
 	public static synchronized void checkpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+		IndexResolver.getIndexInstanceTableAlias(alias,xid).checkpoint();
 		RelatrixKVTransaction.checkpoint(alias, xid);
 	}
 	/**
-	 * Delete all relationships that this object participates in
-	 * @exception IOException low-level access or problems modifiying schema
+	 * Delete all relationships that this object participates in for the current transaction context.
+	 * @param xid the transaction id.
+	 * @param c The Comparable key
+	 * @throws IOException low-level access or problems modifiying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
@@ -328,9 +433,10 @@ public final class RelatrixTransaction {
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" exiting remove for key:"+c);
 	}
 	/**
-	 * Iterate through all possible relationships the given element may participate in, then recursively process those
+	 * Iterate through all possible relationships the given element may participates in for this transaction context, then recursively process those
 	 * relationships to remove references to those.
-	 * @param c
+	 * @param xid the transaction id
+	 * @param c The Comparable key
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -383,28 +489,32 @@ public final class RelatrixTransaction {
 			removeRecursive(xid, mo);
 		}
 	}
+	
 	/**
-	 * Delete all relationships that this object participates in
-	 * @exception IOException low-level access or problems modifiying schema
+	 * Delete all relationships that this object participates in for this database in this transaction context.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param c the Comparable key
+	 * @throws IOException low-level access or problems modifiying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
-	 * @throws NoSuchElementException
+	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
 	public static synchronized void remove(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
 		removeRecursive(alias, xid, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable(xid).getByInstance(c);
+			DBKey dbKey = IndexResolver.getIndexInstanceTableAlias(alias, xid).getByInstance(c);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
 			if(dbKey != null) {
 				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+				IndexResolver.getIndexInstanceTableAlias(alias, xid).delete(dbKey);
 			} else {
 				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-				RelatrixKVTransaction.remove(xid, c);
+				RelatrixKVTransaction.remove(alias, xid, c);
 			}
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
@@ -412,17 +522,18 @@ public final class RelatrixTransaction {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" exiting remove for key:"+c);
 	}
+	
 	/**
 	 * Iterate through all possible relationships the given element may participate in, then recursively process those
 	 * relationships to remove references to those.
-	 * @param alias the datbase alias
+	 * @param alias the database alias
 	 * @param xid the transaction id
-	 * @param c
+	 * @param c the Comparable key
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
-	 * @throws NoSuchElementException
+	 * @throws NoSuchElementException If the alias doesnt exist
 	 */
 	private static synchronized void removeRecursive(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		ArrayList<Morphism> m = new ArrayList<Morphism>();
@@ -471,13 +582,14 @@ public final class RelatrixTransaction {
 			removeRecursive(alias, xid, mo);
 		}
 	}
+	
 	/**
-	 * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
+	 * Delete specific relationship and all relationships that it participates in for this transaction in the default tablespace. Some redundancy built in to
 	 * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
 	 * @param xid the transaction id
-	 * @param d
-	 * @param m
-	 * @param r
+	 * @param d the domain of the relationship as Comparable key
+	 * @param m the map of the relationship as Comparable key
+	 * @param r the range of the relationship as Comparable key
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
@@ -569,6 +681,7 @@ public final class RelatrixTransaction {
 		}
 	
 	}
+	
 	/**
 	 * Delete specific relationship and all relationships that it participates in. Some redundancy built in to
 	 * the removal process to ensure all keys are removed regardless of existence of proper DBKey.
@@ -605,42 +718,42 @@ public final class RelatrixTransaction {
 		//KeyValue kv = (KeyValue)o;
 		//DBKey dbKey = (DBKey) kv.getmValue();
 			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, drm);
 			if(o == null)
 				throw new IOException(drm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, mdr);
 			if(o == null)
 				throw new IOException(mdr+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, mrd);
 			if(o == null)
 				throw new IOException(mrd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, rdm);
 			if(o == null)
 				throw new IOException(rdm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, rmd);
 			if(o == null)
 				throw new IOException(rmd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
 		} catch (ClassNotFoundException | DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -669,6 +782,7 @@ public final class RelatrixTransaction {
 		}
 	
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -695,6 +809,7 @@ public final class RelatrixTransaction {
 		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -723,6 +838,7 @@ public final class RelatrixTransaction {
 		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -751,6 +867,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
@@ -781,6 +898,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
@@ -809,6 +927,7 @@ public final class RelatrixTransaction {
 		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
@@ -839,6 +958,7 @@ public final class RelatrixTransaction {
 		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
@@ -869,6 +989,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
@@ -901,6 +1022,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
 	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
@@ -925,6 +1047,7 @@ public final class RelatrixTransaction {
 		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
 	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
@@ -951,6 +1074,7 @@ public final class RelatrixTransaction {
 		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
 	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
@@ -977,6 +1101,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
 	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
@@ -1005,6 +1130,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
@@ -1045,6 +1171,7 @@ public final class RelatrixTransaction {
 			IteratorFactory ifact = IteratorFactory.createSubsetFactory(xid, darg, marg, rarg, endarg);
 			return ifact.createIterator();
 	}
+	
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
@@ -1085,6 +1212,7 @@ public final class RelatrixTransaction {
 			IteratorFactory ifact = IteratorFactory.createSubsetFactory(xid, darg, marg, rarg, endarg);
 			return ifact.createIterator(alias);
 	}
+	
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
@@ -1127,6 +1255,7 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
@@ -1171,8 +1300,9 @@ public final class RelatrixTransaction {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+	 * this method returns the first DomainMapRange
 	 * instance having the lowest valued key value of the index classes.
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
@@ -1188,8 +1318,9 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
+	
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+	 * this method returns the first DomainMapRange
 	 * instance having the lowest valued key value of the index classes.
 	 * @param alias the database alias
 	 * @param xid transaction id
@@ -1208,46 +1339,9 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
+
 	/**
-	 * This method returns the first DomainMapRange,<p/>
-	 * instance having the lowest valued key value of the index classes.
-	 * @param xid the transaction id
-	 * @return the DomainMapRange morphism having the lowest valued key value.
-	 * @throws IOException
-	 */
-	public static synchronized Object firstKey(String xid) throws IOException
-	{
-		if( indexClasses[0] == null ) {
-			return null;
-		}
-		try {
-			return RelatrixKVTransaction.firstKey(xid, indexClasses[0]);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Tikhis method returns the first DomainMapRange
-	 * instance having the lowest valued key value of the index classes.
-	 * @param alias the database alias
-	 * @param xid the transaction id
-	 * @return the DomainMapRange morphism having the lowest valued key value.
-	 * @throws IOException
-	 * @throws NoSuchElementException if the alias doesnt exist
-	 */
-	public static synchronized Object firstKey(String alias, String xid) throws IOException, NoSuchElementException
-	{
-		if( indexClasses[0] == null ) {
-			return null;
-		}
-		try {
-			return RelatrixKVTransaction.firstKey(alias, xid, indexClasses[0]);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * This method returns the first DomainMapRange
+	 * This method returns the first DBKey of DomainMapRange
 	 * instance having the lowest valued key value of the index classes.
 	 * @param xid transaction id
 	 * @return the DomainMapRange morphism having the lowest valued key value.	
@@ -1264,297 +1358,428 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
+	
 	/**
-	 * This method returns the last DomainMapRange
+	 * This method returns the first DBKey DomainMapRange
 	 * instance having the lowest valued key value of the index classes.
+	 * @param alias the database alias
 	 * @param xid transaction id
-	 * @return the DomainMapRange morphism having the lowest valued key value.	
-	 * @throws IOException																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						* @throws IOException
+	 * @return the DomainMapRange morphism having the lowest valued key.	
+	 * @throws IOException																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					* @throws IOException
 	 */
-	public static synchronized Object firstValue(String alias, String xid) throws IOException
+	public static synchronized Object firstValue(String alias, String xid) throws IOException, NoSuchElementException
 	{
 		if( indexClasses[0] == null ) {
 			return null;
 		}
 		try {
-			return RelatrixKVTransaction.firstValue(xid, indexClasses[0]);
+			return RelatrixKVTransaction.firstValue(alias, xid, indexClasses[0]);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
-/**
- *  this method returns the first DomainMapRange
- * instance having the lowest valued key value.
- * @return the DomainMapRange morphism having the lowest valued key value.
- * @throws IOException
- */
-public static synchronized Object first(String xid, Class clazz) throws IOException
-{
-	try {
-		return RelatrixKVTransaction.firstKey(xid, clazz);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
+	
+	/**
+	 * This method returns the first DomainMapRange
+	 * instance having the lowest valued key.
+	 * @param xid the transaction id
+	 * @param clazz the class of the the target instances
+	 * @return the DomainMapRange morphism first key.
+	 * @throws IOException
+	 */
+	public static synchronized Object first(String xid, Class clazz) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.firstKey(xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
 	}
-}
+	
+	/**
+	 * This method returns the first class
+	 * instance having the lowest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class of the the target instances
+	 * @return the class instance first key.
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 */
+	public static synchronized Object first(String alias, String xid, Class clazz) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.firstKey(alias, xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * The lowest key value object
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class to retrieve
+	 * @return The first value of the class with given key
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException if the alias is not found
+	 */
+	public static synchronized Object firstValue(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		return RelatrixKVTransaction.firstValue(alias, xid, clazz);
+	}
+	
+	/**
+	 * The lowest key value object
+	 * @param clazz the class to retrieve
+	 * @return The first value of the class with given key
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized Object firstValue(String xid, Class clazz) throws IOException, IllegalAccessException
+	{
+		return RelatrixKVTransaction.firstValue(xid, clazz);
+	}
+	
+	/**
+	 * This method returns the last DomainMapRange
+	 * instance having the highest valued key.
+	 * @param xid the transaction id
+	 * @return the DomainMapRange morphism having the highest key value.
+	 * @throws IOException
+	 */
+	public static synchronized Object last(String xid) throws IOException
+	{
+		if( indexClasses[0] == null ) {
+			return null;
+		}
+		try {
+			return RelatrixKVTransaction.lastKey(xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * This method returns the last DomainMapRange
+	 * instance having the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @return the DomainMapRange morphism having the highest key value.
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 */
+	public static synchronized Object last(String alias, String xid) throws IOException, NoSuchElementException
+	{
+		if( indexClasses[0] == null ) {
+			return null;
+		}
+		try {
+			return RelatrixKVTransaction.lastKey(alias, xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
 
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the highest valued key.
- * @return the DomainMapRange morphism having the highest key value.
- * @throws IOException
- */
-public static synchronized Object last(String xid) throws IOException
-{
-	if( indexClasses[0] == null ) {
-		return null;
+	/**
+	 * This method returns the last DBKey of DomainMapRange
+	 * instance having the value of the highest valued key.
+	 * @param xid the transaction id
+	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastValue(String xid) throws IOException
+	{
+		if( indexClasses[0] == null ) {
+			return null;
+		}
+		try {
+			return RelatrixKVTransaction.lastValue(xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
 	}
-	try {
-		return RelatrixKVTransaction.lastKey(xid, indexClasses[0]);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
+	/**
+	 * This method returns the last DBKey of DomainMapRange
+	 * instance having the value of the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 */
+	public static synchronized Object lastValue(String alias, String xid) throws IOException, NoSuchElementException
+	{
+		if( indexClasses[0] == null ) {
+			return null;
+		}
+		try {
+			return RelatrixKVTransaction.lastValue(alias, xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
 	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the highest valued key.
- * @return the DomainMapRange morphism having the highest key value.
- * @throws IOException
- */
-public static synchronized Object lastKey(String xid) throws IOException
-{
-	if( indexClasses[0] == null ) {
-		return null;
+	/**
+	 * this method returns the last target class
+	 * instance having the highest valued key.
+	 * @param xid the transaction id
+	 * @param clazz the class of the target
+	 * @return the target class having the highest key value.
+	 * @throws IOException
+	 */
+	public static synchronized Object last(String xid, Class clazz) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.lastKey(xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
 	}
-	try {
-		return RelatrixKVTransaction.lastKey(xid, indexClasses[0]);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
+	/**
+	 * this method returns the last class instance
+	 * instance having the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class of the target
+	 * @return the class instance having the highest key value.
+	 * @throws IOException
+	 */
+	public static synchronized Object last(String alias, String xid, Class clazz) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.lastKey(alias, xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
 	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the value of the highest valued key.
- * @return the DomainMapRange morphism having the value of highest key.
- * @throws IOException
- */
-public static synchronized Object lastValue(String xid) throws IOException
-{
-	if( indexClasses[0] == null ) {
-		return null;
-	}
-	try {
-		return RelatrixKVTransaction.lastValue(xid, indexClasses[0]);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
-	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the highest valued key.
- * @return the DomainMapRange morphism having the highest key value.
- * @throws IOException
- */
-public static synchronized Object last(String xid, Class clazz) throws IOException
-{
-	try {
-		return RelatrixKVTransaction.lastKey(xid, clazz);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
-	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the highest valued key.
- * @return the DomainMapRange morphism having the highest key value.
- * @throws IOException
- */
-public static synchronized Object lastKey(String xid, Class clazz) throws IOException
-{
-	try {
-		return RelatrixKVTransaction.lastKey(xid, clazz);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
-	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
- * instance having the value of the highest valued key.
- * @return the DomainMapRange morphism having the value of highest key.
- * @throws IOException
- */
-public static synchronized Object lastValue(String xid, Class clazz) throws IOException
-{
-	try {
-		return RelatrixKVTransaction.lastValue(xid, clazz);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
-	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
- * instances.
- * @return the number of DomainMapRange morphisms.
- * @throws IOException
- */
-public static synchronized long size(String xid) throws IOException
-{
-	if( indexClasses[0] == null ) {
-		return -1;
-	}
-	try {
-		return RelatrixKVTransaction.size(xid, indexClasses[0]);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
-	}
-}
-/**
- * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns whether the passed DomainMapRange
- * instance exists in the data.
- * @return true if the passed DomainMapRAnge exists.
- * @throws IOException
- */
-public static synchronized boolean contains(String xid, Comparable obj) throws IOException
-{
-	if( indexClasses[0] == null ) {
-		return false;
-	}
-	try {
-		return RelatrixKVTransaction.contains(xid, obj);
-	} catch (IllegalAccessException e) {
-		throw new IOException(e);
-	}
-}
 
-/**
- * Get the new DBkey.
- * @return
- * @throws IOException 
- * @throws IllegalAccessException 
- * @throws ClassNotFoundException 
- */
-public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-	UUID nkey = UUID.randomUUID();
-	if(DEBUG)
-		System.out.printf("Returning NewKey=%s%n", nkey.toString());
-	return nkey;
-}
+	/**
+	 * This method returns the last value for the given class
+	 * instance having the value of the highest valued key.
+	 * @return the DomainMapRange morphism having the value of highest key.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastValue(String xid, Class clazz) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.lastValue(xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * This method returns the number of relationship
+	 * instances in the scope of this transaction.
+	 * @param xid the transaction id
+	 * @return the number of DomainMapRange morphisms.
+	 * @throws IOException
+	 */
+	public static synchronized long size(String xid) throws IOException
+	{
+		if( indexClasses[0] == null ) {
+			return -1;
+		}
+		try {
+			return RelatrixKVTransaction.size(xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * This method returns whether the passed
+	 * instance exists in the scope of this transaction.
+	 * @param xid the transaction id
+	 * @param obj the instance to locate based on class and value of object instance based on Comparable compareTo method
+	 * @return true if the instance exists.
+	 * @throws IOException
+	 */
+	public static synchronized boolean contains(String xid, Comparable obj) throws IOException
+	{
+		if( indexClasses[0] == null ) {
+			return false;
+		}
+		try {
+			return RelatrixKVTransaction.contains(xid, obj);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * This method returns whether the passed
+	 * instance exists in the scope of this transaction for this database.
+	 * @param xid the transaction id
+	 * @param obj the instance to locate based on class and value of object instance based on Comparable compareTo method
+	 * @return true if the instance exists.
+	 * @throws IOException
+	 * @throws NoSuchElementException of the alias doesnt exist
+	 */
+	public static synchronized boolean contains(String alias, String xid, Comparable obj) throws IOException, NoSuchElementException
+	{
+		if( indexClasses[0] == null ) {
+			return false;
+		}
+		try {
+			return RelatrixKVTransaction.contains(alias, xid, obj);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * Get the new DBkey.
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID nkey = UUID.randomUUID();
+		if(DEBUG)
+			System.out.printf("Returning NewKey=%s%n", nkey.toString());
+		return nkey;
+	}
 
-/**
- * Store our permutations of the key/value
- * This is a transactional store in the context of a previously initiated transaction.
- * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
- * to prevent a recovery on the next operation.
- * @param key of comparable
- * @param value
- * @throws IllegalAccessException
- * @throws IOException
- * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
- */
-public static synchronized void store(String xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-	RelatrixKVTransaction.store(xid, key,  value);
-}
+	/**
+	 * Store our permutations of the key/value within the scope of this transaction. In other words, this
+	 * instance will not be visible outside this transaction scope until 'commit'. It can also be rolled back
+	 * based on the transaction id.
+	 * @param xid the transaction id
+	 * @param key of comparable whose order is determined by Comparable interface contract via value of compareTo method
+	 * @param value the value payload
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public static synchronized void store(String xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixKVTransaction.store(xid, key, value);
+	}
 
+	/**
+	 * Return the value for the key.
+	 * @param xid the transaction id
+	 * @param key the key to retrieve
+	 * @return The value for the key.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static synchronized Object get(String xid, Comparable key) throws IOException, IllegalAccessException
+	{
+		return RelatrixKVTransaction.get(xid, key);
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param xid the transaction id
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static synchronized Object getByIndex(String xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return IndexResolver.getIndexInstanceTable(xid).getByIndex((DBKey) key);
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException if alias is not found 
+	 */
+	public static synchronized Object getByIndex(String alias, String xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
+	{
+		return IndexResolver.getIndexInstanceTableAlias(alias, xid).getByIndex((DBKey) key);
+	}
+	/**
+	 * Return the keyset for the given class
+	 * @param xid the transaction id
+	 * @param clazz the class to retrieve
+	 * @return the iterator for the keyset
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 */
+	public static synchronized Iterator<?> keySet(String xid, Class clazz) throws IOException, IllegalAccessException
+	{
+		return RelatrixKVTransaction.keySet(xid, clazz);
+	}
+	
+	/**
+	 * Return the keyset for the given class
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class to retrieve
+	 * @return the iterator for the keyset
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 */
+	public static synchronized Iterator<?> keySet(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		return RelatrixKVTransaction.keySet(alias, xid, clazz);
+	}
+	
+	/**
+	 * Return the entry set for the given class type
+	 * @param xid the transaction id
+	 * @param clazz the class to retrieve
+	 * @return Stream for entry set
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 */
+	public static synchronized Stream<?> entrySetStream(String xid, Class clazz) throws IOException, IllegalAccessException
+	{
+		return RelatrixKVTransaction.entrySetStream(xid, clazz);
+	}
+	
+	/**
+	 * Return the entry set for the given class type
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class to retrieve
+	 * @return Stream for entry set
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 */
+	public static synchronized Stream<?> entrySetStream(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		return RelatrixKVTransaction.entrySetStream(alias, xid, clazz);
+	}
+	
+	/**
+	 * Load the stated package from the declared path into the bytecode repository
+	 * @param pack
+	 * @param path
+	 * @throws IOException
+	 */
+	public static synchronized void loadClassFromPath(String pack, String path) throws IOException {
+		Path p = FileSystems.getDefault().getPath(path);
+		HandlerClassLoader.setBytesInRepository(pack,p);
+	}
+	/**
+	 * Load the jar file located at jar into the repository
+	 * @param jar
+	 * @throws IOException
+	 */
+	public static synchronized void loadClassFromJar(String jar) throws IOException {
+		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
+	}
+	/**
+	 * Remove the stated package from the declared package and all subpackages from the bytecode repository
+	 * @param pack
+	 * @param path
+	 * @throws IOException
+	 */
+	public static synchronized void removePackageFromRepository(String pack) throws IOException {
+		HandlerClassLoader.removeBytesInRepository(pack);
+	}
 
- /**
-  * return lowest valued key.
-  * @param clazz the class to retrieve
-  * @return the The key/value with lowest key value.
-  * @throws IOException
-  * @throws IllegalAccessException 
-  */
- public static synchronized Object firstKey(String xid, Class clazz) throws IOException, IllegalAccessException
- {
-	 return RelatrixKVTransaction.firstKey(xid, clazz);
- }
- /**
-  * The lowest key value object
-  * @param clazz the class to retrieve
-  * @return The first value of the class with given key
-  * @throws IOException
-  * @throws IllegalAccessException 
-  */
- public static synchronized Object firstValue(String xid, Class clazz) throws IOException, IllegalAccessException
- {
-	 return RelatrixKVTransaction.firstValue(xid, clazz);
- }
- /**
-  * Return the value for the key.
-  * @param key the key to retrieve
-  * @return The value for the key.
-  * @throws IOException
-  * @throws IllegalAccessException 
-  */
- public static synchronized Object get(String xid, Comparable key) throws IOException, IllegalAccessException
- {
-	 return RelatrixKVTransaction.get(xid, key);
- }
- /**
-  * Return the Object pointed to by the DBKey. this is to support remote iterators.
-  * @param key the key to retrieve
-  * @return The instance by DBKey
-  * @throws IOException
-  * @throws IllegalAccessException 
-  * @throws ClassNotFoundException 
-  */
- public static synchronized Object getByIndex(String xid,Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
- {
-	 return IndexResolver.getIndexInstanceTable(xid).getByIndex((DBKey) key);
- }
- /**
-  * Return the keyset for the given class
-  * @param clazz the class to retrieve
-  * @return the iterator for the keyset
-  * @throws IOException
-  * @throws IllegalAccessException
-  */
- public static synchronized Iterator<?> keySet(String xid, Class clazz) throws IOException, IllegalAccessException
- {
-	 return RelatrixKVTransaction.keySet(xid, clazz);
- }
- /**
-  * Return the entry set for the given class type
-  * @param clazz the class to retrieve
-  * @return Stream for entry set
-  * @throws IOException
-  * @throws IllegalAccessException
-  */
- public static synchronized Stream<?> entrySetStream(String xid, Class clazz) throws IOException, IllegalAccessException
- {
-	 return RelatrixKVTransaction.entrySetStream(xid, clazz);
- }
- /**
- * Load the stated package from the declared path into the bytecode repository
- * @param pack
- * @param path
- * @throws IOException
- */
- public static synchronized void loadClassFromPath(String pack, String path) throws IOException {
-	Path p = FileSystems.getDefault().getPath(path);
-	HandlerClassLoader.setBytesInRepository(pack,p);
- }
- /**
- * Load the jar file located at jar into the repository
- * @param jar
- * @throws IOException
- */
- public static synchronized void loadClassFromJar(String jar) throws IOException {
-	HandlerClassLoader.setBytesInRepositoryFromJar(jar);
- }
- /**
- * Remove the stated package from the declared package and all subpackages from the bytecode repository
- * @param pack
- * @param path
- * @throws IOException
- */
- public static synchronized void removePackageFromRepository(String pack) throws IOException {
-	HandlerClassLoader.removeBytesInRepository(pack);
- }
-
- public static void main(String[] args) throws Exception {
-	setTablespace(args[0]);
-	RelatrixTransaction.findStream(args[1], "*", "*", "*").forEach((s) -> {
-		System.out.println(s.toString());
-	});
- }
+	public static void main(String[] args) throws Exception {
+		setTablespace(args[0]);
+		RelatrixTransaction.findStream(args[1], "*", "*", "*").forEach((s) -> {
+			System.out.println(s.toString());
+		});
+	}
  
 }

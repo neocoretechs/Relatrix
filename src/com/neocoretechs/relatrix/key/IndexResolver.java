@@ -27,20 +27,24 @@ public class IndexResolver {
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
 			if(local) {
-				if(alias == null)
 					instanceTable = new IndexInstanceTable();
-				else
-					instanceTable = new IndexInstanceTableAlias(alias);
 			} else {
-				if(alias == null)
 					instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTable);
-				else
-					instanceTable = new RemoteIndexInstanceTableAlias(alias, remoteIndexInstanceTable);
 			}
 		}
 		return instanceTable;
 	}
 	
+	public static IndexInstanceTableInterface getIndexInstanceTableAlias(String alias) throws IOException {
+		if(instanceTable == null) {
+			if(local) {
+					instanceTable = new IndexInstanceTableAlias(alias);
+			} else {
+					instanceTable = new RemoteIndexInstanceTableAlias(alias, remoteIndexInstanceTable);
+			}
+		}
+		return instanceTable;
+	}
 	public static synchronized IndexInstanceTableInterface getIndexInstanceTable(String xid) throws IOException {
 		if(DEBUG)
 			System.out.println("IndexResolver.getIndexInstanceTable for XId:"+xid+" from table sized:"+indexInstanceTableTransaction.size());
@@ -65,6 +69,21 @@ public class IndexResolver {
 		return iTable;
 	}
 	
+	public static synchronized IndexInstanceTableInterface getIndexInstanceTableAlias(String alias, String xid) throws IOException {
+		if(DEBUG)
+			System.out.println("IndexResolver.getIndexInstanceTable for alias:"+alias+" XId:"+xid+" from table sized:"+indexInstanceTableTransaction.size());
+		if(xid == null) {
+			new Exception().printStackTrace();
+			throw new IOException("Transaction Id null");
+		}
+		IndexInstanceTableInterface iTable = indexInstanceTableTransaction.get(xid);
+		if(iTable == null)
+			iTable = new IndexInstanceTableAlias(alias, xid);
+		if(local) 
+			indexInstanceTableTransaction.put(xid,iTable);
+		return iTable;
+	}
+	
 	public static synchronized IndexInstanceTableInterface getCurrentIndexInstanceTable() throws IOException {
 		return getIndexInstanceTable(currentTransactionId);
 	}
@@ -73,6 +92,7 @@ public class IndexResolver {
 	 * If we are operating in a local transaction context, such as a server, ensure we have an index resolution table for DBKeys
 	 * for this transaction id. If non-local, do nothing as setRemote should be handling things.
 	 * This should be called before processing a RelatrixTransactionStatement or variant.
+	 * We are calling this at getTransactionId time
 	 * @param xid
 	 * @throws IOException
 	 */

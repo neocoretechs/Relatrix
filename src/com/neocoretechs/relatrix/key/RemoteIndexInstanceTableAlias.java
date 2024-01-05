@@ -118,6 +118,16 @@ public final class RemoteIndexInstanceTableAlias implements IndexInstanceTableIn
 			throw new IOException("RelatrixClient is null");
 		}
 	}
+	
+	@Override
+	public void rollbackToCheckpoint() throws IOException, IllegalAccessException {
+		if(rcx != null) {
+			rcx.rollbackToCheckpoint(alias, transactionId);
+		} else {
+			throw new IOException("RelatrixClient is null");
+		}	
+	}
+
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey
 	 * @param index
