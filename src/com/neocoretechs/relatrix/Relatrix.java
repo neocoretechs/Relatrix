@@ -310,12 +310,12 @@ public final class Relatrix {
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		removeRecursive(alias, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable(alias).getByInstance(c);
+			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(alias, c);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
 			if(dbKey != null) {
 				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+				IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 			} else {
 				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
 				RelatrixKV.remove(alias, c);
@@ -568,32 +568,32 @@ public static synchronized void remove(String alias, Comparable<?> d, Comparable
 			return;
 		}
 		DBKey dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 		o = RelatrixKV.get(drm);
 		if(o == null)
 			throw new IOException(drm+" not found for delete");
 		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 		o = RelatrixKV.get(alias, mdr);
 		if(o == null)
 			throw new IOException(mdr+" not found for delete");
 		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 		o = RelatrixKV.get(alias, mrd);
 		if(o == null)
 			throw new IOException(mrd+" not found for delete");
 		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 		o = RelatrixKV.get(alias, rdm);
 		if(o == null)
 			throw new IOException(rdm+" not found for delete");
 		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 		o = RelatrixKV.get(alias, rmd);
 		if(o == null)
 			throw new IOException(rmd+" not found for delete");
 		dbKey = (DBKey)o;
-		IndexResolver.getIndexInstanceTable(alias).delete(dbKey);
+		IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
 	} catch (ClassNotFoundException | DuplicateKeyException e) {
 		throw new IOException(e);
 	}
@@ -1363,7 +1363,7 @@ public static synchronized boolean contains(String alias, Comparable obj) throws
  
  public static synchronized Object getByIndex(String alias, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
  {
-	 return IndexResolver.getIndexInstanceTableAlias(alias).getByIndex((DBKey) key);
+	 return IndexResolver.getIndexInstanceTable().getByIndex(alias, (DBKey) key);
  }
  /**
   * Return the keyset for the given class

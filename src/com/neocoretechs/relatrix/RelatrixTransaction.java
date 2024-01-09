@@ -145,7 +145,6 @@ public final class RelatrixTransaction {
 	 */
 	public static String getTransactionId() throws IllegalAccessException, IOException {
 		String xid =  DatabaseManager.getTransactionId();
-		IndexResolver.setIndexInstanceTable(xid);
 		return xid;
 	}
 	
@@ -158,7 +157,6 @@ public final class RelatrixTransaction {
 	 */
 	public static void endTransaction(String xid) throws IllegalAccessException, IOException, ClassNotFoundException {
 		DatabaseManager.endTransaction(xid);
-		IndexResolver.remove(xid);
 	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
@@ -205,7 +203,7 @@ public final class RelatrixTransaction {
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		try {
-			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(xid),dmr); // this stores our new relation, DBKey and instance
+			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys
@@ -277,7 +275,7 @@ public final class RelatrixTransaction {
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		try {
-			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTableAlias(xid),dmr); // this stores our new relation, DBKey and instance
+			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys
@@ -311,7 +309,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void commit(String xid) throws IOException, IllegalAccessException {
 		// first commit components of relationships
-		IndexResolver.getIndexInstanceTable(xid).commit();
+		IndexResolver.getIndexInstanceTable().commit(xid);
 		RelatrixKVTransaction.commit(xid);
 	}
 	/**
@@ -324,7 +322,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void commit(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		// first commit components of relationships
-		IndexResolver.getIndexInstanceTableAlias(alias, xid).commit();
+		IndexResolver.getIndexInstanceTable().commit(xid);
 		RelatrixKVTransaction.commit(alias, xid);
 	}
 	/**
@@ -335,7 +333,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void rollback(String xid) throws IOException, IllegalAccessException {
 		// first roll back components
-		IndexResolver.getIndexInstanceTable(xid).rollback();
+		IndexResolver.getIndexInstanceTable().rollback(xid);
 		RelatrixKVTransaction.rollback(xid);
 	}
 	
@@ -349,7 +347,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void rollback(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		// first roll back components
-		IndexResolver.getIndexInstanceTableAlias(alias, xid).rollback();
+		IndexResolver.getIndexInstanceTable().rollback(xid);
 		RelatrixKVTransaction.rollback(alias, xid);
 	}
 	/**
@@ -360,7 +358,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
 		// first roll back components
-		IndexResolver.getIndexInstanceTable(xid).rollbackToCheckpoint();
+		IndexResolver.getIndexInstanceTable().rollbackToCheckpoint(xid);
 		RelatrixKVTransaction.rollbackToCheckpoint(xid);
 	}
 	
@@ -374,7 +372,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		// first roll back components
-		IndexResolver.getIndexInstanceTableAlias(alias,xid).rollbackToCheckpoint();
+		IndexResolver.getIndexInstanceTable().rollbackToCheckpoint(xid);
 		RelatrixKVTransaction.rollbackToCheckpoint(alias, xid);
 	}
 	/**
@@ -385,7 +383,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void checkpoint(String xid) throws IOException, IllegalAccessException {
-		IndexResolver.getIndexInstanceTable(xid).checkpoint();
+		IndexResolver.getIndexInstanceTable().checkpoint(xid);
 		RelatrixKVTransaction.checkpoint(xid);
 	}
 	
@@ -399,7 +397,7 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias doesnt exist.
 	 */
 	public static synchronized void checkpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
-		IndexResolver.getIndexInstanceTableAlias(alias,xid).checkpoint();
+		IndexResolver.getIndexInstanceTable().checkpoint(xid);
 		RelatrixKVTransaction.checkpoint(alias, xid);
 	}
 	/**
@@ -416,12 +414,12 @@ public final class RelatrixTransaction {
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
 		removeRecursive(xid, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable(xid).getByInstance(c);
+			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(xid,c);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
 			if(dbKey != null) {
 				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+				IndexResolver.getIndexInstanceTable().delete(xid,dbKey);
 			} else {
 				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
 				RelatrixKVTransaction.remove(xid, c);
@@ -506,12 +504,12 @@ public final class RelatrixTransaction {
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
 		removeRecursive(alias, xid, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTableAlias(alias, xid).getByInstance(c);
+			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(xid, c);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
 			if(dbKey != null) {
 				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTableAlias(alias, xid).delete(dbKey);
+				IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			} else {
 				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
 				RelatrixKVTransaction.remove(alias, xid, c);
@@ -617,42 +615,42 @@ public final class RelatrixTransaction {
 		//KeyValue kv = (KeyValue)o;
 		//DBKey dbKey = (DBKey) kv.getmValue();
 			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(xid, drm);
 			if(o == null)
 				throw new IOException(drm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(xid, mdr);
 			if(o == null)
 				throw new IOException(mdr+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(xid, mrd);
 			if(o == null)
 				throw new IOException(mrd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(xid, rdm);
 			if(o == null)
 				throw new IOException(rdm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(xid, rmd);
 			if(o == null)
 				throw new IOException(rmd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 		} catch (ClassNotFoundException | DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -718,42 +716,42 @@ public final class RelatrixTransaction {
 		//KeyValue kv = (KeyValue)o;
 		//DBKey dbKey = (DBKey) kv.getmValue();
 			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, drm);
 			if(o == null)
 				throw new IOException(drm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, mdr);
 			if(o == null)
 				throw new IOException(mdr+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, mrd);
 			if(o == null)
 				throw new IOException(mrd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, rdm);
 			if(o == null)
 				throw new IOException(rdm+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 			o = RelatrixKVTransaction.get(alias, xid, rmd);
 			if(o == null)
 				throw new IOException(rmd+" not found for delete Id:"+xid);
 		//kv = (KeyValue)o;
 		//dbKey = (DBKey) kv.getmValue();
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTableAlias(xid).delete(dbKey);
+			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
 		} catch (ClassNotFoundException | DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -1670,7 +1668,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	public static synchronized UUID getNewKey() {
 		UUID nkey = UUID.randomUUID();
 		if(DEBUG)
 			System.out.printf("Returning NewKey=%s%n", nkey.toString());
@@ -1729,7 +1727,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object getByIndex(String xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable(xid).getByIndex((DBKey) key);
+		return IndexResolver.getIndexInstanceTable().getByIndex(xid, (DBKey) key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -1744,7 +1742,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object getByIndex(String alias, String xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
 	{
-		return IndexResolver.getIndexInstanceTableAlias(alias, xid).getByIndex((DBKey) key);
+		return IndexResolver.getIndexInstanceTable().getByIndex(xid, (DBKey) key);
 	}
 	/**
 	 * Return the keyset for the given class

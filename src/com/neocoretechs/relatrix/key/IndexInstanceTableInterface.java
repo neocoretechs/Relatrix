@@ -28,12 +28,6 @@ public interface IndexInstanceTableInterface {
 
 	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
-	void commit() throws IOException, IllegalAccessException;
-
-	void rollback() throws IOException, IllegalAccessException;
-
-	void checkpoint() throws IllegalAccessException, IOException;
-
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey
 	 * @param index
@@ -54,9 +48,46 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
-	void setTransactionId(String xid);
-
 	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 
-	void rollbackToCheckpoint() throws IOException, IllegalAccessException;
+	/**
+	 * Put the key to the proper tables
+	 * @param index
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+
+	void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void commit(String transactionId) throws IOException, IllegalAccessException;
+
+	void rollback(String transactionId) throws IOException, IllegalAccessException;
+
+	void checkpoint(String transactionId) throws IllegalAccessException, IOException;
+
+	void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException;
+
+	/**
+	 * Get the instance by using the InstanceIndex contained in the passed DBKey
+	 * @param index
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
+
+	/**
+	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
+	 * @param instance the DbKey containing the instance
+	 * @return The Integer index contained in the retrieved InstanceIndex
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	DBKey getByInstance(String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+
+	DBKey getNewDBKeyTransaction() throws ClassNotFoundException, IllegalAccessException, IOException;
 }

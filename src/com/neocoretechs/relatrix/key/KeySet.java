@@ -1,7 +1,11 @@
 package com.neocoretechs.relatrix.key;
 
 import java.io.Serializable;
-
+/**
+ * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.
+ * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023
+ *
+ */
 public class KeySet implements Serializable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private DBKey domainKey = new DBKey();

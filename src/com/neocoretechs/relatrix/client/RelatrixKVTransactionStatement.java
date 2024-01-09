@@ -65,7 +65,6 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
-		IndexResolver.setCurrentTransactionId(xid);
 		Object result = RelatrixKVTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it

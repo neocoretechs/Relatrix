@@ -98,8 +98,6 @@ public final class RelatrixKVTransaction {
 	 */
 	public static String getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
 		String xid = DatabaseManager.getTransactionId();
-		IndexResolver.setAlias(null);
-		IndexResolver.setIndexInstanceTable(xid);
 		return xid;
 	}
 	
@@ -111,7 +109,6 @@ public final class RelatrixKVTransaction {
 	 */
 	public static void endTransaction(String xid) throws IOException {
 		DatabaseManager.endTransaction(xid);
-		IndexResolver.remove(xid);
 	}	
 	
 	/**
@@ -121,7 +118,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	public static synchronized UUID getNewKey()  {
 		UUID nkey = UUID.randomUUID();
 		if(DEBUG)
 			System.out.printf("Returning NewKey=%s%n", nkey.toString());

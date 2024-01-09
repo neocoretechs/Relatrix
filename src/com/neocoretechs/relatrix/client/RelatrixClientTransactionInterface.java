@@ -106,13 +106,12 @@ public interface RelatrixClientTransactionInterface {
 
 	/**
 	 * Get the last good DBKey from the DBKey table, which is the highest numbered last key delivered.
-	 * @param transactionId 
 	 * @return The last good key
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 * @throws IOException 
 	 */
-	UUID getNewKey(String transactionId) throws ClassNotFoundException, IllegalAccessException, IOException;
+	UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 
 	String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException;
 

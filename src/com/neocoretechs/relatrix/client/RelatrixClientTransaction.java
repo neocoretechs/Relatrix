@@ -172,8 +172,6 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
-			if(((RelatrixTransactionStatement)iori).getTransactionId() != null && ((RelatrixTransactionStatement)iori).getTransactionId() != "")
-				IndexResolver.setCurrentTransactionId(((RelatrixTransactionStatement)iori).getTransactionId());
 			outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
 			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 			oos.writeObject(iori);
@@ -287,8 +285,8 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @throws IOException 
 	 */
 	@Override
-	public UUID getNewKey(String xid) throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "getNewKey", (Object[])null);
+	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixStatement rs = new RelatrixTransactionStatement("", "getNewKey", (Object[])null);
 		try {
 			return (UUID) sendCommand(rs);
 		} catch (DuplicateKeyException e) {
@@ -301,7 +299,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		RelatrixStatement rs = new RelatrixTransactionStatement("", "getTransactionId", (Object[])null);
 		try {
 			String xid = (String) sendCommand(rs);
-			IndexResolver.setRemote(xid, this);
+			IndexResolver.setRemote((RelatrixClientInterface) this);
 			return xid;
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
