@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
@@ -24,7 +25,11 @@ public class IndexResolver {
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
 			if(local) {
-					instanceTable = new IndexInstanceTable();
+					try {
+						instanceTable = new IndexInstanceTable();
+					} catch (IllegalAccessException | NoSuchElementException e) {
+						throw new IOException(e);
+					}
 			} else {
 					instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTable);
 			}

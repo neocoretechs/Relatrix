@@ -368,6 +368,16 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		sendCommand(rs);
 	}
 	
+	public void closeDb(String xid, Class clazz) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "close", xid, clazz);
+		sendCommand(rs);
+	}
+	
+	public void closeDb(String alias, String xid, Class clazz) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "close", alias, xid, clazz);
+		sendCommand(rs);
+	}
+	
 	/**
 	 * Commit the outstanding indicies to their transactional data.
 	 * @throws IOException

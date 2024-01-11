@@ -272,6 +272,16 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
+	public void closeDb(Class clazz) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixStatement("close", clazz);
+		sendCommand(rs);
+	}
+	
+	public void closeDb(String alias, Class clazz) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixStatement rs = new RelatrixStatement("close", alias, clazz);
+		sendCommand(rs);
+	}
+	
 	/**
 	 * Call the remote server method to store a morphism.
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.

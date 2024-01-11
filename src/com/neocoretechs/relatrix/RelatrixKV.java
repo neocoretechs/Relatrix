@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -7,7 +8,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -15,7 +15,6 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.rocksack.session.TransactionalMap;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
@@ -960,6 +959,32 @@ public final class RelatrixKV {
 		if(DEBUG)
 			System.out.printf("Returning NewKey=%s%n", nkey.toString());
 		return nkey;
+	}
+	
+	/**
+	 * Close and remove database from available set
+	 * @param alias
+	 * @param clazz
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
+	public static void close(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		DatabaseManager.removeMap(alias, ttm);
+	}
+	/**
+	 * Close and remove database from available set
+	 * @param clazz
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
+	public static void close(Class clazz) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		DatabaseManager.removeMap(ttm);
 	}
 
 }

@@ -39,6 +39,7 @@ public class IndexManager {
 			indexToPath.put((UUID)e.getKey(), (String)e.getValue());
 			pathToIndex.put((String)e.getValue(), (UUID)e.getKey());
 		}
+		RelatrixKV.close(databaseCatalogProperty, UUID.class);
 	}
 	
 	void write() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
@@ -47,6 +48,7 @@ public class IndexManager {
 			Map.Entry<UUID, String> entry = it.next();
 			RelatrixKV.store(databaseCatalogProperty, entry.getKey(), entry.getValue());
 		}
+		RelatrixKV.close(databaseCatalogProperty, UUID.class);
 	}
 	/**
 	 * Get the UUID for the given tablespace path. If the index does not exist, it will be created based on param
@@ -64,6 +66,12 @@ public class IndexManager {
 			v = UUID.randomUUID();
 			pathToIndex.put(path, v);
 			indexToPath.put(v, path);
+			try {
+				RelatrixKV.store(databaseCatalogProperty, v, path);
+				RelatrixKV.close(databaseCatalogProperty, UUID.class);
+			} catch (IllegalAccessException | NoSuchElementException | IOException | DuplicateKeyException e) {
+				e.printStackTrace();
+			}
 		}
 		return v;
 	}

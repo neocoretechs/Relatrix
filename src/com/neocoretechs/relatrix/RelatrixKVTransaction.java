@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
@@ -1042,6 +1043,33 @@ public final class RelatrixKVTransaction {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, keyType, xid);
 		return ttm.containsValue(obj);
 	}
+	/**
+	 * Close and remove database from available set
+	 * @param xid transaction id
+	 * @param alias
+	 * @param clazz
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
+	public static void close(String xid, String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		DatabaseManager.removeTransactionalMap(alias, ttm);
+	}
+	/**
+	 * Close and remove database from available set
+	 * @param clazz
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
+	public static void close(String xid, Class clazz) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		DatabaseManager.removeTransactionalMap(xid, ttm);
+	}
+
 
 }
 

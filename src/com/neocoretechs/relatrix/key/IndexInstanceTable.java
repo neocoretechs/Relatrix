@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
@@ -22,10 +23,15 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
 	private Object mutex = new Object();
+	private IndexManager indexManager = null;
 	/**
 	 * Set up for non transaction context. 
+	 * @throws IOException 
+	 * @throws NoSuchElementException 
+	 * @throws IllegalAccessException 
 	 */
-	public IndexInstanceTable() {
+	public IndexInstanceTable() throws IllegalAccessException, NoSuchElementException, IOException {
+		this.indexManager = new IndexManager();
 	}
 	
 	/**
