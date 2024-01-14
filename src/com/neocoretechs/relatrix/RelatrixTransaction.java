@@ -19,6 +19,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.rocksack.session.VolumeManager;
@@ -68,7 +69,14 @@ public final class RelatrixTransaction {
 	private static ConcurrentHashMap<UUID, String> indexToPath = new ConcurrentHashMap<UUID,String>();
 	
 	static {
-		databaseCatalog = System.getProperty(databaseCatalogProperty);
+		if(System.getProperty(databaseCatalogProperty) != null)
+			databaseCatalog = System.getProperty(databaseCatalogProperty);
+		try {
+			setAlias(databaseCatalogProperty, databaseCatalog);
+			readDatabaseCatalog();
+		} catch (IOException | IllegalAccessException | NoSuchElementException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
@@ -1835,6 +1843,17 @@ public final class RelatrixTransaction {
 	public static synchronized void removePackageFromRepository(String pack) throws IOException {
 		HandlerClassLoader.removeBytesInRepository(pack);
 	}
+	
+	static void readDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException {
+		Iterator<?> it = RelatrixKV.entrySet(databaseCatalogProperty, UUID.class);
+		while(it.hasNext()) {
+			Entry e = (Entry) it.next();
+			indexToPath.put((UUID)e.getKey(), (String)e.getValue());
+			pathToIndex.put((String)e.getValue(), (UUID)e.getKey());
+		}
+		RelatrixKV.close(databaseCatalogProperty, UUID.class);
+	}
+
 	static void writeDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
 		Iterator<Map.Entry<UUID, String>> it = indexToPath.entrySet().iterator();
 		while(it.hasNext()) {
@@ -1853,6 +1872,15 @@ public final class RelatrixTransaction {
 		if(DEBUG)
 			System.out.println("IndexManager.get attempt for path:"+path);
 		UUID v = pathToIndex.get(path);
+		// If we did not find it and another process created it, read catalog
+		if(v == null) {
+			try {
+				readDatabaseCatalog();
+				v = pathToIndex.get(path);
+			} catch (IllegalAccessException | NoSuchElementException | IOException e) {
+				e.printStackTrace();
+			}
+		}
 		if(v == null && create) {
 			if(DEBUG)
 				System.out.println("IndexManager.get creating new index for path:"+path);
@@ -1919,6 +1947,12 @@ public final class RelatrixTransaction {
 		String ret = indexToPath.remove(index);
 		if(ret != null)
 			pathToIndex.remove(ret);
+		try {
+			RelatrixKV.remove(index);
+			RelatrixKV.close(databaseCatalogProperty, UUID.class);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+			e.printStackTrace();
+		}
 		return ret;
 	}
 	/**
@@ -1932,6 +1966,12 @@ public final class RelatrixTransaction {
 			System.out.println("IndexManager.remove for path:"+path+" will return previous index:"+ret);		
 		if(ret != null)
 			indexToPath.remove(ret);
+		try {
+			RelatrixKV.remove(ret);
+			RelatrixKV.close(databaseCatalogProperty, UUID.class);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+			e.printStackTrace();
+		}
 		return ret;
 	}
 	
