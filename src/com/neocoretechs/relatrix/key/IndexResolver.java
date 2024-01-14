@@ -2,15 +2,14 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
-import com.neocoretechs.rocksack.session.DatabaseManager;
+import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
+
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
  * instance of {@link IndexInstanceTable} can be used to resolve database index to object instances, or whether an
- * instance of {@link RemoteIndexInstanceTable} using an implementation of {@link RelatrixClientInterface}
+ * instance of {@link RemoteIndexInstanceTable} using an implementation of {@link RelatrixKVClientInterface}
  * must be used to resolve remote instances. Implementations of RelatrixClientInterface will not include
  * transaction context information as it functions in a global context and is manipulated outside of transactions.
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2021,2022
@@ -20,14 +19,14 @@ public class IndexResolver {
 	public static boolean DEBUG = false;
 	static IndexInstanceTableInterface instanceTable = null;
 	static boolean local = true;
-	static RelatrixClientInterface remoteIndexInstanceTable;
+	static RelatrixClientInterface remoteIndexInstanceTable = null;
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(instanceTable == null) {
 			if(local) {
 					try {
 						instanceTable = new IndexInstanceTable();
-					} catch (IllegalAccessException | NoSuchElementException e) {
+					} catch (NoSuchElementException e) {
 						throw new IOException(e);
 					}
 			} else {

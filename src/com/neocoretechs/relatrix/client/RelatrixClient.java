@@ -77,6 +77,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
+		IndexResolver.setRemote(this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -256,8 +257,8 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		return remotePort;
 	}
 	/**
-	 * Get the last good DBKey from the DBKey table, which is the highest numbered last key delivered.
-	 * @return The last good key
+	 * Get DBKey from the DBKey table
+	 * @return The new key
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 * @throws IOException 
@@ -265,6 +266,28 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	@Override
 	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		RelatrixStatement rs = new RelatrixStatement("getNewKey",(Object[])null);
+		try {
+			return (UUID) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
+	public UUID getByAlias(String alias) throws IOException, IllegalArgumentException, ClassNotFoundException,
+			IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixStatement("getByAlias",alias);
+		try {
+			return (UUID) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public UUID getByPath(String tableSpace, boolean b)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixStatement("getByPath",tableSpace, b);
 		try {
 			return (UUID) sendCommand(rs);
 		} catch ( DuplicateKeyException e) {
@@ -857,6 +880,5 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		//rc.send(rs);
 		rc.close();
 	}
-
 
 }

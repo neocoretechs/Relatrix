@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -44,6 +45,7 @@ public final class DBKey implements Comparable, Serializable {
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
 	 * The instance then receives and index into the instance table and the index table.
+	 * @param indexTable the local or remote interface to facilitate the index creation
 	 * @param instance The actual object instance, may be another DBKey for a relationship.
 	 * @return The new DBKey
 	 * @throws IllegalAccessException
@@ -52,6 +54,23 @@ public final class DBKey implements Comparable, Serializable {
 	 */
 	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 		DBKey index = indexTable.getNewDBKey();
+		indexTable.put(index, (Comparable) instance); // the passed key is updated
+		return index;
+	}
+	
+	/**
+	 * Factory method to construct a new key and enforce the storage of the instance.
+	 * The instance then receives and index into the instance table and the index table.
+	 * @param alias the database alias
+	 * @param indexTable the local or remote interface to facilitate the index creation
+	 * @param instance The actual object instance, may be another DBKey for a relationship.
+	 * @return The new DBKey
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public static DBKey newKey(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+		DBKey index = indexTable.getNewDBKey(alias);
 		indexTable.put(index, (Comparable) instance); // the passed key is updated
 		return index;
 	}

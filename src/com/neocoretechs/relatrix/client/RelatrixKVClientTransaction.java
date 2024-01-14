@@ -37,7 +37,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTransactionInterface {
+public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTransactionInterface {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
@@ -274,7 +274,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("", "getTransactionId", (Object[])null);
 		try {
 			String xid = (String) sendCommand(rs);
-			IndexResolver.setRemote((RelatrixClientInterface) this);
 			return xid;
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
@@ -422,16 +421,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 			throw new IOException(e);
 		}	
 	}
-	
-	@Override
-	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixKVStatement rs = new RelatrixKVTransactionStatement("", "getNewKey",(Object[])null);
-		try {
-			return (UUID)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 
 	@Override
 	public void commit(String xid) throws IOException {
@@ -566,11 +555,6 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
-	}
-	
-	@Override
-	public Object getByIndex(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException {
-		return get(alias, transactionId, index);
 	}
 	
 	@Override
@@ -1234,7 +1218,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixClientTran
 		RelatrixKVTransactionStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixClientTransactionInterface rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVClientTransactionInterface rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
 		String xid = "";
 		switch(args.length) {
 			case 4:

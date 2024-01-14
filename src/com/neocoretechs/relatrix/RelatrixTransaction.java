@@ -6,10 +6,12 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -60,6 +62,14 @@ public final class RelatrixTransaction {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
+	private static final String databaseCatalogProperty = "Relatrix.Catalog";
+	private static String databaseCatalog = "/etc/db/";
+	private static ConcurrentHashMap<String, UUID> pathToIndex = new ConcurrentHashMap<String,UUID>();
+	private static ConcurrentHashMap<UUID, String> indexToPath = new ConcurrentHashMap<UUID,String>();
+	
+	static {
+		databaseCatalog = System.getProperty(databaseCatalogProperty);
+	}
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
 												  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
@@ -275,7 +285,7 @@ public final class RelatrixTransaction {
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		try {
-			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
+			dbKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), dmr); // this stores our new relation, DBKey and instance
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys
@@ -1825,7 +1835,106 @@ public final class RelatrixTransaction {
 	public static synchronized void removePackageFromRepository(String pack) throws IOException {
 		HandlerClassLoader.removeBytesInRepository(pack);
 	}
-
+	static void writeDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
+		Iterator<Map.Entry<UUID, String>> it = indexToPath.entrySet().iterator();
+		while(it.hasNext()) {
+			Map.Entry<UUID, String> entry = it.next();
+			RelatrixKV.store(databaseCatalogProperty, entry.getKey(), entry.getValue());
+		}
+		RelatrixKV.close(databaseCatalogProperty, UUID.class);
+	}
+	/**
+	 * Get the UUID for the given tablespace path. If the index does not exist, it will be created based on param
+	 * @param path
+	 * @param create
+	 * @return the UUID of path
+	 */
+	public static UUID getByPath(String path, boolean create) {
+		if(DEBUG)
+			System.out.println("IndexManager.get attempt for path:"+path);
+		UUID v = pathToIndex.get(path);
+		if(v == null && create) {
+			if(DEBUG)
+				System.out.println("IndexManager.get creating new index for path:"+path);
+			v = UUID.randomUUID();
+			pathToIndex.put(path, v);
+			indexToPath.put(v, path);
+			try {
+				RelatrixKV.store(databaseCatalogProperty, v, path);
+				RelatrixKV.close(databaseCatalogProperty, UUID.class);
+			} catch (IllegalAccessException | NoSuchElementException | IOException | DuplicateKeyException e) {
+				e.printStackTrace();
+			}
+		}
+		return v;
+	}
+	/**
+	 * Get the path for the given index. If the path does not exist, it will NOT be created.
+	 * @param index
+	 * @return path from indexToPath
+	 */
+	public static String getDatabasePath(UUID index) {
+		if(DEBUG)
+			System.out.println("IndexManager.get attempt for UUID:"+index);
+		String v = indexToPath.get(index);
+		if(v == null) {
+			if(DEBUG)
+				System.out.println("IndexManager.get did not find index:"+index);
+		}
+		return v;
+	}
+	/**
+	 * Get the tablespace path for the given alias
+	 * @param alias
+	 * @return The path for this alias or null if none
+	 */
+	public static String getAliasToPath(String alias) {
+		if(DEBUG)
+			System.out.println("IndexManager.getAliasToPath attempt for alias:"+alias+" will return:"+DatabaseManager.getAliasToPath(alias));
+		return DatabaseManager.getAliasToPath(alias);
+	}
+	/**
+	 * Get the index for the given alias. If the index does not exist, it will be created
+	 * @param alias
+	 * @return The UUID index for the alias
+	 * @throws NoSuchElementException If the alias was not found
+	 */
+	public static UUID getByAlias(String alias) throws NoSuchElementException {
+		String path = getAliasToPath(alias);
+		if(path == null)
+			throw new NoSuchElementException("The alias "+alias+" was not found.");
+		if(DEBUG)
+			System.out.println("IndexManager.getByAlias attempt for alias:"+alias+" got path:"+path);
+		return getByPath(path, true);
+	}
+	
+	/**
+	 * Remove the given tablespace path for index.
+	 * @param index
+	 * @return previous String path of removed UUID index
+	 */
+	static String removeDatabaseCatalog(UUID index) {
+		if(DEBUG)
+			System.out.println("VolumeManager.remove for index:"+index);
+		String ret = indexToPath.remove(index);
+		if(ret != null)
+			pathToIndex.remove(ret);
+		return ret;
+	}
+	/**
+	 * Remove the index for the given tablespace path.
+	 * @param path
+	 * @return UUID index of removed path
+	 */
+	static UUID removeDatabaseCatalog(String path) {
+		UUID ret = pathToIndex.remove(path);
+		if(DEBUG)
+			System.out.println("IndexManager.remove for path:"+path+" will return previous index:"+ret);		
+		if(ret != null)
+			indexToPath.remove(ret);
+		return ret;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		setTablespace(args[0]);
 		RelatrixTransaction.findStream(args[1], "*", "*", "*").forEach((s) -> {

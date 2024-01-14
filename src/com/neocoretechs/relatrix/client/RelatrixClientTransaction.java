@@ -295,6 +295,28 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	}
 	
 	@Override
+	public UUID getByAlias(String alias) throws IOException, IllegalArgumentException, ClassNotFoundException,
+			IllegalAccessException, NoSuchElementException {
+		RelatrixStatement rs = new RelatrixTransactionStatement("","getByAlias",alias);
+		try {
+			return (UUID) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+
+	@Override
+	public UUID getByPath(String tableSpace, boolean b)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		RelatrixStatement rs = new RelatrixTransactionStatement("","getByPath",tableSpace, b);
+		try {
+			return (UUID) sendCommand(rs);
+		} catch ( DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	@Override
 	public String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException {
 		RelatrixStatement rs = new RelatrixTransactionStatement("", "getTransactionId", (Object[])null);
 		try {

@@ -77,9 +77,8 @@ public final class RelatrixKVTransaction {
 	}
 	
 	/**
-	 * Will return null if alias does not exist
-	 * @param alias
-	 * @return
+	 * @param alias the alias to which a path is assigned
+	 * @return the path to this alias, null if alias does not exist.
 	 */
 	public static String getAlias(String alias) {
 		return DatabaseManager.getTableSpaceDir(alias);

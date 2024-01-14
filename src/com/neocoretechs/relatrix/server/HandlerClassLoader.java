@@ -27,7 +27,7 @@ import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 
@@ -48,7 +48,7 @@ public class HandlerClassLoader extends ClassLoader {
     private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
     private static boolean useEmbedded = false;
     public static String defaultPath = "/etc/"; // bytecode repository path
-    public static RelatrixClientInterface remoteRepository = null;
+    public static RelatrixKVClientInterface remoteRepository = null;
     private ClassLoader parent = null;
 	static int size;
    

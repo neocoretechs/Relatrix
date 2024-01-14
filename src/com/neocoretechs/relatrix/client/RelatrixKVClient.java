@@ -39,7 +39,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
+public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
@@ -78,7 +78,6 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote(this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -372,15 +371,6 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		return sendCommand(rs);
 	}
 	
-	@Override
-	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getNewKey",(Object[])null);
-		try {
-			return (UUID)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 
 	/**
 	* recursively delete all relationships that this object participates in
@@ -455,10 +445,6 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
-	@Override
-	public Object getByIndex(String alias, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
-		return get(alias,index);
-	}
 
 	@Override
 	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
@@ -1171,7 +1157,7 @@ public class RelatrixKVClient implements Runnable, RelatrixClientInterface {
 		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixClientInterface rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVClientInterface rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
 
 		switch(args.length) {
 			case 4:

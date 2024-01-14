@@ -4,15 +4,19 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixKVClientTransactionInterface;
 
 /**
  * The RemoteIndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -169,12 +173,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rc.getNewKey(), rc.getNewKey());
+		return new DBKey(rcx.getByPath(Relatrix.getTableSpace(), true), rcx.getNewKey());
 	}
-
+	
 	@Override
-	public DBKey getNewDBKeyTransaction() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getNewKey(), rcx.getNewKey());	
+	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+			return new DBKey(rcx.getByAlias(alias), rcx.getNewKey());
 	}
 	
 	@Override

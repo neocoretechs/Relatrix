@@ -89,5 +89,5 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey getByInstance(String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
-	DBKey getNewDBKeyTransaction() throws ClassNotFoundException, IllegalAccessException, IOException;
+	DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException;
 }

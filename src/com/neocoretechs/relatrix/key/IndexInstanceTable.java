@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
@@ -23,16 +24,7 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
 	private Object mutex = new Object();
-	private IndexManager indexManager = null;
-	/**
-	 * Set up for non transaction context. 
-	 * @throws IOException 
-	 * @throws NoSuchElementException 
-	 * @throws IllegalAccessException 
-	 */
-	public IndexInstanceTable() throws IllegalAccessException, NoSuchElementException, IOException {
-		this.indexManager = new IndexManager();
-	}
+
 	
 	/**
 	 * Put the key to the proper tables
@@ -212,13 +204,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-			return new DBKey(Relatrix.getNewKey(), Relatrix.getNewKey());
+			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());
 	}
 	
 	@Override
-	public DBKey getNewDBKeyTransaction() throws ClassNotFoundException, IllegalAccessException, IOException {
-			return new DBKey(RelatrixTransaction.getNewKey(), RelatrixTransaction.getNewKey());	
+	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+			return new DBKey(Relatrix.getByAlias(alias), Relatrix.getNewKey());
 	}
-
 
 }
