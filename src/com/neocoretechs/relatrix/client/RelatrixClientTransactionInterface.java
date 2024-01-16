@@ -16,8 +16,6 @@ public interface RelatrixClientTransactionInterface extends RelatrixKVClientTran
 	 */
 	UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 	
-	Object getByIndex(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, NoSuchElementException;
-	
 	UUID getByAlias(String alias)
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException;
 

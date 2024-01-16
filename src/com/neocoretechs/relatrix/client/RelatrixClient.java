@@ -407,15 +407,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 
-	@Override
-	public Object getByIndex(String alias, DBKey index) throws IllegalAccessException, IOException {
-		RelatrixStatement rs = new RelatrixStatement("getByIndex",alias,index);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 
 	@Override
 	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {

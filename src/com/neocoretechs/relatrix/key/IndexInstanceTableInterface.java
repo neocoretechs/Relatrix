@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 /**
@@ -29,7 +30,7 @@ public interface IndexInstanceTableInterface {
 	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	/**
-	 * Get the instance by using the InstanceIndex contained in the passed DBKey
+	 * Get the instance by using the Instance contained in the passed DBKey
 	 * @param index
 	 * @return
 	 * @throws IllegalAccessException
@@ -39,9 +40,9 @@ public interface IndexInstanceTableInterface {
 	Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
 
 	/**
-	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
+	 * Get the index of the instance by retrieving the instance present in the passed object
 	 * @param instance the DbKey containing the instance
-	 * @return The Integer index contained in the retrieved InstanceIndex
+	 * @return The index contained in the retrieved InstanceIndex
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -70,9 +71,10 @@ public interface IndexInstanceTableInterface {
 	void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException;
 
 	/**
-	 * Get the instance by using the InstanceIndex contained in the passed DBKey
+	 * Get the instance contained in the passed DBKey
+	 * @param transactionId
 	 * @param index
-	 * @return
+	 * @return the object instance indexed by dbkey
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -80,9 +82,9 @@ public interface IndexInstanceTableInterface {
 	Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
 
 	/**
-	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
+	 * Get the index of the instance by retrieving instance present in the passed object
 	 * @param instance the DbKey containing the instance
-	 * @return The Integer index contained in the retrieved InstanceIndex
+	 * @return The index contained in the retrieved Instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -90,4 +92,62 @@ public interface IndexInstanceTableInterface {
 	DBKey getByInstance(String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
 	DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException;
+
+	/**
+	 * Put the key to the proper tables
+	 * @param index
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	void putAlias(String alias, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+
+	/**
+	 * Put the key to the proper tables
+	 * @param index
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+
+	void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
+
+	void rollback(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException;
+
+	void checkpoint(String alias, String transactionId)
+			throws IllegalAccessException, IOException, NoSuchElementException;
+
+	void rollbackToCheckpoint(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException;
+
+	/**
+	 * Get the index of the instance by retrieving the instance present in the passed object
+	 * @param alias the database alias
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	DBKey getByInstanceAlias(String alias, Object instance)
+			throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
+
+	/**
+	 * Get index of the instance by retrieving the key for the instance present in the passed object
+	 * @param alias the database alias
+	 * @param transactionId
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	DBKey getByInstanceAlias(String alias, String transactionId, Object instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 }

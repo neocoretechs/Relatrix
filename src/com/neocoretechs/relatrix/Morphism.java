@@ -55,6 +55,18 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
         }
         
         /**
+         * Construct and establish key position for the elements of a morphism.
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(String alias, Comparable d, Comparable m, Comparable r) {
+        	this.keys = new KeySet();
+        	setDomain(alias, d);
+            setMap(alias, m);
+            setRange(alias, r);
+        }
+        /**
          * Constructor for the event when we have a keyset from a previous morphism.
          * We assume keyset is valid, and so no need to resolve elements.
          * @param d
@@ -144,6 +156,27 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			}
 		}
 		
+		public void setDomain(String alias, Comparable<?> domain) {
+			try {
+				this.domain = domain;
+				if(domain == null) {
+					keys.setDomainKey(new DBKey());
+				} else {
+					if(keys.getDomainKey().isValid()) {
+						this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getDomainKey());
+					} else {
+						DBKey dbKey = null;
+						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, domain)) == null)
+							keys.setDomainKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(),domain));
+						else
+							keys.setDomainKey(dbKey);
+					}
+				}
+			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 		public void setDomainTemplate(Comparable<?> domain) {
 			this.domain = domain;
 			keys.setDomainKey(new DBKey());
@@ -183,6 +216,27 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			}
 		}
 
+		public void setMap(String alias, Comparable<?> map) {
+			try {
+				this.map = map;
+				if(map == null) {
+					keys.setMapKey(new DBKey());
+				} else {
+					if(keys.getMapKey().isValid()) {
+						this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getMapKey());
+					} else {
+						DBKey dbKey = null;
+						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, map)) == null)
+							keys.setMapKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), map));
+						else
+							keys.setMapKey(dbKey);
+					}
+				}
+			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 		public void setMapTemplate(Comparable<?> map) {
 			this.map = map;
 			keys.setMapKey(new DBKey());
@@ -222,6 +276,27 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 			}
 		}
 
+		public void setRange(String alias, Comparable<?> range) {
+			try {
+				this.range = range;
+				if(range == null) {
+					keys.setRangeKey(new DBKey());
+				} else {
+					if(keys.getRangeKey().isValid()) {
+						this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(keys.getRangeKey());
+					} else {
+						DBKey dbKey = null;
+						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, range)) == null)
+							keys.setRangeKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), range));
+						else
+							keys.setRangeKey(dbKey);						
+					}
+				}
+			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 		public void setRangeTemplate(Comparable<?> range) {
 			this.range = range;
 			keys.setRangeKey(new DBKey());

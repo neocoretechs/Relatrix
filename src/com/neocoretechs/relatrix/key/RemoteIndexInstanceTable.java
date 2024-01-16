@@ -186,4 +186,60 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		rcx.rollbackToCheckpoint(transactionId);	
 	}
 
+	@Override
+	public void putAlias(String alias, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void commit(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rollback(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void checkpoint(String alias, String transactionId)
+			throws IllegalAccessException, IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rollbackToCheckpoint(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public DBKey getByInstanceAlias(String alias, Object instance)
+			throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DBKey getByInstanceAlias(String alias, String transactionId, Object instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

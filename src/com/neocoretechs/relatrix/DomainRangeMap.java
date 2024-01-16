@@ -23,6 +23,7 @@ public class DomainRangeMap extends Morphism {
 	public DomainRangeMap(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
 		super(d,m,r,template);
 	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {

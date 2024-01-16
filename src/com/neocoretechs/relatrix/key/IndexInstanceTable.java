@@ -15,14 +15,14 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
- * lookup of the Integer index. We use the DBKey wrapper class to carry the integer index inside the Morphism.
+ * lookup of the  index. We use the DBKey wrapper class to carry the index inside the Morphism.
  * which also adds validation. A constructor carrying a transaction Id sets up methods for calls to the
  * transaction oriented classes.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private Object mutex = new Object();
 
 	
@@ -56,6 +56,35 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	
 	/**
 	 * Put the key to the proper tables
+	 * @param alias the database alias
+	 * @param index
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	@Override
+	public void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.putAlias alias=%s index=%s instance=%s%n", index.getClass().getName(), alias, index, instance);
+			try {
+					RelatrixKV.store(alias, index, instance);
+			} catch(DuplicateKeyException dke) {
+				dke.printStackTrace();
+				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
+			}
+			try {
+					RelatrixKV.store(alias, instance, index);
+			} catch(DuplicateKeyException dke) {
+				dke.printStackTrace();
+				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
+			}
+
+		}
+	}
+	/**
+	 * Put the key to the proper tables
 	 * @param index
 	 * @throws IllegalAccessException
 	 * @throws IOException
@@ -74,6 +103,36 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			}
 			try {
 					RelatrixKVTransaction.store(transactionId, instance, index);
+			} catch(DuplicateKeyException dke) {
+				dke.printStackTrace();
+				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
+			}
+
+		}
+	}
+	
+	/**
+	 * Put the key to the proper tables
+	 * @param alias the database alias
+	 * @param index
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	@Override
+	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.putAlias Alias:%s Xid:%s index=%s instance=%s%n", index.getClass().getName(), alias, transactionId, index, instance);
+			try {
+					RelatrixKVTransaction.store(alias, transactionId, index, instance);
+			} catch(DuplicateKeyException dke) {
+				dke.printStackTrace();
+				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
+			}
+			try {
+					RelatrixKVTransaction.store(alias, transactionId, instance, index);
 			} catch(DuplicateKeyException dke) {
 				dke.printStackTrace();
 				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
@@ -107,13 +166,22 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			RelatrixKVTransaction.remove(transactionId, index);
 		}
 	}
-	
+		
 	@Override
 	public void commit(String transactionId) throws IOException, IllegalAccessException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.commit committing "+transactionId);
 			RelatrixKVTransaction.commit(transactionId);
+		}
+	}
+	
+	@Override
+	public void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("IndexInstanceTable.commitAlias committing alias:"+alias+" Xid:"+transactionId);
+			RelatrixKVTransaction.commit(alias, transactionId);
 		}
 	}
 	
@@ -127,6 +195,15 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	@Override
+	public void rollback(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("IndexInstanceTable.rollback alias:"+alias+" Xid:"+transactionId);
+			RelatrixKVTransaction.rollback(alias, transactionId);
+		}
+	}
+	
+	@Override
 	public void checkpoint(String transactionId) throws IllegalAccessException, IOException {
 		synchronized(mutex) {
 			RelatrixKVTransaction.checkpoint(transactionId);
@@ -134,17 +211,34 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	@Override
+	public void checkpoint(String alias, String transactionId) throws IllegalAccessException, IOException, NoSuchElementException {
+		synchronized(mutex) {
+			RelatrixKVTransaction.checkpoint(alias, transactionId);
+		}
+	}
+	
+	@Override
 	public void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException {
 		synchronized(mutex) {
 			if(DEBUG)
-				System.out.printf("IndexInstanceTable.rollback "+transactionId);
+				System.out.printf("IndexInstanceTable.rollbackToCheckpoint "+transactionId);
 			RelatrixKVTransaction.rollbackToCheckpoint(transactionId);
+		}
+		
+	}
+	
+	@Override
+	public void rollbackToCheckpoint(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("IndexInstanceTable.rollbackToCheckpoint alias:"+alias+" Xid:"+transactionId);
+			RelatrixKVTransaction.rollbackToCheckpoint(alias, transactionId);
 		}
 		
 	}
 
 	/**
-	 * Get the instance by using the InstanceIndex contained in the passed DBKey
+	 * Get the instance contained in the passed DBKey
 	 * @param index
 	 * @return
 	 * @throws IllegalAccessException
@@ -159,7 +253,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	/**
-	 * Get the instance by using the InstanceIndex contained in the passed DBKey
+	 * Get the instance  contained in the passed DBKey
 	 * @param index
 	 * @return
 	 * @throws IllegalAccessException
@@ -172,10 +266,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			return RelatrixKVTransaction.get(transactionId, index);
 		//}
 	}
+	
 	/**
-	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
+	 * Get the index of the instance by retrieving the key for the instance present in the passed object
 	 * @param instance the DbKey containing the instance
-	 * @return The Integer index contained in the retrieved InstanceIndex
+	 * @return The index contained in the retrieved Instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -188,9 +283,27 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 
 	/**
-	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
+	 * Get the index of the instance by retrieving the key for the instance present in the passed object
+	 * @param alias the database alias
 	 * @param instance the DbKey containing the instance
-	 * @return The Integer index contained in the retrieved InstanceIndex
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	@Override
+	public DBKey getByInstanceAlias(String alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		//synchronized(mutex) {
+			return (DBKey) RelatrixKV.get(alias, (Comparable) instance);
+		//}
+	}
+	
+	/**
+	 * Get index of the instance by retrieving the key for the instance present in the passed object
+	 * @param transaction id
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -202,6 +315,24 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//}
 	}
 
+	/**
+	 * Get index of the instance by retrieving the key for the instance present in the passed object
+	 * @param alias the database alias
+	 * @param transactionId
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	@Override
+	public DBKey getByInstanceAlias(String alias, String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		//synchronized(mutex) {
+			return (DBKey) RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
+		//}
+	}
+	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());

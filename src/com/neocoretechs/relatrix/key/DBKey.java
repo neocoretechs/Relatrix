@@ -71,7 +71,7 @@ public final class DBKey implements Comparable, Serializable {
 	 */
 	public static DBKey newKey(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
 		DBKey index = indexTable.getNewDBKey(alias);
-		indexTable.put(index, (Comparable) instance); // the passed key is updated
+		indexTable.putAlias(alias, index, (Comparable) instance); // the passed key is updated
 		return index;
 	}
 	

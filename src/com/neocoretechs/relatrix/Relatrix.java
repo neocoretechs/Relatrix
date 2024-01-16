@@ -229,13 +229,13 @@ public final class Relatrix {
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted.
 		((DomainMapRange)dmr).setUniqueKey(true);
-		if(RelatrixKV.contains(dmr)) {
+		if(RelatrixKV.contains(alias,dmr)) {
 			throw new DuplicateKeyException("dmr:"+dmr);
 		}
 		((DomainMapRange)dmr).setUniqueKey(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		dmr = new DomainMapRange(d,m,r);
+		dmr = new DomainMapRange(alias,d,m,r);
 		Morphism identity = dmr;
 		DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
 		indexClasses[1] = drm.getClass();
@@ -330,12 +330,12 @@ public final class Relatrix {
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		removeRecursive(alias, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(alias, c);
+			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, c);
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
 			if(dbKey != null) {
 				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
+				IndexResolver.getIndexInstanceTable().delete(dbKey);
 			} else {
 				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
 				RelatrixKV.remove(alias, c);
@@ -588,32 +588,32 @@ public final class Relatrix {
 				return;
 			}
 			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
-			o = RelatrixKV.get(drm);
+			IndexResolver.getIndexInstanceTable().delete(dbKey); // dbKey defines db, not alias, in fact, might  be in different db than alias
+			o = RelatrixKV.get(alias, drm);
 			if(o == null)
 				throw new IOException(drm+" not found for delete");
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
 			o = RelatrixKV.get(alias, mdr);
 			if(o == null)
 				throw new IOException(mdr+" not found for delete");
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
 			o = RelatrixKV.get(alias, mrd);
 			if(o == null)
 				throw new IOException(mrd+" not found for delete");
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
 			o = RelatrixKV.get(alias, rdm);
 			if(o == null)
 				throw new IOException(rdm+" not found for delete");
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
 			o = RelatrixKV.get(alias, rmd);
 			if(o == null)
 				throw new IOException(rmd+" not found for delete");
 			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(alias, dbKey);
+			IndexResolver.getIndexInstanceTable().delete(dbKey);
 		} catch (ClassNotFoundException | DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -1376,15 +1376,11 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized Object getByIndex(Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
+	public static synchronized Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable().getByIndex((DBKey) key);
+		return IndexResolver.getIndexInstanceTable().getByIndex(key);
 	}
 
-	public static synchronized Object getByIndex(String alias, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
-	{
-		return IndexResolver.getIndexInstanceTable().getByIndex(alias, (DBKey) key);
-	}
 	/**
 	 * Return the keyset for the given class
 	 * @param clazz the class to retrieve
