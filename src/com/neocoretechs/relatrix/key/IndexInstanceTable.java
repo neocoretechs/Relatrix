@@ -27,8 +27,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 
 	
 	/**
-	 * Put the key to the proper tables
-	 * @param index
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes.
+	 * @param index the DBKey index
+	 * @param instance the object instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -55,9 +59,14 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	/**
-	 * Put the key to the proper tables
+	 * Put the key to the proper tables using the database alias.
+	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes.
 	 * @param alias the database alias
-	 * @param index
+	 * @param index the DBKey index
+	 * @param instance the object instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -84,8 +93,14 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		}
 	}
 	/**
-	 * Put the key to the proper tables
-	 * @param index
+	 * Put the key to the proper tables in the scope of this transaction.
+	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed intheir rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes.
+	 * @param transactionId the transaction identifier
+	 * @param index the DBKey index
+	 * @param instance the object instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -112,9 +127,15 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	/**
-	 * Put the key to the proper tables
+	 * Put the key to the proper tables in the scope of this transaction using the database alias.
+	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes.
 	 * @param alias the database alias
-	 * @param index
+	 * @param transactionId
+	 * @param index the DBKey index
+	 * @param instance the object instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -283,7 +304,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 
 	/**
-	 * Get the index of the instance by retrieving the key for the instance present in the passed object
+	 * Get the index of the instance by retrieving the key for the instance present in the passed object in the database alias indicated.
 	 * @param alias the database alias
 	 * @param instance the DbKey containing the instance
 	 * @return The index contained in the retrieved Instance

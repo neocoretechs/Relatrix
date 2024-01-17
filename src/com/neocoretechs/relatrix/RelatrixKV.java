@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class RelatrixKV {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
@@ -92,13 +92,10 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void store(Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 		BufferedMap ttm = DatabaseManager.getMap(key);
 		if( DEBUG  )
-			System.out.println("RelatrixKV.transactionalStore storing dmr:"+key+"/"+value);
+			System.out.println("RelatrixKV.store storing key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
-		if( DEBUG )
-			System.out.println("RelatrixKV.store Tree Search Result: ");
 	}
 
 	/**
@@ -113,10 +110,8 @@ public final class RelatrixKV {
 		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 		BufferedMap ttm = DatabaseManager.getMap(alias, key);
 		if( DEBUG  )
-			System.out.println("RelatrixKV.transactionalStore storing dmr:"+key+"/"+value);
+			System.out.println("RelatrixKV.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
-		if( DEBUG )
-			System.out.println("RelatrixKV.store Tree Search Result: ");
 	}
 
 	/**

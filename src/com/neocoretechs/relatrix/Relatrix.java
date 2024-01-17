@@ -53,7 +53,7 @@ import com.neocoretechs.rocksack.session.DatabaseManager;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class Relatrix {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = true;
 	private static boolean TRACE = true;
 	
@@ -187,23 +187,23 @@ public final class Relatrix {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing drm:"+drm);
+			System.out.println("Relatrix.store storing drm:"+drm);
 		RelatrixKV.store(drm, dbKey);
 	
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
+			System.out.println("Relatrix.store storing mdr:"+mdr);
 		RelatrixKV.store(mdr, dbKey);
 	
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
+			System.out.println("Relatrix.store storing mrd:"+mrd);
 		RelatrixKV.store(mrd, dbKey);
 
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
+			System.out.println("Relatrix.store storing rdm:"+rdm);
 		RelatrixKV.store(rdm, dbKey);
 	
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
+			System.out.println("Relatrix.store storing rmd:"+rmd);
 		RelatrixKV.store(rmd, dbKey);
 	
 		return (DomainMapRange) identity;
@@ -256,23 +256,23 @@ public final class Relatrix {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing drm:"+drm);
+			System.out.println("Relatrix.store storing drm:"+drm);
 		RelatrixKV.store(alias, drm, dbKey);
 	
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing mdr:"+mdr);
+			System.out.println("Relatrix.store storing mdr:"+mdr);
 		RelatrixKV.store(alias, mdr, dbKey);
 	
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing mrd:"+mrd);
+			System.out.println("Relatrix.store storing mrd:"+mrd);
 		RelatrixKV.store(alias, mrd, dbKey);
 
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing rdm:"+rdm);
+			System.out.println("Relatrix.store storing rdm:"+rdm);
 		RelatrixKV.store(alias, rdm, dbKey);
 	
 		if( DEBUG  )
-			System.out.println("Relatrix.transactionalStore storing rmd:"+rmd);
+			System.out.println("Relatrix.store storing rmd:"+rmd);
 		RelatrixKV.store(alias, rmd, dbKey);
 	
 		return (DomainMapRange) identity;
@@ -1454,13 +1454,21 @@ public final class Relatrix {
 	}
 	
 	static void readDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException {
+		if(DEBUG)
+			System.out.println("Relatrix.readDatabaseCatalog");
 		Iterator<?> it = RelatrixKV.entrySet(databaseCatalogProperty, UUID.class);
 		while(it.hasNext()) {
 			Entry e = (Entry) it.next();
 			indexToPath.put((UUID)e.getKey(), (String)e.getValue());
 			pathToIndex.put((String)e.getValue(), (UUID)e.getKey());
+			if(DEBUG)
+				System.out.println("Relatrix.readDatabaseCatalog indexToPath:"+e.getKey()+" pathToIndex:"+e.getValue());
 		}
-		RelatrixKV.close(databaseCatalogProperty, UUID.class);
+		if(DEBUG)
+			System.out.println("Closing "+databaseCatalogProperty+" UUID.class");
+		//RelatrixKV.close(databaseCatalogProperty, UUID.class);
+		if(DEBUG)
+			System.out.println("Closed "+databaseCatalogProperty+" UUID.class");
 	}
 
 	static void writeDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
@@ -1479,7 +1487,7 @@ public final class Relatrix {
 	 */
 	public static UUID getByPath(String path, boolean create) {
 		if(DEBUG)
-			System.out.println("IndexManager.get attempt for path:"+path);
+			System.out.println("Relatrix.getByPath attempt for path:"+path+" create:"+create);
 		UUID v = pathToIndex.get(path);
 		// If we did not find it and another process created it, read catalog
 		if(v == null) {
@@ -1491,14 +1499,14 @@ public final class Relatrix {
 			}
 		}
 		if(v == null && create) {
-			if(DEBUG)
-				System.out.println("IndexManager.get creating new index for path:"+path);
 			v = UUID.randomUUID();
+			if(DEBUG)
+				System.out.println("Relatrix.getByPath creating new index for path:"+path+" with UUID:"+v);
 			pathToIndex.put(path, v);
 			indexToPath.put(v, path);
 			try {
 				RelatrixKV.store(databaseCatalogProperty, v, path);
-				RelatrixKV.close(databaseCatalogProperty, UUID.class);
+				//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 			} catch (IllegalAccessException | NoSuchElementException | IOException | DuplicateKeyException e) {
 				e.printStackTrace();
 			}
@@ -1558,7 +1566,7 @@ public final class Relatrix {
 			pathToIndex.remove(ret);
 		try {
 			RelatrixKV.remove(index);
-			RelatrixKV.close(databaseCatalogProperty, UUID.class);
+			//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}
@@ -1577,7 +1585,7 @@ public final class Relatrix {
 			indexToPath.remove(ret);
 		try {
 			RelatrixKV.remove(ret);
-			RelatrixKV.close(databaseCatalogProperty, UUID.class);
+			//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}

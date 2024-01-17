@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.Relatrix;
  *
  */
 public class BatteryRelatrix {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
@@ -37,15 +37,35 @@ public class BatteryRelatrix {
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
+		if(DEBUG)
+			System.out.println("Begin test battery 1");
 		battery1(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 11");
 		battery11(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR6");
 		battery1AR6(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR7");
 		battery1AR7(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR8");
 		battery1AR8(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR9");
 		battery1AR9(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR10");
 		battery1AR10(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR101");
 		battery1AR101(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR11");
 		battery1AR11(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR12");
 		battery1AR12(argv);
 	
 		 System.out.println("TEST BATTERY COMPLETE.");
