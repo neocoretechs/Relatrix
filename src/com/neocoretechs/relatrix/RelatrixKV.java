@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class RelatrixKV {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	

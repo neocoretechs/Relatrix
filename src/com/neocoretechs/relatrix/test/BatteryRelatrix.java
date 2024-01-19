@@ -3,10 +3,10 @@ package com.neocoretechs.relatrix.test;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Yes, this should be a nice JUnit fixture someday
@@ -37,6 +37,7 @@ public class BatteryRelatrix {
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
+		battery1AR17(argv);
 		if(DEBUG)
 			System.out.println("Begin test battery 1");
 		battery1(argv);
@@ -356,6 +357,39 @@ public class BatteryRelatrix {
 		} catch(RuntimeException re) {} // if types differ in domain from fkey
 	
 		 System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	
+	/**
+	 * remove entries
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR17(String[] argv) throws Exception {
+		long tims = System.currentTimeMillis();
+		System.out.println("CleanDB");
+		long s = Relatrix.size();
+		Iterator it = Relatrix.findSet("*","*","*");
+		long timx = System.currentTimeMillis();
+		for(int i = 0; i < s; i++) {
+			Object fkey = it.next();
+			Relatrix.remove((Comparable) fkey);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println(i+" "+fkey);
+				timx = System.currentTimeMillis();
+			}
+		}
+		long siz = Relatrix.size();
+		if(siz > 0) {
+			Iterator<?> its = Relatrix.findSet("*","*","*");
+			while(its.hasNext()) {
+				Comparable nex = (Comparable) its.next();
+				//System.out.println(i+"="+nex);
+				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
+			}
+			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
+			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
+		}
+		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 }

@@ -24,10 +24,10 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 
 /**
-* Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
+* Top-level class that imparts behavior to the {@link Morphism} subclasses which contain references for domain, map, range.<p/>
 * The lynch pin is the Morphism and its subclasses indexed
-* in the 6 permutations of the domain,map,and range so we can retrieve instances in all
-* the potential sort orders.<b/>
+* by the 6 permutations of the domain,map,and range so we can retrieve instances in all
+* the potential sort orders.
 * The compareTo and fullCompareTo of Morphism provide the comparison methods to drive the processes.
 * For retrieval, a partial template is constructed of the proper Morphism subclass which puts the three elements
 * in the proper sort order. To retrieve the proper Morphism subclass, partially construct a morphism template to
@@ -53,7 +53,7 @@ import com.neocoretechs.rocksack.session.DatabaseManager;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class Relatrix {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = true;
 	private static boolean TRACE = true;
 	
@@ -1248,8 +1248,7 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the number of DomainMapRange
-	 * instances.
+	 * This method returns the number of relationships, Which are occurrences {@link DomainMapRange} instances.
 	 * @return the number of DomainMapRange morphisms.
 	 * @throws IOException
 	 */
