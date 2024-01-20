@@ -277,7 +277,7 @@ public class BatteryDBKey {
 			Object fkey = it.next();
 			RelatrixKV.remove((Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("String "+i+" "+fkey);
+				System.out.println("Integer "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
