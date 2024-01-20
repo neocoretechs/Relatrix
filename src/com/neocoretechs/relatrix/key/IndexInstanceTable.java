@@ -288,8 +288,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	/**
-	 * Get the index of the instance by retrieving the key for the instance present in the passed object
-	 * @param instance the DbKey containing the instance
+	 * Get the index of the instance by retrieving the key for the instance present in the passed object.
+	 * Merely does a RelatrixKV.get on instance, whose payload is presumed to be a {@link DBKey}.
+	 * Cast will fail if not a DBKey.
+	 * @param instance the DBKey containing the instance
 	 * @return The index contained in the retrieved Instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
