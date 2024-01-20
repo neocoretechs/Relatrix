@@ -7,6 +7,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
 
 /**
  * Yes, this should be a nice JUnit fixture someday
@@ -373,7 +374,7 @@ public class BatteryRelatrix {
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
 			Relatrix.remove((Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
+			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println(i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
@@ -388,6 +389,11 @@ public class BatteryRelatrix {
 			}
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
+		}
+		it = RelatrixKV.entrySet(DBKey.class);
+		while(it.hasNext()) {
+			Comparable nex = (Comparable) it.next();
+			System.out.println("DBKey:"+nex);
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

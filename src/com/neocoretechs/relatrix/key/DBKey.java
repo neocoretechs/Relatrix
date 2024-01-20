@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	UUID instanceIndex = null;
 	UUID databaseIndex = null;
 	
@@ -25,6 +25,8 @@ public final class DBKey implements Comparable, Serializable {
 	DBKey(UUID databaseIndex, UUID instanceIndex) {
 		this.databaseIndex = databaseIndex;
 		this.instanceIndex = instanceIndex;
+		if(DEBUG)
+			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
 	}
 	
 	protected UUID getInstanceIndex() {
@@ -78,6 +80,7 @@ public final class DBKey implements Comparable, Serializable {
 	@Override
 	public boolean equals(Object o) {
 		boolean b = false;
+		/*
 		synchronized(instanceIndex) {
 			if(databaseIndex != null && ((DBKey)o).databaseIndex != null)
 				b = databaseIndex.equals(((DBKey)o).databaseIndex);
@@ -89,22 +92,30 @@ public final class DBKey implements Comparable, Serializable {
 				return b && true;
 			return false;
 		}
+		*/
+		b = databaseIndex.equals(((DBKey)o).databaseIndex);
+		if(!b)
+			return b;
+		return instanceIndex.equals(((DBKey)o).instanceIndex);
+		
 	}
 	
 	@Override
 	public int hashCode() {
-		synchronized(instanceIndex) {
+		/*synchronized(instanceIndex) {
 			if(instanceIndex == null || databaseIndex == null)
-				return 0;
+				return 31;
 		    final int prime = 31;
 		    int result = 1;
 		    result = prime * result + databaseIndex.hashCode();
 			return prime * result + instanceIndex.hashCode();
-		}
+		}*/
+		return databaseIndex.hashCode()+instanceIndex.hashCode();
 	}
 	
 	@Override
 	public int compareTo(Object o) {
+		/*
 		synchronized(instanceIndex) {
 			int n = 0;
 			if(databaseIndex != null && ((DBKey)o).databaseIndex != null) {
@@ -132,13 +143,18 @@ public final class DBKey implements Comparable, Serializable {
 			}
 			throw new RuntimeException("DBKEY INSTANCE INDEX SOURCE INSTANCE NULL IN COMPARETO");
 		}
+		*/
+		int n = databaseIndex.compareTo(((DBKey)o).databaseIndex);
+		if(n != 0)
+			return n;
+		return instanceIndex.compareTo(((DBKey)o).instanceIndex);
 	}
 
 	@Override
 	public String toString() {
-		synchronized(instanceIndex) {
+		//synchronized(instanceIndex) {
 			return String.format("%s: key:%s %s%n", this.getClass().getName(), databaseIndex != null ? databaseIndex.toString() : "NULL" ,instanceIndex != null ? instanceIndex.toString() : "NULL");
-		}
+		//}
 	}
 
 }

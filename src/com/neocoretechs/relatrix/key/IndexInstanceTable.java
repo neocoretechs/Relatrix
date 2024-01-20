@@ -22,9 +22,8 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private Object mutex = new Object();
-
 	
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
