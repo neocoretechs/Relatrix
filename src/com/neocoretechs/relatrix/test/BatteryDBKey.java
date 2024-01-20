@@ -31,6 +31,8 @@ public class BatteryDBKey {
 		}
 		RelatrixKV.setTablespace(argv[0]);
 		battery1(argv);
+		battery1AR4(argv);
+		battery1AR5(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
 		battery1AR9(argv);
@@ -70,7 +72,30 @@ public class BatteryDBKey {
 		}
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	
+	/**
+	 * check order of DBKey
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR4(String[] argv) throws Exception {
+		long tims = System.currentTimeMillis();
+		DBKey prev = null;
+		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) RelatrixKV.firstKey(DBKey.class));
+		System.out.println("KV Battery1AR4");
+		prev = (DBKey) RelatrixKV.firstKey(DBKey.class);
+		its.next(); // skip first key we just got
+		while(its.hasNext()) {
+			Comparable nex = (Comparable) its.next();
+			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
+			if(nexe.getKey().compareTo(prev) != 1) { // should always be >
+			// Map.Entry
+				System.out.println("KV RANGE KEY MISMATCH: "+nex);
+				throw new Exception("KV RANGE KEY MISMATCH: "+nex);
+			}
+			prev = nexe.getKey();
+		}
+		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
 	/**
 	 * Testing of Iterator<?> its = RelatrixKV.keySet;
 	 * @param argv
@@ -214,7 +239,7 @@ public class BatteryDBKey {
 		System.out.println("KV Battery1AR12");
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
-			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex;
+			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
 			if(nexe.getValue() != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
@@ -238,8 +263,8 @@ public class BatteryDBKey {
 		System.out.println("KV Battery1AR14");
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
-			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex;
-			if(Integer.parseInt(nexe.getKey()) != i) {
+			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
+			if(nexe.getValue() != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
