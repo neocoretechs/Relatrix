@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.Relatrix;
  * @author jg
  *
  */
-public class ApacheLogFOODBMS {
+public class ApacheLog {
 	private static final String dateForm = "dd/MMM/yyyy:HH:mm:ss Z";
 	boolean DEBUG = false;
 
@@ -202,7 +202,7 @@ public class ApacheLogFOODBMS {
 		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
 		lin += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
 		DatabaseManager.setTableSpaceDir("C:/users/jg/Relatrix/logs");
-		ApacheLogFOODBMS alfoo = new ApacheLogFOODBMS();
+		ApacheLog alfoo = new ApacheLog();
 		//alfoo.readAndProcess(lin);
 		alfoo.getFiles(args[0]);
 

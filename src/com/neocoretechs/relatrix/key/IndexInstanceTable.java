@@ -12,6 +12,10 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.session.BufferedMap;
+import com.neocoretechs.rocksack.session.DatabaseManager;
+import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
@@ -259,8 +263,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 
 	/**
 	 * Get the instance contained in the passed DBKey
-	 * @param index
-	 * @return
+	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
+	 * @return the instance object indexed by this DBKey which is used to determine database and hence proper catalog path, then unique instance UUID
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -268,13 +272,22 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-			return RelatrixKV.get(index);
+		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
+		if(sdb == null) {
+			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
+		}
+		BufferedMap bm = DatabaseManager.getMapByPath(sdb, DBKey.class);
+		Object o =  bm.get(index);
+		if(o == null)
+			return null;
+		return ((KeyValue)o).getmValue();
 		//}
 	}
 	
 	/**
-	 * Get the instance  contained in the passed DBKey
-	 * @param index
+	 * Get the instance contained in the passed DBKey using a transactional context. 
+	 * @param transactionId the trasnaction
+	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws IOException
@@ -283,7 +296,15 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-			return RelatrixKVTransaction.get(transactionId, index);
+		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
+		if(sdb == null) {
+			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
+		}
+		TransactionalMap tm = DatabaseManager.getTransactionalMapByPath(sdb, DBKey.class, transactionId);
+		Object o =  tm.get(index);
+		if(o == null)
+			return null;
+		return ((KeyValue)o).getmValue();
 		//}
 	}
 	

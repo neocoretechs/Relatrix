@@ -1476,7 +1476,7 @@ public final class Relatrix {
 			Map.Entry<UUID, String> entry = it.next();
 			RelatrixKV.store(databaseCatalogProperty, entry.getKey(), entry.getValue());
 		}
-		RelatrixKV.close(databaseCatalogProperty, UUID.class);
+		//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 	}
 	/**
 	 * Get the UUID for the given tablespace path. If the index does not exist, it will be created based on param
@@ -1591,6 +1591,8 @@ public final class Relatrix {
 		return ret;
 	}
 
-
+	public static void main(String[] args) throws Exception {
+		indexToPath.entrySet().forEach(System.out::println);
+	}
 
 }
