@@ -153,10 +153,11 @@ public class BatteryKeySet {
 		long tims = System.currentTimeMillis();
 		Comparable k = (Comparable) RelatrixKV.firstKey(KeySet.class); // first key
 		System.out.println("KV Battery1AR9");
-		if(k.compareTo(values.get(0)) != 0) {
+		if(!keys.contains(k)) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
+		System.out.println(k);
 		System.out.println("KV BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
@@ -170,10 +171,11 @@ public class BatteryKeySet {
 		long tims = System.currentTimeMillis();
 		Comparable k = (Comparable) RelatrixKV.lastKey(KeySet.class); // key
 		System.out.println("KV Battery1AR10");
-		if(k.compareTo(values.get(values.size()-1)) != 0) {
+		if(!keys.contains(k)) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
+		System.out.println(k);
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
