@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -170,7 +171,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setDomainKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -207,7 +208,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setDomainKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -273,7 +274,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setMapKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -294,7 +295,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setMapKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -355,7 +356,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setRangeKey(dbKey);						
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -376,7 +377,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setRangeKey(dbKey);						
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}

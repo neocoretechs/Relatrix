@@ -99,7 +99,7 @@ public abstract class MorphismTransaction extends Morphism {
 							keys.setDomainKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -133,7 +133,7 @@ public abstract class MorphismTransaction extends Morphism {
 							keys.setMapKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -172,7 +172,7 @@ public abstract class MorphismTransaction extends Morphism {
 							keys.setRangeKey(dbKey);						
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
 				throw new RuntimeException(e);
 			}
 		}

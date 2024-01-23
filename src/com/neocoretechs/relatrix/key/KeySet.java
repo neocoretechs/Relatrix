@@ -11,7 +11,14 @@ public class KeySet implements Serializable, Comparable {
 	private DBKey domainKey = new DBKey();
     private DBKey mapKey = new DBKey();
     private DBKey rangeKey = new DBKey();
+    private transient boolean primaryKeyCheck = false;
+    
     public KeySet() {}
+    
+    public void setPrimaryKeyCheck(boolean check) {
+    	primaryKeyCheck = check;
+    }
+    
 	public DBKey getDomainKey() {
 		return domainKey;
 	}
@@ -32,6 +39,9 @@ public class KeySet implements Serializable, Comparable {
 	}
 	@Override
 	public boolean equals(Object o) {
+		if(primaryKeyCheck)
+			return domainKey.equals(((KeySet)o).domainKey) &&
+					mapKey.equals(((KeySet)o).mapKey);
 		return domainKey.equals(((KeySet)o).domainKey) &&
 				mapKey.equals(((KeySet)o).mapKey) &&
 				rangeKey.equals(((KeySet)o).rangeKey);
@@ -42,7 +52,8 @@ public class KeySet implements Serializable, Comparable {
 	    int result = 1;
 	    result = prime * result + domainKey.hashCode();
 	    result = prime * result + (int) (mapKey.hashCode() ^ (mapKey.hashCode() >>> 32));
-	    result = prime * result + rangeKey.hashCode();
+	    if(!primaryKeyCheck)
+	    	result = prime * result + rangeKey.hashCode();
 	    return result;
 	}
 	public boolean isValid() {
@@ -72,6 +83,8 @@ public class KeySet implements Serializable, Comparable {
 		if(i != 0)
 			return i;
 		i = mapKey.compareTo(((KeySet)o).mapKey);
+		if(primaryKeyCheck)
+			return i;
 		if(i != 0)
 			return i;
 		return rangeKey.compareTo(((KeySet)o).rangeKey);

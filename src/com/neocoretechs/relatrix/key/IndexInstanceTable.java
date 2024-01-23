@@ -41,23 +41,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put index=%s instance=%s%n", index.getClass().getName(), index, instance);
-			try {
-					RelatrixKV.store(index, instance);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
-			}
-			try {
-					RelatrixKV.store(instance, index);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
-			}
-
+			RelatrixKV.store(index, instance);
+			RelatrixKV.store(instance, index);
 		}
 	}
 	
@@ -76,23 +65,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws NoSuchElementException
 	 */
 	@Override
-	public void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException, NoSuchElementException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s index=%s instance=%s%n", index.getClass().getName(), alias, index, instance);
-			try {
-					RelatrixKV.store(alias, index, instance);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
-			}
-			try {
-					RelatrixKV.store(alias, instance, index);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
-			}
-
+			RelatrixKV.store(alias, index, instance);
+			RelatrixKV.store(alias, instance, index);
 		}
 	}
 	/**
@@ -109,23 +87,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put Xid:%s index=%s instance=%s%n", index.getClass().getName(), transactionId, index, instance);
-			try {
-					RelatrixKVTransaction.store(transactionId, index, instance);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
-			}
-			try {
-					RelatrixKVTransaction.store(transactionId, instance, index);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
-			}
-
+			RelatrixKVTransaction.store(transactionId, index, instance);
+			RelatrixKVTransaction.store(transactionId, instance, index);
 		}
 	}
 	
@@ -145,23 +112,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws NoSuchElementException
 	 */
 	@Override
-	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException, NoSuchElementException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias Alias:%s Xid:%s index=%s instance=%s%n", index.getClass().getName(), alias, transactionId, index, instance);
-			try {
-					RelatrixKVTransaction.store(alias, transactionId, index, instance);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Index class=%s Instance class=%s%n",index,instance,index.getClass().getName(),instance.getClass().getName()));
-			}
-			try {
-					RelatrixKVTransaction.store(alias, transactionId, instance, index);
-			} catch(DuplicateKeyException dke) {
-				dke.printStackTrace();
-				throw new IOException(String.format("Instance to DBKey duplicate instance:%s encountered for key:%s Instance class=%s Index class=%s%n",instance,index,instance.getClass().getName(),index.getClass().getName()));	
-			}
-
+			RelatrixKVTransaction.store(alias, transactionId, index, instance);
+			RelatrixKVTransaction.store(alias, transactionId, instance, index);
 		}
 	}
 	

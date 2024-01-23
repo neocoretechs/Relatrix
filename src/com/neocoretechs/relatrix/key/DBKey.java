@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import com.neocoretechs.relatrix.DuplicateKeyException;
+
 /**
  * Class fronts the actual instances in the Relatrix relations so as to normalize those actual instances.<p/>
  * Since our relations are composed of multiple indexes of otherwise redundant data, we need to have a means of
@@ -53,8 +55,9 @@ public final class DBKey implements Comparable, Serializable {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
+	 * @throws DuplicateKeyException 
 	 */
-	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
 		DBKey index = indexTable.getNewDBKey();
 		indexTable.put(index, (Comparable) instance); // the passed key is updated
 		return index;
@@ -70,8 +73,9 @@ public final class DBKey implements Comparable, Serializable {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
+	 * @throws DuplicateKeyException 
 	 */
-	public static DBKey newKey(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+	public static DBKey newKey(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException, DuplicateKeyException {
 		DBKey index = indexTable.getNewDBKey(alias);
 		indexTable.putAlias(alias, index, (Comparable) instance); // the passed key is updated
 		return index;

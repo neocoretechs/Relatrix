@@ -25,8 +25,9 @@ public interface IndexInstanceTableInterface {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyException 
 	 */
-	void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException;
 
 	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
@@ -58,8 +59,9 @@ public interface IndexInstanceTableInterface {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyException 
 	 */
-	void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException;
 
 	void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
@@ -100,9 +102,10 @@ public interface IndexInstanceTableInterface {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyException 
 	 */
 	void putAlias(String alias, DBKey index, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException, DuplicateKeyException;
 
 	/**
 	 * Put the key to the proper tables
@@ -110,9 +113,10 @@ public interface IndexInstanceTableInterface {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyException 
 	 */
 	void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException, DuplicateKeyException;
 
 	void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
 
