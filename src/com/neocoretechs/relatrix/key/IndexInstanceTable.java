@@ -2,16 +2,13 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.RelatrixTransaction;
+
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -33,20 +30,32 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
-	 * presumably fully formed DBKey indexes.
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param index the DBKey index
 	 * @param instance the object instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyExcpetion keys are different with existing instance, we are trying to change key
 	 */
 	@Override
 	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put index=%s instance=%s%n", index.getClass().getName(), index, instance);
-			RelatrixKV.store(index, instance);
-			RelatrixKV.store(instance, index);
+			DBKey retKey = getByInstance(instance);
+			// did the instance exist?
+			if(retKey == null) {
+				// no new instance exists. store both new entries, if instance doesnt exist but key does, new instance overwrites
+				RelatrixKV.store(index, instance);
+				RelatrixKV.store(instance, index);
+			} else {
+				// we had an existing instance, are keys different?
+				if(!retKey.equals(index))
+					// keys are different with existing instance, we are trying to change key, throw duplicate key exception
+					throw new DuplicateKeyException("Duplicate instance with different key attempted, integrity constraint violated:"+index+" "+instance+" replacing "+retKey);
+			}
+			// do nothing if they were the same
 		}
 	}
 	
@@ -55,7 +64,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
-	 * presumably fully formed DBKey indexes.
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param alias the database alias
 	 * @param index the DBKey index
 	 * @param instance the object instance
@@ -63,14 +72,26 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchElementException
+	 * @throws DuplicateKeyExcpetion keys are different with existing instance, we are trying to change key
 	 */
 	@Override
 	public void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException, NoSuchElementException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s index=%s instance=%s%n", index.getClass().getName(), alias, index, instance);
-			RelatrixKV.store(alias, index, instance);
-			RelatrixKV.store(alias, instance, index);
+			DBKey retKey = getByInstance(alias, instance);
+			// did the instance exist?
+			if(retKey == null) {
+				// no new instance exists. store both new entries, if instance doesnt exist but key does, new instance overwrites
+				RelatrixKV.store(alias, index, instance);
+				RelatrixKV.store(alias, instance, index);
+			} else {
+				// we had an existing instance, are keys different?
+				if(!retKey.equals(index))
+					// keys are different with existing instance, we are trying to change key, throw duplicate key exception
+					throw new DuplicateKeyException("Duplicate instance with different key attempted, integrity constraint violated:"+index+" "+instance+" replacing "+retKey);
+			}
+			// do nothing if they were the same
 		}
 	}
 	/**
@@ -78,21 +99,34 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
 	 * the proper instances are placed intheir rightful databases at that time. Here we are just storing the
-	 * presumably fully formed DBKey indexes.
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param transactionId the transaction identifier
 	 * @param index the DBKey index
 	 * @param instance the object instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyExcpetion keys are different with existing instance, we are trying to change key
 	 */
 	@Override
 	public void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put Xid:%s index=%s instance=%s%n", index.getClass().getName(), transactionId, index, instance);
-			RelatrixKVTransaction.store(transactionId, index, instance);
-			RelatrixKVTransaction.store(transactionId, instance, index);
+			DBKey retKey = getByInstance(transactionId, instance);
+			// did the instance exist?
+			if(retKey == null) {
+				// no new instance exists. store both new entries, if instance doesnt exist but key does, new instance overwrites
+				RelatrixKVTransaction.store(transactionId, index, instance);
+				RelatrixKVTransaction.store(transactionId, instance, index);
+			} else {
+				// we had an existing instance, are keys different?
+				if(!retKey.equals(index))
+					// keys are different with existing instance, we are trying to change key, throw duplicate key exception
+					throw new DuplicateKeyException("Duplicate instance with different key attempted, integrity constraint violated:"+index+" "+instance+" replacing "+retKey);
+			}
+			// do nothing if they were the same
+	
 		}
 	}
 	
@@ -101,7 +135,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
-	 * presumably fully formed DBKey indexes.
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param alias the database alias
 	 * @param transactionId
 	 * @param index the DBKey index
@@ -110,14 +144,26 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchElementException
+	 * @throws DuplicateKeyExcpetion keys are different with existing instance, we are trying to change key
 	 */
 	@Override
 	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException, NoSuchElementException {
 		synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias Alias:%s Xid:%s index=%s instance=%s%n", index.getClass().getName(), alias, transactionId, index, instance);
-			RelatrixKVTransaction.store(alias, transactionId, index, instance);
-			RelatrixKVTransaction.store(alias, transactionId, instance, index);
+			DBKey retKey = getByInstanceAlias(transactionId, instance);
+			// did the instance exist?
+			if(retKey == null) {
+				RelatrixKVTransaction.store(alias, transactionId, index, instance);
+				RelatrixKVTransaction.store(alias, transactionId, instance, index);
+				// no new instance exists. store both new entries, if instance doesnt exist but key does, new instance overwrites
+			} else {
+				// we had an existing instance, are keys different?
+				if(!retKey.equals(index))
+					// keys are different with existing instance, we are trying to change key, throw duplicate key exception
+					throw new DuplicateKeyException("Duplicate instance with different key attempted, integrity constraint violated:"+index+" "+instance+" replacing "+retKey);
+			}
+			// do nothing if they were the same
 		}
 	}
 	
@@ -139,7 +185,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		synchronized(mutex) {
 			Comparable instance = null;
 			// index is valid
-			instance = (Comparable) getByIndex(index);
+			instance = (Comparable) getByIndex(transactionId, index);
 			if(instance != null) {
 				RelatrixKVTransaction.remove(transactionId, instance);
 			}
