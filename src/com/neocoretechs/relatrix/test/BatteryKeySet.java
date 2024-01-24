@@ -216,7 +216,7 @@ public class BatteryKeySet {
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = indexTable.getByInstance(nexe.getValue()); // get the DBKey for this instance integer
+				DBKey db = indexTable.getByInstance(nexe.getKey()); // get the DBKey for this instance integer
 				KeySet keyset = (KeySet) indexTable.getByIndex(nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
@@ -244,7 +244,7 @@ public class BatteryKeySet {
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet,DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = indexTable.getByInstance(nexe.getValue()); // get the DBKey for this instance 
+				DBKey db = indexTable.getByInstance(nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
