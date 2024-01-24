@@ -80,13 +80,13 @@ public class BatteryKeySet {
 			skeyr = String.format(uniqKeyFmt, i+2);
 			try {
 				dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
-			} catch(DuplicateKeyException dke) { }
+			} catch(DuplicateKeyException dke) { continue;}
 			try {
 				dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
-			} catch(DuplicateKeyException dke) { }
+			} catch(DuplicateKeyException dke) { continue;}
 			try {
 				dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
-			} catch(DuplicateKeyException dke) { }
+			} catch(DuplicateKeyException dke) { continue;}
 				fkey.setDomainKey(dbkeyd);
 				fkey.setMapKey(dbkeym);
 				fkey.setRangeKey(dbkeyr);
