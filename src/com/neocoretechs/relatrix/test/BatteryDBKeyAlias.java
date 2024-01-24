@@ -95,7 +95,7 @@ public class BatteryDBKeyAlias {
 		}
 		for(int i = min; i < max; i++) {
 			//try {
-				fkey = DBKey.newKey(alias, indexTable, i); // puts to index and instance
+				fkey = DBKey.newKeyAlias(alias, indexTable, i); // puts to index and instance
 				//RelatrixKV.store(fkey, new Long(i));
 				++recs;
 			//} catch(DuplicateKeyException dke) { ++dupes; }

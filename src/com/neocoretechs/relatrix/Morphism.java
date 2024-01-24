@@ -171,7 +171,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setDomainKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -203,12 +203,12 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					} else {
 						DBKey dbKey = null;
 						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, domain)) == null)
-							keys.setDomainKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(),domain));
+							keys.setDomainKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(),domain));
 						else
 							keys.setDomainKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException | DuplicateKeyException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -274,7 +274,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setMapKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -290,12 +290,12 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					} else {
 						DBKey dbKey = null;
 						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, map)) == null)
-							keys.setMapKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), map));
+							keys.setMapKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), map));
 						else
 							keys.setMapKey(dbKey);
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException | DuplicateKeyException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -356,7 +356,7 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 							keys.setRangeKey(dbKey);						
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -372,12 +372,12 @@ public abstract class Morphism implements Comparable, Serializable, Cloneable {
 					} else {
 						DBKey dbKey = null;
 						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, range)) == null)
-							keys.setRangeKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), range));
+							keys.setRangeKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), range));
 						else
 							keys.setRangeKey(dbKey);						
 					}
 				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException | DuplicateKeyException e) {
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
 				throw new RuntimeException(e);
 			}
 		}

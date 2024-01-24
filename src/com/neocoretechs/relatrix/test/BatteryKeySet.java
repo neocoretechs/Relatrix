@@ -78,28 +78,19 @@ public class BatteryKeySet {
 			skeyd = String.format(uniqKeyFmt, i);
 			skeym = String.format(uniqKeyFmt, i+1);
 			skeyr = String.format(uniqKeyFmt, i+2);
-			try {
-				dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
-			} catch(DuplicateKeyException dke) { continue;}
-			try {
-				dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
-			} catch(DuplicateKeyException dke) { continue;}
-			try {
-				dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
-			} catch(DuplicateKeyException dke) { continue;}
-				fkey.setDomainKey(dbkeyd);
-				fkey.setMapKey(dbkeym);
-				fkey.setRangeKey(dbkeyr);
-				fkey.setPrimaryKeyCheck(true);
-				if(RelatrixKV.get(fkey) != null)
-					throw new DuplicateKeyException(fkey);
-				fkey.setPrimaryKeyCheck(false);
-				try {
-					keys.add(DBKey.newKey(indexTable, fkey));
-					values.add(fkey);
-				} catch(DuplicateKeyException dke) { ++dupes; }
-				++recs;
-	
+			dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
+			dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
+			dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
+			fkey.setDomainKey(dbkeyd);
+			fkey.setMapKey(dbkeym);
+			fkey.setRangeKey(dbkeyr);
+			fkey.setPrimaryKeyCheck(true);
+			if(RelatrixKV.get(fkey) != null)
+				throw new DuplicateKeyException(fkey);
+			fkey.setPrimaryKeyCheck(false);
+			keys.add(DBKey.newKey(indexTable, fkey));
+			values.add(fkey);
+			++recs;
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}

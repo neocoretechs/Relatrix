@@ -21,13 +21,12 @@ public interface IndexInstanceTableInterface {
 
 	/**
 	 * Put the key to the proper tables
-	 * @param index
+	 * @return TODO
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
-	 * @throws DuplicateKeyException 
 	 */
-	void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException;
+	DBKey put(Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
 	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
@@ -55,13 +54,12 @@ public interface IndexInstanceTableInterface {
 
 	/**
 	 * Put the key to the proper tables
-	 * @param index
+	 * @return TODO
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
-	 * @throws DuplicateKeyException 
 	 */
-	void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, DuplicateKeyException;
+	DBKey put(String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
 	void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
@@ -98,25 +96,23 @@ public interface IndexInstanceTableInterface {
 
 	/**
 	 * Put the key to the proper tables
-	 * @param index
+	 * @return TODO
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
-	 * @throws DuplicateKeyException 
 	 */
-	void putAlias(String alias, DBKey index, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException, DuplicateKeyException;
+	DBKey putAlias(String alias, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 
 	/**
 	 * Put the key to the proper tables
-	 * @param index
+	 * @return TODO
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
-	 * @throws DuplicateKeyException 
 	 */
-	void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException, DuplicateKeyException;
+	DBKey putAlias(String alias, String transactionId, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 
 	void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
 

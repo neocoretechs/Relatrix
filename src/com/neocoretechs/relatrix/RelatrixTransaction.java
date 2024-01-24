@@ -293,7 +293,7 @@ public final class RelatrixTransaction {
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		try {
-			dbKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), dmr); // this stores our new relation, DBKey and instance
+			dbKey = DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), dmr); // this stores our new relation, DBKey and instance
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		} // Use primary key DBKey as value for index keys

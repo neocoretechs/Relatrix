@@ -41,50 +41,54 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}	
 	/**
 	 * Put the key to the proper tables
-	 * @param index The DBKey index
 	 * @param instance the Comparable instance payload
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey put(Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 			if(DEBUG)
-				System.out.printf("%s.put index=%s instance=%s%n", index.getClass().getName(), index, instance);
+				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
+			DBKey retKey = getByInstance(instance);
 			if(instance == null) {
-				// instance is null, no instance in DBkey, keys are not valid, nothing to put.
-				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
+				DBKey index = getNewDBKey();
+				try {
+					rc.store(index, instance);
+					rc.store(instance, index);
+					return index;
+				} catch(DuplicateKeyException dke) {
+					throw new IOException(dke);
+				}
 			}
-			try {
-				rc.store(index, instance);
-			} catch(DuplicateKeyException dke) {
-				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
-			}
+			return retKey;
 	}
 	
 	/**
 	 * Put the key to the proper tables
-	 * @param index The DBKey index
 	 * @param instance the Comparable instance payload
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-			if(DEBUG)
-				System.out.printf("%s.put index=%s instance=%s%n", index.getClass().getName(), index, instance);
+	public DBKey put(String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+		if(DEBUG)
+				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
-			if(instance == null) {
-				// instance is null, no instance in DBkey, keys are not valid, nothing to put.
-				throw new IllegalAccessException("DBKey is in an invalid state: no valid instance, no valid index.");
-			}
+		DBKey retKey = getByInstance(transactionId, instance);
+		if(instance == null) {
+			DBKey index = getNewDBKey();
 			try {
 				rcx.storekv(transactionId, index, instance);
+				rcx.storekv(transactionId,  instance, index);
+				return index;
 			} catch(DuplicateKeyException dke) {
-				throw new IOException(String.format("DBKey to Instance table duplicate key:%s encountered for instance:%s. Existing entry=%s/%s%n",index,instance,((KeyValue)RelatrixKV.get(index)).getmKey(),((KeyValue)RelatrixKV.get(index)).getmValue()));
+				throw new IOException(dke);
 			}
+		}
+		return retKey;
 	}
 	
 	@Override
@@ -187,17 +191,17 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void putAlias(String alias, DBKey index, Comparable instance)
+	public DBKey putAlias(String alias, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
+	public DBKey putAlias(String alias, String transactionId, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override

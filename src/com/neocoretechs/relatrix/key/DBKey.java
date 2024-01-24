@@ -55,12 +55,9 @@ public final class DBKey implements Comparable, Serializable {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
-	 * @throws DuplicateKeyException 
 	 */
-	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
-		DBKey index = indexTable.getNewDBKey();
-		indexTable.put(index, (Comparable) instance); // the passed key is updated
-		return index;
+	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return indexTable.put((Comparable) instance); // the passed key is updated
 	}
 	
 	/**
@@ -73,12 +70,41 @@ public final class DBKey implements Comparable, Serializable {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
-	 * @throws DuplicateKeyException 
 	 */
-	public static DBKey newKey(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException, DuplicateKeyException {
-		DBKey index = indexTable.getNewDBKey(alias);
-		indexTable.putAlias(alias, index, (Comparable) instance); // the passed key is updated
-		return index;
+	public static DBKey newKeyAlias(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+		return indexTable.putAlias(alias, (Comparable) instance); // the passed key is updated
+	}
+	
+	/**
+	 * Factory method to construct a new key and enforce the storage of the instance.
+	 * The instance then receives and index into the instance table and the index table.
+	 * @param xid transaction id
+	 * @param indexTable the local or remote interface to facilitate the index creation
+	 * @param instance The actual object instance, may be another DBKey for a relationship.
+	 * @return The new DBKey
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public static DBKey newKey(String xid, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return indexTable.put(xid, (Comparable) instance); // the passed key is updated
+	}
+	
+	/**
+	 * Factory method to construct a new key and enforce the storage of the instance.
+	 * The instance then receives and index into the instance table and the index table.
+	 * @param alias the database alias
+	 * @param xid transaction id
+	 * @param indexTable the local or remote interface to facilitate the index creation
+	 * @param instance The actual object instance, may be another DBKey for a relationship.
+	 * @return The new DBKey
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public static DBKey newKeyAlias(String alias, String xid, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+		return indexTable.putAlias(alias, xid, (Comparable) instance); // the passed key is updated
+
 	}
 	
 	@Override
