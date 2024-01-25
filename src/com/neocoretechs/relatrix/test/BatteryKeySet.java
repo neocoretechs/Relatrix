@@ -71,24 +71,25 @@ public class BatteryKeySet {
 			battery1AR17(argv);		
 		}
 		for(int i = min; i < max; i++) {
-			DBKey dbkeyd = null;
-			DBKey dbkeym = null;
-			DBKey dbkeyr = null;
+			//DBKey dbkeyd = null;
+			//DBKey dbkeym = null;
+			//DBKey dbkeyr = null;
 			fkey = new KeySet();
 			skeyd = String.format(uniqKeyFmt, i);
 			skeym = String.format(uniqKeyFmt, i+1);
 			skeyr = String.format(uniqKeyFmt, i+2);
-			dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
-			dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
-			dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
-			fkey.setDomainKey(dbkeyd);
-			fkey.setMapKey(dbkeym);
-			fkey.setRangeKey(dbkeyr);
-			fkey.setPrimaryKeyCheck(true);
-			if(RelatrixKV.get(fkey) != null)
-				throw new DuplicateKeyException(fkey);
-			fkey.setPrimaryKeyCheck(false);
-			keys.add(DBKey.newKey(indexTable, fkey));
+			//dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
+			//dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
+			//dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
+			//fkey.setDomainKey(dbkeyd);
+			//fkey.setMapKey(dbkeym);
+			//fkey.setRangeKey(dbkeyr);
+			//fkey.setPrimaryKeyCheck(true);
+			//if(RelatrixKV.get(fkey) != null)
+				//throw new DuplicateKeyException(fkey);
+			//fkey.setPrimaryKeyCheck(false);
+			keys.add(fkey.store(skeyd, skeym, skeyr));
+			//keys.add(DBKey.newKey(indexTable, fkey));
 			values.add(fkey);
 			++recs;
 		}
