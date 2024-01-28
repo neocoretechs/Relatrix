@@ -197,25 +197,23 @@ public final class RelatrixTransaction {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted.
-		((DomainMapRangeTransaction)dmr).setUniqueKey(true);
 		if(RelatrixKVTransaction.contains(xid, dmr)) {
 			rollback(xid);
 			throw new DuplicateKeyException("dmr:"+dmr);
 		}
-		((DomainMapRangeTransaction)dmr).setUniqueKey(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		dmr = new DomainMapRangeTransaction(d,m,r);
+		dmr = new DomainMapRangeTransaction(xid,d,m,r);
 		MorphismTransaction identity = dmr;
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(d,m,r,dmr.getKeys());
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(xid,d,m,r);
 		indexClasses[1] = drm.getClass();
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(d,m,r,dmr.getKeys());
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(xid,d,m,r);
 		indexClasses[2] = mdr.getClass();
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(d,m,r,dmr.getKeys());
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(xid,d,m,r);
 		indexClasses[3] = mrd.getClass();
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(d,m,r,dmr.getKeys());
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(xid,d,m,r);
 		indexClasses[4] = rdm.getClass();
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(d,m,r,dmr.getKeys());
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(xid,d,m,r);
 		indexClasses[5] = rmd.getClass();
 		DBKey dbKey = null;
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
@@ -269,25 +267,23 @@ public final class RelatrixTransaction {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted.
-		((DomainMapRangeTransaction)dmr).setUniqueKey(true);
 		if(RelatrixKVTransaction.contains(alias, xid, dmr)) {
 			rollback(alias, xid);
 			throw new DuplicateKeyException("dmr:"+dmr);
 		}
-		((DomainMapRangeTransaction)dmr).setUniqueKey(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		dmr = new DomainMapRangeTransaction(d,m,r);
+		dmr = new DomainMapRangeTransaction(xid,d,m,r);
 		MorphismTransaction identity = dmr;
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(d,m,r,dmr.getKeys());
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(xid,d,m,r);
 		indexClasses[1] = drm.getClass();
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(d,m,r,dmr.getKeys());
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(xid,d,m,r);
 		indexClasses[2] = mdr.getClass();
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(d,m,r,dmr.getKeys());
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(xid,d,m,r);
 		indexClasses[3] = mrd.getClass();
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(d,m,r,dmr.getKeys());
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(xid,d,m,r);
 		indexClasses[4] = rdm.getClass();
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(d,m,r,dmr.getKeys());
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(xid,d,m,r);
 		indexClasses[5] = rmd.getClass();
 		DBKey dbKey = null;
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit

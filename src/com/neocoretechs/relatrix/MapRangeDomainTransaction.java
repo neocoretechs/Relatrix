@@ -1,5 +1,10 @@
 package com.neocoretechs.relatrix;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 
 /**
@@ -14,12 +19,12 @@ public class MapRangeDomainTransaction extends MorphismTransaction {
 	private static final long serialVersionUID = 7422941687414371614L;
     public MapRangeDomainTransaction() {}
     
-    public MapRangeDomainTransaction(Comparable d, Comparable m, Comparable r) {
-       	super(d,m,r);
+    public MapRangeDomainTransaction(String transactionId, Comparable d, Comparable m, Comparable r) {
+       	super(transactionId,d,m,r);
     }
-	public MapRangeDomainTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
-		super(d,m,r,keys);
-	}
+    public MapRangeDomainTransaction(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+       	super(alias,transactionId,d,m,r);
+    }
 	public MapRangeDomainTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
 		super(d,m,r,template);
 	}
@@ -94,6 +99,21 @@ public class MapRangeDomainTransaction extends MorphismTransaction {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new MapRangeDomainTransaction(getDomain(), getMap(), getRange());
+    	if(alias == null)
+    		return new MapRangeDomainTransaction(transactionId, getDomain(), getMap(), getRange());
+   		return new MapRangeDomainTransaction(alias, transactionId, getDomain(), getMap(), getRange());
     }
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(getMapKey());
+		out.writeObject(getRangeKey());	
+		out.writeObject(getDomainKey());
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		setMapKey((DBKey) in.readObject());
+		setRangeKey((DBKey) in.readObject());
+		setDomainKey((DBKey) in.readObject());
+	}
 }

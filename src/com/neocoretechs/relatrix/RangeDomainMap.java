@@ -1,5 +1,10 @@
 package com.neocoretechs.relatrix;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 
 /**
@@ -17,9 +22,9 @@ public class RangeDomainMap extends Morphism {
     public RangeDomainMap(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
-	public RangeDomainMap(Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
-		super(d,m,r,keys);
-	}
+    public RangeDomainMap(String alias, Comparable d, Comparable m, Comparable r) {
+       	super(alias,d,m,r);
+    }
 	public RangeDomainMap(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
 		super(d,m,r,template);
 	}
@@ -94,6 +99,22 @@ public class RangeDomainMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new RangeDomainMap(getDomain(), getMap(), getRange(), getKeys());
+    	if(alias == null)
+    		return new RangeDomainMap(getDomain(), getMap(), getRange());
+  		return new RangeDomainMap(alias, getDomain(), getMap(), getRange());
     }
+    
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(getRangeKey());	
+		out.writeObject(getDomainKey());
+		out.writeObject(getMapKey());
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		setRangeKey((DBKey) in.readObject());
+		setDomainKey((DBKey) in.readObject());
+		setMapKey((DBKey) in.readObject());
+	}
 }

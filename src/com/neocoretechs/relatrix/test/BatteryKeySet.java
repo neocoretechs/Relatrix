@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -74,7 +75,7 @@ public class BatteryKeySet {
 			//DBKey dbkeyd = null;
 			//DBKey dbkeym = null;
 			//DBKey dbkeyr = null;
-			fkey = new KeySet();
+			fkey = new DomainMapRange();
 			skeyd = String.format(uniqKeyFmt, i);
 			skeym = String.format(uniqKeyFmt, i+1);
 			skeyr = String.format(uniqKeyFmt, i+2);

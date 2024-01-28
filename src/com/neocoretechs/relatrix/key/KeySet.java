@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.key;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -11,12 +12,12 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023
  *
  */
-public class KeySet implements Serializable, Comparable {
+public abstract class KeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private DBKey domainKey = new DBKey();
     private DBKey mapKey = new DBKey();
     private DBKey rangeKey = new DBKey();
-    private transient boolean primaryKeyCheck = false;
+    protected transient boolean primaryKeyCheck = false;
 
     public KeySet() {}
     
@@ -42,25 +43,7 @@ public class KeySet implements Serializable, Comparable {
 	public void setRangeKey(DBKey rangeKey) {
 		this.rangeKey = rangeKey;
 	}
-	@Override
-	public boolean equals(Object o) {
-		if(primaryKeyCheck)
-			return domainKey.equals(((KeySet)o).domainKey) &&
-					mapKey.equals(((KeySet)o).mapKey);
-		return domainKey.equals(((KeySet)o).domainKey) &&
-				mapKey.equals(((KeySet)o).mapKey) &&
-				rangeKey.equals(((KeySet)o).rangeKey);
-	}
-	@Override
-	public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + domainKey.hashCode();
-	    result = prime * result + (int) (mapKey.hashCode() ^ (mapKey.hashCode() >>> 32));
-	    if(!primaryKeyCheck)
-	    	result = prime * result + rangeKey.hashCode();
-	    return result;
-	}
+
 	public boolean isValid() {
 		return domainKey.isValid() && mapKey.isValid() && rangeKey.isValid();
 	}
@@ -140,17 +123,50 @@ public class KeySet implements Serializable, Comparable {
 		setPrimaryKeyCheck(false);
 		return DBKey.newKeyAlias(alias, xid, indexTable, this);
 	}
+	/**
+	 * Store the instances to index and instance tables creating instance/DBKey and DBKey/instance tablespace entries
+	 * @return the key of stored KeySet, which represents domain, map, range identity triplet index unique by domain and map
+	 * @throws DuplicateKeyException if domain/map key already exist
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public DBKey store() throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
+		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
+		setPrimaryKeyCheck(true);
+		if(RelatrixKV.get(this) != null)
+				throw new DuplicateKeyException(this);
+		setPrimaryKeyCheck(false);
+		return DBKey.newKey(indexTable, this);
+	}
+	
+	public DBKey storeAlias(String alias) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
+		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
+		setPrimaryKeyCheck(true);
+		if(RelatrixKV.get(alias, this) != null)
+				throw new DuplicateKeyException(this);
+		setPrimaryKeyCheck(false);
+		return DBKey.newKeyAlias(alias, indexTable, this);
+	}
+	
+	public DBKey store(String xid) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
+		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
+		setPrimaryKeyCheck(true);
+		if(RelatrixKVTransaction.get(xid, this) != null)
+				throw new DuplicateKeyException(this);
+		setPrimaryKeyCheck(false);
+		return DBKey.newKey(xid, indexTable, this);
+	}
+	
+	public DBKey storeAlias(String alias, String xid) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
+		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
+		setPrimaryKeyCheck(true);
+		if(RelatrixKVTransaction.get(alias, xid, this) != null)
+				throw new DuplicateKeyException(this);
+		setPrimaryKeyCheck(false);
+		return DBKey.newKeyAlias(alias, xid, indexTable, this);
+	}
 	
 	@Override
-	public int compareTo(Object o) {
-		int i = domainKey.compareTo(((KeySet)o).domainKey);
-		if(i != 0)
-			return i;
-		i = mapKey.compareTo(((KeySet)o).mapKey);
-		if(primaryKeyCheck)
-			return i;
-		if(i != 0)
-			return i;
-		return rangeKey.compareTo(((KeySet)o).rangeKey);
-	}   
+	public abstract int compareTo(Object o); 
 }

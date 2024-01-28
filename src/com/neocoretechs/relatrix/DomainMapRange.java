@@ -1,5 +1,11 @@
 package com.neocoretechs.relatrix;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 
 /**
@@ -11,18 +17,15 @@ import com.neocoretechs.relatrix.key.KeySet;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
-public class DomainMapRange extends Morphism {
+public class DomainMapRange extends Morphism implements Comparable, Externalizable, Cloneable {
 	private static final long serialVersionUID = 8664384659501163179L;
-	private static boolean uniqueKey = false;
 	
     public DomainMapRange() {}
     
     public DomainMapRange(Comparable d, Comparable m, Comparable r) {
     	super(d,m,r);
     }
-    public DomainMapRange(Comparable d, Comparable m, Comparable r, KeySet keys) {
-    	super(d,m,r,keys);
-    }
+
     public DomainMapRange(Comparable d, Comparable m, Comparable r, boolean template) {
     	super(d,m,r,template);
     }
@@ -30,14 +33,53 @@ public class DomainMapRange extends Morphism {
 		super(alias, d, m, r);
 	}
 
-	/**
-     * The purpose here is to control the compareTo method such that when storing, the range portion
-     * is ignored by setting uniqueKey to true, otherwise, we want to include the range value in our
-     * comparisons when retrieving.
-     * @param unique
-     */
-    public void setUniqueKey(boolean unique) { uniqueKey = unique; }
-    
+	@Override
+	public int compareTo(Object o) {
+		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
+		if(i != 0)
+			return i;
+		i = getMapKey().compareTo(((KeySet)o).getMapKey());
+		if(primaryKeyCheck)
+			return i;
+		if(i != 0)
+			return i;
+		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
+	} 
+	@Override
+	public boolean equals(Object o) {
+		if(primaryKeyCheck)
+			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
+					getMapKey().equals(((KeySet)o).getMapKey());
+		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
+				getMapKey().equals(((KeySet)o).getMapKey()) &&
+				getRangeKey().equals(((KeySet)o).getRangeKey());
+	}
+	@Override
+	public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + getDomainKey().hashCode();
+	    result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
+	    if(!primaryKeyCheck)
+	    	result = prime * result + getRangeKey().hashCode();
+	    return result;
+	}
+	
+	@Override  
+	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
+		setDomainKey((DBKey) in.readObject());
+		setMapKey((DBKey) in.readObject());
+		setRangeKey((DBKey) in.readObject());
+	} 
+	
+	@Override  
+	public void writeExternal(ObjectOutput out) throws IOException {  
+		out.writeObject(getDomainKey());
+		out.writeObject(getMapKey());
+		out.writeObject(getRangeKey());
+	}  
+	
+    /*
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
@@ -91,10 +133,14 @@ public class DomainMapRange extends Morphism {
 		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
 		return result;
 	}
+	*/
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new DomainMapRange(getDomain(), getMap(), getRange(), getKeys());
+    	if(alias == null)
+    		return new DomainMapRange(getDomain(), getMap(), getRange());
+   		return new DomainMapRange(alias, getDomain(), getMap(), getRange());
     }
+    
 
 }

@@ -1,5 +1,10 @@
 package com.neocoretechs.relatrix;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 
 /**
@@ -14,12 +19,12 @@ public class MapDomainRangeTransaction extends MorphismTransaction {
 	private static final long serialVersionUID = -3223516008906545636L;
     public MapDomainRangeTransaction() {}
     
-    public MapDomainRangeTransaction(Comparable d, Comparable m, Comparable r) {
-       	super(d,m,r);
+    public MapDomainRangeTransaction(String transactionId, Comparable d, Comparable m, Comparable r) {
+       	super(transactionId,d,m,r);
     }
-	public MapDomainRangeTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, KeySet keys) {
-		super(d,m,r,keys);
-	}
+    public MapDomainRangeTransaction(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+       	super(alias,transactionId,d,m,r);
+    }
 	public MapDomainRangeTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
 		super(d,m,r,template);
 	}
@@ -96,6 +101,22 @@ public class MapDomainRangeTransaction extends MorphismTransaction {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	return new MapDomainRangeTransaction(getDomain(), getMap(), getRange(), getKeys());
+    	if(alias == null)
+    		return new MapDomainRangeTransaction(transactionId, getDomain(), getMap(), getRange());
+   		return new MapDomainRangeTransaction(alias, transactionId, getDomain(), getMap(), getRange());
     }
+    
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(getMapKey());
+		out.writeObject(getDomainKey());
+		out.writeObject(getRangeKey());	
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		setMapKey((DBKey) in.readObject());
+		setDomainKey((DBKey) in.readObject());
+		setRangeKey((DBKey) in.readObject());
+	}
 }

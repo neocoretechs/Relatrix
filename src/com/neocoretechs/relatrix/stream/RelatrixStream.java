@@ -61,7 +61,7 @@ public class RelatrixStream<T> implements Stream<T> {
     public RelatrixStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
-     * @param dmr_return
+     * @param dmr_return the template {@link Morphism} from which we extract the class to obtain a stream from {@link RelatrixKV}
      * @throws IOException 
      */
     public RelatrixStream(Morphism template, short[] dmr_return) throws IOException {

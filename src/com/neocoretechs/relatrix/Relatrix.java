@@ -79,8 +79,6 @@ public final class Relatrix {
 
 	}
 	
-	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
-												  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};
 
 	/**
 	* Calling these methods allows the user to substitute their own
@@ -150,62 +148,40 @@ public final class Relatrix {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
+		Morphism dmr = new DomainMapRange(d,m,r); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
-		// cannot be inserted.
-		((DomainMapRange)dmr).setUniqueKey(true);
-		if(RelatrixKV.contains(dmr)) {
-			throw new DuplicateKeyException("dmr:"+dmr);
-		}
-		((DomainMapRange)dmr).setUniqueKey(false);
+		// cannot be inserted
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		dmr = new DomainMapRange(d,m,r);
 		Morphism identity = dmr;
-		DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
-		indexClasses[1] = drm.getClass();
-		MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
-		indexClasses[2] = mdr.getClass();
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
-		indexClasses[3] = mrd.getClass();
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
-		indexClasses[4] = rdm.getClass();
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
-		indexClasses[5] = rmd.getClass();
-		DBKey dbKey = null;
-		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
-		indexClasses[0] = null; // remove dmr from our commit lineup
-		try {
-			dbKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(),dmr); // this stores our new relation, DBKey and instance
-		} catch (ClassNotFoundException e) {
-			throw new IOException(e);
-		} // Use primary key DBKey as value for index keys
+		DomainRangeMap drm = new DomainRangeMap(d,m,r);
+		MapDomainRange mdr = new MapDomainRange(d,m,r);
+		MapRangeDomain mrd = new MapRangeDomain(d,m,r);
+		RangeDomainMap rdm = new RangeDomainMap(d,m,r);
+		RangeMapDomain rmd = new RangeMapDomain(d,m,r);
+		dmr.store();
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing drm:"+drm);
-		RelatrixKV.store(drm, dbKey);
-	
+		drm.store();
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing mdr:"+mdr);
-		RelatrixKV.store(mdr, dbKey);
-	
+		mdr.store();
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing mrd:"+mrd);
-		RelatrixKV.store(mrd, dbKey);
-
+		mrd.store();
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing rdm:"+rdm);
-		RelatrixKV.store(rdm, dbKey);
-	
+		rdm.store();
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing rmd:"+rmd);
-		RelatrixKV.store(rmd, dbKey);
-	
+		rmd.store();
 		return (DomainMapRange) identity;
 	}
 	
@@ -219,61 +195,44 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias does not exist
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized DomainMapRange store(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+	public static synchronized DomainMapRange store(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr = new DomainMapRange(d,m,r,true); // form it as template for duplicate key search
+		Morphism dmr = new DomainMapRange(alias,d,m,r); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted.
-		((DomainMapRange)dmr).setUniqueKey(true);
-		if(RelatrixKV.contains(alias,dmr)) {
-			throw new DuplicateKeyException("dmr:"+dmr);
-		}
-		((DomainMapRange)dmr).setUniqueKey(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		dmr = new DomainMapRange(alias,d,m,r);
 		Morphism identity = dmr;
-		DomainRangeMap drm = new DomainRangeMap(d,m,r,dmr.getKeys());
-		indexClasses[1] = drm.getClass();
-		MapDomainRange mdr = new MapDomainRange(d,m,r,dmr.getKeys());
-		indexClasses[2] = mdr.getClass();
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r,dmr.getKeys());
-		indexClasses[3] = mrd.getClass();
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r,dmr.getKeys());
-		indexClasses[4] = rdm.getClass();
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r,dmr.getKeys());
-		indexClasses[5] = rmd.getClass();
-		DBKey dbKey = null;
-		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
-		indexClasses[0] = null; // remove dmr from our commit lineup
-		try {
-			dbKey = DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), dmr); // this stores our new relation, DBKey and instance
-		} catch (ClassNotFoundException e) {
-			throw new IOException(e);
-		} // Use primary key DBKey as value for index keys
+		DomainRangeMap drm = new DomainRangeMap(alias,d,m,r);
+		MapDomainRange mdr = new MapDomainRange(alias,d,m,r);
+		MapRangeDomain mrd = new MapRangeDomain(alias,d,m,r);
+		RangeDomainMap rdm = new RangeDomainMap(alias,d,m,r);
+		RangeMapDomain rmd = new RangeMapDomain(alias,d,m,r);
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing drm:"+drm);
-		RelatrixKV.store(alias, drm, dbKey);
+		dmr.store();
 	
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing mdr:"+mdr);
-		RelatrixKV.store(alias, mdr, dbKey);
+		mdr.store();
 	
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing mrd:"+mrd);
-		RelatrixKV.store(alias, mrd, dbKey);
+		mrd.store();
 
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing rdm:"+rdm);
-		RelatrixKV.store(alias, rdm, dbKey);
+		rmd.store();
 	
 		if( DEBUG  )
 			System.out.println("Relatrix.store storing rmd:"+rmd);
-		RelatrixKV.store(alias, rmd, dbKey);
+		rmd.store();
 	
 		return (DomainMapRange) identity;
 	}
@@ -471,17 +430,11 @@ public final class Relatrix {
 	 */
 	public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
 		Morphism dmr = new DomainMapRange(d,m,r,true);
-		indexClasses[0] = dmr.getClass();
 		DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
-		indexClasses[1] = drm.getClass();
 		MapDomainRange mdr = new MapDomainRange(d,m,r,true);
-		indexClasses[2] = mdr.getClass();
 		MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
-		indexClasses[3] = mrd.getClass();
 		RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
-		indexClasses[4] = rdm.getClass();
 		RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
-		indexClasses[5] = rmd.getClass();
 
 		try {
 			Object o = RelatrixKV.get(dmr);
@@ -568,17 +521,11 @@ public final class Relatrix {
 	 */
 	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
 		Morphism dmr = new DomainMapRange(d,m,r,true);
-		indexClasses[0] = dmr.getClass();
 		DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
-		indexClasses[1] = drm.getClass();
 		MapDomainRange mdr = new MapDomainRange(d,m,r,true);
-		indexClasses[2] = mdr.getClass();
 		MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
-		indexClasses[3] = mrd.getClass();
 		RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
-		indexClasses[4] = rdm.getClass();
 		RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
-		indexClasses[5] = rmd.getClass();
 
 		try {
 			Object o = RelatrixKV.get(alias, dmr);
@@ -989,11 +936,8 @@ public final class Relatrix {
 	 */
 	public static synchronized Object first() throws IOException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
 		try {
-			return RelatrixKV.firstKey(indexClasses[0]);
+			return RelatrixKV.firstKey(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1001,11 +945,9 @@ public final class Relatrix {
 
 	public static synchronized Object first(String alias) throws IOException, NoSuchElementException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+	
 		try {
-			return RelatrixKV.firstKey(alias, indexClasses[0]);
+			return RelatrixKV.firstKey(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1018,11 +960,9 @@ public final class Relatrix {
 	 */
 	public static synchronized Object firstKey() throws IOException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.firstKey(indexClasses[0]);
+			return RelatrixKV.firstKey(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1030,11 +970,9 @@ public final class Relatrix {
 
 	public static synchronized Object firstKey(String alias) throws IOException, NoSuchElementException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.firstKey(alias, indexClasses[0]);
+			return RelatrixKV.firstKey(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1047,11 +985,9 @@ public final class Relatrix {
 	 */
 	public static synchronized Object firstValue() throws IOException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+	
 		try {
-			return RelatrixKV.firstValue(indexClasses[0]);
+			return RelatrixKV.firstValue(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1059,11 +995,9 @@ public final class Relatrix {
 
 	public static synchronized Object firstValue(String alias) throws IOException, NoSuchElementException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+	
 		try {
-			return RelatrixKV.firstValue(alias, indexClasses[0]);
+			return RelatrixKV.firstValue(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1099,11 +1033,9 @@ public final class Relatrix {
 	 */
 	public static synchronized Object last() throws IOException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.lastKey(indexClasses[0]);
+			return RelatrixKV.lastKey(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1111,11 +1043,9 @@ public final class Relatrix {
 
 	public static synchronized Object last(String alias) throws IOException, NoSuchElementException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.lastKey(alias, indexClasses[0]);
+			return RelatrixKV.lastKey(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1128,11 +1058,9 @@ public final class Relatrix {
 	 */
 	public static synchronized Object lastKey() throws IOException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.lastKey(indexClasses[0]);
+			return RelatrixKV.lastKey(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1140,11 +1068,9 @@ public final class Relatrix {
 
 	public static synchronized Object lastKey(String alias) throws IOException, NoSuchElementException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.lastKey(alias, indexClasses[0]);
+			return RelatrixKV.lastKey(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1157,11 +1083,9 @@ public final class Relatrix {
 	 */
 	public static synchronized Object lastValue() throws IOException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.lastValue(indexClasses[0]);
+			return RelatrixKV.lastValue(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1169,11 +1093,9 @@ public final class Relatrix {
 
 	public static synchronized Object lastValue(String alias) throws IOException, NoSuchElementException
 	{
-		if( /*transactionTreeSets*/indexClasses[0] == null ) {
-			return null;
-		}
+
 		try {
-			return RelatrixKV.lastValue(alias, indexClasses[0]);
+			return RelatrixKV.lastValue(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1254,11 +1176,9 @@ public final class Relatrix {
 	 */
 	public static synchronized long size() throws IOException
 	{
-		if( indexClasses[0] == null ) {
-			return -1;
-		}
+
 		try {
-			return RelatrixKV.size(indexClasses[0]);
+			return RelatrixKV.size(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1266,11 +1186,9 @@ public final class Relatrix {
 
 	public static synchronized long size(String alias) throws IOException, NoSuchElementException
 	{
-		if( indexClasses[0] == null ) {
-			return -1;
-		}
+
 		try {
-			return RelatrixKV.size(alias, indexClasses[0]);
+			return RelatrixKV.size(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1283,9 +1201,7 @@ public final class Relatrix {
 	 */
 	public static synchronized boolean contains(Comparable obj) throws IOException
 	{
-		if(indexClasses[0] == null ) {
-			return false;
-		}
+
 		try {
 			return RelatrixKV.contains(obj);
 		} catch (IllegalAccessException e) {
@@ -1295,9 +1211,7 @@ public final class Relatrix {
 
 	public static synchronized boolean contains(String alias, Comparable obj) throws IOException, NoSuchElementException
 	{
-		if(indexClasses[0] == null ) {
-			return false;
-		}
+
 		try {
 			return RelatrixKV.contains(alias, obj);
 		} catch (IllegalAccessException e) {
