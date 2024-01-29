@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.key.KeySet;
  * @author jg (C) 2024
  *
  */
-public class BatteryKeySet {
+public class BatteryMorphism {
 	public static boolean DEBUG = false;
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
@@ -32,7 +32,7 @@ public class BatteryKeySet {
 	*/
 	public static void main(String[] argv) throws Exception {
 		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryKeySet <directory_tablespace_path>");
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryMorphism <directory_tablespace_path>");
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
@@ -45,7 +45,7 @@ public class BatteryKeySet {
 		battery1AR12(argv);
 		battery1AR14(argv);
 		battery1AR17(argv);
-		 System.out.println("BatteryKeySet TEST BATTERY COMPLETE.");
+		 System.out.println("BatteryMorphism TEST BATTERY COMPLETE.");
 		
 	}
 	/**
@@ -59,14 +59,14 @@ public class BatteryKeySet {
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
-		KeySet fkey = null;
+		DomainMapRange fkey = null;
 		String skeyd = null;
 		String skeym = null;
 		String skeyr = null;
 
 		//Integer payload = 0;
 		int j = min;
-		j = (int) RelatrixKV.size(KeySet.class);
+		j = (int) RelatrixKV.size(DomainMapRange.class);
 		if(j > 0) {
 			System.out.println("Cleaning DB of "+j+" elements.");
 			battery1AR17(argv);		
@@ -79,6 +79,10 @@ public class BatteryKeySet {
 			skeyd = String.format(uniqKeyFmt, i);
 			skeym = String.format(uniqKeyFmt, i+1);
 			skeyr = String.format(uniqKeyFmt, i+2);
+			fkey.setDomain(skeyd);
+			fkey.setMap(skeym);
+			fkey.setRange(skeyr);
+			keys.add(fkey.store());
 			//dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
 			//dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
 			//dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
@@ -89,7 +93,7 @@ public class BatteryKeySet {
 			//if(RelatrixKV.get(fkey) != null)
 				//throw new DuplicateKeyException(fkey);
 			//fkey.setPrimaryKeyCheck(false);
-			keys.add(fkey.store(skeyd, skeym, skeyr));
+			//keys.add(fkey.store(skeyd, skeym, skeyr));
 			//keys.add(DBKey.newKey(indexTable, fkey));
 			values.add(fkey);
 			++recs;
@@ -102,8 +106,9 @@ public class BatteryKeySet {
 	 * @throws Exception
 	 */
 	public static void battery1AR4(String[] argv) throws Exception {
+		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		KeySet prev = (KeySet) RelatrixKV.firstKey(KeySet.class);
+		KeySet prev = (KeySet) RelatrixKV.firstKey(DomainMapRange.class);
 		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) prev);
 		System.out.println("Battery1AR4");
 		its.next(); // skip first key we just got
@@ -116,6 +121,7 @@ public class BatteryKeySet {
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
 			}
 			prev = nexe.getKey();
+			System.out.println("1AR4 "+(cnt++)+"="+nex);
 		}
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -125,9 +131,10 @@ public class BatteryKeySet {
 	 * @throws Exception
 	 */
 	public static void battery1AR5(String[] argv) throws Exception {
+		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKV.entrySet(KeySet.class);
+		Iterator<?> its = RelatrixKV.entrySet(DomainMapRange.class);
 		System.out.println("Battery1AR5");
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
@@ -136,7 +143,7 @@ public class BatteryKeySet {
 				System.out.println("RANGE KEY MISMATCH: "+nex);
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
 			}
-			//System.out.println(i+"="+nex);
+			System.out.println("1AR5 "+(cnt++)+"="+nex);
 		}
 		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -150,8 +157,8 @@ public class BatteryKeySet {
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKV.firstKey(KeySet.class); // first key
-		System.out.println("Battery1AR9");
+		Comparable k = (Comparable) RelatrixKV.firstKey(DomainMapRange.class); // first key
+		System.out.println("Battery1AR9 firstKey");
 		if(!values.contains(k)) {
 			System.out.println("BATTERY1A9 cant find contains key "+i);
 			throw new Exception("BATTERY1AR9 unexpected cant find contains of key "+i);
@@ -168,8 +175,8 @@ public class BatteryKeySet {
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKV.lastKey(KeySet.class); // key
-		System.out.println("Battery1AR10");
+		Comparable k = (Comparable) RelatrixKV.lastKey(DomainMapRange.class); // key
+		System.out.println("Battery1AR10 lastKey");
 		if(!values.contains(k)) {
 			System.out.println("BATTERY1AR10 cant find last key "+i);
 			throw new Exception("BATTERY1AR10 unexpected cant find last of key "+i);
@@ -185,8 +192,8 @@ public class BatteryKeySet {
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = RelatrixKV.size(KeySet.class);
-		System.out.println("Battery1AR101");
+		long bits = RelatrixKV.size(DomainMapRange.class);
+		System.out.println("Battery1AR101 Size="+bits);
 		if( bits != values.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
 			throw new Exception("BATTERY1AR101 size mismatch "+bits+" should be "+i);
@@ -200,8 +207,9 @@ public class BatteryKeySet {
 	 * @throws Exception
 	 */
 	public static void battery1AR12(String[] argv) throws Exception {
+		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKV.firstKey(KeySet.class);
+		Comparable c = (Comparable) RelatrixKV.firstKey(DomainMapRange.class);
 		if( c != null ) {
 			Iterator<?> its = RelatrixKV.findTailMapKV(c);
 			System.out.println("Battery1AR12");
@@ -216,7 +224,7 @@ public class BatteryKeySet {
 					System.out.println("RANGE KEY MISMATCH:"+nex);
 					throw new Exception("RANGE KEY MISMATCH:"+nex);
 				}
-
+				System.out.println("1AR12 "+(cnt++)+"="+nexe);
 			}
 		}
 		System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
@@ -229,8 +237,9 @@ public class BatteryKeySet {
 	 * @throws Exception
 	 */
 	public static void battery1AR14(String[] argv) throws Exception {
+		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKV.lastKey(KeySet.class);
+		Comparable c = (Comparable) RelatrixKV.lastKey(DomainMapRange.class);
 		if(c != null) {
 			Iterator<?> its = RelatrixKV.findHeadMapKV(c);
 			System.out.println("Battery1AR14");
@@ -243,6 +252,7 @@ public class BatteryKeySet {
 					System.out.println("RANGE KEY MISMATCH:"+nex);
 					throw new Exception("RANGE KEY MISMATCH:"+nex);
 				}
+				System.out.println("1AR14 "+(cnt++)+"="+nexe);
 			}
 		}
 		System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
@@ -269,8 +279,8 @@ public class BatteryKeySet {
 			}
 		}
 		// remove payload reverse index
-		s = RelatrixKV.size(KeySet.class);
-		it = RelatrixKV.keySet(KeySet.class);
+		s = RelatrixKV.size(DomainMapRange.class);
+		it = RelatrixKV.keySet(DomainMapRange.class);
 		timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();

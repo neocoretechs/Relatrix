@@ -28,6 +28,44 @@ public class RangeDomainMap extends Morphism {
 	public RangeDomainMap(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
 		super(d,m,r,template);
 	}
+	@Override
+	public int compareTo(Object o) {
+		if(!((KeySet)o).isRangeKeyValid())
+			return 1;
+		int i = getRangeKey().compareTo(((KeySet)o).getRangeKey());
+		if(i != 0)
+			return i;
+		if(!((KeySet)o).isDomainKeyValid())
+			return 1;
+		i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
+		if(i != 0)
+			return i;
+		if(!((KeySet)o).isMapKeyValid())
+			return 1;
+		return getMapKey().compareTo(((KeySet)o).getMapKey());
+	} 
+	@Override
+	public boolean equals(Object o) {
+		if(!((KeySet)o).isValid())
+			return false;
+		return getRangeKey().equals(((KeySet)o).getRangeKey()) &&
+				getDomainKey().equals(((KeySet)o).getDomainKey()) &&
+				getMapKey().equals(((KeySet)o).getMapKey());
+	}
+	@Override
+	public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+		if(isRangeKeyValid())
+			result = prime * result + getRangeKey().hashCode();
+		if(isDomainKeyValid())
+			result = prime * result + (int) (getDomainKey().hashCode() ^ (getDomainKey().hashCode() >>> 32));
+	    if(isMapKeyValid())
+	    	result = prime * result + getMapKey().hashCode();
+	    return result;
+	}
+	
+	/*
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
@@ -81,6 +119,7 @@ public class RangeDomainMap extends Morphism {
 		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
 		return result;
 	}
+	*/
     /*
     public Comparable returnTupleOrder(int n) {
     	// default dmr

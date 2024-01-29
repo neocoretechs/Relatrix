@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.key.KeySet;
  * By storing these indexes with all their possible retrieval combinations for the morphisms,
  * which turns out to be 6 indexes, we facilitate the retrieval of posets from our categories
  * based on any number of possible operators and objects passed to the various 'findSet' permutations. 
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2023,2024
  *
  */
 public class DomainMapRange extends Morphism implements Comparable, Externalizable, Cloneable {
@@ -35,18 +35,26 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 
 	@Override
 	public int compareTo(Object o) {
+		if(!((KeySet)o).isDomainKeyValid())
+			return 1;
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
 		if(i != 0)
 			return i;
+		if(!((KeySet)o).isMapKeyValid())
+			return 1;
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
 		if(primaryKeyCheck)
 			return i;
 		if(i != 0)
 			return i;
+		if(!((KeySet)o).isRangeKeyValid())
+			return 1;
 		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
 	} 
 	@Override
 	public boolean equals(Object o) {
+		if(!((KeySet)o).isValid())
+			return false;
 		if(primaryKeyCheck)
 			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
 					getMapKey().equals(((KeySet)o).getMapKey());
@@ -58,9 +66,11 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 	public int hashCode() {
 	    final int prime = 31;
 	    int result = 1;
-	    result = prime * result + getDomainKey().hashCode();
-	    result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
-	    if(!primaryKeyCheck)
+		if(isDomainKeyValid())
+			result = prime * result + getDomainKey().hashCode();
+		if(isMapKeyValid())
+			result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
+	    if(!primaryKeyCheck && isRangeKeyValid())
 	    	result = prime * result + getRangeKey().hashCode();
 	    return result;
 	}
