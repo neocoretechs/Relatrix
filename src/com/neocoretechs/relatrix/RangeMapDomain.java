@@ -157,4 +157,13 @@ public class RangeMapDomain extends Morphism {
 		setMapKey((DBKey) in.readObject());
 		setDomainKey((DBKey) in.readObject());
 	}
+	public String toString() { 
+		return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),	
+				(getRange() == null ? "NULL" : getRange().getClass().getName()),
+				(getMap() == null ? "NULL" : getMap().getClass().getName()), 
+				(getDomain() == null ? "NULL" :getDomain().getClass().getName()),		
+				(getRange() == null ? "NULL" : getRange()),
+				(getMap() == null ? "NULL" : getMap()),
+				(getDomain() == null ? "NULL" : getDomain()));
+	}
 }

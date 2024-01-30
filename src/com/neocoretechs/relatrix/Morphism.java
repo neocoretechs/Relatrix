@@ -86,7 +86,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     		if(alias == null)
     			return super.store();
     		else
-    			return storeAlias(alias,getDomainKey(),getMapKey(),getRangeKey());
+    			return storeAlias(alias);
     	}
     	
         /**
@@ -460,15 +460,6 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
      		return from.toString().equals(to.toString());
          }
         
-        public String toString() { 
-        	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
-					(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
-					(getMap() == null ? "NULL" : getMap().getClass().getName()), 
-					(getRange() == null ? "NULL" : getRange().getClass().getName()),
-					(getDomain() == null ? "NULL" : getDomain()),
-					(getMap() == null ? "NULL" : getMap()), 
-					(getRange() == null ? "NULL" : getRange()));
-        }
         /**
          * key combinations for Relatrix follow
          */
@@ -484,7 +475,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         * @param cmpdmr the Morphism to compare to
         * @return the 0-63 compare value
         */
-        private short cmpr(Morphism cmpdmr) {
+        protected short cmpr(Morphism cmpdmr) {
         	short cmpres = 0;
             if(getDomain() == null)
         		cmpres = 48;

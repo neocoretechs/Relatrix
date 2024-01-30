@@ -153,16 +153,6 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		}
 	}
 
-	/**
-	 * Set a template for operations requiring a default (blank) term for purposes such as retrieval/comparison.
-	 * The domain is set to the instance value and the key is set to a new, default (blank) {@link DBKey}.
-	 * @param domain
-	 */
-	public void setDomainTemplate(Comparable<?> domain) {
-		this.domain = domain;
-		setDomainKey(new DBKey());
-	}
-
 	public Comparable getMap() {
 		try {
 			if(map != null) 
@@ -215,11 +205,6 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public void setMapTemplate(Comparable<?> map) {
-		this.map = map;
-		setMapKey(new DBKey());
 	}
 
 	public Comparable getRange() {
@@ -277,195 +262,13 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		}
 	}
 
-	public void setRangeTemplate(Comparable<?> range) {
-		this.range = range;
-		setRangeKey(new DBKey());
-	}
-	public String toString() { 
-		return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
-				(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
-				(getMap() == null ? "NULL" : getMap().getClass().getName()), 
-				(getRange() == null ? "NULL" : getRange().getClass().getName()),
-				(getDomain() == null ? "NULL" : getDomain()),
-				(getMap() == null ? "NULL" : getMap()), 
-				(getRange() == null ? "NULL" : getRange()));
-	}
-
 	/**
 	 * key combinations for Relatrix follow
 	 */
 	public abstract int compareTo(Object dmrpk);
 	public abstract boolean equals(Object dmrpk);
 	public abstract Object clone() throws CloneNotSupportedException;
-	/**
-	 * for relate cmpr, we return a value in the range 0-63
-	 * in which the values for domain,map range : >,<,=,dont care = 0-3
-	 * are encoded as three 0-3 values in the first six bit positions.
-	 * a dont care is coded when a dmr value is zero.
-	 * @param cmpdmr the Morphism to compare to
-	 * @return the 0-63 compare value
-	 */
-	private short cmpr(Morphism cmpdmr) {
-		short cmpres = 0;
-		if(getDomain() == null)
-			cmpres = 48;
-		else
-			if( getDomain().compareTo(cmpdmr.getDomain()) < 0)
-				cmpres = 16;
-			else
-				if(getDomain().equals(cmpdmr.getDomain()) )
-					cmpres = 32;
-		//
-		if(getMap() == null)
-			cmpres ^= 12;
-		else
-			if(getMap().compareTo(cmpdmr.getMap())  < 0)
-				cmpres ^= 4;
-			else
-				if( getMap().equals(cmpdmr.getMap()) )
-					cmpres ^= 8;
-		//
-		if(getRange() == null)
-			cmpres ^= 3;
-		else
-			if( getRange().compareTo( cmpdmr.getRange() ) < 0)
-				cmpres ^= 1;
-			else
-				if( getRange().equals(cmpdmr.getRange()) )
-					cmpres ^= 2;
-		return cmpres;
-	}
-	/**
-	 * iterate_dmr - return proper domain, map, or range
-	 * based on dmr_return values.  In dmr_return, value 0
-	 * is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
-	 * @return the next location to retrieve
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
-	 */
-	public Comparable<?> iterate_dmr(short[] dmr_return) throws IllegalAccessException, IOException {
-		if(dmr_return[0] >= 3) 
-			return null;
-		// no return vals? send back relation location
-		if( dmr_return[0] == (-1)  || (dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0) ) 
-			return this;
-		do {
-			dmr_return[0]++;
-			// If the element of the tuple needs returning based on formation of our dmr_return, do so
-			if( dmr_return[dmr_return[0]] == 1)
-				return returnTupleOrder(dmr_return[0]);
-		} while( dmr_return[0] < 3 );
-		return null;
-	}
-	/**
-	 * form_template_keyop - Passed Comparable array is functioning as template for search
-	 * depending on the values in domain,map,range (object=0, ?=1 or *=2, !0 or object)
-	 * and the ones we care about returning (boolean true in dret)
-	 * construct the proper index to key array (keyop) and return it
-	 * (see form_dmrkey for keyop descr)
-	 * method: construct a little weighting value for each one based
-	 * on a base val of position domain=2,map=1,range=0
-	 * and modified by args to findset object=6,?=3,*=0
-	 * this establishes a precedent for our return values
-	 * @param dret the return value flag array with iterator at 0
-	 * @return the keyop
-	 */
-	public static short form_template_keyop(Comparable<?>[] tdmr, short[] dret) {
-		short dmr_prec[] = {2,1,0};
-		if( tdmr[0] != null ) // domain not null
-			dmr_prec[0] += 6; // RGuid
-		else
-			if( dret[1] == 1 ) dmr_prec[0] += 3; // '?'
-		// if '*' leave alone, this gets all
-		if( tdmr[1] != null ) // map not null
-			dmr_prec[1] += 6; // RGuid
-		else
-			if( dret[2] == 1 ) dmr_prec[1] += 3; // '?'
-		//
-		if( tdmr[2] != null ) // range not null
-			dmr_prec[2] += 6;
-		else    
-			if( dret[3] == 1 ) dmr_prec[2] += 3;
-		//
-		// we have precedents, now find order
-		if( dmr_prec[0] > dmr_prec[1] && dmr_prec[0] > dmr_prec[2] ) {
-			// domain > map,range
-			if( dmr_prec[1] > dmr_prec[2] )
-				// domain > (map > range)
-				return (short)0; // dmr
-			else
-				// domain > (map < range)
-				return (short)1; // drm
-		}
-		if( dmr_prec[1] > dmr_prec[0] && dmr_prec[1] > dmr_prec[2] ) {
-			// map > domain,range
-			if( dmr_prec[0] > dmr_prec[2] )
-				// map > (domain > range)
-				return (short)2; // mdr
-			else
-				// map > (domain < range)
-				return (short)3; // mrd
-		}
-		if( dmr_prec[2] > dmr_prec[0] && dmr_prec[2] > dmr_prec[1] ) {
-			// range > domain,map
-			if( dmr_prec[0] > dmr_prec[1] )
-				// range > (domain > map)
-				return (short)4; // rdm
-			else
-				// range > (domain < map)
-				return (short)5; // rmd
-		}
-		// this method is internal and this should not happen
-		throw new RuntimeException("Invalid keyop in form_keyop ");
-	}
-	/**
-	 * When participating in a retrieval we want to return the proper part of the tuple
-	 * depending on the operation so 'n' equates to the position in the findset semantics (?,*,<object>)
-	 * above, ? is in position 1, so n would be 1. In a subclass the order is different depending on the sort index
-	 * @param n
-	 * @return
-	 */
-	public Comparable<?> returnTupleOrder(int n) {
-		// default dmr
-		switch(n) {
-		case 1:
-			return getDomain();
-		case 2:
-			return getMap();
-		case 3:
-			return getRange();
-		default:
-			break;
-		}
-		throw new RuntimeException("returnTupleOrder invalid tuple "+n);
-	}
 
-	/**
-	 * Assume instance is instanceof Morphism from a previous test. Resolve dbkeys into instances to use downstream
-	 * @param instance
-	 * @param func
-	 * @throws IllegalAccessException
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	public static void resolve(Comparable target, List<Comparable> res) {
-		if(!(target instanceof Morphism)) {
-			res.add(target);
-			return;
-		}
-		Comparable tdomain, tmap, trange;
-		tdomain = (Comparable) ((Morphism)target).getDomain();
-		//((DBKey)map).getInstance();
-		tmap = (Comparable) ((Morphism)target).getMap();
-		//((DBKey)range).getInstance();
-		trange = (Comparable) ((Morphism)target).getRange();
-		resolve(tdomain, res);
-		resolve(tmap, res);
-		resolve(trange, res);
-		if(DEBUG)
-			System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
-
-	}
 
 	public DBKey store() throws IllegalAccessException, ClassNotFoundException, DuplicateKeyException, IOException {
 		if(alias == null)

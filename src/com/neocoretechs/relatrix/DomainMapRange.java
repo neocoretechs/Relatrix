@@ -88,7 +88,15 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 		out.writeObject(getMapKey());
 		out.writeObject(getRangeKey());
 	}  
-	
+    public String toString() { 
+    	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
+				(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
+				(getMap() == null ? "NULL" : getMap().getClass().getName()), 
+				(getRange() == null ? "NULL" : getRange().getClass().getName()),
+				(getDomain() == null ? "NULL" : getDomain()),
+				(getMap() == null ? "NULL" : getMap()), 
+				(getRange() == null ? "NULL" : getRange()));
+    }
     /*
 	@SuppressWarnings("unchecked")
 	@Override

@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 
 /**
  * Yes, this should be a nice JUnit fixture someday
@@ -373,6 +374,26 @@ public class BatteryRelatrix {
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
+			System.out.println("remove "+i+" class:"+fkey.getClass()+" value:"+fkey);
+			if(fkey.getClass().isArray()) {
+				for(int j = 0; j < ((Comparable[])fkey).length; j++) {
+					System.out.println(j+"="+((Comparable[])fkey)[j].getClass()+" "+((Comparable[])fkey)[j]);
+					DomainMapRange dmr = (DomainMapRange) ((Comparable[])fkey)[j];
+					System.out.println("Keys:"+dmr.getDomainKey()+", "+dmr.getMapKey()+", "+dmr.getRangeKey());
+					if(dmr.isDomainKeyValid())
+						System.out.println("Domain:"+dmr.getDomain());
+					if(dmr.getDomain() == null)
+						System.out.println(IndexResolver.getIndexInstanceTable().getByIndex(dmr.getDomainKey()));
+					if(dmr.isMapKeyValid())
+						System.out.println("Map:"+dmr.getMap());
+					if(dmr.getMap() == null)
+						System.out.println(IndexResolver.getIndexInstanceTable().getByIndex(dmr.getMapKey()));
+					if(dmr.isRangeKeyValid())
+						System.out.println("Range:"+dmr.getRange());
+					if(dmr.getRange() == null)
+						System.out.println(IndexResolver.getIndexInstanceTable().getByIndex(dmr.getRangeKey()));
+				}
+			}
 			Relatrix.remove((Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println(i+" "+fkey);
