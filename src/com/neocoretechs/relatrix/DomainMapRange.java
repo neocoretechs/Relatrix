@@ -33,70 +33,6 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 		super(alias, d, m, r);
 	}
 
-	@Override
-	public int compareTo(Object o) {
-		if(!((KeySet)o).isDomainKeyValid())
-			return 1;
-		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
-		if(i != 0)
-			return i;
-		if(!((KeySet)o).isMapKeyValid())
-			return 1;
-		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(primaryKeyCheck)
-			return i;
-		if(i != 0)
-			return i;
-		if(!((KeySet)o).isRangeKeyValid())
-			return 1;
-		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
-	} 
-	@Override
-	public boolean equals(Object o) {
-		if(!((KeySet)o).isValid())
-			return false;
-		if(primaryKeyCheck)
-			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-					getMapKey().equals(((KeySet)o).getMapKey());
-		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-				getMapKey().equals(((KeySet)o).getMapKey()) &&
-				getRangeKey().equals(((KeySet)o).getRangeKey());
-	}
-	@Override
-	public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-		if(isDomainKeyValid())
-			result = prime * result + getDomainKey().hashCode();
-		if(isMapKeyValid())
-			result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
-	    if(!primaryKeyCheck && isRangeKeyValid())
-	    	result = prime * result + getRangeKey().hashCode();
-	    return result;
-	}
-	
-	@Override  
-	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
-		setDomainKey((DBKey) in.readObject());
-		setMapKey((DBKey) in.readObject());
-		setRangeKey((DBKey) in.readObject());
-	} 
-	
-	@Override  
-	public void writeExternal(ObjectOutput out) throws IOException {  
-		out.writeObject(getDomainKey());
-		out.writeObject(getMapKey());
-		out.writeObject(getRangeKey());
-	}  
-    public String toString() { 
-    	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
-				(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
-				(getMap() == null ? "NULL" : getMap().getClass().getName()), 
-				(getRange() == null ? "NULL" : getRange().getClass().getName()),
-				(getDomain() == null ? "NULL" : getDomain()),
-				(getMap() == null ? "NULL" : getMap()), 
-				(getRange() == null ? "NULL" : getRange()));
-    }
     /*
 	@SuppressWarnings("unchecked")
 	@Override
@@ -160,5 +96,13 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
    		return new DomainMapRange(alias, getDomain(), getMap(), getRange());
     }
     
-
+    public String toString() { 
+    	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
+    			(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
+    			(getMap() == null ? "NULL" : getMap().getClass().getName()),
+    			(getRange() == null ? "NULL" : getRange().getClass().getName()),
+    			(getDomain() == null ? "NULL" : getDomain()),
+    			(getMap() == null ? "NULL" : getMap()),
+    			(getRange() == null ? "NULL" : getRange()));
+    }
 }

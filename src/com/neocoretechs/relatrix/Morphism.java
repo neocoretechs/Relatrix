@@ -82,6 +82,10 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
             setRangeTemplate(r);
         }
         
+        @Override
+        public abstract Object clone() throws CloneNotSupportedException;
+        
+        @Override
     	public DBKey store() throws IllegalAccessException, ClassNotFoundException, DuplicateKeyException, IOException {
     		if(alias == null)
     			return super.store();
@@ -459,13 +463,6 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
      		//compare a universal string representation as a unifying datatype for typed class templates
      		return from.toString().equals(to.toString());
          }
-        
-        /**
-         * key combinations for Relatrix follow
-         */
-        public abstract int compareTo(Object dmrpk);
-        public abstract boolean equals(Object dmrpk);
-        public abstract Object clone() throws CloneNotSupportedException;
         
         /**
         * for relate cmpr, we return a value in the range 0-63

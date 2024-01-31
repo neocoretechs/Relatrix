@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
  */
 public final class DBKey implements Comparable, Serializable {
 	private static final long serialVersionUID = -7511519913473997228L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	UUID instanceIndex = null;
 	UUID databaseIndex = null;
 	
@@ -183,7 +183,7 @@ public final class DBKey implements Comparable, Serializable {
 	@Override
 	public String toString() {
 		//synchronized(instanceIndex) {
-			return String.format("%s: key:%s %s%n", this.getClass().getName(), databaseIndex != null ? databaseIndex.toString() : "NULL" ,instanceIndex != null ? instanceIndex.toString() : "NULL");
+			return String.format("key:%s %s%n", databaseIndex != null ? databaseIndex.toString() : "NULL" ,instanceIndex != null ? instanceIndex.toString() : "NULL");
 		//}
 	}
 

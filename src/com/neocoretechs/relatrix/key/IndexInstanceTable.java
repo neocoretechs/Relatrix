@@ -23,7 +23,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	private Object mutex = new Object();
 	
 	/**
@@ -276,8 +276,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(sdb == null) {
 			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
 		}
+		if(DEBUG)
+			System.out.printf("%s getByIndex for key:%s produces db path:%s%n", this.getClass().getName(), index, sdb);
 		BufferedMap bm = DatabaseManager.getMapByPath(sdb, DBKey.class);
 		Object o =  bm.get(index);
+		if(DEBUG)
+			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
 		if(o == null)
 			return null;
 		return ((KeyValue)o).getmValue();

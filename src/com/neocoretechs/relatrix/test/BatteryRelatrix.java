@@ -368,8 +368,8 @@ public class BatteryRelatrix {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB");
 		long s = Relatrix.size();
+		System.out.println("CleanDB of "+s+" relationships");
 		Iterator it = Relatrix.findSet("*","*","*");
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
