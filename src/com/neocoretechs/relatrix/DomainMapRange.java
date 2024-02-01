@@ -32,11 +32,12 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 	public DomainMapRange(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, d, m, r);
 	}
-
-    /*
+    
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
+		if(keyCompare)
+			return super.compareTo(dmrpk);
 		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
 			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
 		DomainMapRange dmr = (DomainMapRange)dmrpk;
@@ -49,8 +50,7 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 			return 1;
 		//cmp = map.compareTo(dmr.map);
 		cmp = Morphism.fullCompareTo(getMap(), dmr.getMap());
-		// if uniqueKey is set, compare only the domain and map
-		if( uniqueKey || cmp != 0 ) return cmp;
+		if( cmp != 0 ) return cmp;
 		if( dmr.getRange() == null )
 			return 1;
 		//return range.compareTo(dmr.range);
@@ -59,6 +59,8 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 
 	@Override
 	public boolean equals(Object dmrpk) {
+		if(keyCompare)
+			return super.equals(dmrpk);
 		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
 			return Morphism.partialEquals(this, (Comparable) dmrpk);
 		DomainMapRange dmr = (DomainMapRange)dmrpk;
@@ -72,7 +74,7 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 			return false;
 		//cmp = map.equals(dmr.map);
 		cmp = Morphism.fullEquals(getMap(), dmr.getMap());
-		if( uniqueKey || !cmp ) return cmp;
+		if( !cmp ) return cmp;
 		if( dmr.getRange() == null )
 			return false;
 		//return range.equals(dmr.range);
@@ -81,13 +83,15 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 	
 	@Override
 	public int hashCode() {
+		if(keyCompare)
+			return super.hashCode();
 		int result = 17;
 		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
 		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
 		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
 		return result;
 	}
-	*/
+	
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -105,4 +109,5 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
     			(getMap() == null ? "NULL" : getMap()),
     			(getRange() == null ? "NULL" : getRange()));
     }
+
 }

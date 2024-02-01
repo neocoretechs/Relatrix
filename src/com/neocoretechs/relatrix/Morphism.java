@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.rocksack.NotifyDBCompareTo;
 
 /**
 * Morphism - domain, map, range structure
@@ -29,7 +30,7 @@ import com.neocoretechs.relatrix.key.KeySet;
 * sets from categories. The template class can be used to retrieve sets based on their class type.
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
-public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
+public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comparable, Externalizable, Cloneable {
 		private static boolean DEBUG = false;
 		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
 		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
@@ -40,6 +41,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         protected transient Comparable  range;        // range
         
         protected transient String alias = null;
+        
+        protected transient boolean keyCompare = true;
         
         public Morphism() {}
         
@@ -85,6 +88,16 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         @Override
         public abstract Object clone() throws CloneNotSupportedException;
         
+    	@Override
+    	public void preCompare() {
+    		keyCompare = true;
+    	}
+
+    	@Override
+    	public void postCompare() {
+    		keyCompare = false;
+    	}
+        
         @Override
     	public DBKey store() throws IllegalAccessException, ClassNotFoundException, DuplicateKeyException, IOException {
     		if(alias == null)
@@ -112,7 +125,15 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         public static void enforceStrictSchema(boolean strict) {
         	STRICT_SCHEMA = strict;
         }
-        
+        /**
+         * Method invoked from custom deserializer to indicate that RockSack is retrieving keys and
+         * comparison should be on keys rather then resolved instances.
+         * @param keyCompare true to indicate database is deserializing and {@link KeySet} {@link DBKey} should be comparred
+         */
+        public void setKeyCompare(boolean keyCompare) {
+        	this.keyCompare = keyCompare;
+        }
+      
         /**
          * Transparently process DBKey, returning actual instance. If the domain is already deserialized as an instance
          * it will be returned without further processing. If the domain is null and the key in the {@link KeySet} is

@@ -32,8 +32,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public class RelatrixIterator implements Iterator<Comparable[]> {
-	private static boolean DEBUG = false;
-	//TransactionalTreeSet deepStore;
+	private static boolean DEBUG = true;
 	protected Iterator iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;

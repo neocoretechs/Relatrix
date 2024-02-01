@@ -30,8 +30,11 @@ public class DomainRangeMap extends Morphism {
 	public DomainRangeMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, d,m,r);
 	}
+	
 	@Override
 	public int compareTo(Object o) {
+		if(!keyCompare)
+			return compareToResolved(o);
 		if(!((KeySet)o).isDomainKeyValid())
 			return 1;
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
@@ -49,6 +52,8 @@ public class DomainRangeMap extends Morphism {
 	} 
 	@Override
 	public boolean equals(Object o) {
+		if(!keyCompare)
+			return equalsResolved(o);
 		if(!((KeySet)o).isValid())
 			return false;
 		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
@@ -57,6 +62,8 @@ public class DomainRangeMap extends Morphism {
 	}
 	@Override
 	public int hashCode() {
+		if(!keyCompare)
+			return hashCodeResolved();
 	    final int prime = 31;
 	    int result = 1;
 		if(isDomainKeyValid())
@@ -68,10 +75,8 @@ public class DomainRangeMap extends Morphism {
 	    return result;
 	}
 	
-	/*
 	@SuppressWarnings("unchecked")
-	@Override
-	public int compareTo(Object dmrpk) {
+	public int compareToResolved(Object dmrpk) {
 		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
 			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
 		DomainRangeMap dmr = (DomainRangeMap)dmrpk;
@@ -92,8 +97,7 @@ public class DomainRangeMap extends Morphism {
 		return Morphism.fullCompareTo(getMap(), dmr.getMap());
 	}
 
-	@Override
-	public boolean equals(Object dmrpk) {
+	public boolean equalsResolved(Object dmrpk) {
 		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
 			return Morphism.partialEquals(this, (Comparable) dmrpk);
 		DomainRangeMap dmr = (DomainRangeMap)dmrpk;
@@ -114,15 +118,14 @@ public class DomainRangeMap extends Morphism {
 		return Morphism.fullEquals(getMap(), dmr.getMap());
 	}
  
-	@Override
-	public int hashCode() {
+	public int hashCodeResolved() {
 		int result = 17;
 		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
 		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
 		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
 		return result;
 	}
-	*/
+
     /*
     public Comparable returnTupleOrder(int n) {
     	// default dmr
