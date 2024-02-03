@@ -31,7 +31,7 @@ import com.neocoretechs.rocksack.NotifyDBCompareTo;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
 public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = false;
+		private static boolean DEBUG = true;
 		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
 		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
         static final long serialVersionUID = -9129948317265641091L;
@@ -42,7 +42,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         
         protected transient String alias = null;
         
-        protected transient boolean keyCompare = true;
+        protected transient boolean keyCompare = false;
         
         public Morphism() {}
         
@@ -98,13 +98,6 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
     		keyCompare = false;
     	}
         
-        @Override
-    	public DBKey store() throws IllegalAccessException, ClassNotFoundException, DuplicateKeyException, IOException {
-    		if(alias == null)
-    			return super.store();
-    		else
-    			return storeAlias(alias);
-    	}
     	
         /**
          * If true, enforces type checking for components of relationships. If classes are incompatible,

@@ -19,7 +19,9 @@ import com.neocoretechs.relatrix.key.KeySet;
  */
 public class DomainMapRange extends Morphism implements Comparable, Externalizable, Cloneable {
 	private static final long serialVersionUID = 8664384659501163179L;
-	
+	private static boolean DEBUG = true;
+    protected transient DBKey identity;
+    
     public DomainMapRange() {}
     
     public DomainMapRange(Comparable d, Comparable m, Comparable r) {
@@ -33,26 +35,36 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 		super(alias, d, m, r);
 	}
     
+	public DBKey getDBKey() {
+		return identity;
+	}
+	
+	public void setDBKey(DBKey identity) {
+		this.identity = identity;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
 		if(keyCompare)
 			return super.compareTo(dmrpk);
+		if(DEBUG)
+			System.out.println("Entering resolved compareTo for source:"+this+" target:"+dmrpk);
 		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
 			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
 		DomainMapRange dmr = (DomainMapRange)dmrpk;
 		if( dmr.getDomain() == null )
-			return 1;
+			return 0;
 		//int cmp = domain.compareTo(dmr.domain);
 		int cmp = Morphism.fullCompareTo(getDomain(), dmr.getDomain());
 		if( cmp != 0 ) return cmp;
 		if( dmr.getMap() == null )
-			return 1;
+			return 0;
 		//cmp = map.compareTo(dmr.map);
 		cmp = Morphism.fullCompareTo(getMap(), dmr.getMap());
 		if( cmp != 0 ) return cmp;
 		if( dmr.getRange() == null )
-			return 1;
+			return 0;
 		//return range.compareTo(dmr.range);
 		return Morphism.fullCompareTo(getRange(), dmr.getRange());
 	}
@@ -61,22 +73,24 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 	public boolean equals(Object dmrpk) {
 		if(keyCompare)
 			return super.equals(dmrpk);
+		if(DEBUG)
+			System.out.println("Entering resolved equals for source:"+this+" target:"+dmrpk);
 		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
 			return Morphism.partialEquals(this, (Comparable) dmrpk);
 		DomainMapRange dmr = (DomainMapRange)dmrpk;
 		boolean cmp = false;
 		if( dmr.getDomain() == null )
-			return false;
+			return true;
 		//cmp = domain.equals(dmr.domain);
 		cmp = Morphism.fullEquals(getDomain(), dmr.getDomain());
 		if( !cmp ) return cmp;
 		if( dmr.getMap() == null )
-			return false;
+			return true;
 		//cmp = map.equals(dmr.map);
 		cmp = Morphism.fullEquals(getMap(), dmr.getMap());
 		if( !cmp ) return cmp;
 		if( dmr.getRange() == null )
-			return false;
+			return true;
 		//return range.equals(dmr.range);
 		return Morphism.fullEquals(getRange(), dmr.getRange());
 	}

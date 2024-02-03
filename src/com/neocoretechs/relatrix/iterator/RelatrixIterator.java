@@ -69,7 +69,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIterator "+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
+			System.out.println("RelatrixIterator hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", template:"+base);
     }
 	/**
 	 * Pass the array we use to indicate which values to return and element 0 counter
@@ -98,13 +98,13 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIterator "+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
+			System.out.println("RelatrixIterator hasNext:"+iter.hasNext()+", needsIter"+needsIter+", buffer:"+buffer+", template:"+base);
 	}
 	
 	@Override
 	public boolean hasNext() {
 		if( DEBUG )
-			System.out.println("RelatrixIterator.hasNext() "+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+			System.out.println("RelatrixIterator.hasNext() "+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
 		return needsIter;
 	}
 
@@ -114,7 +114,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 		try {
 		if( buffer == null || needsIter) {
 			if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.next() before iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+	    			System.out.println("RelatrixIterator.next() before iteration hasNext::"+iter.hasNext()+" needsIter:"+needsIter+", buffer:"+buffer+", nextit"+nextit);
 			}
 			if( nextit != null )
 				buffer = nextit;
@@ -132,7 +132,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 		}
 		// always return using this with non null buffer
 		if( DEBUG ) {
-			System.out.println("RelatrixIterator.next() template match after iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+			System.out.println("RelatrixIterator.next() template match after iteration hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
 		}
 		return iterateDmr();
 		
@@ -219,7 +219,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	 */
 	protected static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
-			System.out.println("RelatrixIterator.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
+			System.out.println("RelatrixIterator.templateMatches template:"+template+" record:"+record+" dmr_return:"+dmr_return[0]+","+dmr_return[1]+","+dmr_return[2]+","+dmr_return[3]);
 		if( dmr_return[1] == 0 && template.getDomain().compareTo(record.getDomain()) != 0 ) return false;
 		if( dmr_return[2] == 0 && template.getMap().compareTo(record.getMap()) != 0 ) return false;
 		if( dmr_return[3] == 0 && template.getRange().compareTo(record.getRange()) != 0) return false;

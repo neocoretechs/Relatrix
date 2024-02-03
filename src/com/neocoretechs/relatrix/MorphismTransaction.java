@@ -262,18 +262,6 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		}
 	}
 
-	/**
-	 * key combinations for Relatrix follow
-	 */
-	public abstract int compareTo(Object dmrpk);
-	public abstract boolean equals(Object dmrpk);
-	public abstract Object clone() throws CloneNotSupportedException;
 
 
-	public DBKey store() throws IllegalAccessException, ClassNotFoundException, DuplicateKeyException, IOException {
-		if(alias == null)
-			return super.store(transactionId);
-		else
-			return storeAlias(alias,transactionId);
-	}
 }

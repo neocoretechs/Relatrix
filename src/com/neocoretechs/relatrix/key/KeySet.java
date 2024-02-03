@@ -16,14 +16,17 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  */
 public class KeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
+	private static boolean DEBUG = true;
 	private DBKey domainKey = new DBKey();
     private DBKey mapKey = new DBKey();
     private DBKey rangeKey = new DBKey();
-    protected transient boolean primaryKeyCheck = false;
+    private boolean primaryKeyCheck = false;
 
     public KeySet() {}
     
     public void setPrimaryKeyCheck(boolean check) {
+    	if(DEBUG)
+    		System.out.println("Setting primary key check:"+check+" for "+this);
     	primaryKeyCheck = check;
     }
     
@@ -125,49 +128,6 @@ public class KeySet implements Externalizable, Comparable {
 		setPrimaryKeyCheck(false);
 		return DBKey.newKeyAlias(alias, xid, indexTable, this);
 	}
-	/**
-	 * Store the instances to index and instance tables creating instance/DBKey and DBKey/instance tablespace entries
-	 * @return the key of stored KeySet, which represents domain, map, range identity triplet index unique by domain and map
-	 * @throws DuplicateKeyException if domain/map key already exist
-	 * @throws IllegalAccessException
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	public DBKey store() throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setPrimaryKeyCheck(true);
-		if(RelatrixKV.get(this) != null)
-				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
-		return DBKey.newKey(indexTable, this);
-	}
-	
-	public DBKey storeAlias(String alias) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setPrimaryKeyCheck(true);
-		if(RelatrixKV.get(alias, this) != null)
-				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
-		return DBKey.newKeyAlias(alias, indexTable, this);
-	}
-	
-	public DBKey store(String xid) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setPrimaryKeyCheck(true);
-		if(RelatrixKVTransaction.get(xid, this) != null)
-				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
-		return DBKey.newKey(xid, indexTable, this);
-	}
-	
-	public DBKey storeAlias(String alias, String xid) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setPrimaryKeyCheck(true);
-		if(RelatrixKVTransaction.get(alias, xid, this) != null)
-				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
-		return DBKey.newKeyAlias(alias, xid, indexTable, this);
-	}
 	 
 	
 	@Override  
@@ -175,6 +135,7 @@ public class KeySet implements Externalizable, Comparable {
 		setDomainKey((DBKey) in.readObject());
 		setMapKey((DBKey) in.readObject());
 		setRangeKey((DBKey) in.readObject());
+		primaryKeyCheck = in.readBoolean();
 	} 
 	
 	@Override  
@@ -182,30 +143,36 @@ public class KeySet implements Externalizable, Comparable {
 		out.writeObject(getDomainKey());
 		out.writeObject(getMapKey());
 		out.writeObject(getRangeKey());
+		out.writeBoolean(primaryKeyCheck);
 	}
 	@Override
 	public int compareTo(Object o) {
+		if(DEBUG)
+			System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
 		if(!((KeySet)o).isDomainKeyValid())
-			return 1;
+			return 0;
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
 		if(i != 0)
 			return i;
 		if(!((KeySet)o).isMapKeyValid())
-			return 1;
+			return 0;
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(primaryKeyCheck)
+		if(primaryKeyCheck || ((KeySet)o).primaryKeyCheck) {
+			if(DEBUG)
+				System.out.println("***** Primary key check for "+getDomainKey()+" "+getMapKey()+" returning "+i);
 			return i;
+		}
 		if(i != 0)
 			return i;
 		if(!((KeySet)o).isRangeKeyValid())
-			return 1;
+			return 0;
 		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
 	} 
 	@Override
 	public boolean equals(Object o) {
 		if(!((KeySet)o).isValid())
 			return false;
-		if(primaryKeyCheck)
+		if(primaryKeyCheck || ((KeySet)o).primaryKeyCheck)
 			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
 					getMapKey().equals(((KeySet)o).getMapKey());
 		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&

@@ -33,17 +33,17 @@ public class RangeMapDomain extends Morphism {
 		if(!keyCompare)
 			return compareToResolved(o);
 		if(!((KeySet)o).isRangeKeyValid())
-			return 1;
+			return 0;
 		int i = getRangeKey().compareTo(((KeySet)o).getRangeKey());
 		if(i != 0)
 			return i;
 		if(!((KeySet)o).isMapKeyValid())
-			return 1;
+			return 0;
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
 		if(i != 0)
 			return i;
 		if(!((KeySet)o).isDomainKeyValid())
-			return 1;
+			return 0;
 		return getDomainKey().compareTo(((KeySet)o).getDomainKey());
 	} 
 	@Override
@@ -51,7 +51,7 @@ public class RangeMapDomain extends Morphism {
 		if(!keyCompare)
 			return equalsResolved(o);
 		if(!((KeySet)o).isValid())
-			return false;
+			return true;
 		return getRangeKey().equals(((KeySet)o).getRangeKey()) &&
 				getMapKey().equals(((KeySet)o).getMapKey()) &&
 				getDomainKey().equals(((KeySet)o).getDomainKey());
@@ -78,17 +78,17 @@ public class RangeMapDomain extends Morphism {
 		RangeMapDomain dmr = (RangeMapDomain)dmrpk;
 		int cmp = 0;
 		if( dmr.getRange() == null )
-			return 1;
+			return 0;
 		//cmp = range.compareTo(dmr.range);
 		cmp = Morphism.fullCompareTo(getRange(), dmr.getRange());
 		if( cmp != 0 ) return cmp;
 		if( dmr.getMap() == null )
-			return 1;
+			return 0;
 		//cmp = map.compareTo(dmr.map);
 		cmp = Morphism.fullCompareTo(getMap(), dmr.getMap());
 		if( cmp != 0 ) return cmp;
 		if( dmr.getDomain() == null )
-			return 1;
+			return 0;
 		//return domain.compareTo(dmr.domain);
 		return Morphism.fullCompareTo(getDomain(), dmr.getDomain());
 
@@ -100,17 +100,17 @@ public class RangeMapDomain extends Morphism {
 		RangeMapDomain dmr = (RangeMapDomain)dmrpk;
 		boolean cmp = false;
 		if( dmr.getRange() == null )
-			return false;
+			return true;
 		//cmp = range.equals(dmr.range);
 		cmp = Morphism.fullEquals(getRange(), dmr.getRange());
 		if( !cmp ) return cmp;
 		if( dmr.getMap() == null )
-			return false;
+			return true;
 		//cmp = map.equals(dmr.map);
 		cmp = Morphism.fullEquals(getMap(), dmr.getMap());
 		if( !cmp ) return cmp;
 		if( dmr.getDomain() == null )
-			return false;
+			return true;
 		//return domain.equals(dmr.domain);
 		return Morphism.fullEquals(getDomain(), dmr.getDomain());
 	}

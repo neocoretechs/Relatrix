@@ -18,6 +18,7 @@ import com.neocoretechs.relatrix.key.KeySet;
  */
 public class DomainMapRangeTransaction extends MorphismTransaction {
 	private static final long serialVersionUID = 8664384659501163179L;
+	protected transient DBKey identity;
 	
     public DomainMapRangeTransaction() {}
     
@@ -29,8 +30,13 @@ public class DomainMapRangeTransaction extends MorphismTransaction {
     }
 	public DomainMapRangeTransaction(String alias, String transactionId, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, transactionId, d, m, r);
+	}	
+	public DBKey getDBKey() {
+		return identity;
+	}	
+	public void setDBKey(DBKey identity) {
+		this.identity = identity;
 	}
- 
     /*
 	@SuppressWarnings("unchecked")
 	@Override
@@ -86,38 +92,6 @@ public class DomainMapRangeTransaction extends MorphismTransaction {
 		return result;
 	}
 	*/
-	@Override
-	public int compareTo(Object o) {
-		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
-		if(i != 0)
-			return i;
-		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(primaryKeyCheck)
-			return i;
-		if(i != 0)
-			return i;
-		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
-	} 
-	@Override
-	public boolean equals(Object o) {
-		if(primaryKeyCheck)
-			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-					getMapKey().equals(((KeySet)o).getMapKey());
-		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-				getMapKey().equals(((KeySet)o).getMapKey()) &&
-				getRangeKey().equals(((KeySet)o).getRangeKey());
-	}
-	@Override
-	public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + getDomainKey().hashCode();
-	    result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
-	    if(!primaryKeyCheck)
-	    	result = prime * result + getRangeKey().hashCode();
-	    return result;
-	}
-	
 
     @Override
     public Object clone() throws CloneNotSupportedException {

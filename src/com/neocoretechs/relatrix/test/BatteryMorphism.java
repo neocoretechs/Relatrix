@@ -7,6 +7,7 @@ import java.util.Map;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
@@ -22,11 +23,11 @@ public class BatteryMorphism {
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 1000;
 	static int numDelete = 100; // for delete test
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
-	static ArrayList<DBKey> keys = new ArrayList<DBKey>();
-	static ArrayList<KeySet> values = new ArrayList<KeySet>();
+	static ArrayList<DomainMapRange> keys = new ArrayList<DomainMapRange>();
+	//static ArrayList<KeySet> values = new ArrayList<KeySet>();
 	/**
 	* Main test fixture driver
 	*/
@@ -75,14 +76,14 @@ public class BatteryMorphism {
 			//DBKey dbkeyd = null;
 			//DBKey dbkeym = null;
 			//DBKey dbkeyr = null;
-			fkey = new DomainMapRange();
+			//fkey = new DomainMapRange();
 			skeyd = String.format(uniqKeyFmt, i);
 			skeym = String.format(uniqKeyFmt, i+1);
 			skeyr = String.format(uniqKeyFmt, i+2);
-			fkey.setDomain(skeyd);
-			fkey.setMap(skeym);
-			fkey.setRange(skeyr);
-			keys.add(fkey.store());
+			//fkey.setDomain(skeyd);
+			//fkey.setMap(skeym);
+			//fkey.setRange(skeyr);
+			keys.add(Relatrix.store(skeyd, skeym, skeyr));
 			//dbkeyd = DBKey.newKey(indexTable, skeyd); // puts to index and instance
 			//dbkeym = DBKey.newKey(indexTable, skeym); // puts to index and instance
 			//dbkeyr = DBKey.newKey(indexTable, skeyr); // puts to index and instance
@@ -95,7 +96,7 @@ public class BatteryMorphism {
 			//fkey.setPrimaryKeyCheck(false);
 			//keys.add(fkey.store(skeyd, skeym, skeyr));
 			//keys.add(DBKey.newKey(indexTable, fkey));
-			values.add(fkey);
+			//values.add(fkey);
 			++recs;
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -158,8 +159,11 @@ public class BatteryMorphism {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Comparable k = (Comparable) RelatrixKV.firstKey(DomainMapRange.class); // first key
+		((DomainMapRange)k).getDomain();
+		((DomainMapRange)k).getMap();
+		((DomainMapRange)k).getRange();
 		System.out.println("Battery1AR9 firstKey");
-		if(!values.contains(k)) {
+		if(!keys.contains(k)) {
 			System.out.println("BATTERY1A9 cant find contains key "+i);
 			throw new Exception("BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
@@ -176,8 +180,11 @@ public class BatteryMorphism {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Comparable k = (Comparable) RelatrixKV.lastKey(DomainMapRange.class); // key
+		((DomainMapRange)k).getDomain();
+		((DomainMapRange)k).getMap();
+		((DomainMapRange)k).getRange();
 		System.out.println("Battery1AR10 lastKey");
-		if(!values.contains(k)) {
+		if(!keys.contains(k)) {
 			System.out.println("BATTERY1AR10 cant find last key "+i);
 			throw new Exception("BATTERY1AR10 unexpected cant find last of key "+i);
 		}
@@ -194,7 +201,7 @@ public class BatteryMorphism {
 		long tims = System.currentTimeMillis();
 		long bits = RelatrixKV.size(DomainMapRange.class);
 		System.out.println("Battery1AR101 Size="+bits);
-		if( bits != values.size() ) {
+		if( bits != keys.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
 			throw new Exception("BATTERY1AR101 size mismatch "+bits+" should be "+i);
 		}

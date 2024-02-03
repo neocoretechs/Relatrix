@@ -23,7 +23,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private Object mutex = new Object();
 	
 	/**
@@ -46,6 +46,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
+				if(DEBUG)
+					System.out.printf("%s.put new instance key=%s%n", this.getClass().getName(), index);
 				// no new instance exists. store both new entries
 				try {
 					RelatrixKV.store(index, instance);
@@ -56,6 +58,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					throw new IOException(e);
 				}
 			}
+			if(DEBUG)
+				System.out.printf("%s.put existing instance key=%s%n", this.getClass().getName(), retKey);
 			return retKey;
 		}
 	}
@@ -290,7 +294,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	
 	/**
 	 * Get the instance contained in the passed DBKey using a transactional context. 
-	 * @param transactionId the trasnaction
+	 * @param transactionId the transaction
 	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
 	 * @return
 	 * @throws IllegalAccessException
@@ -325,6 +329,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
+		if(DEBUG) {
+			DBKey dbkey = (DBKey) RelatrixKV.get((Comparable) instance);
+			System.out.printf("%s getByInstance for key:%s produces key:%s%n", this.getClass().getName(), instance, dbkey);
+			return dbkey;
+		}
 			return (DBKey) RelatrixKV.get((Comparable) instance);
 		//}
 	}
