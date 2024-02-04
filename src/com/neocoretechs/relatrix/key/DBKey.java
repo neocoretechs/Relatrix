@@ -43,8 +43,10 @@ public final class DBKey implements Comparable, Serializable {
 		}
 	}
 	
-	public boolean isValid() {
-		return databaseIndex != null && instanceIndex != null;
+	public static boolean isValid(DBKey key) {
+		if(key == null)
+			return false;
+		return key.databaseIndex != null && key.instanceIndex != null;
 	}
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.

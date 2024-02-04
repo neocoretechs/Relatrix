@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -51,7 +52,20 @@ public class RelatrixHeadmapKVStream<T,V> implements Stream<T> {
     	if( DEBUG )
 			System.out.println("RelatrixHeadmapKVIterator "+stream);
     }
-    
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param dmr_return
+     * @throws IOException 
+     */
+    public RelatrixHeadmapKVStream(String alias, Comparable template) throws IOException, NoSuchElementException {
+    	try {
+			stream = RelatrixKV.findHeadMapKVStream(alias, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( DEBUG )
+			System.out.println("RelatrixHeadmapKVIterator "+stream);
+    }
 	@Override
 	public Iterator<T> iterator() {
 		return stream.iterator();

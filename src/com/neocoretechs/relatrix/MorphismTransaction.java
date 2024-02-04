@@ -87,7 +87,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		try {
 			if(domain != null)
 				return domain;
-			if(getDomainKey().isValid()) {
+			if(DBKey.isValid(getDomainKey())) {
 				domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getDomainKey());
 			}
 			return domain;
@@ -102,7 +102,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 			if(domain == null) {
 				setDomainKey(new DBKey());
 			} else {
-				if(getDomainKey().isValid()) {
+				if(DBKey.isValid(getDomainKey())) {
 					this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getDomainKey());
 				} else {
 					DBKey dbKey = null;
@@ -138,7 +138,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 			if(domain == null) {
 				setDomainKey(new DBKey());
 			} else {
-				if(getDomainKey().isValid()) {
+				if(DBKey.isValid(getDomainKey())) {
 					this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getDomainKey());
 				} else {
 					DBKey dbKey = null;
@@ -157,7 +157,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		try {
 			if(map != null) 
 				return map;
-			if(getMapKey().isValid()) {
+			if(DBKey.isValid(getMapKey())) {
 				map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getMapKey());
 			}
 			return map;
@@ -172,7 +172,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 			if(map == null) {
 				setMapKey(new DBKey());
 			} else {
-				if(getMapKey().isValid()) {
+				if(DBKey.isValid(getMapKey())) {
 					this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getMapKey());
 				} else {
 					DBKey dbKey = null;
@@ -192,7 +192,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 			if(map == null) {
 				setMapKey(new DBKey());
 			} else {
-				if(getMapKey().isValid()) {
+				if(DBKey.isValid(getMapKey())) {
 					this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getMapKey());
 				} else {
 					DBKey dbKey = null;
@@ -211,7 +211,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		try {
 			if(range != null)
 				return range;
-			if(getRangeKey().isValid()) {
+			if(DBKey.isValid(getRangeKey())) {
 				range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getRangeKey());
 			}
 			return range;
@@ -226,7 +226,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 			if(range == null) {
 				setRangeKey(new DBKey());
 			} else {
-				if(getRangeKey().isValid()) {
+				if(DBKey.isValid(getRangeKey())) {
 					this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getRangeKey());
 				} else {
 					DBKey dbKey = null;
@@ -247,7 +247,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 			if(range == null) {
 				setRangeKey(new DBKey());
 			} else {
-				if(getRangeKey().isValid()) {
+				if(DBKey.isValid(getRangeKey())) {
 					this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getRangeKey());
 				} else {
 					DBKey dbKey = null;

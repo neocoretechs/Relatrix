@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -26,5 +27,9 @@ public class FindHeadSetStreamMode1 extends FindSetStreamMode1 {
 	   @Override
 	   protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 		    return new RelatrixHeadsetStream(tdmr, dmr_return);
+	   }
+	   @Override
+	   protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		    return new RelatrixHeadsetStream(alias, tdmr, dmr_return);
 	   }
 }

@@ -50,16 +50,16 @@ public class KeySet implements Externalizable, Comparable {
 	}
 
 	public boolean isValid() {
-		return domainKey.isValid() && mapKey.isValid() && rangeKey.isValid();
+		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey) && DBKey.isValid(rangeKey);
 	}
 	public boolean isDomainKeyValid() {
-		return domainKey.isValid();
+		return DBKey.isValid(domainKey);
 	}
 	public boolean isMapKeyValid() {
-		return mapKey.isValid();
+		return DBKey.isValid(mapKey);
 	}
 	public boolean isRangeKeyValid() {
-		return rangeKey.isValid();
+		return DBKey.isValid(rangeKey);
 	}
 	public boolean domainKeyEquals(KeySet o) {
 		return domainKey.equals(o.domainKey);

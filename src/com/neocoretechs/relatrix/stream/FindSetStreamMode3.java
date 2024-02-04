@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -52,5 +53,14 @@ public class FindSetStreamMode3 extends StreamFactory {
 	 */
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixStream(tdmr, dmr_return);
+	}
+	@Override
+	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	    Morphism dmr = new MapRangeDomain(alias, null, (Comparable)marg, (Comparable)rarg, true);
+	    return createRelatrixStream(alias, dmr);
+	}
+	@Override
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixStream(alias, tdmr, dmr_return);
 	}
 }

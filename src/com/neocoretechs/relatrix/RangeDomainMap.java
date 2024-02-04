@@ -43,6 +43,10 @@ public class RangeDomainMap extends Morphism {
     	this(identity);
     	this.alias = alias;
     }
+	public RangeDomainMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
+		super(alias, d, m, r, b);
+	}
+
 	@Override
 	public int compareTo(Object o) {
 		if(!keyCompare)

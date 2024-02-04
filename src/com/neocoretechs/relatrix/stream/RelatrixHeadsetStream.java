@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -61,7 +62,20 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
 			throw new IOException(e);
 		}
     }
-    
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param dmr_return
+     * @throws IOException 
+     */
+    public RelatrixHeadsetStream(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.dmr_return = dmr_return;
+    	identity = RelatrixStream.isIdentity(this.dmr_return);
+    	try {
+			stream = RelatrixKV.findHeadMapStream(alias, template);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    }
 	@Override
 	public Iterator<T> iterator() {
 		return stream.iterator();

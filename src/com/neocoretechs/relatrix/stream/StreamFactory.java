@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -26,12 +27,31 @@ import com.neocoretechs.relatrix.Relatrix;
 		 */
 		public abstract Stream<?> createStream() throws IllegalAccessException, IOException;
 		/**
+		 * Create the stream. Factory method, abstract.
+		 * @param alias database alias
+		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
+		 * @throws IllegalAccessException
+		 * @throws IOException
+		 * @throws NoSuchElementException if alias doestn exist
+		 */
+		public abstract Stream<?> createStream(String alias) throws IllegalAccessException, IOException, NoSuchElementException;
+		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixStream
 		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
 		protected abstract Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException;
+		/**
+		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixStream
+		 * @param alias database alias
+		 * @param tdmr The template {@link Morphism}
+		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
+		 * @throws IllegalAccessException
+		 * @throws IOException
+		 * @throws NoSuchElementException if alias doestn exist
+		 */
+		protected abstract Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
 		
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure

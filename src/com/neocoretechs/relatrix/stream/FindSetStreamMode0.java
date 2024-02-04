@@ -1,7 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -78,8 +78,53 @@ public class FindSetStreamMode0 extends StreamFactory {
 	    return createRelatrixStream(dmr);
 	}
 	
+	/**
+	 * @param alias the database alias
+	 * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+	 * @throws NoSuchElementException if alias doesnt exist
+	 */
 	@Override
+	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+		Morphism dmr = null;
+		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
+		case 0: // dmr
+			dmr = new DomainMapRange(alias, null, null, null, true);
+			break;
+		case 1: // drm
+			dmr = new DomainRangeMap(alias, null, null, null, true);
+			break;
+		case 2: // mdr
+			dmr = new MapDomainRange(alias, null, null, null, true);
+			break;
+		case 3: // mrd
+			dmr = new MapRangeDomain(alias, null, null, null, true);
+			break;
+		case 4: // rdm
+			dmr = new RangeDomainMap(alias, null, null, null, true);
+			break;
+		case 5: // rmd
+			dmr = new RangeMapDomain(alias, null, null, null, true);
+			break;
+		}
+		if( DEBUG  )
+			System.out.println("Relatrix FindSetStreamMode0.createStream setting search for "+dmr);
+		return createRelatrixStream(alias, dmr);
+	}
+
+	@Override
+	/**
+	 * @param tdmr Morphism the template
+	 */
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixStream(tdmr, dmr_return);
+		return new RelatrixStream(tdmr, dmr_return);
+	}
+
+	@Override
+	/**
+	 * @param alias database alias
+	 * @param tdmr The template Morphism
+	 */
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		return new RelatrixStream(alias, tdmr, dmr_return);
 	}
 }

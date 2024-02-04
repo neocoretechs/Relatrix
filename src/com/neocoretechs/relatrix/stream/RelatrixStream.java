@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -61,6 +62,7 @@ public class RelatrixStream<T> implements Stream<T> {
     public RelatrixStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
+     * @param template the {@link Morphism} template
      * @param dmr_return the template {@link Morphism} from which we extract the class to obtain a stream from {@link RelatrixKV}
      * @throws IOException 
      */
@@ -77,7 +79,27 @@ public class RelatrixStream<T> implements Stream<T> {
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
     }
-    
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param alias database alias
+     * @param template the {@link Morphism} template
+     * @param dmr_return the template {@link Morphism} from which we extract the class to obtain a stream from {@link RelatrixKV}
+     * @throws IOException 
+     * @throws NoSuchElementException if alias does not exist
+     */
+    public RelatrixStream(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.dmr_return = dmr_return;
+    	this.base = template;
+    	identity = isIdentity(this.dmr_return);
+    	try {
+			stream = RelatrixKV.keySetStream(alias, template.getClass());
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+
+    	if( DEBUG )
+			System.out.println("RelatrixStream alias:"+alias+" stream:"+stream+" template:"+base);
+    }
 
 	@Override
 	public Iterator<T> iterator() {

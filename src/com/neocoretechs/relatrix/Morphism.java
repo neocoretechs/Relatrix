@@ -85,6 +85,21 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
             setRangeTemplate(r);
         }
         
+        /**
+         * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
+         * and provide a default empty KeySet. A template is used for retrieval and checking for
+         * existence of relationships without creating a permanent entry in the database.
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(String alias, Comparable d, Comparable m, Comparable r, boolean template) {
+        	this.alias = alias;
+        	setDomainTemplate(d);
+            setMapTemplate(m);
+            setRangeTemplate(r);
+        }
+        
         @Override
         public abstract Object clone() throws CloneNotSupportedException;
         
@@ -141,7 +156,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 			try {
 				if(domain != null)
 					return domain;
-				if(getDomainKey().isValid()) {
+				if(DBKey.isValid(getDomainKey())) {
 					domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getDomainKey());
 				}
 				return domain;
@@ -169,7 +184,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				if(domain == null) {
 					setDomainKey(new DBKey());
 				} else {
-					if(getDomainKey().isValid()) {
+					if(DBKey.isValid(getDomainKey())) {
 						this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getDomainKey());
 					} else {
 						DBKey dbKey = null;
@@ -206,7 +221,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				if(domain == null) {
 					setDomainKey(new DBKey());
 				} else {
-					if(getDomainKey().isValid()) {
+					if(DBKey.isValid(getDomainKey())) {
 						this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getDomainKey());
 					} else {
 						DBKey dbKey = null;
@@ -228,7 +243,17 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 		 */
 		public void setDomainTemplate(Comparable<?> domain) {
 			this.domain = domain;
-			setDomainKey(new DBKey());
+			if(domain == null) {
+				setDomainKey(null);
+			} else {
+				try {
+					if(alias != null) {
+						setDomainKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,domain));
+					} else {
+						setDomainKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(domain));
+					}
+				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
+			}
 		}
 	    /**
          * Transparently process DBKey, returning actual instance. If the map is already deserialized as an instance
@@ -244,7 +269,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 			try {
 				if(map != null) 
 					return map;
-				if(getMapKey().isValid()) {
+				if(DBKey.isValid(getMapKey())) {
 					map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getMapKey());
 				}
 				return map;
@@ -272,7 +297,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				if(map == null) {
 					setMapKey(new DBKey());
 				} else {
-					if(getMapKey().isValid()) {
+					if(DBKey.isValid(getMapKey())) {
 						this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getMapKey());
 					} else {
 						DBKey dbKey = null;
@@ -293,7 +318,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				if(map == null) {
 					setMapKey(new DBKey());
 				} else {
-					if(getMapKey().isValid()) {
+					if(DBKey.isValid(getMapKey())) {
 						this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getMapKey());
 					} else {
 						DBKey dbKey = null;
@@ -310,7 +335,17 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 		
 		public void setMapTemplate(Comparable<?> map) {
 			this.map = map;
-			setMapKey(new DBKey());
+			if(map == null) {
+				setMapKey(null);
+			} else {
+				try {
+					if(alias != null) {
+						setMapKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,map));
+					} else {
+						setDomainKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(map));
+					}
+				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
+			}
 		}
 	    /**
          * Transparently process DBKey, returning actual instance. If the range is already deserialized as an instance
@@ -326,7 +361,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 			try {
 				if(range != null)
 					return range;
-				if(getRangeKey().isValid()) {
+				if(DBKey.isValid(getRangeKey())) {
 					range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getRangeKey());
 				}
 				return range;
@@ -354,7 +389,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				if(range == null) {
 					setRangeKey(new DBKey());
 				} else {
-					if(getRangeKey().isValid()) {
+					if(DBKey.isValid(getRangeKey())) {
 						this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getRangeKey());
 					} else {
 						DBKey dbKey = null;
@@ -375,7 +410,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				if(range == null) {
 					setRangeKey(new DBKey());
 				} else {
-					if(getRangeKey().isValid()) {
+					if(DBKey.isValid(getRangeKey())) {
 						this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getRangeKey());
 					} else {
 						DBKey dbKey = null;
@@ -392,7 +427,17 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 		
 		public void setRangeTemplate(Comparable<?> range) {
 			this.range = range;
-			setRangeKey(new DBKey());
+			if(range == null) {
+				setRangeKey(null);
+			} else {
+				try {
+					if(alias != null) {
+						setRangeKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,range));
+					} else {
+						setRangeKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(range));
+					}
+				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
+			}
 		}
 		       
         /**

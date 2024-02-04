@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -61,7 +62,22 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
 			throw new IOException(e);
 		}
     }
-    
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param template The starting position of the retrieval
+     * @param template2 The ending position of the retrieval
+     * @param dmr_return The encoded tuple control array that here just tells us if we have an identity
+     * @throws IOException 
+     */
+    public RelatrixSubsetStream(String alias, Morphism template, Morphism template2, short[] dmr_return) throws IOException, NoSuchElementException {
+    	this.dmr_return = dmr_return;
+    	identity = RelatrixStream.isIdentity(this.dmr_return);
+    	try {
+			stream = RelatrixKV.findSubMapStream(alias, template, template2);
+		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    }
 	@Override
 	public Iterator<T> iterator() {
 		return stream.iterator();

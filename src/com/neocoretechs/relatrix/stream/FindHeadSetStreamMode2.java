@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -32,5 +33,12 @@ public class FindHeadSetStreamMode2 extends FindSetStreamMode2 {
 	@Override
 	public Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixHeadsetStream(tdmr, dmr_return);
+	}
+	/**
+     * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		return new RelatrixHeadsetStream(alias, tdmr, dmr_return);
 	}
 }

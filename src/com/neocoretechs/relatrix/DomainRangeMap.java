@@ -46,6 +46,10 @@ public class DomainRangeMap extends Morphism {
 		super(alias, d,m,r);
 	}
 	
+	public DomainRangeMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
+		super(alias, d, m, r, b);
+	}
+
 	@Override
 	public int compareTo(Object o) {
 		if(!keyCompare)

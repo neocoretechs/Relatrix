@@ -58,7 +58,7 @@ public class FindSetMode4 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism dmr = new DomainMapRange((Comparable)darg, null, null, true);
+		Morphism dmr = new DomainMapRange(alias, (Comparable)darg, null, null, true);
 		return createRelatrixIterator(alias, dmr);
 	}
 	@Override

@@ -22,6 +22,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.stream.StreamFactory;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 
@@ -533,12 +534,12 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
-		Morphism dmr = new DomainMapRange(d,m,r,true);
-		DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
-		MapDomainRange mdr = new MapDomainRange(d,m,r,true);
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
+		Morphism dmr = new DomainMapRange(alias,d,m,r,true);
+		DomainRangeMap drm = new DomainRangeMap(alias,d,m,r,true);
+		MapDomainRange mdr = new MapDomainRange(alias,d,m,r,true);
+		MapRangeDomain mrd = new MapRangeDomain(alias,d,m,r,true);
+		RangeDomainMap rdm = new RangeDomainMap(alias,d,m,r,true);
+		RangeMapDomain rmd = new RangeMapDomain(alias,d,m,r,true);
 
 		try {
 			Object o = RelatrixKV.get(alias, dmr);
@@ -677,16 +678,20 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
+		return sfact.createStream();
 	}
 
 	public static synchronized Stream<?> findStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		//IteratorFactory ifact = IteratorFactory.createFactory(alias, darg, marg, rarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createFactory(alias, darg, marg, rarg);
+		return sfact.createStream(alias);
 	}
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -751,9 +756,11 @@ public final class Relatrix {
 				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
 			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
+		return sfact.createStream();
+		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 
 	public static synchronized Stream<?> findTailStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
@@ -763,9 +770,11 @@ public final class Relatrix {
 				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
 			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createFactory(alias, darg, marg, rarg);
+		return sfact.createStream(alias);
+		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -793,7 +802,7 @@ public final class Relatrix {
 	public static synchronized Iterator<?> findHeadSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(alias, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
 	/**
@@ -816,17 +825,21 @@ public final class Relatrix {
 	public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg);
+		return sfact.createStream();
 	}
 
 	public static synchronized Stream<?> findHeadStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createHeadsetFactory(alias, darg, marg, rarg);
+		return sfact.createStream(alias);
 	}
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
@@ -919,9 +932,11 @@ public final class Relatrix {
 		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 		if( numberObjects != endarg.length)
 			throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
-		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createSubsetFactory(darg, marg, rarg, endarg);
+		return sfact.createStream();
 	}
 
 	public static synchronized Stream<?> findSubStream(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
@@ -937,9 +952,11 @@ public final class Relatrix {
 		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
 		if( numberObjects != endarg.length)
 			throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
-		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
+		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		StreamFactory sfact = StreamFactory.createSubsetFactory(alias, darg, marg, rarg, endarg);
+		return sfact.createStream(alias);
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
@@ -1046,7 +1063,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Object last() throws IOException
 	{
-
 		try {
 			return RelatrixKV.lastKey(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1056,7 +1072,6 @@ public final class Relatrix {
 
 	public static synchronized Object last(String alias) throws IOException, NoSuchElementException
 	{
-
 		try {
 			return RelatrixKV.lastKey(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1071,7 +1086,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Object lastKey() throws IOException
 	{
-
 		try {
 			return RelatrixKV.lastKey(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1081,7 +1095,6 @@ public final class Relatrix {
 
 	public static synchronized Object lastKey(String alias) throws IOException, NoSuchElementException
 	{
-
 		try {
 			return RelatrixKV.lastKey(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1096,7 +1109,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Object lastValue() throws IOException
 	{
-
 		try {
 			return RelatrixKV.lastValue(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1106,7 +1118,6 @@ public final class Relatrix {
 
 	public static synchronized Object lastValue(String alias) throws IOException, NoSuchElementException
 	{
-
 		try {
 			return RelatrixKV.lastValue(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1199,7 +1210,6 @@ public final class Relatrix {
 
 	public static synchronized long size(String alias) throws IOException, NoSuchElementException
 	{
-
 		try {
 			return RelatrixKV.size(alias, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1214,7 +1224,6 @@ public final class Relatrix {
 	 */
 	public static synchronized boolean contains(Comparable obj) throws IOException
 	{
-
 		try {
 			return RelatrixKV.contains(obj);
 		} catch (IllegalAccessException e) {
@@ -1224,7 +1233,6 @@ public final class Relatrix {
 
 	public static synchronized boolean contains(String alias, Comparable obj) throws IOException, NoSuchElementException
 	{
-
 		try {
 			return RelatrixKV.contains(alias, obj);
 		} catch (IllegalAccessException e) {

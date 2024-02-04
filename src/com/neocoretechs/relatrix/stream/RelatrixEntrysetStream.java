@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -52,6 +53,24 @@ public class RelatrixEntrysetStream<T> implements Stream<T> {
     
     public RelatrixEntrysetStream(Comparable c) throws IOException {
     	this(c.getClass());
+    }
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param dmr_return
+     * @throws IOException 
+     */
+    public RelatrixEntrysetStream(String alias, Class c) throws IOException, NoSuchElementException {
+    	try {
+			stream = RelatrixKV.entrySetStream(alias, c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( DEBUG )
+			System.out.println("RelatrixEntrysetStream "+stream);
+    }
+    
+    public RelatrixEntrysetStream(String alias, Comparable c) throws IOException, NoSuchElementException {
+    	this(alias, c.getClass());
     }
     
 	@Override

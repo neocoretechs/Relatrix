@@ -35,6 +35,10 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 		super(alias, d, m, r);
 	}
     
+	public DomainMapRange(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
+		super(alias, d, m, r, b);
+	}
+
 	public DBKey getDBKey() {
 		return identity;
 	}
