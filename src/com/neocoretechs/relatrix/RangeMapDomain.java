@@ -31,7 +31,7 @@ public class RangeMapDomain extends Morphism {
     public RangeMapDomain(DomainMapRange identity) throws IOException {
     	if(!identity.isDomainKeyValid())
     		throw new IOException("Domain key of identity is invalid.");
-    	setDomainKey(identity.getMapKey());
+    	setDomainKey(identity.getDomainKey());
       	if(!identity.isMapKeyValid())
     		throw new IOException("Map key of identity is invalid.");
     	setMapKey(identity.getMapKey());

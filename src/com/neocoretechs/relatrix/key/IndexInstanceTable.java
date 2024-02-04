@@ -23,7 +23,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	private Object mutex = new Object();
 	
 	/**

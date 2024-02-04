@@ -254,6 +254,8 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 					}
 				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
 			}
+			if(DEBUG)
+				System.out.println("Domain template set:"+domain+", "+getDomainKey());
 		}
 	    /**
          * Transparently process DBKey, returning actual instance. If the map is already deserialized as an instance
@@ -342,10 +344,12 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 					if(alias != null) {
 						setMapKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,map));
 					} else {
-						setDomainKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(map));
+						setMapKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(map));
 					}
 				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
 			}
+			if(DEBUG)
+				System.out.println("Map template set:"+map+", "+getMapKey());
 		}
 	    /**
          * Transparently process DBKey, returning actual instance. If the range is already deserialized as an instance
@@ -438,6 +442,8 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 					}
 				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
 			}
+			if(DEBUG)
+				System.out.println("Range template set:"+range+", "+getRangeKey());
 		}
 		       
         /**
