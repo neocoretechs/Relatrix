@@ -28,6 +28,21 @@ public class MapDomainRange extends Morphism {
 	public MapDomainRange(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
 		super(d,m,r,template);
 	}
+    public MapDomainRange(DomainMapRange identity) throws IOException {
+    	if(!identity.isDomainKeyValid())
+    		throw new IOException("Domain key of identity is invalid.");
+    	setDomainKey(identity.getMapKey());
+      	if(!identity.isMapKeyValid())
+    		throw new IOException("Map key of identity is invalid.");
+    	setMapKey(identity.getMapKey());
+    	if(!identity.isRangeKeyValid())
+    		throw new IOException("Range key of identity is invalid.");
+    	setRangeKey(identity.getRangeKey()); 	
+    }
+    public MapDomainRange(String alias, DomainMapRange identity) throws IOException {
+    	this(identity);
+    	this.alias = alias;
+    }
 	@Override
 	public int compareTo(Object o) {
 		if(!keyCompare)

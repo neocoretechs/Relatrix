@@ -155,43 +155,43 @@ public final class Relatrix {
 	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr = new DomainMapRange(d,m,r); // form it as template for duplicate key search
-		dmr.setPrimaryKeyCheck(true);
+		Morphism dmr;
+		DomainMapRange identity = new DomainMapRange(d,m,r); // form it as template for duplicate key search
+		identity.setPrimaryKeyCheck(true);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.get(dmr) != null) {
-			dmr.setPrimaryKeyCheck(false);
-			throw new DuplicateKeyException("Duplicate key for relationship:"+dmr);
+		if(RelatrixKV.get(identity) != null) {
+			identity.setPrimaryKeyCheck(false);
+			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
-		dmr.setPrimaryKeyCheck(false);
+		identity.setPrimaryKeyCheck(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
+		identity.setDBKey( IndexResolver.getIndexInstanceTable().put(identity) );
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		DomainMapRange identity = (DomainMapRange) dmr;
-		identity.setDBKey( IndexResolver.getIndexInstanceTable().put(dmr) );
-		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new MapDomainRange(d,m,r);
+			System.out.println("Relatrix.store stored :"+identity);
+		dmr = new MapDomainRange(identity);
 		IndexResolver.getIndexInstanceTable().put(dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new DomainRangeMap(d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new DomainRangeMap(identity);
 		IndexResolver.getIndexInstanceTable().put(dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new MapRangeDomain(d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new MapRangeDomain(identity);
 		IndexResolver.getIndexInstanceTable().put(dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new RangeDomainMap(d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new RangeDomainMap(identity);
 		IndexResolver.getIndexInstanceTable().put(dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new RangeMapDomain(d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new RangeMapDomain(identity);
 		IndexResolver.getIndexInstanceTable().put(dmr);
+		if( DEBUG  )
+			System.out.println("Relatrix.store stored :"+dmr);
 		return identity;
 	}
 	
@@ -210,43 +210,43 @@ public final class Relatrix {
 	public static synchronized DomainMapRange store(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr = new DomainMapRange(alias,d,m,r); // form it as template for duplicate key search
-		dmr.setPrimaryKeyCheck(true);
+		Morphism dmr;
+		DomainMapRange identity = new DomainMapRange(alias,d,m,r); // form it as template for duplicate key search
+		identity.setPrimaryKeyCheck(true);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.get(alias,dmr) != null) {
-			dmr.setPrimaryKeyCheck(false);
-			throw new DuplicateKeyException("Duplicate key for relationship:"+dmr);
+		if(RelatrixKV.get(alias,identity) != null) {
+			identity.setPrimaryKeyCheck(false);
+			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
-		dmr.setPrimaryKeyCheck(false);
+		identity.setPrimaryKeyCheck(false);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
+		identity.setDBKey( IndexResolver.getIndexInstanceTable().putAlias(alias,identity) );
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		DomainMapRange identity = (DomainMapRange) dmr;
-		identity.setDBKey( IndexResolver.getIndexInstanceTable().putAlias(alias,dmr) );
-		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new MapDomainRange(alias,d,m,r);
+			System.out.println("Relatrix.store stored :"+identity);
+		dmr = new MapDomainRange(alias,identity);
 		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new DomainRangeMap(alias,d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new DomainRangeMap(alias,identity);
 		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new MapRangeDomain(alias,d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new MapRangeDomain(alias,identity);
 		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new RangeDomainMap(alias,d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new RangeDomainMap(alias,identity);
 		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
 		if( DEBUG  )
-			System.out.println("Relatrix.store storing :"+dmr);
-		dmr = new RangeMapDomain(alias,d,m,r);
+			System.out.println("Relatrix.store stored :"+dmr);
+		dmr = new RangeMapDomain(alias,identity);
 		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		if( DEBUG  )
+			System.out.println("Relatrix.store stored :"+dmr);
 		return identity;
 	}
 

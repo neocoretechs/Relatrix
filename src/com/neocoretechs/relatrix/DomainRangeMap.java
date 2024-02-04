@@ -19,6 +19,21 @@ public class DomainRangeMap extends Morphism {
 	private static final long serialVersionUID = -1694888225034392347L;
     public DomainRangeMap() {}
     
+    public DomainRangeMap(DomainMapRange identity) throws IOException {
+    	if(!identity.isDomainKeyValid())
+    		throw new IOException("Domain key of identity is invalid.");
+    	setDomainKey(identity.getMapKey());
+      	if(!identity.isMapKeyValid())
+    		throw new IOException("Map key of identity is invalid.");
+    	setMapKey(identity.getMapKey());
+    	if(!identity.isRangeKeyValid())
+    		throw new IOException("Range key of identity is invalid.");
+    	setRangeKey(identity.getRangeKey()); 	
+    }
+    public DomainRangeMap(String alias, DomainMapRange identity) throws IOException {
+       	this(identity);
+    	this.alias = alias;
+    }
     public DomainRangeMap(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
