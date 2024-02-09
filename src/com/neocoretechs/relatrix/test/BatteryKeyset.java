@@ -20,22 +20,21 @@ import com.neocoretechs.relatrix.key.KeySet;
  * @author jg (C) 2024
  *
  */
-public class BatteryMorphism {
+public class BatteryKeyset {
 	public static boolean DEBUG = true;
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
 	static int max = 100;
 	static int numDelete = 100; // for delete test
+	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
-	static ArrayList<DomainMapRange> keys = new ArrayList<DomainMapRange>();
-	//static ArrayList<KeySet> values = new ArrayList<KeySet>();
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
 		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryMorphism <directory_tablespace_path>");
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryKeyset <directory_tablespace_path>");
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
@@ -48,7 +47,7 @@ public class BatteryMorphism {
 		battery1AR12(argv);
 		battery1AR14(argv);
 		battery1AR17(argv);
-		 System.out.println("BatteryMorphism TEST BATTERY COMPLETE.");
+		 System.out.println("BatteryKeyset TEST BATTERY COMPLETE.");
 		
 	}
 	/**
@@ -62,14 +61,14 @@ public class BatteryMorphism {
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
-		DomainMapRange fkey = null;
+		KeySet fkey = null;
 		String d = null;
 		String m = null;
 		String r = null;
 
 		//Integer payload = 0;
 		int j = min;
-		j = (int) RelatrixKV.size(DomainMapRange.class);
+		j = (int) RelatrixKV.size(KeySet.class);
 		if(j > 0) {
 			System.out.println("Cleaning DB of "+j+" elements.");
 			battery1AR17(argv);		
@@ -78,8 +77,10 @@ public class BatteryMorphism {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
-			Morphism dmr;
-			DomainMapRange identity = new DomainMapRange(true,d,m,r); // form it as template for duplicate key search
+			KeySet identity = new KeySet();
+			identity.setDomainKey(DBKey.newKey(indexTable, d));
+			identity.setMapKey(DBKey.newKey(indexTable, m));
+			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
 			identity.setPrimaryKeyCheck(true);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
@@ -92,7 +93,7 @@ public class BatteryMorphism {
 			identity.setPrimaryKeyCheck(false);
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
-			identity.setDBKey( IndexResolver.getIndexInstanceTable().put(identity) );
+			IndexResolver.getIndexInstanceTable().put(identity);
 			if( DEBUG  )
 				System.out.println("Relatrix.store stored :"+identity);
 			keys.add(identity);
@@ -102,7 +103,10 @@ public class BatteryMorphism {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
-			DomainMapRange identity = new DomainMapRange(true, d,m,r); // form it as template for duplicate key search
+			KeySet identity = new KeySet();
+			identity.setDomainKey(indexTable.getByInstance(d));
+			identity.setMapKey(indexTable.getByInstance(m));
+			identity.setRangeKey(indexTable.getByInstance(r)); 
 			identity.setPrimaryKeyCheck(true);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
@@ -125,7 +129,7 @@ public class BatteryMorphism {
 	public static void battery1AR4(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		KeySet prev = (KeySet) RelatrixKV.firstKey(DomainMapRange.class);
+		KeySet prev = (KeySet) RelatrixKV.firstKey(KeySet.class);
 		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) prev);
 		System.out.println("Battery1AR4");
 		its.next(); // skip first key we just got
@@ -151,7 +155,7 @@ public class BatteryMorphism {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKV.entrySet(DomainMapRange.class);
+		Iterator<?> its = RelatrixKV.entrySet(KeySet.class);
 		System.out.println("Battery1AR5");
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
@@ -174,10 +178,10 @@ public class BatteryMorphism {
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKV.firstKey(DomainMapRange.class); // first key
-		((DomainMapRange)k).getDomain();
-		((DomainMapRange)k).getMap();
-		((DomainMapRange)k).getRange();
+		Comparable k = (Comparable) RelatrixKV.firstKey(KeySet.class); // first key
+		((KeySet)k).getDomainKey();
+		((KeySet)k).getMapKey();
+		((KeySet)k).getRangeKey();
 		System.out.println("Battery1AR9 firstKey");
 		if(!keys.contains(k)) {
 			System.out.println("BATTERY1A9 cant find contains key "+i);
@@ -195,10 +199,10 @@ public class BatteryMorphism {
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKV.lastKey(DomainMapRange.class); // key
-		((DomainMapRange)k).getDomain();
-		((DomainMapRange)k).getMap();
-		((DomainMapRange)k).getRange();
+		Comparable k = (Comparable) RelatrixKV.lastKey(KeySet.class); // key
+		((KeySet)k).getDomainKey();
+		((KeySet)k).getMapKey();
+		((KeySet)k).getRangeKey();
 		System.out.println("Battery1AR10 lastKey");
 		if(!keys.contains(k)) {
 			System.out.println("BATTERY1AR10 cant find last key "+i);
@@ -215,7 +219,7 @@ public class BatteryMorphism {
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = RelatrixKV.size(DomainMapRange.class);
+		long bits = RelatrixKV.size(KeySet.class);
 		System.out.println("Battery1AR101 Size="+bits);
 		if( bits != keys.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
@@ -232,7 +236,7 @@ public class BatteryMorphism {
 	public static void battery1AR12(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKV.firstKey(DomainMapRange.class);
+		Comparable c = (Comparable) RelatrixKV.firstKey(KeySet.class);
 		if( c != null ) {
 			Iterator<?> its = RelatrixKV.findTailMapKV(c);
 			System.out.println("Battery1AR12");
@@ -262,7 +266,7 @@ public class BatteryMorphism {
 	public static void battery1AR14(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKV.lastKey(DomainMapRange.class);
+		Comparable c = (Comparable) RelatrixKV.lastKey(KeySet.class);
 		if(c != null) {
 			Iterator<?> its = RelatrixKV.findHeadMapKV(c);
 			System.out.println("Battery1AR14");
@@ -302,8 +306,8 @@ public class BatteryMorphism {
 			}
 		}
 		// remove payload reverse index
-		s = RelatrixKV.size(DomainMapRange.class);
-		it = RelatrixKV.keySet(DomainMapRange.class);
+		s = RelatrixKV.size(KeySet.class);
+		it = RelatrixKV.keySet(KeySet.class);
 		timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();

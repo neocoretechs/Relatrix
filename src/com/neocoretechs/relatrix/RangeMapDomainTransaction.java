@@ -26,9 +26,35 @@ public class RangeMapDomainTransaction extends MorphismTransaction {
        	super(alias,transactionId,d,m,r);
     }
 
-	public RangeMapDomainTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
-		super(d,m,r,template);
+	public RangeMapDomainTransaction(boolean flag, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(flag, transactionId, d, m, r);
 	}
+
+	public RangeMapDomainTransaction(boolean flag, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeMapDomainTransaction(boolean flag, String alias, String transactionId, Comparable d, Comparable m,
+			Comparable r) {
+		super(flag, alias, transactionId, d, m, r);
+	}
+
+	public RangeMapDomainTransaction(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey,
+			Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeMapDomainTransaction(String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeMapDomainTransaction(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
@@ -101,9 +127,14 @@ public class RangeMapDomainTransaction extends MorphismTransaction {
 	*/
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new RangeMapDomainTransaction(transactionId, getDomain(), getMap(), getRange());
-  		return new RangeMapDomainTransaction(alias, transactionId, getDomain(), getMap(), getRange());
+       	if(alias == null) {
+    		if(templateFlag)
+    			return new RangeMapDomainTransaction(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new RangeMapDomainTransaction(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new RangeMapDomainTransaction(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new RangeMapDomainTransaction(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {

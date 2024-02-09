@@ -31,7 +31,7 @@ import com.neocoretechs.rocksack.NotifyDBCompareTo;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
 public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = true;
+		private static boolean DEBUG = false;
 		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
 		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
         static final long serialVersionUID = -9129948317265641091L;
@@ -44,6 +44,8 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         
         protected transient boolean keyCompare = false;
         
+        protected transient boolean templateFlag = false;
+        
         public Morphism() {}
         
         /**
@@ -53,6 +55,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * @param r
          */
         public Morphism(Comparable d, Comparable m, Comparable r) {
+        	this.templateFlag = false;
         	setDomain(d);
             setMap(m);
             setRange(r);
@@ -66,39 +69,124 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          */
         public Morphism(String alias, Comparable d, Comparable m, Comparable r) {
         	this.alias = alias;
+        	this.templateFlag = false;
         	setDomain(alias, d);
             setMap(alias, m);
             setRange(alias, r);
         }
         
         /**
-         * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
-         * and provide a default empty KeySet. A template is used for retrieval and checking for
-         * existence of relationships without creating a permanent entry in the database.
+         * Construct and establish key position for the elements of a morphism template. 
+         * In a template, we dont create instances, merely resolve them leaving effective
+         * null key for those without instances
          * @param d
          * @param m
          * @param r
          */
-        public Morphism(Comparable d, Comparable m, Comparable r, boolean template) {
+        public Morphism(boolean flag, Comparable d, Comparable m, Comparable r) {
+        	this.templateFlag = flag;
         	setDomainTemplate(d);
             setMapTemplate(m);
             setRangeTemplate(r);
         }
         
         /**
-         * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
-         * and provide a default empty KeySet. A template is used for retrieval and checking for
-         * existence of relationships without creating a permanent entry in the database.
+         * Construct and establish key position for the elements of a morphism.
+         * In a template, we dont create instances, merely resolve them leaving effective
+         * null key for those without instances
          * @param d
          * @param m
          * @param r
          */
-        public Morphism(String alias, Comparable d, Comparable m, Comparable r, boolean template) {
+        public Morphism(boolean flag, String alias, Comparable d, Comparable m, Comparable r) {
+        	this.templateFlag = flag;
         	this.alias = alias;
-        	setDomainTemplate(d);
-            setMapTemplate(m);
-            setRangeTemplate(r);
+        	setDomainTemplate(alias, d);
+            setMapTemplate(alias, m);
+            setRangeTemplate(alias, r);
+        } 
+        
+        /**
+         * Copy constructor 1, default
+         * @param d
+         * @param dkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	this.templateFlag = false;
+        	domain = d;
+            map = m;
+            range = r;
+            setDomainKey(domainkey);
+            setMapKey(mapKey);
+            setRangeKey(rangeKey);
         }
+        
+        /**
+         * Copy constructor 2, alias
+         * @param alias
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	this.alias = alias;
+        	this.templateFlag = false;
+        	domain = d;
+            map = m;
+            range = r;
+            setDomainKey(domainkey);
+            setMapKey(mapKey);
+            setRangeKey(rangeKey);
+        }
+        
+        /**
+         * Copy constructor 3 template default
+         * @param flag
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	this.templateFlag = flag;
+        	domain = d;
+            map = m;
+            range = r;
+            setDomainKey(domainkey);
+            setMapKey(mapKey);
+            setRangeKey(rangeKey);
+        }
+        
+        /**
+         * Copy constructor 4 template alias
+         * @param flag
+         * @param alias
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	this.templateFlag = flag;
+        	this.alias = alias;
+         	domain = d;
+            map = m;
+            range = r;
+            setDomainKey(domainkey);
+            setMapKey(mapKey);
+            setRangeKey(rangeKey);
+        } 
         
         @Override
         public abstract Object clone() throws CloneNotSupportedException;
@@ -153,17 +241,17 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getDomain() {
-			try {
-				if(domain != null)
-					return domain;
-				if(DBKey.isValid(getDomainKey())) {
-					domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getDomainKey());
-				}
-				return domain;
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+        	try {
+        		if(domain != null)
+        			return domain;
+        		if(DBKey.isValid(getDomainKey())) {
+        			domain = resolveKey(getDomainKey());
+        		}
+        		return domain;
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
         /**
          * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
          * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
@@ -178,28 +266,26 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
          * @param domain
          */
-		public void setDomain(Comparable<?> domain) {
-			try {
-				this.domain = domain;
-				if(domain == null) {
-					setDomainKey(new DBKey());
-				} else {
-					if(DBKey.isValid(getDomainKey())) {
-						this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getDomainKey());
-					} else {
-						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(domain)) == null)
-							setDomainKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(),domain));
-						else
-							setDomainKey(dbKey);
-					}
-				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
-	    /**
+        public void setDomain(Comparable<?> domain) {
+        	if(domain == null)
+        		throw new RuntimeException("Cannot set relationship component null.");
+        	try {
+        		this.domain = domain;
+        		if(DBKey.isValid(getDomainKey())) {
+        			this.domain = resolveKey(getDomainKey());
+        		} else {
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(domain)) == null)
+        				setDomainKey(newKey(domain));
+        			else
+        				setDomainKey(dbKey);
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+        /**
          * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
          * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
@@ -215,49 +301,99 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * @param alias the database alias if we end up creating an index to a new instance
          * @param domain
          */
-		public void setDomain(String alias, Comparable<?> domain) {
-			try {
-				this.domain = domain;
-				if(domain == null) {
-					setDomainKey(new DBKey());
-				} else {
-					if(DBKey.isValid(getDomainKey())) {
-						this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getDomainKey());
-					} else {
-						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, domain)) == null)
-							setDomainKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(),domain));
-						else
-							setDomainKey(dbKey);
-					}
-				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
-		/**
-		 * Set a template for operations requiring a default (blank) term for purposes such as retrieval/comparison.
-		 * The domain is set to the instance value and the key is set to a new, default (blank) {@link DBKey}.
-		 * @param domain
-		 */
-		public void setDomainTemplate(Comparable<?> domain) {
-			this.domain = domain;
-			if(domain == null) {
-				setDomainKey(null);
-			} else {
-				try {
-					if(alias != null) {
-						setDomainKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,domain));
-					} else {
-						setDomainKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(domain));
-					}
-				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
-			}
-			if(DEBUG)
-				System.out.println("Domain template set:"+domain+", "+getDomainKey());
-		}
-	    /**
+        public void setDomain(String alias, Comparable<?> domain) {
+        	if(domain == null)
+        		throw new RuntimeException("Cannot set relationship component null.");
+        	try {
+        		this.domain = domain;
+        		if(DBKey.isValid(getDomainKey())) {
+        			this.domain = resolveKey(getDomainKey());
+        		} else {
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias, domain)) == null)
+        				setDomainKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(),domain));
+        			else
+        				setDomainKey(dbKey);
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
+        		throw new RuntimeException(e);
+        	}
+        }		
+
+        /**
+         * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
+         * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
+         * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
+         * If the domain key is not valid, a getByInstance of the domain on current database default tablespace is
+         * performed to try and obtain a a domain DBKey. If this method call comes back null, then a new key is formed
+         * using the effective null key value.
+         * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
+         * in the KeySet to the value retrieved from the IndexResolver.<p/>
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
+         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
+         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * @param domain
+         */
+        public void setDomainTemplate(Comparable<?> domain) {
+        	try {
+        		this.domain = domain;
+        		if(domain != null) {
+        			if(DBKey.isValid(getDomainKey())) {
+        				this.domain = resolveKey(getDomainKey());
+        			} else {
+        				DBKey dbKey = null;
+        				if((dbKey = resolveInstance(domain)) == null) {
+        					dbKey = new DBKey();
+        					dbKey.setNullKey();
+        					setDomainKey(dbKey);
+        				} else {
+        					setDomainKey(dbKey);
+        				}
+        			}
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+        /**
+         * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
+         * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
+         * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
+         * If the domain key is not valid, a getByInstance of the domain on the database indicated by the alias tablespace is
+         * performed to try and obtain a domain DBKey. If this method call comes back null, then a new key is formed
+         * using the effective null key value where database index is set to alias and instance is zero string UUID.
+         * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
+         * in the KeySet to the value retrieved from the IndexResolver.<p/>
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
+         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
+         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index. The DBKey
+         * points to the primary database and the alias here is used if we create an entirely new instance.
+         * @param alias the database alias if we end up creating an index to a new instance
+         * @param domain
+         */
+        public void setDomainTemplate(String alias, Comparable<?> domain) {
+        	try {
+        		this.domain = domain;
+        		if(domain != null) {
+        			if(DBKey.isValid(getDomainKey())) {
+        				this.domain = resolveKey(getDomainKey());
+        			} else {
+        				DBKey dbKey = null;
+        				if((dbKey = resolveInstance(alias, domain)) == null) {
+        					dbKey = new DBKey();
+        					dbKey.setNullKey(alias);
+        					setDomainKey(dbKey);
+        				} else {
+        					setDomainKey(dbKey);
+        				}
+        			}
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
+        		throw new RuntimeException(e);
+        	}
+        }		
+        /**
          * Transparently process DBKey, returning actual instance. If the map is already deserialized as an instance
          * it will be returned without further processing. If the map is null and the key in the {@link KeySet} is
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
@@ -267,19 +403,19 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * database holding the actual instance we are seeking.
          * @return The real Comparable instance, pointed to by DBKey
          */
-		public Comparable getMap() {
-			try {
-				if(map != null) 
-					return map;
-				if(DBKey.isValid(getMapKey())) {
-					map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getMapKey());
-				}
-				return map;
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	    /**
+        public Comparable getMap() {
+        	try {
+        		if(map != null) 
+        			return map;
+        		if(DBKey.isValid(getMapKey())) {
+        			map = resolveKey(getMapKey());
+        		}
+        		return map;
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+        /**
          * If map is null, create a new {@link DBKey} in {@link KeySet}. If map not null, get the map
          * key from KeySet and check if its valid. If it is valid, the map will be set to the {@link IndexResolver}
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the map key of the KeySet.
@@ -293,65 +429,102 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
          * @param map
          */
-		public void setMap(Comparable<?> map) {
-			try {
-				this.map = map;
-				if(map == null) {
-					setMapKey(new DBKey());
-				} else {
-					if(DBKey.isValid(getMapKey())) {
-						this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getMapKey());
-					} else {
-						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(map)) == null)
-							setMapKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(),map));
-						else
-							setMapKey(dbKey);
-					}
-				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+        public void setMap(Comparable<?> map) {
+        	if(map == null)
+        		throw new RuntimeException("Cannot set relationship component null.");
+        	try {
+        		this.map = map;
+        		if(DBKey.isValid(getMapKey())) {
+        			this.map = resolveKey(getMapKey());
+        		} else {
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(map)) == null)
+        				setMapKey(newKey(map));
+        			else
+        				setMapKey(dbKey);
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
 
-		public void setMap(String alias, Comparable<?> map) {
-			try {
-				this.map = map;
-				if(map == null) {
-					setMapKey(new DBKey());
-				} else {
-					if(DBKey.isValid(getMapKey())) {
-						this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getMapKey());
-					} else {
-						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, map)) == null)
-							setMapKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), map));
-						else
-							setMapKey(dbKey);
-					}
-				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
-		public void setMapTemplate(Comparable<?> map) {
-			this.map = map;
-			if(map == null) {
-				setMapKey(null);
-			} else {
-				try {
-					if(alias != null) {
-						setMapKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,map));
-					} else {
-						setMapKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(map));
-					}
-				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
-			}
-			if(DEBUG)
-				System.out.println("Map template set:"+map+", "+getMapKey());
-		}
-	    /**
+        public void setMap(String alias, Comparable<?> map) {
+        	if(map == null)
+        		throw new RuntimeException("Cannot set relationship component null.");
+        	try {
+        		this.map = map;
+        		if(DBKey.isValid(getMapKey())) {
+        			this.map = resolveKey(getMapKey());
+        		} else {
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias, map)) == null)
+        				setMapKey(newKey(alias, map));
+        			else
+        				setMapKey(dbKey);
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+        /**
+         * If map is null, create a new {@link DBKey} in {@link KeySet}. If map not null, get the map
+         * key from KeySet and check if its valid. If it is valid, the map will be set to the {@link IndexResolver}
+         * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the map key of the KeySet.
+         * If the map key is not valid, a getByInstance of the map on current database default tablespace is
+         * performed to try and obtain a map DBKey. If this method call comes back null, then a new key is formed
+         * using the effective null key value.
+         * If the method call to getByInstance for the map instance comes back not null, then we simply set the map key
+         * in the KeySet to the value retrieved from the IndexResolver.<p/>
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
+         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
+         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * @param map
+         */
+        public void setMapTemplate(Comparable<?> map) {
+        	try {
+        		this.map = map;
+        		if(map != null) {
+        			if(DBKey.isValid(getMapKey())) {
+        				this.map = resolveKey(getMapKey());
+        			} else {
+        				DBKey dbKey = null;
+        				if((dbKey = resolveInstance(map)) == null) {
+        					dbKey = new DBKey();
+        					dbKey.setNullKey(alias);
+        					setMapKey(dbKey);
+        				} else {
+        					setMapKey(dbKey);
+        				}
+        			}
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+        public void setMapTemplate(String alias, Comparable<?> map) {
+        	try {
+        		this.map = map;
+        		if(map != null) {
+        			if(DBKey.isValid(getMapKey())) {
+        				this.map = resolveKey(getMapKey());
+        			} else {
+        				DBKey dbKey = null;
+        				if((dbKey = resolveInstance(alias, map)) == null) {
+        					dbKey = new DBKey();
+        					dbKey.setNullKey(alias);
+        					setMapKey(dbKey);
+        				} else {
+        					setMapKey(dbKey);
+        				}
+        			}
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+        /**
          * Transparently process DBKey, returning actual instance. If the range is already deserialized as an instance
          * it will be returned without further processing. If the range is null and the key in the {@link KeySet} is
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
@@ -361,19 +534,19 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * database holding the actual instance we are seeking.
          * @return The real Comparable instance, pointed to by DBKey
          */
-		public Comparable getRange() {
-			try {
-				if(range != null)
-					return range;
-				if(DBKey.isValid(getRangeKey())) {
-					range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getRangeKey());
-				}
-				return range;
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	    /**
+        public Comparable getRange() {
+        	try {
+        		if(range != null)
+        			return range;
+        		if(DBKey.isValid(getRangeKey())) {
+        			range = resolveKey(getRangeKey());
+        		}
+        		return range;
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+        /**
          * If range is null, create a new {@link DBKey} in {@link KeySet}. If range not null, get the range
          * key from KeySet and check if its valid. If it is valid, the range will be set to the {@link IndexResolver}
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the range key of the KeySet.
@@ -387,65 +560,136 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
          * @param range
          */
-		public void setRange(Comparable<?> range) {
-			try {
-				this.range = range;
-				if(range == null) {
-					setRangeKey(new DBKey());
-				} else {
-					if(DBKey.isValid(getRangeKey())) {
-						this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getRangeKey());
-					} else {
-						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(range)) == null)
-							setRangeKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(),range));
-						else
-							setRangeKey(dbKey);						
-					}
-				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+        public void setRange(Comparable<?> range) {
+        	if(range == null)
+        		throw new RuntimeException("Cannot set relationship component null.");
+        	try {
+        		this.range = range;
+        		if(DBKey.isValid(getRangeKey())) {
+        			this.range = resolveKey(getRangeKey());
+        		} else {
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(range)) == null)
+        				setRangeKey(newKey(range));
+        			else
+        				setRangeKey(dbKey);						
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
 
-		public void setRange(String alias, Comparable<?> range) {
-			try {
-				this.range = range;
-				if(range == null) {
-					setRangeKey(new DBKey());
-				} else {
-					if(DBKey.isValid(getRangeKey())) {
-						this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(getRangeKey());
-					} else {
-						DBKey dbKey = null;
-						if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, range)) == null)
-							setRangeKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), range));
-						else
-							setRangeKey(dbKey);						
-					}
-				}
-			} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
-				throw new RuntimeException(e);
-			}
+        public void setRange(String alias, Comparable<?> range) {
+        	if(range == null)
+        		throw new RuntimeException("Cannot set relationship component null.");
+        	try {
+        		this.range = range;
+        		if(DBKey.isValid(getRangeKey())) {
+        			this.range = resolveKey(getRangeKey());
+        		} else {
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias, range)) == null)
+        				setRangeKey(newKey(alias, range));
+        			else
+        				setRangeKey(dbKey);						
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+        /**
+         * If range is null, create a new {@link DBKey} in {@link KeySet}. If range not null, get the range
+         * key from KeySet and check if its valid. If it is valid, the range will be set to the {@link IndexResolver}
+         * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the range key of the KeySet.
+         * If the range key is not valid, a getByInstance of the range on current database default tablespace is
+         * performed to try and obtain a range DBKey. If this method call comes back null, then a new key is formed
+         * using the effective null key value.
+         * If the method call to getByInstance for the range instance comes back not null, then we simply set the range key
+         * in the KeySet to the value retrieved from the IndexResolver.<p/>
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
+         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
+         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * @param range
+         */
+        public void setRangeTemplate(Comparable<?> range) {
+        	try {
+        		this.range = range;
+        		if(range != null) {
+        			if(DBKey.isValid(getRangeKey())) {
+        				this.range = resolveKey(getRangeKey());
+        			} else {
+        				DBKey dbKey = null;
+        				if((dbKey = resolveInstance(range)) == null) {
+        					dbKey = new DBKey();
+        					dbKey.setNullKey();						
+        					setRangeKey(dbKey);
+        				} else {
+        					setRangeKey(dbKey);	
+        				}
+        			}
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+        public void setRangeTemplate(String alias, Comparable<?> range) {
+        	try {
+        		this.range = range;
+        		if(range != null) {
+        			if(DBKey.isValid(getRangeKey())) {
+        				this.range = resolveKey(getRangeKey());
+        			} else {
+        				DBKey dbKey = null;
+        				if((dbKey = resolveInstance(alias, range)) == null) {
+        					dbKey = new DBKey();
+        					dbKey.setNullKey(alias);
+        					setRangeKey(dbKey);
+        				} else {
+        					setRangeKey(dbKey);
+        				}
+        			}
+        		}
+        	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
+        		throw new RuntimeException(e);
+        	}
+        }
+
+		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+			return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);
 		}
 		
-		public void setRangeTemplate(Comparable<?> range) {
-			this.range = range;
-			if(range == null) {
-				setRangeKey(null);
-			} else {
-				try {
-					if(alias != null) {
-						setRangeKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias,range));
-					} else {
-						setRangeKey((DBKey)IndexResolver.getIndexInstanceTable().getByInstance(range));
-					}
-				} catch (IllegalAccessException | ClassNotFoundException | IOException e) {}
-			}
-			if(DEBUG)
-				System.out.println("Range template set:"+range+", "+getRangeKey());
+		protected DBKey newKey(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+			return DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), instance);
 		}
-		       
+		
+		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(DEBUG) {
+				Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+				System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
+				return c;
+			}
+			return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+		}
+		
+		protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(DEBUG) {
+				DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(instance);
+				System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
+				return c;
+			}
+			return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(instance);
+		}
+		  
+		protected DBKey resolveInstance(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
+			if(DEBUG) {
+				DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
+				System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
+				return c;
+			}
+			return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
+		}
         /**
          * Failsafe compareTo.
          * If classes are not the same and the target is not assignable from the source, that is, not a subclass, toss an error

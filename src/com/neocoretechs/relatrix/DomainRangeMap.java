@@ -37,17 +37,36 @@ public class DomainRangeMap extends Morphism {
     public DomainRangeMap(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
-
-	public DomainRangeMap(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
-		super(d,m,r,template);
-	}
 	
 	public DomainRangeMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, d,m,r);
 	}
+
+	public DomainRangeMap(boolean b, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+		super(b, d, m, r);
+	}
 	
-	public DomainRangeMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
-		super(alias, d, m, r, b);
+	public DomainRangeMap(boolean b, String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+		super(b, alias, d, m, r);
+	}
+	
+	public DomainRangeMap(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(flag, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainRangeMap(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainRangeMap(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainRangeMap(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
 	@Override
@@ -163,14 +182,21 @@ public class DomainRangeMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new DomainRangeMap(getDomain(), getMap(), getRange());
- 		return new DomainRangeMap(alias, getDomain(), getMap(), getRange());
+       	if(alias == null) {
+    		if(templateFlag)
+    			return new DomainRangeMap(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new DomainRangeMap(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new DomainRangeMap(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new DomainRangeMap(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     	
     }
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		if(templateFlag)
+			throw new IOException("Attempt to store templated Morphism.");
 		out.writeObject(getDomainKey());
 		out.writeObject(getRangeKey());	
 		out.writeObject(getMapKey());
@@ -183,14 +209,17 @@ public class DomainRangeMap extends Morphism {
 		setMapKey((DBKey) in.readObject());
 	}
 	
-    public String toString() { 
-    	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
+	public String toString() { 
+		return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
 				(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
-				(getRange() == null ? "NULL" : getRange().getClass().getName()),
+				(getDomain() == null ? "NULL" : getDomain().toString()),
+				(getDomainKey() == null ? "NULL" : getDomainKey().toString()),
+				(getRange() == null ? "NULL" : getRange().getClass().getName()),	
+				(getRange() == null ? "NULL" : getRange().toString()),
+				(getRangeKey() == null ? "NULL" : getRangeKey().toString()),
 				(getMap() == null ? "NULL" : getMap().getClass().getName()),
-				(getDomain() == null ? "NULL" : getDomain()),
-				(getRange() == null ? "NULL" : getRange()),
-				(getMap() == null ? "NULL" : getMap())); 
-	
-    }
+				(getMap() == null ? "NULL" : getMap().toString()),
+				(getMapKey() == null ? "NULL" : getMapKey().toString()));
+
+	}
 }

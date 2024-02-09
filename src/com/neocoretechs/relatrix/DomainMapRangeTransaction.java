@@ -25,12 +25,38 @@ public class DomainMapRangeTransaction extends MorphismTransaction {
     public DomainMapRangeTransaction(String transactionId, Comparable d, Comparable m, Comparable r) {
     	super(transactionId, d,m,r);
     }
-    public DomainMapRangeTransaction(Comparable d, Comparable m, Comparable r, boolean template) {
-    	super(d,m,r,template);
-    }
+
 	public DomainMapRangeTransaction(String alias, String transactionId, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, transactionId, d, m, r);
-	}	
+	}
+	
+	public DomainMapRangeTransaction(boolean b, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(b, transactionId, d,m,r);
+	}
+	
+	public DomainMapRangeTransaction(boolean b, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(b, alias, transactionId, d,m,r);
+	}
+	
+	public DomainMapRangeTransaction(boolean flag, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRangeTransaction(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey,
+			Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRangeTransaction(String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRangeTransaction(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
 	public DBKey getDBKey() {
 		return identity;
 	}	
@@ -95,9 +121,14 @@ public class DomainMapRangeTransaction extends MorphismTransaction {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new DomainMapRangeTransaction(transactionId, getDomain(), getMap(), getRange());
-    	return new DomainMapRangeTransaction(alias, transactionId, getDomain(), getMap(), getRange());
+       	if(alias == null) {
+    		if(templateFlag)
+    			return new DomainMapRangeTransaction(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new DomainMapRangeTransaction(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new DomainMapRangeTransaction(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new DomainMapRangeTransaction(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
 
 	@Override  

@@ -39,7 +39,7 @@ public class FindSetMode2 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		Morphism dmr = new MapDomainRange(null, (Comparable)marg, null, true);
+		Morphism dmr = new MapDomainRange(null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(dmr);
 	}
@@ -52,7 +52,7 @@ public class FindSetMode2 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException {
-		Morphism dmr = new MapDomainRange(null, (Comparable)marg, null, true);
+		Morphism dmr = new MapDomainRange(alias, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(alias, dmr);
 	}

@@ -86,10 +86,10 @@ public class BatteryDBKey {
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			if(nexe.getKey().compareTo(prev) != 1) { // should always be >
+			if(nexe.getKey().compareTo(prev) <= 0) { // should always be >
 			// Map.Entry
-				System.out.println("KV RANGE KEY MISMATCH: "+nex);
-				throw new Exception("KV RANGE KEY MISMATCH: "+nex);
+				System.out.println("KV RANGE KEY MISMATCH: prev:"+prev+" nex:"+nexe.getKey()+" cmpr:"+nexe.getKey().compareTo(prev));
+				throw new Exception("KV RANGE KEY MISMATCH: prev:"+prev+" nex:"+nexe.getKey()+" cmpr:"+nexe.getKey().compareTo(prev));
 			}
 			prev = nexe.getKey();
 		}

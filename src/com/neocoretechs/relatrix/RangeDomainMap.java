@@ -25,9 +25,7 @@ public class RangeDomainMap extends Morphism {
     public RangeDomainMap(String alias, Comparable d, Comparable m, Comparable r) {
        	super(alias,d,m,r);
     }
-	public RangeDomainMap(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
-		super(d,m,r,template);
-	}
+
     public RangeDomainMap(DomainMapRange identity) throws IOException {
     	if(!identity.isDomainKeyValid())
     		throw new IOException("Domain key of identity is invalid.");
@@ -43,8 +41,32 @@ public class RangeDomainMap extends Morphism {
     	this(identity);
     	this.alias = alias;
     }
-	public RangeDomainMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
-		super(alias, d, m, r, b);
+
+	public RangeDomainMap(boolean b, Comparable d, Comparable m, Comparable r) {
+		super(b, d, m, r);
+	}
+	
+	public RangeDomainMap(boolean b, String alias, Comparable d, Comparable m, Comparable r) {
+		super(b, alias, d, m, r);
+	}
+	
+	public RangeDomainMap(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(flag, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeDomainMap(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeDomainMap(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeDomainMap(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
 	@Override
@@ -159,13 +181,20 @@ public class RangeDomainMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new RangeDomainMap(getDomain(), getMap(), getRange());
-  		return new RangeDomainMap(alias, getDomain(), getMap(), getRange());
+       	if(alias == null) {
+    		if(templateFlag)
+    			return new RangeDomainMap(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new RangeDomainMap(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new RangeDomainMap(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new RangeDomainMap(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		if(templateFlag)
+			throw new IOException("Attempt to store templated Morphism.");
 		out.writeObject(getRangeKey());	
 		out.writeObject(getDomainKey());
 		out.writeObject(getMapKey());
@@ -177,13 +206,17 @@ public class RangeDomainMap extends Morphism {
 		setDomainKey((DBKey) in.readObject());
 		setMapKey((DBKey) in.readObject());
 	}
+	
 	public String toString() { 
-		return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
-				(getRange() == null ? "NULL" : getRange().getClass().getName()),
-				(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
-				(getMap() == null ? "NULL" : getMap().getClass().getName()), 
-				(getRange() == null ? "NULL" : getRange()),
-				(getDomain() == null ? "NULL" : getDomain()),
-				(getMap() == null ? "NULL" : getMap()));
+		return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
+				(getRange() == null ? "NULL" : getRange().getClass().getName()),	
+				(getRange() == null ? "NULL" : getRange().toString()),
+				(getRangeKey() == null ? "NULL" : getRangeKey().toString()),
+				(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
+				(getDomain() == null ? "NULL" : getDomain().toString()),
+				(getDomainKey() == null ? "NULL" : getDomainKey().toString()),
+				(getMap() == null ? "NULL" : getMap().getClass().getName()),
+				(getMap() == null ? "NULL" : getMap().toString()),
+				(getMapKey() == null ? "NULL" : getMapKey().toString()));
 	}
 }

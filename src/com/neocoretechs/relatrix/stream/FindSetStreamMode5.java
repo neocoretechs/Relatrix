@@ -43,7 +43,7 @@ public class FindSetStreamMode5 extends StreamFactory {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-		Morphism dmr = new DomainRangeMap((Comparable)darg, null, (Comparable)rarg, true);
+		Morphism dmr = new DomainRangeMap((Comparable)darg, null, (Comparable)rarg);
 		return createRelatrixStream(dmr);
 	}
 	@Override
@@ -52,7 +52,7 @@ public class FindSetStreamMode5 extends StreamFactory {
 	}
 	@Override
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism dmr = new DomainRangeMap(alias, (Comparable)darg, null, (Comparable)rarg, true);
+		Morphism dmr = new DomainRangeMap(alias, (Comparable)darg, null, (Comparable)rarg);
 		return createRelatrixStream(alias, dmr);
 	}
 	@Override

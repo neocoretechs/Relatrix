@@ -58,13 +58,13 @@ public class FindSubSetMode7 extends FindSetMode7 {
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
+					  templdmr.setDomainTemplate(alias,(Comparable) xarg[ipos++]); 
 			   }
 			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
+					  templdmr.setMapTemplate(alias,(Comparable) xarg[ipos++]); 
 			   }
 			   if( tdmr.getRange() != null ) {
-					  templdmr.setRangeTemplate((Comparable) xarg[ipos++]); 
+					  templdmr.setRangeTemplate(alias,(Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

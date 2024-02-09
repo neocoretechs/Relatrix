@@ -443,12 +443,12 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
-		Morphism dmr = new DomainMapRange(d,m,r,true);
-		DomainRangeMap drm = new DomainRangeMap(d,m,r,true);
-		MapDomainRange mdr = new MapDomainRange(d,m,r,true);
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r,true);
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r,true);
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r,true);
+		Morphism dmr = new DomainMapRange(d,m,r);
+		DomainRangeMap drm = new DomainRangeMap(d,m,r);
+		MapDomainRange mdr = new MapDomainRange(d,m,r);
+		MapRangeDomain mrd = new MapRangeDomain(d,m,r);
+		RangeDomainMap rdm = new RangeDomainMap(d,m,r);
+		RangeMapDomain rmd = new RangeMapDomain(d,m,r);
 
 		try {
 			Object o = RelatrixKV.get(dmr);
@@ -534,12 +534,12 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
-		Morphism dmr = new DomainMapRange(alias,d,m,r,true);
-		DomainRangeMap drm = new DomainRangeMap(alias,d,m,r,true);
-		MapDomainRange mdr = new MapDomainRange(alias,d,m,r,true);
-		MapRangeDomain mrd = new MapRangeDomain(alias,d,m,r,true);
-		RangeDomainMap rdm = new RangeDomainMap(alias,d,m,r,true);
-		RangeMapDomain rmd = new RangeMapDomain(alias,d,m,r,true);
+		Morphism dmr = new DomainMapRange(alias,d,m,r);
+		DomainRangeMap drm = new DomainRangeMap(alias,d,m,r);
+		MapDomainRange mdr = new MapDomainRange(alias,d,m,r);
+		MapRangeDomain mrd = new MapRangeDomain(alias,d,m,r);
+		RangeDomainMap rdm = new RangeDomainMap(alias,d,m,r);
+		RangeMapDomain rmd = new RangeMapDomain(alias,d,m,r);
 
 		try {
 			Object o = RelatrixKV.get(alias, dmr);

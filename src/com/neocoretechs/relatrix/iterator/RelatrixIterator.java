@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public class RelatrixIterator implements Iterator<Comparable[]> {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	protected Iterator iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
@@ -220,11 +220,13 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	protected static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
 			System.out.println("RelatrixIterator.templateMatches template:"+template+" record:"+record+" dmr_return:"+dmr_return[0]+","+dmr_return[1]+","+dmr_return[2]+","+dmr_return[3]);
-		if( dmr_return[1] == 0 && template.getDomain().compareTo(record.getDomain()) != 0 ) return false;
-		if( dmr_return[2] == 0 && template.getMap().compareTo(record.getMap()) != 0 ) return false;
-		if( dmr_return[3] == 0 && template.getRange().compareTo(record.getRange()) != 0) return false;
+		if(template.getDomainKey() != null)
+			if( dmr_return[1] == 0 && template.getDomainKey().compareTo(record.getDomainKey()) != 0 ) return false;
+		if(template.getMapKey() != null)
+			if( dmr_return[2] == 0 && template.getMapKey().compareTo(record.getMapKey()) != 0 ) return false;
+		if(template.getRangeKey() != null)
+			if( dmr_return[3] == 0 && template.getRangeKey().compareTo(record.getRangeKey()) != 0) return false;
 		return true;
 	}
-	
 
 }

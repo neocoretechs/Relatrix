@@ -42,7 +42,7 @@ public class FindSubSetStreamMode4Transaction extends FindSetStreamMode4Transact
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
+					  templdmr.setDomainTemplate(xid, (Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

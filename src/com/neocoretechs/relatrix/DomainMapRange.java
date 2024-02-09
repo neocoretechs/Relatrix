@@ -27,18 +27,38 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
     public DomainMapRange(Comparable d, Comparable m, Comparable r) {
     	super(d,m,r);
     }
-
-    public DomainMapRange(Comparable d, Comparable m, Comparable r, boolean template) {
-    	super(d,m,r,template);
-    }
+  
 	public DomainMapRange(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, d, m, r);
 	}
     
-	public DomainMapRange(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
-		super(alias, d, m, r, b);
+    public DomainMapRange(boolean flag, Comparable d, Comparable m, Comparable r) {
+    	super(flag, d,m,r);
+    }
+  
+	public DomainMapRange(boolean flag, String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+		super(flag, alias, d, m, r);
+	}
+	
+    public DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
+	public DomainMapRange(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRange(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRange(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(alias, d, domainkey, m, mapKey, r, rangeKey);
+	}
+	
 	public DBKey getDBKey() {
 		return identity;
 	}
@@ -113,19 +133,28 @@ public class DomainMapRange extends Morphism implements Comparable, Externalizab
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new DomainMapRange(getDomain(), getMap(), getRange());
-   		return new DomainMapRange(alias, getDomain(), getMap(), getRange());
+    	if(alias == null) {
+    		if(templateFlag)
+    			return new DomainMapRange(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new DomainMapRange(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new DomainMapRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new DomainMapRange(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
-    public String toString() { 
-    	return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
+
+	public String toString() { 
+    	return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
     			(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
+    			(getDomain() == null ? "NULL" : getDomain().toString()),
+    			(getDomainKey() == null ? "NULL" : getDomainKey().toString()),
     			(getMap() == null ? "NULL" : getMap().getClass().getName()),
-    			(getRange() == null ? "NULL" : getRange().getClass().getName()),
-    			(getDomain() == null ? "NULL" : getDomain()),
-    			(getMap() == null ? "NULL" : getMap()),
-    			(getRange() == null ? "NULL" : getRange()));
+    			(getMap() == null ? "NULL" : getMap().toString()),
+    			(getMapKey() == null ? "NULL" : getMapKey().toString()),
+    			(getRange() == null ? "NULL" : getRange().getClass().getName()),	
+    			(getRange() == null ? "NULL" : getRange().toString()),
+    			(getRangeKey() == null ? "NULL" : getRangeKey().toString()));
     }
 
 }

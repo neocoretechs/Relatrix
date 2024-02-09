@@ -192,7 +192,7 @@ public final class RelatrixTransaction {
 	public static synchronized DomainMapRangeTransaction store(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		MorphismTransaction dmr = new DomainMapRangeTransaction(d,m,r,true); // form it as template for duplicate key search
+		MorphismTransaction dmr = new DomainMapRangeTransaction(xid,d,m,r); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -262,7 +262,7 @@ public final class RelatrixTransaction {
 	public static synchronized DomainMapRangeTransaction store(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		MorphismTransaction dmr = new DomainMapRangeTransaction(d,m,r,true); // form it as template for duplicate key search
+		MorphismTransaction dmr = new DomainMapRangeTransaction(alias,d,m,r); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -606,17 +606,17 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void remove(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
-		MorphismTransaction dmr = new DomainMapRangeTransaction(d,m,r,true);
+		MorphismTransaction dmr = new DomainMapRangeTransaction(xid,d,m,r);
 		indexClasses[0] = dmr.getClass();
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(d,m,r,true);
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(xid,d,m,r);
 		indexClasses[1] = drm.getClass();
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(d,m,r,true);
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(xid,d,m,r);
 		indexClasses[2] = mdr.getClass();
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(d,m,r,true);
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(xid,d,m,r);
 		indexClasses[3] = mrd.getClass();
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(d,m,r,true);
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(xid,d,m,r);
 		indexClasses[4] = rdm.getClass();
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(d,m,r,true);
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(xid,d,m,r);
 		indexClasses[5] = rmd.getClass();
 
 		try {
@@ -707,17 +707,17 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if alias isnt found
 	 */
 	public static synchronized void remove(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
-		MorphismTransaction dmr = new DomainMapRangeTransaction(d,m,r,true);
+		MorphismTransaction dmr = new DomainMapRangeTransaction(alias,xid,d,m,r);
 		indexClasses[0] = dmr.getClass();
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(d,m,r,true);
+		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,xid,d,m,r);
 		indexClasses[1] = drm.getClass();
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(d,m,r,true);
+		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,xid,d,m,r);
 		indexClasses[2] = mdr.getClass();
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(d,m,r,true);
+		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,xid,d,m,r);
 		indexClasses[3] = mrd.getClass();
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(d,m,r,true);
+		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,xid,d,m,r);
 		indexClasses[4] = rdm.getClass();
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(d,m,r,true);
+		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,xid,d,m,r);
 		indexClasses[5] = rmd.getClass();
 
 		try {

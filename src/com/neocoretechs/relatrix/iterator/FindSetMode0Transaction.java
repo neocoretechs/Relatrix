@@ -57,22 +57,22 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  		MorphismTransaction dmr = null;
  		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRangeTransaction(null, null, null, true);
+ 				dmr = new DomainMapRangeTransaction(true, xid, null, null, null);
  				break;
  			case 1: // drm
- 				dmr = new DomainRangeMapTransaction(null, null, null, true);
+ 				dmr = new DomainRangeMapTransaction(true, xid, null, null, null);
  				break;
  			case 2: // mdr
- 				dmr = new MapDomainRangeTransaction(null, null, null, true);
+ 				dmr = new MapDomainRangeTransaction(true, xid, null, null, null);
  				break;
  			case 3: // mrd
- 				dmr = new MapRangeDomainTransaction(null, null, null, true);
+ 				dmr = new MapRangeDomainTransaction(true, xid, null, null, null);
  				break;
  			case 4: // rdm
- 				dmr = new RangeDomainMapTransaction(null, null, null, true);
+ 				dmr = new RangeDomainMapTransaction(true, xid, null, null, null);
  				break;
  			case 5: // rmd
- 				dmr = new RangeMapDomainTransaction(null, null, null, true);
+ 				dmr = new RangeMapDomainTransaction(true, xid, null, null, null);
  				break;
  		}
  		if( DEBUG  )
@@ -88,22 +88,22 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  		MorphismTransaction dmr = null;
  		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRangeTransaction(null, null, null, true);
+ 				dmr = new DomainMapRangeTransaction(true, alias, xid, null, null, null);
  				break;
  			case 1: // drm
- 				dmr = new DomainRangeMapTransaction(null, null, null, true);
+ 				dmr = new DomainRangeMapTransaction(true, alias, xid, null, null, null);
  				break;
  			case 2: // mdr
- 				dmr = new MapDomainRangeTransaction(null, null, null, true);
+ 				dmr = new MapDomainRangeTransaction(true, alias, xid, null, null, null);
  				break;
  			case 3: // mrd
- 				dmr = new MapRangeDomainTransaction(null, null, null, true);
+ 				dmr = new MapRangeDomainTransaction(true, alias, xid, null, null, null);
  				break;
  			case 4: // rdm
- 				dmr = new RangeDomainMapTransaction(null, null, null, true);
+ 				dmr = new RangeDomainMapTransaction(true, alias, xid, null, null, null);
  				break;
  			case 5: // rmd
- 				dmr = new RangeMapDomainTransaction(null, null, null, true);
+ 				dmr = new RangeMapDomainTransaction(true, alias, xid, null, null, null);
  				break;
  		}
  		if( DEBUG  )

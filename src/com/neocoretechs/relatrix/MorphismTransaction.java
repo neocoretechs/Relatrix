@@ -40,6 +40,7 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 
 	/**
 	 * Construct and establish key position for the elements of a morphism.
+	 * We need transaction id first, so we cant call superclass constructor
 	 * @param d
 	 * @param m
 	 * @param r
@@ -50,7 +51,14 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		setMap(m);
 		setRange(r);
 	}
-
+	/**
+	 * We need transaction id first, so we cant call superclass constructor
+	 * @param alias
+	 * @param transactionId
+	 * @param d
+	 * @param m
+	 * @param r
+	 */
 	public MorphismTransaction(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
 		this.transactionId = transactionId;
 		this.alias = alias;
@@ -58,20 +66,126 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 		setMap(alias, m);
 		setRange(alias, r);
 	}
+	
 	/**
-	 * Construct and establish key position for the elements of a morphism. Do not utilize DBKeys
-	 * and provide a default empty KeySet. A template is used for retrieval and checking for
-	 * existence of relationships without creating a permanent entry in the database.
+	 * Construct and establish key position for the elements of a morphism template.
+	 * In a template, we dont create keys for instances that dont resolve, we use effective null key
 	 * @param d
 	 * @param m
 	 * @param r
 	 */
-	public MorphismTransaction(Comparable d, Comparable m, Comparable r, boolean template) {
+	public MorphismTransaction(boolean flag, String transactionId, Comparable d, Comparable m, Comparable r) {
+		this.templateFlag = flag;
+		this.transactionId = transactionId;
 		setDomainTemplate(d);
 		setMapTemplate(m);
 		setRangeTemplate(r);
 	}
-
+	/**
+	 * Construct and establish key position for the elements of a morphism template.
+	 * In a template, we dont create keys for instances that dont resolve, we use effective null key
+	 * @param d
+	 * @param m
+	 * @param r
+	 */
+	public MorphismTransaction(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		this.templateFlag = flag;
+		this.transactionId = transactionId;
+		this.alias = alias;
+		setDomainTemplate(alias, d);
+		setMapTemplate(alias, m);
+		setRangeTemplate(alias, r);
+	}
+    /**
+     * Copy constructor 1, default
+     * @param transactionId
+     * @param d
+     * @param dkey
+     * @param m
+     * @param mapKey
+     * @param r
+     * @param rangeKey
+     */
+    public MorphismTransaction(String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+    	this.templateFlag = false;
+		this.transactionId = transactionId;
+    	domain = d;
+        map = m;
+        range = r;
+        setDomainKey(domainkey);
+        setMapKey(mapKey);
+        setRangeKey(rangeKey);
+    }
+    
+    /**
+     * Copy constructor 2, alias
+     * @param alias
+     * @param transactionId
+     * @param d
+     * @param domainkey
+     * @param m
+     * @param mapKey
+     * @param r
+     * @param rangeKey
+     */
+    public MorphismTransaction(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+    	this.alias = alias;
+    	this.templateFlag = false;
+    	this.transactionId = transactionId;
+    	domain = d;
+        map = m;
+        range = r;
+        setDomainKey(domainkey);
+        setMapKey(mapKey);
+        setRangeKey(rangeKey);
+    }
+    
+    /**
+     * Copy constructor 3 template default
+     * @param flag
+     * @param transactionId
+     * @param d
+     * @param domainkey
+     * @param m
+     * @param mapKey
+     * @param r
+     * @param rangeKey
+     */
+    public MorphismTransaction(boolean flag, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+    	this.templateFlag = flag;
+    	this.transactionId = transactionId;
+    	domain = d;
+        map = m;
+        range = r;
+        setDomainKey(domainkey);
+        setMapKey(mapKey);
+        setRangeKey(rangeKey);
+    }
+    
+    /**
+     * Copy constructor 4 template alias
+     * @param flag
+     * @param alias
+     * @param transactionId
+     * @param d
+     * @param domainkey
+     * @param m
+     * @param mapKey
+     * @param r
+     * @param rangeKey
+     */
+    public MorphismTransaction(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+    	this.templateFlag = flag;
+       	this.transactionId = transactionId;
+    	this.alias = alias;
+     	domain = d;
+        map = m;
+        range = r;
+        setDomainKey(domainkey);
+        setMapKey(mapKey);
+        setRangeKey(rangeKey);
+    } 
+    
 	public String getTransactionId() {
 		return transactionId;
 	}
@@ -79,189 +193,26 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 	public void setTransactionId(String xid) {
 		this.transactionId = xid;
 	}
-	/**
-	 * Transparently process DBKey, returning actual instance
-	 * @return The real Comparable instance, pointed to by DBKey
-	 */ 
-	public Comparable getDomain() {
-		try {
-			if(domain != null)
-				return domain;
-			if(DBKey.isValid(getDomainKey())) {
-				domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getDomainKey());
-			}
-			return domain;
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
+	
+	@Override
+	protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
 	}
-
-	public void setDomain(Comparable<?> domain) {
-		try {
-			this.domain = domain;
-			if(domain == null) {
-				setDomainKey(new DBKey());
-			} else {
-				if(DBKey.isValid(getDomainKey())) {
-					this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getDomainKey());
-				} else {
-					DBKey dbKey = null;
-					if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, domain)) == null)
-						setDomainKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(),domain));
-					else
-						setDomainKey(dbKey);
-				}
-			}
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
+	@Override	
+	protected DBKey newKey(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), instance);
 	}
-	/**
-	 * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
-	 * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
-	 * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
-	 * If the domain key is not valid, a getByInstance of the domain on the database indicated by the alias tablespace is
-	 * performed to try and obtain a domain DBKey. If this method call comes back null, then a new key is formed
-	 * using the domain instance value stored to the database alias index table using the IndexResolver.
-	 * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
-	 * in the KeySet to the value retrieved from the IndexResolver.<p/>
-	 * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-	 * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-	 * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index. The DBKey
-	 * points to the primary database and the alias here is used if we create an entirely new instance.
-	 * @param alias the database alias if we end up creating an index to a new instance
-	 * @param domain
-	 */
-	public void setDomain(String alias, Comparable<?> domain) {
-		try {
-			this.domain = domain;
-			if(domain == null) {
-				setDomainKey(new DBKey());
-			} else {
-				if(DBKey.isValid(getDomainKey())) {
-					this.domain = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getDomainKey());
-				} else {
-					DBKey dbKey = null;
-					if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, domain)) == null)
-						setDomainKey(DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(),domain));
-					else
-						setDomainKey(dbKey);
-				}
-			}
-		} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
-			throw new RuntimeException(e);
-		}
+	@Override	
+	protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, key);
 	}
-
-	public Comparable getMap() {
-		try {
-			if(map != null) 
-				return map;
-			if(DBKey.isValid(getMapKey())) {
-				map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getMapKey());
-			}
-			return map;
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
+	@Override	
+	protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, instance);
 	}
-
-	public void setMap(Comparable<?> map) {
-		try {
-			this.map = map;
-			if(map == null) {
-				setMapKey(new DBKey());
-			} else {
-				if(DBKey.isValid(getMapKey())) {
-					this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getMapKey());
-				} else {
-					DBKey dbKey = null;
-					if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, map)) == null)
-						setMapKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(),map));
-					else
-						setMapKey(dbKey);
-				}
-			}
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
+	@Override	
+	protected DBKey resolveInstance(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
+		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
 	}
-	public void setMap(String alias, Comparable<?> map) {
-		try {
-			this.map = map;
-			if(map == null) {
-				setMapKey(new DBKey());
-			} else {
-				if(DBKey.isValid(getMapKey())) {
-					this.map = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getMapKey());
-				} else {
-					DBKey dbKey = null;
-					if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, map)) == null)
-						setMapKey(DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), map));
-					else
-						setMapKey(dbKey);
-				}
-			}
-		} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public Comparable getRange() {
-		try {
-			if(range != null)
-				return range;
-			if(DBKey.isValid(getRangeKey())) {
-				range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getRangeKey());
-			}
-			return range;
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public void setRange(Comparable<?> range) {
-		try {
-			this.range = range;
-			if(range == null) {
-				setRangeKey(new DBKey());
-			} else {
-				if(DBKey.isValid(getRangeKey())) {
-					this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getRangeKey());
-				} else {
-					DBKey dbKey = null;
-					if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, range)) == null)
-						setRangeKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(),range));
-					else
-						setRangeKey(dbKey);						
-				}
-			}
-		} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public void setRange(String alias, Comparable<?> range) {
-		try {
-			this.range = range;
-			if(range == null) {
-				setRangeKey(new DBKey());
-			} else {
-				if(DBKey.isValid(getRangeKey())) {
-					this.range = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, getRangeKey());
-				} else {
-					DBKey dbKey = null;
-					if((dbKey = (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, range)) == null)
-						setRangeKey(DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), range));
-					else
-						setRangeKey(dbKey);						
-				}
-			}
-		} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
 
 }

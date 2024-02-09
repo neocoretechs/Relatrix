@@ -25,9 +25,7 @@ public class MapRangeDomain extends Morphism {
     public MapRangeDomain(String alias, Comparable d, Comparable m, Comparable r) {
        	super(alias,d,m,r);
     }
-	public MapRangeDomain(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
-		super(d,m,r,template);
-	}
+
     public MapRangeDomain(DomainMapRange identity) throws IOException {
     	if(!identity.isDomainKeyValid())
     		throw new IOException("Domain key of identity is invalid.");
@@ -43,8 +41,32 @@ public class MapRangeDomain extends Morphism {
     	this(identity);
     	this.alias = alias;
     }
-	public MapRangeDomain(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean b) {
-		super(alias, d, m, r, b);
+
+	public MapRangeDomain(boolean b, Comparable d, Comparable m, Comparable r) {
+		super(b, d, m, r);
+	}
+	
+	public MapRangeDomain(boolean b, String alias, Comparable d, Comparable m, Comparable r) {
+		super(b, alias, d, m, r);
+	}
+	
+	public MapRangeDomain(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(flag, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public MapRangeDomain(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public MapRangeDomain(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public MapRangeDomain(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+			DBKey rangeKey) {
+		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
 	@Override
@@ -159,12 +181,19 @@ public class MapRangeDomain extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new MapRangeDomain(getDomain(), getMap(), getRange());
-		return new MapRangeDomain(alias, getDomain(), getMap(), getRange());
+       	if(alias == null) {
+    		if(templateFlag)
+    			return new MapRangeDomain(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new MapRangeDomain(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new MapRangeDomain(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new MapRangeDomain(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		if(templateFlag)
+			throw new IOException("Attempt to store templated Morphism.");
 		out.writeObject(getMapKey());
 		out.writeObject(getRangeKey());	
 		out.writeObject(getDomainKey());
@@ -177,12 +206,16 @@ public class MapRangeDomain extends Morphism {
 		setDomainKey((DBKey) in.readObject());
 	}
 	public String toString() { 
-		return String.format("Class:%s %n[%s->%s->%s]%n[%s->%s->%s]%n",this.getClass().getName(),
-				(getMap() == null ? "NULL" : getMap().getClass().getName()), 
-				(getRange() == null ? "NULL" : getRange().getClass().getName()),
-				(getDomain() == null ? "NULL" :getDomain().getClass().getName()),
-				(getMap() == null ? "NULL" : getMap()), 
-				(getRange() == null ? "NULL" : getRange()),
-				(getDomain() == null ? "NULL" : getDomain()));
+		return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
+				(getMap() == null ? "NULL" : getMap().getClass().getName()),
+				(getMap() == null ? "NULL" : getMap().toString()),
+				(getMapKey() == null ? "NULL" : getMapKey().toString()),
+				(getRange() == null ? "NULL" : getRange().getClass().getName()),	
+				(getRange() == null ? "NULL" : getRange().toString()),
+				(getRangeKey() == null ? "NULL" : getRangeKey().toString()),
+				(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
+				(getDomain() == null ? "NULL" : getDomain().toString()),
+				(getDomainKey() == null ? "NULL" : getDomainKey().toString()));
 	}
+
 }

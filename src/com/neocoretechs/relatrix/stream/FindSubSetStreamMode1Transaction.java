@@ -37,13 +37,13 @@ public class FindSubSetStreamMode1Transaction extends FindSetStreamMode1Transact
 			// move the end range into the new template in the proper position
 			int ipos = 0;
 			if( tdmr.getDomain() != null ) {
-				templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
+				templdmr.setDomainTemplate(xid, (Comparable) xarg[ipos++]); 
 			}
 			if( tdmr.getMap() != null ) {
-				templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
+				templdmr.setMapTemplate(xid, (Comparable) xarg[ipos++]); 
 			}
 			if( tdmr.getRange() != null ) {
-				templdmr.setRangeTemplate((Comparable) xarg[ipos++]); 
+				templdmr.setRangeTemplate(xid, (Comparable) xarg[ipos++]); 
 			}
 		} catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

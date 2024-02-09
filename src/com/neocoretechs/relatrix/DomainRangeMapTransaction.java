@@ -25,9 +25,35 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
     public DomainRangeMapTransaction(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
        	super(alias,d,m,r);
     }
-	public DomainRangeMapTransaction(Comparable<?> d, Comparable<?> m, Comparable<?> r, boolean template) {
-		super(d,m,r,template);
+
+	public DomainRangeMapTransaction(boolean b, String xid, Comparable d, Comparable m, Comparable r) {
+		super(b, xid, d, m, r);
 	}
+	
+	public DomainRangeMapTransaction(boolean b, String alias, String xid, Comparable d, Comparable m, Comparable r) {
+		super(b, alias, xid, d, m, r);
+	}
+	
+	public DomainRangeMapTransaction(boolean flag, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainRangeMapTransaction(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey,
+			Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainRangeMapTransaction(String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+			Comparable r, DBKey rangeKey) {
+		super(transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainRangeMapTransaction(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(Object dmrpk) {
@@ -99,9 +125,14 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null)
-    		return new DomainRangeMapTransaction(transactionId, getDomain(), getMap(), getRange());
-    	return new DomainRangeMapTransaction(alias, transactionId, getDomain(), getMap(), getRange());
+       	if(alias == null) {
+    		if(templateFlag)
+    			return new DomainRangeMapTransaction(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new DomainRangeMapTransaction(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+   		if(templateFlag)
+			return new DomainRangeMapTransaction(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new DomainRangeMapTransaction(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
 	@Override

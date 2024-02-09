@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
@@ -276,7 +277,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
+		String sdb = Relatrix.getDatabasePath(UUID.fromString(index.databaseIndex));
 		if(sdb == null) {
 			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
 		}
@@ -304,7 +305,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
+		String sdb = Relatrix.getDatabasePath(UUID.fromString(index.databaseIndex));
 		if(sdb == null) {
 			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
 		}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -20,11 +21,12 @@ public class KeySet implements Externalizable, Comparable {
 	private DBKey domainKey = new DBKey();
     private DBKey mapKey = new DBKey();
     private DBKey rangeKey = new DBKey();
-    private boolean primaryKeyCheck = false;
+    //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
+    private static boolean primaryKeyCheck = false;
 
     public KeySet() {}
     
-    public void setPrimaryKeyCheck(boolean check) {
+    public void setPrimaryKeyCheck(/*String db,*/ boolean check) {
     	if(DEBUG)
     		System.out.println("Setting primary key check:"+check+" for "+this);
     	primaryKeyCheck = check;
@@ -135,7 +137,6 @@ public class KeySet implements Externalizable, Comparable {
 		setDomainKey((DBKey) in.readObject());
 		setMapKey((DBKey) in.readObject());
 		setRangeKey((DBKey) in.readObject());
-		primaryKeyCheck = in.readBoolean();
 	} 
 	
 	@Override  
@@ -143,36 +144,36 @@ public class KeySet implements Externalizable, Comparable {
 		out.writeObject(getDomainKey());
 		out.writeObject(getMapKey());
 		out.writeObject(getRangeKey());
-		out.writeBoolean(primaryKeyCheck);
 	}
+	
 	@Override
 	public int compareTo(Object o) {
 		if(DEBUG)
 			System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
-		if(!((KeySet)o).isDomainKeyValid())
-			return 0;
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
-		if(i != 0)
+		if(i != 0) {
+			if(DEBUG)
+				System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
 			return i;
-		if(!((KeySet)o).isMapKeyValid())
-			return 0;
+		}
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(primaryKeyCheck || ((KeySet)o).primaryKeyCheck) {
+		if(primaryKeyCheck) {
 			if(DEBUG)
 				System.out.println("***** Primary key check for "+getDomainKey()+" "+getMapKey()+" returning "+i);
 			return i;
 		}
-		if(i != 0)
+		if(i != 0) {
+			if(DEBUG)
+				System.out.println("Keyset CompareTo returning "+i+" at MapKey");
 			return i;
-		if(!((KeySet)o).isRangeKeyValid())
-			return 0;
+		}
+		if(DEBUG)
+			System.out.println("Keyset CompareTo returning "+getRangeKey().compareTo(((KeySet)o).getRangeKey())+" at last RangeKey");
 		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
 	} 
 	@Override
 	public boolean equals(Object o) {
-		if(!((KeySet)o).isValid())
-			return false;
-		if(primaryKeyCheck || ((KeySet)o).primaryKeyCheck)
+		if(primaryKeyCheck) 
 			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
 					getMapKey().equals(((KeySet)o).getMapKey());
 		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
@@ -183,12 +184,9 @@ public class KeySet implements Externalizable, Comparable {
 	public int hashCode() {
 	    final int prime = 31;
 	    int result = 1;
-		if(isDomainKeyValid())
-			result = prime * result + getDomainKey().hashCode();
-		if(isMapKeyValid())
-			result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
-	    if(!primaryKeyCheck && isRangeKeyValid())
-	    	result = prime * result + getRangeKey().hashCode();
+		result = prime * result + getDomainKey().hashCode();
+		result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
+	    result = prime * result + getRangeKey().hashCode();
 	    return result;
 	}
 	
