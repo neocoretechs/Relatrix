@@ -36,7 +36,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new MapRangeDomainTransaction(xid, null, (Comparable)marg, (Comparable)rarg);
+	    MorphismTransaction dmr = new MapRangeDomainTransaction(true, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(dmr);
 	}
 	
@@ -57,7 +57,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-	    MorphismTransaction dmr = new MapRangeDomainTransaction(alias, xid, null, (Comparable)marg, (Comparable)rarg);
+	    MorphismTransaction dmr = new MapRangeDomainTransaction(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	

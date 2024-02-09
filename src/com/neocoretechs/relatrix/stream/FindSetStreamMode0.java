@@ -55,22 +55,22 @@ public class FindSetStreamMode0 extends StreamFactory {
 		Morphism dmr = null;
 		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
 			case 0: // dmr
-				dmr = new DomainMapRange(null, null, null, true);
+				dmr = new DomainMapRange(true, null, null, null);
 				break;
 			case 1: // drm
-				dmr = new DomainRangeMap(null, null, null, true);
+				dmr = new DomainRangeMap(true, null, null, null);
 				break;
 			case 2: // mdr
-				dmr = new MapDomainRange(null, null, null, true);
+				dmr = new MapDomainRange(true, null, null, null);
 				break;
 			case 3: // mrd
-				dmr = new MapRangeDomain(null, null, null, true);
+				dmr = new MapRangeDomain(true, null, null, null);
 				break;
 			case 4: // rdm
-				dmr = new RangeDomainMap(null, null, null, true);
+				dmr = new RangeDomainMap(true, null, null, null);
 				break;
 			case 5: // rmd
-				dmr = new RangeMapDomain(null, null, null, true);
+				dmr = new RangeMapDomain(true, null, null, null);
 				break;
 		}
 		if( DEBUG  )
@@ -88,22 +88,22 @@ public class FindSetStreamMode0 extends StreamFactory {
 		Morphism dmr = null;
 		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
 		case 0: // dmr
-			dmr = new DomainMapRange(alias, null, null, null);
+			dmr = new DomainMapRange(true, alias, null, null, null);
 			break;
 		case 1: // drm
-			dmr = new DomainRangeMap(alias, null, null, null);
+			dmr = new DomainRangeMap(true, alias, null, null, null);
 			break;
 		case 2: // mdr
-			dmr = new MapDomainRange(alias, null, null, null);
+			dmr = new MapDomainRange(true, alias, null, null, null);
 			break;
 		case 3: // mrd
-			dmr = new MapRangeDomain(alias, null, null, null);
+			dmr = new MapRangeDomain(true, alias, null, null, null);
 			break;
 		case 4: // rdm
-			dmr = new RangeDomainMap(alias, null, null, null);
+			dmr = new RangeDomainMap(true, alias, null, null, null);
 			break;
 		case 5: // rmd
-			dmr = new RangeMapDomain(alias, null, null, null);
+			dmr = new RangeMapDomain(true, alias, null, null, null);
 			break;
 		}
 		if( DEBUG  )

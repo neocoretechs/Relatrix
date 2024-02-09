@@ -42,7 +42,7 @@ public class FindSetMode6 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    Morphism dmr = new DomainMapRange((Comparable)darg, (Comparable)marg, null);
+	    Morphism dmr = new DomainMapRange(true, (Comparable)darg, (Comparable)marg, null);
 	    return createRelatrixIterator(dmr);
 	}
 	@Override
@@ -55,7 +55,7 @@ public class FindSetMode6 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-	    Morphism dmr = new DomainMapRange(alias, (Comparable)darg, (Comparable)marg, null);
+	    Morphism dmr = new DomainMapRange(true, alias, (Comparable)darg, (Comparable)marg, null);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	@Override

@@ -34,10 +34,16 @@ public class FindSetStreamMode1Transaction extends FindSetStreamMode1 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new RangeDomainMapTransaction(null, null, (Comparable)rarg, true);
+	    MorphismTransaction dmr = new RangeDomainMapTransaction(true, xid, null, null, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
-		
+	
+	@Override
+	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
+	    MorphismTransaction dmr = new RangeDomainMapTransaction(true, alias, xid, null, null, (Comparable)rarg);
+	    return createRelatrixStream(dmr);
+	}
+	
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixStreamTransaction(xid, tdmr, dmr_return);
 	}

@@ -54,22 +54,22 @@ public class FindSetStreamMode0Transaction extends FindSetStreamMode0 {
  		MorphismTransaction dmr = null;
  		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRangeTransaction(xid, null, null, null);
+ 				dmr = new DomainMapRangeTransaction(true, xid, null, null, null);
  				break;
  			case 1: // drm
- 				dmr = new DomainRangeMapTransaction(xid, null, null, null);
+ 				dmr = new DomainRangeMapTransaction(true, xid, null, null, null);
  				break;
  			case 2: // mdr
- 				dmr = new MapDomainRangeTransaction(xid, null, null, null);
+ 				dmr = new MapDomainRangeTransaction(true, xid, null, null, null);
  				break;
  			case 3: // mrd
- 				dmr = new MapRangeDomainTransaction(xid, null, null, null);
+ 				dmr = new MapRangeDomainTransaction(true, xid, null, null, null);
  				break;
  			case 4: // rdm
- 				dmr = new RangeDomainMapTransaction(xid, null, null, null);
+ 				dmr = new RangeDomainMapTransaction(true, xid, null, null, null);
  				break;
  			case 5: // rmd
- 				dmr = new RangeMapDomainTransaction(xid, null, null, null);
+ 				dmr = new RangeMapDomainTransaction(true, xid, null, null, null);
  				break;
  		}
  		if( DEBUG  )

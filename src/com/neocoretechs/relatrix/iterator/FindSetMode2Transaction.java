@@ -34,7 +34,7 @@ public class FindSetMode2Transaction extends FindSetMode2 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new MapDomainRangeTransaction(xid, null, (Comparable)marg, null);
+		MorphismTransaction dmr = new MapDomainRangeTransaction(true, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(dmr);
 	}
@@ -49,7 +49,7 @@ public class FindSetMode2Transaction extends FindSetMode2 {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		MorphismTransaction dmr = new MapDomainRangeTransaction(alias, xid, null, (Comparable)marg, null);
+		MorphismTransaction dmr = new MapDomainRangeTransaction(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(alias, dmr);
 	}

@@ -33,10 +33,18 @@ public class FindSetStreamMode3Transaction extends FindSetStreamMode3 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new MapRangeDomainTransaction(null, (Comparable)marg, (Comparable)rarg, true);
+	    MorphismTransaction dmr = new MapRangeDomainTransaction(true, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
 	
+    /**
+     * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
+	    MorphismTransaction dmr = new MapRangeDomainTransaction(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
+	    return createRelatrixStream(dmr);
+	}
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
 	 * @param tdmr

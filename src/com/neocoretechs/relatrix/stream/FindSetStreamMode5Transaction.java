@@ -34,7 +34,16 @@ public class FindSetStreamMode5Transaction extends FindSetStreamMode5 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new DomainRangeMapTransaction(xid, (Comparable)darg, null, (Comparable)rarg);
+		MorphismTransaction dmr = new DomainRangeMapTransaction(true, xid, (Comparable)darg, null, (Comparable)rarg);
+		return createRelatrixStream(dmr);
+	}
+	
+	/**
+     * @return stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
+		MorphismTransaction dmr = new DomainRangeMapTransaction(true, alias, xid, (Comparable)darg, null, (Comparable)rarg);
 		return createRelatrixStream(dmr);
 	}
 	
