@@ -195,8 +195,6 @@ public class MapDomainRange extends Morphism {
     
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		if(templateFlag)
-			throw new IOException("Attempt to store templated Morphism.");
 		out.writeObject(getMapKey());
 		out.writeObject(getDomainKey());
 		out.writeObject(getRangeKey());	

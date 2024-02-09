@@ -350,6 +350,10 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         					setDomainKey(dbKey);
         				}
         			}
+        		} else {
+  					DBKey dbKey = new DBKey();
+					dbKey.setNullKey();
+					setDomainKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -388,6 +392,10 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         					setDomainKey(dbKey);
         				}
         			}
+        		} else {
+   					DBKey dbKey = new DBKey();
+					dbKey.setNullKey(alias);
+					setDomainKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
@@ -490,12 +498,16 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         				DBKey dbKey = null;
         				if((dbKey = resolveInstance(map)) == null) {
         					dbKey = new DBKey();
-        					dbKey.setNullKey(alias);
+        					dbKey.setNullKey();
         					setMapKey(dbKey);
         				} else {
         					setMapKey(dbKey);
         				}
         			}
+        		} else {
+ 					DBKey dbKey = new DBKey();
+					dbKey.setNullKey();
+					setMapKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -517,7 +529,11 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         				} else {
         					setMapKey(dbKey);
         				}
-        			}
+        			} 
+        		} else {
+        			DBKey dbKey = new DBKey();
+        			dbKey.setNullKey(alias);
+        			setMapKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
@@ -628,6 +644,10 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         					setRangeKey(dbKey);	
         				}
         			}
+        		} else {
+   					DBKey dbKey = new DBKey();
+					dbKey.setNullKey();						
+					setRangeKey(dbKey);        			
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -650,6 +670,10 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         					setRangeKey(dbKey);
         				}
         			}
+        		} else {
+        			DBKey dbKey = new DBKey();
+        			dbKey.setNullKey(alias);						
+        			setRangeKey(dbKey);        
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
