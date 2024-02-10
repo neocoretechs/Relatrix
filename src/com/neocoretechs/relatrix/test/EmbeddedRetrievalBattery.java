@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
@@ -33,6 +34,7 @@ public class EmbeddedRetrievalBattery {
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
 		Relatrix.setTablespace(argv[0]);
+		Morphism.displayLevel = Morphism.displayLevels.BRIEF;
 		//battery1AR17(argv);
 		battery0(argv);
 		battery1(argv);

@@ -194,16 +194,34 @@ public class RangeMapDomain extends Morphism {
 		setMapKey((DBKey) in.readObject());
 		setDomainKey((DBKey) in.readObject());
 	}
-	public String toString() { 
-		return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
-				(getRange() == null ? "NULL" : getRange().getClass().getName()),	
-				(getRange() == null ? "NULL" : getRange().toString()),
-				(getRangeKey() == null ? "NULL" : getRangeKey().toString()),
-				(getMap() == null ? "NULL" : getMap().getClass().getName()),
-				(getMap() == null ? "NULL" : getMap().toString()),
-				(getMapKey() == null ? "NULL" : getMapKey().toString()),
-				(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
-				(getDomain() == null ? "NULL" : getDomain().toString()),
-				(getDomainKey() == null ? "NULL" : getDomainKey().toString()));
+	
+	public String toString() {
+		switch(displayLevel) {
+		case VERBOSE:
+			return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
+					(getRange() == null ? "NULL" : getRange().getClass().getName()),	
+					(getRange() == null ? "NULL" : getRange().toString()),
+					(getRangeKey() == null ? "NULL" : getRangeKey().toString()),
+					(getMap() == null ? "NULL" : getMap().getClass().getName()),
+					(getMap() == null ? "NULL" : getMap().toString()),
+					(getMapKey() == null ? "NULL" : getMapKey().toString()),
+					(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
+					(getDomain() == null ? "NULL" : getDomain().toString()),
+					(getDomainKey() == null ? "NULL" : getDomainKey().toString()));
+		case BRIEF:
+			return String.format("Class:%s %n %s%n%s%n %s%n%s%n %s%n%s%n-----%n",this.getClass().getName(),
+					(getRange() == null ? "NULL" : getRange().getClass().getName()),	
+					(getRange() == null ? "NULL" : getRange().toString()),
+					(getMap() == null ? "NULL" : getMap().getClass().getName()),
+					(getMap() == null ? "NULL" : getMap().toString()),
+					(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
+					(getDomain() == null ? "NULL" : getDomain().toString()));
+		case MINIMAL:
+		default:
+			return String.format("[%s->%s->%s]%n",
+					(getDomain() == null ? "NULL" : getDomain().toString()),
+					(getMap() == null ? "NULL" : getMap().toString()),
+					(getRange() == null ? "NULL" : getRange().toString()));
+		}
 	}
 }

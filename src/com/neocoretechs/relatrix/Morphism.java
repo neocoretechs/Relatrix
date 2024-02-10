@@ -35,6 +35,8 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
 		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
         static final long serialVersionUID = -9129948317265641091L;
+        public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
+        public static displayLevels displayLevel = displayLevels.BRIEF;
         
 		protected transient Comparable  domain;       // domain object
         protected transient Comparable  map;          // map object
