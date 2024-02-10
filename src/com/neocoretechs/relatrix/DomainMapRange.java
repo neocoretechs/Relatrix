@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.key.KeySet;
  */
 public class DomainMapRange extends Morphism implements Comparable, Externalizable, Cloneable {
 	private static final long serialVersionUID = 8664384659501163179L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     protected transient DBKey identity;
     
     public DomainMapRange() {}

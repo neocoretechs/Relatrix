@@ -74,26 +74,18 @@ public class MapDomainRange extends Morphism {
 	public int compareTo(Object o) {
 		if(!keyCompare)
 			return compareToResolved(o);
-		if(!((KeySet)o).isMapKeyValid())
-			return 0;
 		int i = getMapKey().compareTo(((KeySet)o).getMapKey());
 		if(i != 0)
 			return i;
-		if(!((KeySet)o).isDomainKeyValid())
-			return 0;
 		i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
 		if(i != 0)
 			return i;
-		if(!((KeySet)o).isRangeKeyValid())
-			return 0;
 		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
 	} 
 	@Override
 	public boolean equals(Object o) {
 		if(!keyCompare)
 			return equalsResolved(o);
-		if(!((KeySet)o).isValid())
-			return true;
 		return getMapKey().equals(((KeySet)o).getMapKey()) &&
 				getDomainKey().equals(((KeySet)o).getDomainKey()) &&
 				getRangeKey().equals(((KeySet)o).getRangeKey());
@@ -104,12 +96,9 @@ public class MapDomainRange extends Morphism {
 			return hashCodeResolved();
 	    final int prime = 31;
 	    int result = 1;
-		if(isMapKeyValid())
-			result = prime * result + getMapKey().hashCode();
-		if(isDomainKeyValid())
-			result = prime * result + (int) (getDomainKey().hashCode() ^ (getDomainKey().hashCode() >>> 32));
-	    if(isRangeKeyValid())
-	    	result = prime * result + getRangeKey().hashCode();
+		result = prime * result + getMapKey().hashCode();
+		result = prime * result + (int) (getDomainKey().hashCode() ^ (getDomainKey().hashCode() >>> 32));
+	    result = prime * result + getRangeKey().hashCode();
 	    return result;
 	}
 	

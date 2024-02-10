@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  */
 public class KeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private DBKey domainKey = new DBKey();
     private DBKey mapKey = new DBKey();
     private DBKey rangeKey = new DBKey();
