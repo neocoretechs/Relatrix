@@ -195,7 +195,81 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			RelatrixKVTransaction.remove(transactionId, index);
 		}
 	}
-		
+	
+	@Override
+	public void deleteAlias(String alias, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		synchronized(mutex) {
+			Comparable instance = null;
+			// index is valid
+			instance = (Comparable) getByIndex(index);
+			if(instance != null) {
+				RelatrixKV.remove(alias, instance);
+			}
+			RelatrixKV.remove(alias, index);
+		}
+	}
+	
+	@Override
+	public void deleteAlias(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		synchronized(mutex) {
+			Comparable instance = null;
+			// index is valid
+			instance = (Comparable) getByIndex(transactionId, index);
+			if(instance != null) {
+				RelatrixKVTransaction.remove(transactionId, instance);
+			}
+			RelatrixKVTransaction.remove(transactionId, index);
+		}
+	}
+	
+	@Override
+	public void deleteInstance(Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		synchronized(mutex) {
+			// index is valid
+			DBKey index = getByInstance(instance);
+			if(index != null) {
+				RelatrixKV.remove(index);
+			}
+			RelatrixKV.remove(instance);
+		}
+	}
+	
+	@Override
+	public void deleteInstance(String transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		synchronized(mutex) {
+			// index is valid
+			DBKey index = getByInstance(transactionId, instance);
+			if(index != null) {
+				RelatrixKVTransaction.remove(transactionId, index);
+			}
+			RelatrixKVTransaction.remove(transactionId, instance);
+		}
+	}
+
+	@Override
+	public void deleteInstanceAlias(String alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		synchronized(mutex) {
+			// index is valid
+			DBKey index = getByInstanceAlias(alias, instance);
+			if(index != null) {
+				RelatrixKV.remove(alias, index);
+			}
+			RelatrixKV.remove(alias, instance);
+		}
+	}
+	
+	@Override
+	public void deleteInstanceAlias(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		synchronized(mutex) {
+			// index is valid
+			DBKey index = getByInstanceAlias(alias, transactionId, instance);
+			if(index != null) {
+				RelatrixKVTransaction.remove(alias, transactionId, index);
+			}
+			RelatrixKVTransaction.remove(alias, transactionId, instance);
+		}
+	}
+	
 	@Override
 	public void commit(String transactionId) throws IOException, IllegalAccessException {
 		synchronized(mutex) {

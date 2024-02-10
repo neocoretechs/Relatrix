@@ -265,8 +265,9 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
+	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		removeRecursive(c);
@@ -297,8 +298,9 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 * @throws NoSuchElementException if the alias is not found
+	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		removeRecursive(alias, c);
@@ -328,8 +330,9 @@ public final class Relatrix {
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
+	 * @throws DuplicateKeyException 
 	 */
-	private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
 		ArrayList<Morphism> m = new ArrayList<Morphism>();
 		try {
 			Iterator<?> it = findSet(c,"*","*");
@@ -386,8 +389,9 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias is not found
+	 * @throws DuplicateKeyException 
 	 */
-	private static synchronized void removeRecursive(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	private static synchronized void removeRecursive(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		ArrayList<Morphism> m = new ArrayList<Morphism>();
 		try {
 			Iterator<?> it = findSet(alias,c,"*","*");
@@ -441,87 +445,23 @@ public final class Relatrix {
 	 * @param m
 	 * @param r
 	 * @throws IllegalAccessException 
+	 * @throws DuplicateKeyException 
+	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
+	public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
 		Morphism dmr = new DomainMapRange(d,m,r);
-		DomainRangeMap drm = new DomainRangeMap(d,m,r);
-		MapDomainRange mdr = new MapDomainRange(d,m,r);
-		MapRangeDomain mrd = new MapRangeDomain(d,m,r);
-		RangeDomainMap rdm = new RangeDomainMap(d,m,r);
-		RangeMapDomain rmd = new RangeMapDomain(d,m,r);
+		DomainRangeMap drm = new DomainRangeMap(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		MapDomainRange mdr = new MapDomainRange(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		MapRangeDomain mrd = new MapRangeDomain(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		RangeDomainMap rdm = new RangeDomainMap(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		RangeMapDomain rmd = new RangeMapDomain(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
 
-		try {
-			Object o = RelatrixKV.get(dmr);
-			if(o == null) {
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove could not find relationship dmr:"+dmr);
-				return;
-			}
-			//KeyValue kv = (KeyValue)o;
-			//DBKey dbKey = (DBKey) kv.getmValue();
-			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(drm);
-			if(o == null)
-				throw new IOException(drm+" not found for delete");
-			//kv = (KeyValue)o;
-			//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(mdr);
-			if(o == null)
-				throw new IOException(mdr+" not found for delete");
-			//kv = (KeyValue)o;
-			//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(mrd);
-			if(o == null)
-				throw new IOException(mrd+" not found for delete");
-			//kv = (KeyValue)o;
-			//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(rdm);
-			if(o == null)
-				throw new IOException(rdm+" not found for delete");
-			//kv = (KeyValue)o;
-			//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(rmd);
-			if(o == null)
-				throw new IOException(rmd+" not found for delete");
-			//kv = (KeyValue)o;
-			//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-		} catch (ClassNotFoundException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-		try {
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing dmr:"+dmr);
-			RelatrixKV.remove(dmr);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+drm);
-			RelatrixKV.remove(drm);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+mdr);
-			RelatrixKV.remove(mdr);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+mrd);
-			RelatrixKV.remove(mrd);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+rdm);
-			RelatrixKV.remove(rdm);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+rmd);
-			RelatrixKV.remove(rmd);
-		} catch (IllegalArgumentException | ClassNotFoundException e) {
-			throw new IOException(e);
-		}
+		IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+		IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+		IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+		IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+		IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+		IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
 
 	}
 
@@ -532,75 +472,23 @@ public final class Relatrix {
 	 * @param m
 	 * @param r
 	 * @throws IllegalAccessException 
+	 * @throws DuplicateKeyException 
+	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
 		Morphism dmr = new DomainMapRange(alias,d,m,r);
-		DomainRangeMap drm = new DomainRangeMap(alias,d,m,r);
-		MapDomainRange mdr = new MapDomainRange(alias,d,m,r);
-		MapRangeDomain mrd = new MapRangeDomain(alias,d,m,r);
-		RangeDomainMap rdm = new RangeDomainMap(alias,d,m,r);
-		RangeMapDomain rmd = new RangeMapDomain(alias,d,m,r);
+		DomainRangeMap drm = new DomainRangeMap(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		MapDomainRange mdr = new MapDomainRange(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		MapRangeDomain mrd = new MapRangeDomain(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		RangeDomainMap rdm = new RangeDomainMap(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		RangeMapDomain rmd = new RangeMapDomain(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
 
-		try {
-			Object o = RelatrixKV.get(alias, dmr);
-			if(o == null) {
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove could not find relationship dmr:"+dmr);
-				return;
-			}
-			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey); // dbKey defines db, not alias, in fact, might  be in different db than alias
-			o = RelatrixKV.get(alias, drm);
-			if(o == null)
-				throw new IOException(drm+" not found for delete");
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(alias, mdr);
-			if(o == null)
-				throw new IOException(mdr+" not found for delete");
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(alias, mrd);
-			if(o == null)
-				throw new IOException(mrd+" not found for delete");
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(alias, rdm);
-			if(o == null)
-				throw new IOException(rdm+" not found for delete");
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-			o = RelatrixKV.get(alias, rmd);
-			if(o == null)
-				throw new IOException(rmd+" not found for delete");
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(dbKey);
-		} catch (ClassNotFoundException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-		try {
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing dmr:"+dmr);
-			RelatrixKV.remove(alias, dmr);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+drm);
-			RelatrixKV.remove(alias, drm);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+mdr);
-			RelatrixKV.remove(alias, mdr);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+mrd);
-			RelatrixKV.remove(alias, mrd);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+rdm);
-			RelatrixKV.remove(alias, rdm);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove removing "+rmd);
-			RelatrixKV.remove(alias, rmd);
-		} catch (IllegalArgumentException | ClassNotFoundException e) {
-			throw new IOException(e);
-		}	
+		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
+		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
 	}
 
 	/**

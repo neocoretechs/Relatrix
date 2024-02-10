@@ -34,9 +34,9 @@ public class EmbeddedRetrievalBattery {
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
 		Relatrix.setTablespace(argv[0]);
-		Morphism.displayLevel = Morphism.displayLevels.BRIEF;
-		//battery1AR17(argv);
-		battery0(argv);
+		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		battery1AR17(argv);
+		battery00(argv);
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);
@@ -62,7 +62,30 @@ public class EmbeddedRetrievalBattery {
 		}
 		 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	
+	/**
+	 * Loads up on keys
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery00(String[] argv) throws Exception {
+		System.out.println("Battery00 ");
+		long tims = System.currentTimeMillis();
+		int dupes = 0;
+		int recs = 0;
+		String fkey = null;
+		DomainMapRange dmr = null;
+		int modu = 0;
+		for(int i = min; i < max; i++) {
+			fkey = key + String.format(uniqKeyFmt, modu++);
+			try {
+				dmr = Relatrix.store(fkey, i, "Has unit");
+				++recs;
+				if(modu % 5 == 0)
+					modu = 0;
+			} catch(DuplicateKeyException dke) { ++dupes; }
+		}
+		 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+	}
 	/**
 	 * @param argv
 	 * @throws Exception
@@ -305,7 +328,8 @@ public class EmbeddedRetrievalBattery {
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			Relatrix.remove(((Comparable[])fkey)[0]);
+			DomainMapRange dmr = (DomainMapRange)((Comparable[])fkey)[0];
+			Relatrix.remove(dmr.getDomain(), dmr.getMap(), dmr.getRange());
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println(i+" "+fkey);
 				timx = System.currentTimeMillis();

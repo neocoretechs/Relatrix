@@ -246,4 +246,46 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		return null;
 	}
 
+	@Override
+	public void deleteInstance(Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteInstance(String transactionId, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteAlias(String alias, DBKey index)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteAlias(String alias, String transactionId, DBKey index)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteInstanceAlias(String alias, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteInstanceAlias(String alias, String transactionId, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

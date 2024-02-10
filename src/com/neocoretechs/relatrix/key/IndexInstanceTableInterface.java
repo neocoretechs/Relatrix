@@ -151,4 +151,22 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey getByInstanceAlias(String alias, String transactionId, Object instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+
+	void deleteInstance(Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteInstance(String transactionId, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteAlias(String alias, DBKey index)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteAlias(String alias, String transactionId, DBKey index)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteInstanceAlias(String alias, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteInstanceAlias(String alias, String transactionId, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 }
