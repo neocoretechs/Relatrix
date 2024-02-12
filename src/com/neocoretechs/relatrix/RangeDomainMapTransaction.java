@@ -19,6 +19,23 @@ public class RangeDomainMapTransaction extends MorphismTransaction {
 	private static final long serialVersionUID = -1689898604140078900L;
     public RangeDomainMapTransaction() {}
     
+    public RangeDomainMapTransaction(DomainMapRangeTransaction identity) throws IOException {
+    	this.transactionId = identity.transactionId;
+    	if(!identity.isDomainKeyValid())
+    		throw new IOException("Domain key of identity is invalid.");
+    	setDomainKey(identity.getDomainKey());
+      	if(!identity.isMapKeyValid())
+    		throw new IOException("Map key of identity is invalid.");
+    	setMapKey(identity.getMapKey());
+    	if(!identity.isRangeKeyValid())
+    		throw new IOException("Range key of identity is invalid.");
+    	setRangeKey(identity.getRangeKey()); 	
+    }
+    public RangeDomainMapTransaction(String alias, DomainMapRangeTransaction identity) throws IOException {
+    	this(identity);
+    	this.alias = alias;
+    }
+
     public RangeDomainMapTransaction(String transactionId, Comparable d, Comparable m, Comparable r) {
        	super(transactionId,d,m,r);
     }

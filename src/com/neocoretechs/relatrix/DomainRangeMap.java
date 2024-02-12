@@ -148,8 +148,8 @@ public class DomainRangeMap extends Morphism {
 	public int hashCodeResolved() {
 		int result = 17;
 		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
-		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
 		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
+		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
 		return result;
 	}
 

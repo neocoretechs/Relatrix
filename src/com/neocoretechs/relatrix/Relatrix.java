@@ -163,7 +163,7 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.get(identity) != null) {
+		if(RelatrixKV.contains(identity)) {
 			identity.setPrimaryKeyCheck(false);
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
@@ -218,7 +218,7 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.get(alias,identity) != null) {
+		if(RelatrixKV.contains(alias,identity)) {
 			identity.setPrimaryKeyCheck(false);
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
@@ -333,51 +333,69 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException 
 	 */
 	private static synchronized void removeRecursive(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
-		ArrayList<Morphism> m = new ArrayList<Morphism>();
-		try {
 			Iterator<?> it = findSet(c,"*","*");
 			while(it.hasNext()) {
 				Comparable[] o = (Comparable[]) it.next();
 				if( DEBUG || DEBUGREMOVE)
 					System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
+				IndexResolver.getIndexInstanceTable().deleteInstance(o[0]);
+				DomainMapRange dmr = (DomainMapRange)o[0];
+				DomainRangeMap drm = new DomainRangeMap(dmr);
+				MapDomainRange mdr = new MapDomainRange(dmr);
+				MapRangeDomain mrd = new MapRangeDomain(dmr);
+				RangeDomainMap rdm = new RangeDomainMap(dmr);
+				RangeMapDomain rmd = new RangeMapDomain(dmr);
+
+				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+				IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				removeRecursive(o[0]); 
 			}
-		} catch(RuntimeException re) {
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // We can get this exception if the class types differ in domain
-		try {
-			Iterator<?> it = findSet("*",c,"*");
+			it = findSet("*",c,"*");
 			while(it.hasNext()) {
 				Comparable[] o = (Comparable[]) it.next();
 				if( DEBUG || DEBUGREMOVE )
 					System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
+				IndexResolver.getIndexInstanceTable().deleteInstance(o[0]);
+				DomainMapRange dmr = (DomainMapRange)o[0];
+				DomainRangeMap drm = new DomainRangeMap(dmr);
+				MapDomainRange mdr = new MapDomainRange(dmr);
+				MapRangeDomain mrd = new MapRangeDomain(dmr);
+				RangeDomainMap rdm = new RangeDomainMap(dmr);
+				RangeMapDomain rmd = new RangeMapDomain(dmr);
+
+				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+				IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				removeRecursive(o[0]); 
 			}
-		} catch(RuntimeException re) {
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // we can get this exception if map class types differ
-		try {
-			Iterator<?> it = findSet("*","*",c);
+			it = findSet("*","*",c);
 			while(it.hasNext()) {
 				Comparable[] o = (Comparable[]) it.next();
 				if( DEBUG || DEBUGREMOVE )
 					System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
+				IndexResolver.getIndexInstanceTable().deleteInstance(o[0]);
+				DomainMapRange dmr = (DomainMapRange)o[0];
+				DomainRangeMap drm = new DomainRangeMap(dmr);
+				MapDomainRange mdr = new MapDomainRange(dmr);
+				MapRangeDomain mrd = new MapRangeDomain(dmr);
+				RangeDomainMap rdm = new RangeDomainMap(dmr);
+				RangeMapDomain rmd = new RangeMapDomain(dmr);
+
+				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+				IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				removeRecursive(o[0]); 
 			}
-		} catch(RuntimeException re) { 
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace(); 
-		} // we can get this exception if range class types differ
-		// Process our array of candidates
-		for(Morphism mo : m) {
-			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove removing:"+mo);
-			remove(mo.getDomain(), mo.getMap(), mo.getRange());
-			// if this morphism participates in any relationship. remove that relationship recursively
-			removeRecursive(mo);
-		}
 	}
 	/**
 	 * Iterate through all possible relationships the given element may participate in, then recursively process those
@@ -392,50 +410,68 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException 
 	 */
 	private static synchronized void removeRecursive(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		ArrayList<Morphism> m = new ArrayList<Morphism>();
-		try {
-			Iterator<?> it = findSet(alias,c,"*","*");
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE)
-					System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) {
+		Iterator<?> it = findSet(alias,c,"*","*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
 			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // We can get this exception if the class types differ in domain
-		try {
-			Iterator<?> it = findSet(alias,"*",c,"*");
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) {
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // we can get this exception if map class types differ
-		try {
-			Iterator<?> it = findSet(alias,"*","*",c);
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) { 
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace(); 
-		} // we can get this exception if range class types differ
-		// Process our array of candidates
-		for(Morphism mo : m) {
-			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove removing:"+mo);
-			remove(alias, mo.getDomain(), mo.getMap(), mo.getRange());
-			// if this morphism participates in any relationship. remove that relationship recursively
-			removeRecursive(alias, mo);
+				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,o[0]);
+			DomainMapRange dmr = (DomainMapRange)o[0];
+			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
+			MapDomainRange mdr = new MapDomainRange(alias,dmr);
+			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
+			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
+			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			removeRecursive(alias,o[0]); 
+		}
+		it = findSet(alias,"*",c,"*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,o[0]);
+			DomainMapRange dmr = (DomainMapRange)o[0];
+			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
+			MapDomainRange mdr = new MapDomainRange(alias,dmr);
+			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
+			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
+			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			removeRecursive(alias,o[0]); 
+		}
+		it = findSet(alias,"*","*",c);
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,o[0]);
+			DomainMapRange dmr = (DomainMapRange)o[0];
+			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
+			MapDomainRange mdr = new MapDomainRange(alias,dmr);
+			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
+			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
+			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstance(alias,dmr);
+			IndexResolver.getIndexInstanceTable().deleteInstance(alias,drm);
+			IndexResolver.getIndexInstanceTable().deleteInstance(alias,mdr);
+			IndexResolver.getIndexInstanceTable().deleteInstance(alias,mrd);
+			IndexResolver.getIndexInstanceTable().deleteInstance(alias,rdm);
+			IndexResolver.getIndexInstanceTable().deleteInstance(alias,rmd);
+			removeRecursive(alias,o[0]); 
 		}
 	}
 	/**
@@ -449,12 +485,13 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException 
 	 */
 	public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
-		Morphism dmr = new DomainMapRange(d,m,r);
-		DomainRangeMap drm = new DomainRangeMap(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		MapDomainRange mdr = new MapDomainRange(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		MapRangeDomain mrd = new MapRangeDomain(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		RangeDomainMap rdm = new RangeDomainMap(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		RangeMapDomain rmd = new RangeMapDomain(d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		DomainMapRange dmr = new DomainMapRange(d,m,r);
+		removeRecursive(dmr);
+		DomainRangeMap drm = new DomainRangeMap(dmr);
+		MapDomainRange mdr = new MapDomainRange(dmr);
+		MapRangeDomain mrd = new MapRangeDomain(dmr);
+		RangeDomainMap rdm = new RangeDomainMap(dmr);
+		RangeMapDomain rmd = new RangeMapDomain(dmr);
 
 		IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
 		IndexResolver.getIndexInstanceTable().deleteInstance(drm);
@@ -476,12 +513,13 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException 
 	 */
 	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
-		Morphism dmr = new DomainMapRange(alias,d,m,r);
-		DomainRangeMap drm = new DomainRangeMap(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		MapDomainRange mdr = new MapDomainRange(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		MapRangeDomain mrd = new MapRangeDomain(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		RangeDomainMap rdm = new RangeDomainMap(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
-		RangeMapDomain rmd = new RangeMapDomain(alias,d,dmr.getDomainKey(), m, dmr.getMapKey(), r, dmr.getRangeKey());
+		DomainMapRange dmr = new DomainMapRange(alias,d,m,r);
+		removeRecursive(alias, dmr);
+		DomainRangeMap drm = new DomainRangeMap(alias,dmr);
+		MapDomainRange mdr = new MapDomainRange(alias,dmr);
+		MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
+		RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
+		RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
 		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
 		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
