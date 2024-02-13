@@ -182,19 +182,20 @@ public class DomainRangeMap extends Morphism {
     	
     }
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(getDomainKey());
-		out.writeObject(getRangeKey());	
-		out.writeObject(getMapKey());
+    @Override  
+	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
+		domainKey.readExternal(in);
+		rangeKey.readExternal(in);
+		mapKey.readExternal(in);
+	} 
+	
+	@Override  
+	public void writeExternal(ObjectOutput out) throws IOException {  
+		domainKey.writeExternal(out);
+		rangeKey.writeExternal(out);
+		mapKey.writeExternal(out);
 	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		setDomainKey((DBKey) in.readObject());
-		setRangeKey((DBKey) in.readObject());
-		setMapKey((DBKey) in.readObject());
-	}
+	
 	
 	public String toString() {
 		switch(displayLevel) {

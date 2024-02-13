@@ -181,20 +181,20 @@ public class RangeMapDomain extends Morphism {
    		return new RangeMapDomain(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(getRangeKey());
-		out.writeObject(getMapKey());
-		out.writeObject(getDomainKey());
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		setRangeKey((DBKey) in.readObject());
-		setMapKey((DBKey) in.readObject());
-		setDomainKey((DBKey) in.readObject());
-	}
-	
+    @Override  
+  	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
+  		rangeKey.readExternal(in);
+  		mapKey.readExternal(in);
+		domainKey.readExternal(in);
+  	} 
+  	
+  	@Override  
+  	public void writeExternal(ObjectOutput out) throws IOException { 
+  		rangeKey.writeExternal(out);
+		mapKey.writeExternal(out);
+  		domainKey.writeExternal(out);
+  	}
+  	
 	public String toString() {
 		switch(displayLevel) {
 		case VERBOSE:

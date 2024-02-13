@@ -208,19 +208,24 @@ public final class RelatrixTransaction {
 		IndexResolver.getIndexInstanceTable().put(xid,identity);
 		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(identity);
 		indexClasses[1] = drm.getClass();
-		IndexResolver.getIndexInstanceTable().put(xid,drm);
+		//IndexResolver.getIndexInstanceTable().put(xid,drm);
+		RelatrixKVTransaction.store(xid, identity, drm);
 		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(identity);
 		indexClasses[2] = mdr.getClass();
-		IndexResolver.getIndexInstanceTable().put(xid,mdr);
+		//IndexResolver.getIndexInstanceTable().put(xid,mdr);
+		RelatrixKVTransaction.store(xid, identity, mdr);
 		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(identity);
 		indexClasses[3] = mrd.getClass();
-		IndexResolver.getIndexInstanceTable().put(xid,mrd);
+		//IndexResolver.getIndexInstanceTable().put(xid,mrd);
+		RelatrixKVTransaction.store(xid, identity, mrd);
 		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(identity);
 		indexClasses[4] = rdm.getClass();
-		IndexResolver.getIndexInstanceTable().put(xid,rdm);
+		//IndexResolver.getIndexInstanceTable().put(xid,rdm);
+		RelatrixKVTransaction.store(xid, identity, rdm);
 		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(identity);
 		indexClasses[5] = rmd.getClass();
-		IndexResolver.getIndexInstanceTable().put(xid,rmd);
+		//IndexResolver.getIndexInstanceTable().put(xid,rmd);
+		RelatrixKVTransaction.store(xid, identity, rmd);
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		return identity;
@@ -258,19 +263,24 @@ public final class RelatrixTransaction {
 		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,identity);
 		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,identity);
 		indexClasses[1] = drm.getClass();
-		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,drm);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,drm);
+		RelatrixKVTransaction.store(alias,xid, identity, drm);
 		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,identity);
 		indexClasses[2] = mdr.getClass();
-		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,mdr);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,mdr);
+		RelatrixKVTransaction.store(alias,xid, identity, mdr);
 		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,identity);
 		indexClasses[3] = mrd.getClass();
-		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,mrd);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,mrd);
+		RelatrixKVTransaction.store(alias,xid, identity, mrd);
 		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,identity);
 		indexClasses[4] = rdm.getClass();
-		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rdm);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rdm);
+		RelatrixKVTransaction.store(alias,xid, identity, rdm);
 		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,identity);
 		indexClasses[5] = rmd.getClass();
-		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rmd);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rmd);
+		RelatrixKVTransaction.store(alias,xid, identity, rmd);
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		indexClasses[0] = null; // remove dmr from our commit lineup
 		return identity;
@@ -382,21 +392,40 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
+	 * @throws DuplicateKeyException 
 	 */
 	public static synchronized void remove(String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
-		removeRecursive(xid, c);
-		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(xid,c);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
-			if(dbKey != null) {
-				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable().delete(xid,dbKey);
+		try {		
+			removeRecursive(xid, c);
+			if(c instanceof DomainMapRangeTransaction) {
+				DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)c;
+				indexClasses[0] = dmr.getClass();
+				DomainRangeMapTransaction drm = new DomainRangeMapTransaction(dmr);
+				indexClasses[1] = drm.getClass();
+				MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(dmr);
+				indexClasses[2] = mdr.getClass();
+				MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(dmr);
+				indexClasses[3] = mrd.getClass();
+				RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(dmr);
+				indexClasses[4] = rdm.getClass();
+				RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(dmr);
+				indexClasses[5] = rmd.getClass();
+
+				IndexResolver.getIndexInstanceTable().deleteInstance(xid,dmr);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(xid,drm);
+				RelatrixKVTransaction.remove(xid, drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mdr);
+				RelatrixKVTransaction.remove(xid, mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mrd);
+				RelatrixKVTransaction.remove(xid, mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rdm);
+				RelatrixKVTransaction.remove(xid, rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
+				RelatrixKVTransaction.remove(xid, rmd);
 			} else {
-				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-				RelatrixKVTransaction.remove(xid, c);
+				IndexResolver.getIndexInstanceTable().deleteInstance(xid,c);
 			}
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
@@ -413,52 +442,86 @@ public final class RelatrixTransaction {
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
+	 * @throws DuplicateKeyException 
 	 */
-	private static synchronized void removeRecursive(String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		ArrayList<Morphism> m = new ArrayList<Morphism>();
-		try {
-			Iterator<?> it = findSet(xid, c,"*","*");
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE)
-					System.out.println("RelatrixTransaction.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) {
+	private static synchronized void removeRecursive(String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
+		Iterator<?> it = findSet(xid,c,"*","*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
 			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // We can get this exception if the class types differ in domain
-		try {
-			Iterator<?> it = findSet(xid, "*",c,"*");
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) {
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // we can get this exception if map class types differ
-		try {
-			Iterator<?> it = findSet(xid, "*","*",c);
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) { 
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace(); 
-		} // we can get this exception if range class types differ
-		// Process our array of candidates
-		for(Morphism mo : m) {
-			if( DEBUG || DEBUGREMOVE)
-				System.out.println("RelatrixTransaction.remove Id: "+xid+" removing:"+mo);
-			remove(xid, mo.getDomain(), mo.getMap(), mo.getRange());
-			// if this morphism participates in any relationship. remove that relationship recursively
-			removeRecursive(xid, mo);
+				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstance(xid,o[0]);
+			DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)o[0];
+			DomainRangeMapTransaction drm = new DomainRangeMapTransaction(dmr);
+			MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(dmr);
+			MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(dmr);
+			RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(dmr);
+			RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstance(xid,dmr);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,drm);
+			RelatrixKVTransaction.remove(xid, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mdr);
+			RelatrixKVTransaction.remove(xid, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mrd);
+			RelatrixKVTransaction.remove(xid, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rdm);
+			RelatrixKVTransaction.remove(xid, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
+			RelatrixKVTransaction.remove(xid, rmd);
+			removeRecursive(xid,o[0]); 
+		}
+		it = findSet(xid,"*",c,"*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstance(xid,o[0]);
+			DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)o[0];
+			DomainRangeMapTransaction drm = new DomainRangeMapTransaction(dmr);
+			MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(dmr);
+			MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(dmr);
+			RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(dmr);
+			RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstance(xid,dmr);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,drm);
+			RelatrixKVTransaction.remove(xid, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mdr);
+			RelatrixKVTransaction.remove(xid, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mrd);
+			RelatrixKVTransaction.remove(xid, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rdm);
+			RelatrixKVTransaction.remove(xid, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
+			RelatrixKVTransaction.remove(xid, rmd);
+			removeRecursive(xid,o[0]); 
+		}
+		it = findSet(xid,"*","*",c);
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstance(xid,o[0]);
+			DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)o[0];
+			DomainRangeMapTransaction drm = new DomainRangeMapTransaction(dmr);
+			MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(dmr);
+			MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(dmr);
+			RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(dmr);
+			RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstance(xid,dmr);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,drm);
+			RelatrixKVTransaction.remove(xid, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mdr);
+			RelatrixKVTransaction.remove(xid, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,mrd);
+			RelatrixKVTransaction.remove(xid, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rdm);
+			RelatrixKVTransaction.remove(xid, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
+			RelatrixKVTransaction.remove(xid, rmd);
+			removeRecursive(xid,o[0]); 
 		}
 	}
 	
@@ -472,21 +535,41 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 * @throws NoSuchElementException if the alias doesnt exist
+	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static synchronized void remove(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove:"+c);
 		removeRecursive(alias, xid, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(xid, c);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove Id:"+xid+" prepping to remove DBKey:"+dbKey);
-			if(dbKey != null) {
-				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
+			if(c instanceof DomainMapRangeTransaction) {
+				DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)c;
+				indexClasses[0] = dmr.getClass();
+				removeRecursive(alias, xid, dmr);
+				DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,dmr);
+				indexClasses[1] = drm.getClass();
+				MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,dmr);
+				indexClasses[2] = mdr.getClass();
+				MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,dmr);
+				indexClasses[3] = mrd.getClass();
+				RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,dmr);
+				indexClasses[4] = rdm.getClass();
+				RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,dmr);
+				indexClasses[5] = rmd.getClass();
+
+				IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,dmr);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,drm);
+				RelatrixKVTransaction.remove(alias, xid, drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mdr);
+				RelatrixKVTransaction.remove(alias, xid, mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mrd);
+				RelatrixKVTransaction.remove(alias, xid, mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rdm);
+				RelatrixKVTransaction.remove(alias, xid, rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
+				RelatrixKVTransaction.remove(alias, xid, rmd);
 			} else {
-				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-				RelatrixKVTransaction.remove(alias, xid, c);
+				IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias, xid, c);
 			}
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
@@ -494,7 +577,7 @@ public final class RelatrixTransaction {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove Id:"+xid+" exiting remove for key:"+c);
 	}
-	
+
 	/**
 	 * Iterate through all possible relationships the given element may participate in, then recursively process those
 	 * relationships to remove references to those.
@@ -506,52 +589,86 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias doesnt exist
+	 * @throws DuplicateKeyException 
 	 */
-	private static synchronized void removeRecursive(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		ArrayList<Morphism> m = new ArrayList<Morphism>();
-		try {
-			Iterator<?> it = findSet(alias, xid, c, "*", "*");
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE)
-					System.out.println("RelatrixTransaction.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) {
+	private static synchronized void removeRecursive(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+		Iterator<?> it = findSet(alias,xid,c,"*","*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
 			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // We can get this exception if the class types differ in domain
-		try {
-			Iterator<?> it = findSet(alias, xid, "*", c, "*");
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) {
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace();
-		} // we can get this exception if map class types differ
-		try {
-			Iterator<?> it = findSet(alias, xid, "*","*",c);
-			while(it.hasNext()) {
-				Comparable[] o = (Comparable[]) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-				m.add((Morphism) o[0]); 
-			}
-		} catch(RuntimeException re) { 
-			if( DEBUG || DEBUGREMOVE)
-				re.printStackTrace(); 
-		} // we can get this exception if range class types differ
-		// Process our array of candidates
-		for(Morphism mo : m) {
-			if( DEBUG || DEBUGREMOVE)
-				System.out.println("RelatrixTransaction.remove Id: "+xid+" removing:"+mo);
-			remove(alias, xid, mo.getDomain(), mo.getMap(), mo.getRange());
-			// if this morphism participates in any relationship. remove that relationship recursively
-			removeRecursive(alias, xid, mo);
+				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,o[0]);
+			DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)o[0];
+			DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,dmr);
+			MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,dmr);
+			MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,dmr);
+			RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,dmr);
+			RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,dmr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,drm);
+			RelatrixKVTransaction.remove(alias, xid, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mdr);
+			RelatrixKVTransaction.remove(alias, xid, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mrd);
+			RelatrixKVTransaction.remove(alias, xid, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rdm);
+			RelatrixKVTransaction.remove(alias, xid, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
+			RelatrixKVTransaction.remove(alias, xid, rmd);
+			removeRecursive(alias,xid,o[0]); 
+		}
+		it = findSet(alias,xid,"*",c,"*");
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,o[0]);
+			DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)o[0];
+			DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,dmr);
+			MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,dmr);
+			MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,dmr);
+			RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,dmr);
+			RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,dmr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,drm);
+			RelatrixKVTransaction.remove(alias, xid, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mdr);
+			RelatrixKVTransaction.remove(alias, xid, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mrd);
+			RelatrixKVTransaction.remove(alias, xid, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rdm);
+			RelatrixKVTransaction.remove(alias, xid, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
+			RelatrixKVTransaction.remove(alias, xid, rmd);
+			removeRecursive(alias,xid,o[0]); 
+		}
+		it = findSet(alias,xid,"*","*",c);
+		while(it.hasNext()) {
+			Comparable[] o = (Comparable[]) it.next();
+			if( DEBUG || DEBUGREMOVE )
+				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,o[0]);
+			DomainMapRangeTransaction dmr = (DomainMapRangeTransaction)o[0];
+			DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,dmr);
+			MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,dmr);
+			MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,dmr);
+			RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,dmr);
+			RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,dmr);
+
+			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,dmr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,drm);
+			RelatrixKVTransaction.remove(alias, xid, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mdr);
+			RelatrixKVTransaction.remove(alias, xid, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,mrd);
+			RelatrixKVTransaction.remove(alias, xid, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rdm);
+			RelatrixKVTransaction.remove(alias, xid, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
+			RelatrixKVTransaction.remove(alias, xid, rmd);
+			removeRecursive(alias,xid,o[0]); 
 		}
 	}
 	
@@ -564,94 +681,11 @@ public final class RelatrixTransaction {
 	 * @param r the range of the relationship as Comparable key
 	 * @throws IOException
 	 * @throws IllegalAccessException 
+	 * @throws DuplicateKeyException 
+	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized void remove(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException {
-		DomainMapRangeTransaction dmr = new DomainMapRangeTransaction(xid,d,m,r);
-		indexClasses[0] = dmr.getClass();
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(xid,dmr);
-		indexClasses[1] = drm.getClass();
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(xid,d,m,r);
-		indexClasses[2] = mdr.getClass();
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(xid,d,m,r);
-		indexClasses[3] = mrd.getClass();
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(xid,d,m,r);
-		indexClasses[4] = rdm.getClass();
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(xid,d,m,r);
-		indexClasses[5] = rmd.getClass();
-
-		try {
-			Object o = RelatrixKVTransaction.get(xid, dmr);
-			if(o == null) {
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" could not find relationship dmr:"+dmr);
-				return;
-			}
-		//KeyValue kv = (KeyValue)o;
-		//DBKey dbKey = (DBKey) kv.getmValue();
-			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(xid, drm);
-			if(o == null)
-				throw new IOException(drm+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(xid, mdr);
-			if(o == null)
-				throw new IOException(mdr+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(xid, mrd);
-			if(o == null)
-				throw new IOException(mrd+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(xid, rdm);
-			if(o == null)
-				throw new IOException(rdm+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(xid, rmd);
-			if(o == null)
-				throw new IOException(rmd+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-		} catch (ClassNotFoundException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-		try {
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove Id:"+xid+" removing dmr:"+dmr);
-				RelatrixKVTransaction.remove(xid, dmr);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+drm);
-				RelatrixKVTransaction.remove(xid, drm);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+mdr);
-				RelatrixKVTransaction.remove(xid, mdr);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+mrd);
-				RelatrixKVTransaction.remove(xid, mrd);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+rdm);
-				RelatrixKVTransaction.remove(xid, rdm);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove removing Id:"+xid+" "+rmd);
-				RelatrixKVTransaction.remove(xid, rmd);
-		} catch (IllegalArgumentException | ClassNotFoundException e) {
-			throw new IOException(e);
-		}
-	
+	public static synchronized void remove(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, ClassNotFoundException {
+		remove(xid, new DomainMapRangeTransaction(xid, d, m, r));
 	}
 	
 	/**
@@ -665,94 +699,12 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if alias isnt found
+	 * @throws DuplicateKeyException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalArgumentException 
 	 */
-	public static synchronized void remove(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException {
-		MorphismTransaction dmr = new DomainMapRangeTransaction(alias,xid,d,m,r);
-		indexClasses[0] = dmr.getClass();
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,xid,d,m,r);
-		indexClasses[1] = drm.getClass();
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(alias,xid,d,m,r);
-		indexClasses[2] = mdr.getClass();
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(alias,xid,d,m,r);
-		indexClasses[3] = mrd.getClass();
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(alias,xid,d,m,r);
-		indexClasses[4] = rdm.getClass();
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(alias,xid,d,m,r);
-		indexClasses[5] = rmd.getClass();
-
-		try {
-			Object o = RelatrixKVTransaction.get(alias, xid, dmr);
-			if(o == null) {
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" could not find relationship dmr:"+dmr);
-				return;
-			}
-		//KeyValue kv = (KeyValue)o;
-		//DBKey dbKey = (DBKey) kv.getmValue();
-			DBKey dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(alias, xid, drm);
-			if(o == null)
-				throw new IOException(drm+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(alias, xid, mdr);
-			if(o == null)
-				throw new IOException(mdr+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(alias, xid, mrd);
-			if(o == null)
-				throw new IOException(mrd+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(alias, xid, rdm);
-			if(o == null)
-				throw new IOException(rdm+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-			o = RelatrixKVTransaction.get(alias, xid, rmd);
-			if(o == null)
-				throw new IOException(rmd+" not found for delete Id:"+xid);
-		//kv = (KeyValue)o;
-		//dbKey = (DBKey) kv.getmValue();
-			dbKey = (DBKey)o;
-			IndexResolver.getIndexInstanceTable().delete(xid, dbKey);
-		} catch (ClassNotFoundException | DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-		try {
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove Id:"+xid+" removing dmr:"+dmr);
-				RelatrixKVTransaction.remove(alias, xid, dmr);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+drm);
-				RelatrixKVTransaction.remove(alias, xid, drm);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+mdr);
-				RelatrixKVTransaction.remove(alias, xid, mdr);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+mrd);
-				RelatrixKVTransaction.remove(alias, xid, mrd);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove Id:"+xid+" removing "+rdm);
-				RelatrixKVTransaction.remove(alias, xid, rdm);
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove removing Id:"+xid+" "+rmd);
-				RelatrixKVTransaction.remove(alias, xid, rmd);
-		} catch (IllegalArgumentException | ClassNotFoundException e) {
-			throw new IOException(e);
-		}
-	
+	public static synchronized void remove(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException, IllegalArgumentException, ClassNotFoundException, DuplicateKeyException {
+		remove(alias, xid, new DomainMapRangeTransaction(xid, d, m, r));
 	}
 	
 	/**

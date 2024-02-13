@@ -18,9 +18,9 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 public class KeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
-	private DBKey domainKey = new DBKey();
-    private DBKey mapKey = new DBKey();
-    private DBKey rangeKey = new DBKey();
+	protected DBKey domainKey = new DBKey();
+    protected DBKey mapKey = new DBKey();
+    protected DBKey rangeKey = new DBKey();
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
     private static boolean primaryKeyCheck = false;
 
@@ -134,16 +134,16 @@ public class KeySet implements Externalizable, Comparable {
 	
 	@Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
-		setDomainKey((DBKey) in.readObject());
-		setMapKey((DBKey) in.readObject());
-		setRangeKey((DBKey) in.readObject());
+		domainKey.readExternal(in);
+		mapKey.readExternal(in);
+		rangeKey.readExternal(in);
 	} 
 	
 	@Override  
 	public void writeExternal(ObjectOutput out) throws IOException {  
-		out.writeObject(getDomainKey());
-		out.writeObject(getMapKey());
-		out.writeObject(getRangeKey());
+		domainKey.writeExternal(out);
+		mapKey.writeExternal(out);
+		rangeKey.writeExternal(out);
 	}
 	
 	@Override

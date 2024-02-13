@@ -174,23 +174,28 @@ public final class Relatrix {
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
 		dmr = new MapDomainRange(identity);
-		IndexResolver.getIndexInstanceTable().put(dmr);
+		//IndexResolver.getIndexInstanceTable().put(dmr);
+		RelatrixKV.store(dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new DomainRangeMap(identity);
-		IndexResolver.getIndexInstanceTable().put(dmr);
+		//IndexResolver.getIndexInstanceTable().put(dmr);
+		RelatrixKV.store(dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new MapRangeDomain(identity);
-		IndexResolver.getIndexInstanceTable().put(dmr);
+		//IndexResolver.getIndexInstanceTable().put(dmr);
+		RelatrixKV.store(dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new RangeDomainMap(identity);
-		IndexResolver.getIndexInstanceTable().put(dmr);
+		//IndexResolver.getIndexInstanceTable().put(dmr);
+		RelatrixKV.store(dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new RangeMapDomain(identity);
-		IndexResolver.getIndexInstanceTable().put(dmr);
+		//IndexResolver.getIndexInstanceTable().put(dmr);
+		RelatrixKV.store(dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		return identity;
@@ -229,23 +234,28 @@ public final class Relatrix {
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
 		dmr = new MapDomainRange(alias,identity);
-		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		RelatrixKV.store(alias,dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new DomainRangeMap(alias,identity);
-		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		RelatrixKV.store(alias,dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new MapRangeDomain(alias,identity);
-		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		RelatrixKV.store(alias,dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new RangeDomainMap(alias,identity);
-		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		RelatrixKV.store(alias,dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		dmr = new RangeMapDomain(alias,identity);
-		IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
+		RelatrixKV.store(alias,dmr,identity.getDBKey());
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+dmr);
 		return identity;
@@ -267,20 +277,31 @@ public final class Relatrix {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
+	public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
-		removeRecursive(c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstance(c);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
-			if(dbKey != null) {
-			// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable().delete(dbKey);
+			removeRecursive(c);
+			if(c instanceof DomainMapRange) {
+				DomainRangeMap drm = new DomainRangeMap((DomainMapRange) c);
+				MapDomainRange mdr = new MapDomainRange((DomainMapRange) c);
+				MapRangeDomain mrd = new MapRangeDomain((DomainMapRange) c);
+				RangeDomainMap rdm = new RangeDomainMap((DomainMapRange) c);
+				RangeMapDomain rmd = new RangeMapDomain((DomainMapRange) c);
+
+				IndexResolver.getIndexInstanceTable().deleteInstance((DomainMapRange) c);
+				RelatrixKV.remove(drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				RelatrixKV.remove(mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				RelatrixKV.remove(mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				RelatrixKV.remove(rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				RelatrixKV.remove(rmd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
 			} else {
-				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-				RelatrixKV.remove(c);
+				IndexResolver.getIndexInstanceTable().deleteInstance(c);
 			}
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
@@ -300,20 +321,31 @@ public final class Relatrix {
 	 * @throws NoSuchElementException if the alias is not found
 	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+	public static synchronized void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
-		removeRecursive(alias, c);
 		try {
-			DBKey dbKey = IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, c);
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove prepping to remove DBKey:"+dbKey);
-			if(dbKey != null) {
-				// Should delete instance and DbKey
-				IndexResolver.getIndexInstanceTable().delete(dbKey);
+			removeRecursive(alias,c);
+			if(c instanceof DomainMapRange) {
+				DomainRangeMap drm = new DomainRangeMap(alias,(DomainMapRange) c);
+				MapDomainRange mdr = new MapDomainRange(alias,(DomainMapRange) c);
+				MapRangeDomain mrd = new MapRangeDomain(alias,(DomainMapRange) c);
+				RangeDomainMap rdm = new RangeDomainMap(alias,(DomainMapRange) c);
+				RangeMapDomain rmd = new RangeMapDomain(alias,(DomainMapRange) c);
+
+				IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,(DomainMapRange) c);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+				RelatrixKV.remove(alias, drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+				RelatrixKV.remove(alias, mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+				RelatrixKV.remove(alias, mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+				RelatrixKV.remove(alias, rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+				RelatrixKV.remove(alias, rmd);
 			} else {
-				// failsafe delete, if we dont find the key for whatever reason, proceed to remove the instance directly if possible
-				RelatrixKV.remove(alias, c);
+				IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,c);
 			}
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
@@ -347,11 +379,16 @@ public final class Relatrix {
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
 				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
-				IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				RelatrixKV.remove(drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				RelatrixKV.remove(mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				RelatrixKV.remove(mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				RelatrixKV.remove(rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				RelatrixKV.remove(rmd);
 				removeRecursive(o[0]); 
 			}
 			it = findSet("*",c,"*");
@@ -368,11 +405,16 @@ public final class Relatrix {
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
 				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
-				IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				RelatrixKV.remove(drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				RelatrixKV.remove(mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				RelatrixKV.remove(mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				RelatrixKV.remove(rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				RelatrixKV.remove(rmd);
 				removeRecursive(o[0]); 
 			}
 			it = findSet("*","*",c);
@@ -389,11 +431,16 @@ public final class Relatrix {
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
 				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
-				IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
+				RelatrixKV.remove(drm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
+				RelatrixKV.remove(mdr);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
+				RelatrixKV.remove(mrd);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
+				RelatrixKV.remove(rdm);
+				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				RelatrixKV.remove(rmd);
 				removeRecursive(o[0]); 
 			}
 	}
@@ -424,11 +471,16 @@ public final class Relatrix {
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
 			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+			RelatrixKV.remove(alias, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+			RelatrixKV.remove(alias, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+			RelatrixKV.remove(alias, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+			RelatrixKV.remove(alias, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			RelatrixKV.remove(alias, rmd);
 			removeRecursive(alias,o[0]); 
 		}
 		it = findSet(alias,"*",c,"*");
@@ -445,11 +497,16 @@ public final class Relatrix {
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
 			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+			RelatrixKV.remove(alias, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+			RelatrixKV.remove(alias, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+			RelatrixKV.remove(alias, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+			RelatrixKV.remove(alias, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			RelatrixKV.remove(alias, rmd);
 			removeRecursive(alias,o[0]); 
 		}
 		it = findSet(alias,"*","*",c);
@@ -466,11 +523,16 @@ public final class Relatrix {
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
 			IndexResolver.getIndexInstanceTable().deleteInstance(alias,dmr);
-			IndexResolver.getIndexInstanceTable().deleteInstance(alias,drm);
-			IndexResolver.getIndexInstanceTable().deleteInstance(alias,mdr);
-			IndexResolver.getIndexInstanceTable().deleteInstance(alias,mrd);
-			IndexResolver.getIndexInstanceTable().deleteInstance(alias,rdm);
-			IndexResolver.getIndexInstanceTable().deleteInstance(alias,rmd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
+			RelatrixKV.remove(alias, drm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
+			RelatrixKV.remove(alias, mdr);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
+			RelatrixKV.remove(alias, mrd);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
+			RelatrixKV.remove(alias, rdm);
+			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+			RelatrixKV.remove(alias, rmd);
 			removeRecursive(alias,o[0]); 
 		}
 	}
@@ -486,20 +548,7 @@ public final class Relatrix {
 	 */
 	public static synchronized void remove(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
 		DomainMapRange dmr = new DomainMapRange(d,m,r);
-		removeRecursive(dmr);
-		DomainRangeMap drm = new DomainRangeMap(dmr);
-		MapDomainRange mdr = new MapDomainRange(dmr);
-		MapRangeDomain mrd = new MapRangeDomain(dmr);
-		RangeDomainMap rdm = new RangeDomainMap(dmr);
-		RangeMapDomain rmd = new RangeMapDomain(dmr);
-
-		IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
-		IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-		IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-		IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-		IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-		IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
-
+		remove(dmr);
 	}
 
 	/**
@@ -514,19 +563,7 @@ public final class Relatrix {
 	 */
 	public static synchronized void remove(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
 		DomainMapRange dmr = new DomainMapRange(alias,d,m,r);
-		removeRecursive(alias, dmr);
-		DomainRangeMap drm = new DomainRangeMap(alias,dmr);
-		MapDomainRange mdr = new MapDomainRange(alias,dmr);
-		MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
-		RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
-		RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
-
-		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
-		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-		IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
+		remove(alias, dmr);
 	}
 
 	/**
