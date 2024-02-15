@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -23,31 +24,26 @@ import com.neocoretechs.relatrix.Relatrix;
 public final class DBKey implements Comparable, Externalizable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
-	public static String nullKey = "00000000-0000-0000-0000-000000000000";
-	transient byte[] dbb = new byte[nullKey.length()];
+	public static UUID nullKey = new UUID(0L, 0L);
 	
-	String instanceIndex = null;
-	String databaseIndex = null;
+	UUID instanceIndex = null;
+	UUID databaseIndex = null;
 	
 	public DBKey() {}
 	
 	DBKey(UUID databaseIndex, UUID instanceIndex) {
-		this.databaseIndex = databaseIndex.toString();
-		this.instanceIndex = instanceIndex.toString();
+		this.databaseIndex = databaseIndex;
+		this.instanceIndex = instanceIndex;
 		if(DEBUG)
 			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
 	}
 	
 	protected UUID getInstanceIndex() {
-		synchronized(instanceIndex) {
-			return UUID.fromString(databaseIndex);
-		}
+			return instanceIndex;
 	}
 	
 	protected UUID getDatabaseIndex() {
-		synchronized(databaseIndex) {
-			return UUID.fromString(databaseIndex);
-		}
+		return databaseIndex;
 	}
 	
 	public void setNullKey() {
@@ -56,7 +52,7 @@ public final class DBKey implements Comparable, Externalizable {
 	}
 	
 	public void setNullKey(String alias) {
-		this.databaseIndex = Relatrix.getByAlias(alias).toString();
+		this.databaseIndex = Relatrix.getByAlias(alias);
 		this.instanceIndex = nullKey;
 	}
 	
@@ -123,7 +119,6 @@ public final class DBKey implements Comparable, Externalizable {
 	 */
 	public static DBKey newKeyAlias(String alias, String xid, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
 		return indexTable.putAlias(alias, xid, (Comparable) instance); // the passed key is updated
-
 	}
 	
 	@Override
@@ -141,28 +136,18 @@ public final class DBKey implements Comparable, Externalizable {
 			return false;
 		}
 		*/
-		StringBuilder sb = new StringBuilder(databaseIndex);
-		sb.append(instanceIndex);
-		StringBuilder sb2 = new StringBuilder(((DBKey)o).databaseIndex);
-		sb2.append(((DBKey)o).instanceIndex);
-		return sb.toString().equals(sb2.toString());
+		return databaseIndex.equals(((DBKey)o).databaseIndex) && instanceIndex.equals(((DBKey)o).instanceIndex);
 		
 	}
 	
 	@Override
 	public int hashCode() {
-		/*synchronized(instanceIndex) {
 		if(instanceIndex == null || databaseIndex == null)
 			return 31;
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + databaseIndex.hashCode();
-		return prime * result + instanceIndex.hashCode();
-		}*/
-		StringBuilder sb = new StringBuilder(databaseIndex);
-		sb.append(instanceIndex);
-		return sb.toString().hashCode();
-		
+		return prime * result + instanceIndex.hashCode();	
 	}
 	
 	@Override
@@ -196,11 +181,10 @@ public final class DBKey implements Comparable, Externalizable {
 			throw new RuntimeException("DBKEY INSTANCE INDEX SOURCE INSTANCE NULL IN COMPARETO");
 		}
 		*/
-		StringBuilder sb = new StringBuilder(databaseIndex);
-		sb.append(instanceIndex);
-		StringBuilder sb2 = new StringBuilder(((DBKey)o).databaseIndex);
-		sb2.append(((DBKey)o).instanceIndex);
-		return sb.toString().compareTo(sb2.toString());
+		int i = databaseIndex.compareTo(((DBKey)o).databaseIndex);
+		if(i != 0)
+			return i;
+		return instanceIndex.compareTo(((DBKey)o).instanceIndex);
 	}
 
 	@Override
@@ -212,16 +196,26 @@ public final class DBKey implements Comparable, Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeBytes(databaseIndex);
-		out.writeBytes(instanceIndex);
+		out.writeLong(databaseIndex.getMostSignificantBits());
+		out.writeLong(databaseIndex.getLeastSignificantBits());
+		out.writeLong(instanceIndex.getMostSignificantBits());
+		out.writeLong(instanceIndex.getLeastSignificantBits());
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		in.readFully(dbb);
-		databaseIndex = new String(dbb);
-		in.readFully(dbb);
-		instanceIndex = new String(dbb);
+		Long msbDb = in.readLong();
+		Long lsbDb = in.readLong();
+		Long msbIn = in.readLong();
+		Long lsbIn = in.readLong();
+		databaseIndex = new UUID(msbDb, lsbDb);
+		instanceIndex = new UUID(msbIn, lsbIn);
 	}
-
+	
+	public byte[] longsToBytes(long x, long y) {
+	    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES*2);
+	    buffer.putLong(x);
+	    buffer.putLong(y);
+	    return buffer.array();
+	}
 }

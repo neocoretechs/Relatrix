@@ -15,6 +15,7 @@ import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 /**
  * @author jg (C) 2024
@@ -80,17 +81,15 @@ public class BatteryKeyset {
 			KeySet identity = new KeySet();
 			identity.setDomainKey(DBKey.newKey(indexTable, d));
 			identity.setMapKey(DBKey.newKey(indexTable, m));
-			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
-			identity.setPrimaryKeyCheck(true);
+			PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(RelatrixKV.get(identity) != null) {
-				identity.setPrimaryKeyCheck(false);
+			if(RelatrixKV.contains(KeySet.class, pks)) {
 				throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 			}
-			identity.setPrimaryKeyCheck(false);
+			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
 			IndexResolver.getIndexInstanceTable().put(identity);
@@ -102,19 +101,15 @@ public class BatteryKeyset {
 		for(int i = min; i < max; i++) {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
-			r = String.format(uniqKeyFmt, i+2);
 			KeySet identity = new KeySet();
 			identity.setDomainKey(indexTable.getByInstance(d));
 			identity.setMapKey(indexTable.getByInstance(m));
-			identity.setRangeKey(indexTable.getByInstance(r)); 
-			identity.setPrimaryKeyCheck(true);
+			PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(RelatrixKV.get(identity) != null) {
-				identity.setPrimaryKeyCheck(false);
-			} else {
+			if(!RelatrixKV.contains(KeySet.class, pks)) {
 				throw new Exception("Failed to find existing key "+identity);
 			}
 	

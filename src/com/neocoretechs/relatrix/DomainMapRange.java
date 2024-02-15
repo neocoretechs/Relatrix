@@ -4,6 +4,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
 
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
@@ -17,7 +18,7 @@ import com.neocoretechs.relatrix.key.KeySet;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2023,2024
  *
  */
-public class DomainMapRange extends Morphism implements Comparable, Externalizable, Cloneable {
+public class DomainMapRange extends Morphism implements Comparable, Serializable, Cloneable {
 	private static final long serialVersionUID = 8664384659501163179L;
 	private static boolean DEBUG = false;
     protected transient DBKey identity;

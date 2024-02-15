@@ -180,7 +180,7 @@ public class RangeMapDomain extends Morphism {
 			return new RangeMapDomain(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
    		return new RangeMapDomain(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
-    
+    /*
     @Override  
   	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
   		rangeKey.readExternal(in);
@@ -194,7 +194,7 @@ public class RangeMapDomain extends Morphism {
 		mapKey.writeExternal(out);
   		domainKey.writeExternal(out);
   	}
-  	
+  	*/
 	public String toString() {
 		switch(displayLevel) {
 		case VERBOSE:

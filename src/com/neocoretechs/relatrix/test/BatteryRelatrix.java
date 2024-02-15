@@ -7,6 +7,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.Morphism.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.DomainMapRange;
@@ -38,13 +39,14 @@ public class BatteryRelatrix {
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 100;
 	static int numDelete = 100; // for delete test
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
+		Morphism.displayLevel = displayLevels.VERBOSE;
 		battery1AR17(argv);
 		if(DEBUG)
 			System.out.println("Begin test battery 1");
@@ -122,12 +124,13 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(99999));
+				DomainMapRange dmr = Relatrix.store(fkey, "Has unit", new Long(99999));
 				++recs;
-				if((System.currentTimeMillis()-tims) > 1000) {
-					System.out.println("storing "+recs+" "+fkey);
-					tims = System.currentTimeMillis();
-				}
+				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
+				//if((System.currentTimeMillis()-tims) > 1000) {
+				//	System.out.println("storing "+recs+" "+fkey);
+				//	tims = System.currentTimeMillis();
+				//}
 			} catch(DuplicateKeyException d) {++dupes;}
 		}
 		if( recs > 0) {

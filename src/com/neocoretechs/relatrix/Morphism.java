@@ -30,7 +30,7 @@ import com.neocoretechs.rocksack.NotifyDBCompareTo;
 * sets from categories. The template class can be used to retrieve sets based on their class type.
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
-public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comparable, Externalizable, Cloneable {
+public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comparable, Serializable,/*Externalizable,*/ Cloneable {
 		private static boolean DEBUG = false;
 		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
 		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
@@ -203,6 +203,13 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
     		keyCompare = false;
     	}
         
+    	public String getAlias() {
+    		return alias;
+    	}
+    	
+    	public void setAlias(String alias)  {
+    		this.alias = alias;
+    	}
     	
         /**
          * If true, enforces type checking for components of relationships. If classes are incompatible,

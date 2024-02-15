@@ -351,7 +351,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(UUID.fromString(index.databaseIndex));
+		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
 		if(sdb == null) {
 			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
 		}
@@ -379,7 +379,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(UUID.fromString(index.databaseIndex));
+		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
 		if(sdb == null) {
 			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
 		}

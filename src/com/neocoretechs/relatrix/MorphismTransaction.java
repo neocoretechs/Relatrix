@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.key.KeySet;
 * sets from categories. The template class can be used to retrieve sets based on their class type.
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
-public abstract class MorphismTransaction extends Morphism implements Comparable, Externalizable, Cloneable {
+public abstract class MorphismTransaction extends Morphism implements Comparable, Serializable,/*Externalizable,*/ Cloneable {
 	private static boolean DEBUG = false;
 	static final long serialVersionUID = -9129948317265641092L;
 

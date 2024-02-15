@@ -21,6 +21,8 @@ import org.rocksdb.RocksDB;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamFactory;
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -157,17 +159,18 @@ public final class Relatrix {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		Morphism dmr;
-		DomainMapRange identity = new DomainMapRange(d,m,r); // form it as template for duplicate key search
-		identity.setPrimaryKeyCheck(true);
+		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		identity.setDomain(d);
+		identity.setMap(m);
+		PrimaryKeySet pks = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.contains(identity)) {
-			identity.setPrimaryKeyCheck(false);
+		if(RelatrixKV.contains(KeySet.class, pks)) {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
-		identity.setPrimaryKeyCheck(false);
+		identity.setRange(r);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		identity.setDBKey( IndexResolver.getIndexInstanceTable().put(identity) );
@@ -217,17 +220,19 @@ public final class Relatrix {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		Morphism dmr;
-		DomainMapRange identity = new DomainMapRange(alias,d,m,r); // form it as template for duplicate key search
-		identity.setPrimaryKeyCheck(true);
+		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		identity.setAlias(alias);
+		identity.setDomain(d);
+		identity.setMap(m);
+		PrimaryKeySet pks = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.contains(alias,identity)) {
-			identity.setPrimaryKeyCheck(false);
+		if(RelatrixKV.contains(alias, KeySet.class, pks)) {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
-		identity.setPrimaryKeyCheck(false);
+		identity.setRange(r);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		identity.setDBKey( IndexResolver.getIndexInstanceTable().putAlias(alias,identity) );
@@ -1408,6 +1413,8 @@ public final class Relatrix {
 				e.printStackTrace();
 			}
 		}
+		if(DEBUG)
+			System.out.println("Relatrix.getByPath returning:"+v+" for path:"+path+" create:"+create);
 		return v;
 	}
 	/**

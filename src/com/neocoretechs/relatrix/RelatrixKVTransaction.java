@@ -1015,6 +1015,38 @@ public final class RelatrixKVTransaction {
 		return ttm.containsKey(obj);
 	}
 	/**
+	 * Is the key contained in the dataset of given class database for stated subclass
+	 * @param <T>
+	 * @param xid the transaction id
+	 * @param mainClass the class of the tablespace to search
+	 * @param subClass The Comparable subclass of tablespace mainClass key to search for
+	 * @return true if key is found
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static <T> boolean contains(String xid, Class<T> mainClass, Comparable<? extends T> subclass) throws IOException, IllegalAccessException
+	{
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(mainClass, xid);
+		return ttm.containsKey(subclass);
+	}
+	/**
+	 * Is the key contained in the dataset of given class database for stated subclass
+	 * @param <T>
+	 * @param alias The database alias
+	 * @param xid the transaction id
+	 * @param mainClass the class of tablespace to search
+	 * @param subClass The Comparable subclass of tablespace mainClass key to search for
+	 * @return true if key is found
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws NoSuchElementException If the alias is not found
+	 */
+	public static <T> boolean contains(String alias, String xid, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, mainClass, xid);
+		return ttm.containsKey(subClass);
+	}
+	/**
 	 * Is the value object present
 	 * @param xid the transaction id
 	 * @param keyType the class to retrieve

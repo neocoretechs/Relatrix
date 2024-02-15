@@ -18,6 +18,8 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -193,18 +195,19 @@ public final class RelatrixTransaction {
 	public static synchronized DomainMapRangeTransaction store(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		DomainMapRangeTransaction identity = new DomainMapRangeTransaction(xid,d,m,r); // form it as template for duplicate key search
+		DomainMapRangeTransaction identity = new DomainMapRangeTransaction(); // form it as template for duplicate key search
+		identity.setDomain(d);
+		identity.setMap(m);
+		PrimaryKeySet pks = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
-		// cannot be inserted.
-		identity.setPrimaryKeyCheck(true);
-		if(RelatrixKVTransaction.contains(xid, identity)) {
-			identity.setPrimaryKeyCheck(false);
+		// cannot be inserted
+		if(RelatrixKVTransaction.contains(xid, KeySet.class, pks)) {
 			rollback(xid);
-			throw new DuplicateKeyException("dmr:"+identity);
+			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
-		identity.setPrimaryKeyCheck(false);
+		identity.setRange(r);
 		IndexResolver.getIndexInstanceTable().put(xid,identity);
 		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(identity);
 		indexClasses[1] = drm.getClass();
@@ -227,7 +230,7 @@ public final class RelatrixTransaction {
 		//IndexResolver.getIndexInstanceTable().put(xid,rmd);
 		RelatrixKVTransaction.store(xid, identity, rmd);
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
-		indexClasses[0] = null; // remove dmr from our commit lineup
+		indexClasses[0] = identity.getClass(); 
 		return identity;
 	}
 	/**
@@ -248,18 +251,21 @@ public final class RelatrixTransaction {
 	public static synchronized DomainMapRangeTransaction store(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		DomainMapRangeTransaction identity = new DomainMapRangeTransaction(alias,xid,d,m,r); // form it as template for duplicate key search
+		DomainMapRangeTransaction identity = new DomainMapRangeTransaction(); // form it as template for duplicate key search
+		identity.setAlias(alias);
+		identity.setDomain(d);
+		identity.setMap(m);
+		PrimaryKeySet pks = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
-		// cannot be inserted.
-		identity.setPrimaryKeyCheck(true);
-		if(RelatrixKVTransaction.contains(alias, xid, identity)) {
-			identity.setPrimaryKeyCheck(false);
+		// cannot be inserted
+		if(RelatrixKVTransaction.contains(alias, xid, KeySet.class, pks)) {
 			rollback(xid);
-			throw new DuplicateKeyException("dmr:"+identity);
+			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
-		identity.setPrimaryKeyCheck(false);
+		identity.setRange(r);
+		indexClasses[0] = identity.getClass(); 
 		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,identity);
 		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(alias,identity);
 		indexClasses[1] = drm.getClass();
@@ -282,7 +288,6 @@ public final class RelatrixTransaction {
 		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rmd);
 		RelatrixKVTransaction.store(alias,xid, identity, rmd);
 		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
-		indexClasses[0] = null; // remove dmr from our commit lineup
 		return identity;
 	}
 	/**

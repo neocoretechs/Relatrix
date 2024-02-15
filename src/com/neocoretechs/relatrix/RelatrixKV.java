@@ -107,7 +107,6 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void store(String alias, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 		BufferedMap ttm = DatabaseManager.getMap(alias, key);
 		if( DEBUG  )
 			System.out.println("RelatrixKV.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
@@ -151,7 +150,6 @@ public final class RelatrixKV {
 	 */
 	public static void remove(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(c);
 		BufferedMap ttm = DatabaseManager.getMap(c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove prepping to remove:"+c);
@@ -169,7 +167,6 @@ public final class RelatrixKV {
 	 */
 	public static void remove(String alias, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(c);
 		BufferedMap ttm = DatabaseManager.getMap(alias, c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove prepping to remove:"+c);
@@ -189,7 +186,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.tailMap(darg);
 	}
@@ -207,7 +203,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMap(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.tailMap(darg);
 	}
@@ -223,7 +218,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -241,7 +235,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -258,7 +251,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.tailMapKV(darg);
 	}
@@ -276,7 +268,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMapKV(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.tailMapKV(darg);
 	}
@@ -292,7 +283,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -311,7 +301,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapKVStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -326,7 +315,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
@@ -343,7 +331,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMap(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
@@ -358,7 +345,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
@@ -376,7 +362,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
@@ -392,7 +377,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
@@ -409,7 +393,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMapKV(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
@@ -425,7 +408,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
@@ -444,7 +426,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapKVStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
@@ -462,7 +443,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findSubMap(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.subMap(darg, marg);
 	}
@@ -480,7 +460,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findSubMap(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.subMap(darg, marg);
 	}
@@ -496,7 +475,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findSubMapStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -515,7 +493,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findSubMapStream(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -533,7 +510,6 @@ public final class RelatrixKV {
 	public static Iterator<?> findSubMapKV(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.subMapKV(darg, marg);
 	}
@@ -552,7 +528,6 @@ public final class RelatrixKV {
 	public static Iterator<?> findSubMapKV(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.subMapKV(darg, marg);
 	}
@@ -569,7 +544,6 @@ public final class RelatrixKV {
 	public static Stream<?> findSubMapKVStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -589,7 +563,6 @@ public final class RelatrixKV {
 	public static Stream<?> findSubMapKVStream(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(darg);
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -603,7 +576,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.entrySet();
 	}
@@ -618,7 +590,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> entrySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.entrySet();
 	}
@@ -631,7 +602,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
@@ -647,7 +617,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> entrySetStream(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
@@ -661,7 +630,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.keySet();
 	}
@@ -676,7 +644,6 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> keySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.keySet();
 	}
@@ -689,7 +656,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> keySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -705,7 +671,6 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> keySetStream(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -719,7 +684,6 @@ public final class RelatrixKV {
 	 */
 	public static Object firstKey(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.firstKey();
 	}
@@ -734,7 +698,6 @@ public final class RelatrixKV {
 	 */
 	public static Object firstKey(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.firstKey();
 	}
@@ -747,7 +710,6 @@ public final class RelatrixKV {
 	 */
 	public static Object get(Comparable key) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 		BufferedMap ttm = DatabaseManager.getMap(key);
 		Object o = ttm.get(key);
 		if( o == null )
@@ -765,8 +727,42 @@ public final class RelatrixKV {
 	 */
 	public static Object get(String alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(key);
 		BufferedMap ttm = DatabaseManager.getMap(alias, key);
+		Object o = ttm.get(key);
+		if( o == null )
+			return null;
+		return ((KeyValue)o).getmValue();
+	}
+	/**
+	 * Return the value for the key.
+	 * @param <T>
+	 * @param mainClass the class of the tablespace
+	 * @param key the key to retrieve subclass of mainClass
+	 * @return The value for the key.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static <T> Object get(Class<T> mainClass, Comparable<? extends T> key) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Object o = ttm.get(key);
+		if( o == null )
+			return null;
+		return ((KeyValue)o).getmValue();
+	}
+	/**
+	 * Return the value for the key.
+	 * @param <T>
+	 * @param alias The database alias
+	 * @param key the key to retrieve, subclass of mainCLass
+	 * @return The value for the key.
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws NoSuchElementException If the alias is not found
+	 */
+	public static <T> Object get(String alias, Class<T> mainClass, Comparable<? extends T> key) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
 		Object o = ttm.get(key);
 		if( o == null )
 			return null;
@@ -781,7 +777,6 @@ public final class RelatrixKV {
 	 */
 	public static Object firstValue(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.first();
 	}
@@ -796,7 +791,6 @@ public final class RelatrixKV {
 	 */
 	public static Object firstValue(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.first();
 	}
@@ -809,7 +803,6 @@ public final class RelatrixKV {
 	 */
 	public static Object lastKey(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.lastKey();
 	}
@@ -824,7 +817,6 @@ public final class RelatrixKV {
 	 */
 	public static Object lastKey(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.lastKey();
 	}
@@ -837,7 +829,6 @@ public final class RelatrixKV {
 	 */
 	public static Object lastValue(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.last();
 	}
@@ -852,7 +843,6 @@ public final class RelatrixKV {
 	 */
 	public static Object lastValue(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.last();
 	}
@@ -865,7 +855,6 @@ public final class RelatrixKV {
 	 */
 	public static long size(Class clazz) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.size();
 	}
@@ -880,7 +869,6 @@ public final class RelatrixKV {
 	 */
 	public static long size(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(clazz);
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.size();
 	}
@@ -893,7 +881,6 @@ public final class RelatrixKV {
 	 */
 	public static boolean contains(Comparable obj) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(obj);
 		BufferedMap ttm = DatabaseManager.getMap(obj);
 		return ttm.containsKey(obj);
 	}
@@ -908,9 +895,38 @@ public final class RelatrixKV {
 	 */
 	public static boolean contains(String alias, Comparable obj) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(obj);
 		BufferedMap ttm = DatabaseManager.getMap(alias, obj);
 		return ttm.containsKey(obj);
+	}
+	/**
+	 * Is the key contained in the dataset of given class database for stated subclass
+	 * @param <T>
+	 * @param mainClass the class of the tablespace to search
+	 * @param subClass The Comparable subclass of tablespace mainClass key to search for
+	 * @return true if key is found
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 */
+	public static <T> boolean contains(Class<T> mainClass, Comparable<? extends T> subclass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.containsKey(subclass);
+	}
+	/**
+	 * Is the key contained in the dataset of given class database for stated subclass
+	 * @param <T>
+	 * @param alias The database alias
+	 * @param mainClass the class of tablespace to search
+	 * @param subClass The Comparable subclass of tablespace mainClass key to search for
+	 * @return true if key is found
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws NoSuchElementException If the alias is not found
+	 */
+	public static <T> boolean contains(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.containsKey(subClass);
 	}
 	/**
 	 * Is the value object present
@@ -922,7 +938,6 @@ public final class RelatrixKV {
 	 */
 	public static boolean containsValue(Class keyType, Object obj) throws IOException, IllegalAccessException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(keyType);
 		BufferedMap ttm = DatabaseManager.getMap(keyType);
 		return ttm.containsValue(obj);
 	}
@@ -938,7 +953,6 @@ public final class RelatrixKV {
 	 */
 	public static boolean containsValue(String alias, Class keyType, Object obj) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		//TransactionalMap ttm = RockSackAdapter.getRockSackTransactionalMap(keyType);
 		BufferedMap ttm = DatabaseManager.getMap(alias, keyType);
 		return ttm.containsValue(obj);
 	}

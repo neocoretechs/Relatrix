@@ -22,15 +22,8 @@ public class KeySet implements Externalizable, Comparable {
     protected DBKey mapKey = new DBKey();
     protected DBKey rangeKey = new DBKey();
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
-    private static boolean primaryKeyCheck = false;
 
     public KeySet() {}
-    
-    public void setPrimaryKeyCheck(/*String db,*/ boolean check) {
-    	if(DEBUG)
-    		System.out.println("Setting primary key check:"+check+" for "+this);
-    	primaryKeyCheck = check;
-    }
     
 	public DBKey getDomainKey() {
 		return domainKey;
@@ -87,11 +80,10 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKey(indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKey(indexTable, skeym)); // puts to index and instance
-		setRangeKey( DBKey.newKey(indexTable, skeyr)); // puts to index and instance
-		setPrimaryKeyCheck(true);
-		if(RelatrixKV.get(this) != null)
+		PrimaryKeySet pks = new PrimaryKeySet(this);
+		if(RelatrixKV.contains(KeySet.class, pks))
 				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
+		setRangeKey( DBKey.newKey(indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKey(indexTable, this);
 	}
 	
@@ -99,11 +91,10 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKeyAlias(alias, indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKeyAlias(alias, indexTable, skeym)); // puts to index and instance
-		setRangeKey(DBKey.newKeyAlias(alias, indexTable, skeyr)); // puts to index and instance
-		setPrimaryKeyCheck(true);
-		if(RelatrixKV.get(alias, this) != null)
+		PrimaryKeySet pks = new PrimaryKeySet(this);
+		if(RelatrixKV.contains(KeySet.class, pks))
 				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
+		setRangeKey(DBKey.newKeyAlias(alias, indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKeyAlias(alias, indexTable, this);
 	}
 	
@@ -111,11 +102,10 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKey(xid, indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKey(xid, indexTable, skeym)); // puts to index and instance
-		setRangeKey( DBKey.newKey(xid, indexTable, skeyr)); // puts to index and instance
-		setPrimaryKeyCheck(true);
-		if(RelatrixKVTransaction.get(xid, this) != null)
+		PrimaryKeySet pks = new PrimaryKeySet(this);
+		if(RelatrixKV.contains(KeySet.class, pks))
 				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
+		setRangeKey( DBKey.newKey(xid, indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKey(xid, indexTable, this);
 	}
 	
@@ -123,15 +113,13 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKeyAlias(alias, xid, indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKeyAlias(alias, xid, indexTable, skeym)); // puts to index and instance
-		setRangeKey(DBKey.newKeyAlias(alias, xid, indexTable, skeyr)); // puts to index and instance
-		setPrimaryKeyCheck(true);
-		if(RelatrixKVTransaction.get(alias, xid, this) != null)
+		PrimaryKeySet pks = new PrimaryKeySet(this);
+		if(RelatrixKV.contains(KeySet.class, pks))
 				throw new DuplicateKeyException(this);
-		setPrimaryKeyCheck(false);
+		setRangeKey(DBKey.newKeyAlias(alias, xid, indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKeyAlias(alias, xid, indexTable, this);
 	}
-	 
-	
+
 	@Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
 		domainKey.readExternal(in);
@@ -157,11 +145,8 @@ public class KeySet implements Externalizable, Comparable {
 			return i;
 		}
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(primaryKeyCheck) {
-			if(DEBUG)
-				System.out.println("***** Primary key check for "+getDomainKey()+" "+getMapKey()+" returning "+i);
+		if(o.getClass().equals(PrimaryKeySet.class))
 			return i;
-		}
 		if(i != 0) {
 			if(DEBUG)
 				System.out.println("Keyset CompareTo returning "+i+" at MapKey");
@@ -170,16 +155,15 @@ public class KeySet implements Externalizable, Comparable {
 		if(DEBUG)
 			System.out.println("Keyset CompareTo returning "+getRangeKey().compareTo(((KeySet)o).getRangeKey())+" at last RangeKey");
 		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
-	} 
+	}
+	
 	@Override
 	public boolean equals(Object o) {
-		if(primaryKeyCheck) 
-			return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-					getMapKey().equals(((KeySet)o).getMapKey());
 		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
 				getMapKey().equals(((KeySet)o).getMapKey()) &&
 				getRangeKey().equals(((KeySet)o).getRangeKey());
 	}
+	
 	@Override
 	public int hashCode() {
 	    final int prime = 31;
@@ -188,6 +172,10 @@ public class KeySet implements Externalizable, Comparable {
 		result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
 	    result = prime * result + getRangeKey().hashCode();
 	    return result;
+	}
+	
+	public String toString() {
+		return String.format("domainKey:%s mapKey:%s rangeKey:%s%n", domainKey, mapKey, rangeKey);
 	}
 	
 }
