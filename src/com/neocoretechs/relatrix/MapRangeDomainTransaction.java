@@ -151,7 +151,7 @@ public class MapRangeDomainTransaction extends MorphismTransaction {
 			return new MapRangeDomainTransaction(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
    		return new MapRangeDomainTransaction(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
-    /*
+    
     @Override  
  	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
  		mapKey.readExternal(in);
@@ -165,5 +165,5 @@ public class MapRangeDomainTransaction extends MorphismTransaction {
  		rangeKey.writeExternal(out);
  		domainKey.writeExternal(out);
  	}
- 	*/
+ 	
 }

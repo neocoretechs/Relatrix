@@ -179,7 +179,7 @@ public class MapRangeDomain extends Morphism {
 			return new MapRangeDomain(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
    		return new MapRangeDomain(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
-/*
+
     @Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
 		mapKey.readExternal(in);
@@ -193,7 +193,7 @@ public class MapRangeDomain extends Morphism {
 		rangeKey.writeExternal(out);
 		domainKey.writeExternal(out);
 	}
-	*/
+	
 	public String toString() { 
 		switch(displayLevel) {
 		case VERBOSE:

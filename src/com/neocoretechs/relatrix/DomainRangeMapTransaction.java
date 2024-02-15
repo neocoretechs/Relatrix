@@ -151,7 +151,7 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
 			return new DomainRangeMapTransaction(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
    		return new DomainRangeMapTransaction(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
-    /*
+    
     @Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
 		domainKey.readExternal(in);
@@ -165,6 +165,6 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
 		rangeKey.writeExternal(out);
 		mapKey.writeExternal(out);
 	}
-*/
+
 
 }

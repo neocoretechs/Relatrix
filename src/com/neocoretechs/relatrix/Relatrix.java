@@ -167,7 +167,7 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.contains(KeySet.class, pks)) {
+		if(RelatrixKV.contains(DomainMapRange.class, pks)) {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);
@@ -229,7 +229,7 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.contains(alias, KeySet.class, pks)) {
+		if(RelatrixKV.contains(alias, DomainMapRange.class, pks)) {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);
@@ -1424,13 +1424,8 @@ public final class Relatrix {
 	 */
 	public static String getDatabasePath(UUID index) {
 		if(DEBUG)
-			System.out.println("IndexManager.get attempt for UUID:"+index);
-		String v = indexToPath.get(index);
-		if(v == null) {
-			if(DEBUG)
-				System.out.println("IndexManager.get did not find index:"+index);
-		}
-		return v;
+			System.out.println("Relatrix.getDatabasePath for UUID:"+index+" will result in:"+indexToPath.get(index));
+		return indexToPath.get(index);
 	}
 	/**
 	 * Get the tablespace path for the given alias
@@ -1439,7 +1434,7 @@ public final class Relatrix {
 	 */
 	public static String getAliasToPath(String alias) {
 		if(DEBUG)
-			System.out.println("IndexManager.getAliasToPath attempt for alias:"+alias+" will return:"+DatabaseManager.getAliasToPath(alias));
+			System.out.println("Relatrix.getAliasToPath attempt for alias:"+alias+" will return:"+DatabaseManager.getAliasToPath(alias));
 		return DatabaseManager.getAliasToPath(alias);
 	}
 	/**
@@ -1453,7 +1448,7 @@ public final class Relatrix {
 		if(path == null)
 			throw new NoSuchElementException("The alias "+alias+" was not found.");
 		if(DEBUG)
-			System.out.println("IndexManager.getByAlias attempt for alias:"+alias+" got path:"+path);
+			System.out.println("Relatrix.getByAlias attempt for alias:"+alias+" got path:"+path);
 		return getByPath(path, true);
 	}
 
@@ -1464,7 +1459,7 @@ public final class Relatrix {
 	 */
 	static String removeDatabaseCatalog(UUID index) {
 		if(DEBUG)
-			System.out.println("VolumeManager.remove for index:"+index);
+			System.out.println("Relatrix.removeDatabaseCatalog for index:"+index);
 		String ret = indexToPath.remove(index);
 		if(ret != null)
 			pathToIndex.remove(ret);
@@ -1484,7 +1479,7 @@ public final class Relatrix {
 	static UUID removeDatabaseCatalog(String path) {
 		UUID ret = pathToIndex.remove(path);
 		if(DEBUG)
-			System.out.println("IndexManager.remove for path:"+path+" will return previous index:"+ret);		
+			System.out.println("Relatrix.removeDatabaseCatalog for path:"+path+" will return previous index:"+ret);		
 		if(ret != null)
 			indexToPath.remove(ret);
 		try {

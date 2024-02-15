@@ -26,7 +26,7 @@ public class BatteryKeyset {
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
