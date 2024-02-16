@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.UUID;
+
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -111,19 +111,6 @@ public final class RelatrixKVTransaction {
 		DatabaseManager.endTransaction(xid);
 	}	
 	
-	/**
-	 * Get the new DBkey.
-	 * @return The UUID of new key
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
-	 * @throws ClassNotFoundException 
-	 */
-	public static synchronized UUID getNewKey()  {
-		UUID nkey = UUID.randomUUID();
-		if(DEBUG)
-			System.out.printf("Returning NewKey=%s%n", nkey.toString());
-		return nkey;
-	}
 	
 	public static synchronized void rollbackAllTransactions() {
 		DatabaseManager.clearAllOutstandingTransactions();

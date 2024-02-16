@@ -42,8 +42,8 @@ public class BatteryKeyset {
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
-		//battery1AR17(argv);
-		//battery1(argv);
+		battery1AR17(argv);
+		battery1(argv);
 		//battery2(argv);
 		battery1AR4(argv);
 		battery1AR44(argv);
@@ -177,7 +177,7 @@ public class BatteryKeyset {
 				System.out.println("Didnt find "+ident+" using itself");
 			}
 		}
-		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * Testing of Iterator<?> its = RelatrixKV.keySet;

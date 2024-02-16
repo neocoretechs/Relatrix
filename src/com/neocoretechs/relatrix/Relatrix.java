@@ -69,8 +69,8 @@ public final class Relatrix {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
-	private static final String databaseCatalogProperty = "Relatrix.Catalog";
-	private static String databaseCatalog = "/etc/db/";
+	static final String databaseCatalogProperty = "Relatrix.Catalog";
+	static String databaseCatalog = "/etc/db/";
 	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
@@ -1361,7 +1361,7 @@ public final class Relatrix {
 	static void readDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException {
 		if(DEBUG)
 			System.out.println("Relatrix.readDatabaseCatalog");
-		Iterator<?> it = RelatrixKV.entrySet(databaseCatalogProperty, UUID.class);
+		Iterator<?> it = RelatrixKV.entrySet(databaseCatalogProperty, DatabaseCatalog.class);
 		while(it.hasNext()) {
 			Entry e = (Entry) it.next();
 			indexToPath.put((DatabaseCatalog)e.getKey(), (String)e.getValue());
@@ -1370,10 +1370,10 @@ public final class Relatrix {
 				System.out.println("Relatrix.readDatabaseCatalog indexToPath:"+e.getKey()+" pathToIndex:"+e.getValue());
 		}
 		if(DEBUG)
-			System.out.println("Closing "+databaseCatalogProperty+" UUID.class");
+			System.out.println("Closing "+databaseCatalogProperty);
 		//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 		if(DEBUG)
-			System.out.println("Closed "+databaseCatalogProperty+" UUID.class");
+			System.out.println("Closed "+databaseCatalogProperty);
 	}
 
 	static void writeDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
@@ -1382,7 +1382,6 @@ public final class Relatrix {
 			Map.Entry<DatabaseCatalog, String> entry = it.next();
 			RelatrixKV.store(databaseCatalogProperty, entry.getKey(), entry.getValue());
 		}
-		//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 	}
 	/**
 	 * Get the RelatrixIndex for the given tablespace path. If the index does not exist, it will be created based on param
@@ -1406,12 +1405,11 @@ public final class Relatrix {
 		if(v == null && create) {
 			v = new DatabaseCatalog(UUID.randomUUID());
 			if(DEBUG)
-				System.out.println("Relatrix.getByPath creating new index for path:"+path+" with UUID:"+v);
+				System.out.println("Relatrix.getByPath creating new index for path:"+path+" with catalog:"+v);
 			pathToIndex.put(path, v);
 			indexToPath.put(v, path);
 			try {
 				RelatrixKV.store(databaseCatalogProperty, v, path);
-				//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 			} catch (IllegalAccessException | NoSuchElementException | IOException | DuplicateKeyException e) {
 				e.printStackTrace();
 			}
@@ -1427,7 +1425,7 @@ public final class Relatrix {
 	 */
 	public static String getDatabasePath(DatabaseCatalog index) {
 		if(DEBUG)
-			System.out.println("Relatrix.getDatabasePath for UUID:"+index+" will result in:"+indexToPath.get(index));
+			System.out.println("Relatrix.getDatabasePath for catalog:"+index+" will result in:"+indexToPath.get(index));
 		return indexToPath.get(index);
 	}
 	/**
@@ -1443,7 +1441,7 @@ public final class Relatrix {
 	/**
 	 * Get the index for the given alias. If the index does not exist, it will be created
 	 * @param alias
-	 * @return The UUID index for the alias
+	 * @return The {@link DatabaseCatalog} index for the alias
 	 * @throws NoSuchElementException If the alias was not found
 	 */
 	public static DatabaseCatalog getByAlias(String alias) throws NoSuchElementException {
@@ -1477,7 +1475,7 @@ public final class Relatrix {
 	/**
 	 * Remove the index for the given tablespace path.
 	 * @param path
-	 * @return UUID index of removed path
+	 * @return {@link DatabaseCatalog} index of removed path
 	 */
 	static DatabaseCatalog removeDatabaseCatalog(String path) {
 		DatabaseCatalog ret = pathToIndex.remove(path);
@@ -1487,7 +1485,6 @@ public final class Relatrix {
 			indexToPath.remove(ret);
 		try {
 			RelatrixKV.remove(ret);
-			//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}

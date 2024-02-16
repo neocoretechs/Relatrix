@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
@@ -343,7 +342,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	/**
 	 * Get the instance contained in the passed DBKey
 	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
-	 * @return the instance object indexed by this DBKey which is used to determine database and hence proper catalog path, then unique instance UUID
+	 * @return the instance object indexed by this DBKey which is used to determine database and hence proper catalog path
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException

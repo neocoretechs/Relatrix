@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -955,19 +954,6 @@ public final class RelatrixKV {
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, keyType);
 		return ttm.containsValue(obj);
-	}
-	/**
-	 * Get the new DBkey.
-	 * @return
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
-	 * @throws ClassNotFoundException 
-	 */
-	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		UUID nkey = UUID.randomUUID();
-		if(DEBUG)
-			System.out.printf("Returning NewKey=%s%n", nkey.toString());
-		return nkey;
 	}
 	
 	/**
