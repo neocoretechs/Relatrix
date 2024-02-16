@@ -351,9 +351,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
+		String sdb = Relatrix.getDatabasePath(new DatabaseCatalog(index.databaseIndex));
 		if(sdb == null) {
-			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
+			throw new IOException("The database for the index "+index.databaseIndex+" was not found. May have been deleted.");
 		}
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s produces db path:%s%n", this.getClass().getName(), index, sdb);
@@ -379,9 +379,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(index.databaseIndex);
+		String sdb = Relatrix.getDatabasePath(new DatabaseCatalog(index.databaseIndex));
 		if(sdb == null) {
-			throw new IOException("The database for the UUID "+index.databaseIndex+" was not found. May have been deleted.");
+			throw new IOException("The database for the index "+index.databaseIndex+" was not found. May have been deleted.");
 		}
 		TransactionalMap tm = DatabaseManager.getTransactionalMapByPath(sdb, DBKey.class, transactionId);
 		Object o =  tm.get(index);
@@ -466,12 +466,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());
+			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true).getRelatrixIndex(), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(Relatrix.getByAlias(alias), Relatrix.getNewKey());
+			return new DBKey(Relatrix.getByAlias(alias).getRelatrixIndex(), Relatrix.getNewKey());
 	}
 
 }

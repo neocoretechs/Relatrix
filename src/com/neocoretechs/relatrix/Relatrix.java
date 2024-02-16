@@ -20,9 +20,11 @@ import org.rocksdb.RocksDB;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamFactory;
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -69,8 +71,8 @@ public final class Relatrix {
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
 	private static final String databaseCatalogProperty = "Relatrix.Catalog";
 	private static String databaseCatalog = "/etc/db/";
-	private static ConcurrentHashMap<String, UUID> pathToIndex = new ConcurrentHashMap<String,UUID>();
-	private static ConcurrentHashMap<UUID, String> indexToPath = new ConcurrentHashMap<UUID,String>();
+	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
+	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
 	static {
 		if(System.getProperty(databaseCatalogProperty) != null)
@@ -1214,8 +1216,9 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		UUID nkey = UUID.randomUUID();
+	public static synchronized RelatrixIndex getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID uuid = UUID.randomUUID();
+		RelatrixIndex nkey = new RelatrixIndex(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 		if(DEBUG)
 			System.out.printf("Returning NewKey=%s%n", nkey.toString());
 		return nkey;
@@ -1361,8 +1364,8 @@ public final class Relatrix {
 		Iterator<?> it = RelatrixKV.entrySet(databaseCatalogProperty, UUID.class);
 		while(it.hasNext()) {
 			Entry e = (Entry) it.next();
-			indexToPath.put((UUID)e.getKey(), (String)e.getValue());
-			pathToIndex.put((String)e.getValue(), (UUID)e.getKey());
+			indexToPath.put((DatabaseCatalog)e.getKey(), (String)e.getValue());
+			pathToIndex.put((String)e.getValue(), (DatabaseCatalog)e.getKey());
 			if(DEBUG)
 				System.out.println("Relatrix.readDatabaseCatalog indexToPath:"+e.getKey()+" pathToIndex:"+e.getValue());
 		}
@@ -1374,23 +1377,23 @@ public final class Relatrix {
 	}
 
 	static void writeDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
-		Iterator<Map.Entry<UUID, String>> it = indexToPath.entrySet().iterator();
+		Iterator<Map.Entry<DatabaseCatalog, String>> it = indexToPath.entrySet().iterator();
 		while(it.hasNext()) {
-			Map.Entry<UUID, String> entry = it.next();
+			Map.Entry<DatabaseCatalog, String> entry = it.next();
 			RelatrixKV.store(databaseCatalogProperty, entry.getKey(), entry.getValue());
 		}
 		//RelatrixKV.close(databaseCatalogProperty, UUID.class);
 	}
 	/**
-	 * Get the UUID for the given tablespace path. If the index does not exist, it will be created based on param
+	 * Get the RelatrixIndex for the given tablespace path. If the index does not exist, it will be created based on param
 	 * @param path
 	 * @param create
-	 * @return the UUID of path
+	 * @return the RelatrixIndex of path
 	 */
-	public static UUID getByPath(String path, boolean create) {
+	public static DatabaseCatalog getByPath(String path, boolean create) {
 		if(DEBUG)
 			System.out.println("Relatrix.getByPath attempt for path:"+path+" create:"+create);
-		UUID v = pathToIndex.get(path);
+		DatabaseCatalog v = pathToIndex.get(path);
 		// If we did not find it and another process created it, read catalog
 		if(v == null) {
 			try {
@@ -1401,7 +1404,7 @@ public final class Relatrix {
 			}
 		}
 		if(v == null && create) {
-			v = UUID.randomUUID();
+			v = new DatabaseCatalog(UUID.randomUUID());
 			if(DEBUG)
 				System.out.println("Relatrix.getByPath creating new index for path:"+path+" with UUID:"+v);
 			pathToIndex.put(path, v);
@@ -1422,7 +1425,7 @@ public final class Relatrix {
 	 * @param index
 	 * @return path from indexToPath
 	 */
-	public static String getDatabasePath(UUID index) {
+	public static String getDatabasePath(DatabaseCatalog index) {
 		if(DEBUG)
 			System.out.println("Relatrix.getDatabasePath for UUID:"+index+" will result in:"+indexToPath.get(index));
 		return indexToPath.get(index);
@@ -1443,7 +1446,7 @@ public final class Relatrix {
 	 * @return The UUID index for the alias
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static UUID getByAlias(String alias) throws NoSuchElementException {
+	public static DatabaseCatalog getByAlias(String alias) throws NoSuchElementException {
 		String path = getAliasToPath(alias);
 		if(path == null)
 			throw new NoSuchElementException("The alias "+alias+" was not found.");
@@ -1455,9 +1458,9 @@ public final class Relatrix {
 	/**
 	 * Remove the given tablespace path for index.
 	 * @param index
-	 * @return previous String path of removed UUID index
+	 * @return previous String path of removed {@link DatabaseCatalog} index
 	 */
-	static String removeDatabaseCatalog(UUID index) {
+	static String removeDatabaseCatalog(DatabaseCatalog index) {
 		if(DEBUG)
 			System.out.println("Relatrix.removeDatabaseCatalog for index:"+index);
 		String ret = indexToPath.remove(index);
@@ -1476,8 +1479,8 @@ public final class Relatrix {
 	 * @param path
 	 * @return UUID index of removed path
 	 */
-	static UUID removeDatabaseCatalog(String path) {
-		UUID ret = pathToIndex.remove(path);
+	static DatabaseCatalog removeDatabaseCatalog(String path) {
+		DatabaseCatalog ret = pathToIndex.remove(path);
 		if(DEBUG)
 			System.out.println("Relatrix.removeDatabaseCatalog for path:"+path+" will return previous index:"+ret);		
 		if(ret != null)

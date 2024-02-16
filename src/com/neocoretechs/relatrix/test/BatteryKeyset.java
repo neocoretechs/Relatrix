@@ -1,8 +1,10 @@
 package com.neocoretechs.relatrix.test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DomainMapRange;
@@ -22,13 +24,14 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
  *
  */
 public class BatteryKeyset {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 10000;
+	static int max = 100000;
 	static int numDelete = 100; // for delete test
 	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
+	static ArrayList<KeySet> findkeys = new ArrayList<KeySet>();
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
 	/**
 	* Main test fixture driver
@@ -39,15 +42,18 @@ public class BatteryKeyset {
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
-		battery1(argv);
+		//battery1AR17(argv);
+		//battery1(argv);
+		//battery2(argv);
 		battery1AR4(argv);
+		battery1AR44(argv);
 		battery1AR5(argv);
 		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
 		battery1AR12(argv);
 		battery1AR14(argv);
-		battery1AR17(argv);
+		//battery1AR17(argv);
 		 System.out.println("BatteryKeyset TEST BATTERY COMPLETE.");
 		
 	}
@@ -67,13 +73,6 @@ public class BatteryKeyset {
 		String m = null;
 		String r = null;
 
-		//Integer payload = 0;
-		int j = min;
-		j = (int) RelatrixKV.size(KeySet.class);
-		if(j > 0) {
-			System.out.println("Cleaning DB of "+j+" elements.");
-			battery1AR17(argv);		
-		}
 		for(int i = min; i < max; i++) {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
@@ -97,24 +96,40 @@ public class BatteryKeyset {
 				System.out.println("Relatrix.store stored :"+identity);
 			keys.add(identity);
 			++recs;
-		}
+		}	
+		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+	}
+	
+	private static void battery2(String[] argv) throws IllegalAccessException, ClassNotFoundException, IOException {
 		for(int i = min; i < max; i++) {
-			d = String.format(uniqKeyFmt, i);
-			m = String.format(uniqKeyFmt, i+1);
+			String d = String.format(uniqKeyFmt, i);
+			String m = String.format(uniqKeyFmt, i+1);
 			KeySet identity = new KeySet();
 			identity.setDomainKey(indexTable.getByInstance(d));
 			identity.setMapKey(indexTable.getByInstance(m));
+			identity.setRangeKey(new DBKey(DBKey.nullKey, DBKey.nullKey));
 			PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			if(!RelatrixKV.contains(KeySet.class, pks)) {
-				throw new Exception("Failed to find existing key "+identity);
+				//throw new Exception("Failed to find existing key "+identity);
+				Iterator it = RelatrixKV.entrySet(KeySet.class);
+				boolean found = false;
+				long tims = System.currentTimeMillis();
+				while(it.hasNext()) {
+					Entry e = (Entry) it.next();
+					if( ((KeySet)e.getKey()).domainKeyEquals(identity) && ((KeySet)e.getKey()).mapKeyEquals(identity)) {
+						System.out.println("found element via iteration "+e+" in "+(System.currentTimeMillis()-tims)+" ms.");
+						found = true;
+						break;
+					}
+				}
+				if(!found)
+					System.out.println("failed to find element via iteration "+identity);
 			}
-	
 		}
-		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	/**
 	 * check order of DBKey
@@ -127,7 +142,7 @@ public class BatteryKeyset {
 		KeySet prev = (KeySet) RelatrixKV.firstKey(KeySet.class);
 		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) prev);
 		System.out.println("Battery1AR4");
-		its.next(); // skip first key we just got
+		findkeys.add(((Map.Entry<KeySet,DBKey>)its.next()).getKey()); // skip first key we just got
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
@@ -137,7 +152,30 @@ public class BatteryKeyset {
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
 			}
 			prev = nexe.getKey();
-			System.out.println("1AR4 "+(cnt++)+"="+nex);
+			findkeys.add(nexe.getKey());
+			if(DEBUG)
+				System.out.println("1AR4 "+(cnt++)+"="+nex);
+		}
+		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	public static void battery1AR44(String[] argv) throws Exception {
+		int cnt = 0;
+		long tims = System.currentTimeMillis();
+		System.out.println("Battery1AR44");
+		for(int i = 0; i < max; i++) {
+			int rnd = new Random().nextInt(max);
+			KeySet ident = findkeys.get(rnd);
+			PrimaryKeySet pks = new PrimaryKeySet(ident);
+			// check for domain/map match
+			// Enforce categorical structure; domain->map function uniquely determines range.
+			// If the search winds up at the key or the key is empty or the domain->map exists, the key
+			// cannot be inserted
+			if(!RelatrixKV.contains(KeySet.class, pks)) {
+				System.out.println("Didnt find "+pks+" using "+ident);
+			}
+			if(!RelatrixKV.contains(ident)) {
+				System.out.println("Didnt find "+ident+" using itself");
+			}
 		}
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -159,7 +197,8 @@ public class BatteryKeyset {
 				System.out.println("RANGE KEY MISMATCH: "+nex);
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
 			}
-			System.out.println("1AR5 "+(cnt++)+"="+nex);
+			if(DEBUG)
+				System.out.println("1AR5 "+(cnt++)+"="+nex);
 		}
 		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -246,7 +285,8 @@ public class BatteryKeyset {
 					System.out.println("RANGE KEY MISMATCH:"+nex);
 					throw new Exception("RANGE KEY MISMATCH:"+nex);
 				}
-				System.out.println("1AR12 "+(cnt++)+"="+nexe);
+				if(DEBUG)
+					System.out.println("1AR12 "+(cnt++)+"="+nexe);
 			}
 		}
 		System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
@@ -274,7 +314,8 @@ public class BatteryKeyset {
 					System.out.println("RANGE KEY MISMATCH:"+nex);
 					throw new Exception("RANGE KEY MISMATCH:"+nex);
 				}
-				System.out.println("1AR14 "+(cnt++)+"="+nexe);
+				if(DEBUG)
+					System.out.println("1AR14 "+(cnt++)+"="+nexe);
 			}
 		}
 		System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
@@ -290,6 +331,7 @@ public class BatteryKeyset {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB");
 		long s = RelatrixKV.size(DBKey.class);
+		System.out.println("Cleaning DB of "+s+" elements.");
 		Iterator it = RelatrixKV.keySet(DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {

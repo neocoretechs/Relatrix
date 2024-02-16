@@ -245,8 +245,8 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
          * to perform a getByIndex call on the domain key of the KeySet, thus retrieving a domain from the database indicated
          * in the first half of the DBKey, and the key to the instance in the last half of the DBKey. Recall that the
-         * database catalog has as its index key the UUID in the first half of a DBKey, and as its value the path to the
-         * database holding the actual instance we are seeking.
+         * database catalog has as its index key the {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * in the first half of a DBKey, and as its value the path to the database holding the actual instance we are seeking.
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getDomain() {
@@ -271,8 +271,11 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * master table for each database. The master catalog is stored using a 
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex}  class key, and values being the database path.
+         * In the DBKey, the {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * of the database in the master catalog and the {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * of the instance form the index.
          * @param domain
          */
         public void setDomain(Comparable<?> domain) {
@@ -304,8 +307,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index. The DBKey
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index. The DBKey
          * points to the primary database and the alias here is used if we create an entirely new instance.
          * @param alias the database alias if we end up creating an index to a new instance
          * @param domain
@@ -339,8 +343,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
          * @param domain
          */
         public void setDomainTemplate(Comparable<?> domain) {
@@ -375,13 +380,14 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
          * If the domain key is not valid, a getByInstance of the domain on the database indicated by the alias tablespace is
          * performed to try and obtain a domain DBKey. If this method call comes back null, then a new key is formed
-         * using the effective null key value where database index is set to alias and instance is zero string UUID.
+         * using the effective null key value where database index is set to alias and instance is null key.
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index. The DBKey
-         * points to the primary database and the alias here is used if we create an entirely new instance.
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex}  
+         * The DBKey points to the primary database and the alias here is used if we create an entirely new instance.
          * @param alias the database alias if we end up creating an index to a new instance
          * @param domain
          */
@@ -416,8 +422,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
          * to perform a getByIndex call on the map key of the KeySet, thus retrieving a map from the database indicated
          * in the first half of the DBKey, and the key to the instance in the last half of the DBKey. Recall that the
-         * database catalog has as its index key the UUID in the first half of a DBKey, and as its value the path to the
+         * database catalog has as its index key the index in the first half of a DBKey, and as its value the path to the
          * database holding the actual instance we are seeking.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getMap() {
@@ -442,8 +449,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the map instance comes back not null, then we simply set the map key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
          * @param map
          */
         public void setMap(Comparable<?> map) {
@@ -493,8 +501,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the map instance comes back not null, then we simply set the map key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
          * @param map
          */
         public void setMapTemplate(Comparable<?> map) {
@@ -555,8 +564,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
          * to perform a getByIndex call on the range key of the KeySet, thus retrieving a range from the database indicated
          * in the first half of the DBKey, and the key to the instance in the last half of the DBKey. Recall that the
-         * database catalog has as its index key the UUID in the first half of a DBKey, and as its value the path to the
+         * database catalog has as its index key the index in the first half of a DBKey, and as its value the path to the
          * database holding the actual instance we are seeking.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getRange() {
@@ -581,8 +591,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the range instance comes back not null, then we simply set the range key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @param range
          */
         public void setRange(Comparable<?> range) {
@@ -633,8 +644,9 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
          * If the method call to getByInstance for the range instance comes back not null, then we simply set the range key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a UUID class key, and values being the database path.
-         * In the DBKey, the UUID of the database in the master catalog and the UUID of the instance form the index.
+         * master table for each database. The master catalog is stored using a class key, and values being the database path.
+         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
+         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @param range
          */
         public void setRangeTemplate(Comparable<?> range) {

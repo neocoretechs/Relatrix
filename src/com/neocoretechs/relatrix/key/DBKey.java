@@ -24,25 +24,32 @@ import com.neocoretechs.relatrix.Relatrix;
 public final class DBKey implements Comparable, Externalizable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
-	public static UUID nullKey = new UUID(0L, 0L);
+	public static RelatrixIndex nullKey = new RelatrixIndex(0L, 0L);
 	
-	UUID instanceIndex = null;
-	UUID databaseIndex = null;
+	RelatrixIndex instanceIndex = null;
+	RelatrixIndex databaseIndex = null;
 	
 	public DBKey() {}
 	
-	DBKey(UUID databaseIndex, UUID instanceIndex) {
+	public DBKey(UUID databaseIndex, UUID instanceIndex) {
+		this.databaseIndex = new RelatrixIndex(databaseIndex.getMostSignificantBits(), databaseIndex.getLeastSignificantBits());
+		this.instanceIndex = new RelatrixIndex(instanceIndex.getMostSignificantBits(), instanceIndex.getLeastSignificantBits());
+		if(DEBUG)
+			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
+	}
+	
+	public DBKey(RelatrixIndex databaseIndex, RelatrixIndex instanceIndex) {
 		this.databaseIndex = databaseIndex;
 		this.instanceIndex = instanceIndex;
 		if(DEBUG)
 			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
 	}
 	
-	protected UUID getInstanceIndex() {
+	protected RelatrixIndex getInstanceIndex() {
 			return instanceIndex;
 	}
 	
-	protected UUID getDatabaseIndex() {
+	protected RelatrixIndex getDatabaseIndex() {
 		return databaseIndex;
 	}
 	
@@ -52,7 +59,7 @@ public final class DBKey implements Comparable, Externalizable {
 	}
 	
 	public void setNullKey(String alias) {
-		this.databaseIndex = Relatrix.getByAlias(alias);
+		this.databaseIndex = Relatrix.getByAlias(alias).getRelatrixIndex();
 		this.instanceIndex = nullKey;
 	}
 	
@@ -142,12 +149,7 @@ public final class DBKey implements Comparable, Externalizable {
 	
 	@Override
 	public int hashCode() {
-		if(instanceIndex == null || databaseIndex == null)
-			return 31;
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + databaseIndex.hashCode();
-		return prime * result + instanceIndex.hashCode();	
+		return databaseIndex.hashCode() + instanceIndex.hashCode();	
 	}
 	
 	@Override
@@ -196,20 +198,16 @@ public final class DBKey implements Comparable, Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeLong(databaseIndex.getMostSignificantBits());
-		out.writeLong(databaseIndex.getLeastSignificantBits());
-		out.writeLong(instanceIndex.getMostSignificantBits());
-		out.writeLong(instanceIndex.getLeastSignificantBits());
+		databaseIndex.writeExternal(out);
+		instanceIndex.writeExternal(out);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		Long msbDb = in.readLong();
-		Long lsbDb = in.readLong();
-		Long msbIn = in.readLong();
-		Long lsbIn = in.readLong();
-		databaseIndex = new UUID(msbDb, lsbDb);
-		instanceIndex = new UUID(msbIn, lsbIn);
+		databaseIndex = new RelatrixIndex();
+		instanceIndex = new RelatrixIndex();
+		databaseIndex.readExternal(in);
+		instanceIndex.readExternal(in);
 	}
 	
 	public byte[] longsToBytes(long x, long y) {

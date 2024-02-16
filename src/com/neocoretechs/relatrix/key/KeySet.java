@@ -136,24 +136,27 @@ public class KeySet implements Externalizable, Comparable {
 	
 	@Override
 	public int compareTo(Object o) {
-		if(DEBUG)
-			System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
+		//if(DEBUG)
+			//System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
 		if(i != 0) {
-			if(DEBUG)
-				System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
+			//if(DEBUG)
+				//System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
 			return i;
 		}
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(o.getClass().equals(PrimaryKeySet.class))
-			return i;
-		if(i != 0) {
+		if(this instanceof PrimaryKeySet || o instanceof PrimaryKeySet) {
 			if(DEBUG)
-				System.out.println("Keyset CompareTo returning "+i+" at MapKey");
+				System.out.println("Keyset CompareTo returning "+i+" at primary:"+getClass()+", "+o.getClass());
 			return i;
 		}
-		if(DEBUG)
-			System.out.println("Keyset CompareTo returning "+getRangeKey().compareTo(((KeySet)o).getRangeKey())+" at last RangeKey");
+		if(i != 0) {
+			//if(DEBUG)
+				//System.out.println("Keyset CompareTo returning "+i+" at MapKey");
+			return i;
+		}
+		//if(DEBUG)
+			//System.out.println("Keyset CompareTo returning "+getRangeKey().compareTo(((KeySet)o).getRangeKey())+" at last RangeKey");
 		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
 	}
 	
@@ -166,12 +169,7 @@ public class KeySet implements Externalizable, Comparable {
 	
 	@Override
 	public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-		result = prime * result + getDomainKey().hashCode();
-		result = prime * result + (int) (getMapKey().hashCode() ^ (getMapKey().hashCode() >>> 32));
-	    result = prime * result + getRangeKey().hashCode();
-	    return result;
+		return getDomainKey().hashCode() + getMapKey().hashCode() + getRangeKey().hashCode();
 	}
 	
 	public String toString() {
