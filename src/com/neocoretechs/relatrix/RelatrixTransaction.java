@@ -188,12 +188,12 @@ public final class RelatrixTransaction {
 		DomainMapRangeTransaction identity = new DomainMapRangeTransaction(); // form it as template for duplicate key search
 		identity.setDomain(d);
 		identity.setMap(m);
-		PrimaryKeySet pks = new PrimaryKeySet(identity);
+		identity.setRangeKey(DBKey.nullDBKey);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKVTransaction.contains(xid, DomainMapRange.class, pks)) {
+		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(xid, identity), identity)) {
 			rollback(xid);
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
@@ -245,13 +245,13 @@ public final class RelatrixTransaction {
 		identity.setAlias(alias);
 		identity.setDomain(d);
 		identity.setMap(m);
-		PrimaryKeySet pks = new PrimaryKeySet(identity);
+		identity.setRangeKey(DBKey.nullDBKey);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKVTransaction.contains(alias, xid, DomainMapRange.class, pks)) {
-			rollback(xid);
+		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(alias, xid, identity), identity)) {
+			rollback(alias, xid);
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);

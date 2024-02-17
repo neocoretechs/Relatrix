@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 /**
@@ -80,9 +81,14 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKey(indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKey(indexTable, skeym)); // puts to index and instance
-		PrimaryKeySet pks = new PrimaryKeySet(this);
-		if(RelatrixKV.contains(KeySet.class, pks))
-				throw new DuplicateKeyException(this);
+		setRangeKey(DBKey.nullDBKey);
+		// check for domain/map match
+		// Enforce categorical structure; domain->map function uniquely determines range.
+		// If the search winds up at the key or the key is empty or the domain->map exists, the key
+		// cannot be inserted
+		if(Relatrix.isPrimaryKey(RelatrixKV.nearest(this), this)) {
+			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+		}
 		setRangeKey( DBKey.newKey(indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKey(indexTable, this);
 	}
@@ -91,9 +97,10 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKeyAlias(alias, indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKeyAlias(alias, indexTable, skeym)); // puts to index and instance
-		PrimaryKeySet pks = new PrimaryKeySet(this);
-		if(RelatrixKV.contains(KeySet.class, pks))
-				throw new DuplicateKeyException(this);
+		setRangeKey(DBKey.nullDBKey);
+		if(Relatrix.isPrimaryKey(RelatrixKV.nearest(alias,this), this)) {
+			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+		}
 		setRangeKey(DBKey.newKeyAlias(alias, indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKeyAlias(alias, indexTable, this);
 	}
@@ -102,9 +109,11 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKey(xid, indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKey(xid, indexTable, skeym)); // puts to index and instance
-		PrimaryKeySet pks = new PrimaryKeySet(this);
-		if(RelatrixKV.contains(KeySet.class, pks))
-				throw new DuplicateKeyException(this);
+		setRangeKey(DBKey.nullDBKey);
+		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(xid,this), this)) {
+			RelatrixKVTransaction.rollback(xid);
+			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+		}
 		setRangeKey( DBKey.newKey(xid, indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKey(xid, indexTable, this);
 	}
@@ -113,9 +122,11 @@ public class KeySet implements Externalizable, Comparable {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		setDomainKey(DBKey.newKeyAlias(alias, xid, indexTable, skeyd)); // puts to index and instance
 		setMapKey(DBKey.newKeyAlias(alias, xid, indexTable, skeym)); // puts to index and instance
-		PrimaryKeySet pks = new PrimaryKeySet(this);
-		if(RelatrixKV.contains(KeySet.class, pks))
-				throw new DuplicateKeyException(this);
+		setRangeKey(DBKey.nullDBKey);
+		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(alias,xid,this), this)) {
+			RelatrixKVTransaction.rollback(alias,xid);
+			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+		}
 		setRangeKey(DBKey.newKeyAlias(alias, xid, indexTable, skeyr)); // puts to index and instance
 		return DBKey.newKeyAlias(alias, xid, indexTable, this);
 	}
@@ -145,11 +156,6 @@ public class KeySet implements Externalizable, Comparable {
 			return i;
 		}
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(this instanceof PrimaryKeySet || o instanceof PrimaryKeySet) {
-			if(DEBUG)
-				System.out.println("Keyset CompareTo returning "+i+" at primary:"+getClass()+", "+o.getClass());
-			return i;
-		}
 		if(i != 0) {
 			//if(DEBUG)
 				//System.out.println("Keyset CompareTo returning "+i+" at MapKey");

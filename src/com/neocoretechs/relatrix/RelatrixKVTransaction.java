@@ -1061,6 +1061,40 @@ public final class RelatrixKVTransaction {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, keyType, xid);
 		return ttm.containsValue(obj);
 	}
+	
+	/**
+	 * Return the key/val.ue pair of Map.Entry implementation of the closest key to the passed key template.
+	 * May be exact match Up to user. Essentially starts a tailMapKv iterator seeking nearest key.
+	 * @param xid transaction id
+	 * @param key target key template
+	 * @return null if no next for initial iteration
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public static Object nearest(String xid, Comparable key) throws IllegalAccessException, IOException {
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(key, xid);
+		Iterator<?> it =  ttm.tailMapKV(key);
+		if(!it.hasNext())
+			return null;
+		return it.next();
+	}
+	/**
+	 * Return the key/val.ue pair of Map.Entry implementation of the closest key to the passed key template.
+	 * May be exact match Up to user. Essentially starts a tailMapKv iterator seeking nearest key.
+	 * @param alias the database alias
+	 * @param xid transaction id
+	 * @param key target key template
+	 * @return null if no next for initial iteration
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public static Object nearest(String alias, String xid, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias,key,xid);
+		Iterator<?> it =  ttm.tailMapKV(key);
+		if(!it.hasNext())
+			return null;
+		return it.next();
+	}
 	/**
 	 * Close and remove database from available set
 	 * @param xid transaction id

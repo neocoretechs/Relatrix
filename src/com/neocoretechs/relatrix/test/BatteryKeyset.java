@@ -17,7 +17,6 @@ import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 /**
  * @author jg (C) 2024
@@ -44,7 +43,7 @@ public class BatteryKeyset {
 		RelatrixKV.setTablespace(argv[0]);
 		battery1AR17(argv);
 		battery1(argv);
-		//battery2(argv);
+		battery2(argv);
 		battery1AR4(argv);
 		battery1AR44(argv);
 		battery1AR5(argv);
@@ -80,12 +79,12 @@ public class BatteryKeyset {
 			KeySet identity = new KeySet();
 			identity.setDomainKey(DBKey.newKey(indexTable, d));
 			identity.setMapKey(DBKey.newKey(indexTable, m));
-			PrimaryKeySet pks = new PrimaryKeySet(identity);
+			identity.setRangeKey(DBKey.nullDBKey);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(RelatrixKV.contains(KeySet.class, pks)) {
+			if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
 				throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 			}
 			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
@@ -108,27 +107,13 @@ public class BatteryKeyset {
 			identity.setDomainKey(indexTable.getByInstance(d));
 			identity.setMapKey(indexTable.getByInstance(m));
 			identity.setRangeKey(new DBKey(DBKey.nullKey, DBKey.nullKey));
-			PrimaryKeySet pks = new PrimaryKeySet(identity);
+			//PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(!RelatrixKV.contains(KeySet.class, pks)) {
-				//throw new Exception("Failed to find existing key "+identity);
-				Iterator it = RelatrixKV.entrySet(KeySet.class);
-				boolean found = false;
-				long tims = System.currentTimeMillis();
-				while(it.hasNext()) {
-					Entry e = (Entry) it.next();
-					if( ((KeySet)e.getKey()).domainKeyEquals(identity) && ((KeySet)e.getKey()).mapKeyEquals(identity)) {
-						System.out.println("found element via iteration "+e+" in "+(System.currentTimeMillis()-tims)+" ms.");
-						found = true;
-						break;
-					}
-				}
-				if(!found)
-					System.out.println("failed to find element via iteration "+identity);
-			}
+			if(!Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity))
+				System.out.println("FAILED to find:"+identity);
 		}
 	}
 	/**
@@ -162,20 +147,21 @@ public class BatteryKeyset {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR44");
-		for(int i = 0; i < max; i++) {
-			int rnd = new Random().nextInt(max);
+		while(!findkeys.isEmpty()) {
+			int rnd = new Random().nextInt(findkeys.size());
 			KeySet ident = findkeys.get(rnd);
-			PrimaryKeySet pks = new PrimaryKeySet(ident);
+			findkeys.remove(rnd);
+
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(!RelatrixKV.contains(KeySet.class, pks)) {
-				System.out.println("Didnt find "+pks+" using "+ident);
+			if(RelatrixKV.nearest(ident) == null) {
+				System.out.println("Didnt find "+ident);
+			} else {
+				System.out.println("FOUND "+ident);
 			}
-			if(!RelatrixKV.contains(ident)) {
-				System.out.println("Didnt find "+ident+" using itself");
-			}
+			
 		}
 		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

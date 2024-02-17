@@ -23,7 +23,6 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamFactory;
@@ -164,12 +163,12 @@ public final class Relatrix {
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
 		identity.setDomain(d);
 		identity.setMap(m);
-		PrimaryKeySet pks = new PrimaryKeySet(identity);
+		identity.setRangeKey(DBKey.nullDBKey);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.contains(DomainMapRange.class, pks)) {
+		if(isPrimaryKey(RelatrixKV.nearest(identity),identity)) {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);
@@ -226,12 +225,12 @@ public final class Relatrix {
 		identity.setAlias(alias);
 		identity.setDomain(d);
 		identity.setMap(m);
-		PrimaryKeySet pks = new PrimaryKeySet(identity);
+		identity.setRangeKey(DBKey.nullDBKey);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.contains(alias, DomainMapRange.class, pks)) {
+		if(isPrimaryKey(RelatrixKV.nearest(alias,identity),identity)) {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);
@@ -268,6 +267,15 @@ public final class Relatrix {
 		return identity;
 	}
 
+	public static boolean isPrimaryKey(Object key, KeySet template) {
+		if(key == null)
+			return false;
+		KeySet primary = (KeySet)(((Map.Entry)key).getKey());
+		if(primary.domainKeyEquals(template) && primary.mapKeyEquals(template))
+			return true;
+		return false;
+	}
+	
 	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
 		RelatrixKV.store(key, value);
 	}

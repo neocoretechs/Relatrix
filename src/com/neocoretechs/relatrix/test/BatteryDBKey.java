@@ -1,13 +1,18 @@
 package com.neocoretechs.relatrix.test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
+import com.neocoretechs.relatrix.key.KeySet;
+
+import com.neocoretechs.relatrix.key.RelatrixIndex;
 
 /**
  * @author jg (C) 2024
@@ -20,6 +25,7 @@ public class BatteryDBKey {
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
+	static ArrayList<DBKey> findkeys = new ArrayList<DBKey>();
 	/**
 	* Main test fixture driver
 	*/
@@ -29,8 +35,10 @@ public class BatteryDBKey {
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
+		battery1AR17(argv);
 		battery1(argv);
 		battery1AR4(argv);
+		battery1AR44(argv);
 		battery1AR5(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
@@ -56,12 +64,7 @@ public class BatteryDBKey {
 		int recs = 0;
 		DBKey fkey = null;
 		//Integer payload = 0;
-		int j = min;
-		j = (int) RelatrixKV.size(DBKey.class);
-		if(j > 0) {
-			System.out.println("Cleaning DB of "+j+" elements.");
-			battery1AR17(argv);		
-		}
+
 		for(int i = min; i < max; i++) {
 			//try {
 				fkey = DBKey.newKey(indexTable, i); // puts to index and instance
@@ -81,19 +84,58 @@ public class BatteryDBKey {
 		DBKey prev = null;
 		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) RelatrixKV.firstKey(DBKey.class));
 		System.out.println("KV Battery1AR4");
+		// set up previous key as first key, insert to key map
 		prev = (DBKey) RelatrixKV.firstKey(DBKey.class);
-		its.next(); // skip first key we just got
+		Comparable nex = (Comparable) its.next();
+		Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
+		findkeys.add(nexe.getKey());
 		while(its.hasNext()) {
-			Comparable nex = (Comparable) its.next();
-			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
+			nex = (Comparable) its.next();
+			nexe = (Map.Entry<DBKey,Integer>)nex;
 			if(nexe.getKey().compareTo(prev) <= 0) { // should always be >
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH: prev:"+prev+" nex:"+nexe.getKey()+" cmpr:"+nexe.getKey().compareTo(prev));
 				throw new Exception("KV RANGE KEY MISMATCH: prev:"+prev+" nex:"+nexe.getKey()+" cmpr:"+nexe.getKey().compareTo(prev));
 			}
 			prev = nexe.getKey();
+			findkeys.add(nexe.getKey());
 		}
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	public static void battery1AR44(String[] argv) throws Exception {
+		int cnt = 0;
+		long tims = System.currentTimeMillis();
+		System.out.println("Battery1AR44");
+		while(!findkeys.isEmpty()) {
+			int rnd = new Random().nextInt(findkeys.size());
+			DBKey ident = findkeys.get(rnd);
+			findkeys.remove(rnd);
+			//PrimaryKeySet pks = new PrimaryKeySet(ident);
+			// check for domain/map match
+			// Enforce categorical structure; domain->map function uniquely determines range.
+			// If the search winds up at the key or the key is empty or the domain->map exists, the key
+			// cannot be inserted
+			RelatrixIndex ri = ident.getInstanceIndex();
+			ri.setLsb(0); // set artificial partial instance key
+			DBKey pks = new DBKey(ident.getDatabaseIndex(), ri); // new dbkey with partial instance
+			if(!RelatrixKV.contains(DBKey.class, pks)) { // shouldnt find this
+				System.out.println("Expected Didnt find "+pks+" using "+ident);
+			} else {
+				System.out.println("UNEXPECTED FOUND "+pks+" using "+ident);
+			}
+			if(!RelatrixKV.contains(ident)) { // should find this
+				System.out.println("Expected contains fail "+ident+" using itself");
+			} else {
+				System.out.println("UNEXPECTED contains "+ident+" using itself");
+			}
+			Iterator it = RelatrixKV.findTailMapKV(pks); // probably should find this
+			if(it.hasNext())
+				System.out.println("ITERATOR FOUND Tailmap :"+it.next());
+			else
+				System.out.println("Tailmap also failed..");
+			
+		}
+		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
 	 * Testing of Iterator<?> its = RelatrixKV.keySet;
@@ -280,8 +322,9 @@ public class BatteryDBKey {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB");
+		int j = min;
 		long s = RelatrixKV.size(DBKey.class);
+		System.out.println("Cleaning DB of "+s+" elements.");
 		Iterator it = RelatrixKV.keySet(DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {

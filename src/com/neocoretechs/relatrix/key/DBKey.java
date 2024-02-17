@@ -25,6 +25,7 @@ public final class DBKey implements Comparable, Externalizable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
 	public static RelatrixIndex nullKey = new RelatrixIndex(0L, 0L);
+	public static DBKey nullDBKey = new DBKey(nullKey, nullKey);
 	
 	RelatrixIndex instanceIndex = null;
 	RelatrixIndex databaseIndex = null;
@@ -45,11 +46,11 @@ public final class DBKey implements Comparable, Externalizable {
 			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
 	}
 	
-	protected RelatrixIndex getInstanceIndex() {
+	public RelatrixIndex getInstanceIndex() {
 			return instanceIndex;
 	}
 	
-	protected RelatrixIndex getDatabaseIndex() {
+	public RelatrixIndex getDatabaseIndex() {
 		return databaseIndex;
 	}
 	

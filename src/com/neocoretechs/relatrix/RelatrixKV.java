@@ -955,7 +955,37 @@ public final class RelatrixKV {
 		BufferedMap ttm = DatabaseManager.getMap(alias, keyType);
 		return ttm.containsValue(obj);
 	}
-	
+	/**
+	 * Return the key/val.ue pair of Map.Entry implementation of the closest key to the passed key template.
+	 * May be exact match Up to user. Essentially starts a tailMapKv iterator seeking nearest key.
+	 * @param key target key template
+	 * @return null if no next for initial iteration
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public static Object nearest(Comparable key) throws IllegalAccessException, IOException {
+		BufferedMap ttm = DatabaseManager.getMap(key);
+		Iterator<?> it =  ttm.tailMapKV(key);
+		if(!it.hasNext())
+			return null;
+		return it.next();
+	}
+	/**
+	 * Return the key/val.ue pair of Map.Entry implementation of the closest key to the passed key template.
+	 * May be exact match Up to user. Essentially starts a tailMapKv iterator seeking nearest key.
+	 * @param alias the database alias
+	 * @param key target key template
+	 * @return null if no next for initial iteration
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public static Object nearest(String alias, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
+		BufferedMap ttm = DatabaseManager.getMap(alias,key);
+		Iterator<?> it =  ttm.tailMapKV(key);
+		if(!it.hasNext())
+			return null;
+		return it.next();
+	}
 	/**
 	 * Close and remove database from available set
 	 * @param alias
