@@ -6,6 +6,7 @@ import java.io.ObjectOutput;
 
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.RelatrixIndex;
 
 /**
 * This class represents the morphisms stored in domain,range (codomain),map order.
@@ -154,16 +155,31 @@ public class DomainRangeMapTransaction extends MorphismTransaction {
     
     @Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
-		domainKey.readExternal(in);
-		rangeKey.readExternal(in);
-		mapKey.readExternal(in);
+		RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
+		RelatrixIndex d2 = new RelatrixIndex(in.readLong(), in.readLong());
+		domainKey = new DBKey(d1,d2);
+		RelatrixIndex r1 = new RelatrixIndex(in.readLong(), in.readLong());
+		RelatrixIndex r2 = new RelatrixIndex(in.readLong(), in.readLong());
+		rangeKey = new DBKey(r1,r2);
+		RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
+		RelatrixIndex m2 = new RelatrixIndex(in.readLong(), in.readLong());
+		mapKey = new DBKey(m1, m2);
 	} 
 	
 	@Override  
 	public void writeExternal(ObjectOutput out) throws IOException {  
-		domainKey.writeExternal(out);
-		rangeKey.writeExternal(out);
-		mapKey.writeExternal(out);
+		out.writeLong(domainKey.getDatabaseIndex().getMsb());
+		out.writeLong(domainKey.getDatabaseIndex().getLsb());
+		out.writeLong(domainKey.getInstanceIndex().getMsb());
+		out.writeLong(domainKey.getInstanceIndex().getLsb());
+		out.writeLong(rangeKey.getDatabaseIndex().getMsb());
+		out.writeLong(rangeKey.getDatabaseIndex().getLsb());
+		out.writeLong(rangeKey.getInstanceIndex().getMsb());
+		out.writeLong(rangeKey.getInstanceIndex().getLsb());
+		out.writeLong(mapKey.getDatabaseIndex().getMsb());
+		out.writeLong(mapKey.getDatabaseIndex().getLsb());
+		out.writeLong(mapKey.getInstanceIndex().getMsb());
+		out.writeLong(mapKey.getInstanceIndex().getLsb());
 	}
 
 
