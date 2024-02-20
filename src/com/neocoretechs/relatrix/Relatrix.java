@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -10,13 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.rocksdb.RocksDB;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -26,6 +21,7 @@ import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamFactory;
+import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 
@@ -73,6 +69,8 @@ public final class Relatrix {
 	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
+	private static SynchronizedFixedThreadPoolManager sftpm;
+	
 	static {
 		if(System.getProperty(databaseCatalogProperty) != null)
 			databaseCatalog = System.getProperty(databaseCatalogProperty);
@@ -82,7 +80,8 @@ public final class Relatrix {
 		} catch (IOException | IllegalAccessException | NoSuchElementException e) {
 			e.printStackTrace();
 		}
-
+		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
+		sftpm.init(5, 5);
 	}
 	
 
@@ -159,7 +158,7 @@ public final class Relatrix {
 	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr;
+
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
 		identity.setDomain(d);
 		identity.setMap(m);
@@ -177,31 +176,82 @@ public final class Relatrix {
 		identity.setDBKey( IndexResolver.getIndexInstanceTable().put(identity) );
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
-		dmr = new MapDomainRange(identity);
-		//IndexResolver.getIndexInstanceTable().put(dmr);
-		RelatrixKV.store(dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new DomainRangeMap(identity);
-		//IndexResolver.getIndexInstanceTable().put(dmr);
-		RelatrixKV.store(dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new MapRangeDomain(identity);
-		//IndexResolver.getIndexInstanceTable().put(dmr);
-		RelatrixKV.store(dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new RangeDomainMap(identity);
-		//IndexResolver.getIndexInstanceTable().put(dmr);
-		RelatrixKV.store(dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new RangeMapDomain(identity);
-		//IndexResolver.getIndexInstanceTable().put(dmr);
-		RelatrixKV.store(dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
+		// Start threads to store remaining indexes now that we have our primary set up
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new MapDomainRange(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			} // run
+		}); // spin 
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new DomainRangeMap(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new MapRangeDomain(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {  
+				try {
+					Morphism dmr = new RangeDomainMap(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					Morphism dmr = new RangeMapDomain(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return identity;
 	}
 	

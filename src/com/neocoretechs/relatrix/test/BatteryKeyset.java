@@ -122,7 +122,8 @@ public class BatteryKeyset {
 				Map.Entry e = (Map.Entry)o;
 				KeySet k = ((KeySet)e.getKey());
 				if(k.domainKeyEquals(identity) && k.mapKeyEquals(identity)) {
-					System.out.println("Found at "+cnt);
+					if(DEBUG)
+						System.out.println("Found at "+cnt);
 					found = true;
 					break;
 				}
@@ -174,9 +175,13 @@ public class BatteryKeyset {
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			if(RelatrixKV.nearest(ident) == null) {
-				System.out.println("Didnt find "+ident);
+				if(DEBUG)
+					System.out.println("Didnt find "+ident);
+				else
+					throw new Exception("Didnt find "+ident);
 			} else {
-				System.out.println("FOUND "+ident);
+				if(DEBUG)
+					System.out.println("FOUND "+ident);
 			}
 			
 		}
