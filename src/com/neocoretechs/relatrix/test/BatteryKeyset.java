@@ -93,7 +93,6 @@ public class BatteryKeyset {
 			IndexResolver.getIndexInstanceTable().put(identity);
 			if( DEBUG  )
 				System.out.println("Relatrix.store stored :"+identity);
-			keys.add(identity);
 			++recs;
 		}	
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -112,8 +111,23 @@ public class BatteryKeyset {
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(!Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity))
-				System.out.println("FAILED to find:"+identity);
+			//Object o = RelatrixKV.nearest(identity);
+			//if(!Relatrix.isPrimaryKey(o, identity))
+				//System.out.println("FAILED to find:"+identity+" found key="+o);
+			Iterator it = RelatrixKV.findTailMapKV(identity);
+			int cnt = 0;
+			boolean found = false;
+			while(it.hasNext()) {
+				Object o = it.next();
+				Map.Entry e = (Map.Entry)o;
+				KeySet k = ((KeySet)e.getKey());
+				if(k.domainKeyEquals(identity) && k.mapKeyEquals(identity)) {
+					System.out.println("Found at "+cnt);
+					found = true;
+					break;
+				}
+				cnt++;
+			}
 		}
 	}
 	/**
@@ -127,7 +141,9 @@ public class BatteryKeyset {
 		KeySet prev = (KeySet) RelatrixKV.firstKey(KeySet.class);
 		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) prev);
 		System.out.println("Battery1AR4");
-		findkeys.add(((Map.Entry<KeySet,DBKey>)its.next()).getKey()); // skip first key we just got
+		KeySet first = ((Map.Entry<KeySet,DBKey>)its.next()).getKey();
+		findkeys.add(first); // skip first key we just got
+		keys.add(first);
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
@@ -138,6 +154,7 @@ public class BatteryKeyset {
 			}
 			prev = nexe.getKey();
 			findkeys.add(nexe.getKey());
+			keys.add(nexe.getKey());
 			if(DEBUG)
 				System.out.println("1AR4 "+(cnt++)+"="+nex);
 		}

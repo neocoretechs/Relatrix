@@ -19,9 +19,9 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 public class KeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
-	protected DBKey domainKey = new DBKey();
-    protected DBKey mapKey = new DBKey();
-    protected DBKey rangeKey = new DBKey();
+	protected DBKey domainKey;
+    protected DBKey mapKey;
+    protected DBKey rangeKey;
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public KeySet() {}
@@ -132,17 +132,33 @@ public class KeySet implements Externalizable, Comparable {
 	}
 
 	@Override  
-	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
-		domainKey.readExternal(in);
-		mapKey.readExternal(in);
-		rangeKey.readExternal(in);
+	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
+		RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
+		RelatrixIndex d2 = new RelatrixIndex(in.readLong(), in.readLong());
+		domainKey = new DBKey(d1,d2);
+		RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
+		RelatrixIndex m2 = new RelatrixIndex(in.readLong(), in.readLong());
+		mapKey = new DBKey(m1, m2);
+		RelatrixIndex r1 = new RelatrixIndex(in.readLong(), in.readLong());
+		RelatrixIndex r2 = new RelatrixIndex(in.readLong(), in.readLong());
+		rangeKey = new DBKey(r1,r2);
 	} 
 	
 	@Override  
-	public void writeExternal(ObjectOutput out) throws IOException {  
-		domainKey.writeExternal(out);
-		mapKey.writeExternal(out);
-		rangeKey.writeExternal(out);
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeLong(domainKey.getDatabaseIndex().getMsb());
+		out.writeLong(domainKey.getDatabaseIndex().getLsb());
+		out.writeLong(domainKey.getInstanceIndex().getMsb());
+		out.writeLong(domainKey.getInstanceIndex().getLsb());
+		out.writeLong(mapKey.getDatabaseIndex().getMsb());
+		out.writeLong(mapKey.getDatabaseIndex().getLsb());
+		out.writeLong(mapKey.getInstanceIndex().getMsb());
+		out.writeLong(mapKey.getInstanceIndex().getLsb());
+		out.writeLong(rangeKey.getDatabaseIndex().getMsb());
+		out.writeLong(rangeKey.getDatabaseIndex().getLsb());
+		out.writeLong(rangeKey.getInstanceIndex().getMsb());
+		out.writeLong(rangeKey.getInstanceIndex().getLsb());
+
 	}
 	
 	@Override

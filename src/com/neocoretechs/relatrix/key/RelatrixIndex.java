@@ -99,15 +99,19 @@ public final class RelatrixIndex implements Cloneable, Comparable, Externalizabl
 
 	@Override
 	public int compareTo(Object o) {
-		if(msb > ((RelatrixIndex)o).msb)
+		/*if(msb > ((RelatrixIndex)o).msb)
 			return 1;
 		if(msb < ((RelatrixIndex)o).msb)
-			return -1;
-		if(lsb > ((RelatrixIndex)o).lsb)
+			return -1;*/
+		int i = Long.compareUnsigned(msb, ((RelatrixIndex)o).msb);
+		if(i != 0)
+			return i;
+		/*if(lsb > ((RelatrixIndex)o).lsb)
 			return 1;
 		if(lsb < ((RelatrixIndex)o).lsb)
 			return -1;
-		return 0;
+		return 0;*/
+		return Long.compareUnsigned(lsb, ((RelatrixIndex)o).lsb);
 	}
 	
 	@Override

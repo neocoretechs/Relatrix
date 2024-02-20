@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 

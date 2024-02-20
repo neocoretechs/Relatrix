@@ -211,7 +211,7 @@ public final class DBKey implements Comparable, Externalizable {
 		instanceIndex.readExternal(in);
 	}
 	
-	public byte[] longsToBytes(long x, long y) {
+	public static byte[] longsToBytes(long x, long y) {
 	    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES*2);
 	    buffer.putLong(x);
 	    buffer.putLong(y);
