@@ -1091,16 +1091,7 @@ public final class RelatrixKV {
 		BufferedMap ttm = DatabaseManager.getMap(keyType);
 		return ttm.containsValue(obj);
 	}
-	public static <T> boolean containsValue(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
-	{
-		BufferedMap ttm = DatabaseManager.getMap(mainClass);
-		return ttm.containsValue(subClass);	
-	}
-	public static <T> boolean containsValue(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
-	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
-		return ttm.containsValue(subClass);
-	}
+
 	/**
 	 * Is the value object present
 	 * @param alias The database alias
