@@ -2,21 +2,15 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixTransaction;
+
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixKVClientTransactionInterface;
 
 /**
  * The RemoteIndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -283,6 +277,49 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 
 	@Override
 	public void deleteInstanceAlias(String alias, String transactionId, Comparable instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public <T> DBKey getByInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> DBKey getByInstanceAlias(String alias, String transactionId, Class<T> mainClass,
+			Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> DBKey put(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> DBKey putAlias(String alias, String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> void deleteInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public <T> void deleteInstanceAlias(String alias, String transactionId, Class<T> mainClass,
+			Comparable<? extends T> instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		// TODO Auto-generated method stub
 		

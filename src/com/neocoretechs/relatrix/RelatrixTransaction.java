@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
-
+import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 
@@ -60,6 +60,8 @@ public final class RelatrixTransaction {
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
 
+	private static SynchronizedFixedThreadPoolManager sftpm;
+	
 	static {
 		if(System.getProperty(Relatrix.databaseCatalogProperty) != null)
 			Relatrix.databaseCatalog = System.getProperty(Relatrix.databaseCatalogProperty);
@@ -69,6 +71,8 @@ public final class RelatrixTransaction {
 		} catch (IOException | IllegalAccessException | NoSuchElementException e) {
 			e.printStackTrace();
 		}
+		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
+		sftpm.init(5, 5);
 	}
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
@@ -193,34 +197,88 @@ public final class RelatrixTransaction {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(xid, identity), identity)) {
+		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(xid, DomainMapRange.class, identity), identity)) {
 			rollback(xid);
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);
-		IndexResolver.getIndexInstanceTable().put(xid,identity);
-		DomainRangeMapTransaction drm = new DomainRangeMapTransaction(identity);
-		indexClasses[1] = drm.getClass();
-		//IndexResolver.getIndexInstanceTable().put(xid,drm);
-		RelatrixKVTransaction.store(xid, identity, drm);
-		MapDomainRangeTransaction mdr = new MapDomainRangeTransaction(identity);
-		indexClasses[2] = mdr.getClass();
-		//IndexResolver.getIndexInstanceTable().put(xid,mdr);
-		RelatrixKVTransaction.store(xid, identity, mdr);
-		MapRangeDomainTransaction mrd = new MapRangeDomainTransaction(identity);
-		indexClasses[3] = mrd.getClass();
-		//IndexResolver.getIndexInstanceTable().put(xid,mrd);
-		RelatrixKVTransaction.store(xid, identity, mrd);
-		RangeDomainMapTransaction rdm = new RangeDomainMapTransaction(identity);
-		indexClasses[4] = rdm.getClass();
-		//IndexResolver.getIndexInstanceTable().put(xid,rdm);
-		RelatrixKVTransaction.store(xid, identity, rdm);
-		RangeMapDomainTransaction rmd = new RangeMapDomainTransaction(identity);
-		indexClasses[5] = rmd.getClass();
-		//IndexResolver.getIndexInstanceTable().put(xid,rmd);
-		RelatrixKVTransaction.store(xid, identity, rmd);
-		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
-		indexClasses[0] = identity.getClass(); 
+		IndexResolver.getIndexInstanceTable().put(xid, DomainMapRange.class, identity);
+		// Start threads to store remaining indexes now that we have our primary set up
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					MorphismTransaction dmr = new MapDomainRangeTransaction(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKVTransaction.store(xid, MapDomainRange.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			} // run
+		}); // spin 
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					MorphismTransaction dmr = new DomainRangeMapTransaction(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(xid, DomainRangeMap.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					MorphismTransaction dmr = new MapRangeDomainTransaction(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(xid, MapRangeDomain.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {  
+				try {
+					MorphismTransaction dmr = new RangeDomainMapTransaction(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(xid, RangeDomainMap.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					MorphismTransaction dmr = new RangeMapDomainTransaction(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(xid, RangeMapDomain.class, dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return identity;
 	}
 	/**

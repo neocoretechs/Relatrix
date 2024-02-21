@@ -128,6 +128,25 @@ public final class DBKey implements Comparable, Externalizable {
 	public static DBKey newKeyAlias(String alias, String xid, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
 		return indexTable.putAlias(alias, xid, (Comparable) instance); // the passed key is updated
 	}
+	/**
+	 * Since we store the subclasses MorphismTransaction transparently in Morphism databases, we have to specify subclass of Morphism
+	 * @param <T>
+	 * @param xid
+	 * @param indexTable
+	 * @param mainClass
+	 * @param instance
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	public static <T> DBKey newKey(String xid, IndexInstanceTableInterface indexTable, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return indexTable.put(xid, mainClass, instance); // the passed key is updated
+	}
+	
+	public static <T> DBKey newKeyAlias(String alias, String xid, IndexInstanceTableInterface indexTable, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+		return indexTable.putAlias(alias, xid, mainClass, instance); // the passed key is updated
+	}
 	
 	@Override
 	public boolean equals(Object o) {

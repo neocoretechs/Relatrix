@@ -202,6 +202,12 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 	protected DBKey newKey(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 		return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), instance);
 	}
+	protected <T> DBKey newKey(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), mainClass, instance);
+	}
+	protected <T> DBKey newKey(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), mainClass, instance);
+	}
 	@Override	
 	protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 		return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId, key);
@@ -214,5 +220,10 @@ public abstract class MorphismTransaction extends Morphism implements Comparable
 	protected DBKey resolveInstance(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
 	}
-
+	protected <T> DBKey resolveInstance(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, mainClass, instance);
+	}
+	protected <T> DBKey resolveInstance(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
+		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, mainClass, instance);
+	}
 }
