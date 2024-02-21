@@ -111,7 +111,16 @@ public final class RelatrixKV {
 			System.out.println("RelatrixKV.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
 	}
-
+	public static <T> void store(Class<T> mainClass, Comparable<? extends T> subClass, Object value) throws IOException, IllegalAccessException,DuplicateKeyException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		ttm.put(subClass, value);	
+	}
+	public static <T> void store(String alias, Class<T> mainClass, Comparable<? extends T> subClass, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		ttm.put(subClass, value);
+	}
 	/**
 	 * Load the stated package from the declared path into the bytecode repository
 	 * @param pack
@@ -173,6 +182,16 @@ public final class RelatrixKV {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove exiting remove for key:"+c+" should have removed"+c);
 	}
+	public static <T> void remove(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		ttm.remove(subClass);	
+	}
+	public static <T> void remove(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		ttm.remove(subClass);
+	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and returns the value elements
@@ -204,6 +223,16 @@ public final class RelatrixKV {
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.tailMap(darg);
+	}
+	public static <T> Iterator<?> findTailMap(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.tailMap(subClass);	
+	}
+	public static <T> Iterator<?> findTailMap(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.tailMap(subClass);
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -238,6 +267,18 @@ public final class RelatrixKV {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	public static <T> Stream<?> findTailMapStream(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findTailMapStream(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
 	/**
 	 * Retrieve from the targeted Key/Value relationship from given key.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
@@ -269,6 +310,16 @@ public final class RelatrixKV {
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.tailMapKV(darg);
+	}
+	public static <T> Iterator<?> findTailMapKV(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.tailMapKV(subClass);	
+	}
+	public static <T> Iterator<?> findTailMapKV(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.tailMapKV(subClass);
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
@@ -304,6 +355,18 @@ public final class RelatrixKV {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	public static <T> Stream<?> findTailMapKVStream(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findTailMapKVStream(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
 	 * @param darg The Comparable key
@@ -333,6 +396,16 @@ public final class RelatrixKV {
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
+	}
+	public static <T> Iterator<?> findHeadMap(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.headMap(subClass);	
+	}
+	public static <T> Iterator<?> findHeadMap(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.headMap(subClass);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
@@ -366,6 +439,18 @@ public final class RelatrixKV {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	public static <T> Stream<?> findHeadMapStream(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findHeadMapStream(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
 	 * @param darg The comparable key
@@ -395,6 +480,16 @@ public final class RelatrixKV {
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
+	}
+	public static <T> Iterator<?> findHeadMapKV(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.headMapKV(subClass);	
+	}
+	public static <T> Iterator<?> findHeadMapKV(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.headMapKV(subClass);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -430,6 +525,18 @@ public final class RelatrixKV {
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
+	public static <T> Stream<?> findHeadMapKVStream(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findHeadMapKVStream(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(subClass), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
 	 * @param darg The starting key
@@ -461,6 +568,16 @@ public final class RelatrixKV {
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.subMap(darg, marg);
+	}
+	public static <T> Iterator<?> findSubMap(Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.subMap(subClassFrom, subClassTo);	
+	}
+	public static <T> Iterator<?> findSubMap(String alias, Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.subMap(subClassFrom, subClassTo);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
@@ -494,6 +611,18 @@ public final class RelatrixKV {
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findSubMapStream(Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.subMap(subClassFrom, subClassTo), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findSubMapStream(String alias, Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.subMap(subClassFrom, subClassTo), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 	/**
@@ -530,6 +659,16 @@ public final class RelatrixKV {
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.subMapKV(darg, marg);
 	}
+	public static <T> Iterator<?> findSubMapKV(Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.subMapKV(subClassFrom, subClassTo);	
+	}
+	public static <T> Iterator<?> findSubMapKV(String alias, Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.subMapKV(subClassFrom, subClassTo);
+	}
 	/**
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
 	 * @param darg The starting key
@@ -564,6 +703,18 @@ public final class RelatrixKV {
 		// check for at least one object reference
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findSubMapKVStream(Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.subMapKV(subClassFrom, subClassTo), characteristics);
+		return (Stream<?>) StreamSupport.stream(spliterator, true);
+	}
+	public static <T> Stream<?> findSubMapKVStream(String alias, Class<T> mainClass, Comparable<? extends T> subClassFrom, Comparable<? extends T> subClassTo) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchElementException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.subMapKV(subClassFrom, subClassTo), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 	/**
@@ -940,6 +1091,16 @@ public final class RelatrixKV {
 		BufferedMap ttm = DatabaseManager.getMap(keyType);
 		return ttm.containsValue(obj);
 	}
+	public static <T> boolean containsValue(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.containsValue(subClass);	
+	}
+	public static <T> boolean containsValue(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.containsValue(subClass);
+	}
 	/**
 	 * Is the value object present
 	 * @param alias The database alias
@@ -965,10 +1126,7 @@ public final class RelatrixKV {
 	 */
 	public static Object nearest(Comparable key) throws IllegalAccessException, IOException {
 		BufferedMap ttm = DatabaseManager.getMap(key);
-		Iterator<?> it =  ttm.tailMapKV(key);
-		if(!it.hasNext())
-			return null;
-		return it.next();
+		return ttm.nearest(key);
 	}
 	/**
 	 * Return the key/val.ue pair of Map.Entry implementation of the closest key to the passed key template.
@@ -981,10 +1139,17 @@ public final class RelatrixKV {
 	 */
 	public static Object nearest(String alias, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
 		BufferedMap ttm = DatabaseManager.getMap(alias,key);
-		Iterator<?> it =  ttm.tailMapKV(key);
-		if(!it.hasNext())
-			return null;
-		return it.next();
+		return ttm.nearest(key);
+	}
+	public static <T> Object nearest(Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(mainClass);
+		return ttm.nearest(subClass);	
+	}
+	public static <T> Object nearest(String alias, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
+		return ttm.nearest(subClass);
 	}
 	/**
 	 * Close and remove database from available set

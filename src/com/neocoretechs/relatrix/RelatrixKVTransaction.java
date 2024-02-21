@@ -1073,10 +1073,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Object nearest(String xid, Comparable key) throws IllegalAccessException, IOException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(key, xid);
-		Iterator<?> it =  ttm.tailMapKV(key);
-		if(!it.hasNext())
-			return null;
-		return it.next();
+		return ttm.nearest(key);
 	}
 	/**
 	 * Return the key/val.ue pair of Map.Entry implementation of the closest key to the passed key template.
@@ -1090,10 +1087,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Object nearest(String alias, String xid, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias,key,xid);
-		Iterator<?> it =  ttm.tailMapKV(key);
-		if(!it.hasNext())
-			return null;
-		return it.next();
+		return ttm.nearest(key);
 	}
 	/**
 	 * Close and remove database from available set
