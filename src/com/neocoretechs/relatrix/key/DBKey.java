@@ -163,13 +163,13 @@ public final class DBKey implements Comparable, Externalizable {
 			return false;
 		}
 		*/
-		return databaseIndex.equals(((DBKey)o).databaseIndex) && instanceIndex.equals(((DBKey)o).instanceIndex);
+		return instanceIndex.equals(((DBKey)o).instanceIndex) && databaseIndex.equals(((DBKey)o).databaseIndex);
 		
 	}
 	
 	@Override
 	public int hashCode() {
-		return databaseIndex.hashCode() + instanceIndex.hashCode();	
+		return instanceIndex.hashCode()+ databaseIndex.hashCode();	
 	}
 	
 	@Override
@@ -203,10 +203,10 @@ public final class DBKey implements Comparable, Externalizable {
 			throw new RuntimeException("DBKEY INSTANCE INDEX SOURCE INSTANCE NULL IN COMPARETO");
 		}
 		*/
-		int i = databaseIndex.compareTo(((DBKey)o).databaseIndex);
+		int i = instanceIndex.compareTo(((DBKey)o).instanceIndex);
 		if(i != 0)
 			return i;
-		return instanceIndex.compareTo(((DBKey)o).instanceIndex);
+		return databaseIndex.compareTo(((DBKey)o).databaseIndex);
 	}
 
 	@Override
@@ -218,16 +218,16 @@ public final class DBKey implements Comparable, Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		databaseIndex.writeExternal(out);
 		instanceIndex.writeExternal(out);
+		databaseIndex.writeExternal(out);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		databaseIndex = new RelatrixIndex();
 		instanceIndex = new RelatrixIndex();
-		databaseIndex.readExternal(in);
+		databaseIndex = new RelatrixIndex();
 		instanceIndex.readExternal(in);
+		databaseIndex.readExternal(in);
 	}
 	
 	public static byte[] longsToBytes(long x, long y) {
