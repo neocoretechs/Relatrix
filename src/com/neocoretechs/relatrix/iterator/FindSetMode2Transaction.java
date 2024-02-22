@@ -5,10 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 import com.neocoretechs.relatrix.MapDomainRange;
-import com.neocoretechs.relatrix.MapDomainRangeTransaction;
-
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
@@ -34,7 +31,7 @@ public class FindSetMode2Transaction extends FindSetMode2 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new MapDomainRangeTransaction(true, xid, null, (Comparable)marg, null);
+		Morphism dmr = new MapDomainRange(true, null, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(dmr);
 	}
@@ -49,7 +46,7 @@ public class FindSetMode2Transaction extends FindSetMode2 {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		MorphismTransaction dmr = new MapDomainRangeTransaction(true, alias, xid, null, (Comparable)marg, null);
+		Morphism dmr = new MapDomainRange(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(alias, dmr);
 	}

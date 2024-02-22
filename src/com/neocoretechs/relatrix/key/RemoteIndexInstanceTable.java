@@ -325,4 +325,32 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		
 	}
 
+	@Override
+	public <T> DBKey put(Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> DBKey getByInstance(Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> DBKey getByInstanceAlias(String alias, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> DBKey putAlias(String alias, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

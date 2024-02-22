@@ -3,9 +3,8 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.MapDomainRangeTransaction;
+import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
@@ -39,7 +38,7 @@ public class FindSetStreamMode2Transaction extends FindSetStreamMode2 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new MapDomainRangeTransaction(true, xid, null, (Comparable)marg, null);
+		Morphism dmr = new MapDomainRange(true, null, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixStream(dmr);
 	}
@@ -48,7 +47,7 @@ public class FindSetStreamMode2Transaction extends FindSetStreamMode2 {
      */
 	@Override
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new MapDomainRangeTransaction(true, alias, xid, null, (Comparable)marg, null);
+		Morphism dmr = new MapDomainRange(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixStream(dmr);
 	}

@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
@@ -38,7 +36,7 @@ public class FindSetMode4Transaction extends FindSetMode4 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		MorphismTransaction dmr = new DomainMapRangeTransaction(true, xid, (Comparable)darg, null, null);
+		Morphism dmr = new DomainMapRange(true, xid, (Comparable)darg, null, null);
 		return createRelatrixIterator(dmr);
 	}
 	
@@ -52,7 +50,7 @@ public class FindSetMode4Transaction extends FindSetMode4 {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		MorphismTransaction dmr = new DomainMapRangeTransaction(true, alias, xid, (Comparable)darg, null, null);
+		Morphism dmr = new DomainMapRange(true, alias, xid, (Comparable)darg, null, null);
 		return createRelatrixIterator(alias, dmr);
 	}
 	

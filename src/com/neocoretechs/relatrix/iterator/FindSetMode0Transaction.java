@@ -5,20 +5,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DomainRangeMap;
-import com.neocoretechs.relatrix.DomainRangeMapTransaction;
 import com.neocoretechs.relatrix.MapDomainRange;
-import com.neocoretechs.relatrix.MapDomainRangeTransaction;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.MapRangeDomainTransaction;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 import com.neocoretechs.relatrix.RangeDomainMap;
-import com.neocoretechs.relatrix.RangeDomainMapTransaction;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.RangeMapDomainTransaction;
-
 
 /**
 * Construct an iterator from findSet or one of its subclasses (headSet, subset, tailSet is the default).
@@ -54,25 +46,25 @@ public class FindSetMode0Transaction extends FindSetMode0 {
      */
  	@Override
  	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
- 		MorphismTransaction dmr = null;
+ 		Morphism dmr = null;
  		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRangeTransaction(true, xid, null, null, null);
+ 				dmr = new DomainMapRange(true, null, xid, null, null, null);
  				break;
  			case 1: // drm
- 				dmr = new DomainRangeMapTransaction(true, xid, null, null, null);
+ 				dmr = new DomainRangeMap(true, null, xid, null, null, null);
  				break;
  			case 2: // mdr
- 				dmr = new MapDomainRangeTransaction(true, xid, null, null, null);
+ 				dmr = new MapDomainRange(true, null, xid, null, null, null);
  				break;
  			case 3: // mrd
- 				dmr = new MapRangeDomainTransaction(true, xid, null, null, null);
+ 				dmr = new MapRangeDomain(true, null, xid, null, null, null);
  				break;
  			case 4: // rdm
- 				dmr = new RangeDomainMapTransaction(true, xid, null, null, null);
+ 				dmr = new RangeDomainMap(true, null, xid, null, null, null);
  				break;
  			case 5: // rmd
- 				dmr = new RangeMapDomainTransaction(true, xid, null, null, null);
+ 				dmr = new RangeMapDomain(true, null, xid, null, null, null);
  				break;
  		}
  		if( DEBUG  )
@@ -85,25 +77,25 @@ public class FindSetMode0Transaction extends FindSetMode0 {
      */
  	@Override
  	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
- 		MorphismTransaction dmr = null;
+ 		Morphism dmr = null;
  		switch(Morphism.form_template_keyop(new Comparable[]{null,null,null}, dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRangeTransaction(true, alias, xid, null, null, null);
+ 				dmr = new DomainMapRange(true, alias, xid, null, null, null);
  				break;
  			case 1: // drm
- 				dmr = new DomainRangeMapTransaction(true, alias, xid, null, null, null);
+ 				dmr = new DomainRangeMap(true, alias, xid, null, null, null);
  				break;
  			case 2: // mdr
- 				dmr = new MapDomainRangeTransaction(true, alias, xid, null, null, null);
+ 				dmr = new MapDomainRange(true, alias, xid, null, null, null);
  				break;
  			case 3: // mrd
- 				dmr = new MapRangeDomainTransaction(true, alias, xid, null, null, null);
+ 				dmr = new MapRangeDomain(true, alias, xid, null, null, null);
  				break;
  			case 4: // rdm
- 				dmr = new RangeDomainMapTransaction(true, alias, xid, null, null, null);
+ 				dmr = new RangeDomainMap(true, alias, xid, null, null, null);
  				break;
  			case 5: // rmd
- 				dmr = new RangeMapDomainTransaction(true, alias, xid, null, null, null);
+ 				dmr = new RangeMapDomain(true, alias, xid, null, null, null);
  				break;
  		}
  		if( DEBUG  )

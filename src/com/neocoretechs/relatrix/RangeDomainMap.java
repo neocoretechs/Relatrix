@@ -70,6 +70,23 @@ public class RangeDomainMap extends Morphism {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
+	public RangeDomainMap(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(flag, alias, transactionId, d, m, r);
+	}
+
+	public RangeDomainMap(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public RangeDomainMap(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(alias, transactionId, d, m, r);
+	}
+
+	public RangeDomainMap(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
 	@Override
 	public int compareTo(Object o) {
 		if(!keyCompare)
@@ -171,14 +188,9 @@ public class RangeDomainMap extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-       	if(alias == null) {
-    		if(templateFlag)
-    			return new RangeDomainMap(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		return new RangeDomainMap(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	}
    		if(templateFlag)
 			return new RangeDomainMap(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-   		return new RangeDomainMap(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new RangeDomainMap(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
     @Override  

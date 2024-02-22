@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.DomainMapRangeTransaction;
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Identity morphism retrieval.
@@ -25,7 +24,7 @@ public class FindSetMode7Transaction extends FindSetMode7 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new DomainMapRangeTransaction(xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
+	    Morphism dmr = new DomainMapRange(xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(dmr);
 	}
 	
@@ -39,7 +38,7 @@ public class FindSetMode7Transaction extends FindSetMode7 {
      */
 	@Override
 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
-	    MorphismTransaction dmr = new DomainMapRangeTransaction(alias, xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
+	    Morphism dmr = new DomainMapRange(alias, xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	

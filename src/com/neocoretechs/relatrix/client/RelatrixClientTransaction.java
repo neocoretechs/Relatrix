@@ -17,7 +17,6 @@ import java.util.concurrent.CountDownLatch;
 
 
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -352,9 +351,9 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	public DomainMapRangeTransaction store(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public DomainMapRange store(String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", xid, d, m, r);
-		return (DomainMapRangeTransaction)sendCommand(rs);
+		return (DomainMapRange)sendCommand(rs);
 	}
 	
 	/**
@@ -373,9 +372,9 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws DuplicateKeyException 
 	 */
-	public DomainMapRangeTransaction store(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+	public DomainMapRange store(String alias, String xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "store", alias, xid, d, m, r);
-		return (DomainMapRangeTransaction)sendCommand(rs);
+		return (DomainMapRange)sendCommand(rs);
 	}
 	
 	@Override

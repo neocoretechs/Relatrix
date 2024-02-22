@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.relatrix.DomainMapRangeTransaction;
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 import com.neocoretechs.relatrix.Relatrix;
@@ -120,7 +120,7 @@ public class TransactionBatteryRelatrix {
 					Optional<?> p = rs.of().findFirst();
 					if(p.isPresent()) {
 						Comparable[] c = (Comparable[]) p.get();
-						DomainMapRangeTransaction d = (DomainMapRangeTransaction) c[0];
+						DomainMapRange d = (DomainMapRange) c[0];
 						if(!d.getDomain().equals(fkey))
 							System.out.println("Domain identity doesnt match "+fkey);
 						if(!d.getMap().equals("has identity"))

@@ -27,8 +27,19 @@ public interface IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	DBKey put(Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+	/**
+	 * Put the key to the proper tables
+	 * @return TODO
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	DBKey put(String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	
+	<T> DBKey put(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	
+	<T> DBKey put(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException;	
 
 	/**
 	 * Get the instance by using the Instance contained in the passed DBKey
@@ -59,51 +70,8 @@ public interface IndexInstanceTableInterface {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	DBKey put(String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void commit(String transactionId) throws IOException, IllegalAccessException;
-
-	void rollback(String transactionId) throws IOException, IllegalAccessException;
-
-	void checkpoint(String transactionId) throws IllegalAccessException, IOException;
-
-	void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException;
-
-	/**
-	 * Get the instance contained in the passed DBKey
-	 * @param transactionId
-	 * @param index
-	 * @return the object instance indexed by dbkey
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	/**
-	 * Get the index of the instance by retrieving instance present in the passed object
-	 * @param instance the DbKey containing the instance
-	 * @return The index contained in the retrieved Instance
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	DBKey getByInstance(String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException;
-
-	/**
-	 * Put the key to the proper tables
-	 * @return TODO
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
 	DBKey putAlias(String alias, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
-
 	/**
 	 * Put the key to the proper tables
 	 * @return TODO
@@ -113,18 +81,22 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey putAlias(String alias, String transactionId, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	
+	<T> DBKey putAlias(String alias, String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	
+	<T> DBKey putAlias(String alias, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;	
+	
+	void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
-	void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
+	void commit(String transactionId) throws IOException, IllegalAccessException;
 
-	void rollback(String alias, String transactionId)
-			throws IOException, IllegalAccessException, NoSuchElementException;
+	void rollback(String transactionId) throws IOException, IllegalAccessException;
 
-	void checkpoint(String alias, String transactionId)
-			throws IllegalAccessException, IOException, NoSuchElementException;
+	void checkpoint(String transactionId) throws IllegalAccessException, IOException;
 
-	void rollbackToCheckpoint(String alias, String transactionId)
-			throws IOException, IllegalAccessException, NoSuchElementException;
-
+	void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException;
 	/**
 	 * Get the index of the instance by retrieving the instance present in the passed object
 	 * @param alias the database alias
@@ -151,6 +123,50 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey getByInstanceAlias(String alias, String transactionId, Object instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	/**
+	 * Get the index of the instance by retrieving instance present in the passed object
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	DBKey getByInstance(String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	
+	<T> DBKey getByInstance(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException;
+	
+	<T> DBKey getByInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException;
+
+	<T> DBKey getByInstanceAlias(String alias, String transactionId, Class<T> mainClass,
+			Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	
+	<T> DBKey getByInstanceAlias(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, NoSuchElementException;
+	/**
+	 * Get the instance contained in the passed DBKey
+	 * @param transactionId
+	 * @param index
+	 * @return the object instance indexed by dbkey
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
+	
+	DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException;
+
+	void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
+
+	void rollback(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException;
+
+	void checkpoint(String alias, String transactionId)
+			throws IllegalAccessException, IOException, NoSuchElementException;
+
+	void rollbackToCheckpoint(String alias, String transactionId)
+			throws IOException, IllegalAccessException, NoSuchElementException;
+
+	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	void deleteInstance(Comparable instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
@@ -169,18 +185,6 @@ public interface IndexInstanceTableInterface {
 
 	void deleteInstanceAlias(String alias, String transactionId, Comparable instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	<T> DBKey getByInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	<T> DBKey getByInstanceAlias(String alias, String transactionId, Class<T> mainClass,
-			Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	<T> DBKey put(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	<T> DBKey putAlias(String alias, String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 
 	<T> void deleteInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;

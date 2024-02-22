@@ -55,11 +55,27 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
-			DBKey rangeKey) {
+	public DomainMapRange(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 	
+  
+	public DomainMapRange(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(flag, alias, transactionId, d, m, r);
+	}
+
+	public DomainMapRange(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRange(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(alias, transactionId, d, m, r);
+	}
+
+	public DomainMapRange(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
 	public DBKey getDBKey() {
 		return identity;
 	}

@@ -3,9 +3,8 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.MapRangeDomainTransaction;
+import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Find the set of objects in the transaction relation via the specified predicate. Mode 3 = findSet("?|*",object,object)
@@ -33,7 +32,7 @@ public class FindSetStreamMode3Transaction extends FindSetStreamMode3 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new MapRangeDomainTransaction(true, xid, null, (Comparable)marg, (Comparable)rarg);
+	    Morphism dmr = new MapRangeDomain(true, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
 	
@@ -42,7 +41,7 @@ public class FindSetStreamMode3Transaction extends FindSetStreamMode3 {
      */
 	@Override
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new MapRangeDomainTransaction(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
+	    Morphism dmr = new MapRangeDomain(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
 	/**

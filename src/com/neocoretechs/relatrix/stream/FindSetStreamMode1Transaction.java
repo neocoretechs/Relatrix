@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
-import com.neocoretechs.relatrix.RangeDomainMapTransaction;
+import com.neocoretechs.relatrix.RangeDomainMap;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 1 = findset("*|?","*|?",object)
@@ -34,13 +33,13 @@ public class FindSetStreamMode1Transaction extends FindSetStreamMode1 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new RangeDomainMapTransaction(true, xid, null, null, (Comparable)rarg);
+	    Morphism dmr = new RangeDomainMap(true, null, xid, null, null, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
 	
 	@Override
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new RangeDomainMapTransaction(true, alias, xid, null, null, (Comparable)rarg);
+	    Morphism dmr = new RangeDomainMap(true, alias, xid, null, null, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
 	

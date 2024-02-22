@@ -40,6 +40,7 @@ public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
 		   try {
 			   // primarily for class type than values of instance
 			   templdmr = (Morphism) tdmr.clone();
+			   templdmr.setTransactionId(xid);
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
@@ -61,13 +62,14 @@ public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
 		   try {
 			   // primarily for class type than values of instance
 			   templdmr = (Morphism) tdmr.clone();
+			   templdmr.setTransactionId(xid);
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
+					  templdmr.setDomainTemplate(alias,(Comparable) xarg[ipos++]); 
 			   }
 			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
+					  templdmr.setMapTemplate(alias,(Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);

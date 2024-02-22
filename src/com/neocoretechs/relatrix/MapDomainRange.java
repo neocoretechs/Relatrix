@@ -46,6 +46,23 @@ public class MapDomainRange extends Morphism {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
+	public MapDomainRange(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(flag, alias, transactionId, d, m, r);
+	}
+
+	public MapDomainRange(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+			DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
+	public MapDomainRange(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+		super(alias, transactionId, d, m, r);
+	}
+
+	public MapDomainRange(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
+	}
+
 	public MapDomainRange(DomainMapRange identity) throws IOException {
     	if(!identity.isDomainKeyValid())
     		throw new IOException("Domain key of identity is invalid.");
@@ -173,14 +190,9 @@ public class MapDomainRange extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-       	if(alias == null) {
-    		if(templateFlag)
-    			return new MapDomainRange(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		return new MapDomainRange(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	}
    		if(templateFlag)
 			return new MapDomainRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-   		return new MapDomainRange(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+   		return new MapDomainRange(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
     @Override  

@@ -48,4 +48,17 @@ public class RelatrixStreamTransaction<T> extends RelatrixStream<T> {
     	if( DEBUG )
 			System.out.println("RelatrixStreamTransaction Id:"+xid+" stream: "+stream+" BASELINE:"+base);
     }
+    
+    public RelatrixStreamTransaction(String alias, String xid, Morphism template, short[] dmr_return) throws IOException {
+    	this.dmr_return = dmr_return;
+    	this.base = template;
+    	identity = isIdentity(this.dmr_return);
+    	try {
+			stream = RelatrixKVTransaction.keySetStream(alias, xid, template.getClass());
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+    	if( DEBUG )
+			System.out.println("RelatrixStreamTransaction alias:"+alias+" Id:"+xid+" stream: "+stream+" BASELINE:"+base);
+    }
 }

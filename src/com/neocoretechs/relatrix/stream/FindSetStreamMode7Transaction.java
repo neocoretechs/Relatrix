@@ -1,12 +1,11 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainMapRangeTransaction;
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.MorphismTransaction;
 
 /**
 * Identity morphism retrieval in a transaction context.
@@ -25,12 +24,23 @@ public class FindSetStreamMode7Transaction extends FindSetStreamMode7 {
      */
 	@Override
 	public Stream<?> createStream() throws IllegalAccessException, IOException {
-	    MorphismTransaction dmr = new DomainMapRangeTransaction(xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
+	    Morphism dmr = new DomainMapRange(null, xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixStream(dmr);
 	}
 	
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixStreamTransaction(xid, tdmr, dmr_return);
+	}
+	
+	@Override
+	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	    Morphism dmr = new DomainMapRange(true, alias, xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
+	    return createRelatrixStream(alias, dmr);
+	}
+	
+	@Override
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixStreamTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

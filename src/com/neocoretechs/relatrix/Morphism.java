@@ -42,6 +42,8 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
         
+    	protected transient String transactionId;
+        
         protected transient String alias = null;
         
         protected transient boolean keyCompare = false;
@@ -188,8 +190,95 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
             setDomainKey(domainkey);
             setMapKey(mapKey);
             setRangeKey(rangeKey);
+        }
+        
+      	/**
+    	 * We need transaction id first, so we cant call superclass constructor
+    	 * @param alias
+    	 * @param transactionId
+    	 * @param d
+    	 * @param m
+    	 * @param r
+    	 */
+    	public Morphism(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+    		this.transactionId = transactionId;
+    		this.alias = alias;
+    		setDomain(alias, d);
+    		setMap(alias, m);
+    		setRange(alias, r);
+    	}
+    	 
+    	/**
+    	 * Construct and establish key position for the elements of a morphism template.
+    	 * In a template, we dont create keys for instances that dont resolve, we use effective null key
+    	 * @param d
+    	 * @param m
+    	 * @param r
+    	 */
+    	public Morphism(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+    		this.templateFlag = flag;
+    		this.transactionId = transactionId;
+    		this.alias = alias;
+    		setDomainTemplate(alias, d);
+    		setMapTemplate(alias, m);
+    		setRangeTemplate(alias, r);
+    	}
+        
+        /**
+         * Copy constructor 2, alias
+         * @param alias
+         * @param transactionId
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	this.alias = alias;
+        	this.templateFlag = false;
+        	this.transactionId = transactionId;
+        	domain = d;
+            map = m;
+            range = r;
+            setDomainKey(domainkey);
+            setMapKey(mapKey);
+            setRangeKey(rangeKey);
+        }
+        
+        /**
+         * Copy constructor 4 template alias
+         * @param flag
+         * @param alias
+         * @param transactionId
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	this.templateFlag = flag;
+           	this.transactionId = transactionId;
+        	this.alias = alias;
+         	domain = d;
+            map = m;
+            range = r;
+            setDomainKey(domainkey);
+            setMapKey(mapKey);
+            setRangeKey(rangeKey);
         } 
         
+		public String getTransactionId() {
+    		return transactionId;
+    	}
+
+    	public void setTransactionId(String xid) {
+    		this.transactionId = xid;
+    	}
+    	   
         @Override
         public abstract Object clone() throws CloneNotSupportedException;
         
@@ -702,20 +791,41 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         }
 
 		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-			return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);
+			if(transactionId == null)
+				return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);
+			else
+				return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
 		}
 		
 		protected DBKey newKey(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-			return DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), instance);
+			if(transactionId == null)
+				return DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), instance);
+			else
+	 			return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), instance);
 		}
 		
+	 	protected <T> DBKey newKey(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+	 		if(transactionId == null)
+	 			return DBKey.newKey(IndexResolver.getIndexInstanceTable(), mainClass, instance);
+	 		else
+	 			return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), mainClass, instance);
+    	}
+	 	protected <T> DBKey newKey(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+	 		if(transactionId == null)
+	    		return DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), mainClass, instance);
+	 		else
+	 			return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), mainClass, instance);
+    	}
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
 				Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
 				System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
 				return c;
 			}
-			return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+			if(transactionId == null)
+				return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+			else
+				return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId,key);
 		}
 		
 		protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
@@ -724,7 +834,10 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
 				return c;
 			}
-			return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(instance);
+			if(transactionId == null)
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(instance);
+			else
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, instance);
 		}
 		  
 		protected DBKey resolveInstance(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
@@ -733,8 +846,25 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
 				return c;
 			}
-			return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
+			if(transactionId == null)
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
+			else
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
 		}
+		
+	   	protected <T> DBKey resolveInstance(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(transactionId == null)
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(mainClass, instance);
+			else
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, mainClass, instance);		
+    	}
+	   	
+    	protected <T> DBKey resolveInstance(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
+			if(transactionId == null)
+	    		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, mainClass, instance);
+			else
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, mainClass, instance);
+    	}
         /**
          * Failsafe compareTo.
          * If classes are not the same and the target is not assignable from the source, that is, not a subclass, toss an error
