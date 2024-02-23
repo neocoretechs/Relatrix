@@ -59,21 +59,6 @@ public final class RelatrixTransaction {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
     private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
-
-	private static SynchronizedFixedThreadPoolManager sftpm;
-	
-	static {
-		if(System.getProperty(Relatrix.databaseCatalogProperty) != null)
-			Relatrix.databaseCatalog = System.getProperty(Relatrix.databaseCatalogProperty);
-		try {
-			setAlias(Relatrix.databaseCatalogProperty, Relatrix.databaseCatalog);
-			Relatrix.readDatabaseCatalog();
-		} catch (IOException | IllegalAccessException | NoSuchElementException e) {
-			e.printStackTrace();
-		}
-		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
-		sftpm.init(5, 5);
-	}
 	
 	private static Class[] indexClasses = new Class[6];//{DomainMapRange.class,DomainRangeMap.class,MapDomainRange.class,
 												  //MapRangeDomain.class,RangeDomainMap.class,RangeMapDomain.class};

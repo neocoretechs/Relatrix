@@ -122,6 +122,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				DBKey index = getNewDBKey();
 				// no new instance exists. store both new entries
 				try {
+					if(DEBUG)
+						System.out.printf("%s.put new key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, index, instance.getClass().getName(), instance);
 					RelatrixKVTransaction.store(transactionId, index, instance);
 					RelatrixKVTransaction.store(transactionId, instance, index);
 					return index;
@@ -129,6 +131,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					throw new IOException(e);
 				}
 			} 
+			if(DEBUG)
+				System.out.printf("%s.put returning existing key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, retKey, instance.getClass().getName(), instance);
 			return retKey;
 		}
 	}
@@ -609,8 +613,5 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
 			return new DBKey(Relatrix.getByAlias(alias).getRelatrixIndex(), Relatrix.getNewKey());
 	}
-
-
-
 
 }
