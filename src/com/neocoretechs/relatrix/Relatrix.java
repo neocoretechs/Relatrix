@@ -18,6 +18,8 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKey;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamFactory;
@@ -163,13 +165,16 @@ public final class Relatrix {
 		identity.setDomain(d);
 		identity.setMap(m);
 		identity.setRangeKey(DBKey.nullDBKey);
+		PrimaryKey primary = new PrimaryKey();
+		primary.superclass();
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(isPrimaryKey(RelatrixKV.nearest(identity),identity)) {
+		//if(isPrimaryKey(RelatrixKV.nearest(identity),identity)) {
+		if(RelatrixKV.get(PrimaryKeySet.class,identity) != null)
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-		}
+		//}
 		identity.setRange(r);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
@@ -280,9 +285,10 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(isPrimaryKey(RelatrixKV.nearest(alias,identity),identity)) {
+		//if(isPrimaryKey(RelatrixKV.nearest(alias,identity),identity)) {
+		if(RelatrixKV.get(alias,PrimaryKeySet.class,identity) != null)
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-		}
+		//}
 		identity.setRange(r);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.

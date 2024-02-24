@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023
  *
  */
-public class KeySet implements Externalizable, Comparable {
+public class PrimaryKeySet extends KeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
 	protected DBKey domainKey;
@@ -24,7 +24,7 @@ public class KeySet implements Externalizable, Comparable {
     protected DBKey rangeKey;
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
-    public KeySet() {}
+    public PrimaryKeySet() {}
     
 	public DBKey getDomainKey() {
 		return domainKey;
@@ -57,13 +57,13 @@ public class KeySet implements Externalizable, Comparable {
 	public boolean isRangeKeyValid() {
 		return DBKey.isValid(rangeKey);
 	}
-	public boolean domainKeyEquals(KeySet o) {
+	public boolean domainKeyEquals(PrimaryKeySet o) {
 		return domainKey.equals(o.domainKey);
 	}
-	public boolean mapKeyEquals(KeySet o) {
+	public boolean mapKeyEquals(PrimaryKeySet o) {
 		return mapKey.equals(o.mapKey);
 	}
-	public boolean rangeKeyEquals(KeySet o) {
+	public boolean rangeKeyEquals(PrimaryKeySet o) {
 		return rangeKey.equals(o.rangeKey);
 	}
 	/**
@@ -165,40 +165,32 @@ public class KeySet implements Externalizable, Comparable {
 		//if(DEBUG)
 			//System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
-		if(o instanceof PrimaryKeySet) 
-			System.out.println("* compareTo "+this+", "+o+", "+i);
 		if(i != 0) {
 			//if(DEBUG)
 				//System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
 			return i;
 		}
-		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(o instanceof PrimaryKeySet) 
-			System.out.println("** compareTo "+this+", "+o+", "+i);
-		if(i != 0) {
+		return getMapKey().compareTo(((KeySet)o).getMapKey());
+		//if(i != 0) {
 			//if(DEBUG)
 				//System.out.println("Keyset CompareTo returning "+i+" at MapKey");
-			return i;
-		}
-		if(o instanceof PrimaryKeySet) {
-			System.out.println("Returning compareTo "+this+", "+o+", "+i);
-			return i;
-		}
+			//return i;
+		//}
 		//if(DEBUG)
 			//System.out.println("Keyset CompareTo returning "+getRangeKey().compareTo(((KeySet)o).getRangeKey())+" at last RangeKey");
-		return getRangeKey().compareTo(((KeySet)o).getRangeKey());
+		//return getRangeKey().compareTo(((PrimaryKeySet)o).getRangeKey());
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-				getMapKey().equals(((KeySet)o).getMapKey()) &&
-				getRangeKey().equals(((KeySet)o).getRangeKey());
+				getMapKey().equals(((KeySet)o).getMapKey());// &&
+				//getRangeKey().equals(((PrimaryKeySet)o).getRangeKey());
 	}
 	
 	@Override
 	public int hashCode() {
-		return getDomainKey().hashCode() + getMapKey().hashCode() + getRangeKey().hashCode();
+		return getDomainKey().hashCode() + getMapKey().hashCode();// + getRangeKey().hashCode();
 	}
 	
 	public String toString() {

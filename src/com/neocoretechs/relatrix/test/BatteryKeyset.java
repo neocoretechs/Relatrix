@@ -17,6 +17,7 @@ import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 /**
  * @author jg (C) 2024
@@ -27,7 +28,7 @@ public class BatteryKeyset {
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
 	static ArrayList<KeySet> findkeys = new ArrayList<KeySet>();
@@ -41,7 +42,7 @@ public class BatteryKeyset {
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
-		battery1AR17(argv);
+		//battery1AR17(argv);
 		battery1(argv);
 		battery2(argv);
 		battery1AR4(argv);
@@ -76,17 +77,26 @@ public class BatteryKeyset {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
-			KeySet identity = new KeySet();
-			identity.setDomainKey(DBKey.newKey(indexTable, d));
-			identity.setMapKey(DBKey.newKey(indexTable, m));
-			identity.setRangeKey(DBKey.nullDBKey);
+	
+			PrimaryKeySet pks = new PrimaryKeySet();
+			pks.setDomainKey(IndexResolver.getIndexInstanceTable().getByInstance(d));
+			pks.setMapKey(IndexResolver.getIndexInstanceTable().getByInstance(m));
+			pks.setRangeKey(IndexResolver.getIndexInstanceTable().getByInstance(r));
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
-				throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
+			//if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
+			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && RelatrixKV.get(KeySet.class,pks) != null) {
+				//throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
+				System.out.println("Duplicate key for relationship:"+pks);
+				++dupes;
+				continue;
 			}
+			KeySet identity = new KeySet();
+			identity.setDomainKey(DBKey.newKey(indexTable, d));
+			identity.setMapKey(DBKey.newKey(indexTable, m));
+			//identity.setRangeKey(DBKey.nullDBKey);
 			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.

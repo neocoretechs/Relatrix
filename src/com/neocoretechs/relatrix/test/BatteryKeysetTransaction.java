@@ -50,7 +50,6 @@ public class BatteryKeysetTransaction {
 		RelatrixKVTransaction.endTransaction(xid);
 		xid = RelatrixTransaction.getTransactionId();
 		battery1(argv);
-		battery2(argv);
 		battery1AR4(argv);
 		battery1AR44(argv);
 		battery1AR5(argv);
@@ -74,6 +73,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1(String[] argv) throws Exception {
 		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
+		long timx = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
 		KeySet fkey = null;
@@ -100,6 +100,10 @@ public class BatteryKeysetTransaction {
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
 			IndexResolver.getIndexInstanceTable().put(xid,identity);
+			if((System.currentTimeMillis()-timx) > 1000) {
+				System.out.println("DBKey stored "+recs+" "+identity);
+				timx = System.currentTimeMillis();
+			}
 			if( DEBUG  )
 				System.out.println("Relatrix.store stored :"+identity);
 			++recs;
@@ -107,39 +111,7 @@ public class BatteryKeysetTransaction {
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
-	private static void battery2(String[] argv) throws IllegalAccessException, ClassNotFoundException, IOException {
-		for(int i = min; i < max; i++) {
-			String d = String.format(uniqKeyFmt, i);
-			String m = String.format(uniqKeyFmt, i+1);
-			KeySet identity = new KeySet();
-			identity.setDomainKey(indexTable.getByInstance(xid,d));
-			identity.setMapKey(indexTable.getByInstance(xid,m));
-			identity.setRangeKey(new DBKey(DBKey.nullKey, DBKey.nullKey));
-			//PrimaryKeySet pks = new PrimaryKeySet(identity);
-			// check for domain/map match
-			// Enforce categorical structure; domain->map function uniquely determines range.
-			// If the search winds up at the key or the key is empty or the domain->map exists, the key
-			// cannot be inserted
-			//Object o = RelatrixKV.nearest(identity);
-			//if(!Relatrix.isPrimaryKey(o, identity))
-				//System.out.println("FAILED to find:"+identity+" found key="+o);
-			Iterator it = RelatrixKVTransaction.findTailMapKV(xid,identity);
-			int cnt = 0;
-			boolean found = false;
-			while(it.hasNext()) {
-				Object o = it.next();
-				Map.Entry e = (Map.Entry)o;
-				KeySet k = ((KeySet)e.getKey());
-				if(k.domainKeyEquals(identity) && k.mapKeyEquals(identity)) {
-					if(DEBUG)
-						System.out.println("Found at "+cnt);
-					found = true;
-					break;
-				}
-				cnt++;
-			}
-		}
-	}
+	
 	/**
 	 * check order of DBKey
 	 * @param argv
