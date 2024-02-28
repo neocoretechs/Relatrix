@@ -137,49 +137,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		}
 	}
 	
-	@Override
-	public <T> DBKey put(String transactionId, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
-			if(DEBUG)
-				System.out.printf("%s.put Xid:%s class=%s instance=%s%n", this.getClass().getName(), transactionId, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(transactionId, mainClass, instance);
-			// did the instance exist?
-			if(retKey == null) {
-				DBKey index = getNewDBKey();
-				// no new instance exists. store both new entries
-				try {
-					RelatrixKVTransaction.store(transactionId, index, instance);
-					RelatrixKVTransaction.store(transactionId, mainClass, instance, index);
-					return index;
-				} catch (DuplicateKeyException e) {
-					throw new IOException(e);
-				}
-			} 
-			return retKey;
-		}
-	}
-	@Override
-	public <T> DBKey put(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
-			if(DEBUG)
-				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(mainClass, instance);
-			// did the instance exist?
-			if(retKey == null) {
-				DBKey index = getNewDBKey();
-				// no new instance exists. store both new entries
-				try {
-					RelatrixKV.store(index, instance);
-					RelatrixKV.store( mainClass, instance, index);
-					return index;
-				} catch (DuplicateKeyException e) {
-					throw new IOException(e);
-				}
-			} 
-			return retKey;
-		}
-	}
-
 
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
@@ -207,51 +164,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				try {
 					RelatrixKVTransaction.store(alias, transactionId, index, instance);
 					RelatrixKVTransaction.store(alias, transactionId, instance, index);
-					// no new instance exists. store both new entries
-					return index;
-				} catch (DuplicateKeyException e) {
-					throw new IOException(e);
-				}
-			}
-			return retKey;
-		}
-	}
-	
-	@Override
-	public <T> DBKey putAlias(String alias, String transactionId, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
-			if(DEBUG)
-				System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstanceAlias(alias, transactionId, mainClass, instance);
-			// did the instance exist?
-			if(retKey == null) {
-				DBKey index = getNewDBKey(alias);
-				try {
-					RelatrixKVTransaction.store(alias, transactionId, index, instance);
-					RelatrixKVTransaction.store(alias, transactionId, mainClass, instance, index);
-					// no new instance exists. store both new entries
-					return index;
-				} catch (DuplicateKeyException e) {
-					throw new IOException(e);
-				}
-			}
-			return retKey;
-		}
-	}
-	
-	@Override
-	public <T> DBKey putAlias(String alias, Class<T> mainClass, Comparable<? extends T> instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
-			if(DEBUG)
-				System.out.printf("%s.putAlias Alias:%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstanceAlias(alias, mainClass, instance);
-			// did the instance exist?
-			if(retKey == null) {
-				DBKey index = getNewDBKey(alias);
-				try {
-					RelatrixKV.store(alias, index, instance);
-					RelatrixKV.store(alias, mainClass, instance, index);
 					// no new instance exists. store both new entries
 					return index;
 				} catch (DuplicateKeyException e) {
@@ -339,17 +251,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	
 	@Override
-	public <T> void deleteInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
-			// index is valid
-			DBKey index = getByInstance(transactionId, mainClass, instance);
-			if(index != null) {
-				RelatrixKVTransaction.remove(transactionId, index);
-			}
-			RelatrixKVTransaction.remove(transactionId, mainClass, instance);
-		}
-	}
-	@Override
 	public void deleteInstanceAlias(String alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		synchronized(mutex) {
 			// index is valid
@@ -370,18 +271,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				RelatrixKVTransaction.remove(alias, transactionId, index);
 			}
 			RelatrixKVTransaction.remove(alias, transactionId, instance);
-		}
-	}
-	
-	@Override
-	public <T> void deleteInstanceAlias(String alias, String transactionId, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
-			// index is valid
-			DBKey index = getByInstanceAlias(alias, transactionId, mainClass, instance);
-			if(index != null) {
-				RelatrixKVTransaction.remove(alias, transactionId, index);
-			}
-			RelatrixKVTransaction.remove(alias, transactionId, mainClass, instance);
 		}
 	}
 	
@@ -561,17 +450,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//}
 	}
 	
-	@Override
-	public <T> DBKey getByInstance(String transactionId, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		//synchronized(mutex) {
-			return (DBKey) RelatrixKVTransaction.get(transactionId, mainClass, instance);
-		//}
-	}
-	
-	@Override
-	public <T> DBKey getByInstance(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException {
-		return (DBKey) RelatrixKV.get(mainClass, instance);
-	}
 	/**
 	 * Get index of the instance by retrieving the key for the instance present in the passed object
 	 * @param alias the database alias
@@ -587,20 +465,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public DBKey getByInstanceAlias(String alias, String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			return (DBKey) RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
-		//}
-	}
-	
-	@Override
-	public <T> DBKey getByInstanceAlias(String alias, String transactionId, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		//synchronized(mutex) {
-			return (DBKey) RelatrixKVTransaction.get(alias, transactionId, mainClass, instance);
-		//}
-	}
-	
-	@Override
-	public <T> DBKey getByInstanceAlias(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, IOException {
-		//synchronized(mutex) {
-			return (DBKey) RelatrixKVTransaction.get(alias, mainClass, instance);
 		//}
 	}
 	

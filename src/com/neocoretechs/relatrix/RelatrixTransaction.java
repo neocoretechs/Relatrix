@@ -187,7 +187,7 @@ public final class RelatrixTransaction {
 			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 		}
 		identity.setRange(r);
-		IndexResolver.getIndexInstanceTable().put(xid, DomainMapRange.class, identity);
+		IndexResolver.getIndexInstanceTable().put(xid, identity);
 		// Start threads to store remaining indexes now that we have our primary set up
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
@@ -209,7 +209,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new DomainRangeMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(xid, DomainRangeMap.class, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, DomainRangeMap.class, dmr, identity.getDBKey());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -223,7 +223,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new MapRangeDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(xid, MapRangeDomain.class, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, MapRangeDomain.class, dmr, identity.getDBKey());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -237,7 +237,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new RangeDomainMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(xid, RangeDomainMap.class, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, RangeDomainMap.class, dmr, identity.getDBKey());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -251,7 +251,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new RangeMapDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(xid, RangeMapDomain.class, dmr,identity.getDBKey());
+					RelatrixKVTransaction.store(xid, RangeMapDomain.class, dmr,identity.getDBKey());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {

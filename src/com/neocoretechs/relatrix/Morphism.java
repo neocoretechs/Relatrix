@@ -804,18 +804,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 	 			return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), instance);
 		}
 		
-	 	protected <T> DBKey newKey(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-	 		if(transactionId == null)
-	 			return DBKey.newKey(IndexResolver.getIndexInstanceTable(), mainClass, instance);
-	 		else
-	 			return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), mainClass, instance);
-    	}
-	 	protected <T> DBKey newKey(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-	 		if(transactionId == null)
-	    		return DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), mainClass, instance);
-	 		else
-	 			return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), mainClass, instance);
-    	}
+
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
 				Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
@@ -852,19 +841,6 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
 		}
 		
-	   	protected <T> DBKey resolveInstance(Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-			if(transactionId == null)
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(mainClass, instance);
-			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, mainClass, instance);		
-    	}
-	   	
-    	protected <T> DBKey resolveInstance(String alias, Class<T> mainClass, Comparable<? extends T> instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
-			if(transactionId == null)
-	    		return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, mainClass, instance);
-			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, mainClass, instance);
-    	}
         /**
          * Failsafe compareTo.
          * If classes are not the same and the target is not assignable from the source, that is, not a subclass, toss an error

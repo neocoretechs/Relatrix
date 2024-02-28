@@ -11,7 +11,9 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.neocoretechs.rocksack.DerivedClass;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 
@@ -90,7 +92,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static void store(Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static void store(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		BufferedMap ttm = DatabaseManager.getMap(key);
 		if( DEBUG  )
 			System.out.println("RelatrixKV.store storing key:"+key+" value:"+value+" in map:"+ttm);
@@ -105,22 +107,13 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static void store(String alias, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+	public static void store(String alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		BufferedMap ttm = DatabaseManager.getMap(alias, key);
 		if( DEBUG  )
 			System.out.println("RelatrixKV.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
 	}
-	public static <T> void store(Class<T> mainClass, Comparable<? extends T> subClass, Object value) throws IOException, IllegalAccessException,DuplicateKeyException
-	{
-		BufferedMap ttm = DatabaseManager.getMap(mainClass);
-		ttm.put(subClass, value);	
-	}
-	public static <T> void store(String alias, Class<T> mainClass, Comparable<? extends T> subClass, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException
-	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, mainClass);
-		ttm.put(subClass, value);
-	}
+
 	/**
 	 * Load the stated package from the declared path into the bytecode repository
 	 * @param pack
@@ -156,7 +149,7 @@ public final class RelatrixKV {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
-	public static void remove(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(c);
 		if( DEBUG || DEBUGREMOVE )
@@ -173,7 +166,7 @@ public final class RelatrixKV {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
-	public static void remove(String alias, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, c);
 		if( DEBUG || DEBUGREMOVE )
@@ -202,7 +195,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	 */
-	public static Iterator<?> findTailMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findTailMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.tailMap(darg);
@@ -219,7 +212,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	 */
-	public static Iterator<?> findTailMap(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findTailMap(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.tailMap(darg);
@@ -244,7 +237,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Comparable[]>
 	 */
-	public static Stream<?> findTailMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
@@ -261,7 +254,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Comparable[]>
 	 */
-	public static Stream<?> findTailMapStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailMapStream(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
@@ -289,7 +282,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	 */
-	public static Iterator<?> findTailMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findTailMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.tailMapKV(darg);
@@ -306,7 +299,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	 */
-	public static Iterator<?> findTailMapKV(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findTailMapKV(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.tailMapKV(darg);
@@ -331,7 +324,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
 	 */
-	public static Stream<?> findTailMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
@@ -349,7 +342,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException if the alias is not found 
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
 	 */
-	public static Stream<?> findTailMapKVStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findTailMapKVStream(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
@@ -375,7 +368,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMap(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findHeadMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
@@ -391,7 +384,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMap(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findHeadMap(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
@@ -415,7 +408,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findHeadMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
@@ -432,7 +425,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not found
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findHeadMapStream(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
@@ -459,7 +452,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMapKV(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findHeadMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
@@ -475,7 +468,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not ofund
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMapKV(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findHeadMapKV(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
@@ -500,7 +493,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapKVStream(Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findHeadMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		// check for at least one object reference in our headset factory
@@ -518,7 +511,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not found
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapKVStream(String alias, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findHeadMapKVStream(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		// check for at least one object reference in our headset factory
@@ -547,7 +540,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findSubMap(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findSubMap(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		return ttm.subMap(darg, marg);
@@ -564,7 +557,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not ofund
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findSubMap(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findSubMap(String alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		return ttm.subMap(darg, marg);
@@ -589,7 +582,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
-	public static Stream<?> findSubMapStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findSubMapStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
@@ -607,7 +600,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias was not found
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
-	public static Stream<?> findSubMapStream(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findSubMapStream(String alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
@@ -635,7 +628,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	 */
-	public static Iterator<?> findSubMapKV(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findSubMapKV(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
 		BufferedMap ttm = DatabaseManager.getMap(darg);
@@ -653,7 +646,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias was not ofund
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
 	 */
-	public static Iterator<?> findSubMapKV(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findSubMapKV(String alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
@@ -679,7 +672,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Comparable[]>
 	 */
-	public static Stream<?> findSubMapKVStream(Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findSubMapKVStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
 		BufferedMap ttm = DatabaseManager.getMap(darg);
@@ -698,7 +691,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias was not found
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Comparable[]>
 	 */
-	public static Stream<?> findSubMapKVStream(String alias, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findSubMapKVStream(String alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
 		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
@@ -724,7 +717,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
+	public static Iterator<?> entrySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.entrySet();
@@ -738,7 +731,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias is nout found
 	 */
-	public static Iterator<?> entrySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> entrySet(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.entrySet();
@@ -750,7 +743,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
+	public static Stream<?> entrySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
@@ -765,7 +758,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Stream<?> entrySetStream(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> entrySetStream(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
@@ -778,7 +771,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
+	public static Iterator<?> keySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.keySet();
@@ -792,7 +785,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static Iterator<?> keySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> keySet(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.keySet();
@@ -804,7 +797,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Stream<?> keySetStream(Class clazz) throws IOException, IllegalAccessException
+	public static Stream<?> keySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
@@ -819,7 +812,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not ofund
 	 */
-	public static Stream<?> keySetStream(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> keySetStream(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
@@ -832,7 +825,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object firstKey(Class clazz) throws IOException, IllegalAccessException
+	public static Object firstKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.firstKey();
@@ -846,7 +839,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static Object firstKey(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object firstKey(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.firstKey();
@@ -858,7 +851,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object get(Comparable key) throws IOException, IllegalAccessException
+	public static Object get(Comparable<?> key) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(key);
 		Object o = ttm.get(key);
@@ -875,7 +868,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
-	public static Object get(String alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object get(String alias, Comparable<?> key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, key);
 		Object o = ttm.get(key);
@@ -925,7 +918,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object firstValue(Class clazz) throws IOException, IllegalAccessException
+	public static Object firstValue(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.first();
@@ -939,7 +932,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static Object firstValue(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object firstValue(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.first();
@@ -951,7 +944,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object lastKey(Class clazz) throws IOException, IllegalAccessException
+	public static Object lastKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.lastKey();
@@ -965,7 +958,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static Object lastKey(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object lastKey(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.lastKey();
@@ -977,7 +970,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object lastValue(Class clazz) throws IOException, IllegalAccessException
+	public static Object lastValue(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.last();
@@ -991,7 +984,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static Object lastValue(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object lastValue(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.last();
@@ -1003,7 +996,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static long size(Class clazz) throws IOException, IllegalAccessException
+	public static long size(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		return ttm.size();
@@ -1017,7 +1010,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not found 
 	 */
-	public static long size(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static long size(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		return ttm.size();
@@ -1029,7 +1022,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static boolean contains(Comparable obj) throws IOException, IllegalAccessException
+	public static boolean contains(Comparable<?> obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(obj);
 		return ttm.containsKey(obj);
@@ -1043,7 +1036,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
-	public static boolean contains(String alias, Comparable obj) throws IOException, IllegalAccessException
+	public static boolean contains(String alias, Comparable<?> obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, obj);
 		return ttm.containsKey(obj);
@@ -1086,7 +1079,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static boolean containsValue(Class keyType, Object obj) throws IOException, IllegalAccessException
+	public static boolean containsValue(Class<?> keyType, Object obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(keyType);
 		return ttm.containsValue(obj);
@@ -1102,7 +1095,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static boolean containsValue(String alias, Class keyType, Object obj) throws IOException, IllegalAccessException, NoSuchElementException
+	public static boolean containsValue(String alias, Class<?> keyType, Object obj) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, keyType);
 		return ttm.containsValue(obj);
@@ -1115,7 +1108,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static Object nearest(Comparable key) throws IllegalAccessException, IOException {
+	public static Object nearest(Comparable<?> key) throws IllegalAccessException, IOException {
 		BufferedMap ttm = DatabaseManager.getMap(key);
 		return ttm.nearest(key);
 	}
@@ -1128,7 +1121,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static Object nearest(String alias, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
+	public static Object nearest(String alias, Comparable<?> key) throws IllegalAccessException, IOException, NoSuchElementException {
 		BufferedMap ttm = DatabaseManager.getMap(alias,key);
 		return ttm.nearest(key);
 	}
@@ -1150,7 +1143,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static void close(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static void close(String alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		DatabaseManager.removeMap(alias, ttm);
@@ -1162,7 +1155,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static void close(Class clazz) throws IOException, IllegalAccessException
+	public static void close(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		DatabaseManager.removeMap(ttm);
