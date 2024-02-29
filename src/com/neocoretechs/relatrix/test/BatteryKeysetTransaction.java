@@ -19,6 +19,7 @@ import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 /**
  * @author jg (C) 2024
@@ -85,21 +86,23 @@ public class BatteryKeysetTransaction {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
-			KeySet identity = new KeySet();
+			DomainMapRange identity = new DomainMapRange();
 			identity.setDomainKey(DBKey.newKey(xid,indexTable, d));
 			identity.setMapKey(DBKey.newKey(xid,indexTable, m));
-			identity.setRangeKey(DBKey.nullDBKey);
+			identity.setTransactionId(xid);
+			PrimaryKeySet primary = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(xid,identity), identity)) {
-				throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-			}
+			DBKey dbkey = primary.store();
 			identity.setRangeKey(DBKey.newKey(xid,indexTable,r)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
-			IndexResolver.getIndexInstanceTable().put(xid,identity);
+			identity.setDBKey(dbkey);
+			IndexResolver.getIndexInstanceTable().put(xid, dbkey, identity);
+			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+			// and maintains the classes stores in IndexInstanceTable for future commit.
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("DBKey stored "+recs+" "+identity);
 				timx = System.currentTimeMillis();

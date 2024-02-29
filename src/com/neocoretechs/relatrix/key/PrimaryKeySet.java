@@ -18,10 +18,19 @@ import com.neocoretechs.rocksack.DerivedClass;
 public class PrimaryKeySet extends DomainMapRange implements Externalizable, Comparable, DerivedClass {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
+	private transient String transactionId = null;
+	private transient String alias = null;
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public PrimaryKeySet() {}
     
+	public PrimaryKeySet(DomainMapRange identity) {
+		setDomainKey(identity.getDomainKey());
+		setMapKey(identity.getMapKey());
+		this.transactionId = identity.getTransactionId();
+		this.alias = identity.getAlias();
+	}
+
 	public boolean isValid() {
 		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey);
 	}
@@ -39,7 +48,7 @@ public class PrimaryKeySet extends DomainMapRange implements Externalizable, Com
 	}
 
 	/**
-	 * Store the instances to index and instance tables creating instance/DBKey and DBKey/instance tablespace entries
+	 * Universal Store the instances to index and instance tables creating instance/DBKey and DBKey/instance tablespace entries
 	 * @param skeyd instance for domain
 	 * @param skeym instance for map
 	 * @return the key of stored KeySet, which represents domain, map, range identity triplet index unique by domain and map
@@ -50,50 +59,91 @@ public class PrimaryKeySet extends DomainMapRange implements Externalizable, Com
 	 */
 	public DBKey store(Comparable skeyd, Comparable skeym) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setDomainKey(DBKey.newKey(indexTable, skeyd)); // puts to index and instance
-		setMapKey(DBKey.newKey(indexTable, skeym)); // puts to index and instance
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(RelatrixKV.get(this) != null) {
-			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+		if(transactionId == null) {
+			if(alias == null) {
+				setDomainKey(DBKey.newKey(indexTable, skeyd)); // puts to index and instance
+				setMapKey(DBKey.newKey(indexTable, skeym)); // puts to index and instance
+				if(RelatrixKV.get(this) != null) {
+					throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+				}
+				return DBKey.newKey(indexTable, this);
+			}
+			setDomainKey(DBKey.newKeyAlias(alias, indexTable, skeyd)); // puts to index and instance
+			setMapKey(DBKey.newKeyAlias(alias, indexTable, skeym)); // puts to index and instance
+			if(RelatrixKV.get(alias,this) != null) {	
+				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+			}
+			return DBKey.newKeyAlias(alias, indexTable, this);
+		} else {
+			if(alias == null) {
+				setDomainKey(DBKey.newKey(transactionId, indexTable, skeyd)); // puts to index and instance
+				setMapKey(DBKey.newKey(transactionId, indexTable, skeym)); // puts to index and instance
+				if(RelatrixKVTransaction.get(transactionId,this) != null) {
+					RelatrixKVTransaction.rollback(transactionId);
+					throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+				}
+				return DBKey.newKey(transactionId, indexTable, this);
+			}
+			setDomainKey(DBKey.newKeyAlias(alias, transactionId, indexTable, skeyd)); // puts to index and instance
+			setMapKey(DBKey.newKeyAlias(alias, transactionId, indexTable, skeym)); // puts to index and instance
+			if(RelatrixKVTransaction.get(alias, transactionId,this) != null) {
+				RelatrixKVTransaction.rollback(alias,transactionId);
+				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+			}
+			return DBKey.newKeyAlias(alias, transactionId, indexTable, this);
 		}
-		return DBKey.newKey(indexTable, this);
 	}
 	
-	public DBKey storeAlias(String alias, Comparable skeyd, Comparable skeym) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
+	/**
+	* Store keys from superclass copy constructor, checking for existing
+	* @return the new DBKey to use as our key for the main class
+	*/
+	public DBKey store() throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setDomainKey(DBKey.newKeyAlias(alias, indexTable, skeyd)); // puts to index and instance
-		setMapKey(DBKey.newKeyAlias(alias, indexTable, skeym)); // puts to index and instance
-		if(RelatrixKV.get(this) != null) {	
-			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+		DBKey newKey = null;
+		// check for domain/map match
+		// Enforce categorical structure; domain->map function uniquely determines range.
+		// If the search winds up at the key or the key is empty or the domain->map exists, the key
+		// cannot be inserted
+		if(transactionId == null) {
+			if(alias == null) {
+				if(RelatrixKV.get(this) != null) {
+					throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+				}
+				newKey = indexTable.getNewDBKey();
+				RelatrixKV.store(this, newKey);
+				return newKey;
+			} 
+			if(RelatrixKV.get(alias,this) != null) {	
+				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+			}
+			newKey = indexTable.getNewDBKey();
+			RelatrixKV.store(alias, this, newKey);
+			return newKey;
+		} else {
+			if(alias == null) {
+				if(RelatrixKVTransaction.get(transactionId,this) != null) {
+					RelatrixKVTransaction.rollback(transactionId);
+					throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+				}
+				newKey = indexTable.getNewDBKey();
+				RelatrixKVTransaction.store(transactionId, this, newKey);
+				return newKey;
+			}
+			if(RelatrixKVTransaction.get(alias, transactionId,this) != null) {
+				RelatrixKVTransaction.rollback(alias,transactionId);
+				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
+			}
+			newKey = indexTable.getNewDBKey();
+			RelatrixKVTransaction.store(alias, transactionId, this, newKey);
+			return newKey;
 		}
-		return DBKey.newKeyAlias(alias, indexTable, this);
 	}
 	
-	public DBKey store(String xid, Comparable skeyd, Comparable skeym) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setDomainKey(DBKey.newKey(xid, indexTable, skeyd)); // puts to index and instance
-		setMapKey(DBKey.newKey(xid, indexTable, skeym)); // puts to index and instance
-		if(RelatrixKVTransaction.get(xid,this) != null) {
-			RelatrixKVTransaction.rollback(xid);
-			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
-		}
-		return DBKey.newKey(xid, indexTable, this);
-	}
-	
-	public DBKey storeAlias(String alias, String xid, Comparable skeyd, Comparable skeym) throws DuplicateKeyException, IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
-		setDomainKey(DBKey.newKeyAlias(alias, xid, indexTable, skeyd)); // puts to index and instance
-		setMapKey(DBKey.newKeyAlias(alias, xid, indexTable, skeym)); // puts to index and instance
-		if(RelatrixKVTransaction.get(xid,this) != null) {
-			RelatrixKVTransaction.rollback(alias,xid);
-			throw new DuplicateKeyException("Duplicate key for relationship:"+this);
-		}
-		return DBKey.newKeyAlias(alias, xid, indexTable, this);
-	}
-
 	@Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
 		RelatrixIndex d2 = new RelatrixIndex(in.readLong(), in.readLong());

@@ -81,13 +81,12 @@ public class BatteryKeyset {
 			PrimaryKeySet pks = new PrimaryKeySet();
 			pks.setDomainKey(IndexResolver.getIndexInstanceTable().getByInstance(d));
 			pks.setMapKey(IndexResolver.getIndexInstanceTable().getByInstance(m));
-			pks.setRangeKey(IndexResolver.getIndexInstanceTable().getByInstance(r));
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			//if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
-			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && RelatrixKV.get(KeySet.class,pks) != null) {
+			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && RelatrixKV.get(pks) != null) {
 				//throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 				System.out.println("Duplicate key for relationship:"+pks);
 				++dupes;

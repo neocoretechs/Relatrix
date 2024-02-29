@@ -197,7 +197,34 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public void put(DBKey dbKey, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void putAlias(String alias, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void put(String transactionId, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
+			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		
+	}
 	@Override
 	public void commit(String alias, String transactionId)
 			throws IOException, IllegalAccessException, NoSuchElementException {

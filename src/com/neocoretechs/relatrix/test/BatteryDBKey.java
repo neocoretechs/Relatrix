@@ -118,7 +118,7 @@ public class BatteryDBKey {
 			RelatrixIndex ri = ident.getInstanceIndex();
 			ri.setLsb(0); // set artificial partial instance key
 			DBKey pks = new DBKey(ident.getDatabaseIndex(), ri); // new dbkey with partial instance
-			if(!RelatrixKV.contains(DBKey.class, pks)) { // shouldnt find this
+			if(!RelatrixKV.contains(pks)) { // shouldnt find this
 				System.out.println("Expected Didnt find "+pks+" using "+ident);
 			} else {
 				System.out.println("UNEXPECTED FOUND "+pks+" using "+ident);

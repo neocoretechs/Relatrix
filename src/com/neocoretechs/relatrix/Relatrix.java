@@ -18,9 +18,9 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.PrimaryKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamFactory;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
@@ -164,21 +164,17 @@ public final class Relatrix {
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
 		identity.setDomain(d);
 		identity.setMap(m);
-		identity.setRangeKey(DBKey.nullDBKey);
-		PrimaryKey primary = new PrimaryKey();
-		primary.superclass();
+		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		//if(isPrimaryKey(RelatrixKV.nearest(identity),identity)) {
-		if(RelatrixKV.get(PrimaryKeySet.class,identity) != null)
-			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-		//}
-		identity.setRange(r);
+		DBKey dbkey = primary.store();
+		identity.setRange(r); // form it as template for duplicate key search
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		identity.setDBKey( IndexResolver.getIndexInstanceTable().put(identity) );
+		identity.setDBKey(dbkey);
+		IndexResolver.getIndexInstanceTable().put(dbkey, identity);
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
 		// Start threads to store remaining indexes now that we have our primary set up
@@ -275,62 +271,102 @@ public final class Relatrix {
 	public static synchronized DomainMapRange store(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		Morphism dmr;
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		identity.setDomain(alias,d);
+		identity.setMap(alias,m);
 		identity.setAlias(alias);
-		identity.setDomain(d);
-		identity.setMap(m);
-		identity.setRangeKey(DBKey.nullDBKey);
+		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		//if(isPrimaryKey(RelatrixKV.nearest(alias,identity),identity)) {
-		if(RelatrixKV.get(alias,PrimaryKeySet.class,identity) != null)
-			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-		//}
-		identity.setRange(r);
+		DBKey dbkey = primary.store();
+		identity.setRange(alias,r); // form it as template for duplicate key search
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		identity.setDBKey( IndexResolver.getIndexInstanceTable().putAlias(alias,identity) );
+		identity.setDBKey(dbkey);
+		IndexResolver.getIndexInstanceTable().putAlias(alias, dbkey, identity);
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
-		dmr = new MapDomainRange(alias,identity);
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
-		RelatrixKV.store(alias,dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new DomainRangeMap(alias,identity);
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
-		RelatrixKV.store(alias,dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new MapRangeDomain(alias,identity);
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
-		RelatrixKV.store(alias,dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new RangeDomainMap(alias,identity);
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
-		RelatrixKV.store(alias,dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
-		dmr = new RangeMapDomain(alias,identity);
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,dmr);
-		RelatrixKV.store(alias,dmr,identity.getDBKey());
-		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+dmr);
+		// Start threads to store remaining indexes now that we have our primary set up
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new MapDomainRange(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			} // run
+		}); // spin 
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new DomainRangeMap(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new MapRangeDomain(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {  
+				try {
+					Morphism dmr = new RangeDomainMap(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					Morphism dmr = new RangeMapDomain(identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return identity;
 	}
 
-	public static boolean isPrimaryKey(Object key, KeySet template) {
-		if(key == null)
-			return false;
-		KeySet primary = (KeySet)(((Map.Entry)key).getKey());
-		if(primary.domainKeyEquals(template) && primary.mapKeyEquals(template))
-			return true;
-		return false;
-	}
 	
 	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
 		RelatrixKV.store(key, value);

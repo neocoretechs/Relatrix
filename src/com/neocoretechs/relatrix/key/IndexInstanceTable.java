@@ -63,7 +63,32 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			return retKey;
 		}
 	}
-	
+	/**
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
+	 * @param dbKey the DBKey of the previously stored primary key 
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@Override
+	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
+			// no new instance exists, based on primary check. store both new entries
+			try {
+				RelatrixKV.store(index, instance);
+				RelatrixKV.store(instance, index);
+			} catch (DuplicateKeyException e) {
+				// should never happen
+				throw new IOException(e);
+			}
+		}
+	}
 	/**
 	 * Put the key to the proper tables using the database alias.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
@@ -97,6 +122,34 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}	
 			}
 			return retKey;
+		}
+	}
+	/**
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
+	 * @param alias the db alias
+	 * @param dbKey the DBKey of the previously stored primary key 
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws noSuchElementException if the alias is not found
+	 */
+	@Override
+	public void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
+			// no new instance exists, based on primary check. store both new entries
+			try {
+				RelatrixKV.store(alias, index, instance);
+				RelatrixKV.store(alias, instance, index);
+			} catch (DuplicateKeyException e) {
+				// should never happen
+				throw new IOException(e);
+			}
 		}
 	}
 	/**
@@ -136,8 +189,33 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			return retKey;
 		}
 	}
-	
-
+	/**
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
+	 * @param transactionId the transaction id
+	 * @param dbKey the DBKey of the previously stored primary key 
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@Override
+	public void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
+			// no new instance exists, based on primary check. store both new entries
+			try {
+				RelatrixKVTransaction.store(transactionId, index, instance);
+				RelatrixKVTransaction.store(transactionId, instance, index);
+			} catch (DuplicateKeyException e) {
+				// should never happen
+				throw new IOException(e);
+			}
+		}
+	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
@@ -171,6 +249,35 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}
 			}
 			return retKey;
+		}
+	}
+	/**
+	 * Put the key to the proper tables in the scope of this transaction using the database alias.
+	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
+	 * @param alias the database alias
+	 * @param transactionId
+	 * @param index the db index from primary key
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	@Override
+	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		synchronized(mutex) {
+			if(DEBUG)
+				System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
+			try {
+				RelatrixKVTransaction.store(alias, transactionId, index, instance);
+				RelatrixKVTransaction.store(alias, transactionId, instance, index);
+				// no new instance exists. store both new entries
+			} catch (DuplicateKeyException e) {
+				throw new IOException(e);
+			}
 		}
 	}
 	

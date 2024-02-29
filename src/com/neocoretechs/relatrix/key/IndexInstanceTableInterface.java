@@ -78,7 +78,62 @@ public interface IndexInstanceTableInterface {
 	DBKey putAlias(String alias, String transactionId, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 	
-	
+	/**
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
+	 * @param dbKey the DBKey of the previously stored primary key 
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	void put(DBKey dbKey, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	/**
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
+	 * @param alias the db alias
+	 * @param dbKey the DBKey of the previously stored primary key 
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException if the alias isnt found
+	 */
+	void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	/**
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
+	 * @param transactionId the transaction id
+	 * @param dbKey the DBKey of the previously stored primary key 
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	/**
+	 * Put the key to the proper tables in the scope of this transaction using the database alias.
+	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
+	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
+	 * @param alias the database alias
+	 * @param transactionId
+	 * @param index the db index from primary key
+	 * @param instance the object instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+
 	void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	void commit(String transactionId) throws IOException, IllegalAccessException;

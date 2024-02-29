@@ -16,6 +16,7 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -175,19 +176,19 @@ public final class RelatrixTransaction {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		identity.setTransactionId(xid);
 		identity.setDomain(d);
 		identity.setMap(m);
-		identity.setRangeKey(DBKey.nullDBKey);
+		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
-		// cannot be inserted
-		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(xid, DomainMapRange.class, identity), identity)) {
-			rollback(xid);
-			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-		}
-		identity.setRange(r);
-		IndexResolver.getIndexInstanceTable().put(xid, identity);
+		DBKey dbkey = primary.store();
+		identity.setRange(r); // form it as template for duplicate key search
+		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+		// and maintains the classes stores in IndexInstanceTable for future commit.
+		identity.setDBKey(dbkey);
+		IndexResolver.getIndexInstanceTable().put(xid, dbkey, identity);
 		// Start threads to store remaining indexes now that we have our primary set up
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
@@ -286,41 +287,96 @@ public final class RelatrixTransaction {
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
 		identity.setAlias(alias);
-		identity.setDomain(d);
-		identity.setMap(m);
-		identity.setRangeKey(DBKey.nullDBKey);
+		identity.setTransactionId(xid);
+		identity.setDomain(alias,d);
+		identity.setMap(alias,m);
+		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(Relatrix.isPrimaryKey(RelatrixKVTransaction.nearest(alias, xid, identity), identity)) {
-			rollback(alias, xid);
-			throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
+		DBKey dbkey = primary.store();
+		identity.setRange(alias,r); // form it as template for duplicate key search
+		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+		// and maintains the classes stores in IndexInstanceTable for future commit.
+		identity.setDBKey(dbkey);
+		IndexResolver.getIndexInstanceTable().putAlias(alias, xid, dbkey, identity);
+		// Start threads to store remaining indexes now that we have our primary set up
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new MapDomainRange(alias,identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKVTransaction.store(alias, xid, MapDomainRange.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			} // run
+		}); // spin 
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new DomainRangeMap(alias,identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKVTransaction.store(alias, xid, DomainRangeMap.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Morphism dmr = new MapRangeDomain(alias,identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKVTransaction.store(alias, xid, MapRangeDomain.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {  
+				try {
+					Morphism dmr = new RangeDomainMap(alias, identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKVTransaction.store(alias, xid, RangeDomainMap.class, dmr, identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					Morphism dmr = new RangeMapDomain(alias, identity);
+					//IndexResolver.getIndexInstanceTable().put(dmr);
+					RelatrixKVTransaction.store(alias, xid, RangeMapDomain.class, dmr,identity.getDBKey());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored :"+dmr);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		identity.setRange(r);
-		indexClasses[0] = identity.getClass(); 
-		IndexResolver.getIndexInstanceTable().putAlias(alias,xid,identity);
-		DomainRangeMap drm = new DomainRangeMap(alias,identity);
-		indexClasses[1] = drm.getClass();
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,drm);
-		RelatrixKVTransaction.store(alias,xid, identity, drm);
-		MapDomainRange mdr = new MapDomainRange(alias,identity);
-		indexClasses[2] = mdr.getClass();
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,mdr);
-		RelatrixKVTransaction.store(alias,xid, identity, mdr);
-		MapRangeDomain mrd = new MapRangeDomain(alias,identity);
-		indexClasses[3] = mrd.getClass();
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,mrd);
-		RelatrixKVTransaction.store(alias,xid, identity, mrd);
-		RangeDomainMap rdm = new RangeDomainMap(alias,identity);
-		indexClasses[4] = rdm.getClass();
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rdm);
-		RelatrixKVTransaction.store(alias,xid, identity, rdm);
-		RangeMapDomain rmd = new RangeMapDomain(alias,identity);
-		indexClasses[5] = rmd.getClass();
-		//IndexResolver.getIndexInstanceTable().putAlias(alias,xid,rmd);
-		RelatrixKVTransaction.store(alias,xid, identity, rmd);
-		// this gives our DMR a key, and places it in the IndexInstanceTable pervue for commit
 		return identity;
 	}
 	/**

@@ -71,7 +71,7 @@ public final class DBKey implements Comparable, Externalizable {
 	}
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
-	 * The instance then receives and index into the instance table and the index table.
+	 * The instance then receives an index into the instance table and the index table.
 	 * @param indexTable the local or remote interface to facilitate the index creation
 	 * @param instance The actual object instance, may be another DBKey for a relationship.
 	 * @return The new DBKey

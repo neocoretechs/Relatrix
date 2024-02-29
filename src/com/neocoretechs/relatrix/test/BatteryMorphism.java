@@ -10,11 +10,13 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 /**
  * @author jg (C) 2024
@@ -73,18 +75,20 @@ public class BatteryMorphism {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
-			Morphism dmr;
-			DomainMapRange identity = new DomainMapRange(true,d,m,r); // form it as template for duplicate key search
+			DomainMapRange identity = new DomainMapRange();
+			identity.setDomainKey(DBKey.newKey(indexTable, d));
+			identity.setMapKey(DBKey.newKey(indexTable, m));
+			PrimaryKeySet primary = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
-				throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-			}
+			DBKey dbkey = primary.store();
+			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
-			identity.setDBKey( IndexResolver.getIndexInstanceTable().put(identity) );
+			identity.setDBKey(dbkey);
+			IndexResolver.getIndexInstanceTable().put(dbkey, identity);
 			if( DEBUG  )
 				System.out.println("Relatrix.store stored :"+identity);
 			keys.add(identity);
@@ -94,13 +98,13 @@ public class BatteryMorphism {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
-			DomainMapRange identity = new DomainMapRange(true,d,m,r); // form it as template for duplicate key search
+			DomainMapRange identity = new DomainMapRange(d,m,r); // form it as template for duplicate key search
 
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(!Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
+			if(Relatrix.get(identity) == null) {
 				throw new Exception("Failed to find existing key "+identity);
 			}
 		}
