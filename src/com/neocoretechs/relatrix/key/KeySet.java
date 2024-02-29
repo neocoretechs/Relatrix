@@ -159,23 +159,15 @@ public class KeySet implements Externalizable, Comparable {
 		//if(DEBUG)
 			//System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
 		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
-		if(o instanceof PrimaryKeySet) 
-			System.out.println("* compareTo "+this+", "+o+", "+i);
 		if(i != 0) {
 			//if(DEBUG)
 				//System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
 			return i;
 		}
 		i = getMapKey().compareTo(((KeySet)o).getMapKey());
-		if(o instanceof PrimaryKeySet) 
-			System.out.println("** compareTo "+this+", "+o+", "+i);
 		if(i != 0) {
 			//if(DEBUG)
 				//System.out.println("Keyset CompareTo returning "+i+" at MapKey");
-			return i;
-		}
-		if(o instanceof PrimaryKeySet) {
-			System.out.println("Returning compareTo "+this+", "+o+", "+i);
 			return i;
 		}
 		//if(DEBUG)

@@ -142,36 +142,34 @@ public final class RelatrixKV {
 	/**
 	 * Delete element with given key that this object participates in
 	 * @param c The Comparable key
+	 * @return the previous value for the removed key or null if no key was found
 	 * @exception IOException low-level access or problems modifying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
-	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Object remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove prepping to remove:"+c);
-		ttm.remove(c);
-		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixKV.remove exiting remove for key:"+c+" should have removed"+c);
+		return ttm.remove(c);
 	}
 	/**
 	 * Delete element with given key that this object participates in
 	 * @param c The Comparable key
+	 * @return the previous value for removed key or null if no key was found to remove
 	 * @exception IOException low-level access or problems modifying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
-	public static void remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Object remove(String alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove prepping to remove:"+c);
-		ttm.remove(c);
-		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixKV.remove exiting remove for key:"+c+" should have removed"+c);
+		return ttm.remove(c);
 	}
 
 	/**

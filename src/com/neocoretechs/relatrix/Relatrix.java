@@ -390,13 +390,15 @@ public final class Relatrix {
 		try {
 			removeRecursive(c);
 			if(c instanceof DomainMapRange) {
+				PrimaryKeySet primary = new PrimaryKeySet((DomainMapRange) c);
 				DomainRangeMap drm = new DomainRangeMap((DomainMapRange) c);
 				MapDomainRange mdr = new MapDomainRange((DomainMapRange) c);
 				MapRangeDomain mrd = new MapRangeDomain((DomainMapRange) c);
 				RangeDomainMap rdm = new RangeDomainMap((DomainMapRange) c);
 				RangeMapDomain rmd = new RangeMapDomain((DomainMapRange) c);
-
-				IndexResolver.getIndexInstanceTable().deleteInstance((DomainMapRange) c);
+				
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				IndexResolver.getIndexInstanceTable().delete(primaryKey);
 				RelatrixKV.remove(drm);
 				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
 				RelatrixKV.remove(mdr);
@@ -434,13 +436,15 @@ public final class Relatrix {
 		try {
 			removeRecursive(alias,c);
 			if(c instanceof DomainMapRange) {
+				PrimaryKeySet primary = new PrimaryKeySet((DomainMapRange) c);
 				DomainRangeMap drm = new DomainRangeMap(alias,(DomainMapRange) c);
 				MapDomainRange mdr = new MapDomainRange(alias,(DomainMapRange) c);
 				MapRangeDomain mrd = new MapRangeDomain(alias,(DomainMapRange) c);
 				RangeDomainMap rdm = new RangeDomainMap(alias,(DomainMapRange) c);
 				RangeMapDomain rmd = new RangeMapDomain(alias,(DomainMapRange) c);
 
-				IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,(DomainMapRange) c);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				IndexResolver.getIndexInstanceTable().delete(alias, primaryKey);
 				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
 				RelatrixKV.remove(alias, drm);
 				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
@@ -477,7 +481,6 @@ public final class Relatrix {
 				Comparable[] o = (Comparable[]) it.next();
 				if( DEBUG || DEBUGREMOVE)
 					System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-				IndexResolver.getIndexInstanceTable().deleteInstance(o[0]);
 				DomainMapRange dmr = (DomainMapRange)o[0];
 				DomainRangeMap drm = new DomainRangeMap(dmr);
 				MapDomainRange mdr = new MapDomainRange(dmr);
@@ -485,7 +488,9 @@ public final class Relatrix {
 				RangeDomainMap rdm = new RangeDomainMap(dmr);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
-				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+				PrimaryKeySet primary = new PrimaryKeySet(dmr);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				IndexResolver.getIndexInstanceTable().delete(primaryKey);
 				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
 				RelatrixKV.remove(drm);
 				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
@@ -503,7 +508,6 @@ public final class Relatrix {
 				Comparable[] o = (Comparable[]) it.next();
 				if( DEBUG || DEBUGREMOVE )
 					System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-				IndexResolver.getIndexInstanceTable().deleteInstance(o[0]);
 				DomainMapRange dmr = (DomainMapRange)o[0];
 				DomainRangeMap drm = new DomainRangeMap(dmr);
 				MapDomainRange mdr = new MapDomainRange(dmr);
@@ -511,7 +515,9 @@ public final class Relatrix {
 				RangeDomainMap rdm = new RangeDomainMap(dmr);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
-				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+				PrimaryKeySet primary = new PrimaryKeySet(dmr);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary); // remove primary key
+				IndexResolver.getIndexInstanceTable().delete(primaryKey); // remove DMR index table and instance table via primary key
 				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
 				RelatrixKV.remove(drm);
 				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
@@ -529,7 +535,6 @@ public final class Relatrix {
 				Comparable[] o = (Comparable[]) it.next();
 				if( DEBUG || DEBUGREMOVE )
 					System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-				IndexResolver.getIndexInstanceTable().deleteInstance(o[0]);
 				DomainMapRange dmr = (DomainMapRange)o[0];
 				DomainRangeMap drm = new DomainRangeMap(dmr);
 				MapDomainRange mdr = new MapDomainRange(dmr);
@@ -537,7 +542,9 @@ public final class Relatrix {
 				RangeDomainMap rdm = new RangeDomainMap(dmr);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
-				IndexResolver.getIndexInstanceTable().deleteInstance(dmr);
+				PrimaryKeySet primary = new PrimaryKeySet(dmr);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				IndexResolver.getIndexInstanceTable().delete(primaryKey);
 				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
 				RelatrixKV.remove(drm);
 				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
@@ -569,7 +576,6 @@ public final class Relatrix {
 			Comparable[] o = (Comparable[]) it.next();
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,o[0]);
 			DomainMapRange dmr = (DomainMapRange)o[0];
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
 			MapDomainRange mdr = new MapDomainRange(alias,dmr);
@@ -577,7 +583,9 @@ public final class Relatrix {
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
+			PrimaryKeySet primary = new PrimaryKeySet(dmr);
+			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+			IndexResolver.getIndexInstanceTable().deleteAlias(alias, primaryKey);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
 			RelatrixKV.remove(alias, drm);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
@@ -595,7 +603,6 @@ public final class Relatrix {
 			Comparable[] o = (Comparable[]) it.next();
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,o[0]);
 			DomainMapRange dmr = (DomainMapRange)o[0];
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
 			MapDomainRange mdr = new MapDomainRange(alias,dmr);
@@ -603,7 +610,9 @@ public final class Relatrix {
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,dmr);
+			PrimaryKeySet primary = new PrimaryKeySet(dmr);
+			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+			IndexResolver.getIndexInstanceTable().deleteAlias(alias, primaryKey);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
 			RelatrixKV.remove(alias, drm);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
@@ -621,7 +630,6 @@ public final class Relatrix {
 			Comparable[] o = (Comparable[]) it.next();
 			if( DEBUG || DEBUGREMOVE )
 				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-			IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,o[0]);
 			DomainMapRange dmr = (DomainMapRange)o[0];
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
 			MapDomainRange mdr = new MapDomainRange(alias,dmr);
@@ -629,7 +637,9 @@ public final class Relatrix {
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
-			IndexResolver.getIndexInstanceTable().deleteInstance(alias,dmr);
+			PrimaryKeySet primary = new PrimaryKeySet(dmr);
+			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+			IndexResolver.getIndexInstanceTable().deleteAlias(alias, primaryKey);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
 			RelatrixKV.remove(alias, drm);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
