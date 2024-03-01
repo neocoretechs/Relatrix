@@ -72,6 +72,10 @@ public final class Relatrix {
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
 	private static SynchronizedFixedThreadPoolManager sftpm;
+	public static final String storeX = "STOREX";
+	public static final String storeI = "STOREI";
+	public static final String deleteX = "DELETEX";
+	public static final String deleteI = "DELETEI";
 	
 	static {
 		if(System.getProperty(databaseCatalogProperty) != null)
@@ -83,7 +87,8 @@ public final class Relatrix {
 			e.printStackTrace();
 		}
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
-		sftpm.init(5, 5);
+		sftpm.init(5, 5, new String[] {storeX,deleteX});
+		sftpm.init(2, 2, new String[] {storeI,deleteI});
 	}
 	
 
@@ -191,7 +196,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			} // run
-		}); // spin 
+		},storeX); // spin 
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -205,7 +210,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -219,7 +224,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {  
@@ -233,7 +238,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {    
@@ -247,9 +252,9 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish();
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeX);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -302,7 +307,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			} // run
-		}); // spin 
+		},storeX); // spin 
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -316,7 +321,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -330,7 +335,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {  
@@ -344,7 +349,7 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {    
@@ -358,9 +363,9 @@ public final class Relatrix {
 					throw new RuntimeException(e);
 				}
 			}
-		});
+		},storeX);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish();
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeX);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -399,16 +404,61 @@ public final class Relatrix {
 				
 				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
 				IndexResolver.getIndexInstanceTable().delete(primaryKey);
-				RelatrixKV.remove(drm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				RelatrixKV.remove(mdr);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				RelatrixKV.remove(mrd);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				RelatrixKV.remove(rdm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				RelatrixKV.remove(rmd);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(drm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mdr);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mrd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rdm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rmd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				try {
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			} else {
 				IndexResolver.getIndexInstanceTable().deleteInstance(c);
 			}
@@ -445,16 +495,61 @@ public final class Relatrix {
 
 				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
 				IndexResolver.getIndexInstanceTable().delete(alias, primaryKey);
-				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-				RelatrixKV.remove(alias, drm);
-				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-				RelatrixKV.remove(alias, mdr);
-				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-				RelatrixKV.remove(alias, mrd);
-				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-				RelatrixKV.remove(alias, rdm);
-				//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
-				RelatrixKV.remove(alias, rmd);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(alias,drm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(alias,mdr);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(alias,mrd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(alias,rdm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(alias,rmd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				try {
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			} else {
 				IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,c);
 			}
@@ -491,16 +586,61 @@ public final class Relatrix {
 				PrimaryKeySet primary = new PrimaryKeySet(dmr);
 				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
 				IndexResolver.getIndexInstanceTable().delete(primaryKey);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				RelatrixKV.remove(drm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				RelatrixKV.remove(mdr);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				RelatrixKV.remove(mrd);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				RelatrixKV.remove(rdm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
-				RelatrixKV.remove(rmd);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(drm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mdr);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mrd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rdm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rmd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				try {
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				removeRecursive(o[0]); 
 			}
 			it = findSet("*",c,"*");
@@ -518,16 +658,61 @@ public final class Relatrix {
 				PrimaryKeySet primary = new PrimaryKeySet(dmr);
 				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary); // remove primary key
 				IndexResolver.getIndexInstanceTable().delete(primaryKey); // remove DMR index table and instance table via primary key
-				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				RelatrixKV.remove(drm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				RelatrixKV.remove(mdr);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				RelatrixKV.remove(mrd);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				RelatrixKV.remove(rdm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
-				RelatrixKV.remove(rmd);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(drm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mdr);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mrd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rdm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rmd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				try {
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				removeRecursive(o[0]); 
 			}
 			it = findSet("*","*",c);
@@ -545,16 +730,61 @@ public final class Relatrix {
 				PrimaryKeySet primary = new PrimaryKeySet(dmr);
 				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
 				IndexResolver.getIndexInstanceTable().delete(primaryKey);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(drm);
-				RelatrixKV.remove(drm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mdr);
-				RelatrixKV.remove(mdr);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(mrd);
-				RelatrixKV.remove(mrd);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rdm);
-				RelatrixKV.remove(rdm);
-				//IndexResolver.getIndexInstanceTable().deleteInstance(rmd);
-				RelatrixKV.remove(rmd);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(drm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mdr);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(mrd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rdm);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+					@Override
+					public void run() {    
+						try {
+							RelatrixKV.remove(rmd);
+						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				},deleteX);
+				try {
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				removeRecursive(o[0]); 
 			}
 	}
@@ -586,16 +816,61 @@ public final class Relatrix {
 			PrimaryKeySet primary = new PrimaryKeySet(dmr);
 			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
 			IndexResolver.getIndexInstanceTable().deleteAlias(alias, primaryKey);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-			RelatrixKV.remove(alias, drm);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-			RelatrixKV.remove(alias, mdr);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-			RelatrixKV.remove(alias, mrd);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-			RelatrixKV.remove(alias, rdm);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
-			RelatrixKV.remove(alias, rmd);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,drm);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,mdr);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,mrd);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,rdm);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,rmd);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			removeRecursive(alias,o[0]); 
 		}
 		it = findSet(alias,"*",c,"*");
@@ -613,16 +888,61 @@ public final class Relatrix {
 			PrimaryKeySet primary = new PrimaryKeySet(dmr);
 			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
 			IndexResolver.getIndexInstanceTable().deleteAlias(alias, primaryKey);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-			RelatrixKV.remove(alias, drm);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-			RelatrixKV.remove(alias, mdr);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-			RelatrixKV.remove(alias, mrd);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-			RelatrixKV.remove(alias, rdm);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
-			RelatrixKV.remove(alias, rmd);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,drm);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,mdr);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,mrd);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,rdm);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,rmd);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			removeRecursive(alias,o[0]); 
 		}
 		it = findSet(alias,"*","*",c);
@@ -640,16 +960,61 @@ public final class Relatrix {
 			PrimaryKeySet primary = new PrimaryKeySet(dmr);
 			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
 			IndexResolver.getIndexInstanceTable().deleteAlias(alias, primaryKey);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,drm);
-			RelatrixKV.remove(alias, drm);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mdr);
-			RelatrixKV.remove(alias, mdr);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,mrd);
-			RelatrixKV.remove(alias, mrd);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rdm);
-			RelatrixKV.remove(alias, rdm);
-			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,rmd);
-			RelatrixKV.remove(alias, rmd);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,drm);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,mdr);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,mrd);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,rdm);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						RelatrixKV.remove(alias,rmd);
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			},deleteX);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			removeRecursive(alias,o[0]); 
 		}
 	}

@@ -807,9 +807,15 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
-				Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
-				System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
-				return c;
+				if(transactionId == null) {
+					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
+					return c;
+				} else {
+					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId,key);
+					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
+					return c;
+				}
 			}
 			if(transactionId == null)
 				return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
@@ -819,9 +825,15 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 		
 		protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
-				DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(instance);
-				System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
-				return c;
+				if(transactionId == null) {
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(instance);
+					System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
+					return c;
+				} else {
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(transactionId,instance);
+					System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
+					return c;
+				}
 			}
 			if(transactionId == null)
 				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(instance);
@@ -831,9 +843,15 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 		  
 		protected DBKey resolveInstance(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 			if(DEBUG) {
-				DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
-				System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
-				return c;
+				if(transactionId == null) {
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
+					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
+					return c;
+				} else {
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
+					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
+					return c;	
+				}
 			}
 			if(transactionId == null)
 				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
