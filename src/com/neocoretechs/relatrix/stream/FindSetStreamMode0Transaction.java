@@ -75,4 +75,38 @@ public class FindSetStreamMode0Transaction extends FindSetStreamMode0 {
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixStreamTransaction(xid, tdmr, dmr_return);
 	}
+	
+	@Override
+ 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
+ 		Morphism dmr = null;
+ 		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+ 			case 0: // dmr
+ 				dmr = new DomainMapRange(true, alias, xid, null, null, null);
+ 				break;
+ 			case 1: // drm
+ 				dmr = new DomainRangeMap(true, alias, xid, null, null, null);
+ 				break;
+ 			case 2: // mdr
+ 				dmr = new MapDomainRange(true, alias, xid, null, null, null);
+ 				break;
+ 			case 3: // mrd
+ 				dmr = new MapRangeDomain(true, alias, xid, null, null, null);
+ 				break;
+ 			case 4: // rdm
+ 				dmr = new RangeDomainMap(true, alias, xid, null, null, null);
+ 				break;
+ 			case 5: // rmd
+ 				dmr = new RangeMapDomain(true, alias, xid, null, null, null);
+ 				break;
+ 		}
+ 		if( DEBUG  )
+ 			System.out.println("Relatrix FindSetStreamMode0.createStream setting search for "+dmr);
+ 	    return createRelatrixStream(alias, dmr);
+ 	}
+ 	
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException {
+	    return new RelatrixStreamTransaction(alias, xid, tdmr, dmr_return);
+	}
 }

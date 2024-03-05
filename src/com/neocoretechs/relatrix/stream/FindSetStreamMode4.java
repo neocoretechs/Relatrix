@@ -59,7 +59,6 @@ public class FindSetStreamMode4 extends StreamFactory {
 	}
 	@Override
 	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism dmr = new DomainMapRange(true, alias, (Comparable)darg, null, null);
-		return createRelatrixStream(alias, dmr);
+		return new RelatrixStream(alias, tdmr, dmr_return);
 	}
 }

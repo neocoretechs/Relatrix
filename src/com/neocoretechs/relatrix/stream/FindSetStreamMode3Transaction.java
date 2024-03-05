@@ -42,8 +42,9 @@ public class FindSetStreamMode3Transaction extends FindSetStreamMode3 {
 	@Override
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
 	    Morphism dmr = new MapRangeDomain(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixStream(dmr);
+	    return createRelatrixStream(alias, dmr);
 	}
+	@Override
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
 	 * @param tdmr
@@ -53,5 +54,16 @@ public class FindSetStreamMode3Transaction extends FindSetStreamMode3 {
 	 */
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixStreamTransaction(xid, tdmr, dmr_return);
+	}
+	@Override
+	/**
+	 * Create the specific iterator. Subclass overrides for various set valued functions
+	 * @param tdmr
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException {
+	    return new RelatrixStreamTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

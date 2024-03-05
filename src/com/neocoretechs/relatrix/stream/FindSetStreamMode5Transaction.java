@@ -43,11 +43,16 @@ public class FindSetStreamMode5Transaction extends FindSetStreamMode5 {
 	@Override
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
 		Morphism dmr = new DomainRangeMap(true, alias, xid, (Comparable)darg, null, (Comparable)rarg);
-		return createRelatrixStream(dmr);
+		return createRelatrixStream(alias, dmr);
 	}
 	
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr)throws IllegalAccessException, IOException {
 		return new RelatrixStreamTransaction(xid, tdmr, dmr_return);
+	}
+	
+	@Override
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr)throws IllegalAccessException, IOException {
+		return new RelatrixStreamTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

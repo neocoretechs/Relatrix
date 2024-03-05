@@ -1135,7 +1135,7 @@ public final class Relatrix {
 		//IteratorFactory ifact = IteratorFactory.createFactory(alias, darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createFactory(alias, darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
 		return sfact.createStream(alias);
 	}
 	/**
@@ -1215,7 +1215,7 @@ public final class Relatrix {
 				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
 				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
 			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		StreamFactory sfact = StreamFactory.createFactory(alias, darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
 		return sfact.createStream(alias);
 		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
@@ -1247,7 +1247,7 @@ public final class Relatrix {
 	public static synchronized Iterator<?> findHeadSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(alias, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
 	/**
@@ -1283,7 +1283,7 @@ public final class Relatrix {
 		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createHeadsetFactory(alias, darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg);
 		return sfact.createStream(alias);
 	}
 	/**
@@ -1400,7 +1400,7 @@ public final class Relatrix {
 		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createSubsetFactory(alias, darg, marg, rarg, endarg);
+		StreamFactory sfact = StreamFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return sfact.createStream(alias);
 	}
 	/**

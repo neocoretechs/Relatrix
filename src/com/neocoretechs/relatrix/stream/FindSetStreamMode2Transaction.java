@@ -49,9 +49,16 @@ public class FindSetStreamMode2Transaction extends FindSetStreamMode2 {
 	public Stream<?> createStream(String alias) throws IllegalAccessException, IOException {
 		Morphism dmr = new MapDomainRange(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		return createRelatrixStream(dmr);
+		return createRelatrixStream(alias, dmr);
 	}
+	
+	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixStreamTransaction(xid, tdmr, dmr_return);	
+	}
+	
+	@Override
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException {
+		return new RelatrixStreamTransaction(alias, xid, tdmr, dmr_return);	
 	}
 }
