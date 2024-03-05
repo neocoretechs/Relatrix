@@ -36,7 +36,7 @@ public class FindSetMode4Transaction extends FindSetMode4 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		Morphism dmr = new DomainMapRange(true, xid, (Comparable)darg, null, null);
+		Morphism dmr = new DomainMapRange(true, null, xid, (Comparable)darg, null, null);
 		return createRelatrixIterator(dmr);
 	}
 	

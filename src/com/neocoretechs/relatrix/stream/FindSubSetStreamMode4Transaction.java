@@ -42,11 +42,31 @@ public class FindSubSetStreamMode4Transaction extends FindSetStreamMode4Transact
 			   // move the end range into the new template in the proper position
 			   int ipos = 0;
 			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate(xid, (Comparable) xarg[ipos++]); 
+					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
 			   }
 		   } catch (CloneNotSupportedException e) {
 			   throw new IOException(e);
 		   }
 		   return (Stream<?>) new RelatrixSubsetStreamTransaction(xid, tdmr, templdmr, dmr_return);
 	   }
+	   /**
+	     * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s
+	     */
+		  @Override
+		  protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException {
+			   // make a new Morphism template
+			   Morphism templdmr;
+			   try {
+				   // primarily for class type than values of instance
+				   templdmr = (Morphism) tdmr.clone();
+				   // move the end range into the new template in the proper position
+				   int ipos = 0;
+				   if( tdmr.getDomain() != null ) {
+						  templdmr.setDomainTemplate(alias, (Comparable) xarg[ipos++]); 
+				   }
+			   } catch (CloneNotSupportedException e) {
+				   throw new IOException(e);
+			   }
+			   return (Stream<?>) new RelatrixSubsetStreamTransaction(alias, xid, tdmr, templdmr, dmr_return);
+		   }
 }
