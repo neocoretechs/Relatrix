@@ -59,7 +59,6 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 	
-  
 	public DomainMapRange(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
 		super(flag, alias, transactionId, d, m, r);
 	}
@@ -84,62 +83,9 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		this.identity = identity;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public int compareTo(Object dmrpk) {
-		if(keyCompare)
-			return super.compareTo(dmrpk);
-		if(DEBUG)
-			System.out.println("Entering resolved compareTo for source:"+this+" target:"+dmrpk);
-		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
-			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
-		DomainMapRange dmr = (DomainMapRange)dmrpk;
-		if( dmr.getDomain() == null )
-			return 0;
-		//int cmp = domain.compareTo(dmr.domain);
-		int cmp = Morphism.fullCompareTo(getDomain(), dmr.getDomain());
-		if( cmp != 0 ) return cmp;
-		if( dmr.getMap() == null )
-			return 0;
-		//cmp = map.compareTo(dmr.map);
-		cmp = Morphism.fullCompareTo(getMap(), dmr.getMap());
-		if( cmp != 0 ) return cmp;
-		if( dmr.getRange() == null )
-			return 0;
-		//return range.compareTo(dmr.range);
-		return Morphism.fullCompareTo(getRange(), dmr.getRange());
-	}
 
 	@Override
-	public boolean equals(Object dmrpk) {
-		if(keyCompare)
-			return super.equals(dmrpk);
-		if(DEBUG)
-			System.out.println("Entering resolved equals for source:"+this+" target:"+dmrpk);
-		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
-			return Morphism.partialEquals(this, (Comparable) dmrpk);
-		DomainMapRange dmr = (DomainMapRange)dmrpk;
-		boolean cmp = false;
-		if( dmr.getDomain() == null )
-			return true;
-		//cmp = domain.equals(dmr.domain);
-		cmp = Morphism.fullEquals(getDomain(), dmr.getDomain());
-		if( !cmp ) return cmp;
-		if( dmr.getMap() == null )
-			return true;
-		//cmp = map.equals(dmr.map);
-		cmp = Morphism.fullEquals(getMap(), dmr.getMap());
-		if( !cmp ) return cmp;
-		if( dmr.getRange() == null )
-			return true;
-		//return range.equals(dmr.range);
-		return Morphism.fullEquals(getRange(), dmr.getRange());
-	}
-	
-	@Override
 	public int hashCode() {
-		if(keyCompare)
-			return super.hashCode();
 		int result = 17;
 		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
 		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());

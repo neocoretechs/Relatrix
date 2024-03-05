@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,8 +23,11 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator;
+
 
 /**
  * Implementation of the standard stream interface 
@@ -44,8 +48,10 @@ public class RelatrixHeadmapStream<T> implements Stream<T> {
      */
     public RelatrixHeadmapStream(Comparable template) throws IOException {
     	try {
-			stream = RelatrixKV.findHeadMapStream(template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findHeadMapStream(template);
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadmapIterator(template), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     	if( DEBUG )
@@ -58,8 +64,10 @@ public class RelatrixHeadmapStream<T> implements Stream<T> {
      */
     public RelatrixHeadmapStream(String alias, Comparable template) throws IOException, NoSuchElementException {
     	try {
-			stream = RelatrixKV.findHeadMapStream(alias, template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findHeadMapStream(alias, template);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadmapIterator(alias, template), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     	if( DEBUG )

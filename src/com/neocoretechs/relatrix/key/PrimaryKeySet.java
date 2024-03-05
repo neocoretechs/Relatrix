@@ -9,15 +9,18 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.rocksack.DerivedClass;
+import com.neocoretechs.rocksack.DatabaseClass;
 /**
  * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023
  *
  */
-public class PrimaryKeySet extends DomainMapRange implements Externalizable, Comparable, DerivedClass {
+@DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
+public class PrimaryKeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
+	protected DBKey domainKey;
+    protected DBKey mapKey;
 	private transient String transactionId = null;
 	private transient String alias = null;
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
@@ -30,7 +33,18 @@ public class PrimaryKeySet extends DomainMapRange implements Externalizable, Com
 		this.transactionId = identity.getTransactionId();
 		this.alias = identity.getAlias();
 	}
-
+	public DBKey getDomainKey() {
+		return domainKey;
+	}
+	public void setDomainKey(DBKey domainKey) {
+		this.domainKey = domainKey;
+	}
+	public DBKey getMapKey() {
+		return mapKey;
+	}
+	public void setMapKey(DBKey mapKey) {
+		this.mapKey = mapKey;
+	}
 	public boolean isValid() {
 		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey);
 	}
@@ -170,19 +184,19 @@ public class PrimaryKeySet extends DomainMapRange implements Externalizable, Com
 	public int compareTo(Object o) {
 		//if(DEBUG)
 			//System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
-		int i = getDomainKey().compareTo(((KeySet)o).getDomainKey());
+		int i = getDomainKey().compareTo(((PrimaryKeySet)o).getDomainKey());
 		if(i != 0) {
 			//if(DEBUG)
 				//System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
 			return i;
 		}
-		return getMapKey().compareTo(((KeySet)o).getMapKey());
+		return getMapKey().compareTo(((PrimaryKeySet)o).getMapKey());
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		return getDomainKey().equals(((KeySet)o).getDomainKey()) &&
-				getMapKey().equals(((KeySet)o).getMapKey());// &&
+		return getDomainKey().equals(((PrimaryKeySet)o).getDomainKey()) &&
+				getMapKey().equals(((PrimaryKeySet)o).getMapKey());// &&
 	}
 	
 	@Override

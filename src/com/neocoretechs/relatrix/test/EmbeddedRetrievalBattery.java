@@ -35,8 +35,12 @@ public class EmbeddedRetrievalBattery {
 		 //System.out.println("Analysis of all");
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		battery1AR17(argv);
-		battery00(argv);
+		if(argv.length == 2 && argv[1].equals("init")) {
+				battery1AR17(argv);
+		}
+		if(Relatrix.size() == 0) {
+			battery00(argv);
+		}
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);

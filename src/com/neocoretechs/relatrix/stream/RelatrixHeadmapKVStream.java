@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,8 +23,10 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.iterator.RelatrixHeadmapKVIterator;
 
 /**
  * Implementation of the standard Stream interface which operates on K/V keys
@@ -45,8 +48,10 @@ public class RelatrixHeadmapKVStream<T,V> implements Stream<T> {
      */
     public RelatrixHeadmapKVStream(Comparable template) throws IOException {
     	try {
-			stream = RelatrixKV.findHeadMapKVStream(template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findHeadMapKVStream(template);
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadmapKVIterator(template), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     	if( DEBUG )
@@ -59,8 +64,10 @@ public class RelatrixHeadmapKVStream<T,V> implements Stream<T> {
      */
     public RelatrixHeadmapKVStream(String alias, Comparable template) throws IOException, NoSuchElementException {
     	try {
-			stream = RelatrixKV.findHeadMapKVStream(alias, template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findHeadMapKVStream(alias, template);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadmapKVIterator(alias, template), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     	if( DEBUG )

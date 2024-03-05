@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,9 +23,13 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator;
 /**
  * Instances of this class deliver an stream of objects representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
@@ -33,8 +38,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * element of a RelatrixStream is dependent on the number of "?" operators in a 'findSetStream'. For example,
- * if we declare findHeadSetStream("*","?","*") we get back a Comparable[] of one element. For findSetStream("?",object,"?") we
- * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
+ * if we declare findHeadSetStream("*","?","*") we get back a  {@link Result} of one element. For findSetStream("?",object,"?") we
+ * would get back a  {@link Result2} array, with each element of the array containing the relationship returned.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015(iterator), 2021 (stream), 2022
  *
  */
@@ -57,8 +62,10 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
-			stream = RelatrixKV.findSubMapStream(template, template2);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findSubMapStream(template, template2);
+       		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIterator(template, template2, dmr_return), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }
@@ -73,8 +80,10 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
-			stream = RelatrixKV.findSubMapStream(alias, template, template2);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findSubMapStream(alias, template, template2);
+     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIterator(alias, template, template2, dmr_return), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }
@@ -287,19 +296,19 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
 	* @throws IOException 
 	* @throws IllegalAccessException 
 	*/
-	private Comparable[] iterateDmr() throws IllegalAccessException, IOException
+	private Result iterateDmr() throws IllegalAccessException, IOException
 	{
 		int returnTupleCtr = 0;
-	    Comparable[] tuples = new Comparable[RelatrixStream.getReturnTuples(dmr_return)];
+	    Result tuples = RelatrixStream.getReturnTuples(dmr_return);
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
 	    if( identity ) {
-	    	tuples[0] = buffer;
+	    	tuples.set(0, buffer);
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length; i++)
-	    	tuples[i] = buffer.iterate_dmr(dmr_return);
+	    for(int i = 0; i < tuples.length(); i++)
+	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
 		return tuples;
 	}
 

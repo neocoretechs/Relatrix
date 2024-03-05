@@ -6,24 +6,28 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.Result2;
+import com.neocoretechs.relatrix.Result3;
 /**
  * Implementation of the standard Iterator interface which operates on Morphisms formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
  * The N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
- * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, 
+ * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} in next(), since 1 full tuple element at an iteration is returned, 
  * that being the identity morphism.<p/>
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
- * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
- * findSet("*","*","*") = Comparable[1] containing identity in [0] of instance DomainMapRange <br/>
- * findSet("*","*",object) = Comparable[1] identity in [0] of RangeDomainMap where 'object' is range <br/>
- * findSet("*",object,object) = Comparable[1] identity in [0] of MapRangeDomain matching the 2 concrete objects <br/>
- * findSet(object,object,object) = Comparable[1] identity in [0] of DomainMapRange matching 3 objects <br/>
- * findSet("?","?","?") = Comparable[3] return all, for each element in the database.<br/>
- * findSet("?","?",object) = Comparable[2] return all domain and map objects for a given range object <br/>
- * findSet("?","*","?") = Comparable[2] return all elements of domain and range <br/>
+ * if we declare findHeadSet("*","?","*") we get back a  of one element. For findSet("?",object,"?") we
+ * would get back a Result2, with each object of the Result hierarchy containing the relationship returned.<br/>
+ * findSet("*","*","*") = {@link Result1} containing identity of instance DomainMapRange <br/>
+ * findSet("*","*",object) =  {@link Result1} identity of RangeDomainMap where 'object' is range <br/>
+ * findSet("*",object,object) = {@link Result1} identity of MapRangeDomain matching the 2 concrete objects <br/>
+ * findSet(object,object,object) = {@link Result1} identity of DomainMapRange matching 3 objects <br/>
+ * findSet("?","?","?") = {@link Result3} return all, for each element in the database.<br/>
+ * findSet("?","?",object) = {@link Result2} return all domain and map objects for a given range object <br/>
+ * findSet("?","*","?") = {@link Result2} return all elements of domain and range <br/>
  * etc.
  * <p/>
  * findHeadSet works in the same fashion but returns elements strictly less than the target element. <p/>
@@ -31,7 +35,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017
  *
  */
-public class RelatrixIterator implements Iterator<Comparable[]> {
+public class RelatrixIterator implements Iterator<Result> {
 	private static boolean DEBUG = false;
 	protected Iterator iter;
     protected Morphism buffer = null;
@@ -110,7 +114,7 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 
 	
 	@Override
-	public Comparable[] next() {
+	public Result next() {
 		try {
 		if( buffer == null || needsIter) {
 			if( DEBUG ) {
@@ -161,21 +165,21 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	* @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	*/
-	private Comparable[] iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
-	    Comparable[] tuples = new Comparable[getReturnTuples(dmr_return)];
+	private Result iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
+	    Result tuples = getReturnTuples(dmr_return);
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
 	    if( identity ) {
-	    	tuples[0] = buffer;
+	    	tuples.set(0, buffer);
 	    } else {
 	    	dmr_return[0] = 0;
-	    	for(int i = 0; i < tuples.length; i++) {
+	    	for(int i = 0; i < tuples.length(); i++) {
 	    		if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" tuple:"+tuples[i]);
+	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" tuple:"+tuples.get(i));
 	    		}
-	    		tuples[i] = buffer.iterate_dmr(dmr_return);
+	    		tuples.set(i, buffer.iterate_dmr(dmr_return));
 	    		if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" tuple:"+tuples[i]);
+	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" tuple:"+tuples.get(i));
 	    		}
 	    	}
 	    }
@@ -186,14 +190,22 @@ public class RelatrixIterator implements Iterator<Comparable[]> {
 	 * @param dmr_return
 	 * @return
 	 */
-	protected static short getReturnTuples(short[] dmr_return) {
+	protected static Result getReturnTuples(short[] dmr_return) {
 		short cnt = 0;
 		if( isIdentity(dmr_return) ) // return all relationship types, 1 tuple special case
-			return 1;
+			return new Result1();
 		for(int i = 1; i < 4; i++) {
 			if( dmr_return[i] == 1 ) ++cnt; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
 		}
-		return cnt;
+		switch(cnt) {
+			case 1:
+				return new Result1();
+			case 2:
+				return new Result2();
+			case 3:
+				return new Result3();
+		}
+		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
 	}
 	/**
 	 * Checks to see if our dmr_return array has any return tuple ? values, which = 1

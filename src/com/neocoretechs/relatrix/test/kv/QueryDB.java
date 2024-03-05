@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.Result;
 
 /**
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2, domain wildcard, map wildcard, range wildcard
@@ -39,19 +40,19 @@ public class QueryDB {
 		*/
 		Iterator<?> it = Relatrix.findSet(domain,map,range);
 		while(it.hasNext()) {
-			Comparable[] e = (Comparable[]) it.next();
-			switch(e.length) {
+			Result e = (Result) it.next();
+			switch(e.length()) {
 			case 1:
 			System.out.printf("%d=%s,%s%n",recs++, 
-					e[0].getClass().getName(),e[0]);
+					e.get(0).getClass().getName(),e.get(0));
 			break;
 			case 2:
 				System.out.printf("%d=%s,%s->%s,%s%n",recs++, 
-						e[0].getClass().getName(),e[0],e[1].getClass().getName(),e[1]);
+						e.get(0).getClass().getName(),e.get(0),e.get(1).getClass().getName(),e.get(1));
 				break;
 			case 3:
 				System.out.printf("%d=%s,%s->%s,%s->%s,%s%n",recs++, 
-						e[0].getClass().getName(),e[0],e[1].getClass().getName(),e[1],e[2].getClass().getName(),e[2]);
+						e.get(0).getClass().getName(),e.get(0),e.get(1).getClass().getName(),e.get(1),e.get(2).getClass().getName(),e.get(2));
 				break;
 			default:
 				System.out.println("ZERO OR UNDEFINED LENGH RESULT SET");

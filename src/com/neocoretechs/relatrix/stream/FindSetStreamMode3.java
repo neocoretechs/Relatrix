@@ -10,7 +10,7 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 3 = findSet("?|*",object,object)
 * returns a 1 element Comparable with the identity findSet("*",object,object) for all elements matching the
-* last 2 objects. In the case of findSet("?",object,object) a Comparable[1] is return for each iteration
+* last 2 objects. In the case of findSet("?",object,object) a  {@link Result} is return for each iteration
 * and it contains the object functioning as the domain in all relationships where the last 2 objects are the map and range.
 * Legal permutations are:<br/>
 * *,[object],[object] <br/>

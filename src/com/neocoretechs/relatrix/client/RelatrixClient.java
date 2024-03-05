@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
@@ -567,7 +568,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailSetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
@@ -620,7 +621,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<REsult>
 	*/
 	public RemoteTailSetIterator findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findTailSet",darg, marg, rarg);
@@ -665,7 +666,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * @param darg Domain of morphism
 	 * @param marg Map of morphism relationship
 	 * @param rarg Range or codomain or morphism relationship
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -719,7 +720,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * @param marg The map of the relationship to retrieve
 	 * @param rarg The range or codomain of the relationship
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -767,11 +768,11 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * @param rii
 	 * @return
 	 */
-	public Comparable[] next(RemoteObjectInterface rii) throws NoSuchElementException {
+	public Result next(RemoteObjectInterface rii) throws NoSuchElementException {
 		((RelatrixStatement)rii).methodName = "next";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		try {
-			return (Comparable[])sendCommand((RelatrixStatementInterface) rii);
+			return (Result)sendCommand((RelatrixStatementInterface) rii);
 		} catch (IllegalAccessException | DuplicateKeyException | IOException e) {
 			throw new RuntimeException(e);
 		}

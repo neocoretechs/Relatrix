@@ -30,10 +30,9 @@ import com.neocoretechs.rocksack.NotifyDBCompareTo;
 * sets from categories. The template class can be used to retrieve sets based on their class type.
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
 */
-public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comparable, Externalizable, Cloneable {
+public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
 		private static boolean DEBUG = false;
-		public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
-		public static boolean ENFORCE_TYPE_CHECK = true; // if true, enforces type compatibility in relationships, if false, user must supply compareTo that spans all types used. STRICT_SCHEMA ignored
+
         static final long serialVersionUID = -9129948317265641091L;
         public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
         public static displayLevels displayLevel = displayLevels.BRIEF;
@@ -46,7 +45,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         
         protected transient String alias = null;
         
-        protected transient boolean keyCompare = false;
+        //protected transient boolean keyCompare = false;
         
         protected transient boolean templateFlag = false;
         
@@ -282,15 +281,17 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         @Override
         public abstract Object clone() throws CloneNotSupportedException;
         
+        /*
+         * These are for NotifyDbCompareTo interface, which triggers in pore-and post compare from SerializedComparator
     	@Override
     	public void preCompare() {
     		keyCompare = true;
     	}
-
     	@Override
     	public void postCompare() {
     		keyCompare = false;
     	}
+        */
         
     	public String getAlias() {
     		return alias;
@@ -301,33 +302,14 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
     	}
     	
         /**
-         * If true, enforces type checking for components of relationships. If classes are incompatible,
-         * an attempt is made to use a string representation as a default method of providing ordering. If false, STRICT_SCHEMA ignored.
-         * If false, User is responsible for providing compareTo in every class used in relationships that is compatible
-         * with every other class used in relationships for a given database. Default is true.
-         * @param bypass
-         */
-        public static void enforceTypeCheck(boolean enforce) {
-        	ENFORCE_TYPE_CHECK = enforce;
-        }
-        /**
-         * If true, schema if restricted to first relationship type inserted, which means sort
-         * ordering and comparison is based on the domain, map, and range elements remaining of consistent types
-         * which also restricts using relationships as components of other relationships. Default is false.
-         * @param strict
-         */
-        public static void enforceStrictSchema(boolean strict) {
-        	STRICT_SCHEMA = strict;
-        }
-        /**
          * Method invoked from custom deserializer to indicate that RockSack is retrieving keys and
          * comparison should be on keys rather then resolved instances.
-         * @param keyCompare true to indicate database is deserializing and {@link KeySet} {@link DBKey} should be comparred
-         */
+         * @param keyCompare true to indicate database is deserializing and {@link KeySet} {@link DBKey} should be comparred    
         public void setKeyCompare(boolean keyCompare) {
         	this.keyCompare = keyCompare;
         }
-      
+      	*/
+    	
         /**
          * Transparently process DBKey, returning actual instance. If the domain is already deserialized as an instance
          * it will be returned without further processing. If the domain is null and the key in the {@link KeySet} is
@@ -859,89 +841,7 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
 				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
 		}
 		
-        /**
-         * Failsafe compareTo.
-         * If classes are not the same and the target is not assignable from the source, that is, not a subclass, toss an error
-         * If none of the above conditions apply, the default is to perform a straight up 'compareTo' as we all implement Comparable.
-         * 
-         * @param from DBKey wrapping instance If null, this element 'less than' to element, for template use
-         * @param to DBKey wrapping instance If null, throw an error, as should never be null
-         * @return result of compareTo unless classes differ, then result of string-based compareTo as we need some form of default comparison
-         */
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-		public static int fullCompareTo(Comparable from, Comparable to) {
-        	if( to == null )
-        		throw new RuntimeException("Morphism.fullCompareTo 'to' element is null, from is "+from);
-        	if(from == null)
-        		return -1;
-         	// now see if the classes are compatible for comparison, if not, convert them to strings and compare
-        	// the string representations as a failsafe.
-        	if(ENFORCE_TYPE_CHECK) {
-        		Class toClass = to.getClass();
-        		if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass())) {
-        			if(STRICT_SCHEMA)
-        				throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
-        						" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
-        			else
-        				//compare a universal string representation as a unifying datatype for typed class templates
-        				return from.toString().compareTo(to.toString());
-        		}
-        	}
-        	// Otherwise, use the standard compareTo for all objects which invokes our indicies
-        	// DBKey comapreTo handles resolution of key to instance
-        	return from.compareTo(to);
-        }
-        /**
-         * This mechanism needs refinement to allow incompatible classes in relationships to work under
-         * comparison. ultimately the user may need schema-specific implementations.
-         * This implementation merely compares the string representation.
-         * @param from
-         * @param to
-         * @return
-         */
-        public static int partialCompareTo(Comparable from, Comparable to) {
-    		if( to == null )
-    			throw new RuntimeException("Morphism.partialCompareTo 'to' element is null, from is "+from);
-    		if(from == null)
-    			return -1;
-    		// the string representations as a failsafe
-    		//compare a universal string representation as a unifying datatype for typed class templates
-    		return from.toString().compareTo(to.toString());
-        }
-        /**
-         * we check whether the enclosed class equals the target class.
-         * If classes are not the same and the target is not assignable from the source, throw runtime exception
-         * If none of the above conditions apply, perform a straight up 'equals'
-         * @param from
-         * @param to
-         * @return
-         */
-        public static boolean fullEquals(Comparable<?> from, Comparable<?> to) {
-        	if( DEBUG )
-        		System.out.println("fullEquals equals:"+from+" "+to.getClass()+":"+to);
-           	Class<?> toClass = to.getClass();
-        	// If classes are not the same try a comparison of the string representations as a unifying type
-        	if( !from.getClass().equals(toClass) && !toClass.isAssignableFrom(from.getClass()) ) {
-      			if(STRICT_SCHEMA)
-    				throw new RuntimeException("Classes are incompatible and the schema would be violated for "+from+" and "+to+
-    						" whose classes are "+from.getClass().getName()+" and "+to.getClass().getName());
-    			else
-    				//compare a universal string representation as a unifying datatype for typed class templates
-    				return from.toString().equals(to.toString());
-        	}
-        	return from.equals(to);
-        }
-        
-        public static boolean partialEquals(Comparable from, Comparable to) {
-     		if( to == null )
-     			throw new RuntimeException("Morphism.partialEquals 'to' element is null, from is "+from);
-     		if(from == null)
-     			return false;
-     		// the string representations as a failsafe
-     		//compare a universal string representation as a unifying datatype for typed class templates
-     		return from.toString().equals(to.toString());
-         }
-        
+   
         /**
         * for relate cmpr, we return a value in the range 0-63
         * in which the values for domain,map range : >,<,=,dont care = 0-3
@@ -1015,19 +915,20 @@ public abstract class Morphism extends KeySet implements NotifyDBCompareTo, Comp
         * @param dret the return value flag array with iterator at 0
         * @return the keyop
         */
-        public static short form_template_keyop(Comparable<?>[] tdmr, short[] dret) {
+        public static short form_template_keyop(Result3 result3, short[] dret) {
             short dmr_prec[] = {2,1,0};
-            if( tdmr[0] != null ) // domain not null
+            Comparable[] result = result3.toArray();
+            if( result[0] != null ) // domain not null
                         dmr_prec[0] += 6; // RGuid
         	else
                         if( dret[1] == 1 ) dmr_prec[0] += 3; // '?'
                 // if '*' leave alone, this gets all
-            if( tdmr[1] != null ) // map not null
+            if( result[1] != null ) // map not null
                         dmr_prec[1] += 6; // RGuid
         	else
                         if( dret[2] == 1 ) dmr_prec[1] += 3; // '?'
                 //
-            if( tdmr[2] != null ) // range not null
+            if( result[2] != null ) // range not null
                         dmr_prec[2] += 6;
         	else    
                         if( dret[3] == 1 ) dmr_prec[2] += 3;

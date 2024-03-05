@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,8 +23,11 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator;
 
 /**
  * Our main representable analog. Instances of this class deliver the set of keys
@@ -44,15 +48,19 @@ public class RelatrixSubmapStream<T> implements Stream<T> {
      */
     public RelatrixSubmapStream(Comparable template, Comparable template2) throws IOException {
     	try {
-			stream = RelatrixKV.findSubMapStream(template, template2);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findSubMapStream(template, template2);
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubmapIterator(template, template2), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }
     public RelatrixSubmapStream(String alias, Comparable template, Comparable template2) throws IOException, NoSuchElementException {
     	try {
-			stream = RelatrixKV.findSubMapStream(alias, template, template2);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findSubMapStream(alias, template, template2);
+       		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubmapIterator(alias, template, template2), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }

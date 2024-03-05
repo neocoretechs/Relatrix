@@ -690,7 +690,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTr
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailMapIteratorTransaction findTailMap(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMap", xid, key);
@@ -821,7 +821,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTr
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailMapKVIteratorTransaction findTailMapKV(String xid, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixKVStatement rs = new RelatrixKVTransactionStatement(xid, "findTailMapKV",xid, key);
@@ -866,7 +866,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTr
 	 * @param darg Domain of morphism
 	 * @param marg Map of morphism relationship
 	 * @param rarg Range or codomain or morphism relationship
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -913,7 +913,7 @@ public class RelatrixKVClientTransaction implements Runnable, RelatrixKVClientTr
 	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
 	 * work against, so in this method that check is performed.
 	 * @param darg Domain of morphism
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<REsult>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException

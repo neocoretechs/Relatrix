@@ -16,8 +16,8 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  * Here, the headset, or from beginning to the template element, is retrieved.
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
- * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
+ * if we declare findHeadSet("*","?","*") we get back a Result of one element. For findSet("?",object,"?") we
+ * would get back a Result2 instance, with each element of the Result containing the relationship returned.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
  *
  */

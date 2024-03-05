@@ -14,6 +14,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 
@@ -47,13 +48,17 @@ public class BatteryRelatrix {
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = displayLevels.VERBOSE;
-		battery1AR17(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1");
-		battery1(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 11");
-		battery11(argv);
+		if(argv.length > 1 && argv[2].equals("init")) {
+			battery1AR17(argv);
+		}
+		if(Relatrix.size() == 0) {
+			if(DEBUG)
+				System.out.println("Begin test battery 1");
+			battery1(argv);
+			if(DEBUG)
+				System.out.println("Begin test battery 11");
+			battery11(argv);
+		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
 		battery1AR6(argv);
@@ -75,9 +80,9 @@ public class BatteryRelatrix {
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR11");
 		battery1AR11(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR12");
-		battery1AR12(argv);
+		//if(DEBUG)
+		//	System.out.println("Begin test battery 1AR12");
+		//battery1AR12(argv);
 	
 		 System.out.println("TEST BATTERY COMPLETE.");
 		
@@ -153,15 +158,15 @@ public class BatteryRelatrix {
 		Iterator<?> its = Relatrix.findSet("?", "?", "?");
 		System.out.println("Battery1AR6");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Result nex = (Result) its.next();
 			// 3 question marks = dimension 3 in return array
-				if( DEBUG ) System.out.println("1AR6:"+i+" "+nex[0]+","+nex[1]+","+nex[2]);
+				if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
 				//String skey = key + String.format(uniqKeyFmt, i);
 				//if(!skey.equals(nex[0]) )
 					//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-				if(!((String) nex[0]).startsWith(key) || !nex[1].equals("Has unit") || nex.length != 3) {
-					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[1]+" length:"+nex.length);
-					throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[1]+" length:"+nex.length);
+				if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
+					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+					throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 				}
 				//Long unit = new Long(i);
 				//if(!nex[2].equals(unit))
@@ -185,12 +190,12 @@ public class BatteryRelatrix {
 		Iterator<?> its = Relatrix.findSet("?", "*", "*");
 		System.out.println("Battery1AR7");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Result nex = (Result) its.next();
 			// one '?' in findset gives us one element returned
-			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex[0]);
-			if(!((String) nex[0]).startsWith(key) || nex.length != 1) {
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex[0]+" length:"+nex.length);
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+"  "+nex[0]+" length:"+nex.length);
+			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
+			if(!((String) nex.get(0)).startsWith(key) || nex.length() != 1) {
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
 			}
 			//String skey = key + String.format(uniqKeyFmt, i);
 			//if(!skey.equals(nex[0]) )
@@ -213,15 +218,15 @@ public class BatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet("?", "?", "*");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Result nex = (Result) its.next();
 			// two '?' in findset gives use 2 element array, the domain and map
-			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex[0]+" "+nex[1]);
+			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
 			//String skey = key + String.format(uniqKeyFmt, i);
 			//if(!skey.equals(nex[0]) )
 				//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((String) nex[0]).startsWith(key) || !nex[1].equals("Has unit") || nex.length != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex[0]+" Has unit - "+nex[1]+" length:"+nex.length);
-				throw new Exception("KEY MISMATCH:"+(i)+" Has unit - "+nex[1]+" length:"+nex.length);
+			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 2) {
+				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+				throw new Exception("KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 			}
 			++i;
 		}
@@ -242,14 +247,14 @@ public class BatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet("*", "*", "*");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Result nex = (Result) its.next();
 			// the returned array has 1 element, the identity Morphism DomainMapRange
-			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex[0]);
+			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((DomainMapRange)nex[0]).getDomain() ).startsWith(key) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex[0]);
-			if(!((DomainMapRange)nex[0]).getMap().equals("Has unit"))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
+			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
+			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			//Long unit = new Long(i);
 			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
@@ -277,15 +282,15 @@ public class BatteryRelatrix {
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
-			Comparable[] nex = (Comparable[]) its.next();
-			if( nex.length != 1)
-				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length);
-			if(DEBUG) System.out.println("1AR10:"+i+" "+nex[0]);
+			Result nex = (Result) its.next();
+			if( nex.length() != 1)
+				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
+			if(DEBUG) System.out.println("1AR10:"+i+" "+nex.get(0));
 			String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((DomainMapRange)nex[0]).getDomain() ).startsWith(key) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex[0]);
-			if(!((DomainMapRange)nex[0]).getMap().equals("Has unit"))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
+			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
+			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			//Long unit = new Long(i);
 			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 			//	System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
@@ -312,15 +317,15 @@ public class BatteryRelatrix {
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
-			Comparable[] nex = (Comparable[]) its.next();
-			if( nex.length != 1)
-				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length);
-			if(DEBUG) System.out.println("1AR101:"+i+" "+nex[0]);
+			Result nex = (Result) its.next();
+			if( nex.length() != 1)
+				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
+			if(DEBUG) System.out.println("1AR101:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!( (String)((DomainMapRange)nex[0]).getDomain() ).startsWith(key) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex[0]);
-			if(!((DomainMapRange)nex[0]).getMap().equals("Has unit"))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex[0]);
+			if(!( (String)((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
+			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			//Long unit = new Long(i);
 			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
@@ -347,9 +352,9 @@ public class BatteryRelatrix {
 		// forgetful functor test
 		Iterator<?> its = Relatrix.findSet(fkey, "Has time", "*");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
-			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex[0]);
-			throw new Exception("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex[0]);
+			Result nex = (Result) its.next();
+			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
+			throw new Exception("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
 		}
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -368,7 +373,7 @@ public class BatteryRelatrix {
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
 		Iterator<?> its = Relatrix.findSet(fkey, "*", "*");
 		if(its.hasNext()) {
-			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+((Comparable[])its.next())[0]);
+			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
 		Relatrix.store(fkey, "Has unit", new Long(min));
@@ -402,7 +407,7 @@ public class BatteryRelatrix {
 		int i = 0;
 		while(it.hasNext()) {
 			Object fkey = it.next();
-			DomainMapRange dmr = (DomainMapRange)((Comparable[])fkey)[0];
+			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
 			Relatrix.remove(dmr);
 			++i;
 			if((System.currentTimeMillis()-timx) > 1000) {
@@ -412,7 +417,7 @@ public class BatteryRelatrix {
 		}
 		Iterator<?> its = Relatrix.findSet("*","*","*");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);

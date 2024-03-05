@@ -28,7 +28,7 @@ public final class RelatrixKV {
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
-	private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED; 
+	public static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED; 
 
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
@@ -180,7 +180,7 @@ public final class RelatrixKV {
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static Iterator<?> findTailMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -197,7 +197,7 @@ public final class RelatrixKV {
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException
-	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static Iterator<?> findTailMap(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
@@ -213,7 +213,7 @@ public final class RelatrixKV {
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
 	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -230,7 +230,7 @@ public final class RelatrixKV {
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
 	public static Stream<?> findTailMapStream(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -247,7 +247,7 @@ public final class RelatrixKV {
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static Iterator<?> findTailMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -264,7 +264,7 @@ public final class RelatrixKV {
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @exception NoSuchElementException If the alias was not ofund
 	 * @throws IllegalAccessException 
-	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static Iterator<?> findTailMapKV(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
@@ -280,7 +280,7 @@ public final class RelatrixKV {
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
 	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -298,7 +298,7 @@ public final class RelatrixKV {
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias is not found 
-	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
 	public static Stream<?> findTailMapKVStream(String alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
@@ -513,7 +513,7 @@ public final class RelatrixKV {
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
-	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static Iterator<?> findSubMapKV(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -531,7 +531,7 @@ public final class RelatrixKV {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not ofund
-	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static Iterator<?> findSubMapKV(String alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
@@ -548,7 +548,7 @@ public final class RelatrixKV {
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
-	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Comparable[]>
+	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Stream<Result>
 	 */
 	public static Stream<?> findSubMapKVStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -567,7 +567,7 @@ public final class RelatrixKV {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not found
-	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Comparable[]>
+	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Iterator<Result>
 	 */
 	public static Stream<?> findSubMapKVStream(String alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{

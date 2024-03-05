@@ -21,7 +21,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		private static boolean DEBUG = false; 
 		/**
 		 * Create the iterator. Factory method, abstract.
-		 * @return RelatrixIterator subclass that returns Comparable[] tuples/morphisms
+		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
@@ -40,7 +40,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
 		 * @param tdmr the Morphism template that defines the selection parameters for the iterator
-		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
@@ -50,7 +50,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
 		 * @param alias the database alias
 		 * @param tdmr the Morphism template that defines the selection parameters for the iterator
-		 * @return RelatrixIterator subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */

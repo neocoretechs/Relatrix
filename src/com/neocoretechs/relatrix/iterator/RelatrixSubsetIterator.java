@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
@@ -15,12 +17,12 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
- * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
+ * if we declare findHeadSet("*","?","*") we get back a {@link Result1} one element. For findSet("?",object,"?") we
+ * would get back a {@link Result2}, with each element containing the relationship returned.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
  *
  */
-public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
+public class RelatrixSubsetIterator implements Iterator<Result> {
 	protected Iterator iter;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
@@ -60,7 +62,7 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	}
 
 	@Override
-	public Comparable[] next() {
+	public Result next() {
 		if( buffer == null || needsIter) {
 			buffer = (Morphism)iter.next();
 			needsIter = false;
@@ -86,20 +88,19 @@ public class RelatrixSubsetIterator implements Iterator<Comparable[]> {
 	* @throws IOException 
 	* @throws IllegalAccessException 
 	*/
-	private Comparable[] iterateDmr() throws IllegalAccessException, IOException
+	private Result iterateDmr() throws IllegalAccessException, IOException
 	{
-		int returnTupleCtr = 0;
-	    Comparable[] tuples = new Comparable[RelatrixIterator.getReturnTuples(dmr_return)];
+	    Result tuples = RelatrixIterator.getReturnTuples(dmr_return);
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
 	    if( identity ) {
-	    	tuples[0] = buffer;
+	    	tuples.set(0, buffer);
 	    	needsIter = true;
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length; i++)
-	    	tuples[i] = buffer.iterate_dmr(dmr_return);
+	    for(int i = 0; i < tuples.length(); i++)
+	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
 		needsIter = true;
 		return tuples;
 	}	

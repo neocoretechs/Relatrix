@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,8 +23,11 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
@@ -42,11 +46,9 @@ public class RelatrixEntrysetStream<T> implements Stream<T> {
      * @throws IOException 
      */
     public RelatrixEntrysetStream(Class c) throws IOException {
-    	try {
-			stream = RelatrixKV.entrySetStream(c);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+    	//stream = RelatrixKV.entrySetStream(c);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixEntrysetIterator(c), RelatrixKV.characteristics);
+		stream = StreamSupport.stream(spliterator, true);
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStream "+stream);
     }
@@ -60,11 +62,9 @@ public class RelatrixEntrysetStream<T> implements Stream<T> {
      * @throws IOException 
      */
     public RelatrixEntrysetStream(String alias, Class c) throws IOException, NoSuchElementException {
-    	try {
-			stream = RelatrixKV.entrySetStream(alias, c);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+    	//stream = RelatrixKV.entrySetStream(alias, c);
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixEntrysetIterator(alias, c), RelatrixKV.characteristics);
+		stream = StreamSupport.stream(spliterator, true);
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStream "+stream);
     }

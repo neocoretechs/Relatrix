@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
@@ -836,7 +837,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailSetIteratorTransaction findSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findSet", xid, darg, marg, rarg);
@@ -865,7 +866,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
 	* @throws NoSuchElementException if the alias isnt found
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailSetIteratorTransaction findSet(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		RelatrixTransactionStatement rs = new RelatrixTransactionStatement(xid, "findSet", alias, xid, darg, marg, rarg);
@@ -911,7 +912,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailSetIterator findTailSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findTailSet", xid, darg, marg, rarg);
@@ -940,7 +941,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	* @exception IllegalArgumentException the operator is invalid
 	* @exception ClassNotFoundException if the Class of Object is invalid
 	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	*/
 	public RemoteTailSetIterator findTailSet(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		RelatrixStatement rs = new RelatrixTransactionStatement(xid, "findTailSet", alias, xid, darg, marg, rarg);
@@ -977,7 +978,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @param darg Domain of morphism
 	 * @param marg Map of morphism relationship
 	 * @param rarg Range or codomain or morphism relationship
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1003,7 +1004,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @param darg Domain of morphism
 	 * @param marg Map of morphism relationship
 	 * @param rarg Range or codomain or morphism relationship
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1049,7 +1050,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @param marg The map of the relationship to retrieve
 	 * @param rarg The range or codomain of the relationship
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1077,7 +1078,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @param marg The map of the relationship to retrieve
 	 * @param rarg The range or codomain of the relationship
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1118,7 +1119,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 	 * @return
 	 */
 	@Override
-	public Comparable[] next(String xid, RemoteObjectInterface rii) throws NoSuchElementException {
+	public Result next(String xid, RemoteObjectInterface rii) throws NoSuchElementException {
 		((RelatrixTransactionStatement)rii).xid = xid;
 		((RelatrixStatement)rii).methodName = "next";
 		((RelatrixStatement)rii).paramArray = new Object[0];
@@ -1131,7 +1132,7 @@ public class RelatrixClientTransaction implements Runnable, RelatrixClientTransa
 		Object o = ((RelatrixStatement)rii).getObjectReturn();
 		if(o instanceof NoSuchElementException)
 			throw (NoSuchElementException)o;
-		return (Comparable[])o;
+		return (Result)o;
 
 	}
 	

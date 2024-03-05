@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,8 +23,11 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixSubmapKVIterator;
 
 /**
  * Our main representable analog. Instances of this class deliver the set of key/value
@@ -43,8 +47,10 @@ public class RelatrixSubmapKVStream<T> implements Stream<T> {
      */
     public RelatrixSubmapKVStream(Comparable template, Comparable template2) throws IOException {
     	try {
-			stream = RelatrixKV.findSubMapKVStream(template, template2);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findSubMapKVStream(template, template2);
+       		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubmapKVIterator(template, template2), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }
@@ -55,8 +61,10 @@ public class RelatrixSubmapKVStream<T> implements Stream<T> {
      */
     public RelatrixSubmapKVStream(String alias, Comparable template, Comparable template2) throws IOException, NoSuchElementException {
     	try {
-			stream = RelatrixKV.findSubMapKVStream(alias, template, template2);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findSubMapKVStream(alias, template, template2);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubmapKVIterator(alias, template, template2), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }

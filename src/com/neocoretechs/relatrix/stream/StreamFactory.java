@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.Result;
 
 	/**
 	 * Abstract factory pattern to create the proper Relatrix stream for set retrieval from the various flavors
@@ -21,7 +22,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		private static boolean DEBUG = false; 
 		/**
 		 * Create the stream. Factory method, abstract.
-		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixStream subclass that return {@link Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
@@ -29,7 +30,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		/**
 		 * Create the stream. Factory method, abstract.
 		 * @param alias database alias
-		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixStream subclass that return {@link Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 * @throws NoSuchElementException if alias doestn exist
@@ -37,7 +38,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		public abstract Stream<?> createStream(String alias) throws IllegalAccessException, IOException, NoSuchElementException;
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixStream
-		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixStream subclass that return {@link Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
@@ -46,7 +47,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixStream
 		 * @param alias database alias
 		 * @param tdmr The template {@link Morphism}
-		 * @return RelatrixStream subclass that return Comparable[] tuples/morphisms
+		 * @return RelatrixStream subclass that return {@link Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 * @throws NoSuchElementException if alias doestn exist

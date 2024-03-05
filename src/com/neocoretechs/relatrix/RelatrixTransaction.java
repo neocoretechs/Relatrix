@@ -32,8 +32,8 @@ import com.neocoretechs.rocksack.session.DatabaseManager;
 * order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p/>
 * The critical concept about retrieving relationships is to remember that the number of elements from each passed
 * stream element or iteration of a Stream or Iterator is dependent on the number of "?" operators in a 'findSet'. For example,
-* if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element, for findSet("?",object,"?") we
-* would get back a Comparable[2] array, with each element of the relationship returned.<br/>
+* if we declare findHeadSet("*","?","*") we get back a {@link Result} of one element, for findSet("?",object,"?") we
+* would get back a {@link Result2} array, with each element of the relationship returned.<br/>
 * If we findHeadStream("*","?","*") we return a stream where one Comparable array element can be mapped, reduced, consumed, etc.<br/>
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
@@ -543,10 +543,10 @@ public final class RelatrixTransaction {
 	private static synchronized void removeRecursive(String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
 		Iterator<?> it = findSet(xid,c,"*","*");
 		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o[0];
+				System.out.println("Relatrix.remove iterated perm 1 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
@@ -566,14 +566,14 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(xid, rdm);
 			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
 			RelatrixKVTransaction.remove(xid, rmd);
-			removeRecursive(xid,o[0]); 
+			removeRecursive(xid,o.get(0)); 
 		}
 		it = findSet(xid,"*",c,"*");
 		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o[0];
+				System.out.println("Relatrix.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
@@ -593,14 +593,14 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(xid, rdm);
 			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
 			RelatrixKVTransaction.remove(xid, rmd);
-			removeRecursive(xid,o[0]); 
+			removeRecursive(xid,o.get(0)); 
 		}
 		it = findSet(xid,"*","*",c);
 		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o[0];
+				System.out.println("Relatrix.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
@@ -620,7 +620,7 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(xid, rdm);
 			//IndexResolver.getIndexInstanceTable().deleteInstance(xid,rmd);
 			RelatrixKVTransaction.remove(xid, rmd);
-			removeRecursive(xid,o[0]); 
+			removeRecursive(xid,o.get(0)); 
 		}
 	}
 	
@@ -695,10 +695,10 @@ public final class RelatrixTransaction {
 	private static synchronized void removeRecursive(String alias, String xid, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		Iterator<?> it = findSet(alias,xid,c,"*","*");
 		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove iterated perm 1 "+o[0]+" of type "+o[0].getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o[0];
+				System.out.println("Relatrix.remove iterated perm 1 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			DomainRangeMap drm = new DomainRangeMap(alias, xid, dmr);
 			MapDomainRange mdr = new MapDomainRange(alias, xid, dmr);
 			MapRangeDomain mrd = new MapRangeDomain(alias, xid, dmr);
@@ -718,14 +718,14 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(alias, xid, rdm);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
 			RelatrixKVTransaction.remove(alias, xid, rmd);
-			removeRecursive(alias,xid,o[0]); 
+			removeRecursive(alias,xid,o.get(0)); 
 		}
 		it = findSet(alias,xid,"*",c,"*");
 		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 2 "+o[0]+" of type "+o[0].getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o[0];
+				System.out.println("Relatrix.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			DomainRangeMap drm = new DomainRangeMap(alias, xid, dmr);
 			MapDomainRange mdr = new MapDomainRange(alias, xid, dmr);
 			MapRangeDomain mrd = new MapRangeDomain(alias, xid, dmr);
@@ -745,14 +745,14 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(alias, xid, rdm);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
 			RelatrixKVTransaction.remove(alias, xid, rmd);
-			removeRecursive(alias,xid,o[0]); 
+			removeRecursive(alias,xid,o.get(0)); 
 		}
 		it = findSet(alias,xid,"*","*",c);
 		while(it.hasNext()) {
-			Comparable[] o = (Comparable[]) it.next();
+			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 3 "+o[0]+" of type "+o[0].getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o[0];
+				System.out.println("Relatrix.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			DomainRangeMap drm = new DomainRangeMap(alias, xid, dmr);
 			MapDomainRange mdr = new MapDomainRange(alias, xid, dmr);
 			MapRangeDomain mrd = new MapRangeDomain(alias, xid, dmr);
@@ -772,7 +772,7 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(alias, xid, rdm);
 			//IndexResolver.getIndexInstanceTable().deleteInstanceAlias(alias,xid,rmd);
 			RelatrixKVTransaction.remove(alias, xid, rmd);
-			removeRecursive(alias,xid,o[0]); 
+			removeRecursive(alias,xid,o.get(0)); 
 		}
 	}
 	
@@ -816,7 +816,7 @@ public final class RelatrixTransaction {
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
 	 * the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-	 * The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
+	 * The returned {@link Result} is always of dimension n="# of question marks" or a one element of a single object.
 	 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 	 * relationships of the 3 objects, of the type DomainMapRange. 
@@ -831,7 +831,7 @@ public final class RelatrixTransaction {
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static synchronized Iterator<?> findSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
@@ -843,12 +843,12 @@ public final class RelatrixTransaction {
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and the parameters can be objects and/or ?,* operators. Semantically,
 	 * the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-	 * The returned Comparable[] array is always of dimension n="# of question marks" or a one element array of a single object.
+	 * The returned Result instance hierarchy is always of depth n="# of question marks" or a hierarchy of a single object.
 	 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 	 * relationships of the 3 objects, of the type DomainMapRange. 
 	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
-	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
+	 * the requirement to be 'categorical'. In general, all '3 element' class hierarchy or {@link Result} returned by the operators are
 	 * the mathematical identity, or constitute the unique key in database terms.
 	 * @param alias database alias
 	 * @param xid transaction id
@@ -860,7 +860,7 @@ public final class RelatrixTransaction {
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias doesnt exist
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static synchronized Iterator<?> findSet(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		IteratorFactory ifact = IteratorFactory.createFactory(xid, darg, marg, rarg);
@@ -943,7 +943,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static synchronized Iterator<?> findTailSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -974,7 +974,7 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if alias doesnt exist
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	public static synchronized Iterator<?> findTailSet(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
@@ -1004,7 +1004,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
-	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 */
 	public static synchronized Stream<?> findTailStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -1037,7 +1037,7 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchELementException if the alias isnt found
-	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 */
 	public static synchronized Stream<?> findTailStream(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
@@ -1062,7 +1062,7 @@ public final class RelatrixTransaction {
 	 * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
 	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
@@ -1088,7 +1088,7 @@ public final class RelatrixTransaction {
 	 * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
 	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
@@ -1115,7 +1115,7 @@ public final class RelatrixTransaction {
 	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param parallel Optional true to execute stream in parallel
-	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
@@ -1143,7 +1143,7 @@ public final class RelatrixTransaction {
 	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param parallel Optional true to execute stream in parallel
-	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
@@ -1176,7 +1176,7 @@ public final class RelatrixTransaction {
 	 * @param marg The map of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
 	 * @throws ClassNotFoundException
@@ -1217,7 +1217,7 @@ public final class RelatrixTransaction {
 	 * @param marg The map of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Comparable[]>
+	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
 	 * @throws ClassNotFoundException
@@ -1259,7 +1259,7 @@ public final class RelatrixTransaction {
 	 * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param parallel true to execute stream in parallel, false for sequential
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The Stream from which the data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows Stream interface, return Stream<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
 	 * @throws ClassNotFoundException
@@ -1303,7 +1303,7 @@ public final class RelatrixTransaction {
 	 * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param parallel true to execute stream in parallel, false for sequential
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The Stream from which the data may be retrieved. Follows Stream interface, return Stream<Comparable[]>
+	 * @return The Stream from which the data may be retrieved. Follows Stream interface, return Stream<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
 	 * @throws ClassNotFoundException

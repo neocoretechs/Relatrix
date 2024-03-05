@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,9 +23,15 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.Result2;
+import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
@@ -34,18 +41,18 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each
  * RelatrixStream is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSetStream("*","?","*") we get back a Comparable[] of one element. For findSetStream("?",object,"?") we
- * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
- * findSetStream("*","*","*") = Comparable[1] containing identity in [0] of instance DomainMapRange<br/>
- * findSetStream("*","*",object) = Comparable[1] identity in [0] of RangeDomainMap where 'object' is range<br/>
- * findSetStream("*",object,object) = Comparable[1] identity in [0] of MapRangeDomain matching the 2 concrete objects<br/>
- * findSetStream(object,object,object) = Comparable[1] identity in [0] of DomainMapRange matching 3 objects<br/>
+ * if we declare findHeadSetStream("*","?","*") we get back a  {@link Result} of one element. For findSetStream("?",object,"?") we
+ * would get back a  {@link Result2}, with each element of the array containing the relationship returned.<br/>
+ * findSetStream("*","*","*") = {@link Result1} containing identity in [0] of instance DomainMapRange<br/>
+ * findSetStream("*","*",object) =  {@link Result1} identity in [0] of RangeDomainMap where 'object' is range<br/>
+ * findSetStream("*",object,object) =  {@link Result1} identity in [0] of MapRangeDomain matching the 2 concrete objects<br/>
+ * findSetStream(object,object,object) =  {@link Result1} identity in [0] of DomainMapRange matching 3 objects<br/>
  * and the findHeadSeStreamt and findSubSetStream work the same way.<p/>
- * findSet("?","?","?") = Comparable[3] return all, for each element in the database.<br/>
- * findSet("?","?",object) = Comparable[2] return all domain and map objects for a given range object<br/>
- * findSet("?","*","?") = Comparable[2] return all elements of domain and range<br/>
+ * findSet("?","?","?") =  {@link Result3} return all, for each element in the database.<br/>
+ * findSet("?","?",object) =  {@link Result2} return all domain and map objects for a given range object<br/>
+ * findSet("?","*","?") =  {@link Result2} return all elements of domain and range<br/>
  * etc.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021,2024
  *
  */
 public class RelatrixStream<T> implements Stream<T> {
@@ -71,11 +78,12 @@ public class RelatrixStream<T> implements Stream<T> {
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
     	try {
-			stream = RelatrixKV.keySetStream(template.getClass());
-		} catch (IllegalAccessException e) {
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixIterator(template, dmr_return), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+			//stream = RelatrixKV.findTailMapKVStream(template);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
-
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
     }
@@ -92,10 +100,12 @@ public class RelatrixStream<T> implements Stream<T> {
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
     	try {
-			stream = RelatrixKV.keySetStream(alias, template.getClass());
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixIterator(alias, template, dmr_return), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+    		//stream = RelatrixKV.findTailMapKVStream(alias, template);
+    	} catch (IllegalArgumentException e) {
+    		throw new IOException(e);
+    	}
 
     	if( DEBUG )
 			System.out.println("RelatrixStream alias:"+alias+" stream:"+stream+" template:"+base);
@@ -301,57 +311,29 @@ public class RelatrixStream<T> implements Stream<T> {
 		return stream.findAny();
 	}
 	
-
-	
 	/**
-	* iterate_dmr - return proper domain, map, or range
-	* based on dmr_return values.  In dmr_return, element 0 is counter, 1-3 flags
-	* value 0 means an object occupies that spot in the triple. 
-	* value 1 indicates 'return a tuple - ?'.
-	* value 2 represents a 'wildcard - *'.
-	* Element 0 contains a running counter for the rest of the array 1-3.
-	* These function as d,m,r return yes/no for each retrieved tuple and for concrete objects whether to compare tailset.
-	* Also determine whether its identity, then just put it in return and iterate.
-	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	* @throws IOException 
-	* @throws IllegalAccessException 
-	*/
-	private Comparable[] streamDmr() throws IllegalAccessException, IOException {
-	    Comparable[] tuples = new Comparable[getReturnTuples(dmr_return)];
-		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-	    // no return vals? send back Relate location
-	    if( identity ) {
-	    	tuples[0] = buffer;
-	    } else {
-	    	dmr_return[0] = 0;
-	    	for(int i = 0; i < tuples.length; i++) {
-	    		if( DEBUG ) {
-	    			System.out.println("RelatrixStream.streamDmr() before "+i+" tuple:"+tuples[i]);
-	    		}
-	    	
-	    		tuples[i] = buffer.iterate_dmr(dmr_return);
-	    	
-	    		if( DEBUG ) {
-	    			System.out.println("RelatrixStream.streamDmr() after  "+i+" tuple:"+tuples[i]);
-	    		}
-	    	}
-	    }
-		return tuples;
-	}
-	/**
-	 * Return the number of tuple elements to be returned from specified query in each 
+	 * Return the number of tuple elements to be returned from specified query in each iteration
 	 * @param dmr_return
 	 * @return
 	 */
-	protected static short getReturnTuples(short[] dmr_return) {
+	protected static Result getReturnTuples(short[] dmr_return) {
 		short cnt = 0;
 		if( isIdentity(dmr_return) ) // return all relationship types, 1 tuple special case
-			return 1;
+			return new Result1();
 		for(int i = 1; i < 4; i++) {
 			if( dmr_return[i] == 1 ) ++cnt; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
 		}
-		return cnt;
+		switch(cnt) {
+			case 1:
+				return new Result1();
+			case 2:
+				return new Result2();
+			case 3:
+				return new Result3();
+		}
+		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
 	}
+
 	/**
 	 * Checks to see if our dmr_return array has any return tuple ? values, which = 1
 	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 or 2 (object or wildcard)
@@ -365,23 +347,6 @@ public class RelatrixStream<T> implements Stream<T> {
 			if( dmr_return[i] == 1 ) return false; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
 		}
 	    return true;
-	}
-	/**
-	 * Determine if a range search has produced an element in range, since we deal with headSet, tailSets and subSets we have
-	 * to check our iterator to keep it in range for concrete object keys.
-	 * @param template
-	 * @param record
-	 * @param dmr_return
-	 * @return
-	 */
-	private static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
-		if( DEBUG )
-			System.out.println("RelatrixStream.templateMatches "+template+" "+record+" "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		if( dmr_return[1] == 0 && template.getDomain().compareTo(record.getDomain()) != 0 ) return false;
-		if( dmr_return[2] == 0 && template.getMap().compareTo(record.getMap()) != 0 ) return false;
-		if( dmr_return[3] == 0 && template.getRange().compareTo(record.getRange()) != 0) return false;
-		return true;
-	}
-	
+	}	
 
 }

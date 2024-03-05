@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,9 +23,12 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array is returned representing the
@@ -34,8 +38,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * Here, the headset, or from beginning to the template element, is retrieved.
  * The critical element about retrieving relationships is to remember that the number of elements from each
  * member of a RelatrixStream is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a Comparable[] of one element. For findSet("?",object,"?") we
- * would get back a Comparable[2] array, with each element of the array containing the relationship returned.<br/>
+ * if we declare findHeadSet("*","?","*") we get back a  {@link Result} of one element. For findSet("?",object,"?") we
+ * would get back a  {@link Result2}, with each element of the array containing the relationship returned.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
@@ -57,8 +61,10 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
-			stream = RelatrixKV.findHeadMapStream(template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findHeadMapStream(template);
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(template, dmr_return), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }
@@ -71,8 +77,10 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
-			stream = RelatrixKV.findHeadMapStream(alias, template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+			//stream = RelatrixKV.findHeadMapStream(alias, template);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(alias, template, dmr_return), RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     }

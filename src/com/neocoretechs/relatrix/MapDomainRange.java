@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
+import com.neocoretechs.rocksack.DatabaseClass;
 
 /**
 * This class represents the morphisms stored in map,domain,range (codomain) order.
@@ -15,7 +16,8 @@ import com.neocoretechs.relatrix.key.RelatrixIndex;
 * which turns out to be 6 indexes, we facilitate the retrieval of posets from our categories
 * based on any number of possible operators and objects passed to the various 'findSet' permutations.
 * @author Jonathan Groff (C) NeoCoreTechs 2014,2015,2021
-*/ 
+*/
+@DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
 public class MapDomainRange extends Morphism {
 	private static final long serialVersionUID = -3223516008906545636L;
     public MapDomainRange() {}
@@ -90,8 +92,8 @@ public class MapDomainRange extends Morphism {
 	
 	@Override
 	public int compareTo(Object o) {
-		if(!keyCompare)
-			return compareToResolved(o);
+		//if(!keyCompare)
+			//return compareToResolved(o);
 		int i = getMapKey().compareTo(((KeySet)o).getMapKey());
 		if(i != 0)
 			return i;
@@ -102,16 +104,16 @@ public class MapDomainRange extends Morphism {
 	} 
 	@Override
 	public boolean equals(Object o) {
-		if(!keyCompare)
-			return equalsResolved(o);
+		//if(!keyCompare)
+			//return equalsResolved(o);
 		return getMapKey().equals(((KeySet)o).getMapKey()) &&
 				getDomainKey().equals(((KeySet)o).getDomainKey()) &&
 				getRangeKey().equals(((KeySet)o).getRangeKey());
 	}
 	@Override
 	public int hashCode() {
-		if(!keyCompare)
-			return hashCodeResolved();
+		//if(!keyCompare)
+			//return hashCodeResolved();
 	    final int prime = 31;
 	    int result = 1;
 		result = prime * result + getMapKey().hashCode();
@@ -121,56 +123,6 @@ public class MapDomainRange extends Morphism {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
-	public int compareToResolved(Object dmrpk) {
-		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
-			return Morphism.partialCompareTo(this, (Comparable) dmrpk);
-		MapDomainRange dmr = (MapDomainRange)dmrpk;
-		int cmp = 0;
-		if( dmr.getMap() == null )
-			return 0;
-		//cmp = map.compareTo(dmr.map);
-		cmp = Morphism.fullCompareTo(getMap(), dmr.getMap());
-		if( cmp != 0 ) return cmp;
-		if( dmr.getDomain() == null )
-			return 0;
-		//cmp = domain.compareTo(dmr.domain);
-		cmp = Morphism.fullCompareTo(getDomain(), dmr.getDomain());
-		if( cmp != 0 ) return cmp;
-		if( dmr.getRange() == null )
-			return 0;
-		//return range.compareTo(dmr.range);
-		return Morphism.fullCompareTo(getRange(), dmr.getRange());
-	}
-
-	public boolean equalsResolved(Object dmrpk) {
-		if(!this.getClass().equals(dmrpk.getClass()) && !dmrpk.getClass().isAssignableFrom(this.getClass())) 
-			return Morphism.partialEquals(this, (Comparable) dmrpk);
-		MapDomainRange dmr = (MapDomainRange)dmrpk;
-		boolean cmp = false;
-		if( dmr.getMap() == null )
-			return true;
-		//cmp = map.equals(dmr.map);
-		cmp = Morphism.fullEquals(getMap(), dmr.getMap());
-		if( !cmp ) return cmp;
-		if( dmr.getDomain() == null )
-			return true;
-		//cmp = domain.equals(dmr.domain);
-		cmp = Morphism.fullEquals(getDomain(), dmr.getDomain());
-		if( !cmp ) return cmp;
-		if( dmr.getRange() == null )
-			return true;
-		//return range.equals(dmr.range);
-		return Morphism.fullEquals(getRange(), dmr.getRange());
-	}
-	
-	public int hashCodeResolved() {
-		int result = 17;
-		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
-		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
-		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
-		return result;
-	}
 	
     /*
     public Comparable returnTupleOrder(int n) {
