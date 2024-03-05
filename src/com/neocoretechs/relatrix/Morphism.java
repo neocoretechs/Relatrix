@@ -202,9 +202,15 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	public Morphism(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
     		this.transactionId = transactionId;
     		this.alias = alias;
-    		setDomain(alias, d);
-    		setMap(alias, m);
-    		setRange(alias, r);
+    		if(alias != null) {
+    			setDomain(alias, d);
+    			setMap(alias, m);
+    			setRange(alias, r);
+    		} else {
+    			setDomain(d);
+    			setMap(m);
+    			setRange(r);
+    		}
     	}
     	 
     	/**
@@ -218,9 +224,15 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     		this.templateFlag = flag;
     		this.transactionId = transactionId;
     		this.alias = alias;
-    		setDomainTemplate(alias, d);
-    		setMapTemplate(alias, m);
-    		setRangeTemplate(alias, r);
+    		if(alias != null) {
+    			setDomainTemplate(alias, d);
+    			setMapTemplate(alias, m);
+    			setRangeTemplate(alias, r);
+    		} else {
+    			setDomainTemplate(d);
+    			setMapTemplate(m);
+    			setRangeTemplate(r);
+    		}
     	}
         
         /**
