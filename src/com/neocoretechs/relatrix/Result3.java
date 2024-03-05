@@ -115,7 +115,7 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("[").append(three).append(", ").append(two).append(", ").append(one).append("]");
+		builder.append("[").append(one).append(", ").append(two).append(", ").append(three).append("]");
 		return builder.toString();
 	}
 
