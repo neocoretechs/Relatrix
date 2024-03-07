@@ -7,18 +7,18 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
-* Find the head set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br/>
-* *,[object],[object] <br/>
-* *,?,[object],[object] <br/>
-* *,[TemplateClass],[TemplateClass] <br/>
-* *,?,[TemplateClass],[TemplateClass] <br/>
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
-* 
-*/
+ * Find the head set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br/>
+ * *,[object],[object] <br/>
+ * *,?,[object],[object] <br/>
+ * *,[TemplateClass],[TemplateClass] <br/>
+ * *,?,[TemplateClass],[TemplateClass] <br/>
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
+ * 
+ */
 public class FindHeadSetMode3Transaction extends FindSetMode3Transaction {
-    public FindHeadSetMode3Transaction(String xid, char dop, Object marg, Object rarg) { 	
-    	super(xid, dop, marg, rarg);
-    }
+	public FindHeadSetMode3Transaction(String xid, char dop, Object marg, Object rarg) { 	
+		super(xid, dop, marg, rarg);
+	}
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
 	 * @param tdmr
@@ -26,13 +26,13 @@ public class FindHeadSetMode3Transaction extends FindSetMode3Transaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-    @Override
+	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixHeadsetIteratorTransaction(xid, tdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, dmr_return);
 	}
-    
-    @Override
+
+	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

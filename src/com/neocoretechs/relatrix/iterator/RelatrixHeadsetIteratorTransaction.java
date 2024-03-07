@@ -22,6 +22,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  *
  */
 public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator {
+	Iterator iter;
 	String xid;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter

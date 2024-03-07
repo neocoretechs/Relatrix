@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
@@ -18,17 +19,35 @@ import com.neocoretechs.relatrix.Morphism;
 *
 */
 public class FindHeadSetMode6 extends FindSetMode6 {
-    public FindHeadSetMode6(Object darg, Object marg, char rop) { 	
+	Object[] endarg;
+    public FindHeadSetMode6(Object darg, Object marg, char rop, Object[] endarg) { 	
     	super(darg,marg, rop);
+		if(endarg.length != 1)
+			throw new RuntimeException("Must supply 1 qualifying argument for Headset range.");
+		this.endarg = endarg;
     }
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
+		if(tdmr.getRange() == null) {
+			if(endarg[0] instanceof Class)
+				tdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
+			else
+				tdmr.setRange((Comparable)endarg[0]);
+		} else
+			throw new IllegalAccessException("Improper Morphism template.");
 	    return new RelatrixHeadsetIterator(tdmr, dmr_return);
 	}
 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
+		if(tdmr.getRange() == null) {
+			if(endarg[0] instanceof Class)
+				tdmr.setRange(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
+			else
+				tdmr.setRange(alias,(Comparable)endarg[0]);
+		} else
+			throw new IllegalAccessException("Improper Morphism template.");
 	    return new RelatrixHeadsetIterator(alias, tdmr, dmr_return);
 	}
 }

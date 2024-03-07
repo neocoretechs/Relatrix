@@ -17,11 +17,20 @@ import com.neocoretechs.relatrix.Morphism;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015.2021 
 */
 public class FindHeadSetMode7 extends FindSetMode7 {
+	Object[] endarg;
 	// mode 7
-    public FindHeadSetMode7(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException { 	
+    public FindHeadSetMode7(Object darg, Object marg, Object rarg, Object[] endarg) throws IllegalArgumentException, IOException { 	
     	super(darg, marg, rarg);
+		if(endarg.length != 0)
+			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");
+		this.endarg = endarg;
     }
  
+	@Override
+	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+	    return new RelatrixHeadsetIterator(tdmr, dmr_return);
+	}
+	
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixHeadsetIterator(alias, tdmr, dmr_return);

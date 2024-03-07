@@ -11,12 +11,12 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
-public class FindHeadSetMode1 extends FindSetMode1 {
+public class FindHeadSetMode0 extends FindSetMode0 {
 	Object[] endarg;
-	public FindHeadSetMode1(char dop, char mop, Object rarg, Object[] endarg) { 	
-		super(dop,mop,rarg);
-		if(endarg.length != 2)
-			throw new RuntimeException("Must supply 2 qualifying arguments for Headset domain and map.");
+	public FindHeadSetMode0(char dop, char mop, char rop, Object[] endarg) { 	
+		super(dop,mop,rop);
+		if(endarg.length != 3)
+			throw new RuntimeException("Must supply 3 qualifying arguments for Headset domain and map and range.");
 		this.endarg = endarg;
 	}
 
@@ -36,6 +36,13 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 				tdmr.setMap((Comparable)endarg[1]);
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
+		if(tdmr.getRange() == null) {
+			if(endarg[2] instanceof Class)
+				tdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[2]));
+			else
+				tdmr.setMap((Comparable)endarg[2]);
+		} else
+			throw new IllegalAccessException("Improper Morphism template.");
 		return new RelatrixHeadsetIterator(tdmr, dmr_return);
 	}
 
@@ -53,6 +60,13 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 			else
 				tdmr.setMap(alias,(Comparable)endarg[1]);
 		}
+		if(tdmr.getRange() == null) {
+			if(endarg[2] instanceof Class)
+				tdmr.setRange((Comparable) RelatrixKV.lastKey(alias,(Class)endarg[2]));
+			else
+				tdmr.setMap(alias,(Comparable)endarg[2]);
+		} else
+			throw new IllegalAccessException("Improper Morphism template.");
 		return new RelatrixHeadsetIterator(alias, tdmr, dmr_return);
 	}
 }

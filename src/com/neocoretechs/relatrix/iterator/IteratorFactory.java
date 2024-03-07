@@ -251,7 +251,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static IteratorFactory createHeadsetFactory(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
+		public static IteratorFactory createHeadsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 		    byte mode = 0;
 		    char dop, mop, rop;
 			//
@@ -295,24 +295,24 @@ import com.neocoretechs.relatrix.Relatrix;
 			        System.out.println("Relatrix IteratorFactory findHeadSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
 				
 			switch(mode) {
-	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findHeadSet must contain an object reference");
-	               case 1:
-	                       return new FindHeadSetMode1(dop, mop, rarg);
-	               case 2:
-	                       return new FindHeadSetMode2(dop, marg, rop);
-	               case 3:
-	                       return new FindHeadSetMode3(dop, marg, rarg);
-	               case 4:
-	                       return new FindHeadSetMode4(darg, mop, rop);
-	               case 5:
-	                       return new FindHeadSetMode5(darg, mop, rarg);
-	               case 6:
-	                       return new FindHeadSetMode6(darg, marg, rop);
-	               case 7:
-	            	   	   return new FindHeadSetMode7(darg, marg, rarg);
-	        	    default:
-	                    throw new IllegalArgumentException("The findHeadset factory mode "+mode+" is not supported.");
+				case 0:
+					return new FindHeadSetMode0(dop, mop, rop, endarg);
+				case 1:
+					return new FindHeadSetMode1(dop, mop, rarg, endarg);
+				case 2:
+					return new FindHeadSetMode2(dop, marg, rop, endarg);
+				case 3:
+					return new FindHeadSetMode3(dop, marg, rarg, endarg);
+				case 4:
+					return new FindHeadSetMode4(darg, mop, rop, endarg);
+				case 5:
+					return new FindHeadSetMode5(darg, mop, rarg, endarg);
+				case 6:
+					return new FindHeadSetMode6(darg, marg, rop, endarg);
+				case 7:
+					return new FindHeadSetMode7(darg, marg, rarg, endarg);
+				default:
+					throw new IllegalArgumentException("The findHeadset factory mode "+mode+" is not supported.");
 			}
 		}
 		/**
