@@ -37,8 +37,16 @@ public class BatteryRelatrixKV {
 			System.exit(1);
 		}
 		RelatrixKV.setTablespace(argv[0]);
-		battery1(argv);
-		battery11(argv);
+		if(argv.length == 2 && argv[1].equals("init")) {
+				System.out.println("Cleaning DB");
+				battery1AR17(argv);		
+		}
+		int j = (int) RelatrixKV.size(String.class);
+		if(j == 0) {
+			battery1(argv);
+			battery11(argv);
+		}
+		battery1AR5(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
 		battery1AR8(argv);
@@ -51,9 +59,11 @@ public class BatteryRelatrixKV {
 		battery1AR14(argv);
 		battery1AR15(argv);
 		battery1AR16(argv);
-		battery1AR17(argv);
-		battery18(argv);
-		 System.out.println("BatteryRelatrixKV TEST BATTERY COMPLETE.");
+		if(argv.length == 2 && argv[1].equals("init")) {
+			battery1AR17(argv);
+			battery18(argv);
+		}
+		System.out.println("BatteryRelatrixKV TEST BATTERY COMPLETE.");
 		
 	}
 	/**
@@ -68,12 +78,6 @@ public class BatteryRelatrixKV {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		int j = min;
-		j = (int) RelatrixKV.size(String.class);
-		if(j > 0) {
-			System.out.println("Cleaning DB of "+j+" elements.");
-			battery1AR17(argv);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -109,7 +113,22 @@ public class BatteryRelatrixKV {
 			System.out.println("KV BATTERY11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
 	}
-	
+	/**
+	 * Testing of Iterator<?> its = RelatrixKV.keySet;
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR5(String[] argv) throws Exception {
+		int i = min;
+		long tims = System.currentTimeMillis();
+		Iterator<?> its = RelatrixKV.findHeadMap((Comparable<?>) RelatrixKV.lastKey(String.class));
+		System.out.println("KV Battery1AR5");
+		while(its.hasNext()) {
+			System.out.println(i+"="+its.next());
+			++i;
+		}
+		 System.out.println("KV BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
 	/**
 	 * Test the higher level functions in the RelatrixKV.
 	 * public Set<Map.Entry<K,V>> entrySet()
@@ -408,8 +427,8 @@ public class BatteryRelatrixKV {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB");
 		long s = RelatrixKV.size(String.class);
+		System.out.println("CleanDB of size:"+s);
 		Iterator it = RelatrixKV.keySet(String.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {

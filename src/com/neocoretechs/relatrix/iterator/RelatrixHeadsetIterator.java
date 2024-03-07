@@ -64,7 +64,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     			iter3 = RelatrixKV.findHeadMap(template.getRange());
     		else 
     			target.setRange(template.getRange());
-    		
+    		if(DEBUG)
+    			System.out.println(this.getClass().getName()+" "+iter1+" "+iter2+" "+iter3+" "+template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -124,6 +125,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 						needsIter1 = false;
 						//
 					} else {
+						if(DEBUG)
+							System.out.println("NextGeneric iter1 return null");
 						return null;
 					}
 				}
@@ -142,14 +145,14 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 							throw new RuntimeException(e);
 						}
+						if(DEBUG)
+							System.out.println("NextGeneric iter2 continue after reset iter2 iter3");
 						continue;
 					}
 				}
 				//
 				if(dmr_return[3] != 0 && iter3.hasNext()) {
 					target.setRange((Comparable<?>) iter3.next());
-					if(DEBUG)
-						System.out.println("NextGeneric set range:"+target);
 				} else {
 					needsIter2 = true;
 					try {
@@ -157,12 +160,17 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 							throw new RuntimeException(e);
 					}
+					if(DEBUG)
+						System.out.println("iter3 reset, continue");
 					continue;
 				}
 				try {
 					buffer = (Morphism) RelatrixKV.get(target);
-					if(buffer != null)
+					if(buffer != null) {
+						if(DEBUG)
+							System.out.println("Found target:"+buffer+", breaking");
 						break;
+					}
 				} catch (IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 				}

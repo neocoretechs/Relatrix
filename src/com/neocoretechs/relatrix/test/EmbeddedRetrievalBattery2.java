@@ -107,6 +107,7 @@ public class EmbeddedRetrievalBattery2 {
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries:");
 		recs = 0;
+	
 		System.out.println("1.) FindHeadset(*,*,*,String.class, String.class, Long.class)...");
 		it =  Relatrix.findHeadSet("*", "*", "*",String.class, String.class, Long.class);
 		while(it.hasNext()) {

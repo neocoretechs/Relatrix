@@ -366,15 +366,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.domain = domain;
-        		if(DBKey.isValid(getDomainKey())) {
-        			this.domain = resolveKey(getDomainKey());
-        		} else {
-        			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(domain)) == null)
-        				setDomainKey(newKey(domain));
-        			else
-        				setDomainKey(dbKey);
-        		}
+        		DBKey dbKey = null;
+    			if((dbKey = resolveInstance(domain)) == null)
+    				setDomainKey(newKey(domain)); // stores instance
+    			else
+        			setDomainKey(dbKey);
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
         	}
@@ -402,15 +398,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.domain = domain;
-        		if(DBKey.isValid(getDomainKey())) {
-        			this.domain = resolveKey(getDomainKey());
-        		} else {
-        			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(alias, domain)) == null)
-        				setDomainKey(DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(),domain));
-        			else
-        				setDomainKey(dbKey);
-        		}
+        		DBKey dbKey = null;
+        		if((dbKey = resolveInstance(alias, domain)) == null)
+        			setDomainKey(newKey(alias, domain)); // stores instance
+        		else
+        			setDomainKey(dbKey);
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
         	}
@@ -434,23 +426,18 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         public void setDomainTemplate(Comparable<?> domain) {
         	try {
         		this.domain = domain;
-        		if(domain != null) {
-        			if(DBKey.isValid(getDomainKey())) {
-        				this.domain = resolveKey(getDomainKey());
-        			} else {
-        				DBKey dbKey = null;
-        				if((dbKey = resolveInstance(domain)) == null) {
-        					dbKey = new DBKey();
-        					dbKey.setNullKey();
-        					setDomainKey(dbKey);
-        				} else {
-        					setDomainKey(dbKey);
-        				}
-        			}
+        		if(domain != null) { 
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(domain)) == null) {
+        				dbKey = new DBKey();
+        				dbKey.setNullKey();
+        				setDomainKey(dbKey);
+        			} else
+        				setDomainKey(dbKey);
         		} else {
-  					DBKey dbKey = new DBKey();
-					dbKey.setNullKey();
-					setDomainKey(dbKey);
+        			DBKey dbKey = new DBKey();
+        			dbKey.setNullKey();
+        			setDomainKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -477,24 +464,20 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         public void setDomainTemplate(String alias, Comparable<?> domain) {
         	try {
         		this.domain = domain;
-        		if(domain != null) {
-        			if(DBKey.isValid(getDomainKey())) {
-        				this.domain = resolveKey(getDomainKey());
-        			} else {
-        				DBKey dbKey = null;
-        				if((dbKey = resolveInstance(alias, domain)) == null) {
-        					dbKey = new DBKey();
-        					dbKey.setNullKey(alias);
-        					setDomainKey(dbKey);
-        				} else {
-        					setDomainKey(dbKey);
-        				}
-        			}
+        		if(domain != null) { 
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias,domain)) == null) {
+        				dbKey = new DBKey();
+        				dbKey.setNullKey(alias);
+        				setDomainKey(dbKey);
+        			} else
+        				setDomainKey(dbKey);
         		} else {
-   					DBKey dbKey = new DBKey();
-					dbKey.setNullKey(alias);
-					setDomainKey(dbKey);
+        			DBKey dbKey = new DBKey();
+        			dbKey.setNullKey(alias);
+        			setDomainKey(dbKey);
         		}
+
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
         	}
@@ -542,15 +525,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.map = map;
-        		if(DBKey.isValid(getMapKey())) {
-        			this.map = resolveKey(getMapKey());
-        		} else {
-        			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(map)) == null)
-        				setMapKey(newKey(map));
-        			else
-        				setMapKey(dbKey);
-        		}
+        		DBKey dbKey = null;
+        		if((dbKey = resolveInstance(map)) == null)
+        			setMapKey(newKey(map)); // stores instance
+        		else
+        			setMapKey(dbKey);
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
         	}
@@ -561,15 +540,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.map = map;
-        		if(DBKey.isValid(getMapKey())) {
-        			this.map = resolveKey(getMapKey());
-        		} else {
-        			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(alias, map)) == null)
-        				setMapKey(newKey(alias, map));
-        			else
-        				setMapKey(dbKey);
-        		}
+        		DBKey dbKey = null;
+        		if((dbKey = resolveInstance(alias, map)) == null)
+        			setMapKey(newKey(alias, map)); // store instance
+        		else
+        			setMapKey(dbKey);
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
         	}
@@ -593,22 +568,18 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	try {
         		this.map = map;
         		if(map != null) {
-        			if(DBKey.isValid(getMapKey())) {
-        				this.map = resolveKey(getMapKey());
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(map)) == null) {
+        				dbKey = new DBKey();
+        				dbKey.setNullKey();
+        				setMapKey(dbKey);
         			} else {
-        				DBKey dbKey = null;
-        				if((dbKey = resolveInstance(map)) == null) {
-        					dbKey = new DBKey();
-        					dbKey.setNullKey();
-        					setMapKey(dbKey);
-        				} else {
-        					setMapKey(dbKey);
-        				}
+        				setMapKey(dbKey);
         			}
         		} else {
- 					DBKey dbKey = new DBKey();
-					dbKey.setNullKey();
-					setMapKey(dbKey);
+        			DBKey dbKey = new DBKey();
+        			dbKey.setNullKey();
+        			setMapKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -619,17 +590,13 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	try {
         		this.map = map;
         		if(map != null) {
-        			if(DBKey.isValid(getMapKey())) {
-        				this.map = resolveKey(getMapKey());
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias, map)) == null) {
+        				dbKey = new DBKey();
+        				dbKey.setNullKey(alias);
+        				setMapKey(dbKey);
         			} else {
-        				DBKey dbKey = null;
-        				if((dbKey = resolveInstance(alias, map)) == null) {
-        					dbKey = new DBKey();
-        					dbKey.setNullKey(alias);
-        					setMapKey(dbKey);
-        				} else {
-        					setMapKey(dbKey);
-        				}
+        				setMapKey(dbKey);
         			} 
         		} else {
         			DBKey dbKey = new DBKey();
@@ -684,15 +651,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.range = range;
-        		if(DBKey.isValid(getRangeKey())) {
-        			this.range = resolveKey(getRangeKey());
-        		} else {
-        			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(range)) == null)
-        				setRangeKey(newKey(range));
-        			else
-        				setRangeKey(dbKey);						
-        		}
+        		DBKey dbKey = null;
+        		if((dbKey = resolveInstance(range)) == null)
+        			setRangeKey(newKey(range));
+        		else
+        			setRangeKey(dbKey);						
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
         	}
@@ -703,15 +666,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.range = range;
-        		if(DBKey.isValid(getRangeKey())) {
-        			this.range = resolveKey(getRangeKey());
-        		} else {
-        			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(alias, range)) == null)
-        				setRangeKey(newKey(alias, range));
-        			else
-        				setRangeKey(dbKey);						
-        		}
+        		DBKey dbKey = null;
+        		if((dbKey = resolveInstance(alias, range)) == null)
+        			setRangeKey(newKey(alias, range));
+        		else
+        			setRangeKey(dbKey);						
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
         	}
@@ -736,22 +695,18 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	try {
         		this.range = range;
         		if(range != null) {
-        			if(DBKey.isValid(getRangeKey())) {
-        				this.range = resolveKey(getRangeKey());
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(range)) == null) {
+        				dbKey = new DBKey();
+        				dbKey.setNullKey();						
+        				setRangeKey(dbKey);
         			} else {
-        				DBKey dbKey = null;
-        				if((dbKey = resolveInstance(range)) == null) {
-        					dbKey = new DBKey();
-        					dbKey.setNullKey();						
-        					setRangeKey(dbKey);
-        				} else {
-        					setRangeKey(dbKey);	
-        				}
+        				setRangeKey(dbKey);	
         			}
         		} else {
-   					DBKey dbKey = new DBKey();
-					dbKey.setNullKey();						
-					setRangeKey(dbKey);        			
+        			DBKey dbKey = new DBKey();
+        			dbKey.setNullKey();						
+        			setRangeKey(dbKey);        			
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -762,17 +717,13 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	try {
         		this.range = range;
         		if(range != null) {
-        			if(DBKey.isValid(getRangeKey())) {
-        				this.range = resolveKey(getRangeKey());
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias, range)) == null) {
+        				dbKey = new DBKey();
+        				dbKey.setNullKey(alias);
+        				setRangeKey(dbKey);
         			} else {
-        				DBKey dbKey = null;
-        				if((dbKey = resolveInstance(alias, range)) == null) {
-        					dbKey = new DBKey();
-        					dbKey.setNullKey(alias);
-        					setRangeKey(dbKey);
-        				} else {
-        					setRangeKey(dbKey);
-        				}
+        				setRangeKey(dbKey);
         			}
         		} else {
         			DBKey dbKey = new DBKey();
