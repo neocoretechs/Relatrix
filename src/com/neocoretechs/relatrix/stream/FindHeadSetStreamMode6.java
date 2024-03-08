@@ -23,13 +23,21 @@ public class FindHeadSetStreamMode6 extends FindSetStreamMode6 {
 
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr)throws IllegalAccessException, IOException {
-	    return new RelatrixHeadsetStream(tdmr, dmr_return);
+		Morphism xdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		return new RelatrixHeadsetStream(tdmr, xdmr, dmr_return);
 	}
 	   /**
      *  @return The stream for the returned set, each stream return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
 	public Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		return new RelatrixHeadsetStream(alias, tdmr, dmr_return);
+		Morphism xdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		return new RelatrixHeadsetStream(alias, tdmr, xdmr, dmr_return);
 	}
 }

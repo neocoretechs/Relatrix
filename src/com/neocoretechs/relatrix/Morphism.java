@@ -444,6 +444,9 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
+        public void setDomainResolved(Comparable<?> domain) {
+        	this.domain = domain;
+        }
         /**
          * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
          * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
@@ -608,6 +611,9 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
+        public void setMapResolved(Comparable<?> map) {
+        	this.map = map;
+        }
         /**
          * Transparently process DBKey, returning actual instance. If the range is already deserialized as an instance
          * it will be returned without further processing. If the range is null and the key in the {@link KeySet} is
@@ -735,6 +741,10 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
+        public void setRangeResolved(Comparable<?> range) {
+        	this.range = range;
+        }
+        
 		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(transactionId == null)
 				return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);

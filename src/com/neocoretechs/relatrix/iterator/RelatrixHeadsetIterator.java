@@ -1,14 +1,19 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
  * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
@@ -24,12 +29,12 @@ import com.neocoretechs.relatrix.Result;
  *
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	protected String alias = null;
-	protected Iterator iter1, iter2, iter3;
-	protected Morphism target = new DomainMapRange();
+	protected Iterator iter1, iter2;//, iter3;
+	protected Morphism buffer = new DomainMapRange();
 	protected Morphism template;
-    protected Morphism buffer = null;
+ 
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = false; // for retrieved DMR buffer
@@ -38,58 +43,92 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     protected boolean identity = false;
     protected boolean returnedIdentity = false;
     
+    protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
+    protected ArrayList<DBKey> mkey = new ArrayList<DBKey>();
+ 
+    protected int primaryKeyd = 0;
+    protected int primaryKeym = 0;
+    
+    
     public RelatrixHeadsetIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
+     * @param templateo 
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIterator(Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIterator(Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
     	if(DEBUG)
     		System.out.printf("%s %s %s%n", this.getClass().getName(), template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
+    		Iterator it = RelatrixKV.findTailMap(templateo);// Morphism by order
+    		while(it.hasNext()) {
+    			Morphism m = (Morphism) it.next();
+    			if(!dkey.contains(m.getDomainKey()))
+    				dkey.add(m.getDomainKey());
+    			if(!mkey.contains(m.getMapKey()))
+    				mkey.add(m.getMapKey());
+      			if(DEBUG)
+    				System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
+    		}
+    		if(DEBUG)
+    			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
 			//iter = RelatrixKV.findHeadMap(template);
     		if(dmr_return[1] != 0)
-    			iter1 = RelatrixKV.findHeadMap(template.getDomain());
+    			iter1 = RelatrixKV.findHeadMapKV(template.getDomain());
     		else
-    			target.setDomain(template.getDomain());
+    			buffer.setDomain(template.getDomain());
     		if(dmr_return[2] != 0)
-    			iter2 = RelatrixKV.findHeadMap(template.getMap());
+    			iter2 = RelatrixKV.findHeadMapKV(template.getMap());
     		else
-    			target.setMap(template.getMap());
-    		if(dmr_return[3] != 0)
-    			iter3 = RelatrixKV.findHeadMap(template.getRange());
-    		else 
-    			target.setRange(template.getRange());
+    			buffer.setMap(template.getMap());
+    		//if(dmr_return[3] != 0)
+    		//	iter3 = RelatrixKV.findHeadMapKV(template.getRange());
+    		//else
+    		if(dmr_return[3] == 0)
+    			buffer.setRange(template.getRange());
     		if(DEBUG)
-    			System.out.println(this.getClass().getName()+" "+iter1+" "+iter2+" "+iter3+" "+template);
+    			System.out.println(this.getClass().getName()+" "+iter1+" "+iter2+/*" "+iter3+*/" "+template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
     }
     
-    public RelatrixHeadsetIterator(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
     	this.template = template;
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
+       		Iterator it = RelatrixKV.findTailMapKV(alias,templateo);// Morphism by order
+    		while(it.hasNext()) {
+      			Morphism m = (Morphism) it.next();
+      			if(!dkey.contains(m.getDomainKey()))
+    				dkey.add(m.getDomainKey());
+    			if(!mkey.contains(m.getMapKey()))
+    				mkey.add(m.getMapKey());
+      			if(DEBUG)
+    				System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
+    		}
+    		if(DEBUG)
+    			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
 			//iter = RelatrixKV.findHeadMap(alias, template);
       		if(dmr_return[1] != 0)
-      			iter1 = RelatrixKV.findHeadMap(alias,template.getDomain());
+      			iter1 = RelatrixKV.findHeadMapKV(alias,template.getDomain());
       		else
-    			target.setDomain(template.getDomain());
+    			buffer.setDomain(template.getDomain());
     		if(dmr_return[2] != 0)
-    			iter2 = RelatrixKV.findHeadMap(alias,template.getMap());
+    			iter2 = RelatrixKV.findHeadMapKV(alias,template.getMap());
        		else
-    			target.setMap(template.getMap());
-       		if(dmr_return[3] != 0)
-       			iter3 = RelatrixKV.findHeadMap(alias,template.getRange());
-      		else 
-    			target.setRange(template.getRange());
+    			buffer.setMap(template.getMap());
+       		//if(dmr_return[3] != 0)
+       			//iter3 = RelatrixKV.findHeadMapKV(alias,template.getRange());
+      		//else
+    		if(dmr_return[3] == 0)
+    			buffer.setRange(template.getRange());
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -113,68 +152,104 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	}
 	
 	private Result nextGeneric() {
+		DBKey pk = null;
 		if(DEBUG)
 			System.out.println("NextGeneric");
-			while(true) {
-				//buffer = (Morphism)iter.next();
-				if(dmr_return[1] != 0 && needsIter1) {
-					if(iter1.hasNext()) {
-						target.setDomain((Comparable<?>) iter1.next());
+		while(true) {
+			pk = null;
+			//buffer = (Morphism)iter.next();
+			if(dmr_return[1] != 0 && needsIter1) {
+				if(iter1.hasNext()) {
+					Map.Entry me = (Entry) iter1.next();
+					if((primaryKeyd = dkey.indexOf(me.getValue())) == -1) {
 						if(DEBUG)
-							System.out.println("NextGeneric set domain:"+target);
-						needsIter1 = false;
-						//
-					} else {
-						if(DEBUG)
-							System.out.println("NextGeneric iter1 return null");
-						return null;
-					}
-				}
-				if(dmr_return[2] != 0 && needsIter2) {
-					if(iter2.hasNext()) {
-						target.setMap((Comparable<?>) iter2.next());
-						if(DEBUG)
-							System.out.println("NextGeneric set map:"+target);
-						needsIter2 = false;
-					} else {
-						needsIter1 = true;
-						needsIter2 = true;
-						try {
-							iter2 = RelatrixKV.findHeadMap(template.getMap());
-							iter3 = RelatrixKV.findHeadMap(template.getRange());
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-						if(DEBUG)
-							System.out.println("NextGeneric iter2 continue after reset iter2 iter3");
+							System.out.println("Didnt find domain "+me.getKey()+", "+me.getValue());
 						continue;
 					}
-				}
-				//
-				if(dmr_return[3] != 0 && iter3.hasNext()) {
-					target.setRange((Comparable<?>) iter3.next());
-				} else {
-					needsIter2 = true;
-					try {
-						iter3 = RelatrixKV.findHeadMap(template.getRange());
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-					}
+					//target.setDomain((Comparable<?>)me.getKey());
+					buffer.setDomainKey((DBKey) me.getValue());
+					buffer.setDomainResolved((Comparable<?>)me.getKey());
 					if(DEBUG)
-						System.out.println("iter3 reset, continue");
-					continue;
-				}
-				try {
-					buffer = (Morphism) RelatrixKV.get(target);
-					if(buffer != null) {
-						if(DEBUG)
-							System.out.println("Found target:"+buffer+", breaking");
-						break;
-					}
-				} catch (IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
+						System.out.println("NextGeneric set domain:"+buffer);
+					needsIter1 = false;
+					//
+				} else {
+					if(DEBUG)
+						System.out.println("NextGeneric iter1 return null");
+					return null;
 				}
 			}
+			if(dmr_return[2] != 0 && needsIter2) {
+				if(iter2.hasNext()) {
+					Map.Entry me = (Entry) iter2.next();
+					if((primaryKeym = mkey.indexOf(me.getValue())) == -1) {
+						if(DEBUG)
+							System.out.println("Didnt find map "+me.getKey()+", "+me.getValue());
+						continue;
+					}
+					//target.setMap((Comparable<?>) me.getKey());
+					buffer.setMapKey((DBKey) me.getValue());
+					buffer.setMapResolved((Comparable<?>)me.getKey());
+					if(DEBUG)
+						System.out.println("NextGeneric set map:"+buffer);
+					PrimaryKeySet pks = new PrimaryKeySet(buffer);
+					try {
+						pk = (DBKey) RelatrixKV.get(pks);
+						// did not find primary key of domain,map, continue to next iteration of components
+						if(pk == null) {
+							if(DEBUG)
+								System.out.println("Primary key lookup fail for "+buffer+", continue");
+							continue;
+						}
+					} catch (IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					needsIter2 = true;
+				} else {
+					needsIter1 = true;
+					needsIter2 = true;
+					try {
+						iter2 = RelatrixKV.findHeadMapKV(template.getMap());
+						//iter3 = RelatrixKV.findHeadMapKV(template.getRange());
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					if(DEBUG)
+						System.out.println("NextGeneric iter2 continue after reset iter2 iter3");
+					continue;
+				}
+			}
+			//
+			/*
+			if(dmr_return[3] != 0 && iter3.hasNext()) {
+				Map.Entry me = (Entry) iter3.next();
+				//target.setRange((Comparable<?>) me.getKey());
+				buffer.setRangeKey((DBKey) me.getValue());
+				buffer.setRangeResolved((Comparable<?>)me.getKey());
+			} else {
+				needsIter2 = true;
+				try {
+					iter3 = RelatrixKV.findHeadMapKV(template.getRange());
+				} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+					throw new RuntimeException(e);
+				}
+				if(DEBUG)
+					System.out.println("iter3 reset, continue");
+				continue;
+			}
+			*/
+			if(DEBUG)
+				System.out.println("Target primary key:"+pk);
+			try {
+				buffer = (Morphism) RelatrixKV.get(pk);
+			} catch (IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			} // lookup into DBKey tablespace with pk as key returning Morphism
+			// this should not fail with null, we already did a lookup earlier
+			if(DEBUG)
+				System.out.println("Lookup result for buffer:"+buffer);
+			break;
+		}
 		try {
 			return iterateDmr();
 		} catch (IllegalAccessException | IOException e) {
@@ -182,56 +257,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		}
 		return null;
 	}
-	
+
 	private Result nextAlias() {
-		if( buffer == null || needsIter) {
-			//buffer = (Morphism)iter.next();
-			if(dmr_return[1] != 0 && needsIter1) {
-				if(iter1.hasNext()) {
-					target.setDomain(alias,(Comparable<?>) iter1.next());
-					needsIter1 = false;
-				} else
-					return null;
-			}
-			if(dmr_return[2] != 0 && needsIter2) {
-				if(iter2.hasNext()) {
-					target.setMap(alias,(Comparable<?>) iter2.next());
-					needsIter2 = false;
-				} else {
-					needsIter1 = true;
-					needsIter2 = true;
-					try {
-						iter2 = RelatrixKV.findHeadMap(alias,template.getMap());
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-					return nextAlias();
-				}		
-			}
-			if(dmr_return[3] != 0 && iter3.hasNext()) {
-				target.setRange(alias,(Comparable<?>) iter3.next());
-			} else {
-				needsIter2 = true;
-				try {
-					iter3 = RelatrixKV.findHeadMap(alias,template.getRange());
-				} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-					throw new RuntimeException(e);
-				}
-				return nextAlias();
-			}
-			try {
-				buffer = (Morphism) RelatrixKV.get(alias,target);
-				if(buffer == null)
-					return nextAlias();
-			} catch (IllegalAccessException | IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		try {
-			return iterateDmr();
-		} catch (IllegalAccessException | IOException e) {
-			e.printStackTrace();
-		}
 		return null;
 	}
 	/**

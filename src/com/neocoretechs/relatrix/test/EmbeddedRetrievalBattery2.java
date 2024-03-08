@@ -13,6 +13,9 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result2;
+import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -102,8 +105,8 @@ public class EmbeddedRetrievalBattery2 {
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
 		ArrayList<Comparable> ar = new ArrayList<Comparable>();
-		ArrayList<Comparable[]> ar2 = new ArrayList<Comparable[]>(); // will store 2 element result sets
-		ArrayList<Comparable[]> ar3 = new ArrayList<Comparable[]>(); // will store 3 element result sets
+		ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets
+		ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries:");
 		recs = 0;
@@ -112,8 +115,8 @@ public class EmbeddedRetrievalBattery2 {
 		it =  Relatrix.findHeadSet("*", "*", "*",String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//ar.add(c[0]);
 		}
 		recs = 0;
@@ -122,9 +125,9 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			if(ar.size() == 0 ) ar.add(c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
+			if(ar.size() == 0 ) ar.add(c);
 		}
 		recs = 0;
 		System.out.println("3.) FindHeadSet(*,?,*,String.class, String.class, Long.class)...");		
@@ -132,9 +135,9 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			if(ar.size() == 1 ) ar.add(c[0]);
+			Result  c = (Result )o;
+			System.out.println(++recs+"="+c);
+			if(ar.size() == 1 ) ar.add(c);
 		}
 		recs = 0;
 		System.out.println("4.) FindHeadSet(?,*,*.String.class, String.class, Long.class)...");		
@@ -142,9 +145,9 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			if(ar.size() == 2) ar.add(c[0]);
+			Result  c = (Result )o;
+			System.out.println(++recs+"="+c);
+			if(ar.size() == 2) ar.add(c);
 		}
 		recs=0;
 		System.out.println("5.) FindHeadSet(*,?,?,String.class, String.class, Long.class)...");		
@@ -152,8 +155,8 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			Result2 c = (Result2)o; // result2
+			System.out.println(++recs+"="+c);
 			if(ar2.size() == 0) ar2.add(c);
 		}
 		recs = 0;
@@ -162,8 +165,8 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			Result2 c = (Result2)o;
+			System.out.println(++recs+"="+c);
 			if(ar2.size() == 1) ar2.add(c);
 		}
 		recs = 0;
@@ -172,8 +175,8 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			Result2 c = (Result2)o;
+			System.out.println(++recs+"="+c);
 			if(ar2.size() == 2) ar2.add(c);
 		}
 		recs = 0;
@@ -182,140 +185,141 @@ public class EmbeddedRetrievalBattery2 {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
+			Result3 c = (Result3)o;
+			System.out.println(++recs+"="+c);
 			if(ar3.size() == 0) ar3.add(c);
 		}
 		
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. They should produce relationships with these elements");
 		recs = 0;
-		System.out.println("9.) FindHeadSet(<obj>,<obj>,<obj>) using domain="+ar3.get(0)[0]+" map="+ar3.get(0)[1]+" range="+ar3.get(0)[2]);
-		it = Relatrix.findHeadSet(ar3.get(0)[0], ar3.get(0)[1], ar3.get(0)[2]);
+		System.out.println("9.) FindHeadSet(<obj>,<obj>,<obj>) using ="+((Result)ar3.get(0)).get(0)+","+((Result)ar3.get(0)).get(1)+","+((Result)ar3.get(0)).get(2));
+		it = Relatrix.findHeadSet(((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2));
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//ar.add(c[0]);
 		}
 		recs =0;
-		System.out.println("10.) FindHeadSet(*,*,<obj>,String.class, String.class) using range="+ar.get(0));		
-		it = Relatrix.findHeadSet("*", "*", ar.get(0), String.class, String.class);
+		System.out.println("10.) FindHeadSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(0)).get(0));		
+		it = Relatrix.findHeadSet("*", "*", ((Result)ar3.get(0)).get(0), String.class, String.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar.size() == 0 ) ar.add(c[0]);
 		}
 		recs = 0;
-		System.out.println("11.) FindHeadSet(*,<obj>,*, String.class, Long.class) using map="+ar.get(1));		
-		it = Relatrix.findHeadSet("*", ar.get(1), "*",String.class, Long.class);
+		System.out.println("11.) FindHeadSet(*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
+		it = Relatrix.findHeadSet("*", ((Result)ar.get(1)).get(0), "*",String.class, Long.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar.size() == 1 ) ar.add(c[0]);
 		}
 		recs =0;
-		System.out.println("12.) FindHeadet(<obj>,*,*,String.class, Long.class) using domain="+ar.get(2));		
-		it = Relatrix.findHeadSet(ar.get(2), "*", "*",String.class, Long.class);
+		System.out.println("12.) FindHeadet(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
+		it = Relatrix.findHeadSet(((Result)ar.get(2)).get(0), "*", "*",String.class, Long.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar.size() == 2) ar.add(c[0]);
 		}
+		// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
 		recs = 0;
-		System.out.println("13.) FindHeadset(*,<obj>,<obj>,String.class) using map="+ar2.get(0)[0]+" range="+ar2.get(0)[1]);		
-		it = Relatrix.findHeadSet("*", ar2.get(0)[0], ar2.get(0)[1], String.class);
+		System.out.println("13.) FindHeadset(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(0)).toArray()[0]+" range="+((Result)ar2.get(0)).toArray()[1]);		
+		it = Relatrix.findHeadSet("*", ((Result)ar2.get(0)).toArray()[0], ((Result)ar2.get(0)).toArray()[1], String.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar2.size() == 0) ar2.add(c);
 		}
 		recs = 0;
-		System.out.println("14.) FindHeadSet(<obj>,*,<obj>,String.class) using domain="+ar2.get(1)[0]+" range="+ar2.get(1)[1]);		
-		it = Relatrix.findHeadSet(ar2.get(1)[0], "*", ar2.get(1)[1], String.class);
+		System.out.println("14.) FindHeadSet(<obj>,*,<obj>,String.class) using ="+((Result)ar2.get(1)).toArray()[0]+", "+((Result)ar2.get(1)).toArray()[1]);		
+		it = Relatrix.findHeadSet(((Result)ar2.get(1)).toArray()[0], "*", ((Result)ar2.get(1)).toArray()[1], String.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar2.size() == 1) ar2.add(c);
 		}
 		recs =0;
-		System.out.println("15.) FindHeadSet(<obj>,<obj>,*, Long.class) using domain="+ar2.get(2)[0]+" map="+ar2.get(2)[1]);		
-		it = Relatrix.findHeadSet(ar2.get(2)[0], ar2.get(2)[1], "*", Long.class);
+		System.out.println("15.) FindHeadSet(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2.get(2)).toArray()[0]+", map="+((Result)ar2.get(2)).toArray()[1]);		
+		it = Relatrix.findHeadSet(((Result)ar2.get(2)).toArray()[0], ((Result)ar2.get(2)).toArray()[1], "*", Long.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar2.size() == 2) ar2.add(c);
 		}
 		recs =0;
-		System.out.println("16.) FindHeadSet(?,?,<obj>, String.class, String.class) using range="+ar.get(0));		
-		it = Relatrix.findHeadSet("?", "?", ar.get(0), String.class, String.class);
+		System.out.println("16.) FindHeadSet(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(0)).get(0));		
+		it = Relatrix.findHeadSet("?", "?", ((Result)ar.get(0)).get(0), String.class, String.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" -- "+c[1]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar.size() == 0 ) ar.add(c[0]);
 		}
 		recs =0;
-		System.out.println("17.) FindHeadSet(?,<obj>,?, String.class, Long.class) using map="+ar.get(1));		
-		it = Relatrix.findHeadSet("?", ar.get(1), "?", String.class, Long.class);
+		System.out.println("17.) FindHeadSet(?,<obj>,?, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
+		it = Relatrix.findHeadSet("?", ((Result)ar.get(1)).get(0), "?", String.class, Long.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" -- "+c[1]);
+			Result2 c = (Result2)o;
+			System.out.println(++recs+"="+c);
 			//if(ar.size() == 1 ) ar.add(c[0]);
 		}
 		recs =0;
-		System.out.println("18.) FindHeadSet(<obj>,?,?, String.class, Long.class) using domain="+ar.get(2));		
-		it = Relatrix.findHeadSet(ar.get(2), "?", "?", String.class, Long.class);
+		System.out.println("18.) FindHeadSet(<obj>,?,?, String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
+		it = Relatrix.findHeadSet(((Result)ar.get(2)).get(0), "?", "?", String.class, Long.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" -- "+c[1]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar.size() == 2) ar.add(c[0]);
 		}
 		recs =0;
-		System.out.println("19.) FindHeadSet(?,<obj>,<obj>, String.class) using map="+ar2.get(0)[0]+" range="+ar2.get(0)[1]);		
-		it = Relatrix.findHeadSet("?", ar2.get(0)[0], ar2.get(0)[1], String.class);
+		System.out.println("19.) FindHeadSet(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
+		it = Relatrix.findHeadSet("?", ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1), String.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar2.size() == 0) ar2.add(c);
 		}
 		recs =0;
-		System.out.println("20.) FindHeadSet(<obj>,?,<obj>,String.class) using domain="+ar2.get(1)[0]+" range="+ ar2.get(1)[1]);		
-		it = Relatrix.findHeadSet(ar2.get(1)[0], "?", ar2.get(1)[1],String.class);
+		System.out.println("20.) FindHeadSet(<obj>,?,<obj>,String.class) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
+		it = Relatrix.findHeadSet(((Result)ar2.get(1)).get(0), "?", ((Result)ar2.get(1)).get(1), String.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar2.size() == 1) ar2.add(c);
 		}
 		recs =0;
-		System.out.println("21.) FindHeadSet(<obj>,<obj>,?,Long.class) using domain="+ar2.get(2)[0]+" map="+ar2.get(2)[1]);		
-		it = Relatrix.findHeadSet(ar2.get(2)[0], ar2.get(2)[1], "?",Long.class);
+		System.out.println("21.) FindHeadSet(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
+		it = Relatrix.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",Long.class);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			Result c = (Result)o;
+			System.out.println(++recs+"="+c);
 			//if(ar2.size() == 2) ar2.add(c);
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
@@ -333,7 +337,7 @@ public class EmbeddedRetrievalBattery2 {
 		int i = 0;
 		while(it.hasNext()) {
 			Object fkey = it.next();
-			DomainMapRange dmr = (DomainMapRange)((Comparable[])fkey)[0];
+			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
 			Relatrix.remove(dmr.getDomain(), dmr.getMap(), dmr.getRange());
 			++i;
 			if((System.currentTimeMillis()-timx) > 1000) {
@@ -343,7 +347,7 @@ public class EmbeddedRetrievalBattery2 {
 		}
 		Iterator<?> its = Relatrix.findSet("*","*","*");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);
 			System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 		}

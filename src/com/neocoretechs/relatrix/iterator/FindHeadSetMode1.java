@@ -22,6 +22,10 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+		Morphism xdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class)
 				tdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
@@ -36,11 +40,15 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 				tdmr.setMap((Comparable)endarg[1]);
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixHeadsetIterator(tdmr, dmr_return);
+		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
 	}
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		Morphism xdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class)
 				tdmr.setDomain(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
@@ -53,6 +61,6 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 			else
 				tdmr.setMap(alias,(Comparable)endarg[1]);
 		}
-		return new RelatrixHeadsetIterator(alias, tdmr, dmr_return);
+		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
 	}
 }

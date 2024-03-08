@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.rocksack.DatabaseClass;
@@ -27,7 +27,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 
     public PrimaryKeySet() {}
     
-	public PrimaryKeySet(DomainMapRange identity) {
+	public PrimaryKeySet(Morphism identity) {
 		setDomainKey(identity.getDomainKey());
 		setMapKey(identity.getMapKey());
 		this.transactionId = identity.getTransactionId();

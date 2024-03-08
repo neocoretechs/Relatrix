@@ -26,10 +26,18 @@ public class FindHeadSetStreamMode1 extends FindSetStreamMode1 {
 	   
 	   @Override
 	   protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		    return new RelatrixHeadsetStream(tdmr, dmr_return);
+			Morphism xdmr = null;
+			try {
+				xdmr = (Morphism) tdmr.clone();
+			} catch (CloneNotSupportedException e) {}
+		   return new RelatrixHeadsetStream(tdmr, xdmr, dmr_return);
 	   }
 	   @Override
 	   protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		    return new RelatrixHeadsetStream(alias, tdmr, dmr_return);
+			Morphism xdmr = null;
+			try {
+				xdmr = (Morphism) tdmr.clone();
+			} catch (CloneNotSupportedException e) {}
+		   return new RelatrixHeadsetStream(alias, tdmr, xdmr, dmr_return);
 	   }
 }
