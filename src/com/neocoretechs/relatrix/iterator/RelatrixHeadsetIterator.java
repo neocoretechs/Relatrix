@@ -119,16 +119,16 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
       		if(dmr_return[1] != 0)
       			iter1 = RelatrixKV.findHeadMapKV(alias,template.getDomain());
       		else
-    			buffer.setDomain(template.getDomain());
+    			buffer.setDomain(alias, template.getDomain());
     		if(dmr_return[2] != 0)
     			iter2 = RelatrixKV.findHeadMapKV(alias,template.getMap());
        		else
-    			buffer.setMap(template.getMap());
+    			buffer.setMap(alias, template.getMap());
        		//if(dmr_return[3] != 0)
        			//iter3 = RelatrixKV.findHeadMapKV(alias,template.getRange());
       		//else
     		if(dmr_return[3] == 0)
-    			buffer.setRange(template.getRange());
+    			buffer.setRange(alias, template.getRange());
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -259,6 +259,90 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	}
 
 	private Result nextAlias() {
+		DBKey pk = null;
+		if(DEBUG)
+			System.out.println("NextAlias");
+		while(true) {
+			pk = null;
+			//buffer = (Morphism)iter.next();
+			if(dmr_return[1] != 0 && needsIter1) {
+				if(iter1.hasNext()) {
+					Map.Entry me = (Entry) iter1.next();
+					if((primaryKeyd = dkey.indexOf(me.getValue())) == -1) {
+						if(DEBUG)
+							System.out.println("Didnt find domain "+me.getKey()+", "+me.getValue());
+						continue;
+					}
+					//target.setDomain((Comparable<?>)me.getKey());
+					buffer.setDomainKey((DBKey) me.getValue());
+					buffer.setDomainResolved((Comparable<?>)me.getKey());
+					if(DEBUG)
+						System.out.println("NextGeneric set domain:"+buffer);
+					needsIter1 = false;
+					//
+				} else {
+					if(DEBUG)
+						System.out.println("NextGeneric iter1 return null");
+					return null;
+				}
+			}
+			if(dmr_return[2] != 0 && needsIter2) {
+				if(iter2.hasNext()) {
+					Map.Entry me = (Entry) iter2.next();
+					if((primaryKeym = mkey.indexOf(me.getValue())) == -1) {
+						if(DEBUG)
+							System.out.println("Didnt find map "+me.getKey()+", "+me.getValue());
+						continue;
+					}
+					//target.setMap((Comparable<?>) me.getKey());
+					buffer.setMapKey((DBKey) me.getValue());
+					buffer.setMapResolved((Comparable<?>)me.getKey());
+					if(DEBUG)
+						System.out.println("NextGeneric set map:"+buffer);
+					PrimaryKeySet pks = new PrimaryKeySet(buffer);
+					try {
+						pk = (DBKey) RelatrixKV.get(alias, pks);
+						// did not find primary key of domain,map, continue to next iteration of components
+						if(pk == null) {
+							if(DEBUG)
+								System.out.println("Primary key lookup fail for "+buffer+", continue");
+							continue;
+						}
+					} catch (IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					needsIter2 = true;
+				} else {
+					needsIter1 = true;
+					needsIter2 = true;
+					try {
+						iter2 = RelatrixKV.findHeadMapKV(alias, template.getMap());
+						//iter3 = RelatrixKV.findHeadMapKV(template.getRange());
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					if(DEBUG)
+						System.out.println("NextAlias iter2 continue after reset iter2 iter3");
+					continue;
+				}
+			}
+			if(DEBUG)
+				System.out.println("Target primary key:"+pk);
+			try {
+				buffer = (Morphism) RelatrixKV.get(alias, pk);
+			} catch (IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			} // lookup into DBKey tablespace with pk as key returning Morphism
+			// this should not fail with null, we already did a lookup earlier
+			if(DEBUG)
+				System.out.println("Lookup result for buffer:"+buffer);
+			break;
+		}
+		try {
+			return iterateDmr();
+		} catch (IllegalAccessException | IOException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	/**
