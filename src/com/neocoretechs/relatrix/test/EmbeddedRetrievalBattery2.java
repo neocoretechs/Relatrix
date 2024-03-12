@@ -28,6 +28,7 @@ import com.neocoretechs.relatrix.key.DBKey;
  */
 public class EmbeddedRetrievalBattery2 {
 	public static boolean DEBUG = false;
+	public static boolean DISPLAY = false;
 	public static int min = 0;
 	public static int max = 100;
 	static String key = "This is a test"; 
@@ -110,14 +111,15 @@ public class EmbeddedRetrievalBattery2 {
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries:");
 		recs = 0;
-	
-		System.out.println("1.) FindHeadset(*,*,*,String.class, String.class, Long.class)...");
-		it =  Relatrix.findHeadSet("*", "*", "*",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result c = (Result)o;
-			System.out.println(++recs+"="+c);
-			//ar.add(c[0]);
+		if(DISPLAY) {
+			System.out.println("1.) FindHeadset(*,*,*,String.class, String.class, Long.class)...");
+			it =  Relatrix.findHeadSet("*", "*", "*",String.class, String.class, Long.class);
+			while(it.hasNext()) {
+				Object o = it.next();
+				Result c = (Result)o;
+				System.out.println(++recs+"="+c);
+				//ar.add(c[0]);
+			}
 		}
 		recs = 0;
 		System.out.println("2.) FindHeadset(*,*,?,String.class, String.class, Long.class)...");		
@@ -127,7 +129,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result c = (Result)o;
 			System.out.println(++recs+"="+c);
-			if(ar.size() == 0 ) ar.add(c);
+			if(ar.size() == 0 ) {
+				ar.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		recs = 0;
 		System.out.println("3.) FindHeadSet(*,?,*,String.class, String.class, Long.class)...");		
@@ -137,7 +145,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result  c = (Result )o;
 			System.out.println(++recs+"="+c);
-			if(ar.size() == 1 ) ar.add(c);
+			if(ar.size() == 1 ) {
+				ar.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		recs = 0;
 		System.out.println("4.) FindHeadSet(?,*,*.String.class, String.class, Long.class)...");		
@@ -147,7 +161,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result  c = (Result )o;
 			System.out.println(++recs+"="+c);
-			if(ar.size() == 2) ar.add(c);
+			if(ar.size() == 2) {
+				ar.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		recs=0;
 		System.out.println("5.) FindHeadSet(*,?,?,String.class, String.class, Long.class)...");		
@@ -157,7 +177,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result2 c = (Result2)o; // result2
 			System.out.println(++recs+"="+c);
-			if(ar2.size() == 0) ar2.add(c);
+			if(ar2.size() == 0) {
+				ar2.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		recs = 0;
 		System.out.println("6.) FindHeadSet(?,*,?,String.class, String.class, Long.class)...");		
@@ -167,7 +193,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result2 c = (Result2)o;
 			System.out.println(++recs+"="+c);
-			if(ar2.size() == 1) ar2.add(c);
+			if(ar2.size() == 1) {
+				ar2.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		recs = 0;
 		System.out.println("7.) FindHeadSet(?,?,*,String.class, String.class, Long.class)...");		
@@ -177,7 +209,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result2 c = (Result2)o;
 			System.out.println(++recs+"="+c);
-			if(ar2.size() == 2) ar2.add(c);
+			if(ar2.size() == 2) {
+				ar2.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		recs = 0;
 		System.out.println("8.) FindHeadet(?,?,?,String.class, String.class, Long.class)...");		
@@ -187,7 +225,13 @@ public class EmbeddedRetrievalBattery2 {
 			Object o = it.next();
 			Result3 c = (Result3)o;
 			System.out.println(++recs+"="+c);
-			if(ar3.size() == 0) ar3.add(c);
+			if(ar3.size() == 0) {
+				ar3.add(c);
+				if(!DISPLAY) {
+					System.out.println("DISPLAY reduced, breaking from retrieval");
+					break;
+				}
+			}
 		}
 		
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");

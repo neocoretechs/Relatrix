@@ -72,7 +72,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
 		}
 		/**
-		 * Determine if we are returning identity relationship morphisms. {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
+		 * Determine if we are returning identity relationship {@link Morphism}s. {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
 		 * @param dop The domain predicate from retrieval operation, either wildcard or tuple return
 		 * @param mop Map predicate, wildcard or tuple return
 		 * @param rop Range predicate, wildcard or tuple return
@@ -84,10 +84,10 @@ import com.neocoretechs.relatrix.Relatrix;
 					rop == Relatrix.OPERATOR_WILDCARD_CHAR );
 		}
 		/**
-		 * Determine if we are returning relationships; i.e. if we have specified all wildcard operators in our
-		 * parameters. (*,*,*)
-		 * @param dmr_return the retrun value domain/map/range template
-		 * @return true if all 3 values are 0 indicating all wildcards specified
+		 * Determine if we are returning singleton relationship; i.e. if we have specified all object operators in our
+		 * parameters. (<object>,<object>,<object>)
+		 * @param dmr_return  For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
+		 * @return true if all 1-3 values of dmr_return are 0 indicating all instances of objects specified for elements of a relationship, resulting in identity {@link Morphism}
 		 */
 		protected static boolean isReturnRelationships(short[] dmr_return) {
 			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );

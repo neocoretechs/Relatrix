@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
- * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
+ * deliver sets of compositions of {@link Morphism}s representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
@@ -41,6 +41,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     protected boolean needsIter1 = true; // for domain
     protected boolean needsIter2 = true; // for map, range ALWAYS needs iterated
     protected boolean identity = false;
+    protected boolean singleton = false;
     protected boolean returnedIdentity = false;
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
@@ -67,12 +68,18 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     		Iterator it = RelatrixKV.findTailMap(templateo);// Morphism by order
     		while(it.hasNext()) {
     			Morphism m = (Morphism) it.next();
+    			if(dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0) {// return singleton identity Morphism special case
+    				buffer = m;
+    				singleton = true;
+    				return;
+    			} else {
     			if(!dkey.contains(m.getDomainKey()))
     				dkey.add(m.getDomainKey());
     			if(!mkey.contains(m.getMapKey()))
     				mkey.add(m.getMapKey());
       			if(DEBUG)
     				System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
+    			}
     		}
     		if(DEBUG)
     			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
@@ -106,6 +113,11 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
        		Iterator it = RelatrixKV.findTailMapKV(alias,templateo);// Morphism by order
     		while(it.hasNext()) {
       			Morphism m = (Morphism) it.next();
+       			if(dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0) {// return identity special case
+    				buffer = m;
+    				singleton = true;
+    				return;
+    			}
       			if(!dkey.contains(m.getDomainKey()))
     				dkey.add(m.getDomainKey());
     			if(!mkey.contains(m.getMapKey()))
@@ -136,7 +148,11 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     
 	@Override
 	public boolean hasNext() {
-		return iter1.hasNext();
+		if(iter1 != null) // dmr_return[1] != 0
+			return iter1.hasNext();
+		if(singleton && !returnedIdentity)
+			return true;
+		return false;
 	}
 
 	@Override
@@ -155,7 +171,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		DBKey pk = null;
 		if(DEBUG)
 			System.out.println("NextGeneric");
-		while(true) {
+		while(true && !singleton) {
 			pk = null;
 			//buffer = (Morphism)iter.next();
 			if(dmr_return[1] != 0 && needsIter1) {
@@ -249,7 +265,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			if(DEBUG)
 				System.out.println("Lookup result for buffer:"+buffer);
 			break;
-		}
+		} // while true
 		try {
 			return iterateDmr();
 		} catch (IllegalAccessException | IOException e) {
@@ -262,7 +278,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		DBKey pk = null;
 		if(DEBUG)
 			System.out.println("NextAlias");
-		while(true) {
+		while(true && !singleton) {
 			pk = null;
 			//buffer = (Morphism)iter.next();
 			if(dmr_return[1] != 0 && needsIter1) {
@@ -363,6 +379,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	    	tuples.set(0, buffer);
 	    	if(DEBUG)
 				System.out.println("RelatrixHeadSetIterator iterateDmr returning identity tuples:"+tuples);
+	    	returnedIdentity = true;
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;

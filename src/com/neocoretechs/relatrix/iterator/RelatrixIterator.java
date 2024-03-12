@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 /**
- * Implementation of the standard Iterator interface which operates on Morphisms formed into a template
+ * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.Morphism}s formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
  * The N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} in next(), since 1 full tuple element at an iteration is returned, 
@@ -187,8 +187,8 @@ public class RelatrixIterator implements Iterator<Result> {
 	}
 	/**
 	 * Return the number of tuple elements to be returned from specified query in each iteration
-	 * @param dmr_return
-	 * @return
+	 * @param dmr_return For each element of the dmr_return array, element 0 is counter, for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
+	 * @return The {@link Result} object based on number of ? return tuples in dmr_return array and whether its considered an identity {@link Morphism}
 	 */
 	protected static Result getReturnTuples(short[] dmr_return) {
 		short cnt = 0;
@@ -208,11 +208,13 @@ public class RelatrixIterator implements Iterator<Result> {
 		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
 	}
 	/**
-	 * Checks to see if our dmr_return array has any return tuple ? values, which = 1
-	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 or 2 (object or wildcard)
-	 * then we say its an identity, and we will return a 1 element Comparable array on each iteration.
-	 * @param dmr_return
-	 * @return
+	 * Checks to see if our dmr_return array has any return tuple ? values.<br/>
+	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p/>
+	 * For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
+	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 (object), or 2 (wildcard)
+	 * then we say its an identity, and we will return a {@link Result1} on each iteration with a {@link com.neocoretechs.relatrix.DomainMapRange} relationship object.
+	 * @param dmr_return our 4 element array of element 0 counter, and element 1-3 of 0 (object), 1 (? return tuple) or 2 (wildcard)
+	 * @return true if element 0 is -1, or any element 1-3 is 1. We then consider it an identity {@link com.neocoretechs.relatrix.Morphism}
 	 */
 	protected static boolean isIdentity(short[] dmr_return) {
 		if( dmr_return[0] == (-1) ) return true;
@@ -224,10 +226,10 @@ public class RelatrixIterator implements Iterator<Result> {
 	/**
 	 * Determine if a range search has produced an element in range, since we deal with headSet, tailSets and subSets we have
 	 * to check our iterator to keep it in range for concrete object keys.
-	 * @param template
-	 * @param record
-	 * @param dmr_return
-	 * @return
+	 * @param template The template {@link com.neocoretechs.relatrix.Morphism} to match with the record
+	 * @param record The record Morphism matched against the template
+	 * @param dmr_return For each element of the array, 0 is counter,for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
+	 * @return true if for each template domain, map, range key that is not null, dmr_return 1-3 is 0 for domain, map, range, and template key matches record key
 	 */
 	protected static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
