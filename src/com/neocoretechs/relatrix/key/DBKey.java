@@ -25,7 +25,9 @@ public final class DBKey implements Comparable, Externalizable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
 	public static RelatrixIndex nullKey = new RelatrixIndex(0L, 0L);
+	public static RelatrixIndex fullKey = new RelatrixIndex(0xFFFFFFFFFFFFFFFFL, 0xFFFFFFFFFFFFFFFFL);
 	public static DBKey nullDBKey = new DBKey(nullKey, nullKey);
+	public static DBKey fullDBKey = new DBKey(fullKey, fullKey);
 	
 	RelatrixIndex instanceIndex = null;
 	RelatrixIndex databaseIndex = null;

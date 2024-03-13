@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
 
 
 /**
@@ -13,8 +14,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br/>
 * [object],*,[object] <br/>
 * [object],?,[object] <br/>
-* [TemplateClass],*,[TemplateClass] <br/>
-* [TemplateClass],?,[TemplateClass] <br/>
+* Concrete domain and range
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
@@ -30,17 +30,24 @@ public class FindHeadSetMode5 extends FindSetMode5 {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
+		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
-			if(endarg[0] instanceof Class)
+			if(endarg[0] instanceof Class) {
 				tdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
-			else
+				xdmr.setMapKey(DBKey.nullDBKey); // full range
+				ydmr.setMapKey(DBKey.fullDBKey);
+			} else {
 				tdmr.setMap((Comparable)endarg[0]);
+				xdmr.setMapKey(tdmr.getMapKey());
+				ydmr.setMapKey(tdmr.getMapKey());
+			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIterator(tdmr, xdmr, ydmr, dmr_return);
 	}
 	
 	@Override

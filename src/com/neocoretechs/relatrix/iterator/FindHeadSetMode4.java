@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
 
 
 /**
@@ -14,10 +15,6 @@ import com.neocoretechs.relatrix.RelatrixKV;
 * [object],*,?  <br/>
 * [object],?,?  <br/>
 * [object],?,* <br/>
-* [TemplateClass],*,* <br/>
-* [TemplateClass],*,? <br/>
-* [TemplateClass],?,? <br/>
-* [TemplateClass],?,* <br/>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindHeadSetMode4 extends FindSetMode4 {
@@ -34,24 +31,36 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 	@Override
 	public Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
+		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
-			if(endarg[0] instanceof Class)
+			if(endarg[0] instanceof Class) {
 				tdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
-			else
+				xdmr.setMapKey(DBKey.nullDBKey); // full range
+				ydmr.setMapKey(DBKey.fullDBKey);
+			} else {
 				tdmr.setMap((Comparable)endarg[0]);
+				xdmr.setMapKey(tdmr.getMapKey());
+				ydmr.setMapKey(tdmr.getMapKey());
+			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
-			if(endarg[1] instanceof Class)
+			if(endarg[1] instanceof Class) {
 				tdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[1]));
-			else
+				xdmr.setRangeKey(DBKey.nullDBKey); // full range
+				ydmr.setRangeKey(DBKey.fullDBKey);
+			} else {
 				tdmr.setRange((Comparable)endarg[1]);
+				xdmr.setRangeKey(tdmr.getRangeKey());
+				ydmr.setRangeKey(tdmr.getRangeKey());
+			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIterator(tdmr, xdmr, ydmr, dmr_return);
 	}
 	
 	@Override

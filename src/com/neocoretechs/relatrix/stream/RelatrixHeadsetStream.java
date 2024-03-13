@@ -54,15 +54,17 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
     public RelatrixHeadsetStream() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
+     * TODO: FIX STREAM
      * @param dmr_return
      * @throws IOException 
      */
     public RelatrixHeadsetStream(Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
+    	Morphism templatep = null;
     	this.dmr_return = dmr_return;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
 			//stream = RelatrixKV.findHeadMapStream(template);
-    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(template, templateo, dmr_return), RelatrixKV.characteristics);
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
