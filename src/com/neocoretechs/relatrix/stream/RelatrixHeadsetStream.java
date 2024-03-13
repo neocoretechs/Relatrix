@@ -77,10 +77,11 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
      */
     public RelatrixHeadsetStream(String alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
+       	Morphism templatep = null;
     	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
 			//stream = RelatrixKV.findHeadMapStream(alias, template);
-      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(alias, template, templateo, dmr_return), RelatrixKV.characteristics);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(alias, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);

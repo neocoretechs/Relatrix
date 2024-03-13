@@ -38,8 +38,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = false; // for retrieved DMR buffer
-    protected boolean needsIter1 = true; // for domain
-    protected boolean needsIter2 = true; // for map, range ALWAYS needs iterated
+    protected boolean needsIter1 = false; // for domain
+    protected boolean needsIter2 = false; //
     protected boolean identity = false;
     protected boolean singleton = false;
     protected boolean returnedIdentity = false;
@@ -94,14 +94,18 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     		if(DEBUG)
     			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
 			//iter = RelatrixKV.findHeadMap(template);
-    		if(dmr_return[1] != 0)
+    		if(dmr_return[1] != 0) {
     			iter1 = RelatrixKV.findHeadMapKV(template.getDomain());
-    		else
+    			needsIter1 = true;
+    		} else {
     			buffer.setDomain(template.getDomain());
-    		if(dmr_return[2] != 0)
+    		}
+    		if(dmr_return[2] != 0) {
     			iter2 = RelatrixKV.findHeadMapKV(template.getMap());
-    		else
+    			needsIter2 = true;
+    		} else {
     			buffer.setMap(template.getMap());
+    		}
     		//if(dmr_return[3] != 0)
     		//	iter3 = RelatrixKV.findHeadMapKV(template.getRange());
     		//else
@@ -114,7 +118,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		}
     }
     
-    public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
     	this.template = template;
     	this.dmr_return = dmr_return;
@@ -184,7 +188,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		while(true && !singleton) {
 			pk = null;
 			//buffer = (Morphism)iter.next();
-			if(dmr_return[1] != 0 && needsIter1) {
+			if( needsIter1) {
 				if(iter1.hasNext()) {
 					Map.Entry me = (Entry) iter1.next();
 					if((primaryKeyd = dkey.indexOf(me.getValue())) == -1) {
@@ -205,7 +209,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 					return null;
 				}
 			}
-			if(dmr_return[2] != 0 && needsIter2) {
+			if(needsIter2) {
 				if(iter2.hasNext()) {
 					Map.Entry me = (Entry) iter2.next();
 					if((primaryKeym = mkey.indexOf(me.getValue())) == -1) {
@@ -232,6 +236,9 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 						System.out.println("NextGeneric iter2 continue after reset iter2 iter3");
 					continue;
 				}
+			} else {
+				if(dmr_return[2] == 0)
+					needsIter1 = true;
 			}
 			PrimaryKeySet pks = new PrimaryKeySet(buffer);
 			try {

@@ -57,16 +57,23 @@ public class FindHeadSetMode3 extends FindSetMode3 {
     @Override
  	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
+		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
     	if(tdmr.getDomain() == null) {
-			if(endarg[0] instanceof Class)
+			if(endarg[0] instanceof Class) {
 				tdmr.setDomain(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
-			else
+				xdmr.setDomainKey(DBKey.nullDBKey); // full range
+				ydmr.setDomainKey(DBKey.fullDBKey);
+			} else {
 				tdmr.setDomain(alias,(Comparable)endarg[0]);
+				xdmr.setDomainKey(tdmr.getDomainKey());
+				ydmr.setDomainKey(tdmr.getDomainKey());
+			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
- 	    return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
+	    return new RelatrixHeadsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
  	}
 }

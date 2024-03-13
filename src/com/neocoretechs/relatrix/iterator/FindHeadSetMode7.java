@@ -40,9 +40,11 @@ public class FindHeadSetMode7 extends FindSetMode7 {
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
+		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
 	}
 }
