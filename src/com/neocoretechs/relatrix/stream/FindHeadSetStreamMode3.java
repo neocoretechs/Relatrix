@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindHeadSetStreamMode3 extends FindSetStreamMode3 {
 	Object[] endarg;
-    public FindHeadSetStreamMode3(char dop, Object marg, Object rarg) { 	
+    public FindHeadSetStreamMode3(char dop, Object marg, Object rarg, Object ... endarg) { 	
     	super(dop, marg, rarg);
       	if(endarg.length != 1)
     		throw new RuntimeException("Must supply 1 qualifying argument for Headset domain.");

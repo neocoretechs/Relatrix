@@ -196,7 +196,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */
-		public static IteratorFactory createFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
+		public static IteratorFactory createFactoryTransaction(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
 		    
 		    if( DEBUG )
 		        System.out.println("Relatrix IteratorFactoryTransaction Id:"+xid+" findSet setting mode for "+darg+" "+marg+" "+rarg);
@@ -234,7 +234,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 */
 		public static IteratorFactory createHeadsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory findHeadSet setting mode for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix IteratorFactory createHeadsetFactory setting mode for "+darg+" "+marg+" "+rarg);
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 				case 0:
@@ -267,10 +267,10 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static IteratorFactory createHeadsetFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
+		public static IteratorFactory createHeadsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory findHeadSet setting mode for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix IteratorFactory createHeadsetFactoryTransaction setting mode for "+darg+" "+marg+" "+rarg);
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
@@ -306,7 +306,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 */
 		public static IteratorFactory createSubsetFactory(Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
 			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory findSubSet setting mode for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix IteratorFactory createSubsetFactory setting mode for "+darg+" "+marg+" "+rarg);
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
@@ -340,10 +340,10 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */
-		public static IteratorFactory createSubsetFactory(String xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
+		public static IteratorFactory createSubsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory findSubSet setting mode for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix IteratorFactory createSubsetFactoryTransaction for "+darg+" "+marg+" "+rarg);
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:

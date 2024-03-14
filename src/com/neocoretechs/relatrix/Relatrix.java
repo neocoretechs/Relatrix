@@ -1208,7 +1208,7 @@ public final class Relatrix {
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 
-	public static synchronized Stream<?> findTailStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Stream<?> findTailStreamAlias(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
 		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
@@ -1244,10 +1244,10 @@ public final class Relatrix {
 		return ifact.createIterator();
 	}
 
-	public static synchronized Iterator<?> findHeadSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Iterator<?> findHeadSetAlias(String alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(alias, darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
 	}
 	/**
@@ -1267,23 +1267,23 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference in our headset factory
 		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg, endarg);
 		return sfact.createStream();
 	}
 
-	public static synchronized Stream<?> findHeadStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Stream<?> findHeadStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
 		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg, endarg);
 		return sfact.createStream(alias);
 	}
 	/**
@@ -1339,7 +1339,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Iterator<?> findSubSet(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Iterator<?> findSubSetAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
 		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
@@ -1412,7 +1412,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Stream<?> findSubStream(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Stream<?> findSubStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
 		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 

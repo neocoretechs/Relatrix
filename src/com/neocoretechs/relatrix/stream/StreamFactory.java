@@ -185,7 +185,7 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */
-		public static StreamFactory createFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
+		public static StreamFactory createFactoryTransaction(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
 		    
 		    if( DEBUG )
 		        System.out.println("Relatrix StreamFactory findSetStream setting mode for "+darg+" "+marg+" "+rarg);
@@ -221,7 +221,7 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static StreamFactory createHeadsetFactory(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
+		public static StreamFactory createHeadsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 
 			if( DEBUG )
 			        System.out.println("Relatrix StreamFactory findHeadSetStream setting mode for "+darg+" "+marg+" "+rarg);
@@ -230,19 +230,19 @@ import com.neocoretechs.relatrix.Result;
 	               case 0:
 	           			throw new IllegalArgumentException("At least one argument to findHeadSetStream must contain an object reference");
 	               case 1:
-	                       return new FindHeadSetStreamMode1(dop, mop, rarg);
+	                       return new FindHeadSetStreamMode1(dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindHeadSetStreamMode2(dop, marg, rop);
+	                       return new FindHeadSetStreamMode2(dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindHeadSetStreamMode3(dop, marg, rarg);
+	                       return new FindHeadSetStreamMode3(dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindHeadSetStreamMode4(darg, mop, rop);
+	                       return new FindHeadSetStreamMode4(darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindHeadSetStreamMode5(darg, mop, rarg);
+	                       return new FindHeadSetStreamMode5(darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindHeadSetStreamMode6(darg, marg, rop);
+	                       return new FindHeadSetStreamMode6(darg, marg, rop, endarg);
 	               case 7:
-	            	   	   return new FindHeadSetStreamMode7(darg, marg, rarg);
+	            	   	   return new FindHeadSetStreamMode7(darg, marg, rarg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findHeadsetStream factory mode is not supported.");
 			}
@@ -257,7 +257,7 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static StreamFactory createHeadsetFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
+		public static StreamFactory createHeadsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
 
 			if( DEBUG )
 			        System.out.println("Relatrix StreamFactoryTransaction findHeadSetStream setting mode for "+darg+" "+marg+" "+rarg);
@@ -330,7 +330,7 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */
-		public static StreamFactory createSubsetFactory(String xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
+		public static StreamFactory createSubsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
 			        System.out.println("Relatrix StreamFactory findSubSet setting mode for "+darg+" "+marg+" "+rarg);
