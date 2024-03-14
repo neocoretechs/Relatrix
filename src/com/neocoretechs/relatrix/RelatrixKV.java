@@ -439,6 +439,7 @@ public final class RelatrixKV {
 
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
+	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * @param darg The starting key
 	 * @param marg The ending key
 	 * @throws IOException
@@ -454,6 +455,7 @@ public final class RelatrixKV {
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
+	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * @param alias The database alias
 	 * @param darg The starting key
 	 * @param marg The ending key
@@ -471,7 +473,8 @@ public final class RelatrixKV {
 	}
 
 	/**
-	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
+	 * Retrieve the subset of the given set of keys from the point of the relationship of the first .
+	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * @param darg The starting key
 	 * @param marg The ending key
 	 * @throws IOException
@@ -487,7 +490,8 @@ public final class RelatrixKV {
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 	/**
-	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
+	 * Retrieve the subset of the given set of keys from the point of the relationship of the first.
+	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/> 
 	 * @param alias The database alias
 	 * @param darg The starting key
 	 * @param marg The ending key
@@ -506,7 +510,8 @@ public final class RelatrixKV {
 	}
 
 	/**
-	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
+	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
+	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * @param darg The starting key
 	 * @param marg The ending key
 	 * @throws IOException
@@ -522,6 +527,7 @@ public final class RelatrixKV {
 		return ttm.subMapKV(darg, marg);
 	}
 	/**
+	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
 	 * @param alias The database alias
 	 * @param darg The starting key
@@ -541,7 +547,8 @@ public final class RelatrixKV {
 	}
 
 	/**
-	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
+	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
+	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * @param darg The starting key
 	 * @param marg The ending key
 	 * @throws IOException
@@ -558,7 +565,8 @@ public final class RelatrixKV {
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 	/**
-	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key
+	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
+	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * @param alias The database alias
 	 * @param darg The starting key
 	 * @param marg The ending key

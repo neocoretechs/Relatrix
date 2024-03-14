@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
+* Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 * Mode 3. The findSet transaction stream contains two object references, therefore the subset variable array must also.
 * Find the head set of objects in the relation via the specified predicate. Legal permutations are:<br/>
 * *,[object],[object] <br/>

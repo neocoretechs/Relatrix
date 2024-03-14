@@ -7,6 +7,7 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
+* Mode 5.
 * Find the set of objects in the transaction relation via the specified predicate. 
 * This mode is for (object,"?|*",object) returning 1 object or identity, but always a 1 element array of Comparable
 * where the map is returned where it is a component of the relationship, or an identity Morphism subclass

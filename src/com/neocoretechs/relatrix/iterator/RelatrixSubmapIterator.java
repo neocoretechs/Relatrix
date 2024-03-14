@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 /**
  * Our main representable analog. Instances of this class deliver the set of keys
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
+ * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020
  *
  */

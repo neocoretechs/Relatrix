@@ -7,6 +7,7 @@ import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Mode 4. FindSubset stream transaction.
+* Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 * Find the set of objects in the relation via the specified predicate.Legal permutations are:<br/>
 * [object],*,* <br/>
 * [object],*,?  <br/>

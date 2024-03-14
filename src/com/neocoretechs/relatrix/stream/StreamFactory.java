@@ -20,6 +20,7 @@ import com.neocoretechs.relatrix.Result;
 	 */
 	public abstract class StreamFactory {
 		private static boolean DEBUG = false; 
+	    private static char dop, mop, rop;
 		/**
 		 * Create the stream. Factory method, abstract.
 		 * @return RelatrixStream subclass that return {@link Result} tuples/morphisms
@@ -84,7 +85,62 @@ import com.neocoretechs.relatrix.Result;
 		protected static boolean isReturnRelationships(short[] dmr_return) {
 			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );
 		}
-
+		
+		protected static int processTripletParams(Object darg, Object marg, Object rarg) {
+		    int mode = 0;
+		    dop = mop = rop = ' ';
+			//
+		    if( (darg instanceof String) ) {
+		    	// see if its user operator
+		    	if( ((String)darg).equals( Relatrix.OPERATOR_TUPLE ))
+		    		dop = '?';
+		    	else
+		    		if( ((String)darg).equals( Relatrix.OPERATOR_WILDCARD ))
+		    			dop = '*';           
+		    }
+		    if( (marg instanceof String) ) {
+		    	// see if its user operator
+		    	if( ((String)marg).equals( Relatrix.OPERATOR_TUPLE ))
+		    		mop = '?';
+		    	else
+		    		if( ((String)marg).equals( Relatrix.OPERATOR_WILDCARD ))
+		    			mop = '*';                        
+		    }
+		    if( (rarg instanceof String) ) {
+		    	// see if its user operator
+		    	if( ((String)rarg).equals( Relatrix.OPERATOR_TUPLE ))
+		    		rop = '?';
+		    	else
+		    		if( ((String)rarg).equals( Relatrix.OPERATOR_WILDCARD ))
+		    			rop = '*';               
+		    }
+		    if(dop != ' ' && mop != ' ' && rop != ' ')
+		    	mode = 0;
+		    else
+		    	if(dop != ' ' && mop != ' ' && rop == ' ')
+		    		mode = 1;
+		    	else
+		    		if(dop != ' ' && mop == ' ' && rop != ' ')
+		    			mode = 2;
+		    		else
+		    			if(dop != ' ' && mop == ' ' && rop == ' ')
+		    				mode = 3;
+		    			else
+		    				if( dop == ' ' && mop != ' ' && rop != ' ')
+		    					mode = 4;
+		    				else
+		    					if( dop == ' ' && mop != ' ' && rop == ' ')
+		    						mode = 5;
+		    					else
+		    						if( dop == ' ' && mop == ' ' && rop != ' ')
+		    							mode = 6;
+		    						else
+		    							if( dop == ' ' && mop == ' ' && rop == ' ')
+		    								mode = 7;
+		    							else
+		    								throw new RuntimeException("Malformed triplet for :"+darg+"->"+marg+"->"+rarg);
+		    return mode;
+		}
 		/**
 		 * Factory method, create the abstract factory which will manufacture our specific stream instances.
 		 * @param darg The domain argument from the driving findSet method being invoked. 
@@ -95,49 +151,10 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException
 		 */
 		public static StreamFactory createFactory(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
-		    char dop, mop, rop;
-		    byte mode = 0;
-			//
-		    dop = mop = rop = ' ';
-			//
-		    if( (darg instanceof String) ) {
-		          	// see if its user operator
-		         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-		         		dop = '?';
-		            else
-		            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-		                     	dop = '*';
-		                else
-		                        mode = 4;                
-		    } else
-		        mode = 4;
-		    if( (marg instanceof String) ) {
-		         	// see if its user operator
-		           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-		           		mop = '?';
-		            else
-		            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-		                      	mop = '*';
-		                else
-		                       	mode ^= 2;                
-		    } else
-			   mode ^= 2;
-		    if( (rarg instanceof String) ) {
-		            // see if its user operator
-		        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-		        		rop = '?';
-		            else
-		            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-		            		rop = '*';
-		            	else
-		            		mode ^= 1;                
-		    } else
-			   mode ^= 1;
-		    
 		    if( DEBUG )
-		        System.out.println("Relatrix StreamFactory findSetStream setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+		        System.out.println("Relatrix StreamFactory findSetStream setting mode for "+darg+" "+marg+" "+rarg);
 			
-		    switch(mode) {
+		    switch(processTripletParams(darg, marg, rarg)) {
                case 0:
                        return new FindSetStreamMode0(dop, mop, rop);
                case 1:
@@ -155,7 +172,7 @@ import com.neocoretechs.relatrix.Result;
                case 7:
                    	   return new FindSetStreamMode7(darg, marg, rarg);
         	    default:
-                    throw new IllegalArgumentException("The findSetStream factory mode "+mode+" is not supported.");
+                    throw new IllegalArgumentException("The findSetStream factory mode is not supported.");
 		    }
 		}
 		/**
@@ -169,49 +186,11 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException
 		 */
 		public static StreamFactory createFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
-		    char dop, mop, rop;
-		    byte mode = 0;
-			//
-		    dop = mop = rop = ' ';
-			//
-		    if( (darg instanceof String) ) {
-		          	// see if its user operator
-		         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-		         		dop = '?';
-		            else
-		            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-		                     	dop = '*';
-		                else
-		                        mode = 4;                
-		    } else
-		        mode = 4;
-		    if( (marg instanceof String) ) {
-		         	// see if its user operator
-		           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-		           		mop = '?';
-		            else
-		            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-		                      	mop = '*';
-		                else
-		                       	mode ^= 2;                
-		    } else
-			   mode ^= 2;
-		    if( (rarg instanceof String) ) {
-		            // see if its user operator
-		        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-		        		rop = '?';
-		            else
-		            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-		            		rop = '*';
-		            	else
-		            		mode ^= 1;                
-		    } else
-			   mode ^= 1;
 		    
 		    if( DEBUG )
-		        System.out.println("Relatrix StreamFactory findSetStream setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+		        System.out.println("Relatrix StreamFactory findSetStream setting mode for "+darg+" "+marg+" "+rarg);
 			
-		    switch(mode) {
+		    switch(processTripletParams(darg, marg, rarg)) {
                case 0:
                        return new FindSetStreamMode0Transaction(xid, dop, mop, rop);
                case 1:
@@ -229,7 +208,7 @@ import com.neocoretechs.relatrix.Result;
                case 7:
                    	   return new FindSetStreamMode7Transaction(xid, darg, marg, rarg);
         	    default:
-                    throw new IllegalArgumentException("The findSetStream transaction factory mode "+mode+" is not supported.");
+                    throw new IllegalArgumentException("The findSetStream transaction factory mode is not supported.");
 		    }
 		}
 	
@@ -243,49 +222,11 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IllegalArgumentException 
 		 */
 		public static StreamFactory createHeadsetFactory(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
-		    byte mode = 0;
-		    char dop, mop, rop;
-			//
-			dop = mop = rop = ' ';
-			//
-			if( (darg instanceof String) ) {
-			          	// see if its user operator
-			         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			         		dop = '?';
-			            else
-			            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                     	dop = '*';
-			                else
-			                        mode = 4;                
-			} else
-			        mode = 4;
-			if( (marg instanceof String) ) {
-			         	// see if its user operator
-			           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			           		mop = '?';
-			            else
-			            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                      	mop = '*';
-			                else
-			                       	mode ^= 2;                
-			} else
-				   mode ^= 2;
-			if( (rarg instanceof String) ) {
-			            // see if its user operator
-			        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			        		rop = '?';
-			            else
-			            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			            		rop = '*';
-			            	else
-			            		mode ^= 1;                
-			} else
-				   mode ^= 1;
-			    
+
 			if( DEBUG )
-			        System.out.println("Relatrix StreamFactory findHeadSetStream setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix StreamFactory findHeadSetStream setting mode for "+darg+" "+marg+" "+rarg);
 				
-			switch(mode) {
+			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
 	           			throw new IllegalArgumentException("At least one argument to findHeadSetStream must contain an object reference");
 	               case 1:
@@ -303,7 +244,7 @@ import com.neocoretechs.relatrix.Result;
 	               case 7:
 	            	   	   return new FindHeadSetStreamMode7(darg, marg, rarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findHeadsetStream factory mode "+mode+" is not supported.");
+	                    throw new IllegalArgumentException("The findHeadsetStream factory mode is not supported.");
 			}
 		}
 		/**
@@ -317,49 +258,11 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IllegalArgumentException 
 		 */
 		public static StreamFactory createHeadsetFactory(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
-		    byte mode = 0;
-		    char dop, mop, rop;
-			//
-			dop = mop = rop = ' ';
-			//
-			if( (darg instanceof String) ) {
-			          	// see if its user operator
-			         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			         		dop = '?';
-			            else
-			            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                     	dop = '*';
-			                else
-			                        mode = 4;                
-			} else
-			        mode = 4;
-			if( (marg instanceof String) ) {
-			         	// see if its user operator
-			           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			           		mop = '?';
-			            else
-			            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                      	mop = '*';
-			                else
-			                       	mode ^= 2;                
-			} else
-				   mode ^= 2;
-			if( (rarg instanceof String) ) {
-			            // see if its user operator
-			        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			        		rop = '?';
-			            else
-			            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			            		rop = '*';
-			            	else
-			            		mode ^= 1;                
-			} else
-				   mode ^= 1;
-			    
+
 			if( DEBUG )
-			        System.out.println("Relatrix StreamFactoryTransaction findHeadSetStream setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix StreamFactoryTransaction findHeadSetStream setting mode for "+darg+" "+marg+" "+rarg);
 				
-			switch(mode) {
+			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
 	           			throw new IllegalArgumentException("At least one argument to findHeadSetStream must contain an object reference");
 	               case 1:
@@ -377,7 +280,7 @@ import com.neocoretechs.relatrix.Result;
 	               case 7:
 	            	   	   return new FindHeadSetStreamMode7Transaction(xid, darg, marg, rarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findHeadsetStream transaction factory mode "+mode+" is not supported.");
+	                    throw new IllegalArgumentException("The findHeadsetStream transaction factory mode is not supported.");
 			}
 		}
 		/**
@@ -391,49 +294,11 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException
 		 */
 		public static StreamFactory createSubsetFactory(Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
-		    byte mode = 0;
-		    char dop, mop, rop;
-			//
-			dop = mop = rop = ' ';
-			//
-			if( (darg instanceof String) ) {
-			          	// see if its user operator
-			         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			         		dop = '?';
-			            else
-			            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                     	dop = '*';
-			                else
-			                        mode = 4;                
-			} else
-			        mode = 4;
-			if( (marg instanceof String) ) {
-			         	// see if its user operator
-			           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			           		mop = '?';
-			            else
-			            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                      	mop = '*';
-			                else
-			                       	mode ^= 2;                
-			} else
-				   mode ^= 2;
-			if( (rarg instanceof String) ) {
-			            // see if its user operator
-			        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			        		rop = '?';
-			            else
-			            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			            		rop = '*';
-			            	else
-			            		mode ^= 1;                
-			} else
-				   mode ^= 1;
-			    
+
 			if( DEBUG )
-			        System.out.println("Relatrix StreamFactory findSubSetStream setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix StreamFactory findSubSetStream setting mode for "+darg+" "+marg+" "+rarg);
 				
-			switch(mode) {
+			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
 	           			throw new IllegalArgumentException("At least one argument to findSubSetStream must contain an object reference");
 	               case 1:
@@ -451,7 +316,7 @@ import com.neocoretechs.relatrix.Result;
 	               case 7:
 	           			   return new FindSubSetStreamMode7(darg, marg, marg, endarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findSubsetSteam factory mode "+mode+" is not supported.");
+	                    throw new IllegalArgumentException("The findSubsetSteam factory mode is not supported.");
 			}	
 		}
 		/**
@@ -466,49 +331,11 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException
 		 */
 		public static StreamFactory createSubsetFactory(String xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
-		    byte mode = 0;
-		    char dop, mop, rop;
-			//
-			dop = mop = rop = ' ';
-			//
-			if( (darg instanceof String) ) {
-			          	// see if its user operator
-			         	if( ((String)darg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			         		dop = '?';
-			            else
-			            	if( ((String)darg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                     	dop = '*';
-			                else
-			                        mode = 4;                
-			} else
-			        mode = 4;
-			if( (marg instanceof String) ) {
-			         	// see if its user operator
-			           	if( ((String)marg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			           		mop = '?';
-			            else
-			            	if( ((String)marg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			                      	mop = '*';
-			                else
-			                       	mode ^= 2;                
-			} else
-				   mode ^= 2;
-			if( (rarg instanceof String) ) {
-			            // see if its user operator
-			        	if( ((String)rarg).compareTo( Relatrix.OPERATOR_TUPLE ) == 0 )
-			        		rop = '?';
-			            else
-			            	if( ((String)rarg).compareTo( Relatrix.OPERATOR_WILDCARD ) == 0)
-			            		rop = '*';
-			            	else
-			            		mode ^= 1;                
-			} else
-				   mode ^= 1;
 			    
 			if( DEBUG )
-			        System.out.println("Relatrix StreamFactory findSubSet setting mode "+String.valueOf(mode)+" for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix StreamFactory findSubSet setting mode for "+darg+" "+marg+" "+rarg);
 				
-			switch(mode) {
+			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
 	           			throw new IllegalArgumentException("At least one argument to findSubSetStream must contain an object reference");
 	               case 1:
@@ -526,7 +353,7 @@ import com.neocoretechs.relatrix.Result;
 	               case 7:
 	           			   return new FindSubSetStreamMode7Transaction(xid, darg, marg, marg, endarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findSubsetStream factory mode "+mode+" is not supported.");
+	                    throw new IllegalArgumentException("The findSubsetStream factory mode is not supported.");
 			}	
 		}
 		

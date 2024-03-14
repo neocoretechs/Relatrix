@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
+* Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 * Mode 2 find returns a subSet transaction stream in map, domain, range order. The map value is matched against the constructor
 * value. 
 * Find the set of objects in the relation via the specified predicate. * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>

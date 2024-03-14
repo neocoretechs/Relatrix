@@ -30,6 +30,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator;
 
 /**
+ * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
  * Our main representable analog. Instances of this class deliver the set of keys
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2021

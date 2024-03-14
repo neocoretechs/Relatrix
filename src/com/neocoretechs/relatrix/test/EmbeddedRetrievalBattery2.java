@@ -67,7 +67,7 @@ public class EmbeddedRetrievalBattery2 {
 			if(DISPLAY)
 				System.out.println("Time between lines:"+displayLinesOn[displayLineCtr]+" and "+displayLinesOff[displayLineCtr]+" is "+(System.currentTimeMillis()-displayTimer)+" ms.");
 			DISPLAY = false;
-			if(displayLine > displayLinesOff[displayLineCtr] && displayLineCtr < displayLinesOff.length)
+			if(displayLine > displayLinesOff[displayLineCtr] && displayLineCtr < displayLinesOff.length-1)
 				++displayLineCtr;
 		}
 		++displayLine;
@@ -143,6 +143,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(DISPLAY)
 				System.out.println(displayLine+"="+c);
 			//ar.add(c[0]);
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		System.out.println("2.) FindHeadset(*,*,?,String.class, String.class, Long.class)...");		
@@ -157,6 +159,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar.size() == 0 ) {
 				ar.add(c);
 			}
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		System.out.println("3.) FindHeadSet(*,?,*,String.class, String.class, Long.class)...");		
@@ -171,6 +175,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar.size() == 1 ) {
 				ar.add(c);
 			}
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		System.out.println("4.) FindHeadSet(?,*,*.String.class, String.class, Long.class)...");		
@@ -185,6 +191,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar.size() == 2) {
 				ar.add(c);
 			}
+			if(displayLine > 100)
+				break;
 		}
 		displayLine=0;
 		System.out.println("5.) FindHeadSet(*,?,?,String.class, String.class, Long.class)...");		
@@ -198,11 +206,9 @@ public class EmbeddedRetrievalBattery2 {
 				System.out.println(displayLine+"="+c);
 			if(ar2.size() == 0) {
 				ar2.add(c);
-				if(!DISPLAY) {
-					System.out.println("DISPLAY reduced, breaking from retrieval");
-					break;
-				}
 			}
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		System.out.println("6.) FindHeadSet(?,*,?,String.class, String.class, Long.class)...");		
@@ -217,6 +223,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar2.size() == 1) {
 				ar2.add(c);
 			}
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		System.out.println("7.) FindHeadSet(?,?,*,String.class, String.class, Long.class)...");		
@@ -231,6 +239,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar2.size() == 2) {
 				ar2.add(c);
 			}
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		System.out.println("8.) FindHeadet(?,?,?,String.class, String.class, Long.class)...");		
@@ -245,6 +255,8 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar3.size() == 0) {
 				ar3.add(c);
 			}
+			if(displayLine > 100)
+				break;
 		}
 		
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
@@ -261,7 +273,7 @@ public class EmbeddedRetrievalBattery2 {
 			//ar.add(c[0]);
 		}
 		displayLine=0;
-		RelatrixHeadsetIterator.DEBUG = true;
+		//RelatrixHeadsetIterator.DEBUG = true;
 		System.out.println("10.) FindHeadSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(0)).get(3));		
 		it = Relatrix.findHeadSet("*", "*", ((Result)ar3.get(0)).get(3), String.class, String.class);
 		//ar = new ArrayList<Comparable>();
@@ -271,20 +283,21 @@ public class EmbeddedRetrievalBattery2 {
 			displayCtrl();
 			if(DISPLAY)
 				System.out.println(displayLine+"="+c);
-			//if(ar.size() == 0 ) ar.add(c[0]);
+			if(displayLine > 100)
+				break;
 		}
 		displayLine = 0;
 		//RelatrixHeadsetIterator.DEBUG = true;
 		System.out.println("11.) FindHeadSet(*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
 		it = Relatrix.findHeadSet("*", ((Result)ar.get(1)).get(0), "*",String.class, Long.class);
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY)
 				System.out.println(displayLine+"="+c);
-			//if(ar.size() == 1 ) ar.add(c[0]);
+			if(displayLine > 100)
+				break;
 		}
 		displayLine =0;
 		System.out.println("12.) FindHeadet(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		

@@ -9,6 +9,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.iterator.RelatrixSubmapIteratorTransaction;
 
 /**
+ * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
  * Our main representable analog. Instances of this class delivers the set of keys from a transaction context.
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2021,2022

@@ -7,6 +7,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
+* Mode 6.
 * Find the set of objects in the relation transaction via the specified predicate. Mode 6 is for findSet(object,object,"?|*")
 * where a 1 element Comparable array is returned from each iteration of the constructed iterator returned from findSet.
 * The array has either the identity where the first 2 objects are components of the relationship for each iterated element of the 

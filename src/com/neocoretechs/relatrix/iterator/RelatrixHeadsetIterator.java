@@ -41,14 +41,18 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     protected boolean needsIter1 = false; // for domain
     protected boolean needsIter2 = false; //
     protected boolean identity = false;
-    protected boolean singleton = false;
-    protected boolean returnedIdentity = false;
+
+    protected boolean resultReturn = false;
+    protected Result returnedResult = null;
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
     protected ArrayList<DBKey> mkey = new ArrayList<DBKey>();
  
     protected int primaryKeyd = 0;
     protected int primaryKeym = 0;
+    
+    protected long maxReturnKeys = 0L;
+    protected long keysReturned = 0L;
     
     
     public RelatrixHeadsetIterator() {}
@@ -68,28 +72,23 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     		Iterator it = RelatrixKV.findSubMap(templateo, templatep);// subset of partial and full keys of Morphism subclass
     		while(it.hasNext()) {
     			Morphism m = (Morphism) it.next();
-    			if(dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0) {// return singleton identity Morphism special case
-    				buffer = m;
-    				singleton = true;
-    				return;
+    			if(dmr_return[1] == 0) {
+    				if(!dkey.contains(m.getDomainKey()) && m.domainKeyEquals(templateo))
+    					dkey.add(m.getDomainKey());
     			} else {
-    				if(dmr_return[1] == 0) {
-    					if(!dkey.contains(m.getDomainKey()) && m.domainKeyEquals(templateo))
-    						dkey.add(m.getDomainKey());
-    				} else {
-    					if(!dkey.contains(m.getDomainKey()))
-    						dkey.add(m.getDomainKey());
-    				}
-    				if(dmr_return[2] == 0) {
-    					if(!mkey.contains(m.getMapKey()) && m.mapKeyEquals(templateo))
-    						mkey.add(m.getMapKey());
-    				} else {
-    					if(!mkey.contains(m.getMapKey()))
-    						mkey.add(m.getMapKey());
-    				}
-    				//if(DEBUG)
-    				//System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
+    				if(!dkey.contains(m.getDomainKey()))
+    					dkey.add(m.getDomainKey());
     			}
+    			if(dmr_return[2] == 0) {
+    				if(!mkey.contains(m.getMapKey()) && m.mapKeyEquals(templateo))
+    					mkey.add(m.getMapKey());
+    			} else {
+    				if(!mkey.contains(m.getMapKey()))
+    					mkey.add(m.getMapKey());
+    			}
+        		++maxReturnKeys; // maximum possible key unique primary key combinations
+    			//if(DEBUG)
+    			//System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
     		}
     		if(DEBUG)
     			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
@@ -120,41 +119,51 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     
     public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
+     	if(DEBUG)
+    		System.out.printf("%s %s %s%n", this.getClass().getName(), template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
-       		Iterator it = RelatrixKV.findTailMapKV(alias,templateo);// Morphism by order
+    		Iterator it = RelatrixKV.findSubMap(alias, templateo, templatep);// subset of partial and full keys of Morphism subclass
     		while(it.hasNext()) {
-      			Morphism m = (Morphism) it.next();
-       			if(dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0) {// return identity special case
-    				buffer = m;
-    				singleton = true;
-    				return;
+    			Morphism m = (Morphism) it.next();
+    			if(dmr_return[1] == 0) {
+    				if(!dkey.contains(m.getDomainKey()) && m.domainKeyEquals(templateo))
+    					dkey.add(m.getDomainKey());
+    			} else {
+    				if(!dkey.contains(m.getDomainKey()))
+    					dkey.add(m.getDomainKey());
     			}
-      			if(!dkey.contains(m.getDomainKey()))
-    				dkey.add(m.getDomainKey());
-    			if(!mkey.contains(m.getMapKey()))
-    				mkey.add(m.getMapKey());
-      			if(DEBUG)
-    				System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
+    			if(dmr_return[2] == 0) {
+    				if(!mkey.contains(m.getMapKey()) && m.mapKeyEquals(templateo))
+    					mkey.add(m.getMapKey());
+    			} else {
+    				if(!mkey.contains(m.getMapKey()))
+    					mkey.add(m.getMapKey());
+    			}
+           		++maxReturnKeys; // maximum possible key unique primary key combinations
+    			//if(DEBUG)
+    			//System.out.println("Adding keys:"+m.getDomainKey()+", "+m.getMapKey());
     		}
     		if(DEBUG)
     			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
-			//iter = RelatrixKV.findHeadMap(alias, template);
-      		if(dmr_return[1] != 0)
-      			iter1 = RelatrixKV.findHeadMapKV(alias,template.getDomain());
-      		else
+    		if(dmr_return[1] != 0) {
+    			iter1 = RelatrixKV.findHeadMapKV(alias, template.getDomain());
+    			needsIter1 = true;
+    		} else {
     			buffer.setDomain(alias, template.getDomain());
-    		if(dmr_return[2] != 0)
-    			iter2 = RelatrixKV.findHeadMapKV(alias,template.getMap());
-       		else
+    		}
+    		if(dmr_return[2] != 0) {
+    			iter2 = RelatrixKV.findHeadMapKV(alias, template.getMap());
+    			needsIter2 = true;
+    		} else {
     			buffer.setMap(alias, template.getMap());
-       		//if(dmr_return[3] != 0)
-       			//iter3 = RelatrixKV.findHeadMapKV(alias,template.getRange());
-      		//else
+    		}
     		if(dmr_return[3] == 0)
     			buffer.setRange(alias, template.getRange());
+    		if(DEBUG)
+    			System.out.println(this.getClass().getName()+" "+iter1+" "+iter2+/*" "+iter3+*/" "+template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -162,11 +171,13 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     
 	@Override
 	public boolean hasNext() {
-		if(iter1 != null) // dmr_return[1] != 0
-			return iter1.hasNext();
-		if(singleton && !returnedIdentity)
-			return true;
-		return false;
+		if(keysReturned >= maxReturnKeys)
+			return false;
+		if(!resultReturn) {
+			returnedResult = next();
+			resultReturn = true;
+		}
+		return (returnedResult != null);
 	}
 
 	@Override
@@ -185,7 +196,12 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		DBKey pk = null;
 		if(DEBUG)
 			System.out.println("NextGeneric");
-		while(true && !singleton) {
+		// from previous hasNext test
+		if(resultReturn) {
+			resultReturn = false;
+			return returnedResult;
+		}
+		while(true) {
 			pk = null;
 			//buffer = (Morphism)iter.next();
 			if( needsIter1) {
@@ -224,7 +240,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 						System.out.println("NextGeneric set map:"+buffer);
 					needsIter2 = true;
 				} else {
-					needsIter1 = true;
+					if(iter1 != null)
+						needsIter1 = true;
 					needsIter2 = true;
 					try {
 						iter2 = RelatrixKV.findHeadMapKV(template.getMap());
@@ -237,7 +254,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 					continue;
 				}
 			} else {
-				if(dmr_return[2] == 0)
+				if(dmr_return[2] == 0 && iter1 != null)
 					needsIter1 = true;
 			}
 			PrimaryKeySet pks = new PrimaryKeySet(buffer);
@@ -289,71 +306,58 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		try {
 			return iterateDmr();
 		} catch (IllegalAccessException | IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 
 	private Result nextAlias() {
 		DBKey pk = null;
 		if(DEBUG)
 			System.out.println("NextAlias");
-		while(true && !singleton) {
+		// from previous hasNext test
+		if(resultReturn) {
+			resultReturn = false;
+			return returnedResult;
+		}
+		while(true) {
 			pk = null;
-			//buffer = (Morphism)iter.next();
-			if(dmr_return[1] != 0 && needsIter1) {
+			if( needsIter1) {
 				if(iter1.hasNext()) {
 					Map.Entry me = (Entry) iter1.next();
 					if((primaryKeyd = dkey.indexOf(me.getValue())) == -1) {
-						if(DEBUG)
-							System.out.println("Didnt find domain "+me.getKey()+", "+me.getValue());
 						continue;
 					}
-					//target.setDomain((Comparable<?>)me.getKey());
 					buffer.setDomainKey((DBKey) me.getValue());
 					buffer.setDomainResolved((Comparable<?>)me.getKey());
 					if(DEBUG)
-						System.out.println("NextGeneric set domain:"+buffer);
+						System.out.println("NextAlias set domain:"+buffer);
 					needsIter1 = false;
 					//
 				} else {
 					if(DEBUG)
-						System.out.println("NextGeneric iter1 return null");
+						System.out.println("NextAlias iter1 return null");
 					return null;
 				}
 			}
-			if(dmr_return[2] != 0 && needsIter2) {
+			if(needsIter2) {
 				if(iter2.hasNext()) {
 					Map.Entry me = (Entry) iter2.next();
 					if((primaryKeym = mkey.indexOf(me.getValue())) == -1) {
-						if(DEBUG)
-							System.out.println("Didnt find map "+me.getKey()+", "+me.getValue());
+						//if(DEBUG)
+							//System.out.println("Didnt find map "+me.getKey()+", "+me.getValue());
 						continue;
 					}
-					//target.setMap((Comparable<?>) me.getKey());
 					buffer.setMapKey((DBKey) me.getValue());
 					buffer.setMapResolved((Comparable<?>)me.getKey());
 					if(DEBUG)
-						System.out.println("NextGeneric set map:"+buffer);
-					PrimaryKeySet pks = new PrimaryKeySet(buffer);
-					try {
-						pk = (DBKey) RelatrixKV.get(alias, pks);
-						// did not find primary key of domain,map, continue to next iteration of components
-						if(pk == null) {
-							if(DEBUG)
-								System.out.println("Primary key lookup fail for "+buffer+", continue");
-							continue;
-						}
-					} catch (IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
+						System.out.println("NextAlias set map:"+buffer);
 					needsIter2 = true;
 				} else {
-					needsIter1 = true;
+					if(iter1 != null)
+						needsIter1 = true;
 					needsIter2 = true;
 					try {
 						iter2 = RelatrixKV.findHeadMapKV(alias, template.getMap());
-						//iter3 = RelatrixKV.findHeadMapKV(template.getRange());
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -361,25 +365,42 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 						System.out.println("NextAlias iter2 continue after reset iter2 iter3");
 					continue;
 				}
+			} else {
+				if(dmr_return[2] == 0 && iter1 != null)
+					needsIter1 = true;
+			}
+			PrimaryKeySet pks = new PrimaryKeySet(buffer);
+			try {
+				pk = (DBKey) RelatrixKV.get(alias,pks);
+				// did not find primary key of domain,map, continue to next iteration of components
+				if(pk == null) {
+					if(DEBUG)
+						System.out.println("NextAlias Primary key lookup fail for "+buffer+", continue");
+					continue;
+				}
+			} catch (IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
 			}
 			if(DEBUG)
-				System.out.println("Target primary key:"+pk);
+				System.out.println("NextAlias Target primary key:"+pk);
 			try {
-				buffer = (Morphism) RelatrixKV.get(alias, pk);
+				buffer = (Morphism) RelatrixKV.get(alias,pk); // get the main entry from the dbkey
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			} // lookup into DBKey tablespace with pk as key returning Morphism
 			// this should not fail with null, we already did a lookup earlier
 			if(DEBUG)
-				System.out.println("Lookup result for buffer:"+buffer);
+				System.out.println("NextAlias Lookup result for buffer:"+buffer);
+			// if range concrete and doesnt match retrieval, continue
+			if(dmr_return[3] == 0 && !template.rangeKeyEquals(buffer))
+				continue;
 			break;
-		}
+		} // while true
 		try {
 			return iterateDmr();
 		} catch (IllegalAccessException | IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		return null;
 	}
 	/**
 	 * iterate_dmr - return proper domain, map, or range
@@ -391,7 +412,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	 */
 	private Result iterateDmr() throws IllegalAccessException, IOException
 	{
-		int returnTupleCtr = 0;
+		++keysReturned;
 	    Result tuples = RelatrixIterator.getReturnTuples(dmr_return);
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location
@@ -399,7 +420,6 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	    	tuples.set(0, buffer);
 	    	if(DEBUG)
 				System.out.println("RelatrixHeadSetIterator iterateDmr returning identity tuples:"+tuples);
-	    	returnedIdentity = true;
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;

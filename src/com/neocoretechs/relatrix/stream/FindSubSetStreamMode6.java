@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
+* Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 * Mode 6 = findSet(object,object,"*|?") return identity or 1 element tuple.
 * Legal permutations are:<br/>
 * [object],[object],* <br/>

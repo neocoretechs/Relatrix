@@ -6,6 +6,8 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
 /**
+ * Mode 1.
+ * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
  * to the crucial methods that represents the ending range of the set valued results of our findSet query.
  * To get the subSet iterator from the RockSack we need 2 arguments, start and end range. We use the overridden 

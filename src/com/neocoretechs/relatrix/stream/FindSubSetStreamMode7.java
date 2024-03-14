@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.Morphism;
 
 /**
 * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
+* Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 * In this permutation we are dealing with 3 objects represent identity so we have the option
 * of setting a retrieval bringing in the identities in their natural d,m,r order.
 * We have an instance of 3 objects, we return the identities from the beginning to this identity.

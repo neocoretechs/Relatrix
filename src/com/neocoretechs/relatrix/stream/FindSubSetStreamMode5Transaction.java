@@ -6,7 +6,8 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.Morphism;
 
 /**
-* Mode 5. Permutation with 2 objects. FindSubset transaction stream
+* Mode 5. Permutation with 2 objects. FindSubset transaction stream.
+* Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 * Find the set of objects in the relation via the specified predicate. 
 * Legal permutations are:<br/>
 * [object],*,[object] <br/>

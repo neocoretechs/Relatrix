@@ -1287,7 +1287,8 @@ public final class Relatrix {
 		return sfact.createStream(alias);
 	}
 	/**
-	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
+	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three.
+	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
 	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
 	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
@@ -1324,7 +1325,20 @@ public final class Relatrix {
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
-
+	/**
+	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
+	 * @param alias
+	 * @param darg
+	 * @param marg
+	 * @param rarg
+	 * @param endarg
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
 	public static synchronized Iterator<?> findSubSet(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
@@ -1342,7 +1356,8 @@ public final class Relatrix {
 		return ifact.createIterator(alias);
 	}
 	/**
-	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
+	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three.
+	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
 	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
 	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
 	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
@@ -1383,7 +1398,20 @@ public final class Relatrix {
 		StreamFactory sfact = StreamFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return sfact.createStream();
 	}
-
+	/**
+	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
+	 * @param alias
+	 * @param darg
+	 * @param marg
+	 * @param rarg
+	 * @param endarg
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 */
 	public static synchronized Stream<?> findSubStream(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference

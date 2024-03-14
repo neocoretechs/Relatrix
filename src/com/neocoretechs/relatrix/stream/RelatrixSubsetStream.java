@@ -31,6 +31,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator;
 /**
+ * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
  * Instances of this class deliver an stream of objects representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in the stream, since 1 full tuple element is streamed, that being the identity morphism.
