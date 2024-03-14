@@ -24,7 +24,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindHeadSetMode2 extends FindSetMode2 {
 	Object[] endarg;
-    public FindHeadSetMode2(char dop, Object marg, char rop, Object[] endarg) { 	
+    public FindHeadSetMode2(char dop, Object marg, char rop, Object ... endarg) { 	
     	super(dop, marg, rop);
     	if(endarg.length != 2)
     		throw new RuntimeException("Must supply 2 qualifying arguments for Headset domain and range.");

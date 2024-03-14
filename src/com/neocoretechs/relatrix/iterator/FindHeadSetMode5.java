@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindHeadSetMode5 extends FindSetMode5 {
 	Object[] endarg;
-    public FindHeadSetMode5(Object darg, char mop, Object rarg, Object[] endarg) { 	
+    public FindHeadSetMode5(Object darg, char mop, Object rarg, Object ... endarg) { 	
     	super(darg, mop, rarg);
 		if(endarg.length != 1)
 			throw new RuntimeException("Must supply 1 qualifying argument for Headset map.");

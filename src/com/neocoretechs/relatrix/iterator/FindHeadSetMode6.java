@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindHeadSetMode6 extends FindSetMode6 {
 	Object[] endarg;
-    public FindHeadSetMode6(Object darg, Object marg, char rop, Object[] endarg) { 	
+    public FindHeadSetMode6(Object darg, Object marg, char rop, Object ... endarg) { 	
     	super(darg,marg, rop);
 		if(endarg.length != 1)
 			throw new RuntimeException("Must supply 1 qualifying argument for Headset range.");

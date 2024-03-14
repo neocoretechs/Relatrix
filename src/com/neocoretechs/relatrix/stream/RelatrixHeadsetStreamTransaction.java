@@ -33,8 +33,6 @@ public class RelatrixHeadsetStreamTransaction<T> extends RelatrixHeadsetStream<T
      * @throws IOException 
      */
     public RelatrixHeadsetStreamTransaction(String xid, Morphism template, short[] dmr_return) throws IOException {
-    	this.dmr_return = dmr_return;
-    	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
 			//stream = RelatrixKVTransaction.findHeadMapStream(xid, template);
      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIteratorTransaction(xid, template, dmr_return), RelatrixKV.characteristics);
@@ -50,8 +48,6 @@ public class RelatrixHeadsetStreamTransaction<T> extends RelatrixHeadsetStream<T
      * @throws IOException 
      */
     public RelatrixHeadsetStreamTransaction(String alias, String xid, Morphism template, short[] dmr_return) throws IOException {
-    	this.dmr_return = dmr_return;
-    	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
 			//stream = RelatrixKVTransaction.findHeadMapStream(xid, template);
      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIteratorTransaction(alias, xid, template, dmr_return), RelatrixKV.characteristics);

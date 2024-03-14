@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.Morphism;
 public class FindHeadSetMode7 extends FindSetMode7 {
 	Object[] endarg;
 	// mode 7
-    public FindHeadSetMode7(Object darg, Object marg, Object rarg, Object[] endarg) throws IllegalArgumentException, IOException { 	
+    public FindHeadSetMode7(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
     	super(darg, marg, rarg);
 		if(endarg.length != 0)
 			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");

@@ -45,11 +45,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
  */
 public class RelatrixHeadsetStream<T> implements Stream<T> {
 	protected Stream stream;
-    protected Morphism buffer = null;
-    protected short dmr_return[] = new short[4];
 
-    protected boolean needsIter = false;
-    protected boolean identity = false;
     
     public RelatrixHeadsetStream() {}
     /**
@@ -58,10 +54,8 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetStream(Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
-    	Morphism templatep = null;
-    	this.dmr_return = dmr_return;
-    	identity = RelatrixStream.isIdentity(this.dmr_return);
+    public RelatrixHeadsetStream(Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+
     	try {
 			//stream = RelatrixKV.findHeadMapStream(template);
     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
@@ -75,10 +69,7 @@ public class RelatrixHeadsetStream<T> implements Stream<T> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetStream(String alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
-    	this.dmr_return = dmr_return;
-       	Morphism templatep = null;
-    	identity = RelatrixStream.isIdentity(this.dmr_return);
+    public RelatrixHeadsetStream(String alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	try {
 			//stream = RelatrixKV.findHeadMapStream(alias, template);
       		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIterator(alias, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
