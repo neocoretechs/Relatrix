@@ -27,7 +27,7 @@ import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator;
+
 import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or

@@ -143,8 +143,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(DISPLAY)
 				System.out.println(displayLine+"="+c);
 			//ar.add(c[0]);
-			if(displayLine > 100)
-				break;
 		}
 		displayLine = 0;
 		System.out.println("2.) FindHeadset(*,*,?,String.class, String.class, Long.class)...");		
@@ -159,8 +157,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar.size() == 0 ) {
 				ar.add(c);
 			}
-			if(displayLine > 100)
-				break;
 		}
 		displayLine = 0;
 		System.out.println("3.) FindHeadSet(*,?,*,String.class, String.class, Long.class)...");		
@@ -175,8 +171,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar.size() == 1 ) {
 				ar.add(c);
 			}
-			if(displayLine > 100)
-				break;
 		}
 		displayLine = 0;
 		System.out.println("4.) FindHeadSet(?,*,*.String.class, String.class, Long.class)...");		
@@ -191,8 +185,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar.size() == 2) {
 				ar.add(c);
 			}
-			if(displayLine > 100)
-				break;
 		}
 		displayLine=0;
 		System.out.println("5.) FindHeadSet(*,?,?,String.class, String.class, Long.class)...");		
@@ -207,8 +199,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar2.size() == 0) {
 				ar2.add(c);
 			}
-			if(displayLine > 100)
-				break;
 		}
 		displayLine = 0;
 		System.out.println("6.) FindHeadSet(?,*,?,String.class, String.class, Long.class)...");		
@@ -223,8 +213,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar2.size() == 1) {
 				ar2.add(c);
 			}
-			if(displayLine > 100)
-				break;
 		}
 		displayLine = 0;
 		System.out.println("7.) FindHeadSet(?,?,*,String.class, String.class, Long.class)...");		
@@ -239,8 +227,7 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar2.size() == 2) {
 				ar2.add(c);
 			}
-			if(displayLine > 100)
-				break;
+
 		}
 		displayLine = 0;
 		System.out.println("8.) FindHeadet(?,?,?,String.class, String.class, Long.class)...");		
@@ -255,8 +242,6 @@ public class EmbeddedRetrievalBattery2 {
 			if(ar3.size() == 0) {
 				ar3.add(c);
 			}
-			if(displayLine > 100)
-				break;
 		}
 		
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
@@ -283,8 +268,6 @@ public class EmbeddedRetrievalBattery2 {
 			displayCtrl();
 			if(DISPLAY)
 				System.out.println(displayLine+"="+c);
-			if(displayLine > 100)
-				break;
 		}
 		displayLine = 0;
 		//RelatrixHeadsetIterator.DEBUG = true;
@@ -296,8 +279,6 @@ public class EmbeddedRetrievalBattery2 {
 			displayCtrl();
 			if(DISPLAY)
 				System.out.println(displayLine+"="+c);
-			if(displayLine > 100)
-				break;
 		}
 		displayLine =0;
 		System.out.println("12.) FindHeadet(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		

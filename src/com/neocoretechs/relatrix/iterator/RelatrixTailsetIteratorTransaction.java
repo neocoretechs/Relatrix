@@ -1,43 +1,46 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 /**
  * Our main representable analog. Instances of this class deliver the set of identity {@link Morphism}s, or
- * deliver sets of compositions of morphisms representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
+ * deliver sets of compositions of {@link Morphism}s representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
- * Here, the headset, or from beginning to the template element, is retrieved.
+ * Here, the tailset is retrieved.<p/>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a {@link RelatrixIterator} is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a Result of one element. For findSet("?",object,"?") we
- * would get back a Result2 instance, with each element of the Result containing the relationship returned.<br/>
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
+ * if we declare findTailSet("*","?","*") we get back a {@link com.neocoretechs.relatrix.Result1} of one element. For findTailSet("?",object,"?") we
+ * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024
  *
  */
-public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator {
+public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator {
 	public static boolean DEBUG = false;
 	String xid;
-
-    public RelatrixHeadsetIteratorTransaction() {}
+    
+    public RelatrixTailsetIteratorTransaction() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param templateo 
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIteratorTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s%n", this.getClass().getName(), template, Arrays.toString(dmr_return));
@@ -70,20 +73,17 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		if(DEBUG)
     			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
     		if(dmr_return[1] != 0) {
-    			iter1 = RelatrixKVTransaction.findHeadMapKV(xid, template.getDomain());
+    			iter1 = RelatrixKVTransaction.findTailMapKV(xid, template.getDomain());
     			needsIter1 = true;
     		} else {
     			buffer.setDomain(template.getDomain());
     		}
     		if(dmr_return[2] != 0) {
-    			iter2 = RelatrixKVTransaction.findHeadMapKV(xid, template.getMap());
+    			iter2 = RelatrixKVTransaction.findTailMapKV(xid, template.getMap());
     			needsIter2 = true;
     		} else {
     			buffer.setMap(template.getMap());
     		}
-    		//if(dmr_return[3] != 0)
-    		//	iter3 = RelatrixKV.findHeadMapKV(template.getRange());
-    		//else
     		if(dmr_return[3] == 0)
     			buffer.setRange(template.getRange());
     		if(DEBUG)
@@ -93,9 +93,9 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 		}
     }
     
-    public RelatrixHeadsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
-    	this.xid = xid;
+    public RelatrixTailsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
+    	this.xid = xid;
      	if(DEBUG)
     		System.out.printf("%s %s %s%n", this.getClass().getName(), template, Arrays.toString(dmr_return));
     	this.template = template;
@@ -127,13 +127,13 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		if(DEBUG)
     			System.out.println("Keys:"+dkey.size()+", "+mkey.size());
     		if(dmr_return[1] != 0) {
-    			iter1 = RelatrixKVTransaction.findHeadMapKV(alias, xid, template.getDomain());
+    			iter1 = RelatrixKVTransaction.findTailMapKV(alias, xid, template.getDomain());
     			needsIter1 = true;
     		} else {
     			buffer.setDomain(alias, template.getDomain());
     		}
     		if(dmr_return[2] != 0) {
-    			iter2 = RelatrixKVTransaction.findHeadMapKV(alias, xid, template.getMap());
+    			iter2 = RelatrixKVTransaction.findTailMapKV(alias, xid, template.getMap());
     			needsIter2 = true;
     		} else {
     			buffer.setMap(alias, template.getMap());
@@ -222,7 +222,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 						needsIter1 = true;
 					needsIter2 = true;
 					try {
-						iter2 = RelatrixKVTransaction.findHeadMapKV(xid, template.getMap());
+						iter2 = RelatrixKVTransaction.findTailMapKV(xid, template.getMap());
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -246,7 +246,6 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			//
 			if(DEBUG)
 				System.out.println("Target primary key:"+pk);
 			try {
@@ -316,7 +315,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 						needsIter1 = true;
 					needsIter2 = true;
 					try {
-						iter2 = RelatrixKVTransaction.findHeadMapKV(alias, xid, template.getMap());
+						iter2 = RelatrixKVTransaction.findTailMapKV(alias, xid, template.getMap());
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -378,15 +377,14 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 	    if( identity ) {
 	    	tuples.set(0, buffer);
 	    	if(DEBUG)
-				System.out.println("RelatrixHeadSetIterator iterateDmr returning identity tuples:"+tuples);
+				System.out.println("RelatrixTailSetIterator iterateDmr returning identity tuples:"+tuples);
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;
 	    for(int i = 0; i < tuples.length(); i++)
 	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
 		if(DEBUG)
-			System.out.println("RelatrixHeadSetIterator iterateDmr returning tuples:"+tuples);
+			System.out.println("RelatrixTailSetIterator iterateDmr returning tuples:"+tuples);
 		return tuples;
 	}
- 
 }

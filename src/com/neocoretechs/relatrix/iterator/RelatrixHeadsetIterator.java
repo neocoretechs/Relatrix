@@ -15,14 +15,14 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 /**
- * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
+ * Our main representable analog. Instances of this class deliver the set of identity {@link Morphism}s, or
  * deliver sets of compositions of {@link Morphism}s representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
- * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
+ * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
- * Here, the headset, or from beginning to the template element, is retrieved.
+ * Here, the headset is retrieved.<p/>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
+ * iteration of a {@link RelatrixIterator} is dependent on the number of "?" operators in a 'findSet'. For example,
  * if we declare findHeadSet("*","?","*") we get back a {@link com.neocoretechs.relatrix.Result1} of one element. For findSet("?",object,"?") we
  * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015

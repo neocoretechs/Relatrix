@@ -144,25 +144,13 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
 						setObjectReturn( new RemoteHeadSetIterator(getSession()) );
 					} else {
-						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator.class ) {
-							setObjectReturn( new RemoteSubMapIterator(getSession()) );
+						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator.class ) {
+							setObjectReturn( new RemoteHeadMapIterator(getSession()) );
 						} else {
-							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapIterator.class ) {
-								setObjectReturn( new RemoteHeadMapIterator(getSession()) );
+							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
+								setObjectReturn( new RemoteEntrySetIterator(getSession()) );
 							} else {
-								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
-									setObjectReturn( new RemoteEntrySetIterator(getSession()) );
-								} else {
-									if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapKVIterator.class ) {
-										setObjectReturn( new RemoteHeadMapKVIterator(getSession()) );
-									} else {
-										if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapKVIterator.class ) {
-											setObjectReturn( new RemoteSubMapKVIterator(getSession()) );
-										} else {
-											throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-										}
-									}
-								}
+								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 							}
 						}
 					}

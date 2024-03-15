@@ -83,25 +83,14 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction.class ) {
 						setObjectReturn( new RemoteHeadSetIteratorTransaction(xid, getSession()) );
 					} else {
-						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapIteratorTransaction.class ) {
-							setObjectReturn( new RemoteSubMapIteratorTransaction(xid, getSession()) );
+
+						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
+							setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
 						} else {
-							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapIteratorTransaction.class ) {
-								setObjectReturn( new RemoteHeadMapIteratorTransaction(xid, getSession()) );
+							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
+								setObjectReturn( new RemoteSubMapKVIteratorTransaction(xid, getSession()) );
 							} else {
-								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
-									setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
-								} else {
-									if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadmapKVIteratorTransaction.class ) {
-										setObjectReturn( new RemoteHeadMapKVIteratorTransaction(xid, getSession()) );
-									} else {
-										if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubmapKVIteratorTransaction.class ) {
-											setObjectReturn( new RemoteSubMapKVIteratorTransaction(xid, getSession()) );
-										} else {
-											throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-										}
-									}
-								}
+								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 							}
 						}
 					}

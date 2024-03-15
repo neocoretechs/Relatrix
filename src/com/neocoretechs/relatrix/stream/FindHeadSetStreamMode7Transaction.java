@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -18,13 +19,35 @@ import com.neocoretechs.relatrix.Morphism;
 public class FindHeadSetStreamMode7Transaction extends FindHeadSetStreamMode7 {
 	String xid;
 	// mode 7
-    public FindHeadSetStreamMode7Transaction(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException { 	
+    public FindHeadSetStreamMode7Transaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
     	super(darg, marg, rarg);
     	this.xid = xid;
+		if(endarg.length != 0)
+			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");
+		this.endarg = endarg;
     }
  
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixHeadsetStreamTransaction(xid, tdmr, dmr_return);
+		Morphism xdmr = null;
+		Morphism ydmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+	    return new RelatrixHeadsetStreamTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+	}
+	/**
+     *  @return The stream for the returned set, each stream return is a Comparable array of tuples of arity n=?'s
+     */
+	@Override
+	public Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		Morphism xdmr = null;
+		Morphism ydmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		return new RelatrixHeadsetStreamTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
 	}
 }

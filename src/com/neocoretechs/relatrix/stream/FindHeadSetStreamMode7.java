@@ -36,7 +36,7 @@ public class FindHeadSetStreamMode7 extends FindSetStreamMode7 {
 		} catch (CloneNotSupportedException e) {}
 		return new RelatrixHeadsetStream(tdmr, xdmr, ydmr, dmr_return);
 	}
-	   /**
+	/**
      *  @return The stream for the returned set, each stream return is a Comparable array of tuples of arity n=?'s
      */
 	@Override

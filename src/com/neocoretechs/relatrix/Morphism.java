@@ -17,18 +17,21 @@ import com.neocoretechs.rocksack.NotifyDBCompareTo;
 * ref's for relation datatype
 *
 * The permutations for our tuple are as follows
-* keyop:       0       d,m,r                         <dd>
+* keyop:<p/><dd>
+* 
+*              0       d,m,r                         <dd>
 *              1       d,r,m                         <dd>
 *              2       m,d,r                         <dd>
 *              3       m,r,d                         <dd>
 *              4       r,d,m                         <dd>
 *              5       r,m,d                         <dd>
-* we use this key for bin tree retrieval depending   <dd>
-* on the desired traversal scenario, that is,        <dd>
+* <p/>
+* we use this key for retrieval depending
+* on the desired traversal scenario, that is,
 * in what order do we want the values returned...    <dd>
 * The is the base class for the different morphism permutations that allow us to form different
 * sets from categories. The template class can be used to retrieve sets based on their class type.
-* @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015
+* @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
 public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
 		private static boolean DEBUG = false;

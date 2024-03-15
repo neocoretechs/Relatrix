@@ -28,7 +28,6 @@ import java.util.stream.StreamSupport;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.iterator.RelatrixSubmapIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator;
 /**
  * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>

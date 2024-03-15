@@ -49,7 +49,7 @@ public class FindHeadSetStreamMode6 extends FindSetStreamMode6 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		return new RelatrixHeadsetStream(tdmr, xdmr, ydmr, dmr_return);
 	}
-	   /**
+	/**
      *  @return The stream for the returned set, each stream return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
