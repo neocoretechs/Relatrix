@@ -91,10 +91,10 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 		return new Result1(this);
 	}
 
-	@Override
-	public int compareTo(Object o) {
-		return fullCompareTo(one, (Result1)o);
-	}
+	//@Override
+	//public int compareTo(Object o) {
+	//	return super.compareTo(o);
+	//}
 
 	@Override
 	public String toString() {

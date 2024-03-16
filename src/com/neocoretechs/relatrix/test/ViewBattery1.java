@@ -2,7 +2,9 @@ package com.neocoretechs.relatrix.test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -33,6 +35,8 @@ public class ViewBattery1 {
 	static int min = 0;
 	static int max = 100000;
 	static int recs = 0;
+	static Result[] list;
+	static int cnt = 0;
 	
 	/**
 	*/
@@ -80,21 +84,21 @@ public class ViewBattery1 {
 	public static void battery1(String[] argv) throws Exception {
 		System.out.println("Iterator Battery1 ");
 		long tims = System.currentTimeMillis();
+		list = new Result[(int) Relatrix.size()];
+		System.out.println("size:"+list.length);
 		Relatrix.findStream("?", "?", "?").forEach(e->{
-			try {
-				RelatrixKV.store((Comparable<?>) e, recs++);
-			} catch (IllegalAccessException | IOException | DuplicateKeyException e1) {
-				e1.printStackTrace();
-			}
+			list[cnt++] = ((Result) e);
 		});
 
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
 	
 	public static void battery2(String[] argv) throws Exception {
-		RelatrixKV.findTailMapStream((Comparable<?>) RelatrixKV.firstKey(Result3.class)).forEach(e->{
-			System.out.println(e);
-		});
+		long tims = System.currentTimeMillis();
+		Arrays.sort(list);
+		for(Result r: list)
+			System.out.println(r);
+		System.out.println("BATTERY2 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
 	/**
 	 * remove entries
