@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator;
 /**
  * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
  * Instances of this class deliver an stream of objects representing the
- * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
+ * N return tuple '?' elements of the query. If its an identity morphism {@link Morphism} of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in the stream, since 1 full tuple element is streamed, that being the identity morphism.
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Here, the subset, or from beginning parameters to the ending parameters of template element, are retrieved.
@@ -47,8 +47,6 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
 	protected Stream stream;
     protected Morphism buffer = null;
     protected short dmr_return[] = new short[4];
-
-    protected boolean identity = false;
     
     public RelatrixSubsetStream() {}
     /**
@@ -58,12 +56,11 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
      * @param dmr_return The encoded tuple control array that here just tells us if we have an identity
      * @throws IOException 
      */
-    public RelatrixSubsetStream(Morphism template, Morphism template2, short[] dmr_return) throws IOException {
+    public RelatrixSubsetStream(Morphism template, Morphism templatez, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
-    	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
 			//stream = RelatrixKV.findSubMapStream(template, template2);
-       		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIterator(template, template2, dmr_return), RelatrixKV.characteristics);
+       		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIterator(template, templatez, templateo, templatep, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
@@ -76,12 +73,11 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
      * @param dmr_return The encoded tuple control array that here just tells us if we have an identity
      * @throws IOException 
      */
-    public RelatrixSubsetStream(String alias, Morphism template, Morphism template2, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixSubsetStream(String alias, Morphism template, Morphism templatez, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
-    	identity = RelatrixStream.isIdentity(this.dmr_return);
     	try {
 			//stream = RelatrixKV.findSubMapStream(alias, template, template2);
-     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIterator(alias, template, template2, dmr_return), RelatrixKV.characteristics);
+     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIterator(alias, template, templatez, templateo, templatep, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
@@ -286,34 +282,6 @@ public class RelatrixSubsetStream<T> implements Stream<T> {
 	public Optional<T> findAny() {
 		return stream.findAny();
 	}
-	
-
-	/**
-	* iterate_dmr - return proper domain, map, or range
-	* based on dmr_return values.  In dmr_return, value 0
-	* is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
-	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	* @throws IOException 
-	* @throws IllegalAccessException 
-	*/
-	private Result iterateDmr() throws IllegalAccessException, IOException
-	{
-		int returnTupleCtr = 0;
-	    Result tuples = RelatrixStream.getReturnTuples(dmr_return);
-		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-	    // no return vals? send back Relate location
-	    if( identity ) {
-	    	tuples.set(0, buffer);
-	    	return tuples;
-	    }
-	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length(); i++)
-	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
-		return tuples;
-	}
-
-	
-
 	
 
 }

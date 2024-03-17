@@ -28,11 +28,10 @@ public class FindHeadSetStreamMode2Transaction extends FindHeadSetStreamMode2 {
 	String xid;
 	Object[] endarg;
     public FindHeadSetStreamMode2Transaction(String xid, char dop, Object marg, char rop, Object ... endarg) { 	
-    	super(dop, marg, rop);
+    	super(dop, marg, rop, endarg);
     	this.xid = xid;
        	if(endarg.length != 2)
     		throw new RuntimeException("Must supply 2 qualifying arguments for HeadSetStream domain and range.");
-		this.endarg = endarg;
     }
     /**
      * @return Stream for the set, each stream return is a Comparable array of tuples of arity n=?'s

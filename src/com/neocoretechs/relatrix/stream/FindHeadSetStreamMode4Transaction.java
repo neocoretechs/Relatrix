@@ -25,11 +25,10 @@ public class FindHeadSetStreamMode4Transaction extends FindHeadSetStreamMode4 {
 	String xid;
 	Object[] endarg;
     public FindHeadSetStreamMode4Transaction(String xid, Object darg, char mop, char rop, Object ... endarg) { 	
-    	super(darg, mop, rop);
+    	super(darg, mop, rop, endarg);
     	this.xid = xid;
     	if(endarg.length != 2)
     		throw new RuntimeException("Must supply 2 qualifying arguments for Headset map and range.");
-    	this.endarg = endarg;
     }
     /**
      *  @return The stream for the returned set, each stream return is a Comparable array of tuples of arity n=?'s

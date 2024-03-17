@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.key.DBKey;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
@@ -21,59 +23,77 @@ import com.neocoretechs.relatrix.Morphism;
 *
 */
 public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
-	Object[] xarg;
-    public FindSubSetMode6Transaction(String xid, Object darg, Object marg, char rop, Object ...xarg) { 	
-    	super(xid, darg,marg, rop);
-       	dmr_return[1] = 1;
-       	dmr_return[2] = 1;
-       	this.xarg = xarg;
-    	if(xarg.length != 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 2 got "+xarg.length);
+	Object[] endarg;
+	int argCtr = 0;
+    public FindSubSetMode6Transaction(String xid, Object darg, Object marg, char rop, Object ...endarg) { 	
+    	super(xid, darg, marg, rop);
+       	this.endarg = endarg;
+    	if(endarg.length < 1) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
     }
 
-    /**
-     * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
-     */
-	  @Override
-	  protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-		   // make a new Morphism template
-		   Morphism templdmr;
-		   try {
-			   // primarily for class type than values of instance
-			   templdmr = (Morphism) tdmr.clone();
-			   templdmr.setTransactionId(xid);
-			   // move the end range into the new template in the proper position
-			   int ipos = 0;
-			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
-			   }
-		   } catch (CloneNotSupportedException e) {
-			   throw new IOException(e);
-		   }
-		   return new RelatrixSubsetIteratorTransaction(xid, tdmr, templdmr, dmr_return);
-	   }
-	  
-	  @Override
-	  protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		   // make a new Morphism template
-		   Morphism templdmr;
-		   try {
-			   // primarily for class type than values of instance
-			   templdmr = (Morphism) tdmr.clone();
-			   templdmr.setTransactionId(xid);
-			   // move the end range into the new template in the proper position
-			   int ipos = 0;
-			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate(alias,(Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate(alias,(Comparable) xarg[ipos++]); 
-			   }
-		   } catch (CloneNotSupportedException e) {
-			   throw new IOException(e);
-		   }
-		   return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, templdmr, dmr_return);
-	   }
+	@Override
+	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+		Morphism xdmr = null;
+		Morphism ydmr = null;
+		Morphism zdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
+			zdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		if(tdmr.getRange() == null) {
+			if(endarg[argCtr] instanceof Class) {
+				if(argCtr >= endarg.length)
+					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+				tdmr.setRange((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[argCtr]));
+				zdmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[argCtr]));
+				xdmr.setRangeKey(DBKey.nullDBKey); // full range
+				ydmr.setRangeKey(DBKey.fullDBKey);
+			} else {
+				if(argCtr >= endarg.length)
+					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+				tdmr.setRange((Comparable)endarg[argCtr++]);
+				if(argCtr >= endarg.length)
+					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+				zdmr.setRange((Comparable)endarg[argCtr]);
+				xdmr.setRangeKey(DBKey.nullDBKey); // full range
+				ydmr.setRangeKey(DBKey.fullDBKey);
+			}
+		} else
+			throw new IllegalAccessException("Improper Morphism template.");
+		return new RelatrixSubsetIterator(tdmr, zdmr, xdmr, ydmr, dmr_return);
+	}
+
+	@Override
+	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		Morphism xdmr = null;
+		Morphism ydmr = null;
+		Morphism zdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
+			zdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		if(tdmr.getRange() == null) {
+			if(endarg[argCtr] instanceof Class) {
+				if(argCtr >= endarg.length)
+					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+				tdmr.setRange((Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
+				zdmr.setRange((Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr]));
+				xdmr.setRangeKey(DBKey.nullDBKey); // full range
+				ydmr.setRangeKey(DBKey.fullDBKey);
+			} else {
+				if(argCtr >= endarg.length)
+					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+				tdmr.setRange((Comparable)endarg[argCtr++]);
+				if(argCtr >= endarg.length)
+					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+				zdmr.setRange((Comparable)endarg[argCtr]);
+				xdmr.setRangeKey(DBKey.nullDBKey); // full range
+				ydmr.setRangeKey(DBKey.fullDBKey);
+			}
+		} else
+			throw new IllegalAccessException("Improper Morphism template.");
+		return new RelatrixSubsetIterator(alias, tdmr, zdmr, xdmr, ydmr, dmr_return);
+	}
 }

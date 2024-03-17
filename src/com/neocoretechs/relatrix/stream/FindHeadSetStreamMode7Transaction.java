@@ -20,11 +20,10 @@ public class FindHeadSetStreamMode7Transaction extends FindHeadSetStreamMode7 {
 	String xid;
 	// mode 7
     public FindHeadSetStreamMode7Transaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
-    	super(darg, marg, rarg);
+    	super(darg, marg, rarg, endarg);
     	this.xid = xid;
 		if(endarg.length != 0)
 			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");
-		this.endarg = endarg;
     }
  
 	@Override

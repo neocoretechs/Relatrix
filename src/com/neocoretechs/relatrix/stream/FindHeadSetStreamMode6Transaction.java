@@ -23,11 +23,10 @@ public class FindHeadSetStreamMode6Transaction extends FindHeadSetStreamMode6 {
 	String xid;
 	Object[] endarg;
     public FindHeadSetStreamMode6Transaction(String xid, Object darg, Object marg, char rop, Object ... endarg) { 	
-    	super(darg,marg, rop);
+    	super(darg,marg, rop, endarg);
     	this.xid = xid;
 		if(endarg.length != 1)
 			throw new RuntimeException("Must supply 1 qualifying argument for Headset range.");
-		this.endarg = endarg;
     }
 
 	@Override

@@ -84,10 +84,15 @@ public class ViewBattery1 {
 	public static void battery1(String[] argv) throws Exception {
 		System.out.println("Iterator Battery1 ");
 		long tims = System.currentTimeMillis();
-		list = new Result[(int) Relatrix.size()];
-		System.out.println("size:"+list.length);
+		//list = new Result[(int) Relatrix.size()];
+		//System.out.println("size:"+list.length);
 		Relatrix.findStream("?", "?", "?").forEach(e->{
-			list[cnt++] = ((Result) e);
+			//list[cnt++] = ((Result) e);
+			try {
+				RelatrixKV.store((Comparable<?>) e, cnt++);
+			} catch (IllegalAccessException | IOException | DuplicateKeyException e1) {
+				throw new RuntimeException(e1);
+			}
 		});
 
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
@@ -95,9 +100,12 @@ public class ViewBattery1 {
 	
 	public static void battery2(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		Arrays.sort(list);
-		for(Result r: list)
-			System.out.println(r);
+		//Arrays.sort(list);
+		//for(Result r: list)
+			//System.out.println(r);
+		RelatrixKV.findTailMapStream((Comparable<?>) RelatrixKV.firstKey(Result3.class)).forEach(e->{
+			System.out.println(e);
+		});
 		System.out.println("BATTERY2 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
 	/**

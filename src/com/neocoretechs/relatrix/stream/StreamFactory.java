@@ -228,21 +228,21 @@ import com.neocoretechs.relatrix.Result;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findHeadSetStream must contain an object reference");
+	           			return new FindHeadSetStreamMode0(dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindHeadSetStreamMode1(dop, mop, rarg, endarg);
+	                    return new FindHeadSetStreamMode1(dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindHeadSetStreamMode2(dop, marg, rop, endarg);
+	                    return new FindHeadSetStreamMode2(dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindHeadSetStreamMode3(dop, marg, rarg, endarg);
+	                    return new FindHeadSetStreamMode3(dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindHeadSetStreamMode4(darg, mop, rop, endarg);
+	                    return new FindHeadSetStreamMode4(darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindHeadSetStreamMode5(darg, mop, rarg, endarg);
+	                    return new FindHeadSetStreamMode5(darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindHeadSetStreamMode6(darg, marg, rop, endarg);
+	                    return new FindHeadSetStreamMode6(darg, marg, rop, endarg);
 	               case 7:
-	            	   	   return new FindHeadSetStreamMode7(darg, marg, rarg, endarg);
+	            	   	return new FindHeadSetStreamMode7(darg, marg, rarg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findHeadsetStream factory mode is not supported.");
 			}
@@ -257,28 +257,28 @@ import com.neocoretechs.relatrix.Result;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static StreamFactory createHeadsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException {
+		public static StreamFactory createHeadsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 
 			if( DEBUG )
 			        System.out.println("Relatrix StreamFactoryTransaction findHeadSetStream setting mode for "+darg+" "+marg+" "+rarg);
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findHeadSetStream must contain an object reference");
+	            	   return new FindHeadSetStreamMode0Transaction(xid, dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindHeadSetStreamMode1Transaction(xid, dop, mop, rarg);
+	                    return new FindHeadSetStreamMode1Transaction(xid, dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindHeadSetStreamMode2Transaction(xid, dop, marg, rop);
+	                    return new FindHeadSetStreamMode2Transaction(xid, dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindHeadSetStreamMode3Transaction(xid, dop, marg, rarg);
+	                    return new FindHeadSetStreamMode3Transaction(xid, dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindHeadSetStreamMode4Transaction(xid, darg, mop, rop);
+	                    return new FindHeadSetStreamMode4Transaction(xid, darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindHeadSetStreamMode5Transaction(xid, darg, mop, rarg);
+	                    return new FindHeadSetStreamMode5Transaction(xid, darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindHeadSetStreamMode6Transaction(xid, darg, marg, rop);
+	                    return new FindHeadSetStreamMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	            	   	   return new FindHeadSetStreamMode7Transaction(xid, darg, marg, rarg);
+	            	   	return new FindHeadSetStreamMode7Transaction(xid, darg, marg, rarg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findHeadsetStream transaction factory mode is not supported.");
 			}
@@ -300,21 +300,21 @@ import com.neocoretechs.relatrix.Result;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findSubSetStream must contain an object reference");
+	            	   return new FindSubSetStreamMode0(dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindSubSetStreamMode1(dop, mop, rarg, endarg);
+	                   return new FindSubSetStreamMode1(dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindSubSetStreamMode2(dop, marg, rop, endarg);
+	                   return new FindSubSetStreamMode2(dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindSubSetStreamMode3(dop, marg, rarg, endarg);
+	                   return new FindSubSetStreamMode3(dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindSubSetStreamMode4(darg, mop, rop, endarg);
+	                   return new FindSubSetStreamMode4(darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindSubSetStreamMode5(darg, mop, rarg, endarg);
+	                   return new FindSubSetStreamMode5(darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindSubSetStreamMode6(darg, marg, rop, endarg);
+	                   return new FindSubSetStreamMode6(darg, marg, rop, endarg);
 	               case 7:
-	           			   return new FindSubSetStreamMode7(darg, marg, marg, endarg);
+	            	   return new FindSubSetStreamMode7(darg, marg, marg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findSubsetSteam factory mode is not supported.");
 			}	
@@ -337,21 +337,21 @@ import com.neocoretechs.relatrix.Result;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findSubSetStream must contain an object reference");
+	            	   return new FindSubSetStreamMode0Transaction(xid, dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindSubSetStreamMode1Transaction(xid, dop, mop, rarg, endarg);
+	                   return new FindSubSetStreamMode1Transaction(xid, dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindSubSetStreamMode2Transaction(xid, dop, marg, rop, endarg);
+	                   return new FindSubSetStreamMode2Transaction(xid, dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindSubSetStreamMode3Transaction(xid, dop, marg, rarg, endarg);
+	                   return new FindSubSetStreamMode3Transaction(xid, dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindSubSetStreamMode4Transaction(xid, darg, mop, rop, endarg);
+	                   return new FindSubSetStreamMode4Transaction(xid, darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindSubSetStreamMode5Transaction(xid, darg, mop, rarg, endarg);
+	                   return new FindSubSetStreamMode5Transaction(xid, darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindSubSetStreamMode6Transaction(xid, darg, marg, rop, endarg);
+	                   return new FindSubSetStreamMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	           			   return new FindSubSetStreamMode7Transaction(xid, darg, marg, marg, endarg);
+	           			return new FindSubSetStreamMode7Transaction(xid, darg, marg, marg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findSubsetStream factory mode is not supported.");
 			}	

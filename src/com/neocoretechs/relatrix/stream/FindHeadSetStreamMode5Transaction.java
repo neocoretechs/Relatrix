@@ -23,11 +23,10 @@ public class FindHeadSetStreamMode5Transaction extends FindHeadSetStreamMode5 {
 	String xid;
 	Object[] endarg;
     public FindHeadSetStreamMode5Transaction(String xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
-    	super(darg, mop, rarg);
+    	super(darg, mop, rarg, endarg);
     	this.xid = xid;
 		if(endarg.length != 1)
 			throw new RuntimeException("Must supply 1 qualifying argument for Headset map.");
-		this.endarg = endarg;
     }
 	
 	@Override

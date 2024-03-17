@@ -20,11 +20,10 @@ public class FindHeadSetStreamMode3Transaction extends FindHeadSetStreamMode3 {
 	String xid;
 	Object[] endarg;
     public FindHeadSetStreamMode3Transaction(String xid, char dop, Object marg, Object rarg, Object ... endarg) { 	
-    	super(dop, marg, rarg);
+    	super(dop, marg, rarg, endarg);
     	this.xid = xid;
       	if(endarg.length != 1)
     		throw new RuntimeException("Must supply 1 qualifying argument for Headset domain.");
-     	this.endarg = endarg;
     }
 	/**
 	 * Create the specific stream. Subclass overrides for various set valued functions

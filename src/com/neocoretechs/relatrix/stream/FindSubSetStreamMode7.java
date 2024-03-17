@@ -5,6 +5,9 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
+
 
 /**
 * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
@@ -18,58 +21,36 @@ import com.neocoretechs.relatrix.Morphism;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
 */
 public class FindSubSetStreamMode7 extends FindSetStreamMode7 {
-	Object[] xarg;
+	Object[] endarg;
 	// mode 7
-    public FindSubSetStreamMode7(Object darg, Object marg, Object rarg, Object ... xarg) throws IllegalArgumentException, IOException { 	
+    public FindSubSetStreamMode7(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
     	super(darg, marg, rarg);
-       	this.xarg = xarg;
-    	if(xarg.length != 3) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 3 got "+xarg.length);
+       	this.endarg = endarg;
+    	if(endarg.length != 0) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
     }
 	@Override
 	protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		   // make a new Morphism template
-		   Morphism templdmr;
-		   try {
-			   // primarily for class type than values of instance
-			   templdmr = (Morphism) tdmr.clone();
-			   // move the end range into the new template in the proper position
-			   int ipos = 0;
-			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getRange() != null ) {
-					  templdmr.setRangeTemplate((Comparable) xarg[ipos++]); 
-			   }
-		   } catch (CloneNotSupportedException e) {
-			   throw new IOException(e);
-		   }
-		   return (Stream<?>) new RelatrixSubsetStream( tdmr, templdmr, dmr_return);
-	 }
-	@Override
-	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		// make a new Morphism template
-		Morphism templdmr;
+		Morphism xdmr = null;
+		Morphism ydmr = null;
+		Morphism zdmr = null;
 		try {
-			// primarily for class type than values of instance
-			templdmr = (Morphism) tdmr.clone();
-			// move the end range into the new template in the proper position
-			int ipos = 0;
-			if( tdmr.getDomain() != null ) {
-				templdmr.setDomainTemplate(alias, (Comparable) xarg[ipos++]); 
-			}
-			if( tdmr.getMap() != null ) {
-				templdmr.setMapTemplate(alias, (Comparable) xarg[ipos++]); 
-			}
-			if( tdmr.getRange() != null ) {
-				templdmr.setRangeTemplate(alias, (Comparable) xarg[ipos++]); 
-			}
-		} catch (CloneNotSupportedException e) {
-			throw new IOException(e);
-		}
-		return (Stream<?>) new RelatrixSubsetStream(alias, tdmr, templdmr, dmr_return);
+			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
+			zdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		return new RelatrixSubsetStream(tdmr, zdmr, xdmr, ydmr, dmr_return);
 	}
 
+	@Override
+	protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		Morphism xdmr = null;
+		Morphism ydmr = null;
+		Morphism zdmr = null;
+		try {
+			xdmr = (Morphism) tdmr.clone();
+			ydmr = (Morphism) tdmr.clone();
+			zdmr = (Morphism) tdmr.clone();
+		} catch (CloneNotSupportedException e) {}
+		return new RelatrixSubsetStream(alias, tdmr, zdmr, xdmr, ydmr, dmr_return);
+	}
 }

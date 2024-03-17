@@ -166,21 +166,21 @@ import com.neocoretechs.relatrix.Relatrix;
 			
 		    switch(processTripletParams(darg, marg, rarg)) {
                case 0:
-                       return new FindSetMode0(dop, mop, rop);
+                   return new FindSetMode0(dop, mop, rop);
                case 1:
-                       return new FindSetMode1(dop, mop, rarg);
+                   return new FindSetMode1(dop, mop, rarg);
                case 2:
-                       return new FindSetMode2(dop, marg, rop);
+                   return new FindSetMode2(dop, marg, rop);
                case 3:
-                       return new FindSetMode3(dop, marg, rarg);
+                   return new FindSetMode3(dop, marg, rarg);
                case 4:
-                       return new FindSetMode4(darg, mop, rop);
+                   return new FindSetMode4(darg, mop, rop);
                case 5:
-                       return new FindSetMode5(darg, mop, rarg);
+                   return new FindSetMode5(darg, mop, rarg);
                case 6:
-                       return new FindSetMode6(darg, marg, rop);
+                   return new FindSetMode6(darg, marg, rop);
                case 7:
-                   	   return new FindSetMode7(darg, marg, rarg);
+                   return new FindSetMode7(darg, marg, rarg);
         	    default:
                     throw new IllegalArgumentException("The findSet factory mode is not supported.");
 		    }
@@ -203,21 +203,21 @@ import com.neocoretechs.relatrix.Relatrix;
 			
 		    switch(processTripletParams(darg, marg, rarg)) {
                case 0:
-                       return new FindSetMode0Transaction(xid, dop, mop, rop);
+                   return new FindSetMode0Transaction(xid, dop, mop, rop);
                case 1:
-                       return new FindSetMode1Transaction(xid, dop, mop, rarg);
+                   return new FindSetMode1Transaction(xid, dop, mop, rarg);
                case 2:
-                       return new FindSetMode2Transaction(xid, dop, marg, rop);
+                   return new FindSetMode2Transaction(xid, dop, marg, rop);
                case 3:
-                       return new FindSetMode3Transaction(xid, dop, marg, rarg);
+                   return new FindSetMode3Transaction(xid, dop, marg, rarg);
                case 4:
-                       return new FindSetMode4Transaction(xid, darg, mop, rop);
+                   return new FindSetMode4Transaction(xid, darg, mop, rop);
                case 5:
-                       return new FindSetMode5Transaction(xid, darg, mop, rarg);
+                   return new FindSetMode5Transaction(xid, darg, mop, rarg);
                case 6:
-                       return new FindSetMode6Transaction(xid, darg, marg, rop);
+                   return new FindSetMode6Transaction(xid, darg, marg, rop);
                case 7:
-                   	   return new FindSetMode7Transaction(xid, darg, marg, rarg);
+                   return new FindSetMode7Transaction(xid, darg, marg, rarg);
         	    default:
                     throw new IllegalArgumentException("The findSet transaction factory mode is not supported.");
 		    }
@@ -274,23 +274,23 @@ import com.neocoretechs.relatrix.Relatrix;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findHeadSet must contain an object reference");
+	           		   return new FindHeadSetMode0Transaction(xid, dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindHeadSetMode1Transaction(xid, dop, mop, rarg);
+	            	   return new FindHeadSetMode1Transaction(xid, dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindHeadSetMode2Transaction(xid, dop, marg, rop);
+	                   return new FindHeadSetMode2Transaction(xid, dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindHeadSetMode3Transaction(xid, dop, marg, rarg);
+	                   return new FindHeadSetMode3Transaction(xid, dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindHeadSetMode4Transaction(xid, darg, mop, rop);
+	                   return new FindHeadSetMode4Transaction(xid, darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindHeadSetMode5Transaction(xid, darg, mop, rarg);
+	                   return new FindHeadSetMode5Transaction(xid, darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindHeadSetMode6Transaction(xid, darg, marg, rop);
+	                   return new FindHeadSetMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	            	   	   return new FindHeadSetMode7Transaction(xid, darg, marg, rarg);
+	            	   return new FindHeadSetMode7Transaction(xid, darg, marg, rarg, endarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
+	                   throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
 			}
 		}
 
@@ -310,21 +310,21 @@ import com.neocoretechs.relatrix.Relatrix;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
+	           			return new FindSubSetMode0(dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindSubSetMode1(dop, mop, rarg, endarg);
+	                   return new FindSubSetMode1(dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindSubSetMode2(dop, marg, rop, endarg);
+	                   return new FindSubSetMode2(dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindSubSetMode3(dop, marg, rarg, endarg);
+	                   return new FindSubSetMode3(dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindSubSetMode4(darg, mop, rop, endarg);
+	                   return new FindSubSetMode4(darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindSubSetMode5(darg, mop, rarg, endarg);
+	                   return new FindSubSetMode5(darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindSubSetMode6(darg, marg, rop, endarg);
+	                   return new FindSubSetMode6(darg, marg, rop, endarg);
 	               case 7:
-	           			   return new FindSubSetMode7(darg, marg, marg, endarg);
+	            	   return new FindSubSetMode7(darg, marg, marg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findSubset factory mode is not supported.");
 			}	
@@ -347,24 +347,96 @@ import com.neocoretechs.relatrix.Relatrix;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	           			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
+	            	   return new FindSubSetMode0Transaction(xid, dop, mop, rop, endarg);
 	               case 1:
-	                       return new FindSubSetMode1Transaction(xid, dop, mop, rarg, endarg);
+	                   return new FindSubSetMode1Transaction(xid, dop, mop, rarg, endarg);
 	               case 2:
-	                       return new FindSubSetMode2Transaction(xid, dop, marg, rop, endarg);
+	                   return new FindSubSetMode2Transaction(xid, dop, marg, rop, endarg);
 	               case 3:
-	                       return new FindSubSetMode3Transaction(xid, dop, marg, rarg, endarg);
+	                   return new FindSubSetMode3Transaction(xid, dop, marg, rarg, endarg);
 	               case 4:
-	                       return new FindSubSetMode4Transaction(xid, darg, mop, rop, endarg);
+	                   return new FindSubSetMode4Transaction(xid, darg, mop, rop, endarg);
 	               case 5:
-	                       return new FindSubSetMode5Transaction(xid, darg, mop, rarg, endarg);
+	                   return new FindSubSetMode5Transaction(xid, darg, mop, rarg, endarg);
 	               case 6:
-	                       return new FindSubSetMode6Transaction(xid, darg, marg, rop, endarg);
+	                   return new FindSubSetMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	           			   return new FindSubSetMode7Transaction(xid, darg, marg, marg, endarg);
+	            	   return new FindSubSetMode7Transaction(xid, darg, marg, marg, endarg);
 	        	    default:
-	                    throw new IllegalArgumentException("The findSubset factory mode is not supported.");
+	                   throw new IllegalArgumentException("The findSubset factory mode is not supported.");
 			}	
 		}
 		
-	}
+		/**
+		 * Create a factory generating headSet sets for the specified objects
+		 * @param darg
+		 * @param marg
+		 * @param rarg
+		 * @return
+		 * @throws IOException 
+		 * @throws IllegalArgumentException 
+		 */
+		public static IteratorFactory createTailsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
+			if( DEBUG )
+			        System.out.println("Relatrix IteratorFactory createTailsetFactory setting mode for "+darg+" "+marg+" "+rarg);
+				
+			switch(processTripletParams(darg, marg, rarg)) {
+				case 0:
+					return new FindHeadSetMode0(dop, mop, rop, endarg);
+				case 1:
+					return new FindHeadSetMode1(dop, mop, rarg, endarg);
+				case 2:
+					return new FindHeadSetMode2(dop, marg, rop, endarg);
+				case 3:
+					return new FindHeadSetMode3(dop, marg, rarg, endarg);
+				case 4:
+					return new FindHeadSetMode4(darg, mop, rop, endarg);
+				case 5:
+					return new FindHeadSetMode5(darg, mop, rarg, endarg);
+				case 6:
+					return new FindHeadSetMode6(darg, marg, rop, endarg);
+				case 7:
+					return new FindHeadSetMode7(darg, marg, rarg, endarg);
+				default:
+					throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
+			}
+		}
+		/**
+		 * Create a factory generating transactional headSet sets for the specified objects
+		 * @param xid Transaction Id
+		 * @param darg
+		 * @param marg
+		 * @param rarg
+		 * @return
+		 * @throws IOException 
+		 * @throws IllegalArgumentException 
+		 */
+		public static IteratorFactory createTailsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
+			    
+			if( DEBUG )
+			        System.out.println("Relatrix IteratorFactory createHeadsetFactoryTransaction setting mode for "+darg+" "+marg+" "+rarg);
+				
+			switch(processTripletParams(darg, marg, rarg)) {
+	               case 0:
+	            	   return new FindHeadSetMode0Transaction(xid, dop, mop, rop, endarg);
+	               case 1:
+	                   return new FindHeadSetMode1Transaction(xid, dop, mop, rarg, endarg);
+	               case 2:
+	                   return new FindHeadSetMode2Transaction(xid, dop, marg, rop, endarg);
+	               case 3:
+	                   return new FindHeadSetMode3Transaction(xid, dop, marg, rarg, endarg);
+	               case 4:
+	                   return new FindHeadSetMode4Transaction(xid, darg, mop, rop, endarg);
+	               case 5:
+	                   return new FindHeadSetMode5Transaction(xid, darg, mop, rarg, endarg);
+	               case 6:
+	                   return new FindHeadSetMode6Transaction(xid, darg, marg, rop, endarg);
+	               case 7:
+	            	   return new FindHeadSetMode7Transaction(xid, darg, marg, rarg, endarg);
+	        	    default:
+	                   throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
+			}
+		}
+
+		
+}

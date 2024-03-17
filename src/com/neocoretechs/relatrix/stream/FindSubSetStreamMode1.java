@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
 /**
  * Mode 1.
  * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
@@ -21,60 +23,106 @@ import com.neocoretechs.relatrix.Morphism;
  *
  */
 public class FindSubSetStreamMode1 extends FindSetStreamMode1 {
-	   Object[] xarg;
+	   Object[] endarg;
+	   int argCtr = 0;
 	   // By our model, xarg should only be of length 1
-	   public FindSubSetStreamMode1(char dop, char mop, Object rarg, Object ... xarg) { 
+	   public FindSubSetStreamMode1(char dop, char mop, Object rarg, Object ... endarg) { 
 		   super(dop,mop,rarg);
-		   dmr_return[3] = 1;
-		   this.xarg = xarg;
-		   if(xarg.length != 1) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', expected 1, got "+xarg.length);
+		   this.endarg = endarg;
+		   if(endarg.length < 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
 	   }
 	   
 	   @Override
-	   protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
-		   // make a new Morphism template
-		   Morphism templdmr;
-		   try {
-			   // primarily for class type than values of instance
-			   templdmr = (Morphism) tdmr.clone();
-			   // move the end range into the new template in the proper position
-			   int ipos = 0;
-			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate((Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate((Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getRange() != null ) {
-					  templdmr.setRangeTemplate((Comparable) xarg[ipos++]); 
-			   }
-		   } catch (CloneNotSupportedException e) {
-			   throw new IOException(e);
-		   }
-		   return (Stream<?>) new RelatrixSubsetStream(tdmr, templdmr, dmr_return);
-	   }
-	   
-	   @Override
-	   protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		   // make a new Morphism template
-		   Morphism templdmr;
-		   try {
-			   // primarily for class type than values of instance
-			   templdmr = (Morphism) tdmr.clone();
-			   // move the end range into the new template in the proper position
-			   int ipos = 0;
-			   if( tdmr.getDomain() != null ) {
-					  templdmr.setDomainTemplate(alias, (Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getMap() != null ) {
-					  templdmr.setMapTemplate(alias, (Comparable) xarg[ipos++]); 
-			   }
-			   if( tdmr.getRange() != null ) {
-					  templdmr.setRangeTemplate(alias, (Comparable) xarg[ipos++]); 
-			   }
-		   } catch (CloneNotSupportedException e) {
-			   throw new IOException(e);
-		   }
-		   return (Stream<?>) new RelatrixSubsetStream(alias, tdmr, templdmr, dmr_return);
-	   }
+		protected Stream<?> createRelatrixStream(Morphism tdmr) throws IllegalAccessException, IOException {
+			Morphism xdmr = null;
+			Morphism ydmr = null;
+			Morphism zdmr = null;
+			try {
+				xdmr = (Morphism) tdmr.clone();
+				ydmr = (Morphism) tdmr.clone();
+				zdmr = (Morphism) tdmr.clone();
+			} catch (CloneNotSupportedException e) {}
+			if(tdmr.getDomain() == null) {
+				if(endarg[argCtr] instanceof Class) {
+					tdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
+					zdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
+					xdmr.setDomainKey(DBKey.nullDBKey); // full range
+					ydmr.setDomainKey(DBKey.fullDBKey);
+				} else {
+					tdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
+					zdmr.setDomain((Comparable)endarg[argCtr++]);
+					xdmr.setDomainKey(DBKey.nullDBKey); // full range
+					ydmr.setDomainKey(DBKey.fullDBKey);
+				}
+			} else
+				throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
+			if(tdmr.getMap() == null) {
+				if(endarg[argCtr] instanceof Class) {
+					tdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
+					if(argCtr >= endarg.length)
+						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+					zdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
+					xdmr.setMapKey(DBKey.nullDBKey); // full range
+					ydmr.setMapKey(DBKey.fullDBKey);
+				} else {
+					if(argCtr >= endarg.length)
+						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+					tdmr.setMap((Comparable)endarg[argCtr++]);
+					if(argCtr >= endarg.length)
+						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+					zdmr.setMap((Comparable)endarg[argCtr++]);
+					xdmr.setMapKey(DBKey.nullDBKey); // full range
+					ydmr.setMapKey(DBKey.fullDBKey);
+				}
+			} else
+				throw new IllegalAccessException("Improper Morphism template.");
+			return new RelatrixSubsetStream(tdmr, zdmr, xdmr, ydmr, dmr_return);
+		}
+
+		@Override
+		protected Stream<?> createRelatrixStream(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+			Morphism xdmr = null;
+			Morphism ydmr = null;
+			Morphism zdmr = null;
+			try {
+				xdmr = (Morphism) tdmr.clone();
+				ydmr = (Morphism) tdmr.clone();
+				zdmr = (Morphism) tdmr.clone();
+			} catch (CloneNotSupportedException e) {}
+			if(tdmr.getDomain() == null) {
+				if(endarg[argCtr] instanceof Class) {
+					tdmr.setDomain((Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
+					zdmr.setDomain((Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
+					xdmr.setDomainKey(DBKey.nullDBKey); // full range
+					ydmr.setDomainKey(DBKey.fullDBKey);
+				} else {
+					tdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
+					zdmr.setDomain((Comparable)endarg[argCtr++]);
+					xdmr.setDomainKey(DBKey.nullDBKey); // full range
+					ydmr.setDomainKey(DBKey.fullDBKey);
+				}
+			} else
+				throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
+			if(tdmr.getMap() == null) {
+				if(endarg[argCtr] instanceof Class) {
+					tdmr.setMap((Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
+					if(argCtr >= endarg.length)
+						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+					zdmr.setMap((Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
+					xdmr.setMapKey(DBKey.nullDBKey); // full range
+					ydmr.setMapKey(DBKey.fullDBKey);
+				} else {
+					if(argCtr >= endarg.length)
+						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+					tdmr.setMap((Comparable)endarg[argCtr++]);
+					if(argCtr >= endarg.length)
+						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
+					zdmr.setMap((Comparable)endarg[argCtr++]);
+					xdmr.setMapKey(DBKey.nullDBKey); // full range
+					ydmr.setMapKey(DBKey.fullDBKey);
+				}
+			} else
+				throw new IllegalAccessException("Improper Morphism template.");
+			return new RelatrixSubsetStream(alias, tdmr, zdmr, xdmr, ydmr, dmr_return);
+		}
 }
