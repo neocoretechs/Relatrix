@@ -13,13 +13,13 @@ import com.neocoretechs.relatrix.Morphism;
  * class. The objects returned will be of type {@link DomainMapRange} subclass of {@link Morphism}. 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015.2021 
  */
-public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
+public class FindTailSetMode7Transaction extends FindSetMode7Transaction {
 	Object[] endarg;
 	// mode 7
-	public FindHeadSetMode7Transaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
+	public FindTailSetMode7Transaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
 		super(xid, darg, marg, rarg);
 		if(endarg.length != 0)
-			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");
+			throw new RuntimeException("Must not supply any qualifying arguments for Tailset.");
 		this.endarg = endarg;
 	}
 
@@ -31,7 +31,7 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
 	}
 
 	@Override
@@ -42,6 +42,6 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
 	}
 }

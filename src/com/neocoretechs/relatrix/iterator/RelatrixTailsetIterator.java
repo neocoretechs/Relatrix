@@ -15,7 +15,8 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 /**
- * Our main representable analog. Instances of this class deliver the set of identity {@link Morphism}s, or
+ * Provides a persistent collection iterator greater or equal to 'from' element.
+ * Instances of this class deliver the set of identity {@link Morphism}s, or
  * deliver sets of compositions of {@link Morphism}s representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.

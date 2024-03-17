@@ -30,6 +30,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 
 import com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator;
 /**
+ * Provides a persistent collection iterator greater or equal to 'from' element.
  * Deliver {@link Morphism}s as new group homomorphisms resembling representable functors. More plainly, a {@link com.neocoretechs.relatrix.Result} 
  * hierarchy is returned representing the N return tuple '?' elements of the query.<p/> 
  * If its an identity morphism (instance of Morphism such as {@link com.neocoretechs.relatrix.DomainMapRange}) 

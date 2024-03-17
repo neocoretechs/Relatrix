@@ -5,9 +5,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
-
 
 /**
 * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
