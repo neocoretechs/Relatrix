@@ -1142,80 +1142,55 @@ public final class Relatrix {
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
-	 * The parameters can be objects and/or operators. Semantically,
-	 * this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed. If you are going to anchor a set
-	 * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
+	 * The parameters can be objects and/or operators.
 	 * @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
 	 * @param marg Object for the map of relationship , a dont-care wildcard "*", a return-object "?", or a class template
 	 * @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
 	 * @exception IOException low-level access or problems modifiying schema
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
 
-	public static synchronized Iterator<?> findTailSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Iterator<?> findTailSetAlias(String alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
 	}
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
-	 * The parameters can be objects and/or operators. Semantically,
-	 * this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed. If you are going to anchor a set
-	 * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
+	 * The parameters can be objects and/or operators.
 	 * @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
 	 * @param marg Object for the map of relationship , a dont-care wildcard "*", a return-object "?", or a class template
 	 * @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
-	 * @param parallel Optional true for parallel stream execution
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
 	 * @exception IOException low-level access or problems modifiying schema
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 */
-	public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return sfact.createStream();
 		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 
-	public static synchronized Stream<?> findTailStreamAlias(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Stream<?> findTailStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
+		StreamFactory sfact = StreamFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return sfact.createStream(alias);
 		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
@@ -1231,6 +1206,7 @@ public final class Relatrix {
 	 * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
 	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
@@ -1260,7 +1236,7 @@ public final class Relatrix {
 	 * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
 	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param parallel Optional true to execute stream in parallel
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
 	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
@@ -1302,7 +1278,7 @@ public final class Relatrix {
 	 * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
 	 * @param marg The map of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException The number of arguments to the ending range of findSubSet dont match the number of objects declared for the starting range, or no concrete objects vs wildcards are supplied.
@@ -1311,17 +1287,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
-		int numberObjects = 0;
-		if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( numberObjects != endarg.length)
-			throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
@@ -1331,8 +1296,8 @@ public final class Relatrix {
 	 * @param darg
 	 * @param marg
 	 * @param rarg
-	 * @param endarg
-	 * @return
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
+	 * @return Iterator for the subSet
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -1341,17 +1306,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Iterator<?> findSubSetAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
-		int numberObjects = 0;
-		if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( numberObjects != endarg.length)
-			throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
 	}
@@ -1371,7 +1325,6 @@ public final class Relatrix {
 	 * @param darg The domain of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
 	 * @param marg The map of the relationship to retrieve, a dont-care wildcard "*", a return-object "?", or class
 	 * @param rarg The range or codomain of the relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param parallel true to execute stream in parallel, false for sequential
 	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
 	 * @return The Stream from which the data may be retrieved. Follows Stream interface, return Stream<Result>
 	 * @throws IOException
@@ -1381,17 +1334,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubStream must contain an object reference");
-		int numberObjects = 0;
-		if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( numberObjects != endarg.length)
-			throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
 		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -1404,7 +1346,7 @@ public final class Relatrix {
 	 * @param darg
 	 * @param marg
 	 * @param rarg
-	 * @param endarg
+	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
 	 * @return
 	 * @throws IOException
 	 * @throws IllegalArgumentException
@@ -1414,17 +1356,6 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findSubStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubStream must contain an object reference");
-		int numberObjects = 0;
-		if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( numberObjects != endarg.length)
-			throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
 		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		//return (Stream<?>) StreamSupport.stream(spliterator, true);

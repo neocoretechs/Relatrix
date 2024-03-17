@@ -23,6 +23,9 @@ import com.neocoretechs.relatrix.Relatrix;
 		
 		/**
 		 * Create the iterator. Factory method, abstract.
+		 * Instantiates the proper subclass of {@link Morphism}
+		 * to pass to the createRelatrixIterator method to act as a retrieval template for the proper sequence
+		 * of 'findSet' operators for each permutation.
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
@@ -30,7 +33,9 @@ import com.neocoretechs.relatrix.Relatrix;
 		public abstract Iterator<?> createIterator() throws IllegalAccessException, IOException;
 		
 		/**
-		* Create the iterator. Factory method, abstract.
+		* Create the iterator. Factory method, abstract. Instantiates the proper subclass of {@link Morphism}
+		* to pass to the createRelatrixIterator method to act as a retrieval template for the proper sequence
+		* of 'findSet' operators for each permutation.
 		* @param alias the database alias
 		* @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
 		* @throws IllegalAccessException
@@ -41,7 +46,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
-		 * @param tdmr the Morphism template that defines the selection parameters for the iterator
+		 * @param tdmr the Morphism template that defines the selection parameters for the iterator, created by createIterator
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
