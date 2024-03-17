@@ -368,7 +368,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		}
 		
 		/**
-		 * Create a factory generating headSet sets for the specified objects
+		 * Create a factory generating tailSet sets for the specified objects
 		 * @param darg
 		 * @param marg
 		 * @param rarg
@@ -382,27 +382,27 @@ import com.neocoretechs.relatrix.Relatrix;
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 				case 0:
-					return new FindHeadSetMode0(dop, mop, rop, endarg);
+					return new FindTailSetMode0(dop, mop, rop, endarg);
 				case 1:
-					return new FindHeadSetMode1(dop, mop, rarg, endarg);
+					return new FindTailSetMode1(dop, mop, rarg, endarg);
 				case 2:
-					return new FindHeadSetMode2(dop, marg, rop, endarg);
+					return new FindTailSetMode2(dop, marg, rop, endarg);
 				case 3:
-					return new FindHeadSetMode3(dop, marg, rarg, endarg);
+					return new FindTailSetMode3(dop, marg, rarg, endarg);
 				case 4:
-					return new FindHeadSetMode4(darg, mop, rop, endarg);
+					return new FindTailSetMode4(darg, mop, rop, endarg);
 				case 5:
-					return new FindHeadSetMode5(darg, mop, rarg, endarg);
+					return new FindTailSetMode5(darg, mop, rarg, endarg);
 				case 6:
-					return new FindHeadSetMode6(darg, marg, rop, endarg);
+					return new FindTailSetMode6(darg, marg, rop, endarg);
 				case 7:
-					return new FindHeadSetMode7(darg, marg, rarg, endarg);
+					return new FindTailSetMode7(darg, marg, rarg, endarg);
 				default:
-					throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
+					throw new IllegalArgumentException("The findTailset factory mode is not supported.");
 			}
 		}
 		/**
-		 * Create a factory generating transactional headSet sets for the specified objects
+		 * Create a factory generating transactional tailSet sets for the specified objects
 		 * @param xid Transaction Id
 		 * @param darg
 		 * @param marg
@@ -414,27 +414,27 @@ import com.neocoretechs.relatrix.Relatrix;
 		public static IteratorFactory createTailsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory createHeadsetFactoryTransaction setting mode for "+darg+" "+marg+" "+rarg);
+			        System.out.println("Relatrix IteratorFactory createTailsetFactoryTransaction setting mode for "+darg+" "+marg+" "+rarg);
 				
 			switch(processTripletParams(darg, marg, rarg)) {
 	               case 0:
-	            	   return new FindHeadSetMode0Transaction(xid, dop, mop, rop, endarg);
+	            	   return new FindTailSetMode0Transaction(xid, dop, mop, rop, endarg);
 	               case 1:
-	                   return new FindHeadSetMode1Transaction(xid, dop, mop, rarg, endarg);
+	                   return new FindTailSetMode1Transaction(xid, dop, mop, rarg, endarg);
 	               case 2:
-	                   return new FindHeadSetMode2Transaction(xid, dop, marg, rop, endarg);
+	                   return new FindTailSetMode2Transaction(xid, dop, marg, rop, endarg);
 	               case 3:
-	                   return new FindHeadSetMode3Transaction(xid, dop, marg, rarg, endarg);
+	                   return new FindTailSetMode3Transaction(xid, dop, marg, rarg, endarg);
 	               case 4:
-	                   return new FindHeadSetMode4Transaction(xid, darg, mop, rop, endarg);
+	                   return new FindTailSetMode4Transaction(xid, darg, mop, rop, endarg);
 	               case 5:
-	                   return new FindHeadSetMode5Transaction(xid, darg, mop, rarg, endarg);
+	                   return new FindTailSetMode5Transaction(xid, darg, mop, rarg, endarg);
 	               case 6:
-	                   return new FindHeadSetMode6Transaction(xid, darg, marg, rop, endarg);
+	                   return new FindTailSetMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	            	   return new FindHeadSetMode7Transaction(xid, darg, marg, rarg, endarg);
+	            	   return new FindTailSetMode7Transaction(xid, darg, marg, rarg, endarg);
 	        	    default:
-	                   throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
+	                   throw new IllegalArgumentException("The findTailset factory mode is not supported.");
 			}
 		}
 

@@ -356,5 +356,76 @@ import com.neocoretechs.relatrix.Result;
 	                    throw new IllegalArgumentException("The findSubsetStream factory mode is not supported.");
 			}	
 		}
+		/**
+		 * Create a factory generating tailSet stream sets for the specified objects
+		 * @param darg
+		 * @param marg
+		 * @param rarg
+		 * @return
+		 * @throws IOException 
+		 * @throws IllegalArgumentException 
+		 */
+		public static StreamFactory createTailsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
+
+			if( DEBUG )
+			        System.out.println("Relatrix StreamFactory findTailSetStream setting mode for "+darg+" "+marg+" "+rarg);
+				
+			switch(processTripletParams(darg, marg, rarg)) {
+	               case 0:
+	           			return new FindTailSetStreamMode0(dop, mop, rop, endarg);
+	               case 1:
+	                    return new FindTailSetStreamMode1(dop, mop, rarg, endarg);
+	               case 2:
+	                    return new FindTailSetStreamMode2(dop, marg, rop, endarg);
+	               case 3:
+	                    return new FindTailSetStreamMode3(dop, marg, rarg, endarg);
+	               case 4:
+	                    return new FindTailSetStreamMode4(darg, mop, rop, endarg);
+	               case 5:
+	                    return new FindTailSetStreamMode5(darg, mop, rarg, endarg);
+	               case 6:
+	                    return new FindTailSetStreamMode6(darg, marg, rop, endarg);
+	               case 7:
+	            	   	return new FindTailSetStreamMode7(darg, marg, rarg, endarg);
+	        	    default:
+	                    throw new IllegalArgumentException("The findTailsetStream factory mode is not supported.");
+			}
+		}
+		/**
+		 * Create a factory generating tailSet sets for the specified objects from a transaction context
+		 * @param xid the transaction Id
+		 * @param darg
+		 * @param marg
+		 * @param rarg
+		 * @return
+		 * @throws IOException 
+		 * @throws IllegalArgumentException 
+		 */
+		public static StreamFactory createTailsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
+
+			if( DEBUG )
+			        System.out.println("Relatrix StreamFactoryTransaction findTailSetStream setting mode for "+darg+" "+marg+" "+rarg);
+				
+			switch(processTripletParams(darg, marg, rarg)) {
+	               case 0:
+	            	   return new FindTailSetStreamMode0Transaction(xid, dop, mop, rop, endarg);
+	               case 1:
+	                    return new FindTailSetStreamMode1Transaction(xid, dop, mop, rarg, endarg);
+	               case 2:
+	                    return new FindTailSetStreamMode2Transaction(xid, dop, marg, rop, endarg);
+	               case 3:
+	                    return new FindTailSetStreamMode3Transaction(xid, dop, marg, rarg, endarg);
+	               case 4:
+	                    return new FindTailSetStreamMode4Transaction(xid, darg, mop, rop, endarg);
+	               case 5:
+	                    return new FindTailSetStreamMode5Transaction(xid, darg, mop, rarg, endarg);
+	               case 6:
+	                    return new FindTailSetStreamMode6Transaction(xid, darg, marg, rop, endarg);
+	               case 7:
+	            	   	return new FindTailSetStreamMode7Transaction(xid, darg, marg, rarg, endarg);
+	        	    default:
+	                    throw new IllegalArgumentException("The findTailsetStream transaction factory mode is not supported.");
+			}
+		}
 		
 	}
