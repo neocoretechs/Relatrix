@@ -49,7 +49,7 @@ public class EmbeddedRetrievalBattery2 {
 				battery1AR17(argv);
 		}
 		if(Relatrix.size() == 0) {
-			battery00(argv);
+			battery0(argv);
 		}
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
@@ -93,30 +93,7 @@ public class EmbeddedRetrievalBattery2 {
 		}
 		 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	/**
-	 * Loads up on keys
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery00(String[] argv) throws Exception {
-		System.out.println("Battery00 ");
-		long tims = System.currentTimeMillis();
-		int dupes = 0;
-		int recs = 0;
-		String fkey = null;
-		DomainMapRange dmr = null;
-		int modu = 0;
-		for(int i = min; i < max; i++) {
-			fkey = key + String.format(uniqKeyFmt, modu++);
-			try {
-				dmr = Relatrix.store(fkey, i, "Has unit");
-				++recs;
-				if(modu % 5 == 0)
-					modu = 0;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
-	}
+
 	/**
 	 * @param argv
 	 * @throws Exception
