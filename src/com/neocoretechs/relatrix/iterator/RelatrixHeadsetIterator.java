@@ -67,8 +67,6 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     protected DBKey rkeyLo = DBKey.fullDBKey;
     protected DBKey rkeyHi = DBKey.nullDBKey;
    
-    protected long keysReturned = 0L;
-   
     public RelatrixHeadsetIterator() {}
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
