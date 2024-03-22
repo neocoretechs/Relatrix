@@ -37,13 +37,9 @@ public class FindHeadSetMode5 extends FindSetMode5 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
 			} else {
-				tdmr.setMap((Comparable)endarg[0]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap((Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

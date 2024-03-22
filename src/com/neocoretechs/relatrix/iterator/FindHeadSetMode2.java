@@ -43,25 +43,17 @@ public class FindHeadSetMode2 extends FindSetMode2 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[0]);
-				xdmr.setDomainKey(tdmr.getDomainKey());
-				ydmr.setDomainKey(tdmr.getDomainKey());
+				xdmr.setDomain((Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				tdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[1]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[1]));
 			} else {
-				tdmr.setRange((Comparable)endarg[1]);
-				xdmr.setRangeKey(tdmr.getRangeKey());
-				ydmr.setRangeKey(tdmr.getRangeKey());
+				xdmr.setRange((Comparable)endarg[1]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

@@ -1,13 +1,11 @@
 package com.neocoretechs.relatrix.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.relatrix.Relatrix;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -28,7 +26,7 @@ import com.neocoretechs.relatrix.Relatrix;
  * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.<br/>
  * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.<br/>
  * In this way multiple databases can be used by instantiating separate clients.<br/>
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2024
  *
  */
 public final class RelatrixServer extends TCPServer {
@@ -37,9 +35,10 @@ public final class RelatrixServer extends TCPServer {
 	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	public static ServerInvokeMethod relatrixSubsetMethods = null; // Subset iterator methods
-	public static ServerInvokeMethod relatrixHeadsetMethods = null; // Headset iterator methods
-	public static ServerInvokeMethod relatrixTailsetMethods = null; // Standard Tailset iterator methods
+	public static ServerInvokeMethod relatrixSetMethods = null; // FindSet iterator methods
+	public static ServerInvokeMethod relatrixSubsetMethods = null; // FindSubset iterator methods
+	public static ServerInvokeMethod relatrixHeadsetMethods = null; // FindHeadset iterator methods
+	public static ServerInvokeMethod relatrixTailsetMethods = null; // FindTailset iterator methods
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 	
@@ -56,7 +55,8 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator", 0);
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
-		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
+		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator", 0);
+		RelatrixServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
@@ -72,77 +72,66 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator", 0);
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
-		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
+		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator", 0);
+		RelatrixServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT,InetAddress.getByName(address));
 	}
 	
 	public void run() {
-			while(!shouldStop) {
-				try {
-					Socket datasocket = server.accept();
-                    // disable Nagles algoritm; do not combine small packets into larger ones
-                    datasocket.setTcpNoDelay(true);
-                    // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                    datasocket.setSoLinger(true, 1);
-					//
-                    ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
-                    CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
-                    if( DEBUGCOMMAND )
-                    	System.out.println("Relatrix Server command received:"+o);
-                    // if we get a command packet with no statement, assume it to start a new instance
-                   
-                    TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
-                    if( uworker != null ) {
-                    	if(o.getTransport().equals("TCP")) {
-                    		if( uworker.shouldRun )
-                    			uworker.stopWorker();
-                    	}
-                    }                   
-                    // Create the worker, it in turn creates a WorkerRequestProcessor
-                    uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-                    dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
-                    ThreadPoolManager.getInstance().spin(uworker);
-                    
-                    if( DEBUG ) {
-                    	System.out.println("RelatrixServer starting new worker "+uworker+
-                    			//( rdb != null ? "remote db:"+rdb : "" ) +
-                    			" master port:"+o.getMasterPort());
-                    }
-                    
-				} catch(Exception e) {
-                    System.out.println("Relatrix Server node configuration server socket accept exception "+e);
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
-               }
+		while(!shouldStop) {
+			try {
+				Socket datasocket = server.accept();
+				// disable Nagles algoritm; do not combine small packets into larger ones
+				datasocket.setTcpNoDelay(true);
+				// wait 1 second before close; close blocks for 1 sec. and data can be sent
+				datasocket.setSoLinger(true, 1);
+				//
+				ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
+				CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
+				if( DEBUGCOMMAND )
+					System.out.println("Relatrix Server command received:"+o);
+				// if we get a command packet with no statement, assume it to start a new instance
+
+				TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				if( uworker != null ) {
+					if(o.getTransport().equals("TCP")) {
+						if( uworker.shouldRun )
+							uworker.stopWorker();
+					}
+				}                   
+				// Create the worker, it in turn creates a WorkerRequestProcessor
+				uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				ThreadPoolManager.getInstance().spin(uworker);
+
+				if( DEBUG ) {
+					System.out.println("RelatrixServer starting new worker "+uworker+
+							//( rdb != null ? "remote db:"+rdb : "" ) +
+							" master port:"+o.getMasterPort());
+				}
+
+			} catch(Exception e) {
+				System.out.println("Relatrix Server node configuration server socket accept exception "+e);
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
-	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database.
+	 * @param args If length 1, then default port 9000
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix tablespace:"+db);
-		    Relatrix.setTablespace(db);
-			new RelatrixServer(args[1], Integer.parseInt(args[2]));
+		if(args.length == 2) {
+			new RelatrixServer(args[0], Integer.parseInt(args[1]));
 		} else {
-			if( args.length == 2) {
-			    System.out.println("Bringing up Relatrix default tablespace:");
-				new RelatrixServer(args[0], Integer.parseInt(args[1]));
+			if(args.length == 1) {
+				new RelatrixServer(Integer.parseInt(args[0]));
 			} else {
-				if(args.length == 1) {
-					System.out.println("Bringing up Relatrix default tablespace:");
-					new RelatrixServer(Integer.parseInt(args[0]));
-				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [/path/to/database/databasename] [address] <port>");
-				}
+				System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [address] <port>");
 			}
 		}
- 
 	}
-
 }

@@ -28,5 +28,9 @@ public final class RelatrixMethodNamesAndParams implements Serializable {
        public Class<?>[] getReturnTypes() { return returnTypes; }
 
        public Vector<String> getMethodNames() { return methodNames; }
+       
+       public int getMethodIndex(String name) {
+    	  return methodNames.indexOf(name);
+       }
 
 }
