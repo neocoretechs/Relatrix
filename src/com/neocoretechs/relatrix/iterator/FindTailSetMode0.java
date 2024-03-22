@@ -31,37 +31,25 @@ public class FindTailSetMode0 extends FindSetMode0 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
-				xdmr.setDomainKey(tdmr.getDomainKey());
-				ydmr.setDomainKey(tdmr.getDomainKey());
+				xdmr.setDomain((Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				tdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[1]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[1]));
 			} else {
-				tdmr.setMap((Comparable)endarg[1]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap((Comparable)endarg[1]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[2] instanceof Class) {
-				tdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[2]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[2]));
 			} else {
-				tdmr.setRange((Comparable)endarg[2]);
-				xdmr.setRangeKey(tdmr.getRangeKey());
-				ydmr.setRangeKey(tdmr.getRangeKey());
+				xdmr.setRange((Comparable)endarg[2]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -78,37 +66,25 @@ public class FindTailSetMode0 extends FindSetMode0 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setDomain(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
 			} else {
-				tdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
-				xdmr.setDomainKey(tdmr.getDomainKey());
-				ydmr.setDomainKey(tdmr.getDomainKey());
+				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				tdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[1]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[1]));
 			} else {
-				tdmr.setMap(alias,(Comparable)endarg[1]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap(alias,(Comparable)endarg[1]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[2] instanceof Class) {
-				tdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[2]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[2]));
 			} else {
-				tdmr.setRange(alias,(Comparable)endarg[2]);
-				xdmr.setRangeKey(tdmr.getRangeKey());
-				ydmr.setRangeKey(tdmr.getRangeKey());
+				xdmr.setRange(alias,(Comparable)endarg[2]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

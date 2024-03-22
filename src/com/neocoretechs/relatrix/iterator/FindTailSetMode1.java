@@ -31,25 +31,17 @@ public class FindTailSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
-				xdmr.setDomainKey(tdmr.getDomainKey());
-				ydmr.setDomainKey(tdmr.getDomainKey());
+				xdmr.setDomain((Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				tdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[1]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[1]));
 			} else {
-				tdmr.setMap((Comparable)endarg[1]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap((Comparable)endarg[1]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -66,25 +58,17 @@ public class FindTailSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setDomain(alias, (Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias, (Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
 			} else {
-				tdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
-				xdmr.setDomainKey(tdmr.getDomainKey());
-				ydmr.setDomainKey(tdmr.getDomainKey());
+				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				tdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[1]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[1]));
 			} else {
-				tdmr.setMap(alias,(Comparable)endarg[1]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap(alias,(Comparable)endarg[1]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

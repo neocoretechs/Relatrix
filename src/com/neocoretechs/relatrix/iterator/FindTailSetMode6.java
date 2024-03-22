@@ -36,13 +36,9 @@ public class FindTailSetMode6 extends FindSetMode6 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
 			} else {
-				tdmr.setRange((Comparable)endarg[0]);
-				xdmr.setRangeKey(tdmr.getRangeKey());
-				ydmr.setRangeKey(tdmr.getRangeKey());
+				xdmr.setRange((Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -59,13 +55,9 @@ public class FindTailSetMode6 extends FindSetMode6 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
 			} else {
-				tdmr.setRange(alias,(Comparable)endarg[0]);
-				xdmr.setRangeKey(tdmr.getRangeKey());
-				ydmr.setRangeKey(tdmr.getRangeKey());
+				xdmr.setRange(alias,(Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

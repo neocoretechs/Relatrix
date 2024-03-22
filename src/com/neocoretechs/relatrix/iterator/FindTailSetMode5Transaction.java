@@ -35,13 +35,9 @@ public class FindTailSetMode5Transaction extends FindSetMode5Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setMap((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[0]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[0]));
 			} else {
-				tdmr.setMap((Comparable)endarg[0]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap((Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -58,13 +54,9 @@ public class FindTailSetMode5Transaction extends FindSetMode5Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setMap(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[0]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[0]));
 			} else {
-				tdmr.setMap(alias,(Comparable)endarg[0]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap(alias,(Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

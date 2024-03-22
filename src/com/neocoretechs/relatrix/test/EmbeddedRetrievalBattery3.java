@@ -27,13 +27,13 @@ import com.neocoretechs.relatrix.Result3;
 public class EmbeddedRetrievalBattery3 {
 	public static boolean DEBUG = false;
 	public static boolean DISPLAY = false;
-	public static int displayLinesOn[]= {0,1000,5000,9990};
-	public static int displayLinesOff[]= {100,1100,5100,9999};
+	public static int displayLinesOn[]= {0,1000,5000,9990,15000,20000,30000,40000,50000,60000,70000,80000,90000,99000};
+	public static int displayLinesOff[]= {100,1100,5100,9999,15999,20999,30999,40999,50999,60999,70999,80999,90999,100000};
 	public static int displayLine = 0;
 	public static int displayLineCtr = 0;
 	public static long displayTimer = 0;
 	public static int min = 0;
-	public static int max = 10000;
+	public static int max = 100000;
 	static String key = "This is a test"; 
 	static String uniqKeyFmt = "%0100d";
 	/**
