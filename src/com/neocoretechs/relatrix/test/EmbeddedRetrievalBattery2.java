@@ -36,7 +36,7 @@ public class EmbeddedRetrievalBattery2 {
 	public static int displayLineCtr = 0;
 	public static long displayTimer = 0;
 	public static int min = 0;
-	public static int max = 100;
+	public static int max = 10000;
 	static String key = "This is a test"; 
 	static String uniqKeyFmt = "%0100d";
 	/**

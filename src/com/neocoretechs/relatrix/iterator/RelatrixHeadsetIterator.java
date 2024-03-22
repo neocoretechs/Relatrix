@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 /**
- * Our main representable analog. Instances of this class deliver the set of identity {@link Morphism}s, or
+ *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
  * deliver sets of compositions of {@link Morphism}s representing new group homomorphisms as functors. More plainly, an array of iterators is returned representing the
  * N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} elements in next(), since 1 full tuple element at an iteration is returned, that being the identity morphism.
@@ -33,6 +33,7 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
 	public static boolean DEBUG = true;
+	public static boolean DEBUGITERATION = false;
 	protected String alias = null;
 	protected Iterator iter;
     protected Morphism buffer = null;
@@ -73,7 +74,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
      */
     public RelatrixHeadsetIterator(Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	if(DEBUG)
-    		System.out.printf("%s %s %s%n", this.getClass().getName(), template, Arrays.toString(dmr_return));
+    		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
        	this.base = template;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
@@ -107,7 +108,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     			});
     		
     		if(DEBUG)
-    			System.out.println("Keys:"+dkey.size()+", "+mkey.size()+", "+rkey.size());
+    			System.out.printf("Keys: %d,%d,%d, ranges: lod:%s, hid:%s, lom:%s, him:%s, lor:%s, hir:%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,dkeyHi,mkeyLo,mkeyHi,rkeyLo,rkeyHi);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -130,10 +131,47 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			xdmr.setRangeKey(rkeyLo);
 			ydmr.setRangeKey(rkeyHi);
 		}
+		getMorphismRange(xdmr, ydmr, dkey, mkey, rkey, resultSet);
+		if(DEBUG)
+			System.out.println("Result set size:"+resultSet.size());
+    	iter = resultSet.values().iterator();
+    	if( iter.hasNext() ) {
+    		try {
+				buffer = (Morphism) RelatrixKV.get((Comparable<?>) iter.next()); // primary DBKey for Morphism
+			} catch (IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			}
+			if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
+				buffer = null;
+				needsIter = false;
+			}
+    	} else {
+    		buffer = null;
+    		needsIter = false;
+    	}
+    	if( DEBUG )
+			System.out.println("RelatrixHeadsetIterator hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
+    }
+    /**
+     * Populate the TreeMap param with DBKeys ordered by indexes in dkey, mkey and rkey from the range of Morphisms
+     * designated by xdmr lower bound inclusive to ydmr upper bound inclusive. The order is created by using the
+     * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
+     * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap.
+     * @param xdmr lower bound for Morphism search
+     * @param ydmr upper bound for Morphism search
+     * @param dkey ArrayList of domain keys in order based on endargs from findSet
+     * @param mkey ArrayList of map key in order based on endargs from findSet
+     * @param rkey ArrayList of range keys in order based on endargs from findSet
+     * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
+     * @throws IOException
+     */
+    public static void getMorphismRange(Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
-    		RelatrixKV.findSubMapKVStream(xdmr, ydmr).forEach(e ->{
+    		RelatrixKV.findTailMapKVStream(xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
+    			if(m.getKey().compareTo(ydmr) > 0)
+    				return;
     			Result3 r = new Result3();
     			boolean insert = true;
     			r.set(0,0);
@@ -171,28 +209,11 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
-    	iter = resultSet.values().iterator();
-    	if( iter.hasNext() ) {
-    		try {
-				buffer = (Morphism) RelatrixKV.get((Comparable<?>) iter.next()); // primary DBKey for Morphism
-			} catch (IllegalAccessException | IOException e) {
-				throw new RuntimeException(e);
-			}
-			if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-				buffer = null;
-				needsIter = false;
-			}
-    	} else {
-    		buffer = null;
-    		needsIter = false;
-    	}
-    	if( DEBUG )
-			System.out.println("RelatrixHeadsetIterator hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
     public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
-     	if(DEBUG)
+     	if(DEBUGITERATION)
     		System.out.printf("%s %s %s%n", this.getClass().getName(), template, Arrays.toString(dmr_return));
     	this.buffer = template;
     	this.dmr_return = dmr_return;
@@ -202,7 +223,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     
 	@Override
 	public boolean hasNext() {
-		if( DEBUG )
+		if( DEBUGITERATION )
 			System.out.println("RelatrixHeadsetIterator.hasNext() "+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
 		return needsIter;
 	}
@@ -211,8 +232,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	public Result next() {
 		try {
 		if( buffer == null || needsIter) {
-			if( DEBUG ) {
-	    			System.out.println("RelatrixHeadsetIterator.next() before iteration hasNext::"+iter.hasNext()+" needsIter:"+needsIter+", buffer:"+buffer+", nextit"+nextit);
+			if( DEBUGITERATION ) {
+	    			System.out.println("RelatrixHeadsetIterator.next() before iteration hasNext:"+iter.hasNext()+" needsIter:"+needsIter+", buffer:"+buffer+", nextit"+nextit);
 			}
 			if( nextit != null )
 				buffer = nextit;
@@ -233,7 +254,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			}
 		}
 		// always return using this with non null buffer
-		if( DEBUG ) {
+		if( DEBUGITERATION ) {
 			System.out.println("RelatrixIterator.next() template match after iteration hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
 		}
 		return iterateDmr();
@@ -266,14 +287,14 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	    // no return vals? send back Relate location
 	    if( identity ) {
 	    	tuples.set(0, buffer);
-	    	if(DEBUG)
+	    	if(DEBUGITERATION)
 				System.out.println("RelatrixHeadSetIterator iterateDmr returning identity tuples:"+tuples);
 	    	return tuples;
 	    }
 	    dmr_return[0] = 0;
 	    for(int i = 0; i < tuples.length(); i++)
 	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
-		if(DEBUG)
+		if(DEBUGITERATION)
 			System.out.println("RelatrixHeadSetIterator iterateDmr returning tuples:"+tuples);
 		return tuples;
 	}
