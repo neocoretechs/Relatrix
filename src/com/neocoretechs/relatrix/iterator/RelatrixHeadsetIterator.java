@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
  *
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	public static boolean DEBUGITERATION = false;
 	protected String alias = null;
 	protected Iterator iter;
@@ -44,7 +44,6 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     protected boolean needsIter = true;
 	protected Morphism template;
     protected boolean identity = false;
-
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
     protected ArrayList<DBKey> mkey = new ArrayList<DBKey>();

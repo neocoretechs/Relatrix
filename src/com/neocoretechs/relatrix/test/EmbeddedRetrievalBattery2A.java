@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class EmbeddedRetrievalBattery2A {
 	public static boolean DEBUG = false;
 	public static boolean DISPLAY = false;
-	public static int displayLinesOn[]= {0,1000,5000,9900};
+	public static int displayLinesOn[]= {0,1000,4500,9900};
 	public static int displayLinesOff[]= {100,1100,5100,9999};
 	public static int displayLine = 0;
 	public static int displayLineCtr = 0;
@@ -109,8 +109,8 @@ public class EmbeddedRetrievalBattery2A {
 		Iterator<?> it = null;
 		System.out.println("Mixed Headset queries:");
 		displayLine = 0;
-		System.out.println("1.) FindHeadset(?,?,?,String.class, String.class,"+(new Long(max/2))+");");
-		it =  Relatrix.findHeadSet("?", "?", "?",String.class, String.class, new Long(max/2));
+		System.out.println("1.) FindHeadset(?,?,?,String.class, String.class, Long.class");
+		it =  Relatrix.findHeadSet("?", "?", "?",String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result3 c = (Result3)o;
@@ -278,6 +278,186 @@ public class EmbeddedRetrievalBattery2A {
 		displayLine =0;
 		System.out.println("17.) FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+(ar3.get(0)).get(2));
 		it = Relatrix.findHeadSet("*","*","*",String.class, ar3.get(0).get(1), ar3.get(0).get(2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		//------------------------------------------------------------------
+		// same but with regions
+		//
+		displayLine = 0;
+		System.out.println("18.) FindHeadset(?,?,?,String.class, String.class,"+(new Long(max/2))+");");
+		it =  Relatrix.findHeadSet("?", "?", "?",String.class, String.class, new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result3 c = (Result3)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+			ar3.add(c);
+		}
+		displayLine = 0;
+		System.out.println("19.) FindHeadSet(?,?,?,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","?","?",ar3.get(0).get(0),ar3.get(0).get(1), new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine=0;
+		//RelatrixHeadsetIterator.DEBUG = true;
+		displayLine = 0;
+		System.out.println("20.) FindHeadSet(*,?,?,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","?","?",ar3.get(0).get(0), ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine = 0;
+		//RelatrixHeadsetIterator.DEBUG = true;
+		System.out.println("21.) FindHeadSet(*,?,*,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","?","*",ar3.get(0).get(0), ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("22.) FindHeadSet(?,*,*,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","*","*",ar3.get(0).get(0), ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("23.) FindHeadSet(?,*,?,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","*","?",ar3.get(0).get(0), ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("24.) FindHeadSet(?,?,*,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","?","*",ar3.get(0).get(0), ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("25.) FindHeadSet(*,*,?,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","*","?",ar3.get(0).get(0), ar3.get(0).get(1), new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("26.) FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+(ar3.get(0)).get(0)+","+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","*","*",ar3.get(0).get(0), ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine = 0;
+		System.out.println("27.) FindHeadSet(?,?,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","?","?",String.class,ar3.get(0).get(1), new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine=0;
+		//RelatrixHeadsetIterator.DEBUG = true;
+		displayLine = 0;
+		System.out.println("28.) FindHeadSet(*,?,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","?","?",String.class, ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine = 0;
+		//RelatrixHeadsetIterator.DEBUG = true;
+		System.out.println("29.) FindHeadSet(*,?,*,<obj>,<obj>,<obj>) using = String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","?","*",String.class, ar3.get(0).get(1), new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("30.) FindHeadSet(?,*,*,<obj>,<obj>,<obj>) using = String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","*","*",String.class, ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("31.) FindHeadSet(?,*,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","*","?",String.class, ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("32.) FindHeadSet(?,?,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("?","?","*",String.class, ar3.get(0).get(1),  new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("33.) FindHeadSet(*,*,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","*","?",String.class, ar3.get(0).get(1), new Long(max/2));
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+		}
+		displayLine =0;
+		System.out.println("34.) FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(0)).get(1)+","+ new Long(max/2));
+		it = Relatrix.findHeadSet("*","*","*",String.class, ar3.get(0).get(1),  new Long(max/2));
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
