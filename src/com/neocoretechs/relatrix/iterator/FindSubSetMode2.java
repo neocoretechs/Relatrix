@@ -36,23 +36,17 @@ public class FindSubSetMode2 extends FindSetMode2 {
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
-		Morphism zdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
-			zdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
-				zdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
+				ydmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
-				zdmr.setDomain((Comparable)endarg[argCtr++]);
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
+				ydmr.setDomain((Comparable)endarg[argCtr++]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
@@ -60,46 +54,36 @@ public class FindSubSetMode2 extends FindSetMode2 {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				tdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
-				zdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
+				ydmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				tdmr.setRange((Comparable)endarg[argCtr++]);
+				xdmr.setRange((Comparable)endarg[argCtr++]);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				zdmr.setRange((Comparable)endarg[argCtr]);
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				ydmr.setRange((Comparable)endarg[argCtr]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixSubsetIterator(tdmr, zdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIterator(tdmr, xdmr, ydmr, dmr_return);
 	}
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
-		Morphism zdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
-			zdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
-				zdmr.setDomain((Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
+				ydmr.setDomain(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
-				zdmr.setDomain((Comparable)endarg[argCtr++]);
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias,(Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
+				ydmr.setDomain(alias,(Comparable)endarg[argCtr++]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
@@ -107,22 +91,18 @@ public class FindSubSetMode2 extends FindSetMode2 {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				tdmr.setRange((Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
-				zdmr.setRange((Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
+				ydmr.setRange(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				tdmr.setRange((Comparable)endarg[argCtr++]);
+				xdmr.setRange(alias,(Comparable)endarg[argCtr++]);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				zdmr.setRange((Comparable)endarg[argCtr]);
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				ydmr.setRange(alias,(Comparable)endarg[argCtr]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixSubsetIterator(alias, tdmr, zdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
 	}
 }

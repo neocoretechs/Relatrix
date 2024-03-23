@@ -59,7 +59,7 @@ public class RelatrixTailsetStreamTransaction<T> extends RelatrixTailsetStream<T
      */
     public RelatrixTailsetStreamTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	try {
-    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixTailsetIteratorTransaction(xid, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixTailsetIteratorTransaction(xid, template, templateo, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
@@ -78,7 +78,7 @@ public class RelatrixTailsetStreamTransaction<T> extends RelatrixTailsetStream<T
     public RelatrixTailsetStreamTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	try {
 			//stream = RelatrixKV.findHeadMapStream(alias, template);
-      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixTailsetIteratorTransaction(alias, xid, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixTailsetIteratorTransaction(alias, xid, template, templateo, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);

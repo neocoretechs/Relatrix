@@ -33,7 +33,7 @@ import com.neocoretechs.relatrix.key.DBKey;
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.
  * 
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024
  *
  */
 public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator {
@@ -47,7 +47,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIteratorTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIteratorTransaction(String xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
     	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
@@ -130,7 +130,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			System.out.println("RelatrixHeadsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
-    public RelatrixHeadsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)

@@ -28,10 +28,8 @@ public class FindTailSetMode6Transaction extends FindSetMode6Transaction {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
@@ -41,16 +39,14 @@ public class FindTailSetMode6Transaction extends FindSetMode6Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-	    return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+	    return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
@@ -60,6 +56,6 @@ public class FindTailSetMode6Transaction extends FindSetMode6Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-	    return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+	    return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}
 }

@@ -33,65 +33,53 @@ public class FindSubSetMode5 extends FindSetMode5 {
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
-		Morphism zdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
-			zdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				tdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
+				xdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				zdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				ydmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				tdmr.setMap((Comparable)endarg[argCtr++]);
+				xdmr.setMap((Comparable)endarg[argCtr++]);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				zdmr.setMap((Comparable)endarg[argCtr++]);
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				ydmr.setMap((Comparable)endarg[argCtr++]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixSubsetIterator(tdmr, zdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIterator(tdmr, xdmr, ydmr, dmr_return);
 	}
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
-		Morphism zdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
-			zdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				tdmr.setMap((Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
+				xdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				zdmr.setMap((Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				ydmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				tdmr.setMap((Comparable)endarg[argCtr++]);
+				xdmr.setMap(alias,(Comparable)endarg[argCtr++]);
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				zdmr.setMap((Comparable)endarg[argCtr++]);
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				ydmr.setMap(alias,(Comparable)endarg[argCtr++]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixSubsetIterator(alias, tdmr, zdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
 	}
 }

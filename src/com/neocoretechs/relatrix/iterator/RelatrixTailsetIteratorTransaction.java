@@ -39,7 +39,7 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
  * case of a concrete instance, the ordered tailset from that instance (inclusive) to the end is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.
  * 
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024
  *
  */
 public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator {
@@ -53,7 +53,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixTailsetIteratorTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorTransaction(String xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
        	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
@@ -136,7 +136,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 			System.out.println("RelatrixTailsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
-    public RelatrixTailsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixTailsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
       	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)

@@ -25,10 +25,8 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone(); // concrete instance in range
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
@@ -46,7 +44,7 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixHeadsetIterator(tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
 	}
 
 	@Override
@@ -59,28 +57,20 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setDomain(alias, (Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias, (Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
 			} else {
-				tdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
-				xdmr.setDomainKey(tdmr.getDomainKey());
-				ydmr.setDomainKey(tdmr.getDomainKey());
+				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				tdmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[1]));
-				xdmr.setMapKey(DBKey.nullDBKey); // full range
-				ydmr.setMapKey(DBKey.fullDBKey);
+				xdmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[1]));
 			} else {
-				tdmr.setMap(alias,(Comparable)endarg[1]);
-				xdmr.setMapKey(tdmr.getMapKey());
-				ydmr.setMapKey(tdmr.getMapKey());
+				xdmr.setMap(alias,(Comparable)endarg[1]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
 	}
 }

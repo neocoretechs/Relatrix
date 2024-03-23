@@ -30,10 +30,8 @@ public class FindHeadSetMode6 extends FindSetMode6 {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
@@ -43,29 +41,23 @@ public class FindHeadSetMode6 extends FindSetMode6 {
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-	    return new RelatrixHeadsetIterator(tdmr, xdmr, ydmr, dmr_return);
+	    return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setRange(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
-				xdmr.setRangeKey(DBKey.nullDBKey); // full range
-				ydmr.setRangeKey(DBKey.fullDBKey);
+				xdmr.setRange(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
 			} else {
-				tdmr.setRange(alias,(Comparable)endarg[0]);
-				xdmr.setRangeKey(tdmr.getRangeKey());
-				ydmr.setRangeKey(tdmr.getRangeKey());
+				xdmr.setRange(alias,(Comparable)endarg[0]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-	    return new RelatrixHeadsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
+	    return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
 	}
 }

@@ -38,7 +38,7 @@ public class RelatrixSubsetStreamTransaction<T> extends RelatrixSubsetStream<T> 
     	this.dmr_return = dmr_return;
     	try {
 			//stream = RelatrixKVTransaction.findSubMapStream(xid, template, template2);
-      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIteratorTransaction(xid, template, templatez, templateo, templatep, dmr_return), RelatrixKV.characteristics);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIteratorTransaction(xid, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
@@ -56,7 +56,7 @@ public class RelatrixSubsetStreamTransaction<T> extends RelatrixSubsetStream<T> 
     	this.dmr_return = dmr_return;
     	try {
 			//stream = RelatrixKVTransaction.findSubMapStream(xid, template, template2);
-      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIteratorTransaction(alias, xid, template, templatez, templateo, templatep, dmr_return), RelatrixKV.characteristics);
+      		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixSubsetIteratorTransaction(alias, xid, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);

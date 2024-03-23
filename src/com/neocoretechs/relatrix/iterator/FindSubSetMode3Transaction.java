@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 
@@ -34,53 +33,41 @@ public class FindSubSetMode3Transaction extends FindSetMode3Transaction {
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
-		Morphism zdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
-			zdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[argCtr]));
-				zdmr.setDomain((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[argCtr++]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[argCtr]));
+				ydmr.setDomain((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[argCtr++]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
-				zdmr.setDomain((Comparable)endarg[argCtr++]);
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
+				ydmr.setDomain((Comparable)endarg[argCtr++]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
-		return new RelatrixSubsetIterator(tdmr, zdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
 	}
 
 	@Override
 	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
-		Morphism zdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
-			zdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				tdmr.setDomain((Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
-				zdmr.setDomain((Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
+				ydmr.setDomain(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
 			} else {
-				tdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
-				zdmr.setDomain((Comparable)endarg[argCtr++]);
-				xdmr.setDomainKey(DBKey.nullDBKey); // full range
-				ydmr.setDomainKey(DBKey.fullDBKey);
+				xdmr.setDomain(alias,(Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
+				ydmr.setDomain(alias,(Comparable)endarg[argCtr++]);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
-		return new RelatrixSubsetIterator(alias, tdmr, zdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
 	}
 }

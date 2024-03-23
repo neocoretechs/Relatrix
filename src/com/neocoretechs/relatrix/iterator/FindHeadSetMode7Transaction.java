@@ -31,7 +31,7 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 
 	@Override
@@ -42,6 +42,6 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 			xdmr = (Morphism) tdmr.clone();
 			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}
 }

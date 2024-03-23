@@ -35,7 +35,7 @@ public class RelatrixHeadsetStreamTransaction<T> extends RelatrixHeadsetStream<T
     public RelatrixHeadsetStreamTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	try {
 			//stream = RelatrixKVTransaction.findHeadMapStream(xid, template);
-     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIteratorTransaction(xid, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
+     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIteratorTransaction(xid, template, templateo, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
@@ -50,7 +50,7 @@ public class RelatrixHeadsetStreamTransaction<T> extends RelatrixHeadsetStream<T
     public RelatrixHeadsetStreamTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	try {
 			//stream = RelatrixKVTransaction.findHeadMapStream(xid, template);
-     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIteratorTransaction(alias, xid, template, templateo, templatep, dmr_return), RelatrixKV.characteristics);
+     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixHeadsetIteratorTransaction(alias, xid, template, templateo, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);

@@ -37,7 +37,7 @@ import com.neocoretechs.relatrix.key.DBKey;
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.
  * 
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024
  *
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
@@ -72,13 +72,12 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param template the findset operators and/or concrete object instances from findSet call
      * @param templateo the endargs lower bound original findset call
-     * @param templatep the endargs upper bound (if any) from original findset else null
      * @param dmr_return findSet operator order and tuple return control
      * @throws IOException 
      */
-    public RelatrixHeadsetIterator(Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIterator(Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
     	if(DEBUG)
-    		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
+    		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
        	this.base = template;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
@@ -161,16 +160,15 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
      * @param alias
      * @param template the findset operators and/or concrete object instances from findSet call
      * @param templateo the endargs lower bound original findset call
-     * @param templatep the endargs upper bound (if any) from original findset else null
      * @param dmr_return findSet operator order and tuple return control
      * @param dmr_return
      * @throws IOException
      * @throws NoSuchElementException
      */
-    public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIterator(String alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
       	if(DEBUG)
-    		System.out.printf("%s alias:%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, templatep, Arrays.toString(dmr_return));
+    		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));
     	this.base = template;
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
