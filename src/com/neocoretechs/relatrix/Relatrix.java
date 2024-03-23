@@ -17,12 +17,11 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.relatrix.stream.StreamFactory;
+import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -1123,20 +1122,14 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
-		return sfact.createStream();
+		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		return new RelatrixStream(ifact.createIterator());
 	}
 
 	public static synchronized Stream<?> findStream(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//IteratorFactory ifact = IteratorFactory.createFactory(alias, darg, marg, rarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createFactory(darg, marg, rarg);
-		return sfact.createStream(alias);
+		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
+		return new RelatrixStream(ifact.createIterator(alias));	
 	}
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
@@ -1181,20 +1174,14 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		StreamFactory sfact = StreamFactory.createTailsetFactory(darg, marg, rarg, endarg);
-		return sfact.createStream();
-		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
+		return new RelatrixStream(ifact.createIterator());
 	}
 
 	public static synchronized Stream<?> findTailStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		StreamFactory sfact = StreamFactory.createTailsetFactory(darg, marg, rarg, endarg);
-		return sfact.createStream(alias);
-		//IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
+		return new RelatrixStream(ifact.createIterator(alias));
 	}
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
@@ -1245,22 +1232,14 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference in our headset factory
-		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg, endarg);
-		return sfact.createStream();
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg, endarg);
+		return new RelatrixStream(ifact.createIterator());
 	}
 
 	public static synchronized Stream<?> findHeadStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference in our headset factory
-		//IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createHeadsetFactory(darg, marg, rarg, endarg);
-		return sfact.createStream(alias);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg, endarg);
+		return new RelatrixStream(ifact.createIterator(alias));
 	}
 	/**
 	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three.
@@ -1334,11 +1313,8 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createSubsetFactory(darg, marg, rarg, endarg);
-		return sfact.createStream();
+		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+		return new RelatrixStream(ifact.createIterator());
 	}
 	/**
 	 * Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
@@ -1356,11 +1332,8 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> findSubStreamAlias(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		//IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
-		//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
-		//return (Stream<?>) StreamSupport.stream(spliterator, true);
-		StreamFactory sfact = StreamFactory.createSubsetFactory(darg, marg, rarg, endarg);
-		return sfact.createStream(alias);
+		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
+		return new RelatrixStream(ifact.createIterator(alias));	
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange

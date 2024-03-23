@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	 */
 	public abstract class IteratorFactory {
 		private static boolean DEBUG = false; 
-	    private static char dop, mop, rop;
+	    protected static char dop, mop, rop;
 		
 		/**
 		 * Create the iterator. Factory method, abstract.

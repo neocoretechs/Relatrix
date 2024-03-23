@@ -945,14 +945,9 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static synchronized Iterator<?> findTailSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Iterator<?> findTailSet(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactoryTransaction(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
 	
@@ -976,14 +971,9 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if alias doesnt exist
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static synchronized Iterator<?> findTailSet(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Iterator<?> findTailSet(String alias, String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailSet must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactoryTransaction(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
 	}
 	
@@ -1006,14 +996,9 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 */
-	public static synchronized Stream<?> findTailStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Stream<?> findTailStream(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactoryTransaction(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
@@ -1039,14 +1024,9 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchELementException if the alias isnt found
 	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 */
-	public static synchronized Stream<?> findTailStream(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Stream<?> findTailStream(String alias, String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findTailStream must contain an object reference");
-		IteratorFactory ifact = IteratorFactory.createFactoryTransaction(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createTailsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
@@ -1069,10 +1049,10 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @return the headset iterator
 	 */
-	public static synchronized Iterator<?> findHeadSet(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Iterator<?> findHeadSet(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
 	
@@ -1096,10 +1076,10 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchelementExcpetion if the alias isnt found
 	 * @return The iterator for headset
 	 */
-	public static synchronized Iterator<?> findHeadSet(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Iterator<?> findHeadSet(String alias, String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
 	}
 	
@@ -1122,10 +1102,10 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @return head stream stream
 	 */
-	public static synchronized Stream<?> findHeadStream(String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static synchronized Stream<?> findHeadStream(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactoryTransaction(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
@@ -1151,10 +1131,10 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchelementException if alias doesnt exist
 	 * @return the head stream
 	 */
-	public static synchronized Stream<?> findHeadStream(String alias, String xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static synchronized Stream<?> findHeadStream(String alias, String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
-		IteratorFactory ifact = IteratorFactory.createHeadsetFactoryTransaction(xid, darg, marg, rarg);
+		IteratorFactory ifact = IteratorFactory.createHeadsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
@@ -1186,17 +1166,6 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Iterator<?> findSubSet(String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
-			int numberObjects = 0;
-			if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-			if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-			if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-			if( numberObjects != endarg.length)
-				throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 			IteratorFactory ifact = IteratorFactory.createSubsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 			return ifact.createIterator();
 	}
@@ -1228,17 +1197,6 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Iterator<?> findSubSet(String alias, String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubSet must contain an object reference");
-			int numberObjects = 0;
-			if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-			if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-			if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-			if( numberObjects != endarg.length)
-				throw new IllegalArgumentException("The number of arguments to the ending range of findSubSet must match the number of objects declared for the starting range");
 			IteratorFactory ifact = IteratorFactory.createSubsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 			return ifact.createIterator(alias);
 	}
@@ -1271,17 +1229,6 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Stream<?> findSubStream(String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubStream must contain an object reference");
-		int numberObjects = 0;
-		if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( numberObjects != endarg.length)
-			throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
 		IteratorFactory ifact = IteratorFactory.createSubsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);
@@ -1317,17 +1264,6 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Stream<?> findSubStream(String alias, String xid, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		if( (darg.equals(OPERATOR_WILDCARD) || darg.equals(OPERATOR_TUPLE)) && 
-				(marg.equals(OPERATOR_WILDCARD) || marg.equals(OPERATOR_TUPLE)) &&
-				(rarg.equals(OPERATOR_WILDCARD) || rarg.equals(OPERATOR_TUPLE))) 
-			throw new IllegalArgumentException("At least one argument to findSubStream must contain an object reference");
-		int numberObjects = 0;
-		if( !darg.equals(OPERATOR_WILDCARD) && !darg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !marg.equals(OPERATOR_WILDCARD) && !marg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( !rarg.equals(OPERATOR_WILDCARD) && !rarg.equals(OPERATOR_TUPLE) ) ++numberObjects;
-		if( numberObjects != endarg.length)
-			throw new IllegalArgumentException("The number of arguments to the ending range of findSubStream must match the number of objects declared for the starting range");
 		IteratorFactory ifact = IteratorFactory.createSubsetFactoryTransaction(xid, darg, marg, rarg, endarg);
 		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ifact.createIterator(alias), characteristics);
 		return (Stream<?>) StreamSupport.stream(spliterator, true);

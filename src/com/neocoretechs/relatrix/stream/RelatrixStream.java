@@ -31,6 +31,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
@@ -80,12 +81,20 @@ public class RelatrixStream<T> implements Stream<T> {
     	try {
     		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixIterator(template, dmr_return), RelatrixKV.characteristics);
     		stream = StreamSupport.stream(spliterator, true);
-			//stream = RelatrixKV.findTailMapKVStream(template);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
+    }
+    
+    public RelatrixStream(Iterator<?> setIterator) throws IOException {
+    	try {
+    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(setIterator, RelatrixKV.characteristics);
+    		stream = StreamSupport.stream(spliterator, true);
+		} catch (IllegalArgumentException e) {
+			throw new IOException(e);
+		}
     }
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
