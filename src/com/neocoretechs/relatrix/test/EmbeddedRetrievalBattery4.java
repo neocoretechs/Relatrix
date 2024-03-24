@@ -221,9 +221,11 @@ public class EmbeddedRetrievalBattery4 {
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. They should produce relationships with these elements");
 		displayLine = 0;
-		System.out.println("9.) findSubSet(<obj>,<obj>,<obj>) using ="+((Result)ar3.get(0)).get(0)+","+((Result)ar3.get(0)).get(1)+","+((Result)ar3.get(0)).get(2));
-		it = Relatrix.findSubSet(((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2),
-				((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2));
+		System.out.println("9.) findSubSet(<obj>,<obj>,<obj>) using ="+
+		((Result)ar3.get(0)).get(0)+",("+((Result)ar3.get(0)).get(0).getClass().getName()+"),"+
+		((Result)ar3.get(0)).get(1)+",("+((Result)ar3.get(0)).get(1).getClass().getName()+"),"+
+		((Result)ar3.get(0)).get(2)+",("+((Result)ar3.get(0)).get(2).getClass().getName());
+		it = Relatrix.findSubSet(((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2));
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -367,6 +369,46 @@ public class EmbeddedRetrievalBattery4 {
 		displayLine =0;
 		System.out.println("21.) findSubSet(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
 		it = Relatrix.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",Long.class);
+		//ar = new ArrayList<Comparable>();
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+			//if(ar2.size() == 2) ar2.add(c);
+		}
+		Long lo = (max/2000L);
+		Long hi = (max/1000L);
+		displayLine =0;
+		System.out.println("22.) findSubSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range="+lo+" to "+hi);		
+		it = Relatrix.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",lo,hi);
+		//ar = new ArrayList<Comparable>();
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+			//if(ar2.size() == 2) ar2.add(c);
+		}
+		lo+=1000L;
+		hi+=1000L;
+		System.out.println("23.) findSubSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range="+lo+" to "+hi);		
+		it = Relatrix.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",lo,hi);
+		//ar = new ArrayList<Comparable>();
+		while(it.hasNext()) {
+			Object o = it.next();
+			Result c = (Result)o;
+			displayCtrl();
+			if(DISPLAY)
+				System.out.println(displayLine+"="+c);
+			//if(ar2.size() == 2) ar2.add(c);
+		}
+		lo+=1000L;
+		hi+=1000L;
+		System.out.println("23.) findSubSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range="+lo+" to "+hi);		
+		it = Relatrix.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",lo,hi);
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
