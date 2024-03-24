@@ -42,7 +42,7 @@ import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 * @author Jonathan Groff (C) NeoCoreTechs 1999, 2000, 2020
 */
 public class HandlerClassLoader extends ClassLoader {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGSETREPOSITORY = true;
     private static ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
     private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
@@ -72,6 +72,21 @@ public class HandlerClassLoader extends ClassLoader {
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}
+    }
+    public HandlerClassLoader(ClassLoader parent, boolean hasRemote) {
+       	super(parent);
+    	this.parent = parent;
+    	if(hasRemote) {
+         	try {
+        		String remote = System.getenv("RemoteClassLoader");
+        		if(remote != null) {
+        			String hostName = InetAddress.getLocalHost().getHostName();
+        			connectToRemoteRepository(hostName, remote, 9999);
+        		}
+    		} catch (IllegalAccessException | IOException e) {
+    			e.printStackTrace();
+    		}
+    	}
     }
     /**
      * Variation when local and remote are assumed to be this node and port is default 9999
@@ -190,6 +205,14 @@ public class HandlerClassLoader extends ClassLoader {
         		System.out.println("DBUG:"+this+".loadClass exit cache hit:"+c+" for "+name+" resolve="+resolve);
             return c;
         }
+        if( c == null && parent != null) {
+        	if(DEBUG)
+        		System.out.println("Trying parent classloader:"+parent+" for "+name);
+        	try {
+        		c = parent.loadClass(name);
+        	} catch(ClassNotFoundException cnf) {}
+        }
+        //
         // this is our last chance, otherwise noClassDefFoundErr and we're screwed
         if (c == null) {
                 byte[] bytecodes = classNameAndBytecodes.get(name);

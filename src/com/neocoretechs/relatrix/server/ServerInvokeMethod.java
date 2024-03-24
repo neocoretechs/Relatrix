@@ -21,63 +21,70 @@ public final class ServerInvokeMethod {
     int skipArgIndex;
     private Method[] methods;
     private RelatrixMethodNamesAndParams pkmnap = new RelatrixMethodNamesAndParams();
-    HandlerClassLoader hcl = new HandlerClassLoader();
+    HandlerClassLoader hcl;
 
     public RelatrixMethodNamesAndParams getMethodNamesAndParams() { return pkmnap; }
-    /**
-    * This constructor populates this object with reflected methods from the
-    * designated class.  Reflect hierarchy in reverse (to get proper
-    * overload) and look for methods
-    * @param tclass The class name we are targeting
-    * @param skipArgs > 0 if we want to skip first args.
-    */
-    public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {  
-            //pkmnap.classClass = Class.forName(tclass);
-    		// Use custom classloader?
-    		pkmnap.classClass = hcl.loadClass(tclass, true);
-            pkmnap.className = pkmnap.classClass.getName();
-            skipArgs = tskipArgs;
-            skipArgIndex = skipArgs;
-            Method m[];
-            m = pkmnap.classClass.getMethods();
-            for(int i = m.length-1; i >= 0 ; i--) {
-                    //if( m[i].getName().startsWith("Relatrix_") ) {
-                            pkmnap.methodNames.add(m[i].getName()/*.substring(9)*/);
-                            System.out.println("Method :"+m[i].getName()/*.substring(9)*/);
-                    //}
-            }
-            // create arrays
-            methods = new Method[pkmnap.methodNames.size()];
-            pkmnap.methodParams = new Class[pkmnap.methodNames.size()][];
-            pkmnap.methodSigs = new String[pkmnap.methodNames.size()];
-            pkmnap.returnTypes = new Class[pkmnap.methodNames.size()];
-            int methCnt = 0;
-            //
-            for(int i = m.length-1; i >= 0 ; i--) {
-                    //if( m[i].getName().startsWith("Relatrix_") ) {
-                            pkmnap.methodParams[methCnt] = m[i].getParameterTypes();
-                            pkmnap.methodSigs[methCnt] = m[i].toString();
-                            pkmnap.returnTypes[methCnt] = m[i].getReturnType();
-                            if( pkmnap.returnTypes[methCnt] == void.class ) 
-                                pkmnap.returnTypes[methCnt] = Void.class;
-                            //int ind1 = pkmnap.methodSigs[methCnt].indexOf("Relatrix_");
-                            //pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+9);
-                            if( skipArgs > 0) {
-                               try {
-                                    int ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
-                                    int ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind1);
-                                    ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
-                                    ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
-                                    pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1+1)+pkmnap.methodSigs[methCnt].substring(ind2+1);
-                               } catch(StringIndexOutOfBoundsException sioobe) {
-                                    System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped)");
-                               }
-                            }
-                            methods[methCnt++] = m[i];
-                       // }
-            }
-       }
     
+    public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {
+    	hcl = new HandlerClassLoader();
+    	init(tclass, skipArgs);
+    }
+    /**
+     * This constructor populates this object with reflected methods from the
+     * designated class.  Reflect hierarchy in reverse (to get proper
+     * overload) and look for methods
+     * @param tclass The class name we are targeting
+     * @param skipArgs > 0 if we want to skip first args.
+     */
+    public ServerInvokeMethod(ClassLoader cl, String tclass, int tskipArgs, boolean hasRemote) throws ClassNotFoundException {  
+    	hcl = new HandlerClassLoader(cl, hasRemote);
+    	init(tclass,skipArgs);
+    }
+
+    private void init(String tclass, int tskipArgs) throws ClassNotFoundException {
+    	pkmnap.classClass = hcl.loadClass(tclass, true);
+    	pkmnap.className = pkmnap.classClass.getName();
+    	skipArgs = tskipArgs;
+    	skipArgIndex = skipArgs;
+    	Method m[];
+    	m = pkmnap.classClass.getMethods();
+    	for(int i = m.length-1; i >= 0 ; i--) {
+    		//if( m[i].getName().startsWith("Relatrix_") ) {
+    		pkmnap.methodNames.add(m[i].getName()/*.substring(9)*/);
+    		System.out.println("Method :"+m[i].getName()/*.substring(9)*/);
+    		//}
+    	}
+    	// create arrays
+    	methods = new Method[pkmnap.methodNames.size()];
+    	pkmnap.methodParams = new Class[pkmnap.methodNames.size()][];
+    	pkmnap.methodSigs = new String[pkmnap.methodNames.size()];
+    	pkmnap.returnTypes = new Class[pkmnap.methodNames.size()];
+    	int methCnt = 0;
+    	//
+    	for(int i = m.length-1; i >= 0 ; i--) {
+    		//if( m[i].getName().startsWith("Relatrix_") ) {
+    		pkmnap.methodParams[methCnt] = m[i].getParameterTypes();
+    		pkmnap.methodSigs[methCnt] = m[i].toString();
+    		pkmnap.returnTypes[methCnt] = m[i].getReturnType();
+    		if( pkmnap.returnTypes[methCnt] == void.class ) 
+    			pkmnap.returnTypes[methCnt] = Void.class;
+    		//int ind1 = pkmnap.methodSigs[methCnt].indexOf("Relatrix_");
+    		//pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+9);
+    		if( skipArgs > 0) {
+    			try {
+    				int ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
+    				int ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind1);
+    				ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
+    				ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
+    				pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1+1)+pkmnap.methodSigs[methCnt].substring(ind2+1);
+    			} catch(StringIndexOutOfBoundsException sioobe) {
+    				System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped)");
+    			}
+    		}
+    		methods[methCnt++] = m[i];
+    		// }
+    	}
+    }
        /**
     	 * Call invocation for static methods in target class
     	 * @param tmc

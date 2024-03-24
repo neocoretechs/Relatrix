@@ -11,7 +11,7 @@ public class GenerateClientBindings {
 		// TODO Auto-generated constructor stub
 	}
 	public static void main(String[] args) throws Exception {
-		ServerInvokeMethod sim = new ServerInvokeMethod(args[0], 0);
+		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(),args[0], 0, false);
 		RelatrixMethodNamesAndParams rmnap = sim.getMethodNamesAndParams();
 		for(String method : rmnap.methodNames) {
 			int mnum = rmnap.getMethodIndex(method);
