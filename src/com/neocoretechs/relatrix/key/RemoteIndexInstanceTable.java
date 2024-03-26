@@ -48,13 +48,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			DBKey retKey = getByInstance(instance);
 			if(instance == null) {
 				DBKey index = getNewDBKey();
-				try {
-					rc.store(index, instance);
-					rc.store(instance, index);
-					return index;
-				} catch(DuplicateKeyException dke) {
-					throw new IOException(dke);
-				}
+				//rc.store(index, instance);
+				//rc.store(instance, index);
+				return index;
 			}
 			return retKey;
 	}
@@ -90,9 +86,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		Comparable instance = null;
 		instance = (Comparable) getByIndex(index);
 		if(instance != null) {
-				rc.remove(instance);
+				//rc.remove(instance);
 		}
-		rc.remove(index);
+		//rc.remove(index);
 	}
 	
 	@Override
@@ -153,7 +149,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return (DBKey)rc.get((Comparable) instance);
+		return null;//(DBKey)rc.get((Comparable) instance);
 	}
 
 	/**

@@ -9,18 +9,21 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-
+import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
@@ -78,7 +81,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote(this);
+		IndexResolver.setRemote((RelatrixClientInterface) this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -166,7 +169,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
 			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
@@ -180,9 +182,8 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 	}
 	
-	@Override
 	public Object sendCommand(RelatrixStatementInterface rs) throws DuplicateKeyException, IllegalAccessException, IOException {
-		IndexResolver.setRemote(this);
+		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -205,7 +206,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		return o;
 	}
 	
-	@Override
 	public void close() {
 		shouldRun = false;
 		try {
@@ -243,58 +243,18 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 	
 	
-	@Override
 	public String getLocalNode() {
 		return bootNode;
 	}
 	
-	@Override
 	public String getRemoteNode() {
 		return remoteNode;
 	}
 	
-	@Override
 	public int getRemotePort( ) {
 		return remotePort;
 	}
-	/**
-	 * Get DBKey from the DBKey table
-	 * @return The new key
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
-	 * @throws IOException 
-	 */
-	@Override
-	public UUID getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixStatement rs = new RelatrixStatement("getNewKey",(Object[])null);
-		try {
-			return (UUID) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public UUID getByAlias(String alias) throws IOException, IllegalArgumentException, ClassNotFoundException,
-			IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("getByAlias",alias);
-		try {
-			return (UUID) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 
-	@Override
-	public UUID getByPath(String tableSpace, boolean b)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("getByPath",tableSpace, b);
-		try {
-			return (UUID) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	public void closeDb(Class clazz) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixStatement("close", clazz);
@@ -327,77 +287,17 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		return (DomainMapRange)sendCommand(rs);
 	}
 	
-	@Override
 	public Object store(String alias, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		RelatrixStatement rs = new RelatrixStatement("storekv", alias, k, v);
 		return (DomainMapRange)sendCommand(rs);
 	}
 	
-	@Override
 	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixStatement rs = new RelatrixStatement("storekv", k, v);
 		return sendCommand(rs);
 	}
 	
-	@Override
-	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("firstKey",clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 
-	@Override
-	public Comparable firstKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("firstKey",alias,clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("firstValue",clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object firstValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("firstValue",alias,clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("get",key);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public DBKey get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("get",alias, instance);
-		try {
-			return (DBKey) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 
 	public Object getByIndex(DBKey key) throws IOException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("getByIndex",key);
@@ -409,184 +309,9 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 
-	@Override
-	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("lastKey",clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
-	@Override
-	public Comparable lastKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("lastKey",alias,clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-
-	@Override
-	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("lastValue",clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object lastValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("lastValue",alias,clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public RemoteStream entrySetStream(Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("entrySetStream",clazz);
-		try {
-			return (RemoteStream) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public RemoteStream entrySetStream(String alias, Class<?> clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("entrySetStream",alias, clazz);
-		try {
-			return (RemoteStream) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public RemoteKeySetIterator keySet(Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("keySet",clazz);
-		try {
-			return (RemoteKeySetIterator) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public RemoteKeySetIterator keySet(String alias, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("keySet",alias,clazz);
-		try {
-			return (RemoteKeySetIterator) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* recursively delete all relationships that this object participates in
-	* @exception IOException low-level access or problems modifiying schema
-	* @throws ClassNotFoundException 
-	* @throws IllegalAccessException 
-	*/
-	@Override
-	public Object remove(Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("remove",c);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("remove", alias, instance);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}	
-	}
 
 	
-	/**
-	 * Delete specific relationship and all relationships that it participates in
-	 * @param d
-	 * @param m
-	 * @param r
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
-	 */
-	public Object remove(Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("remove",d,m,r);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	/**
-	 * Delete specific relationship and all relationships that it participates in
-	 * @param d
-	 * @param m
-	 * @param r
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
-	 */
-	public Object remove(String alias, Comparable d, Comparable m, Comparable r) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("remove",alias,d,m,r);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	* matching the given set of operators and/or objects. Essentially this is the default permutation which
-	* retrieves the equivalent of a tailSet and the parameters can be objects and/or operators. Semantically,
-	* the other set-based retrievals make no sense without at least one object so in those methods that check is performed.
-	* In support of the typed lambda calculus, When presented with 3 objects, the options are to return an identity composed of those 3 or
-	* a set composed of identity elements matching the class of the template(s) in the argument(s)
-	* Legal permutations are [object],[object],[object] [TemplateClass],[TemplateClass],[TemplateClass]
-	* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
-	* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-	* the requirement to be 'categorical'. In general, all 3 element arraysw return by the Cat->set representable operators are
-	* the mathematical identity, or constitute the unique key in database terms.
-	* @param darg Object for domain of relationship or a class template
-	* @param marg Object for the map of relationship or a class template
-	* @param rarg Object for the range of the relationship or a class template
-	* @exception IOException low-level access or problems modifiying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
-	*/
-	public RemoteTailSetIterator findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("findSet",darg, marg, rarg);
-		try {
-			return (RemoteTailSetIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteTailSetIterator findSet(String alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixStatement rs = new RelatrixStatement("findSet",alias, darg, marg, rarg);
-		try {
-			return (RemoteTailSetIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	public RemoteStream findSetStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		RelatrixStatement rs = new RelatrixStatement("findStream",darg, marg, rarg);
@@ -709,31 +434,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}
 
 	}
-	/**
-	 * Retrieve the subset of the given set of arguments from the point of the relationship of the first three
-	 * arguments to the ending point of the associated variable number of parameters, which must match the number of objects
-	 * passed in the first three arguments. If a passed argument in the first 3 parameters is neither "*" (wildcard)
-	 * or "?" (return the object from the retrieved tuple morphism) then it is presumed to be an object.
-	 * Semantically, this set-based retrieval makes no sense without at least one object to supply a value to
-	 * work against, so in this method that check is performed.
-	 * @param darg The domain of the relationship to retrieve
-	 * @param marg The map of the relationship to retrieve
-	 * @param rarg The range or codomain of the relationship
-	 * @param endarg The variable arguments specifying the ending point of the relationship, must match number of actual objects in first 3 args
-	 * @return The RemoteRelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
-	public RemoteSubSetIterator findSubSet(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixStatement rs = new RelatrixStatement("findSubSet",darg, marg, rarg, endarg);
-		try {
-			return (RemoteSubSetIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
+
 	
 	public RemoteSubSetIterator findSubSet(String alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		RelatrixStatement rs = new RelatrixStatement("findSubSet",alias, darg, marg, rarg, endarg);
@@ -768,7 +469,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * @param rii
 	 * @return
 	 */
-	public Result next(RemoteObjectInterface rii) throws NoSuchElementException {
+	public Result next(Iterator rii) throws NoSuchElementException {
 		((RelatrixStatement)rii).methodName = "next";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		try {
@@ -779,8 +480,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 
 	}
 	
-	@Override
-	public boolean hasNext(RemoteObjectInterface rii) {
+	public boolean hasNext(Iterator rii) {
 		((RelatrixStatement)rii).methodName = "hasNext";
 		((RelatrixStatement)rii).paramArray = new Object[0];
 		try {
@@ -790,7 +490,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		}	
 	}
 	
-	@Override
 	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException {
 		((RelatrixStatement)rii).methodName = "remove";
 		((RelatrixStatement)rii).paramArray = new Object[]{ ((RelatrixStatement)rii).getObjectReturn() };
@@ -804,7 +503,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	@Override
 	public void close(RemoteObjectInterface rii) {
 		((RelatrixStatement)rii).methodName = "close";
 		((RelatrixStatement)rii).paramArray = new Object[0];
@@ -820,7 +518,6 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	 * @return Opened socket
 	 * @throws IOException
 	 */
-	@Override
 	public Socket Fopen(String bootNode) throws IOException {
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
@@ -871,6 +568,474 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 		System.out.println(rc.sendCommand(rs));
 		//rc.send(rs);
 		rc.close();
+	}
+
+	@Override
+	public RelatrixIndex getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findHeadStream(Object arg1, Object arg2, Object arg3, Object[] arg4)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findSubStreamAlias(String arg1, Object arg2, Object arg3, Object arg4, Object[] arg5)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException,
+			NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAliasToPath(String arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findSubStream(Object arg1, Object arg2, Object arg3, Object[] arg4)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DatabaseCatalog getByPath(String arg1, boolean arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DatabaseCatalog getByAlias(String arg1) throws NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findSubSet(Object arg1, Object arg2, Object arg3, Object[] arg4)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDatabasePath(DatabaseCatalog arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findTailStream(Object arg1, Object arg2, Object arg3, Object[] arg4)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void loadClassFromJar(String arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findHeadSetAlias(String arg1, Object arg2, Object arg3, Object arg4, Object[] arg5)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException,
+			NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findSubSetAlias(String arg1, Object arg2, Object arg3, Object arg4, Object[] arg5)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException,
+			NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findHeadSet(Object arg1, Object arg2, Object arg3, Object[] arg4)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void loadClassFromPath(String arg1, String arg2) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getTableSpace() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void removeAlias(String arg1) throws NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void setWildcard(char arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAlias(String arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void setTablespace(String arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findTailSetAlias(String arg1, Object arg2, Object arg3, Object arg4, Object[] arg5)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException,
+			NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findTailSet(Object arg1, Object arg2, Object arg3, Object[] arg4)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findStream(Object arg1, Object arg2, Object arg3)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findStream(String arg1, Object arg2, Object arg3, Object arg4) throws IOException,
+			IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findSet(String arg1, Object arg2, Object arg3, Object arg4) throws IOException,
+			IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator findSet(Object arg1, Object arg2, Object arg3)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void storekv(Comparable arg1, Object arg2)
+			throws IOException, IllegalAccessException, DuplicateKeyException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void storekv(String arg1, Comparable arg2, Object arg3)
+			throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void setAlias(String arg1, String arg2) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void setTuple(char arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String[][] getAliases() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastValue() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastValue(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastValue(Class arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastValue(String arg1, Class arg2) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream entrySetStream(String arg1, Class arg2)
+			throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream entrySetStream(Class arg1) throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findHeadStreamAlias(String arg1, Object arg2, Object arg3, Object arg4, Object[] arg5)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException,
+			NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void removePackageFromRepository(String arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream findTailStreamAlias(String arg1, Object arg2, Object arg3, Object arg4, Object[] arg5)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException,
+			NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastKey(String arg1, Class arg2) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastKey(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastKey() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object lastKey(Class arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstKey(Class arg1) throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstKey(String arg1, Class arg2) throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstKey(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstKey() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstValue(String arg1, Class arg2)
+			throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstValue(Class arg1) throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstValue(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object firstValue() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator keySet(Class arg1) throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator keySet(String arg1, Class arg2) throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List resolve(Comparable arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object first(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object first() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object first(String arg1, Class arg2) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object first(Class arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object last(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object last(String arg1, Class arg2) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object last() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object last(Class arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean contains(String arg1, Comparable arg2) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean contains(Comparable arg1) throws IOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public long size() throws IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long size(String arg1) throws IOException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object get(String arg1, Comparable arg2) throws IOException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object get(Comparable arg1) throws IOException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void remove(String arg1, Comparable arg2, Comparable arg3, Comparable arg4) throws IOException,
+			IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void remove(String arg1, Comparable arg2) throws IOException, IllegalArgumentException,
+			ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void remove(Comparable arg1)
+			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void remove(Comparable arg1, Comparable arg2, Comparable arg3)
+			throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

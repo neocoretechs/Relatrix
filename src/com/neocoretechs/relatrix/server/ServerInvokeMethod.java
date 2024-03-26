@@ -3,13 +3,14 @@ package com.neocoretechs.relatrix.server;
 import java.lang.reflect.*;
 import java.util.Arrays;
 
-import com.neocoretechs.relatrix.client.RelatrixMethodNamesAndParams;
+import com.neocoretechs.relatrix.client.MethodNamesAndParams;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 /**
 * The remote call mechanism depends on Java reflection to provide access to methods that can be
 * remotely invoked via serializable arguments and method name. By designating the reflected classes at startup
 * in the server module, remote calls have access to reflected methods. 
-* This class handles reflection of the user requests to call designated methods in the server side classes,
+* This class handles reflection of the user requests to call designated methods in the server side classes.<p/>
+* It utilizes helper class {@link MethodNameAndParams}.
 * It starts by populating a table of those methods, and at runtime, creates a method call transport for client,
 * and provides for server-side invocation of those methods.
 * Option to skip leading arguments for  whatever reason is provided.
@@ -20,10 +21,10 @@ public final class ServerInvokeMethod {
     protected int skipArgs;
     int skipArgIndex;
     private Method[] methods;
-    private RelatrixMethodNamesAndParams pkmnap = new RelatrixMethodNamesAndParams();
+    private MethodNamesAndParams pkmnap = new MethodNamesAndParams();
     HandlerClassLoader hcl;
 
-    public RelatrixMethodNamesAndParams getMethodNamesAndParams() { return pkmnap; }
+    public MethodNamesAndParams getMethodNamesAndParams() { return pkmnap; }
     
     public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {
     	hcl = new HandlerClassLoader();

@@ -1,6 +1,8 @@
 package com.neocoretechs.relatrix.test;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 
@@ -37,7 +39,7 @@ public class ServerRetrievalBattery {
 		ArrayList<Comparable[]> ar2 = new ArrayList<Comparable[]>(); // will store 2 element result sets
 		ArrayList<Comparable[]> ar3 = new ArrayList<Comparable[]>(); // will store 3 element result sets
 		rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
-		RemoteTailSetIterator it = null;
+		Iterator it = null;
 		System.out.println("Wildcard queries:");
 		
 		System.out.println("2.) Findset(*,*,?)...");		

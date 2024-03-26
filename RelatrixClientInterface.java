@@ -1,13 +1,4 @@
-package com.neocoretechs.relatrix.client;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Stream;
-
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.DatabaseCatalog;
-import com.neocoretechs.relatrix.key.RelatrixIndex;
+package com.neocoretechs.relatrix;
 
 public interface RelatrixClientInterface{
 
@@ -162,6 +153,8 @@ public interface RelatrixClientInterface{
 	Void remove(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
 	Void remove(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
+
+	Void main(String[] arg1) throws java.lang.Exception;
 
 }
 
