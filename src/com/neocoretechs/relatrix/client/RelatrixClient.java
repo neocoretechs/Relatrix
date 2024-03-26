@@ -612,7 +612,7 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 
 	@Override
 	public DatabaseCatalog getByAlias(String arg1) throws NoSuchElementException {
-		// TODO Auto-generated method stub
+		RelatrixStatement rs = new RelatrixStatement("getByAlias",new Object[] {});
 		return null;
 	}
 
@@ -637,9 +637,9 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void loadClassFromJar(String arg1) throws IOException {
+	public void loadClassFromJar(String arg1) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+	
 	}
 
 	@Override
@@ -666,9 +666,9 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void loadClassFromPath(String arg1, String arg2) throws IOException {
+	public void loadClassFromPath(String arg1, String arg2) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+	
 	}
 
 	@Override
@@ -678,15 +678,15 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void removeAlias(String arg1) throws NoSuchElementException {
+	public void removeAlias(String arg1) throws NoSuchElementException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void setWildcard(char arg1) {
+	public void setWildcard(char arg1) {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
@@ -696,9 +696,9 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void setTablespace(String arg1) throws IOException {
+	public void setTablespace(String arg1) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
@@ -745,29 +745,29 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void storekv(Comparable arg1, Object arg2)
+	public void storekv(Comparable arg1, Object arg2)
 			throws IOException, IllegalAccessException, DuplicateKeyException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void storekv(String arg1, Comparable arg2, Object arg3)
+	public void storekv(String arg1, Comparable arg2, Object arg3)
 			throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void setAlias(String arg1, String arg2) throws IOException {
+	public void setAlias(String arg1, String arg2) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void setTuple(char arg1) {
+	public void setTuple(char arg1) {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
@@ -822,9 +822,9 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void removePackageFromRepository(String arg1) throws IOException {
+	public void removePackageFromRepository(String arg1) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		;
 	}
 
 	@Override
@@ -1011,31 +1011,30 @@ public class RelatrixClient implements Runnable, RelatrixClientInterface {
 	}
 
 	@Override
-	public Void remove(String arg1, Comparable arg2, Comparable arg3, Comparable arg4) throws IOException,
+	public void remove(String arg1, Comparable arg2, Comparable arg3, Comparable arg4) throws IOException,
 			IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void remove(String arg1, Comparable arg2) throws IOException, IllegalArgumentException,
+	public void remove(String arg1, Comparable arg2) throws IOException, IllegalArgumentException,
 			ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void remove(Comparable arg1)
+	public void remove(Comparable arg1)
 			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Void remove(Comparable arg1, Comparable arg2, Comparable arg3)
+	public void remove(Comparable arg1, Comparable arg2, Comparable arg3)
 			throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Auto-greturn null;
 	}
 
 }

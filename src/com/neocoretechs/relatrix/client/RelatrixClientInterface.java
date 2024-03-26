@@ -1,167 +1,167 @@
 package com.neocoretechs.relatrix.client;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Stream;
-
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
+import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.List;
+import com.neocoretechs.relatrix.DomainMapRange;
+
 
 public interface RelatrixClientInterface{
 
-	RelatrixIndex getNewKey() throws java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException;
+	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
 
-	Stream findHeadStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public DatabaseCatalog getByAlias(String arg1) throws java.util.NoSuchElementException;
 
-	Stream findSubStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void loadClassFromJar(String arg1) throws java.io.IOException;
 
-	String getAliasToPath(String arg1);
+	public DatabaseCatalog getByPath(String arg1,boolean arg2);
 
-	Stream findSubStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public String getAliasToPath(String arg1);
 
-	DatabaseCatalog getByPath(String arg1,boolean arg2);
+	public String getDatabasePath(DatabaseCatalog arg1);
 
-	DatabaseCatalog getByAlias(String arg1) throws java.util.NoSuchElementException;
+	public RelatrixIndex getNewKey() throws java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException;
 
-	Iterator findSubSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	String getDatabasePath(DatabaseCatalog arg1);
+	public String[][] getAliases();
 
-	Stream findTailStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Void loadClassFromJar(String arg1) throws java.io.IOException;
+	public Stream findStream(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Iterator findHeadSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Iterator findSubSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findTailSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Iterator findHeadSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findTailStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
+	public Iterator findSubSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	String getTableSpace();
+	public Iterator findTailSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Void removeAlias(String arg1) throws java.util.NoSuchElementException;
+	public void removeAlias(String arg1) throws java.util.NoSuchElementException;
 
-	Void setWildcard(char arg1);
+	public Iterator findSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	String getAlias(String arg1);
+	public Iterator findSet(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Void setTablespace(String arg1) throws java.io.IOException;
+	public Stream findSubStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Iterator findTailSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void storekv(Comparable arg1,Object arg2) throws java.io.IOException,java.lang.IllegalAccessException,com.neocoretechs.relatrix.DuplicateKeyException;
 
-	Iterator findTailSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public void storekv(String arg1,Comparable arg2,Object arg3) throws java.io.IOException,java.lang.IllegalAccessException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException;
 
-	Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findSubStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Stream findStream(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findSubSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Iterator findSet(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findHeadStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Iterator findSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public String getTableSpace();
 
-	Void storekv(Comparable arg1,Object arg2) throws java.io.IOException,java.lang.IllegalAccessException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public void setTuple(char arg1);
 
-	Void storekv(String arg1,Comparable arg2,Object arg3) throws java.io.IOException,java.lang.IllegalAccessException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException;
+	public void setTablespace(String arg1) throws java.io.IOException;
 
-	Void setAlias(String arg1,String arg2) throws java.io.IOException;
+	public String getAlias(String arg1);
 
-	Void setTuple(char arg1);
+	public void setWildcard(char arg1);
 
-	String[][] getAliases();
+	public void setAlias(String arg1,String arg2) throws java.io.IOException;
 
-	Object lastValue() throws java.io.IOException;
+	public Stream entrySetStream(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	Object lastValue(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object lastValue(Class arg1) throws java.io.IOException;
+	public Object lastValue() throws java.io.IOException;
 
-	Object lastValue(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object lastValue(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object lastValue(Class arg1) throws java.io.IOException;
 
-	Stream entrySetStream(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object lastValue(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Stream findHeadStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findHeadStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Void removePackageFromRepository(String arg1) throws java.io.IOException;
+	public void removePackageFromRepository(String arg1) throws java.io.IOException;
 
-	Stream findTailStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findTailStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object getByIndex(DBKey arg1) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException;
+	public Object getByIndex(DBKey arg1) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException;
 
-	Object lastKey(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object lastKey() throws java.io.IOException;
 
-	Object lastKey(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object lastKey(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object lastKey() throws java.io.IOException;
+	public Object lastKey(Class arg1) throws java.io.IOException;
 
-	Object lastKey(Class arg1) throws java.io.IOException;
+	public Object lastKey(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object firstKey(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object firstKey() throws java.io.IOException;
 
-	Object firstKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object firstKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object firstKey(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object firstKey(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	Object firstKey() throws java.io.IOException;
+	public Object firstKey(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object firstValue(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	Object firstValue(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object firstValue() throws java.io.IOException;
 
-	Object firstValue(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object firstValue() throws java.io.IOException;
+	public Object firstValue(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Iterator keySet(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator keySet(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	List resolve(Comparable arg1);
+	public List resolve(Comparable arg1);
 
-	Object first(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object first(Class arg1) throws java.io.IOException;
 
-	Object first() throws java.io.IOException;
+	public Object first(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object first(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object first() throws java.io.IOException;
 
-	Object first(Class arg1) throws java.io.IOException;
+	public Object first(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object last(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object last(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object last(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object last(String arg1,Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
 
-	Object last() throws java.io.IOException;
+	public Object last() throws java.io.IOException;
 
-	Object last(Class arg1) throws java.io.IOException;
+	public Object last(Class arg1) throws java.io.IOException;
 
-	boolean contains(String arg1,Comparable arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException,java.util.NoSuchElementException;
 
-	boolean contains(Comparable arg1) throws java.io.IOException;
+	public boolean contains(Comparable arg1) throws java.io.IOException;
 
-	long size() throws java.io.IOException;
+	public long size() throws java.io.IOException;
 
-	long size(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	public long size(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
 
-	DomainMapRange store(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException,java.lang.ClassNotFoundException;
+	public DomainMapRange store(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException,java.lang.ClassNotFoundException;
 
-	DomainMapRange store(Comparable arg1,Comparable arg2,Comparable arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException;
+	public DomainMapRange store(Comparable arg1,Comparable arg2,Comparable arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException;
 
-	Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object get(Comparable arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object get(Comparable arg1) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	Void remove(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public void remove(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
 
-	Void remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Void remove(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public void remove(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Void remove(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public void remove(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
 
 }
 
