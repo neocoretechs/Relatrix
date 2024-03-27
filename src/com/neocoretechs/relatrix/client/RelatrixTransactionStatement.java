@@ -16,19 +16,28 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 	private static final long serialVersionUID = -503217108835099285L;
 	private static boolean DEBUG = false;
     String xid;
+    String alias = null;
     
     public RelatrixTransactionStatement() {}
     
     /**
     * Prep RelatrixStatement to send remote method call
     */
-    public RelatrixTransactionStatement(String xid, String tmeth, Object ... o1) {
+    public RelatrixTransactionStatement(String tmeth, String xid, Object ... o1) {
     	super(tmeth, o1);
     	this.xid = xid;
     	if(DEBUG)
     		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
     }
-    
+    /**
+     * Prep RelatrixStatement to send remote method call
+     */
+     public RelatrixTransactionStatement(String tmeth, String alias, String xid, Object ... o1) {
+     	super(alias, tmeth, o1);
+     	this.xid = xid;
+     	if(DEBUG)
+     		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
+     }
     public String getTransactionId() {
     	return xid;
     }

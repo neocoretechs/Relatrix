@@ -28,7 +28,12 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
     	if(DEBUG)
     		System.out.println("Constructor:"+this);
     }
-    
+    public RelatrixKVTransactionStatement(String alias, String xid, String tmeth, Object ... o1) {
+    	super(tmeth, alias, o1);
+    	this.xid = xid;
+    	if(DEBUG)
+    		System.out.println("Constructor:"+this);
+    }
     public String getTransactionId() {
     	return xid;
     }

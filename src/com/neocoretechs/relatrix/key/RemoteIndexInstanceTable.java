@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
@@ -48,8 +49,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			DBKey retKey = getByInstance(instance);
 			if(instance == null) {
 				DBKey index = getNewDBKey();
-				//rc.store(index, instance);
-				//rc.store(instance, index);
+				try {
+					rc.storekv(index, instance);
+					rc.storekv(instance, index);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new IOException(e);
+				}
 				return index;
 			}
 			return retKey;
@@ -71,8 +76,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(instance == null) {
 			DBKey index = getNewDBKey();
 			try {
-				rcx.storekv(transactionId, index, instance);
-				rcx.storekv(transactionId,  instance, index);
+				rcx.store(transactionId, index, instance);
+				rcx.store(transactionId,  instance, index);
 				return index;
 			} catch(DuplicateKeyException dke) {
 				throw new IOException(dke);
@@ -86,9 +91,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		Comparable instance = null;
 		instance = (Comparable) getByIndex(index);
 		if(instance != null) {
-				//rc.remove(instance);
+				rc.remove(instance);
 		}
-		//rc.remove(index);
+		rc.remove(index);
 	}
 	
 	@Override
@@ -102,12 +107,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 	
 	@Override
-	public void commit(String transactionId) throws IOException {
+	public void commit(String transactionId) throws IOException, IllegalAccessException {
 		rcx.commit(transactionId);
 	}
 	
 	@Override
-	public void rollback(String transactionId) throws IOException {
+	public void rollback(String transactionId) throws IOException, IllegalAccessException {
 		rcx.rollback(transactionId);
 	}
 	
@@ -149,9 +154,16 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return null;//(DBKey)rc.get((Comparable) instance);
+		return (DBKey)rc.get((Comparable) instance);
 	}
-
+	
+	public static synchronized RelatrixIndex getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID uuid = UUID.randomUUID();
+		RelatrixIndex nkey = new RelatrixIndex(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
+		if(DEBUG)
+			System.out.printf("Returning NewKey=%s%n", nkey.toString());
+		return nkey;
+	}
 	/**
 	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
 	 * @param instance the DBKey containing the instance
@@ -167,12 +179,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getByPath(Relatrix.getTableSpace(), true), rcx.getNewKey());
+		return new DBKey(rcx.getByPath(Relatrix.getTableSpace(), true), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rcx.getByAlias(alias), rcx.getNewKey());
+			return new DBKey(rcx.getByAlias(alias), getNewKey());
 	}
 	
 	@Override

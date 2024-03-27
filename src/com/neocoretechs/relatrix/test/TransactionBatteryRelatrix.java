@@ -111,12 +111,12 @@ public class TransactionBatteryRelatrix {
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-				RemoteStream rs = rct.findSetStream(xid, fkey, "Has unit", new Long(i));
+				RemoteStream rs = (RemoteStream) rct.findStream(xid, fkey, "Has unit", new Long(i));
 				if(rs.of().count() != 1)
 					System.out.println("Stream mismatch, should be 1 but is:"+rs.of().count());
 				Optional<?> o = rs.of().findFirst();
 				if(o.isPresent()) {
-					rs = rct.findSetStream(xid,  o.get(), "*", o.get());
+					rs = (RemoteStream) rct.findStream(xid,  o.get(), "*", o.get());
 					Optional<?> p = rs.of().findFirst();
 					if(p.isPresent()) {
 						Comparable[] c = (Comparable[]) p.get();

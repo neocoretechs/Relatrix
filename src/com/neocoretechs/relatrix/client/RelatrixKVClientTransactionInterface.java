@@ -1,148 +1,174 @@
 package com.neocoretechs.relatrix.client;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.key.DBKey;
 
-/**
- * Defines the contract for client side communications with remote RelatrixKVTransaction and RelatrixKVTransaction server.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
- *
- */
-public interface RelatrixKVClientTransactionInterface {
-	/**
-	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
-	 * @param iori
-	 */
-	void send(RemoteRequestInterface iori);
-	
-	int getRemotePort();
+public interface RelatrixKVClientTransactionInterface{
 
-	String getRemoteNode();
+	public Object lastValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	String getLocalNode();
-	
-	void close();
-	
-	/**
-	* recursively delete all relationships that this object participates in
-	* @exception IOException low-level access or problems modifiying schema
-	* @throws ClassNotFoundException 
-	* @throws IllegalAccessException 
-	*/
-	void remove(String xid, Comparable c) throws IOException, ClassNotFoundException, IllegalAccessException;
-	
-	boolean hasNext(String xid, RemoteObjectInterface rii);
-	
-	RemoteStream entrySetStream(String xid, Class<?> clazz)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
-	
-	RemoteKeySetIteratorTransaction keySet(String xid, Class<String> clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
-	
-	/**
-	 * Call the remote iterator from the various 'findSet' methods and return the result.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii
-	 * @return
-	 */
-	Object next(String xid, RemoteObjectInterface rii) throws NoSuchElementException;
+	public Object lastValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	/**
-	 * Open a socket to the remote worker located at 'remoteWorker' with the tablespace appended
-	 * so each node is named [remoteWorker]0 [remoteWorker]1 etc. The fname should be full qualified.
-	 * If remote is null, the defaults will all be used, otherwise, database name will be massaged for cluster
-	 * @param fname
-	 * @param remote remote database name
-	 * @param port remote port
-	 * @return
-	 * @throws IOException
-	 */
-	Socket Fopen(String bootNode) throws IOException;
+	public Object nearest(String arg1,Comparable arg2) throws java.lang.IllegalAccessException,java.io.IOException;
 
-	void remove(String xid, RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException;
+	public Object nearest(String arg1,String arg2,Comparable arg3) throws java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException;
 
-	/**
-	 * Issue a close which will merely remove the request resident object here and on the server
-	 * @param rii
-	 */
-	void close(String xid, RemoteObjectInterface rii);
-	
-	Comparable firstKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Iterator findSubMapKV(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Object sendCommand(RelatrixStatementInterface rs) throws DuplicateKeyException, IllegalAccessException, IOException;
+	public Iterator findSubMapKV(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object firstValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
-	
-	Object get(String xid, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Iterator findHeadMapKV(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Comparable lastKey(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Iterator findHeadMapKV(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Object lastValue(String xid, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Iterator findSubMap(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	/**
-	 * Commit the outstanding indicies to their transactional data.
-	 * @throws IOException
-	 */
-	void commit(String xid) throws IOException;
+	public Iterator findSubMap(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	/**
-	 * Roll back all outstanding transactions on the indicies
-	 * @throws IOException
-	 */
-	void rollback(String xid) throws IOException;
+	public Stream findHeadMapStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	/**
-	 * @throws IOException
-	 * @throws IllegalAccessException 
-	 */
-	void checkpoint(String xid) throws IOException, IllegalAccessException;
+	public Stream findHeadMapStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException;
+	public Iterator findTailMapKV(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	String getTransactionId() throws ClassNotFoundException, IllegalAccessException, IOException;
+	public Iterator findTailMapKV(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	String endTransaction(String xid) throws ClassNotFoundException, IllegalAccessException, IOException;
-	
-	// Alias methods
+	public void loadClassFromJar(String arg1) throws java.io.IOException;
 
-	Object get(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, NoSuchElementException;
+	public Iterator findTailMap(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	void remove(String alias, String transactionId, Comparable instance) throws IOException, NoSuchElementException;
-	
-	void storekv(String xid, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException;
-	
-	void storekv(String alias, String transactionId, Comparable<?> index, Object instance) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException;
+	public Iterator findTailMap(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException;
+	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
 
-	void rollback(String alias, String xid) throws IOException;
+	public Iterator findHeadMap(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	void commit(String alias, String xid) throws IOException;
+	public Iterator findHeadMap(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	void checkpoint(String alias, String xid) throws IOException, IllegalAccessException;
+	public Stream keySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	Object firstValue(String alias, String xid, Class clazz)
-			throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Stream keySetStream(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Object lastValue(String alias, String xid, Class clazz)
-			throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Stream findSubMapKVStream(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	Comparable firstKey(String alias, String xid, Class clazz)
-			throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Stream findSubMapKVStream(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	Comparable lastKey(String alias, String xid, Class clazz)
-			throws IOException, ClassNotFoundException, IllegalAccessException;
+	public Stream findTailMapStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	RemoteStream entrySetStream(String alias, String xid, Class clazz)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
+	public Stream findTailMapStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	RemoteKeySetIteratorTransaction keySet(String alias, String xid, Class clazz)
-			throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException;
+	public Stream findSubMapStream(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	
+	public Stream findSubMapStream(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+
+	public void removeAlias(String arg1) throws java.util.NoSuchElementException;
+
+	public String getAlias(String arg1);
+
+	public String getTableSpace();
+
+	public void endTransaction(String arg1) throws java.io.IOException;
+
+	public String[][] getAliases();
+
+	public String getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException;
+
+	public void setAlias(String arg1,String arg2) throws java.io.IOException;
+
+	public void setTablespace(String arg1) throws java.io.IOException;
+
+	public void rollback(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public void rollback(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public void checkpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public void checkpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Stream findTailMapKVStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Stream findTailMapKVStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+
+	public void rollbackAllTransactions();
+
+	public Object[] getTransactionState();
+
+	public Stream findHeadMapKVStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Stream findHeadMapKVStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+
+	public void rollbackToCheckpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public void rollbackToCheckpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public void removePackageFromRepository(String arg1) throws java.io.IOException;
+
+	public void rollbackTransaction(String arg1);
+
+	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Stream entrySetStream(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object lastKey(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object lastKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public void commit(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public void commit(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Object firstKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Object firstKey(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object firstValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public boolean containsValue(String arg1,Class arg2,Object arg3) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public boolean containsValue(String arg1,String arg2,Class arg3,Object arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Iterator keySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public void close(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public void close(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Iterator entrySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public boolean contains(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public boolean contains(String arg1,Class arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public boolean contains(String arg1,String arg2,Class arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public long size(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public long size(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public void store(String arg1,String arg2,Comparable arg3,Object arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException;
+
+	public void store(String arg1,Comparable arg2,Object arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException;
+
+	public Object get(String arg1,Class arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Object get(String arg1,String arg2,Class arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object get(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+
+	public Object remove(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
 }
+

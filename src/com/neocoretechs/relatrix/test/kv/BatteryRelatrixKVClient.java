@@ -139,7 +139,7 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR6(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIterator its = rkvc.entrySet(String.class);
+		RemoteEntrySetIterator its = (RemoteEntrySetIterator) rkvc.entrySet(String.class);
 		System.out.println("KV Battery1AR6");
 		while(rkvc.hasNext(its)) {
 			Object nex =  rkvc.next(its);
@@ -164,7 +164,7 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetIterator its = rkvc.keySet(String.class);
+		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(String.class);
 		System.out.println("KV Battery1AR7");
 		while(rkvc.hasNext(its)) {
 			String nex = (String) rkvc.next(its);
@@ -298,7 +298,7 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapIterator its = rkvc.findTailMap(fkey);
+		RemoteTailMapIterator its = (RemoteTailMapIterator) rkvc.findTailMap(fkey);
 		System.out.println("KV Battery1AR11");
 		while(rkvc.hasNext(its)) {
 			String nex = (String) rkvc.next(its);
@@ -320,7 +320,7 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVIterator its = rkvc.findTailMapKV(fkey);
+		RemoteTailMapKVIterator its = (RemoteTailMapKVIterator) rkvc.findTailMapKV(fkey);
 		System.out.println("KV Battery1AR12");
 		while(rkvc.hasNext(its)) {
 			Comparable nex = (Comparable) rkvc.next(its);
@@ -344,7 +344,7 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapIterator its = rkvc.findHeadMap(fkey);
+		RemoteHeadMapIterator its = (RemoteHeadMapIterator) rkvc.findHeadMap(fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
@@ -369,7 +369,7 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapKVIterator its = rkvc.findHeadMapKV(fkey);
+		RemoteHeadMapKVIterator its = (RemoteHeadMapKVIterator) rkvc.findHeadMapKV(fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
 		while(rkvc.hasNext(its)) {
@@ -397,7 +397,7 @@ public class BatteryRelatrixKVClient {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapIterator its = rkvc.findSubMap(fkey, tkey);
+		RemoteSubMapIterator its = (RemoteSubMapIterator) rkvc.findSubMap(fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		while(rkvc.hasNext(its)) {
@@ -424,7 +424,7 @@ public class BatteryRelatrixKVClient {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapKVIterator its = rkvc.findSubMapKV(fkey, tkey);
+		RemoteSubMapKVIterator its = (RemoteSubMapKVIterator) rkvc.findSubMapKV(fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
 		while(rkvc.hasNext(its)) {
@@ -447,7 +447,7 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17");
-		RemoteKeySetIterator its = rkvc.keySet(String.class);
+		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(String.class);
 		System.out.println("KV Battery1AR7");
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(its)) {
@@ -466,7 +466,7 @@ public class BatteryRelatrixKVClient {
 		its.close();
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
-			RemoteEntrySetIterator ets = rkvc.entrySet(String.class);
+			RemoteEntrySetIterator ets = (RemoteEntrySetIterator) rkvc.entrySet(String.class);
 			while(rkvc.hasNext(ets)) {
 				Object nex = rkvc.next(ets);
 				System.out.println(nex);

@@ -38,7 +38,7 @@ public class RollbackServerTransaction {
 		}
 		int select = Integer.parseInt(asc.toString());
 		System.out.println("Removing "+select+".) "+((String)states[select-1]).substring(12,48));
-		rkvc.rollbackOutstandingTransaction(((String)states[select-1]).substring(12,48));
+		rkvc.rollbackTransaction(((String)states[select-1]).substring(12,48));
 		rkvc.close();
 		System.exit(0);
 	}

@@ -30,6 +30,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
+import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
 * This is a generic ClassLoader of which many examples abound.
@@ -48,7 +49,7 @@ public class HandlerClassLoader extends ClassLoader {
     private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
     private static boolean useEmbedded = false;
     public static String defaultPath = "/etc/"; // bytecode repository path
-    public static RelatrixKVClientInterface remoteRepository = null;
+    public static RelatrixKVClient remoteRepository = null;
     private ClassLoader parent = null;
 	static int size;
    
@@ -482,7 +483,7 @@ public class HandlerClassLoader extends ClassLoader {
       	} else {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
-      	      			RemoteKeySetIterator it = remoteRepository.keySet(String.class);
+      	      			RemoteKeySetIterator it = (RemoteKeySetIterator) remoteRepository.keySet(String.class);
       	      			while(remoteRepository.hasNext(it)) {
       	      				Comparable key = (Comparable) remoteRepository.next(it);
       	      				if( ((String)key).startsWith(name))
@@ -638,7 +639,7 @@ public class HandlerClassLoader extends ClassLoader {
        			connectToRemoteRepository(args[0], args[1], Integer.parseInt(args[2]));
     			break;
     	}
-    	remoteRepository.entrySetStream(String.class).of().forEach(e-> {
+    	((RemoteStream)(remoteRepository.entrySetStream(String.class))).of().forEach(e-> {
     		System.out.printf("Class: %s size:%d%n",((ClassNameAndBytes)((Map.Entry)e).getValue()).getName(),
     			((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length);
     		size += ((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length;

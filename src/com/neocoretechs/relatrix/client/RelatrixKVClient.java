@@ -39,7 +39,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
+public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
@@ -104,17 +104,14 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 		ThreadPoolManager.getInstance().spin(this);
 	}
 	
-	@Override
 	public String getLocalNode() {
 		return bootNode;
 	}
 	
-	@Override
 	public String getRemoteNode() {
 		return remoteNode;
 	}
 	
-	@Override
 	public int getRemotePort( ) {
 		return remotePort;
 	}
@@ -182,7 +179,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	@Override
 	public void send(RemoteRequestInterface iori) {
 		try {
 			if(DEBUG)
@@ -208,7 +204,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 		}
 	}
 	
-	@Override
 	public void close() {
 		shouldRun = false;
 		try {
@@ -252,7 +247,7 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 	 * @return 
 	 */
 	@Override
-	public Object sendCommand(RelatrixStatementInterface rs) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public Object sendCommand(RelatrixKVStatement rs) throws IllegalAccessException, IOException, DuplicateKeyException {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
@@ -291,729 +286,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 		return null;
 	}
 	
-	public String setTablespace(String path) {
-		RelatrixKVStatement rs = new RelatrixKVStatement("setTableSpace",path);
-		try {
-			return (String) sendCommand(rs);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public String getAlias(String alias) {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getAlias",alias);
-		try {
-			return (String) sendCommand(rs);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public String[][] getAliases() {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getAliases",(Object[])null);
-		try {
-			return (String[][]) sendCommand(rs);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public Object setAlias(String alias, String path) {
-		RelatrixKVStatement rs = new RelatrixKVStatement("setAlias",alias, path);
-		try {
-			return sendCommand(rs);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public Object removeAlias(String alias) {
-		RelatrixKVStatement rs = new RelatrixKVStatement("removeAlias",alias);
-		try {
-			return sendCommand(rs);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	/**
-	 * Call the remote server method to store an object.
-	 * @param k The Comparable representing the key relationship
-	 * @param v The value
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @return 
-	 */
-	@Override
-	public Object store(Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("store",k,v);
-		return sendCommand(rs);
-	}
-	
-	/**
-	 * Call the remote server method to store an object.
-	 * @param alias The database alias
-	 * @param k The Comparable representing the key relationship
-	 * @param v The value
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws DuplicateKeyException if the storage of a duplicate key was attempted
-	 * @throws NoSuchElementException if the alias was not found
-	 * @return 
-	 */
-	@Override
-	public Object store(String alias, Comparable k, Object v) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("store",alias,k,v);
-		return sendCommand(rs);
-	}
-	
-
-	/**
-	* recursively delete all relationships that this object participates in
-	* @exception IOException low-level access or problems modifiying schema
-	* @throws ClassNotFoundException 
-	* @throws IllegalAccessException 
-	*/
-	@Override
-	public Object remove(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("remove",key);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object remove(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("remove",alias,instance);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object firstValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object firstValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("firstValue",alias,clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Get the keyed value
-	 * @param key The Comparable key
-	 * @return The value for the given key, or null if not found
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
-	@Override
-	public Object get(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("get",key);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object get(String alias, Comparable instance) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("get",alias,instance);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-
-	@Override
-	public Object lastValue(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Object lastValue(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("lastValue",alias,clazz);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Comparable firstKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Comparable firstKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("firstKey",alias,clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Comparable lastKey(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	@Override
-	public Comparable lastKey(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("lastKey",alias,clazz);
-		try {
-			return (Comparable) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public long size(Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("size",clazz);
-		try {
-			return (long) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public long size(String alias, Class clazz) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("size",alias,clazz);
-		try {
-			return (long) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public boolean contains(Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("contains",key);
-		try {
-			return (boolean) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public boolean contains(String alias, Comparable key) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("contains",alias,key);
-		try {
-			return (boolean) sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public boolean containsValue(Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("containsValue",keyType,value);
-		try {
-			return (boolean) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public boolean containsValue(String alias, Class keyType, Object value) throws IOException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("containsValue",alias,keyType,value);
-		try {
-			return (boolean) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* Provides a persistent collection iterator greater or equal to 'from' element based on RockSack tailset iterator.
-	* Returns the KEYS from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteTailMapIterator from which the data may be retrieved. Follows rocksack tailset Iterator interface, return Iterator of Object returning Comparable objects.
-	*/
-	public RemoteTailMapIterator findTailMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",key);
-		try {
-			return (RemoteTailMapIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteTailMapIterator findTailMap(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMap",alias,key);
-		try {
-			return (RemoteTailMapIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* Provides a persistent collection stream greater or equal to 'from' element based on RockSack tailset stream.
-	* Returns the KEYS from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteStream from which the data may be retrieved. Follows rocksack tailset stream interface, return Stream of Comparable objects.
-	* 
-	* */
-	public RemoteStream findTailMapSteam(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapStream",key);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream findTailMapSteam(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapStream",alias,key);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteEntrySetIterator entrySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",clazz);
-		try {
-			return (RemoteEntrySetIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteEntrySetIterator entrySet(String alias, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("entrySet",alias,clazz);
-		try {
-			return (RemoteEntrySetIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream entrySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("entrySetStream",clazz);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream entrySetStream(String alias, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("entrySetStream",alias,clazz);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteKeySetIterator keySet(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",clazz);
-		try {
-			return (RemoteKeySetIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteKeySetIterator keySet(String alias, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("keySet",alias,clazz);
-		try {
-			return (RemoteKeySetIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream keySetStream(Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("keySetStream",clazz);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream keySetStream(String alias, Class clazz) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("keySetStream",alias,clazz);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* Provides a persistent collection iterator greater or equal to 'from' element based on RockSack tailsetKV iterator.
-	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteTailMapKVIterator from which the data may be retrieved. Follows rocksack tailsetKV Iterator interface, return Iterator of Object returning KeyValuePair objects.
-	*/
-	public RemoteTailMapKVIterator findTailMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKV",key);
-		try {
-			return (RemoteTailMapKVIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-	}
-	
-	public RemoteTailMapKVIterator findTailMapKV(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKV",alias,key);
-		try {
-			return (RemoteTailMapKVIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-	}
-	/**
-	* Provides a persistent collection iterator greater or equal to 'from' element based on RockSack tailsetKV stream.
-	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteStream from which the data may be retrieved. Follows rocksack tailsetKV stream interface, return stream of KeyValuePair objects.
-	*/
-	public RemoteStream findTailMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKVStream",key);
-		try {
-			return (RemoteStream) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-	}
-	
-	public RemoteStream findTailMapKVStream(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findTailMapKVStream",alias,key);
-		try {
-			return (RemoteStream) sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-
-	}
-	/**
-	* Iterator for items of persistent collection strictly less than 'to' element.
-	* Returns the KEYS from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteHeadMapIterator from which the data may be retrieved. Follows rocksack headSet Iterator interface, return Iterator of Object returning Comparable objects.
-	*/
-	public RemoteHeadMapIterator findHeadMap(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",key);
-		try {
-			return (RemoteHeadMapIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteHeadMapIterator findHeadMap(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMap",alias,key);
-		try {
-			return (RemoteHeadMapIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* Stream for items of persistent collection strictly less than 'to' element.
-	* Returns the KEYS from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteStream from which the data may be retrieved. Follows rocksack headSet stream interface, return stream of Comparable objects.
-	*/
-	public RemoteStream findHeadMapStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapStream",key);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream findHeadMapStream(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapStream",alias,key);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	* Iterator for items of persistent collection strictly less than 'to' element.
-	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteHeadMapKVIterator from which the data may be retrieved. Follows rocksack headSetKV Iterator interface, return Iterator of Object returning KeyValuePair objects.
-	*/
-	public RemoteHeadMapKVIterator findHeadMapKV(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKV",key);
-		try {
-			return (RemoteHeadMapKVIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteHeadMapKVIterator findHeadMapKV(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKV",alias,key);
-		try {
-			return (RemoteHeadMapKVIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	/**
-	* Stream for items of persistent collection strictly less than 'to' element.
-	* Returns the com.neocoretechs.rocksack.iterator.KeyValuePair from a key/value store starting at the given key.
-	* @param key Comparable for the starting key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @throws IllegalAccessException 
-	* @return The RemoteStream from which the data may be retrieved. Follows rocksack headSetKV stream interface, return stream of KeyValuePair objects.
-	*/
-	public RemoteStream findHeadMapKVStream(Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKVStream",key);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream findHeadMapKVStream(String alias, Comparable key) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findHeadMapKVStream",alias,key);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
- 	* Provides a persistent collection iterator 'from' element inclusive, 'to' element exclusive
- 	* @param key1 Comparable for the starting key of the relationship
- 	* @param key2 Comparable for the element before the ending key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteSubMapIterator from which the data may be retrieved. Follows rocksack subSet Iterator interface, return Iterator of Object returning Comparable objects.
-	*/
-	public RemoteSubMapIterator findSubMap(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMap",key1,key2);
-		try {
-			return (RemoteSubMapIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteSubMapIterator findSubMap(String alias, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMap",alias,key1,key2);
-		try {
-			return (RemoteSubMapIterator)sendCommand(rs);
-		} catch ( DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
- 	* Provides a persistent collection stream 'from' element inclusive, 'to' element exclusive.
- 	* Returns KEYS of key/value pairs.
- 	* @param key1 Comparable for the starting key of the relationship
- 	* @param key2 Comparable for the element before the ending key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteStream from which the data may be retrieved. Follows rocksack subSetStream interface, return Stream of Comparable objects.
-	*/
-	public RemoteStream findSubMapStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapStream",key1,key2);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream findSubMapStream(String alias, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapStream",alias,key1,key2);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
- 	* Provides a persistent collection Iterator 'from' element inclusive, 'to' element exclusive.
- 	* Returns com.neocoretechs.rocksack.iterator.KeyValuePair of key/value pairs.
- 	* @param key1 Comparable for the starting key of the relationship
- 	* @param key2 Comparable for the element before the ending key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteSubMapKVIterator from which the data may be retrieved. Follows rocksack subSetKVIterator interface, return Iterator of KeyValuePair objects.
-	*/
-	public RemoteSubMapKVIterator findSubMapKV(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKV",key1,key2);
-		try {
-			return (RemoteSubMapKVIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteSubMapKVIterator findSubMapKV(String alias, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKV",alias,key1,key2);
-		try {
-			return (RemoteSubMapKVIterator)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
- 	* Provides a persistent collection stream 'from' element inclusive, 'to' element exclusive.
- 	* Returns com.neocoretechs.rocksack.iterator.KeyValuePair of key/value pairs.
- 	* @param key1 Comparable for the starting key of the relationship
- 	* @param key2 Comparable for the element before the ending key of the relationship
-	* @exception IOException low-level access or problems modifying schema
-	* @exception IllegalArgumentException the operator is invalid
-	* @exception ClassNotFoundException if the Class of Object is invalid
-	* @exception IllegalAccessException 
-	* @return The RemoteStream from which the data may be retrieved. Follows rocksack subSetKVStream interface, return Stream of KeyValuePair objects.
-	*/
-	public RemoteStream findSubMapKVStream(Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKVStream",key1,key2);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	
-	public RemoteStream findSubMapKVStream(String alias, Comparable key1, Comparable key2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("findSubMapKVStream",alias,key1,key2);
-		try {
-			return (RemoteStream)sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Load a class into the handlerclassloader from remote repository via jar file
-	 * @param jar
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
-	public Object loadClassFromJar(String jar) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("loadClassFromJar",jar);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Load a class in to handlerclassloader via package and directory path.
-	 * @param pack The package designation
-	 * @param path
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
-	public Object loadClassFromPath(String pack, String path) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("loadClassFromPath", pack, path);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * Remove package in handlerclassloader and from repository.
-	 * @param pack The package designation, everything starting with this descriptor will be removed
-	 * @param path
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 */
-	public Object removePackageFromRepository(String pack) throws IOException, ClassNotFoundException, IllegalAccessException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("removePackageFromRepository", pack);
-		try {
-			return sendCommand(rs);
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-	}
 	
 	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
@@ -1038,7 +310,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 
 	}
 	
-	@Override
 	public boolean hasNext(RemoteObjectInterface rii) {
 		((RelatrixKVStatement)rii).methodName = "hasNext";
 		((RelatrixKVStatement)rii).paramArray = new Object[0];
@@ -1051,7 +322,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 		return (boolean)((RelatrixKVStatement)rii).getObjectReturn();	
 	}
 	
-	@Override
 	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException{
 		((RelatrixKVStatement)rii).methodName = "remove";
 		((RelatrixKVStatement)rii).paramArray = new Object[]{ ((RelatrixKVStatement)rii).getObjectReturn() };
@@ -1077,7 +347,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	@Override
 	public void close(RemoteObjectInterface rii) {
 		((RelatrixKVStatement)rii).methodName = "close";
 		((RelatrixKVStatement)rii).paramArray = new Object[0];
@@ -1100,7 +369,6 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 	 * @return
 	 * @throws IOException
 	 */
-	@Override
 	public Socket Fopen(String bootNode) throws IOException {
 		// send a remote Fopen request to the node
 		// this consists of sending the running WorkBoot a message to start the worker for a particular
@@ -1157,11 +425,11 @@ public class RelatrixKVClient implements Runnable, RelatrixKVClientInterface {
 		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixKVClientInterface rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVClient rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
 
 		switch(args.length) {
 			case 4:
-				RemoteStream stream = rc.entrySetStream(Class.forName(args[3]));
+				RemoteStream stream = (RemoteStream) rc.entrySetStream(Class.forName(args[3]));
 				stream.of().forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
 				});

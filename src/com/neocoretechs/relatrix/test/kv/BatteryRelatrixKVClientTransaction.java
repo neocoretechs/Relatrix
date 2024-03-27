@@ -91,7 +91,7 @@ public class BatteryRelatrixKVClientTransaction {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(xid, fkey, new Long(i));
+				rkvc.store(xid, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -113,7 +113,7 @@ public class BatteryRelatrixKVClientTransaction {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(xid2, fkey, new Long(fkey));
+				rkvc.store(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -142,7 +142,7 @@ public class BatteryRelatrixKVClientTransaction {
 	public static void battery1AR6(String xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIteratorTransaction its = rkvc.entrySet(xid, String.class);
+		RemoteEntrySetIteratorTransaction its = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(xid, String.class);
 		System.out.println("KV Battery1AR6 ");
 		while(rkvc.hasNext(xid, its)) {
 			Object nex =  rkvc.next(xid, its);
@@ -167,7 +167,7 @@ public class BatteryRelatrixKVClientTransaction {
 	public static void battery1AR7(String xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetIteratorTransaction its = rkvc.keySet(xid, String.class);
+		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(xid, String.class);
 		System.out.println("KV Battery1AR7");
 		while(rkvc.hasNext(xid, its)) {
 			String nex = (String) rkvc.next(xid, its);
@@ -301,7 +301,7 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapIteratorTransaction its = rkvc.findTailMap(xid, fkey);
+		RemoteTailMapIteratorTransaction its = (RemoteTailMapIteratorTransaction) rkvc.findTailMap(xid, fkey);
 		System.out.println("KV Battery1AR11");
 		while(rkvc.hasNext(xid, its)) {
 			String nex = (String) rkvc.next(xid, its);
@@ -323,7 +323,7 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVIteratorTransaction its = rkvc.findTailMapKV(xid, fkey);
+		RemoteTailMapKVIteratorTransaction its = (RemoteTailMapKVIteratorTransaction) rkvc.findTailMapKV(xid, fkey);
 		System.out.println("KV Battery1AR12");
 		while(rkvc.hasNext(xid, its)) {
 			Comparable nex = (Comparable) rkvc.next(xid, its);
@@ -347,7 +347,7 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapIteratorTransaction its = rkvc.findHeadMap(xid, fkey);
+		RemoteHeadMapIteratorTransaction its = (RemoteHeadMapIteratorTransaction) rkvc.findHeadMap(xid, fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
@@ -372,7 +372,7 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapKVIteratorTransaction its = rkvc.findHeadMapKV(xid, fkey);
+		RemoteHeadMapKVIteratorTransaction its = (RemoteHeadMapKVIteratorTransaction) rkvc.findHeadMapKV(xid, fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
 		while(rkvc.hasNext(xid, its)) {
@@ -400,7 +400,7 @@ public class BatteryRelatrixKVClientTransaction {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapIteratorTransaction its = rkvc.findSubMap(xid, fkey, tkey);
+		RemoteSubMapIteratorTransaction its = (RemoteSubMapIteratorTransaction) rkvc.findSubMap(xid, fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		while(rkvc.hasNext(xid, its)) {
@@ -427,7 +427,7 @@ public class BatteryRelatrixKVClientTransaction {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapKVIteratorTransaction its = rkvc.findSubMapKV(xid, fkey, tkey);
+		RemoteSubMapKVIteratorTransaction its = (RemoteSubMapKVIteratorTransaction) rkvc.findSubMapKV(xid, fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
 		while(rkvc.hasNext(xid, its)) {
@@ -451,7 +451,7 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		String xid2 = rkvc.getTransactionId();
 		System.out.println("KV Battery1AR17");
-		RemoteKeySetIteratorTransaction its = rkvc.keySet(xid2,String.class);
+		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(xid2,String.class);
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(xid2,its)) {
 			String fkey = (String) rkvc.next(xid2,its);
@@ -465,7 +465,7 @@ public class BatteryRelatrixKVClientTransaction {
 		rkvc.commit(xid2);
 		long siz = rkvc.size(xid2, String.class);
 		if(siz > 0) {
-			RemoteEntrySetIteratorTransaction itt = rkvc.entrySet(xid2, String.class);
+			RemoteEntrySetIteratorTransaction itt = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(xid2, String.class);
 			while(rkvc.hasNext(xid2, itt)) {
 				Object nex = rkvc.next(xid2, itt);
 				System.out.println(nex);
@@ -494,7 +494,7 @@ public class BatteryRelatrixKVClientTransaction {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(xid2, fkey, new Long(i));
+				rkvc.store(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -503,7 +503,7 @@ public class BatteryRelatrixKVClientTransaction {
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(xid2, fkey, new Long(i));
+				rkvc.store(xid2, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

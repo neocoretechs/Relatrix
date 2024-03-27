@@ -136,7 +136,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(alias, xid, fkey+alias, new Long(i));
+				rkvc.store(alias, xid, fkey+alias, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -158,9 +158,9 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(alias1, xid2, fkey+alias1, new Long(fkey));
-				rkvc.storekv(alias2, xid2, fkey+alias2, new Long(fkey));
-				rkvc.storekv(alias3, xid2, fkey+alias3, new Long(fkey));
+				rkvc.store(alias1, xid2, fkey+alias1, new Long(fkey));
+				rkvc.store(alias2, xid2, fkey+alias2, new Long(fkey));
+				rkvc.store(alias3, xid2, fkey+alias3, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -191,7 +191,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 	public static void battery1AR6(String alias, String xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIteratorTransaction its = rkvc.entrySet(alias, xid, String.class);
+		RemoteEntrySetIteratorTransaction its = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(alias, xid, String.class);
 		System.out.println(alias+" KV Battery1AR6 ");
 		while(rkvc.hasNext(xid, its)) {
 			Object nex =  rkvc.next(xid, its);
@@ -216,7 +216,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 	public static void battery1AR7(String alias, String xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetIteratorTransaction its = rkvc.keySet(alias, xid, String.class);
+		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(alias, xid, String.class);
 		System.out.println(alias+" KV Battery1AR7");
 		while(rkvc.hasNext(xid, its)) {
 			String nex = (String) rkvc.next(xid, its);
@@ -349,7 +349,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapIteratorTransaction its = rkvc.findTailMap(alias, xid, fkey+alias);
+		RemoteTailMapIteratorTransaction its = (RemoteTailMapIteratorTransaction) rkvc.findTailMap(alias, xid, fkey+alias);
 		System.out.println(alias+" KV Battery1AR11");
 		while(rkvc.hasNext(xid, its)) {
 			String nex = (String) rkvc.next(xid, its);
@@ -371,7 +371,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVIteratorTransaction its = rkvc.findTailMapKV(alias, xid, fkey);
+		RemoteTailMapKVIteratorTransaction its = (RemoteTailMapKVIteratorTransaction) rkvc.findTailMapKV(alias, xid, fkey);
 		System.out.println(alias+" KV Battery1AR12");
 		while(rkvc.hasNext(xid, its)) {
 			Comparable nex = (Comparable) rkvc.next(xid, its);
@@ -395,7 +395,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapIteratorTransaction its = rkvc.findHeadMap(alias, xid, fkey);
+		RemoteHeadMapIteratorTransaction its = (RemoteHeadMapIteratorTransaction) rkvc.findHeadMap(alias, xid, fkey);
 		System.out.println(alias+" KV Battery1AR13");
 		i = min;
 		while(rkvc.hasNext(xid, its)) {
@@ -418,7 +418,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapKVIteratorTransaction its = rkvc.findHeadMapKV(alias, xid, fkey);
+		RemoteHeadMapKVIteratorTransaction its = (RemoteHeadMapKVIteratorTransaction) rkvc.findHeadMapKV(alias, xid, fkey);
 		System.out.println(alias+" KV Battery1AR14");
 		i = min;
 		while(rkvc.hasNext(xid, its)) {
@@ -445,7 +445,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapIteratorTransaction its = rkvc.findSubMap(alias, xid, fkey, tkey);
+		RemoteSubMapIteratorTransaction its = (RemoteSubMapIteratorTransaction) rkvc.findSubMap(alias, xid, fkey, tkey);
 		System.out.println(alias+" KV Battery1AR15");
 		// with i at max, should catch them all
 		while(rkvc.hasNext(xid, its)) {
@@ -470,7 +470,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapKVIteratorTransaction its = rkvc.findSubMapKV(alias, xid, fkey, tkey);
+		RemoteSubMapKVIteratorTransaction its = (RemoteSubMapKVIteratorTransaction) rkvc.findSubMapKV(alias, xid, fkey, tkey);
 		System.out.println(alias+" KV Battery1AR16");
 		while(rkvc.hasNext(xid, its)) {
 			Comparable nex = (Comparable) rkvc.next(xid, its);
@@ -493,7 +493,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		long tims = System.currentTimeMillis();
 		String xid2 = rkvc.getTransactionId();
 		System.out.println(alias+" KV Battery1AR17 for trans:"+xid2);
-		RemoteKeySetIteratorTransaction its = rkvc.keySet(alias,xid2,String.class);
+		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(alias,xid2,String.class);
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(xid2,its)) {
 			String fkey = (String) rkvc.next(xid2,its);
@@ -506,7 +506,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		its.close();
 		long siz = rkvc.size(alias, xid2, String.class);
 		if(siz > 0) {
-			RemoteEntrySetIteratorTransaction itt = rkvc.entrySet(alias, xid2, String.class);
+			RemoteEntrySetIteratorTransaction itt = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(alias, xid2, String.class);
 			while(rkvc.hasNext(xid2, itt)) {
 				Object nex = rkvc.next(xid2, itt);
 				System.out.println(nex);
@@ -536,7 +536,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(alias, xid2, fkey+alias, new Long(i));
+				rkvc.store(alias, xid2, fkey+alias, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -545,7 +545,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(alias, xid2, fkey+alias, new Long(i));
+				rkvc.store(alias, xid2, fkey+alias, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

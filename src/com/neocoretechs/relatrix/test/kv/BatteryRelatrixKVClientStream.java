@@ -129,7 +129,7 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR6(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = rkvc.entrySetStream(String.class);
+		RemoteStream stream = (RemoteStream) rkvc.entrySetStream(String.class);
 		System.out.println("KV Battery1AR6");
 		stream.of().forEach(e ->{
 			if(((Map.Entry<String,Long>)e).getValue() != i) {
@@ -152,7 +152,7 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR7(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = rkvc.keySetStream(String.class);
+		RemoteStream stream = (RemoteStream) rkvc.keySetStream(String.class);
 		System.out.println("KV Battery1AR7");
 		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
@@ -285,7 +285,7 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findTailMapSteam(fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findTailMap(fkey);
 		System.out.println("KV Battery1AR11");
 		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
@@ -305,7 +305,7 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findTailMapKVStream(fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findTailMapKVStream(fkey);
 		System.out.println("KV Battery1AR12");
 		stream.of().forEach(e ->{
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
@@ -327,7 +327,7 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findHeadMapStream(fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findHeadMapStream(fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
@@ -351,7 +351,7 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findHeadMapKVStream(fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findHeadMapKVStream(fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
 		stream.of().forEach(e ->{
@@ -377,7 +377,7 @@ public class BatteryRelatrixKVClientStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteStream stream = rkvc.findSubMapStream(fkey, tkey);
+		RemoteStream stream = (RemoteStream) rkvc.findSubMapStream(fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		stream.of().forEach(e ->{
@@ -403,7 +403,7 @@ public class BatteryRelatrixKVClientStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteStream stream = rkvc.findSubMapKVStream(fkey, tkey);
+		RemoteStream stream = (RemoteStream) rkvc.findSubMapKVStream(fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
 		stream.of().forEach(e ->{
@@ -424,7 +424,7 @@ public class BatteryRelatrixKVClientStream {
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17");
-		RemoteKeySetIterator its = rkvc.keySet(String.class);
+		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(String.class);
 		System.out.println("KV Battery1AR7");
 		long timx = System.currentTimeMillis();
 		while(rkvc.hasNext(its)) {
@@ -438,7 +438,7 @@ public class BatteryRelatrixKVClientStream {
 		its.close();
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
-				RemoteStream stream = rkvc.entrySetStream(String.class);
+				RemoteStream stream = (RemoteStream) rkvc.entrySetStream(String.class);
 				stream.of().forEach(e ->{
 					//System.out.println(i+"="+key);
 					System.out.println(e);

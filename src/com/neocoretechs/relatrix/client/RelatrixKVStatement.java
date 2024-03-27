@@ -20,6 +20,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
+    protected String alias = null;
     protected String methodName;
     protected Object[] paramArray;
     private Object retObj;
@@ -33,16 +34,26 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     
     /**
-    * Prep RelatrixStatement to send remote method call
-    */
+     * Prep RelatrixStatement to send remote method call
+     */
     public RelatrixKVStatement(String tmeth, Object ... o1) {
-             methodName = tmeth;
-             paramArray = o1;
-        	 session = UUID.randomUUID().toString();
-             if(DEBUG)
-            	 System.out.println("Constructor:"+this);
+    	this.methodName = tmeth;
+    	this.paramArray = o1;
+    	this.session = UUID.randomUUID().toString();
+    	if(DEBUG)
+    		System.out.println("Constructor:"+this);
     }
-  
+    /**
+     * Prep RelatrixStatement to send remote method call
+     */
+    public RelatrixKVStatement(String tmeth, String alias, Object ... o1) {
+    	this.methodName = tmeth;
+    	this.alias = alias;
+    	this.paramArray = o1;
+    	this.session = UUID.randomUUID().toString();
+    	if(DEBUG)
+    		System.out.println("Constructor:"+this);
+    }
     
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()

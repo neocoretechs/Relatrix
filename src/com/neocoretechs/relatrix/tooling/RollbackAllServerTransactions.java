@@ -21,7 +21,7 @@ public class RollbackAllServerTransactions {
 		}
 		System.out.println("Preparing to rollback all transactions, proceed?");
 		System.in.read();
-		rkvc.rollbackOutstandingTransactions();
+		rkvc.rollbackAllTransactions();
 		rkvc.close();
 		System.exit(0);
 	}

@@ -92,7 +92,7 @@ public class GenerateClientBindings {
 		outStream.writeBytes(command);
 		outStream.writeBytes("(");
 		outStream.writeBytes(statement);
-		outStream.writeBytes(" s);\r\n");
+		outStream.writeBytes(" s) throws Exception;\r\n");
 		for(int mnum = 0; mnum < rmnap.methodNames.size(); mnum++) {
 			if(rmnap.methodNames.get(mnum).equals("main"))
 				continue;
@@ -119,8 +119,15 @@ public class GenerateClientBindings {
 					outStream.writeBytes(") ");
 					outStream.writeBytes(rmnap.methodSigs[mnum].substring(ithrows));
 					excepts = generateExceptions(rmnap.methodSigs[mnum].substring(ithrows+7));
-				} else
+				} else {
 					outStream.writeBytes(")");
+					excepts = new LinkedHashMap<Class,String>();
+					if(!rmnap.returnTypes[mnum].equals(Void.class)) {
+						excepts.put(Exception.class, "\t\t\treturn null;\r\n"); // just trap Exception with no action
+					} else {
+						excepts.put(Exception.class, ""); // just trap Exception with no action
+					}
+				}
 				outStream.writeBytes(" {\r\n");
 				outStream.writeBytes("\t\t");
 				outStream.writeBytes(statement);
@@ -206,22 +213,22 @@ public class GenerateClientBindings {
 				// if no args, we wont find an entry in the LinkedHasMap
 				for(Constructor ctor: ctors) {
 					Class[] params = ctor.getParameterTypes();
-					if(params.length > 1) // only 1 arg ctors
-						continue;
-					for(Class param: params) {
-						if(Exception.class.isAssignableFrom(param)) {
+					for(Class param: params) {	
+						if(Throwable.class.isAssignableFrom(param) && 
+								!excepts[c].contains("NoSuchElementException") &&
+								!excepts[c].contains("ClassNotFoundException")) { // for some reason, this kludge is necessary
 							lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"(e);\r\n"); // create from Exception
 							continue nextExcept; // found an exception param, done here
 						} else {
 							if(String.class.isAssignableFrom(param)) {
 								lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"(e.getMessage());\r\n"); // create from String
-								continue nextExcept;
 							}
 						}
 					}
 				}
-				// went through all ctors with continue at main loop, must be a no-arg ctor situation
-				lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"();\r\n"); 
+				// went through all ctors with continue at main loop, must be a no-arg ctor situation if we dont have entry
+				if(!lhm.containsKey(cexcepts[c]))
+					lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"();\r\n"); 
 			} catch (ClassNotFoundException e) {}
 		}
 		return lhm;

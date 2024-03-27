@@ -85,7 +85,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(xid, fkey, new Long(i));
+				rkvc.store(xid, fkey, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -107,7 +107,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				rkvc.storekv(xid2, fkey, new Long(fkey));
+				rkvc.store(xid2, fkey, new Long(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -136,7 +136,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	public static void battery1AR6(String xid) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = rkvc.entrySetStream(xid,String.class);
+		RemoteStream stream = (RemoteStream) rkvc.entrySetStream(xid,String.class);
 		System.out.println("KV Battery1AR6");
 		stream.of().forEach(e ->{
 			if(((Map.Entry<String,Long>)e).getValue() != i) {
@@ -159,7 +159,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	public static void battery1AR7(String xid) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = rkvc.keySetStream(xid, String.class);
+		RemoteStream stream = (RemoteStream) rkvc.keySetStream(xid, String.class);
 		System.out.println("KV Battery1AR7");
 		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
@@ -292,7 +292,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findTailMapStream(xid, fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findTailMapStream(xid, fkey);
 		System.out.println("KV Battery1AR11");
 		stream.of().forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
@@ -312,7 +312,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findTailMapKVStream(xid, fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findTailMapKVStream(xid, fkey);
 		System.out.println("KV Battery1AR12");
 		stream.of().forEach(e ->{
 			if(Integer.parseInt(((Map.Entry<String,Long>)e).getKey()) != i) {
@@ -334,7 +334,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findHeadMapStream(xid, fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findHeadMapStream(xid, fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
@@ -358,7 +358,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteStream stream = rkvc.findHeadMapKVStream(xid, fkey);
+		RemoteStream stream = (RemoteStream) rkvc.findHeadMapKVStream(xid, fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
 		stream.of().forEach(e ->{
@@ -384,7 +384,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteStream stream = rkvc.findSubMapStream(xid, fkey, tkey);
+		RemoteStream stream = (RemoteStream) rkvc.findSubMapStream(xid, fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		stream.of().forEach(e ->{
@@ -410,7 +410,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteStream stream = rkvc.findSubMapKVStream(xid, fkey, tkey);
+		RemoteStream stream = (RemoteStream) rkvc.findSubMapKVStream(xid, fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
 		stream.of().forEach(e ->{
@@ -433,7 +433,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		String xid2 = rkvc.getTransactionId();
 		System.out.println("KV Battery1AR17");
 		long timx = System.currentTimeMillis();
-		RemoteKeySetIteratorTransaction its = rkvc.keySet(xid2,String.class);
+		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(xid2,String.class);
 		while(rkvc.hasNext(xid2, its)) {
 			String fkey = (String) rkvc.next(xid2, its);
 			rkvc.remove(xid2, fkey);
@@ -447,7 +447,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		long siz = rkvc.size(xid2, String.class);
 		i = 0;
 		if(siz > 0) {
-			RemoteStream stream = rkvc.entrySetStream(xid,String.class);
+			RemoteStream stream = (RemoteStream) rkvc.entrySetStream(xid,String.class);
 			stream.of().forEach(e ->{
 				if(((Map.Entry<String,Long>)e).getValue() != i) {
 					System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
