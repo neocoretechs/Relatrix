@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of ServerInvokeMethod and populating that at construction of this class.<p/>
+ * another static instance of {@link ServerInvokeMethod} and populating that at construction of this class.<p/>
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
  * and if the remote call is linked to an object instance on the server, as it 
  * is for non-serializable iterators, then you must maintain 

@@ -10,7 +10,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * remotely invoked via serializable arguments and method name. By designating the reflected classes at startup
 * in the server module, remote calls have access to reflected methods. 
 * This class handles reflection of the user requests to call designated methods in the server side classes.<p/>
-* It utilizes helper class {@link MethodNameAndParams}.
+* It utilizes helper class {@link MethodNamesAndParams}.
 * It starts by populating a table of those methods, and at runtime, creates a method call transport for client,
 * and provides for server-side invocation of those methods.
 * Option to skip leading arguments for  whatever reason is provided.
