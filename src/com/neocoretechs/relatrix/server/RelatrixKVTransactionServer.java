@@ -155,28 +155,18 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 		}
 	}
 	/**
-	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixKVServer.<p/>
-	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database. If port 9999, start as byte code repository server.
+	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVTransactionServer.<p/>
+	 * @param args If length 1, then default port 9000,  If port 9999, start as transactional byte code repository server.
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix K/V Transaction tablespace:"+db);
-		    RelatrixKVTransaction.setTablespace(db);
-		    new RelatrixKVTransactionServer(args[1], Integer.parseInt(args[2]));
+		if( args.length == 2) {
+			new RelatrixKVTransactionServer(args[0], Integer.parseInt(args[1]));
 		} else {
-			if( args.length == 2) {
-			    System.out.println("Bringing up Relatrix K/V Transaction default tablespace:");
-				new RelatrixKVTransactionServer(args[0], Integer.parseInt(args[1]));
+			if(args.length == 1) {
+				new RelatrixKVTransactionServer(Integer.parseInt(args[0]));
 			} else {
-				if(args.length == 1) {
-				    System.out.println("Bringing up Relatrix K/V Transaction default tablespace:");
-					new RelatrixKVTransactionServer(Integer.parseInt(args[0]));
-				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer [/path/to/database/databasename] [address] <port>");
-				}
+				System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer [address] <port>");
 			}
 		}
  

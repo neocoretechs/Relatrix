@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
@@ -8,7 +7,6 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKV;
-
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -165,28 +163,18 @@ public final class RelatrixKVServer extends TCPServer {
 		}
 	}
 	/**
-	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixKVServer.<p/>
-	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database.
+	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVServer.<p/>
+	 * @param args If length 1, then default port 9000
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix K/V tablespace:"+db);
-		    RelatrixKV.setTablespace(db);
-		    new RelatrixKVServer(args[1], Integer.parseInt(args[2]));
+		if(args.length == 2) {
+			new RelatrixKVServer(args[0], Integer.parseInt(args[1]));
 		} else {
-			if( args.length == 2) {
-			    System.out.println("Bringing up Relatrix K/V default tablespace.");
-				new RelatrixKVServer(args[0], Integer.parseInt(args[1]));
+			if(args.length == 1) {
+				new RelatrixKVServer(Integer.parseInt(args[0]));
 			} else {
-				if(args.length == 1) {
-					System.out.println("Bringing up Relatrix K/V default tablespace.");
-					new RelatrixKVServer(Integer.parseInt(args[0]));
-				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVServer [/path/to/database/databasename] [address] <port>");
-				}
+				System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVServer [address] <port>");
 			}
 		}
  
