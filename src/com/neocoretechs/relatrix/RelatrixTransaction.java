@@ -506,6 +506,13 @@ public final class RelatrixTransaction {
 		IndexResolver.getIndexInstanceTable().checkpoint(xid);
 		RelatrixKVTransaction.checkpoint(alias, xid);
 	}
+	
+	public static synchronized Object removekv(String xid, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
+		return RelatrixKVTransaction.remove(xid,c);
+	}
+	public static synchronized Object removekv(String alias, String xid, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		return RelatrixKVTransaction.remove(alias,xid, c);
+	}
 	/**
 	 * Delete all relationships that this object participates in for the current transaction context.
 	 * @param xid the transaction id.

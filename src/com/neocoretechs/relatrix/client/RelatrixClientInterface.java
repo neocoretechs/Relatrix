@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.client;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
+
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
@@ -162,6 +164,10 @@ public interface RelatrixClientInterface{
 	public void remove(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
 	public void remove(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
+
+	Object removekv(Comparable<?> arg1) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException;
+
+	Object removekv(String arg1, Comparable arg2) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, java.util.NoSuchElementException;
 
 }
 

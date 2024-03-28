@@ -10,6 +10,7 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
@@ -41,7 +42,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey put(Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			DBKey retKey = getByInstance(instance);
@@ -81,7 +82,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			if(DEBUG)
 				System.out.printf("%s.put existing instance key=%s%n", this.getClass().getName(), retKey);
 			return retKey;
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
@@ -96,7 +97,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public void put(DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// no new instance exists, based on primary check. store both new entries
@@ -126,7 +127,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables using the database alias.
@@ -144,7 +145,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey putAlias(String alias, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
 			DBKey retKey = getByInstance(alias, instance);
@@ -180,7 +181,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}
 			}
 			return retKey;
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
@@ -197,7 +198,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public void putAlias(String alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// no new instance exists, based on primary check. store both new entries
@@ -227,7 +228,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}	
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction.
@@ -243,7 +244,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey put(String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put Xid:%s class=%s instance=%s%n", this.getClass().getName(), transactionId, instance.getClass().getName(), instance);
 			DBKey retKey = getByInstance(transactionId, instance);
@@ -280,7 +281,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			if(DEBUG)
 				System.out.printf("%s.put returning existing key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, retKey, instance.getClass().getName(), instance);
 			return retKey;
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
@@ -296,7 +297,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public void put(String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// no new instance exists, based on primary check. store both new entries
@@ -325,7 +326,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
@@ -343,7 +344,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey putAlias(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
 			DBKey retKey = getByInstanceAlias(alias, transactionId, instance);
@@ -377,7 +378,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}	
 			}
 			return retKey;
-		}
+		//}
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
@@ -396,7 +397,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
@@ -424,166 +425,164 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		//}
 	}
 	
 	@Override
 	public void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			Object instance = RelatrixKV.remove(index);
 			if(instance != null) {
 				RelatrixKV.remove((Comparable<?>) instance);
 			}
 			
-		}
+		//}
 	}
 	
 	@Override
 	public void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			Object instance = RelatrixKVTransaction.remove(transactionId, index);
 			// index is valid
 			if(instance != null) {
 				RelatrixKVTransaction.remove(transactionId, (Comparable) instance);
 			}
 			
-		}
+		//}
 	}
 	
 	@Override
 	public void deleteAlias(String alias, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			Object instance = RelatrixKV.remove(alias, index);
 			// index is valid
 			if(instance != null) {
 				RelatrixKV.remove(alias, (Comparable<?>) instance);
 			}	
-		}
+		//}
 	}
 	
 	@Override
 	public void deleteAlias(String alias, String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			Object instance = RelatrixKVTransaction.remove(transactionId, index);
 			// index is valid
 			if(instance != null) {
 				RelatrixKVTransaction.remove(transactionId, (Comparable) instance);
-			}
-			
-		}
+			}	
+		//}
 	}
 	
 	@Override
 	public void deleteInstance(Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			// index is valid
 			Object index = RelatrixKV.remove(instance);
 			if(index != null) {
 				RelatrixKV.remove((Comparable<?>) index);
 			}
-		}
+		//}
 	}
 	
 	@Override
 	public void deleteInstance(String transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			// index is valid
 			Object index = RelatrixKVTransaction.remove(transactionId, instance);
 			if(index != null) {
-				RelatrixKVTransaction.remove(transactionId, (Comparable) index);
+				RelatrixTransaction.remove(transactionId, (Comparable) index);
 			}	
-		}
+		//}
 	}
 	
 	@Override
 	public void deleteInstanceAlias(String alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			// index is valid
 			Object index = RelatrixKV.remove(alias, instance);
 			if(index != null) {
-				RelatrixKV.remove(alias, (Comparable<?>) index);
+				Relatrix.remove(alias, (Comparable<?>) index);
 			}	
-		}
+		//}
 	}
 	
 	@Override
 	public void deleteInstanceAlias(String alias, String transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			// index is valid
 			Object index = RelatrixKVTransaction.remove(alias, transactionId, instance);
 			if(index != null) {
-				RelatrixKVTransaction.remove(alias, transactionId, (Comparable) index);
+				RelatrixTransaction.remove(alias, transactionId, (Comparable) index);
 			}	
-		}
+		//}
 	}
 	
 	@Override
 	public void commit(String transactionId) throws IOException, IllegalAccessException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.commit committing "+transactionId);
 			RelatrixKVTransaction.commit(transactionId);
-		}
+		//}
 	}
 	
 	@Override
 	public void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.commitAlias committing alias:"+alias+" Xid:"+transactionId);
 			RelatrixKVTransaction.commit(alias, transactionId);
-		}
+		//}
 	}
 	
 	@Override
 	public void rollback(String transactionId) throws IOException, IllegalAccessException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.rollback "+transactionId);
 			RelatrixKVTransaction.rollback(transactionId);
-		}
+		//}
 	}
 	
 	@Override
 	public void rollback(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.rollback alias:"+alias+" Xid:"+transactionId);
 			RelatrixKVTransaction.rollback(alias, transactionId);
-		}
+		//}
 	}
 	
 	@Override
 	public void checkpoint(String transactionId) throws IllegalAccessException, IOException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			RelatrixKVTransaction.checkpoint(transactionId);
-		}
+		//}
 	}
 	
 	@Override
 	public void checkpoint(String alias, String transactionId) throws IllegalAccessException, IOException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			RelatrixKVTransaction.checkpoint(alias, transactionId);
-		}
+		//}
 	}
 	
 	@Override
 	public void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.rollbackToCheckpoint "+transactionId);
 			RelatrixKVTransaction.rollbackToCheckpoint(transactionId);
-		}
-		
+		//}
 	}
 	
 	@Override
 	public void rollbackToCheckpoint(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
-		synchronized(mutex) {
+		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.rollbackToCheckpoint alias:"+alias+" Xid:"+transactionId);
 			RelatrixKVTransaction.rollbackToCheckpoint(alias, transactionId);
-		}
+		//}
 		
 	}
 

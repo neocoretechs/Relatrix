@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import java.util.stream.Stream;
+import java.io.IOException;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.DomainMapRange;
 
@@ -810,6 +811,38 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Object removekv(String arg0, Comparable arg1) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg0, arg1);
+		try {
+			return sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Object removekv(String arg0, String arg1, Comparable arg2) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg0, arg1, arg2);
+		try {
+			return sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.util.NoSuchElementException)
+				throw new java.util.NoSuchElementException(e.getMessage());
 			throw new java.lang.IllegalAccessException(e.getMessage());
 		}
 	}

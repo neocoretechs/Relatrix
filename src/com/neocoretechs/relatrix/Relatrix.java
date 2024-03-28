@@ -379,6 +379,12 @@ public final class Relatrix {
 	public static void storekv(String alias, Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
 		RelatrixKV.store(alias, key, value);
 	}
+	public static synchronized Object removekv(Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
+		return RelatrixKV.remove(c);
+	}
+	public static synchronized Object removekv(String alias, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+		return RelatrixKV.remove(alias,c);
+	}
 	/**
 	 * Delete all relationships that this object participates in
 	 * @param c The Comparable key to remove

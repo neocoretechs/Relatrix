@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import java.util.stream.Stream;
+import java.io.IOException;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
@@ -153,6 +154,10 @@ public interface RelatrixClientTransactionInterface{
 	public RelatrixIndex getByPath(String tableSpace, boolean b);
 
 	public RelatrixIndex getByAlias(String alias);
+	
+	Object removekv(String arg1, Comparable<?> arg2) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException;
+
+	Object removekv(String arg1, String arg2, Comparable arg3) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, java.util.NoSuchElementException;
 
 }
 
