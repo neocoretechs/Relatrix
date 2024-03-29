@@ -107,7 +107,12 @@ public class GenerateClientBindings {
 				outStream.writeBytes(rmnap.methodNames.get(mnum));
 				outStream.writeBytes("(");
 				for(int i = 0; i < rmnap.methodParams[mnum].length; i++) {
-					outStream.writeBytes(rmnap.methodParams[mnum][i].getSimpleName());
+					// substitute ellipsis for object array?
+					if(rmnap.methodParams[mnum][i].getSimpleName().contains("Object[]") && 
+						!rmnap.methodParams[mnum][i].isInstance(Object[].class))
+						outStream.writeBytes("Object...");
+					else
+						outStream.writeBytes(rmnap.methodParams[mnum][i].getSimpleName());
 					outStream.writeBytes(" arg");
 					outStream.writeBytes(String.valueOf(i+1));
 					if(i < rmnap.methodParams[mnum].length-1)
@@ -290,7 +295,12 @@ public class GenerateClientBindings {
 				outStream.writeBytes(rmnap.methodNames.get(mnum));
 				outStream.writeBytes("(");
 				for(int i = 0; i < rmnap.methodParams[mnum].length; i++) {
-					outStream.writeBytes(rmnap.methodParams[mnum][i].getSimpleName());
+					// substitute ellipsis for object array?
+					if(rmnap.methodParams[mnum][i].getSimpleName().contains("Object[]") && 
+						!rmnap.methodParams[mnum][i].isInstance(Object[].class))
+						outStream.writeBytes("Object...");
+					else
+						outStream.writeBytes(rmnap.methodParams[mnum][i].getSimpleName());
 					outStream.writeBytes(" arg");
 					outStream.writeBytes(String.valueOf(i+1));
 					if(i < rmnap.methodParams[mnum].length-1)

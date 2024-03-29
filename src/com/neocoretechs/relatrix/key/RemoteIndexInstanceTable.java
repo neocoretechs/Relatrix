@@ -183,12 +183,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getByPath(Relatrix.getTableSpace(), true), getNewKey());
+		return new DBKey(rcx.getByPath(Relatrix.getTableSpace(), true).getRelatrixIndex(), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rcx.getByAlias(alias), getNewKey());
+			return new DBKey(rcx.getByAlias(alias).getRelatrixIndex(), getNewKey());
 	}
 	
 	@Override

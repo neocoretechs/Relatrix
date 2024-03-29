@@ -37,7 +37,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findSubStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+	public Stream findSubStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findSubStreamAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Stream)sendCommand(s);
@@ -63,7 +63,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findHeadStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+	public Stream findHeadStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
 		try {
 			return (Stream)sendCommand(s);
@@ -78,7 +78,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findTailStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+	public Stream findTailStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
 		try {
 			return (Stream)sendCommand(s);
@@ -93,7 +93,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSubSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+	public Iterator findSubSet(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
@@ -117,7 +117,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findTailSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+	public Iterator findTailSet(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
@@ -132,7 +132,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findTailSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+	public Iterator findTailSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findTailSetAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
@@ -167,7 +167,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findHeadSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+	public Iterator findHeadSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findHeadSetAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
@@ -184,7 +184,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSubSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+	public Iterator findSubSetAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findSubSetAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
@@ -210,7 +210,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
@@ -225,7 +225,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,Object arg2,Object arg3,Object[] arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+	public Stream findSubStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
 		try {
 			return (Stream)sendCommand(s);
@@ -451,7 +451,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findHeadStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+	public Stream findHeadStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findHeadStreamAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Stream)sendCommand(s);
@@ -468,7 +468,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findTailStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+	public Stream findTailStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findTailStreamAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Stream)sendCommand(s);

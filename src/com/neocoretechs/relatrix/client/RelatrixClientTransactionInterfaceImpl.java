@@ -1,7 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
+import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import java.util.stream.Stream;
-import java.io.IOException;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.DomainMapRange;
 
@@ -34,17 +34,17 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void loadClassFromJar(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar", arg1);
+	public DatabaseCatalog getByPath(String arg1,boolean arg2) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByPath","", arg1, arg2);
 		try {
-			sendCommand(s);
+			return (DatabaseCatalog)sendCommand(s);
 		} catch(Exception e) {
-			throw new java.io.IOException(e);
+			return null;
 		}
 	}
 	@Override
 	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath", arg1, arg2);
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath","", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -52,220 +52,38 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findHeadSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object[] arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public String getAliasToPath(String arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliasToPath","", arg1);
 		try {
-			return (Iterator)sendCommand(s);
+			return (String)sendCommand(s);
 		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
+			return null;
 		}
 	}
 	@Override
-	public Iterator findHeadSet(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public String getDatabasePath(DatabaseCatalog arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getDatabasePath","", arg1);
 		try {
-			return (Iterator)sendCommand(s);
+			return (String)sendCommand(s);
 		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
+			return null;
 		}
 	}
 	@Override
-	public Stream findHeadStream(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public void loadClassFromJar(String arg1) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar","", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			sendCommand(s);
 		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object[] arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public DatabaseCatalog getByAlias(String arg1) throws java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByAlias","", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			return (DatabaseCatalog)sendCommand(s);
 		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			if(e instanceof java.lang.IllegalAccessException)
-				throw new java.lang.IllegalAccessException(e.getMessage());
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Stream findSubStream(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Stream findSubStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object[] arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Iterator findSet(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Iterator findSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			if(e instanceof java.lang.IllegalAccessException)
-				throw new java.lang.IllegalAccessException(e.getMessage());
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Stream findTailStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object[] arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			if(e instanceof java.lang.IllegalAccessException)
-				throw new java.lang.IllegalAccessException(e.getMessage());
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Stream findTailStream(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Iterator findSubSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object[] arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Iterator findSubSet(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Iterator findTailSet(String arg1,Object arg2,Object arg3,Object arg4,Object[] arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Iterator findTailSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object[] arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			if(e instanceof java.lang.IllegalAccessException)
-				throw new java.lang.IllegalAccessException(e.getMessage());
 			throw new java.util.NoSuchElementException(e.getMessage());
 		}
 	}
@@ -302,46 +120,6 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object lastValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2, arg3);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Object lastValue(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object lastValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Object lastValue(String arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
 	public void checkpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", arg1, arg2);
 		try {
@@ -366,8 +144,359 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
+	public Iterator findTailSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findTailSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findHeadStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findHeadStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findSubStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findSubStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findTailStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findTailStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Object lastValue(String arg1,Class arg2) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastValue(String arg1) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Object lastValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findHeadSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findHeadSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findSubSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findSubSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Object removekv(String arg1,Comparable arg2) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object removekv(String arg1,String arg2,Comparable arg3) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findSet(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator findSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public String[][] getAliases() {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases","",new Object[]{});
+		try {
+			return (String[][])sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	@Override
+	public void removeAlias(String arg1) throws java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
 	public void setAlias(String arg1,String arg2) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setAlias", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public String getTableSpace() {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace","",new Object[]{});
+		try {
+			return (String)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	@Override
+	public void setWildcard(char arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard","", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+		}
+	}
+	@Override
+	public void setTuple(char arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple","", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+		}
+	}
+	@Override
+	public String getAlias(String arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", arg1);
+		try {
+			return (String)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	@Override
+	public void setTablespace(String arg1) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -399,42 +528,6 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String[][] getAliases() {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases","",new Object[]{});
-		try {
-			return (String[][])sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	@Override
-	public void setTablespace(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void removeAlias(String arg1) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public String getTableSpace() {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace","",new Object[]{});
-		try {
-			return (String)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	@Override
 	public void endTransaction(String arg1) throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("endTransaction", arg1);
 		try {
@@ -456,31 +549,6 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 			if(e instanceof java.lang.IllegalAccessException)
 				throw new java.lang.IllegalAccessException(e.getMessage());
 			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public String getAlias(String arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", arg1);
-		try {
-			return (String)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	@Override
-	public void setTuple(char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple","", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-		}
-	}
-	@Override
-	public void setWildcard(char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard","", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
 		}
 	}
 	@Override
@@ -536,6 +604,17 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
+	public void commit(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
 	public void commit(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", arg1, arg2);
 		try {
@@ -549,23 +628,23 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void commit(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
 	public Object firstValue(String arg1) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object firstValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
 		}
 	}
 	@Override
@@ -593,17 +672,6 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object firstValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1, arg2);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
 	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", arg1, arg2);
 		try {
@@ -624,17 +692,6 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 				throw new java.io.IOException(e);
 			if(e instanceof java.lang.IllegalAccessException)
 				throw new java.lang.IllegalAccessException(e.getMessage());
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Object first(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1, arg2);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
 			throw new java.util.NoSuchElementException(e.getMessage());
 		}
 	}
@@ -668,17 +725,30 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(String arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2);
+	public Object first(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
-			throw new java.io.IOException(e);
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
 		}
 	}
 	@Override
-	public Object last(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1);
+	public Object last(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Object last(String arg1,Class arg2) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -697,14 +767,12 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2, arg3);
+	public Object last(String arg1) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			throw new java.util.NoSuchElementException(e.getMessage());
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
@@ -815,48 +883,18 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object removekv(String arg0, Comparable arg1) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg0, arg1);
-		try {
-			return sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Object removekv(String arg0, String arg1, Comparable arg2) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg0, arg1, arg2);
-		try {
-			return sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			if(e instanceof java.util.NoSuchElementException)
-				throw new java.util.NoSuchElementException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public void remove(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2, arg3, arg4);
+	public void remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalAccessException)
-				throw new java.lang.IllegalAccessException(e.getMessage());
-			throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
 		}
 	}
 	@Override
@@ -898,18 +936,16 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2);
+	public void remove(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2, arg3, arg4);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.lang.ClassNotFoundException(e.getMessage());
 		}
 	}
 }

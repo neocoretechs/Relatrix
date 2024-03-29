@@ -369,17 +369,5 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		rc.close();
 	}
 
-	@Override
-	public RelatrixIndex getByPath(String tableSpace, boolean b) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public RelatrixIndex getByAlias(String alias) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }
