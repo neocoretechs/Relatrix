@@ -1608,8 +1608,7 @@ public final class RelatrixTransaction {
 		}
 	}
 	/**
-	 * This method returns the number of relationship
-	 * instances in the scope of this transaction.
+	 * This method returns the number of relationships in the scope of this transaction.
 	 * @param alias the database alias
 	 * @param xid the transaction id
 	 * @throws NoSuchElementException if the alias is not found
@@ -1623,6 +1622,23 @@ public final class RelatrixTransaction {
 		}
 		try {
 			return RelatrixKVTransaction.size(alias, xid, indexClasses[0]);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public static synchronized long size(String xid, Class c) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.size(xid, c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	public static synchronized long size(String alias, String xid, Class c) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.size(alias, xid, c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1764,6 +1780,24 @@ public final class RelatrixTransaction {
 		return RelatrixKVTransaction.keySet(alias, xid, clazz);
 	}
 	
+	public static synchronized Iterator<?> entrySet(String xid, Class clazz) throws IOException, IllegalAccessException
+	{
+		return RelatrixKVTransaction.entrySet(xid, clazz);
+	}
+	
+	/**
+	 * Return the entryset for the given class
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class to retrieve
+	 * @return the iterator for the entryset
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 */
+	public static synchronized Iterator<?> entrySet(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		return RelatrixKVTransaction.entrySet(alias, xid, clazz);
+	}
 	/**
 	 * Return the entry set for the given class type
 	 * @param xid the transaction id

@@ -1583,7 +1583,6 @@ public final class Relatrix {
 	 */
 	public static synchronized long size() throws IOException
 	{
-
 		try {
 			return RelatrixKV.size(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1595,6 +1594,28 @@ public final class Relatrix {
 	{
 		try {
 			return RelatrixKV.size(alias, DomainMapRange.class);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * This method returns the number of relationships, Which are occurrences {@link DomainMapRange} instances.
+	 * @return the number of DomainMapRange morphisms.
+	 * @throws IOException
+	 */
+	public static synchronized long size(Class c) throws IOException
+	{
+		try {
+			return RelatrixKV.size(c);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+
+	public static synchronized long size(String alias, Class c) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKV.size(alias, c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1714,6 +1735,15 @@ public final class Relatrix {
 	public static synchronized Iterator<?> keySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.keySet(alias, clazz);
+	}
+	public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
+	{
+		return RelatrixKV.entrySet(clazz);
+	}
+
+	public static synchronized Iterator<?> entrySet(String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		return RelatrixKV.entrySet(alias, clazz);
 	}
 	/**
 	 * Return the entry set for the given class type

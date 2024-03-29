@@ -77,6 +77,10 @@ public interface RelatrixClientInterface{
 
 	public Stream entrySetStream(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
 
+	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	
+	public Iterator entrySet(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+
 	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
 	public Object lastValue() throws java.io.IOException;
@@ -148,6 +152,10 @@ public interface RelatrixClientInterface{
 	public long size() throws java.io.IOException;
 
 	public long size(String arg1) throws java.io.IOException,java.util.NoSuchElementException;
+	
+	public long size(Class arg1) throws java.io.IOException;
+
+	public long size(String arg1, Class arg2) throws java.io.IOException,java.util.NoSuchElementException;
 
 	public DomainMapRange store(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException,java.lang.ClassNotFoundException;
 

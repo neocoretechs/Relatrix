@@ -42,12 +42,15 @@ public class ServerRetrievalBattery {
 		*/
 		public static void main(String[] argv) throws Exception {
 			 //System.out.println("Analysis of all");
+			if(argv.length < 3) {
+				System.out.println("Usage: <bootNode> <remoteNode> <remotePort> [init]");
+			}
 			rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
 			Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-			if(argv.length == 4 && argv[4].equals("init")) {
+			if(argv.length == 4 && argv[3].equals("init")) {
 					battery1AR17(argv);
 			}
-			if(Relatrix.size() == 0) {
+			if(rkvc.size() == 0) {
 				battery0(argv);
 			}
 			battery1(argv);
@@ -86,7 +89,7 @@ public class ServerRetrievalBattery {
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
 				try {
-					dmr = Relatrix.store(fkey, "Has unit", new Long(i));
+					dmr = rkvc.store(fkey, "Has unit", new Long(i));
 					++recs;
 				} catch(DuplicateKeyException dke) { ++dupes; }
 			}
@@ -436,7 +439,7 @@ public class ServerRetrievalBattery {
 			while(it.hasNext()) {
 				Object fkey = it.next();
 				DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
-				Relatrix.remove(dmr.getDomain(), dmr.getMap(), dmr.getRange());
+				rkvc.remove(dmr.getDomain(), dmr.getMap(), dmr.getRange());
 				++i;
 				if((System.currentTimeMillis()-timx) > 1000) {
 					System.out.println("deleting "+i+" "+fkey);
@@ -449,69 +452,69 @@ public class ServerRetrievalBattery {
 				//System.out.println(i+"="+nex);
 				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 			}
-			long siz = Relatrix.size();
+			long siz = rkvc.size();
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = RelatrixKV.entrySet(DomainMapRange.class);
+			it = rkvc.entrySet(DomainMapRange.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("DomainMapRange:"+nex);
 			}
-			siz = Relatrix.size();
+			siz = rkvc.size();
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 DomainMapRange MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 DomainMapRange MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = RelatrixKV.entrySet(DomainRangeMap.class);
+			it = rkvc.entrySet(DomainRangeMap.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("DomainRangeMap:"+nex);
 			}
-			siz = Relatrix.size();
+			siz = rkvc.size();
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 DomainRangeMap MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 DomainRangeMap MISMATCH:"+siz+" > 0 after delete/commit");
 			}
 
-			it = RelatrixKV.entrySet(MapDomainRange.class);
+			it = rkvc.entrySet(MapDomainRange.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("MapDomainRange:"+nex);
 			}
-			siz = RelatrixKV.size(MapDomainRange.class);
+			siz = rkvc.size(MapDomainRange.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after delete/commit");
 			}
 
-			it = RelatrixKV.entrySet(MapRangeDomain.class);
+			it = rkvc.entrySet(MapRangeDomain.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("MapRangeDomain:"+nex);
 			}
-			siz = RelatrixKV.size(MapRangeDomain.class);
+			siz = rkvc.size(MapRangeDomain.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = RelatrixKV.entrySet(RangeDomainMap.class);
+			it = rkvc.entrySet(RangeDomainMap.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("RangeDomainMap:"+nex);
 			}
-			siz = RelatrixKV.size(RangeDomainMap.class);
+			siz = rkvc.size(RangeDomainMap.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = RelatrixKV.entrySet(RangeMapDomain.class);
+			it = rkvc.entrySet(RangeMapDomain.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("RangeMapDomain:"+nex);
 			}
-			siz = RelatrixKV.size(RangeMapDomain.class);
+			siz = rkvc.size(RangeMapDomain.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after delete/commit");

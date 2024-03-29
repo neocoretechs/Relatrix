@@ -119,6 +119,10 @@ public interface RelatrixClientTransactionInterface{
 	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
 
 	public Iterator keySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	
+	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Iterator entrySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
 	public Object first(String arg1) throws java.io.IOException;
 
@@ -141,6 +145,10 @@ public interface RelatrixClientTransactionInterface{
 	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException;
 
 	public long size(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException;
+
+	public long size(String arg1, Class arg2) throws java.io.IOException;
+	
+	public long size(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException;
 
 	public long size(String arg1) throws java.io.IOException;
 

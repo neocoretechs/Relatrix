@@ -1,10 +1,14 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixKV;
 
 
 /**
@@ -124,13 +128,24 @@ public final class RelatrixServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		if(args.length == 2) {
-			new RelatrixServer(args[0], Integer.parseInt(args[1]));
+		new Relatrix();
+		if(args.length == 3) {
+		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+		        		(new File(args[0]).getName());
+		    System.out.println("Bringing up Relatrix tablespace:"+db);
+		    Relatrix.setTablespace(db);
+		    new RelatrixServer(args[1], Integer.parseInt(args[2]));
 		} else {
-			if(args.length == 1) {
-				new RelatrixServer(Integer.parseInt(args[0]));
+			if( args.length == 2) {
+			    System.out.println("Bringing up Relatrix default tablespace.");
+				new RelatrixServer(args[0], Integer.parseInt(args[1]));
 			} else {
-				System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [address] <port>");
+				if(args.length == 1) {
+					System.out.println("Bringing up Relatrix default tablespace.");
+					new RelatrixServer(Integer.parseInt(args[0]));
+				} else {
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [/path/to/database/databasename] [address] <port>");
+				}
 			}
 		}
 	}

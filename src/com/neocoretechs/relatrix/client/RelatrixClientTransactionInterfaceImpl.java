@@ -696,6 +696,30 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
+	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public Iterator entrySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
 	public Object first(String arg1) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1);
 		try {
@@ -809,6 +833,26 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 	@Override
 	public long size(String arg1) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1);
+		try {
+			return (long)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public long size(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1, arg2, arg3);
+		try {
+			return (long)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public long size(String arg1,Class arg2) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1, arg2);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
