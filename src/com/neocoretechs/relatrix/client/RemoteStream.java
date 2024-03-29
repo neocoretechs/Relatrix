@@ -31,10 +31,10 @@ import java.util.stream.Stream;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteStream implements Stream,Serializable {
+public class RemoteStream<T> implements Stream<T>,Serializable {
 	private static final long serialVersionUID = 3064585530528835745L;
 	private static boolean DEBUG = false;
-	Object[] retArray;
+	private Stream stream;
 	
 	public RemoteStream() {}
 	/**
@@ -42,214 +42,211 @@ public class RemoteStream implements Stream,Serializable {
 	 * @param result instance of stream to build collection that is serializable to return to client for
 	 * construction of client side stream
 	 */
-	public RemoteStream(Object result) {
-		retArray = ((Stream)result).toArray();
+	public RemoteStream(Stream result) {
+		this.stream = result;
 		if(DEBUG)
-			System.out.printf("Setting return object:%s length:%d%n", (retArray != null ? retArray : "NULL"), (retArray != null ? retArray.length : 0));
+			System.out.printf("Setting return object:%s %n", stream.toString());
 	}
 
-	public Stream<?> of() {
-		return Stream.of(retArray);
-	}
 	@Override
-	public Iterator iterator() {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterator<T> iterator() {
+		return stream.iterator();
 	}
+
 	@Override
-	public Spliterator spliterator() {
-		// TODO Auto-generated method stub
-		return null;
+	public Spliterator<T> spliterator() {
+		return stream.spliterator();
 	}
+
 	@Override
 	public boolean isParallel() {
-		// TODO Auto-generated method stub
-		return false;
+		return stream.isParallel();
 	}
+
 	@Override
-	public BaseStream sequential() {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> sequential() {
+		return (Stream<T>) stream.sequential();
 	}
+
 	@Override
-	public BaseStream parallel() {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> parallel() {
+		return (Stream<T>) stream.parallel();
 	}
+
 	@Override
-	public BaseStream unordered() {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> unordered() {
+		return (Stream<T>) stream.unordered();
 	}
+
 	@Override
-	public BaseStream onClose(Runnable closeHandler) {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> onClose(Runnable closeHandler) {
+		return (Stream<T>) stream.onClose(closeHandler);
 	}
+
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-		
+		stream.close();	
 	}
+
 	@Override
-	public Stream filter(Predicate predicate) {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> filter(Predicate<? super T> predicate) {
+		return stream.filter(predicate);
 	}
+
 	@Override
-	public Stream map(Function mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public <R> Stream<R> map(Function<? super T, ? extends R> mapper) {		
+		return stream.map(mapper);
 	}
+
 	@Override
-	public IntStream mapToInt(ToIntFunction mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public IntStream mapToInt(ToIntFunction<? super T> mapper) {
+		return stream.mapToInt(mapper);
 	}
+
 	@Override
-	public LongStream mapToLong(ToLongFunction mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public LongStream mapToLong(ToLongFunction<? super T> mapper) {
+		return stream.mapToLong(mapper);
 	}
+
 	@Override
-	public DoubleStream mapToDouble(ToDoubleFunction mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public DoubleStream mapToDouble(ToDoubleFunction<? super T> mapper) {
+		return stream.mapToDouble(mapper);
 	}
+
 	@Override
-	public Stream flatMap(Function mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
+		return stream.flatMap(mapper);
 	}
+
 	@Override
-	public IntStream flatMapToInt(Function mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public IntStream flatMapToInt(Function<? super T, ? extends IntStream> mapper) {
+		return stream.flatMapToInt(mapper);
 	}
+
 	@Override
-	public LongStream flatMapToLong(Function mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public LongStream flatMapToLong(Function<? super T, ? extends LongStream> mapper) {
+		return stream.flatMapToLong(mapper);
 	}
+
 	@Override
-	public DoubleStream flatMapToDouble(Function mapper) {
-		// TODO Auto-generated method stub
-		return null;
+	public DoubleStream flatMapToDouble(Function<? super T, ? extends DoubleStream> mapper) {
+		return stream.flatMapToDouble(mapper);
 	}
+
 	@Override
-	public Stream distinct() {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> distinct() {
+		return stream.distinct();
 	}
+
 	@Override
-	public Stream sorted() {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> sorted() {
+		return stream.sorted();
 	}
+
 	@Override
-	public Stream sorted(Comparator comparator) {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> sorted(Comparator<? super T> comparator) {
+		return stream.sorted(comparator);
 	}
+
 	@Override
-	public Stream peek(Consumer action) {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> peek(Consumer<? super T> action) {
+		return stream.peek(action);
 	}
+
 	@Override
-	public Stream limit(long maxSize) {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> limit(long maxSize) {
+		return stream.limit(maxSize);
 	}
+
 	@Override
-	public Stream skip(long n) {
-		// TODO Auto-generated method stub
-		return null;
+	public Stream<T> skip(long n) {
+		return stream.skip(n);
 	}
+
 	@Override
-	public void forEach(Consumer action) {
-		// TODO Auto-generated method stub
-		
+	public void forEach(Consumer<? super T> action) {
+		stream.forEach(action);
 	}
+
 	@Override
-	public void forEachOrdered(Consumer action) {
-		// TODO Auto-generated method stub
-		
+	public void forEachOrdered(Consumer<? super T> action) {
+		stream.forEachOrdered(action);	
 	}
+
 	@Override
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+		return stream.toArray();
 	}
+
 	@Override
-	public Object[] toArray(IntFunction generator) {
-		// TODO Auto-generated method stub
-		return null;
+	public <A> A[] toArray(IntFunction<A[]> generator) {
+		return (A[]) stream.toArray(generator);
 	}
+
 	@Override
-	public Object reduce(Object identity, BinaryOperator accumulator) {
-		// TODO Auto-generated method stub
-		return null;
+	public T reduce(T identity, BinaryOperator<T> accumulator) {
+		return (T) stream.reduce(accumulator);
 	}
+
 	@Override
-	public Optional reduce(BinaryOperator accumulator) {
-		// TODO Auto-generated method stub
-		return null;
+	public Optional<T> reduce(BinaryOperator<T> accumulator) {
+		return stream.reduce(accumulator);
 	}
+
 	@Override
-	public Object reduce(Object identity, BiFunction accumulator, BinaryOperator combiner) {
-		// TODO Auto-generated method stub
-		return null;
+	public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
+		return (U) stream.reduce(accumulator,combiner);
 	}
+
 	@Override
-	public Object collect(Supplier supplier, BiConsumer accumulator, BiConsumer combiner) {
-		// TODO Auto-generated method stub
-		return null;
+	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
+		return (R) stream.collect(supplier, accumulator, combiner);
 	}
+
 	@Override
-	public Object collect(Collector collector) {
-		// TODO Auto-generated method stub
-		return null;
+	public <R, A> R collect(Collector<? super T, A, R> collector) {
+		return (R) stream.collect(collector);
 	}
+
 	@Override
-	public Optional min(Comparator comparator) {
-		// TODO Auto-generated method stub
-		return null;
+	public Optional<T> min(Comparator<? super T> comparator) {
+		return stream.min(comparator);
 	}
+
 	@Override
-	public Optional max(Comparator comparator) {
-		// TODO Auto-generated method stub
-		return null;
+	public Optional<T> max(Comparator<? super T> comparator) {
+		return stream.max(comparator);
 	}
+
 	@Override
 	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
+		return stream.count();
 	}
+
 	@Override
-	public boolean anyMatch(Predicate predicate) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean anyMatch(Predicate<? super T> predicate) {
+		return stream.anyMatch(predicate);
 	}
+
 	@Override
-	public boolean allMatch(Predicate predicate) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean allMatch(Predicate<? super T> predicate) {
+		return stream.allMatch(predicate);
 	}
+
 	@Override
-	public boolean noneMatch(Predicate predicate) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean noneMatch(Predicate<? super T> predicate) {
+		return stream.noneMatch(predicate);
 	}
+
 	@Override
-	public Optional findFirst() {
-		// TODO Auto-generated method stub
-		return null;
+	public Optional<T> findFirst() {
+		return stream.findFirst();
 	}
+
 	@Override
-	public Optional findAny() {
-		// TODO Auto-generated method stub
-		return null;
+	public Optional<T> findAny() {
+		return stream.findAny();
 	}
+	
 	
 }

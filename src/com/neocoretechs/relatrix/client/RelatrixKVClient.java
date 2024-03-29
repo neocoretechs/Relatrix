@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 
 //import com.neocoretechs.rocksack.SerializedComparator;
 //import com.neocoretechs.rocksack.iterator.Entry;
@@ -429,8 +430,8 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 
 		switch(args.length) {
 			case 4:
-				RemoteStream stream = (RemoteStream) rc.entrySetStream(Class.forName(args[3]));
-				stream.of().forEach(e ->{	
+				Stream stream = rc.entrySetStream(Class.forName(args[3]));
+				stream.forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
 				});
 				System.exit(0);

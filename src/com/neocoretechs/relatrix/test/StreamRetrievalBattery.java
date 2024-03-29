@@ -1,14 +1,11 @@
 package com.neocoretechs.relatrix.test;
 
-
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.RelatrixClient;
-import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteStream;
-import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 
 /**
  * NOTES: program args are local_node remote_node remote_database_port
@@ -22,6 +19,7 @@ public class StreamRetrievalBattery {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
+		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);
@@ -45,55 +43,47 @@ public class StreamRetrievalBattery {
 		Stream it = null;
 		System.out.println("Wildcard queries:");
 	
-		System.out.println("1.) FindSetStream(*,*,*)...");
-		it =  rkvc.findStream("*", "*", "*");
-		((RemoteStream)it).of().forEach(System.out::println);
+		System.out.println("1.) FindStream(*,*,*)...");
+		rkvc.findStream("*", "*", "*").forEach(System.out::println);
 		
-		System.out.println("2.) FindSetStream(*,*,?)...");		
-		it = rkvc.findStream("*", "*", "?");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("2.) FindStream(*,*,?)...");		
+		rkvc.findStream("*", "*", "?").forEach(e -> {
 			if(ar.size() == 0 ) ar.add( (Result) e);	
 			System.out.println(e);
 		});
 		
-		System.out.println("3.) FindSetStream(*,?,*)...");		
-		it = rkvc.findStream("*", "?", "*");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("3.) FindStream(*,?,*)...");		
+		rkvc.findStream("*", "?", "*").forEach(e -> {
 			if(ar.size() == 1 ) ar.add((Result) e);
 			System.out.println(e);
 		});
 		
-		System.out.println("4.) FindSetStream(?,*,*)...");		
-		it = rkvc.findStream("?", "*", "*");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("4.) FindStream(?,*,*)...");		
+		rkvc.findStream("?", "*", "*").forEach(e -> {
 			if(ar.size() == 2 ) ar.add( (Result) e);
 			System.out.println(e);
 		});
 		
-		System.out.println("5.) FindSetStream(*,?,?)...");		
-		it = rkvc.findStream("*", "?", "?");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("5.) FindStream(*,?,?)...");		
+		rkvc.findStream("*", "?", "?").forEach(e -> {
 			if(ar2.size() == 0) ar2.add( (Result) e);
 			System.out.println(e);
 		});
 		
-		System.out.println("6.) FindSetStream(?,*,?)...");		
-		it = rkvc.findStream("?", "*", "?");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("6.) FindStream(?,*,?)...");		
+		rkvc.findStream("?", "*", "?").forEach(e -> {
 			if(ar2.size() == 1) ar2.add((Result) e);
 			System.out.println(e);
 		});
 		
-		System.out.println("7.) FindSetStream(?,?,*)...");		
-		it = rkvc.findStream("?", "?", "*");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("7.) FindStream(?,?,*)...");		
+		rkvc.findStream("?", "?", "*").forEach(e -> {
 			if(ar2.size() == 2) ar2.add((Result) e);
 			System.out.println(e);
 		});
 		
-		System.out.println("8.) FindSetStream(?,?,?)...");		
-		it = rkvc.findStream("?", "?", "?");
-		((RemoteStream)it).of().forEach(e -> {
+		System.out.println("8.) FindStream(?,?,?)...");		
+		rkvc.findStream("?", "?", "?").forEach(e -> {
 			if(ar3.size() == 0) ar3.add((Result) e);
 			System.out.println(e);
 		});
@@ -101,57 +91,38 @@ public class StreamRetrievalBattery {
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. They should produce relationships with these elements");
 		
-		System.out.println("9.) FindSetStream(<obj>,<obj>,<obj>)...");
-		it = rkvc.findStream(ar3.get(0), ar3.get(0), ar3.get(0));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("9.) FindStream(<obj>,<obj>,<obj>)...");
+		rkvc.findStream(ar3.get(0).get(0), ar3.get(0).get(1), ar3.get(0).get(2)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("10.) FindSetStream(*,*,<obj>)...");		
-		it = rkvc.findStream("*", "*", ar.get(0));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("10.) FindStream(*,*,<obj>)...");		
+		rkvc.findStream("*", "*", ar.get(0).get(0)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 
-		System.out.println("11.) FindSetStream(*,<obj>,*)...");		
-		it = rkvc.findStream("*", ar.get(1), "*");
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("11.) FindStream(*,<obj>,*)...");		
+		rkvc.findStream("*", ar.get(1).get(0), "*").forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("12.) FindSetStream(<obj>,*,*)...");		
-		it = rkvc.findStream(ar.get(2), "*", "*");
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("12.) FindStream(<obj>,*,*)...");		
+		rkvc.findStream(ar.get(2).get(0), "*", "*").forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("13.) FindSetStream(*,<obj>,<obj>)...");		
-		it = rkvc.findStream("*", ar2.get(0), ar2.get(0));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("13.) FindStream(*,<obj>,<obj>)...");		
+		rkvc.findStream("*", ar2.get(0).get(0), ar2.get(0).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("14.) FindSetStream(<obj>,*,<obj>)...");		
-		it = rkvc.findStream(ar2.get(1), "*", ar2.get(1));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("14.) FindStream(<obj>,*,<obj>)...");		
+		rkvc.findStream(ar2.get(1).get(0), "*", ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("15.) FindSetStream(<obj>,<obj>,*)...");		
-		it = rkvc.findStream(ar2.get(2), ar2.get(2), "*");
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("17.) FindStream(?,<obj>,?)...");		
+		rkvc.findStream("?", ar.get(1).get(0), "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("16.) FindSetStream(?,?,<obj>)...");		
-		it = rkvc.findStream("?", "?", ar.get(0));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()+" -- "+((Comparable[])e)[1].toString()));
+		System.out.println("18.) FindStream(<obj>,?,?)...");		
+		rkvc.findStream(ar.get(2).get(0), "?", "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("17.) FindSetStream(?,<obj>,?)...");		
-		it = rkvc.findStream("?", ar.get(1), "?");
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()+" -- "+((Comparable[])e)[1].toString()));
+		System.out.println("19.) FindStream(?,<obj>,<obj>)...");		
+		rkvc.findStream("?", ar2.get(0).get(0), ar2.get(0).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("18.) FindSetStream(<obj>,?,?)...");		
-		it = rkvc.findStream(ar.get(2), "?", "?");
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()+" -- "+((Comparable[])e)[1].toString()));
-		
-		System.out.println("19.) FindSetStream(?,<obj>,<obj>)...");		
-		it = rkvc.findStream("?", ar2.get(0), ar2.get(0));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
-		
-		System.out.println("20.) FindSetStream(<obj>,?,<obj>)...");		
-		it = rkvc.findStream(ar2.get(1), "?", ar2.get(1));
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		System.out.println("20.) FindStream(<obj>,?,<obj>)...");		
+		rkvc.findStream(ar2.get(1).get(0), "?", ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("21.) FindSetStream(<obj>,<obj>,?)...");		
-		it = rkvc.findStream(ar2.get(2), ar2.get(2), "?");
-		((RemoteStream)it).of().forEach(e -> System.out.println(e.getClass().getName()+","+((Comparable[])e)[0].toString()));
+		rkvc.findStream(ar2.get(2).get(0), ar2.get(2).get(1), "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}

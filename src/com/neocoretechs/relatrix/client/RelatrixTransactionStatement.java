@@ -74,7 +74,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 		if(result != null && !(result instanceof Serializable) && !(result instanceof Externalizable) ) {
 			// Stream..?
 			if( result instanceof Stream) {
-				setObjectReturn( new RemoteStreamTransaction(xid, result) );
+				setObjectReturn( new RemoteStreamTransaction(xid, (Stream) result) );
 				getCountDownLatch().countDown();
 				return;
 			}

@@ -20,7 +20,7 @@ public class RemoteStreamTransaction extends RemoteStream implements Serializabl
 	 * @param result instance of stream to build collection that is serializable to return to client for
 	 * construction of client side stream
 	 */
-	public RemoteStreamTransaction(String xid, Object result) {
+	public RemoteStreamTransaction(String xid, Stream result) {
 		super(result);
 		this.xid = xid;
 	}

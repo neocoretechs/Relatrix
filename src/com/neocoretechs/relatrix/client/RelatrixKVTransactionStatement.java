@@ -77,7 +77,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {					
 			// Stream..?
 			if( result instanceof Stream) {
-					setObjectReturn( new RemoteStreamTransaction(xid, result) );
+					setObjectReturn( new RemoteStreamTransaction(xid, (Stream) result) );
 					getCountDownLatch().countDown();
 					return;
 			}

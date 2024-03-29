@@ -639,7 +639,7 @@ public class HandlerClassLoader extends ClassLoader {
        			connectToRemoteRepository(args[0], args[1], Integer.parseInt(args[2]));
     			break;
     	}
-    	((RemoteStream)(remoteRepository.entrySetStream(String.class))).of().forEach(e-> {
+    	remoteRepository.entrySetStream(String.class).forEach(e-> {
     		System.out.printf("Class: %s size:%d%n",((ClassNameAndBytes)((Map.Entry)e).getValue()).getName(),
     			((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length);
     		size += ((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length;

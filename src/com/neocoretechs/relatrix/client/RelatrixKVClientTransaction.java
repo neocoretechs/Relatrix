@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -367,8 +368,8 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 		String xid = "";
 		switch(args.length) {
 			case 4:
-				RemoteStream stream = (RemoteStream) rc.entrySetStream(xid, Class.forName(args[3]));
-				stream.of().forEach(e ->{	
+				Stream stream = rc.entrySetStream(xid, Class.forName(args[3]));
+				stream.forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
 				});
 				System.exit(0);

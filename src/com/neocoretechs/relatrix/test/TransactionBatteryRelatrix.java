@@ -4,6 +4,7 @@ package com.neocoretechs.relatrix.test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -111,13 +112,13 @@ public class TransactionBatteryRelatrix {
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-				RemoteStream rs = (RemoteStream) rct.findStream(xid, fkey, "Has unit", new Long(i));
-				if(rs.of().count() != 1)
-					System.out.println("Stream mismatch, should be 1 but is:"+rs.of().count());
-				Optional<?> o = rs.of().findFirst();
+				Stream rs =  rct.findStream(xid, fkey, "Has unit", new Long(i));
+				if(rs.count() != 1)
+					System.out.println("Stream mismatch, should be 1 but is:"+rs.count());
+				Optional<?> o = rs.findFirst();
 				if(o.isPresent()) {
-					rs = (RemoteStream) rct.findStream(xid,  o.get(), "*", o.get());
-					Optional<?> p = rs.of().findFirst();
+					rs = rct.findStream(xid,  o.get(), "*", o.get());
+					Optional<?> p = rs.findFirst();
 					if(p.isPresent()) {
 						Comparable[] c = (Comparable[]) p.get();
 						DomainMapRange d = (DomainMapRange) c[0];
