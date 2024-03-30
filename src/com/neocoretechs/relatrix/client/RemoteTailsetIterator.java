@@ -6,18 +6,17 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteTailSetIterator extends RelatrixStatement implements RemoteObjectInterface{
+public class RemoteTailSetIterator extends RemoteIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteTailSetIterator(String session) {
-		super();
+		super(session);
 		paramArray = new Object[0];
-		setSession(session);
 	}
 
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixServer.sessionToObject.get(getSession());
@@ -31,8 +30,4 @@ public class RemoteTailSetIterator extends RelatrixStatement implements RemoteOb
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixServer.sessionToObject.remove(getSession());
-	}
 }

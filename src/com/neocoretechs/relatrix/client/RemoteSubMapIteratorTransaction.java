@@ -8,19 +8,17 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteSubMapIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface {
+public class RemoteSubMapIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -112309448424952343L;
 	public RemoteSubMapIteratorTransaction(String xid, String session) {
-		super();
+		super(xid, session);
 		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
 	}
 	
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixKVTransactionServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixKVTransactionServer.sessionToObject.get(getSession());
@@ -34,8 +32,5 @@ public class RemoteSubMapIteratorTransaction extends RelatrixKVTransactionStatem
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixKVTransactionServer.sessionToObject.remove(getSession());
-	}
+	
 }

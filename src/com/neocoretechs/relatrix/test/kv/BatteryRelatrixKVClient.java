@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -9,6 +10,8 @@ import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteEntrySetKVIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
+import com.neocoretechs.relatrix.client.RemoteIterator;
+import com.neocoretechs.relatrix.client.RemoteKVIterator;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
 import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
@@ -164,10 +167,10 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(String.class);
+		RemoteKVIterator its = (RemoteKVIterator) rkvc.keySet(String.class);
 		System.out.println("KV Battery1AR7");
-		while(rkvc.hasNext(its)) {
-			String nex = (String) rkvc.next(its);
+		while(its.hasNext()) {
+			String nex = (String) its.next();
 			// Map.Entry
 			if(Integer.parseInt(nex) != i)
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
@@ -298,10 +301,10 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapIterator its = (RemoteTailMapIterator) rkvc.findTailMap(fkey);
+		RemoteKVIterator its =  (RemoteKVIterator) rkvc.findTailMap(fkey);
 		System.out.println("KV Battery1AR11");
-		while(rkvc.hasNext(its)) {
-			String nex = (String) rkvc.next(its);
+		while(its.hasNext()) {
+			String nex = (String) its.next();
 			// Map.Entry
 			if(Integer.parseInt(nex) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
@@ -447,11 +450,11 @@ public class BatteryRelatrixKVClient {
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17");
-		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(String.class);
+		Iterator its =  rkvc.keySet(String.class);
 		System.out.println("KV Battery1AR7");
 		long timx = System.currentTimeMillis();
-		while(rkvc.hasNext(its)) {
-			String fkey = (String) rkvc.next(its);
+		while(its.hasNext()) {
+			String fkey = (String) its.next();
 			rkvc.remove(fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println(fkey);
@@ -463,7 +466,7 @@ public class BatteryRelatrixKVClient {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+fkey);
 			}
 		}
-		its.close();
+		((RemoteKVIterator)its).close();
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
 			RemoteEntrySetKVIterator ets = (RemoteEntrySetKVIterator) rkvc.entrySet(String.class);

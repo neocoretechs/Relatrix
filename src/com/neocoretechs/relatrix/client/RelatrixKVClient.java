@@ -374,16 +374,15 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 
 		switch(args.length) {
 			case 4:
-				/*
-				Stream stream = rc.entrySetStream(Class.forName(args[3]));
-				stream.forEach(e ->{	
+				RemoteIterator it = (RemoteIterator) rc.entrySet(Class.forName(args[3]));
+				new RemoteStream(it).forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
-				*/
-				Iterator it = rc.entrySet(Class.forName(args[3]));
+				/*
 				it.forEachRemaining(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
+				*/
 				System.exit(0);
 			case 5:
 				rs = new RelatrixKVStatement(args[3],args[4]);

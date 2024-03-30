@@ -10,6 +10,7 @@ import com.neocoretechs.relatrix.client.RemoteEntrySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteHeadMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
+import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteSubMapIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteSubMapKVIteratorTransaction;
@@ -169,10 +170,10 @@ public class BatteryRelatrixKVClientTransaction {
 	public static void battery1AR7(String xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(xid, String.class);
+		RemoteKVIteratorTransaction its = (RemoteKVIteratorTransaction) rkvc.keySet(xid, String.class);
 		System.out.println("KV Battery1AR7");
-		while(rkvc.hasNext(xid, its)) {
-			String nex = (String) rkvc.next(xid, its);
+		while(its.hasNext()) {
+			String nex = (String) its.next();
 			// Map.Entry
 			if(Integer.parseInt(nex) != i)
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
@@ -303,10 +304,10 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapIteratorTransaction its = (RemoteTailMapIteratorTransaction) rkvc.findTailMap(xid, fkey);
+		RemoteKVIteratorTransaction its = (RemoteKVIteratorTransaction) rkvc.findTailMap(xid, fkey);
 		System.out.println("KV Battery1AR11");
-		while(rkvc.hasNext(xid, its)) {
-			String nex = (String) rkvc.next(xid, its);
+		while(its.hasNext()) {
+			String nex = (String) its.next();
 			// Map.Entry
 			if(Integer.parseInt(nex) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
@@ -402,11 +403,11 @@ public class BatteryRelatrixKVClientTransaction {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapIteratorTransaction its = (RemoteSubMapIteratorTransaction) rkvc.findSubMap(xid, fkey, tkey);
+		RemoteKVIteratorTransaction its = (RemoteKVIteratorTransaction) rkvc.findSubMap(xid, fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
-		while(rkvc.hasNext(xid, its)) {
-			String nex = (String) rkvc.next(xid, its);
+		while(its.hasNext()) {
+			String nex = (String) its.next();
 			if(Integer.parseInt(nex) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex);
@@ -453,10 +454,10 @@ public class BatteryRelatrixKVClientTransaction {
 		long tims = System.currentTimeMillis();
 		String xid2 = rkvc.getTransactionId();
 		System.out.println("KV Battery1AR17");
-		RemoteKeySetIteratorTransaction its = (RemoteKeySetIteratorTransaction) rkvc.keySet(xid2,String.class);
+		RemoteKVIteratorTransaction its = (RemoteKVIteratorTransaction) rkvc.keySet(xid2,String.class);
 		long timx = System.currentTimeMillis();
-		while(rkvc.hasNext(xid2,its)) {
-			String fkey = (String) rkvc.next(xid2,its);
+		while(its.hasNext()) {
+			String fkey = (String) its.next();
 			rkvc.remove(xid2,fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println(fkey);

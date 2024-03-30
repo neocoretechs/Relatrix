@@ -1,25 +1,22 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 /**
  * Used to produce key/value tailmaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailMapKVIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface{
+public class RemoteTailMapKVIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteTailMapKVIteratorTransaction(String xid, String session) {
-		super();
+		super(xid,session);
 		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
 	}
 
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixKVTransactionServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixKVTransactionServer.sessionToObject.get(getSession());
@@ -33,8 +30,4 @@ public class RemoteTailMapKVIteratorTransaction extends RelatrixKVTransactionSta
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixKVTransactionServer.sessionToObject.remove(getSession());
-	}
 }

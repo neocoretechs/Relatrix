@@ -7,19 +7,18 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteKeySetIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface {
+public class RemoteKeySetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteKeySetIteratorTransaction(String xid, String session) {
-		super();
+		super(xid, session);
 		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
+	
 	}
 	
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixKVTransactionServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixKVTransactionServer.sessionToObject.get(getSession());
@@ -34,8 +33,4 @@ public class RemoteKeySetIteratorTransaction extends RelatrixKVTransactionStatem
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixKVTransactionServer.sessionToObject.remove(getSession());
-	}
 }

@@ -6,18 +6,18 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailMapKVIterator extends RelatrixKVStatement implements RemoteObjectInterface{
+public class RemoteTailMapKVIterator extends RemoteKVIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteTailMapKVIterator(String session) {
-		super();
+		super(session);
 		paramArray = new Object[0];
-		setSession(session);
+
 	}
 	
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixKVServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixKVServer.sessionToObject.get(getSession());
@@ -31,8 +31,4 @@ public class RemoteTailMapKVIterator extends RelatrixKVStatement implements Remo
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixKVServer.sessionToObject.remove(getSession());
-	}
 }

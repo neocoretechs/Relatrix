@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,6 +23,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Used by the RelatrixServer and RelatrixKVServer to produce and consume streams for remote delivery and retrieval.<p/>
@@ -34,8 +36,10 @@ import java.util.stream.Stream;
 public class RemoteStream<T> implements Stream<T>,Serializable {
 	private static final long serialVersionUID = 3064585530528835745L;
 	private static boolean DEBUG = false;
-	private transient Stream stream;
-	
+	protected transient Stream stream;
+	private transient Iterator iterator;
+    protected static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED;
+    
 	public RemoteStream() {}
 	/**
 	 * 
@@ -45,7 +49,12 @@ public class RemoteStream<T> implements Stream<T>,Serializable {
 	public RemoteStream(Stream result) {
 		this.stream = result;
 		if(DEBUG)
-			System.out.printf("Setting return object:%s %n", stream.toString());
+			System.out.printf("Setting object:%s %n", stream.toString());
+	}
+	
+	public RemoteStream(RemoteIterator it) {
+		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(it, characteristics);
+		stream = (Stream<?>) StreamSupport.stream(spliterator, true);
 	}
 
 	@Override

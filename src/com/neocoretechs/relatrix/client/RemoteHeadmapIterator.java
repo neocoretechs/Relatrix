@@ -6,10 +6,10 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteHeadMapIterator extends RelatrixKVStatement implements RemoteObjectInterface{
+public class RemoteHeadMapIterator extends RemoteKVIterator {
 	private static final long serialVersionUID = -6767314283313398274L;
 	public RemoteHeadMapIterator(String session) {
-		super();
+		super(session);
 		paramArray = new Object[0];
 		setSession(session);
 	}
@@ -17,7 +17,7 @@ public class RemoteHeadMapIterator extends RelatrixKVStatement implements Remote
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixKVServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixKVServer.sessionToObject.get(getSession());
@@ -31,8 +31,4 @@ public class RemoteHeadMapIterator extends RelatrixKVStatement implements Remote
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixKVServer.sessionToObject.remove(getSession());
-	}
 }

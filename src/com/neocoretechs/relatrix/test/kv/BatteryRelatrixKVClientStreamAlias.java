@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
+import com.neocoretechs.relatrix.client.RemoteKVIterator;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
@@ -480,10 +481,10 @@ public class BatteryRelatrixKVClientStreamAlias {
 	public static void battery1AR17(String alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17 for alias "+alias);
-		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(alias, String.class);
+		RemoteKVIterator its = (RemoteKVIterator) rkvc.keySet(alias, String.class);
 		long timx = System.currentTimeMillis();
-		while(rkvc.hasNext(its)) {
-			String fkey = (String) rkvc.next(its);
+		while(its.hasNext()) {
+			String fkey = (String) its.next();
 			rkvc.remove(alias, fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println(fkey);

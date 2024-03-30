@@ -7,19 +7,17 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteSubSetIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface {
+public class RemoteSubSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteSubSetIteratorTransaction(String xid, String session) {
-		super();
+		super(xid, session);
 		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
 	}
 
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixTransactionServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
 			Object itInst = RelatrixTransactionServer.sessionToObject.get(getSession());
@@ -33,8 +31,4 @@ public class RemoteSubSetIteratorTransaction extends RelatrixTransactionStatemen
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixTransactionServer.sessionToObject.remove(getSession());
-	}
 }
