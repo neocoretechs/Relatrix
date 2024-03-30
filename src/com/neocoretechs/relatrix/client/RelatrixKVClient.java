@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -42,7 +43,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  */
 public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements Runnable {
 	private static final boolean DEBUG = false;
-	public static final boolean TEST = false; // true to run in local cluster test mode
+	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	
 	private String bootNode, remoteNode;
@@ -158,6 +159,8 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 				} else {
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
+					if(o instanceof RemoteKVIterator)
+						((RemoteKVIterator)o).setClient(this);
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
 					rs.getCountDownLatch().countDown();
@@ -180,29 +183,23 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	public void send(RemoteRequestInterface iori) {
-		try {
-			if(DEBUG)
-				System.out.println("Attempting to send "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-			outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-			//if(DEBUG) {
-			//	byte[] b = SerializedComparator.serializeObject(iori);
-			//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-			//}
-			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-			if(DEBUG)
-				System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-			oos.writeObject(iori);
-			if(DEBUG)
-				System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-			oos.flush();
-			if(DEBUG)
-				System.out.println(iori+" sent to "+workerSocket);
-		} catch (SocketException e) {
-				System.out.println("Exception setting up socket to remote KV host:"+IPAddress+" port "+SLAVEPORT+" "+e);
-		} catch (IOException e) {
-				System.out.println("KV Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
-		}
+	public void send(RemoteRequestInterface iori) throws Exception {
+		if(DEBUG)
+			System.out.println("Attempting to send "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
+		//if(DEBUG) {
+		//	byte[] b = SerializedComparator.serializeObject(iori);
+		//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+		//}
+		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
+		if(DEBUG)
+			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+		oos.writeObject(iori);
+		if(DEBUG)
+			System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+		oos.flush();
+		if(DEBUG)
+			System.out.println(iori+" sent to "+workerSocket);
 	}
 	
 	public void close() {
@@ -248,29 +245,14 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 	 * @return 
 	 */
 	@Override
-	public Object sendCommand(RelatrixKVStatement rs) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public Object sendCommand(RelatrixKVStatement rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
+		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return o;
-	
 	}
 	
 	//-------------------------------------------------------------------
@@ -281,7 +263,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpace",(Object[])null);
 		try {
 			return (String) sendCommand(rs);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -295,47 +277,31 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 	 * @param rii
 	 * @return Object of iteration, depends on iterator being used, typically, Map.Entry derived serializable instance of next element
 	 */
-	public Object next(RelatrixKVStatement rii) throws NoSuchElementException {
+	public Object next(RelatrixKVStatement rii) throws Exception {
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
-		try {
-			return sendCommand(rii);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			throw new NoSuchElementException(e.getMessage());
-		}
+		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(RelatrixKVStatement rii) {
+	public boolean hasNext(RelatrixKVStatement rii) throws Exception {
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];
-		try {
-			return (boolean) sendCommand(rii);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			throw new RuntimeException(e);
-		}
+		return (boolean) sendCommand(rii);
 	}
 	
-	public void remove(RelatrixKVStatement rii) throws UnsupportedOperationException, IllegalStateException{
+	public void remove(RelatrixKVStatement rii) throws Exception{
 		rii.methodName = "remove";
 		rii.paramArray = new Object[]{ rii.getObjectReturn() };
-		try {
-			sendCommand(rii);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			throw new IllegalStateException(e);
-		}
+		sendCommand(rii);
 	}
 	/**
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(RelatrixKVStatement rii) {
+	public void close(RelatrixKVStatement rii) throws Exception {
 		rii.methodName = "close";
 		rii.paramArray = new Object[0];
-		try {
-			sendCommand(rii);
-		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-			throw new RuntimeException(e);
-		}
+		sendCommand(rii);
 	}
 	
 	/**
@@ -408,9 +374,15 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 
 		switch(args.length) {
 			case 4:
+				/*
 				Stream stream = rc.entrySetStream(Class.forName(args[3]));
 				stream.forEach(e ->{	
-					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
+					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
+				});
+				*/
+				Iterator it = rc.entrySet(Class.forName(args[3]));
+				it.forEachRemaining(e ->{	
+					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
 				System.exit(0);
 			case 5:

@@ -104,7 +104,7 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 				e1.printStackTrace();
 			//}
-			if(e1 instanceof NoSuchMethodException) {
+			if(e1 instanceof NoSuchMethodException || e1.getCause() == null) {
 				Exception e = new Exception();
 				e.initCause(e1);
 				iori.setObjectReturn(e);

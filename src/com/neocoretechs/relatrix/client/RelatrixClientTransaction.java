@@ -9,7 +9,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-
+import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -146,6 +147,8 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
+					if(o instanceof RemoteIteratorTransaction)
+						((RemoteIteratorTransaction)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);
@@ -170,40 +173,21 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	public void send(RelatrixTransactionStatement iori) {
-		try {
-			outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
-			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-			oos.writeObject(iori);
-			oos.flush();
-		} catch (SocketException e) {
-				System.out.println("Exception setting up socket to remote host:"+IPAddress+" port "+SLAVEPORT+" "+e);
-		} catch (IOException e) {
-				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
-		}
+	public void send(RelatrixTransactionStatement iori) throws Exception {
+		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
+		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
+		oos.writeObject(iori);
+		oos.flush();
 	}
 	
 	@Override
-	public Object sendCommand(RelatrixTransactionStatement rs) throws DuplicateKeyException, IllegalAccessException, IOException {
+	public Object sendCommand(RelatrixTransactionStatement rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
+		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-				if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return o;
 	}
 	/**
@@ -282,34 +266,18 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @param rii
 	 * @return
 	 */
-	public Result next(String xid, RemoteObjectInterface rii) throws NoSuchElementException {
-		((RelatrixTransactionStatement)rii).xid = xid;
-		((RelatrixStatement)rii).methodName = "next";
-		((RelatrixStatement)rii).paramArray = new Object[0];
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
-		send( (RelatrixTransactionStatement) rii);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		Object o = ((RelatrixStatement)rii).getObjectReturn();
-		if(o instanceof NoSuchElementException)
-			throw (NoSuchElementException)o;
-		return (Result)o;
-
+	public Object next(String xid, RelatrixTransactionStatement rii) throws Exception {
+		rii.xid = xid;
+		rii.methodName = "next";
+		rii.paramArray = new Object[0];
+		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(String xid, RemoteObjectInterface rii) {
-		((RelatrixTransactionStatement)rii).xid = xid;
-		((RelatrixStatement)rii).methodName = "hasNext";
-		((RelatrixStatement)rii).paramArray = new Object[0];
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
-		send( (RelatrixTransactionStatement) rii);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		return (boolean)((RelatrixStatement)rii).getObjectReturn();	
+	public boolean hasNext(String xid, RelatrixTransactionStatement rii) throws Exception {
+		rii.xid = xid;
+		rii.methodName = "hasNext";
+		rii.paramArray = new Object[0];
+		return (boolean) sendCommand(rii);
 	}
 	
 
@@ -317,24 +285,18 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(String xid, RemoteObjectInterface rii) {
-		((RelatrixTransactionStatement)rii).xid = xid;
-		((RelatrixStatement)rii).methodName = "close";
-		((RelatrixStatement)rii).paramArray = new Object[0];
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixStatement) rii).setCountDownLatch(cdl);
-		send( (RelatrixTransactionStatement) rii);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
+	public void close(String xid, RelatrixTransactionStatement rii) throws Exception {
+		rii.xid = xid;
+		rii.methodName = "close";
+		rii.paramArray = new Object[0];
+		sendCommand(rii);
 	}
 	
 	@Override
 	public String toString() {
 		return String.format("Relatrix server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
-	
+	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
 	 * @param args
@@ -346,7 +308,11 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		RelatrixTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
-				rs = new RelatrixTransactionStatement(xid,args[3]);
+				Iterator it = rc.entrySet(xid,Class.forName(args[3]));
+				it.forEachRemaining(e ->{	
+					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
+				});
+				System.exit(0);				
 				break;
 			case 5:
 				rs = new RelatrixTransactionStatement(xid,args[4]);

@@ -39,12 +39,20 @@ public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjec
 	
 	@Override
 	public boolean hasNext() {
-		return relatrixClient.hasNext(this);
+		try {
+			return relatrixClient.hasNext(this);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public Object next() {
-		return relatrixClient.next(this);
+		try {
+			return relatrixClient.next(this);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

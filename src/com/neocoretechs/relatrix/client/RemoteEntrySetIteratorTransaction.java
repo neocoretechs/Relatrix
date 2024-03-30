@@ -6,7 +6,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteEntrySetIteratorTransaction extends RemoteKVIteratorTransaction {
+public class RemoteEntrySetIteratorTransaction extends RemoteIteratorTransaction {
 	private static boolean DEBUG = false;
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteEntrySetIteratorTransaction(String xid, String session) {

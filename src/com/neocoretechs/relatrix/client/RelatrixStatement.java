@@ -9,6 +9,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.rocksack.iterator.EntrySetIterator;
 
 /**
  * The following class allows the transport of Relatrix method calls to the server.
@@ -161,9 +162,13 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 							setObjectReturn( new RemoteHeadMapIterator(getSession()) );
 						} else {
 							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
-								setObjectReturn( new RemoteEntrySetKVIterator(getSession()) );
+								setObjectReturn( new RemoteEntrySetIterator(getSession()) );
 							} else {
-								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								if( result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
+									setObjectReturn( new RemoteEntrySetIterator(getSession()) );
+								} else {
+									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								}
 							}
 						}
 					}

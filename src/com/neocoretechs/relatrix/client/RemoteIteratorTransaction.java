@@ -39,12 +39,20 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 	
 	@Override
 	public boolean hasNext() {
-		return relatrixClient.hasNext(xid,this);
+		try {
+			return relatrixClient.hasNext(xid,this);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public Object next() {
-		return relatrixClient.next(xid,this);
+		try {
+			return relatrixClient.next(xid,this);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

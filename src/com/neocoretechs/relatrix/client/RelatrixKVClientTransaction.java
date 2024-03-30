@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -152,6 +153,8 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
+					if(o instanceof RemoteKVIteratorTransaction)
+						((RemoteKVIteratorTransaction)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);
@@ -178,17 +181,11 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	public void send(RemoteRequestInterface iori) {
-		try {
-			outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-			oos.writeObject(iori);
-			oos.flush();
-		} catch (SocketException e) {
-				System.out.println(this.getClass().getName()+" Exception setting up socket to remote KV host:"+IPAddress+" port "+SLAVEPORT+" "+e);
-		} catch (IOException e) {
-				System.out.println(this.getClass().getName()+" KV Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
-		}
+	public void send(RemoteRequestInterface iori) throws Exception {
+		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
+		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
+		oos.writeObject(iori);
+		oos.flush();
 	}
 	
 	public void close() {
@@ -240,31 +237,15 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * @return 
 	 */
 	@Override
-	public Object sendCommand(RelatrixKVTransactionStatement rs) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public Object sendCommand(RelatrixKVTransactionStatement rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-		}
+		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
-		if(o instanceof DuplicateKeyException)
-			throw (DuplicateKeyException)o;
-		else
-			if(o instanceof IllegalAccessException)
-				throw (IllegalAccessException)o;
-			else
-				if(o instanceof IOException)
-					throw (IOException)o;
-				else
-					if(o instanceof Exception)
-						throw new IOException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
 		return o;
-	
 	}
-	
 	
 	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
@@ -272,46 +253,32 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * object the value is transferred
 	 * @param rii
 	 * @return Object of iteration, depends on iterator being used, typically, Map.Entry derived serializable instance of next element
-	 * @throws IllegalAccessException 
+	 * @throws Exception 
 	 */
-	public Object next(String xid, RemoteObjectInterface rii)  {
-		((RelatrixKVTransactionStatement)rii).xid = xid;
-		((RelatrixKVStatement)rii).methodName = "next";
-		((RelatrixKVStatement)rii).paramArray = new Object[0];
-		try {
-			return sendCommand((RelatrixKVTransactionStatement) rii);
-		} catch (DuplicateKeyException | IllegalAccessException | IOException e) {
-			throw new RuntimeException(e);
-		}
+	public Object next(String xid, RelatrixKVTransactionStatement rii)  throws Exception {
+		rii.xid = xid;
+		rii.methodName = "next";
+		rii.paramArray = new Object[0];
+		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(String xid, RemoteObjectInterface rii) {
-		((RelatrixKVTransactionStatement)rii).xid = xid;
-		((RelatrixKVStatement)rii).methodName = "hasNext";
-		((RelatrixKVStatement)rii).paramArray = new Object[0];
-		try {
-			return (boolean) sendCommand((RelatrixKVTransactionStatement) rii);
-		} catch (DuplicateKeyException | IllegalAccessException | IOException e) {
-			throw new RuntimeException(e);
-		}
+	public boolean hasNext(String xid, RelatrixKVTransactionStatement rii) throws Exception {
+		rii.xid = xid;
+		rii.methodName = "hasNext";
+		rii.paramArray = new Object[0];
+		return (boolean) sendCommand(rii);
 	}
 	
 	/**
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
+	 * @throws Exception 
 	 */
-
-	public void close(String xid, RemoteObjectInterface rii) {
-		((RelatrixKVTransactionStatement)rii).xid = xid;
-		((RelatrixKVTransactionStatement)rii).methodName = "close";
-		((RelatrixKVTransactionStatement)rii).paramArray = new Object[] {xid};
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixKVTransactionStatement) rii).setCountDownLatch(cdl);
-		send((RemoteRequestInterface) rii);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		outstandingRequests.remove(((RelatrixKVTransactionStatement)rii).getSession());
+	public void close(String xid, RelatrixKVTransactionStatement rii) throws Exception {
+		rii.xid = xid;
+		rii.methodName = "close";
+		rii.paramArray = new Object[] {xid};
+		sendCommand(rii);
 	}
 	
 	/**
@@ -365,13 +332,20 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 		//rc.send(rs);
 		i = 0;
 		RelatrixKVClientTransaction rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
-		String xid = "";
+		String xid = rc.getTransactionId();
 		switch(args.length) {
 			case 4:
+				/*
 				Stream stream = rc.entrySetStream(xid, Class.forName(args[3]));
 				stream.forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
 				});
+				*/
+				Iterator it = rc.entrySet(xid,Class.forName(args[3]));
+				it.forEachRemaining(e ->{	
+					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
+				});
+				System.exit(0);
 				System.exit(0);
 			case 5:
 				rs = new RelatrixKVTransactionStatement(xid,args[3],args[4]);

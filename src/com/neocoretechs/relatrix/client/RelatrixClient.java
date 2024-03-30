@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,6 +146,8 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
+					if(o instanceof RemoteIterator)
+						((RemoteIterator)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);
@@ -169,29 +172,19 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	public void send(RemoteRequestInterface iori) {
-		try {
-			outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
-			ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-			oos.writeObject(iori);
-			oos.flush();
-		} catch (SocketException e) {
-				System.out.println("Exception setting up socket to remote host:"+IPAddress+" port "+SLAVEPORT+" "+e);
-		} catch (IOException e) {
-				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+SLAVEPORT);
-		}
+	public void send(RemoteRequestInterface iori) throws Exception {
+		outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
+		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
+		oos.writeObject(iori);
+		oos.flush();
 	}
 	
-	public Object sendCommand(RelatrixStatement rs) {
+	public Object sendCommand(RelatrixStatement rs) throws Exception {
 		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-			return null;
-		}
+		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
 		return o;
@@ -203,13 +196,13 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 	 * @param rii
 	 * @return
 	 */
-	public Object next(RelatrixStatement rii) throws NoSuchElementException {
+	public Object next(RelatrixStatement rii) throws Exception {
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(RelatrixStatement rii) {
+	public boolean hasNext(RelatrixStatement rii) throws Exception {
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];
 		return (boolean) sendCommand(rii);
@@ -310,7 +303,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
 	
-
+	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
 	 * @param args
@@ -321,8 +314,11 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 		RelatrixStatement rs = null;
 		switch(args.length) {
 			case 4:
-				rs = new RelatrixStatement(args[3]);
-				break;
+				Iterator it = rc.entrySet(Class.forName(args[3]));
+				it.forEachRemaining(e ->{	
+					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
+				});
+				System.exit(0);
 			case 5:
 				rs = new RelatrixStatement(args[3],args[4]);
 				break;

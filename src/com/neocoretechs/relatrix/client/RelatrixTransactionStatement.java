@@ -98,14 +98,17 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction.class ) {
 						setObjectReturn( new RemoteHeadSetIteratorTransaction(xid, getSession()) );
 					} else {
-
 						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
 							setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
 						} else {
 							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
 								setObjectReturn( new RemoteSubMapKVIteratorTransaction(xid, getSession()) );
 							} else {
-								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								if(result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
+									setObjectReturn( new RemoteEntrySetKVIteratorTransaction(xid, getSession()) );
+								} else {
+									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								}
 							}
 						}
 					}

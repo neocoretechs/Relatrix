@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -8,6 +9,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteHeadMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteSubMapIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteSubMapKVIteratorTransaction;
@@ -142,10 +144,10 @@ public class BatteryRelatrixKVClientTransaction {
 	public static void battery1AR6(String xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIteratorTransaction its = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(xid, String.class);
+		RemoteIteratorTransaction its = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(xid, String.class);
 		System.out.println("KV Battery1AR6 ");
-		while(rkvc.hasNext(xid, its)) {
-			Object nex =  rkvc.next(xid, its);
+		while(its.hasNext()) {
+			Object nex =  its.next();
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
@@ -465,12 +467,12 @@ public class BatteryRelatrixKVClientTransaction {
 		rkvc.commit(xid2);
 		long siz = rkvc.size(xid2, String.class);
 		if(siz > 0) {
-			RemoteEntrySetIteratorTransaction itt = (RemoteEntrySetIteratorTransaction) rkvc.entrySet(xid2, String.class);
-			while(rkvc.hasNext(xid2, itt)) {
-				Object nex = rkvc.next(xid2, itt);
+			Iterator itt = rkvc.entrySet(xid2, String.class);
+			while(itt.hasNext()) {
+				Object nex = itt.next();
 				System.out.println(nex);
 			}
-			itt.close();
+			((RemoteIteratorTransaction)itt).close();
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}

@@ -484,11 +484,13 @@ public class HandlerClassLoader extends ClassLoader {
       		if(remoteRepository != null) {
       	      		ArrayList<String> remo = new ArrayList<String>();
       	      			RemoteKeySetIterator it = (RemoteKeySetIterator) remoteRepository.keySet(String.class);
-      	      			while(remoteRepository.hasNext(it)) {
-      	      				Comparable key = (Comparable) remoteRepository.next(it);
-      	      				if( ((String)key).startsWith(name))
-      	      					remo.add((String) key);
-      	      			}
+      	      			try {
+      	      				while(remoteRepository.hasNext(it)) {
+      	      					Comparable key = (Comparable) remoteRepository.next(it);
+      	      					if( ((String)key).startsWith(name))
+      	      						remo.add((String) key);
+      	      				}
+      	      			} catch(Exception e) {}
       	      			for(String s: remo) {
       	      				remoteRepository.remove(s);
       	     				classNameAndBytecodes.remove(s);
