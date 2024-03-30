@@ -31,6 +31,9 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
    		session = UUID.randomUUID().toString();
     }
     
+    public RelatrixStatement(String session) {
+    	this.session = session;
+    }
     /**
      * Prep RelatrixStatement to send remote method call
      */
@@ -158,7 +161,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 							setObjectReturn( new RemoteHeadMapIterator(getSession()) );
 						} else {
 							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
-								setObjectReturn( new RemoteEntrySetIterator(getSession()) );
+								setObjectReturn( new RemoteEntrySetKVIterator(getSession()) );
 							} else {
 								throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 							}

@@ -295,69 +295,47 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 	 * @param rii
 	 * @return Object of iteration, depends on iterator being used, typically, Map.Entry derived serializable instance of next element
 	 */
-	public Object next(RemoteObjectInterface rii) throws NoSuchElementException {
-		((RelatrixKVStatement)rii).methodName = "next";
-		((RelatrixKVStatement)rii).paramArray = new Object[0];
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
-		send((RemoteRequestInterface) rii);
+	public Object next(RelatrixKVStatement rii) throws NoSuchElementException {
+		rii.methodName = "next";
+		rii.paramArray = new Object[0];
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		Object o = ((RelatrixKVStatement)rii).getObjectReturn();
-		if(o instanceof NoSuchElementException)
-			throw (NoSuchElementException)o;
-		return o;
-
+			return sendCommand(rii);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new NoSuchElementException(e.getMessage());
+		}
 	}
 	
-	public boolean hasNext(RemoteObjectInterface rii) {
-		((RelatrixKVStatement)rii).methodName = "hasNext";
-		((RelatrixKVStatement)rii).paramArray = new Object[0];
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
-		send((RemoteRequestInterface) rii);
+	public boolean hasNext(RelatrixKVStatement rii) {
+		rii.methodName = "hasNext";
+		rii.paramArray = new Object[0];
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		return (boolean)((RelatrixKVStatement)rii).getObjectReturn();	
+			return (boolean) sendCommand(rii);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public void remove(RemoteObjectInterface rii) throws UnsupportedOperationException, IllegalStateException{
-		((RelatrixKVStatement)rii).methodName = "remove";
-		((RelatrixKVStatement)rii).paramArray = new Object[]{ ((RelatrixKVStatement)rii).getObjectReturn() };
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
-		send((RemoteRequestInterface) rii);
+	public void remove(RelatrixKVStatement rii) throws UnsupportedOperationException, IllegalStateException{
+		rii.methodName = "remove";
+		rii.paramArray = new Object[]{ rii.getObjectReturn() };
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		Object o = ((RelatrixKVStatement)rii).getObjectReturn();
-		if( o != null) {
-			if( o instanceof UnsupportedOperationException)
-				throw (UnsupportedOperationException)o;
-			else
-				if( o instanceof IllegalStateException)
-					throw (IllegalStateException)o;
-				else
-					if(o instanceof Exception)
-						throw new UnsupportedOperationException("Repackaged remote exception pertaining to "+(((Exception)o).getMessage()));
+			sendCommand(rii);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 	/**
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(RemoteObjectInterface rii) {
-		((RelatrixKVStatement)rii).methodName = "close";
-		((RelatrixKVStatement)rii).paramArray = new Object[0];
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RelatrixKVStatement) rii).setCountDownLatch(cdl);
-		send((RemoteRequestInterface) rii);
+	public void close(RelatrixKVStatement rii) {
+		rii.methodName = "close";
+		rii.paramArray = new Object[0];
 		try {
-			cdl.await();
-		} catch (InterruptedException e) {}
-		outstandingRequests.remove(((RelatrixStatement)rii).getSession());
+			sendCommand(rii);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**

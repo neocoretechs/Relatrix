@@ -1,16 +1,16 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 /**
  * Used by the Key/Value RelatrixKVServer to produce entry sets for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteEntrySetIteratorTransaction extends RelatrixKVTransactionStatement implements RemoteObjectInterface {
+public class RemoteEntrySetIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static boolean DEBUG = false;
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteEntrySetIteratorTransaction(String xid, String session) {
-		super();
+		super(xid,session);
 		paramArray = new Object[0];
 		setSession(session);
 		this.xid = xid;
@@ -21,23 +21,20 @@ public class RemoteEntrySetIteratorTransaction extends RelatrixKVTransactionStat
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
-			close();
+			RelatrixTransactionServer.sessionToObject.remove(getSession());
 		} else {
 			// Get the iterator linked to this session
-			Object itInst = RelatrixKVTransactionServer.sessionToObject.get(getSession());
+			Object itInst = RelatrixTransactionServer.sessionToObject.get(getSession());
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
 			//System.out.println(itInst+" class:"+itInst.getClass());
-			Object result = RelatrixKVTransactionServer.relatrixEntrysetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixTransactionServer.relatrixEntrysetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
 	}
 
-	@Override
-	public void close() {
-		RelatrixKVTransactionServer.sessionToObject.remove(getSession());
-	}
+
 }

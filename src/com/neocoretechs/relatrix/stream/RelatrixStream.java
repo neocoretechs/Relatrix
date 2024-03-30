@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -31,7 +32,6 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
-import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
@@ -56,9 +56,10 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021,2024
  *
  */
-public class RelatrixStream<T> implements Stream<T> {
+public class RelatrixStream<T> implements Serializable,Stream<T> {
+	private static final long serialVersionUID = -7710258735203283527L;
 	private static boolean DEBUG = false;
-	protected Stream stream;
+	protected transient Stream stream;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
     protected Morphism base;

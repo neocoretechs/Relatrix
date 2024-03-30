@@ -10,7 +10,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
+import com.neocoretechs.relatrix.client.RemoteEntrySetKVIterator;
 import com.neocoretechs.relatrix.client.RemoteEntrySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIteratorTransaction;

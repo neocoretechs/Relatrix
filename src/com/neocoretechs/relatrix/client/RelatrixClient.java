@@ -203,25 +203,16 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 	 * @param rii
 	 * @return
 	 */
-	public Result next(Iterator rii) throws NoSuchElementException {
-		((RelatrixStatement)rii).methodName = "next";
-		((RelatrixStatement)rii).paramArray = new Object[0];
-		try {
-			return (Result)sendCommand((RelatrixStatement) rii);
-		} catch (Exception e) {
-			throw new NoSuchElementException(e.getMessage());
-		}
-
+	public Object next(RelatrixStatement rii) throws NoSuchElementException {
+		rii.methodName = "next";
+		rii.paramArray = new Object[0];
+		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(Iterator rii) {
-		((RelatrixStatement)rii).methodName = "hasNext";
-		((RelatrixStatement)rii).paramArray = new Object[0];
-		try {
-			return (boolean)sendCommand((RelatrixStatement) rii);
-		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage());
-		}
+	public boolean hasNext(RelatrixStatement rii) {
+		rii.methodName = "hasNext";
+		rii.paramArray = new Object[0];
+		return (boolean) sendCommand(rii);
 	}
 	
 	public void close() {

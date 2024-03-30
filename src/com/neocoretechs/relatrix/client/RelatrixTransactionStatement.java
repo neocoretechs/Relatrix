@@ -38,7 +38,13 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
      	if(DEBUG)
      		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
      }
-    public String getTransactionId() {
+     
+    public RelatrixTransactionStatement(String xid, String session) {
+		super(session);
+		this.xid = xid;
+	}
+
+	public String getTransactionId() {
     	return xid;
     }
     

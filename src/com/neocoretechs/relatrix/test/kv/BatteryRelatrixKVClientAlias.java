@@ -6,7 +6,7 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIterator;
+import com.neocoretechs.relatrix.client.RemoteEntrySetKVIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
 import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
@@ -171,7 +171,7 @@ public class BatteryRelatrixKVClientAlias {
 	public static void battery1AR6(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIterator its = (RemoteEntrySetIterator) rkvc.entrySet(alias1, String.class);
+		RemoteEntrySetKVIterator its = (RemoteEntrySetKVIterator) rkvc.entrySet(alias1, String.class);
 		System.out.println("KV Battery1AR6 "+alias1);
 		while(rkvc.hasNext(its)) {
 			Object nex =  rkvc.next(its);
@@ -191,7 +191,7 @@ public class BatteryRelatrixKVClientAlias {
 	public static void battery1AR6A(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIterator its = (RemoteEntrySetIterator) rkvc.entrySet(alias2, String.class);
+		RemoteEntrySetKVIterator its = (RemoteEntrySetKVIterator) rkvc.entrySet(alias2, String.class);
 		System.out.println("KV Battery1AR6A "+alias2);
 		while(rkvc.hasNext(its)) {
 			Object nex =  rkvc.next(its);
@@ -211,7 +211,7 @@ public class BatteryRelatrixKVClientAlias {
 	public static void battery1AR6B(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetIterator its = (RemoteEntrySetIterator) rkvc.entrySet(alias3, String.class);
+		RemoteEntrySetKVIterator its = (RemoteEntrySetKVIterator) rkvc.entrySet(alias3, String.class);
 		System.out.println("KV Battery1AR6B "+alias3);
 		while(rkvc.hasNext(its)) {
 			Object nex =  rkvc.next(its);
@@ -634,7 +634,7 @@ public class BatteryRelatrixKVClientAlias {
 		its.close();
 		long siz = rkvc.size(alias12, String.class);
 		if(siz > 0) {
-			RemoteEntrySetIterator ets = (RemoteEntrySetIterator) rkvc.entrySet(alias12, String.class);
+			RemoteEntrySetKVIterator ets = (RemoteEntrySetKVIterator) rkvc.entrySet(alias12, String.class);
 			while(rkvc.hasNext(ets)) {
 				Object nex = rkvc.next(ets);
 				System.out.println(nex);

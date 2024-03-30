@@ -43,6 +43,7 @@ public final class RelatrixTransactionServer extends TCPServer {
 	public static ServerInvokeMethod relatrixHeadsetMethods = null; // FindHeadset iterator methods
 	public static ServerInvokeMethod relatrixTailsetMethods = null; // FindTailset iterator methods
 	public static ServerInvokeMethod relatrixSetMethods = null; // FindSet iterator methods
+	public static ServerInvokeMethod relatrixEntrysetMethods = null; // FindTailset iterator methods
 
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 	
@@ -61,6 +62,7 @@ public final class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
 		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction", 0);
 		RelatrixTransactionServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
@@ -79,6 +81,7 @@ public final class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
 		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction", 0);
 		RelatrixTransactionServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT,InetAddress.getByName(address));
 	}

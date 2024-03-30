@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 public class RemoteStream<T> implements Stream<T>,Serializable {
 	private static final long serialVersionUID = 3064585530528835745L;
 	private static boolean DEBUG = false;
-	private Stream stream;
+	private transient Stream stream;
 	
 	public RemoteStream() {}
 	/**

@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
 public class RelatrixKVStatement implements Serializable, RelatrixStatementInterface {
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
-    private String session = null;
+    protected String session = null;
     protected String alias = null;
     protected String methodName;
     protected Object[] paramArray;
@@ -33,6 +33,9 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     	if(DEBUG)System.out.println("Default Constructor:"+this);
     }
     
+    public RelatrixKVStatement(String session) {
+    	this.session = session;
+    }
     /**
      * Prep RelatrixStatement to send remote method call
      */
@@ -204,7 +207,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 									setObjectReturn( new RemoteHeadMapIterator(getSession()) );
 								} else {
 									if( result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
-										setObjectReturn( new RemoteEntrySetIterator(getSession()) );
+										setObjectReturn( new RemoteEntrySetKVIterator(getSession()) );
 									} else {
 										if( result.getClass() == com.neocoretechs.rocksack.iterator.KeySetIterator.class) {
 											setObjectReturn( new RemoteKeySetIterator(getSession()) );
