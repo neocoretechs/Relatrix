@@ -6,7 +6,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteKeySetIterator extends RemoteIterator {
+public class RemoteKeySetIterator extends RemoteKVIterator {
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteKeySetIterator(String session) {
 		super(session);

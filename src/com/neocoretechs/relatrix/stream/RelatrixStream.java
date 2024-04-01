@@ -56,10 +56,9 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021,2024
  *
  */
-public class RelatrixStream<T> implements Serializable,Stream<T> {
-	private static final long serialVersionUID = -7710258735203283527L;
+public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface {
 	private static boolean DEBUG = false;
-	protected transient Stream stream;
+	protected StreamHelper<T> stream;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
     protected Morphism base;
@@ -79,23 +78,13 @@ public class RelatrixStream<T> implements Serializable,Stream<T> {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
-    	try {
-    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixIterator(template, dmr_return), RelatrixKV.characteristics);
-    		stream = StreamSupport.stream(spliterator, true);
-		} catch (IllegalArgumentException e) {
-			throw new IOException(e);
-		}
+    	stream = new StreamHelper<T>(new RelatrixIterator(template, dmr_return));
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
     }
     
     public RelatrixStream(Iterator<?> setIterator) throws IOException {
-    	try {
-    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(setIterator, RelatrixKV.characteristics);
-    		stream = StreamSupport.stream(spliterator, true);
-		} catch (IllegalArgumentException e) {
-			throw new IOException(e);
-		}
+    	stream = new StreamHelper<T>(setIterator);
     }
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
@@ -109,18 +98,16 @@ public class RelatrixStream<T> implements Serializable,Stream<T> {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
-    	try {
-    		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixIterator(alias, template, dmr_return), RelatrixKV.characteristics);
-    		stream = StreamSupport.stream(spliterator, true);
-    		//stream = RelatrixKV.findTailMapKVStream(alias, template);
-    	} catch (IllegalArgumentException e) {
-    		throw new IOException(e);
-    	}
-
+    	stream = new StreamHelper<T>(new RelatrixIterator(alias, template, dmr_return));
     	if( DEBUG )
 			System.out.println("RelatrixStream alias:"+alias+" stream:"+stream+" template:"+base);
     }
-
+    
+	@Override
+	public Iterator<?> getBaseIterator() {
+		return stream.getBaseIterator();
+	}
+	
 	@Override
 	public Iterator<T> iterator() {
 		return stream.iterator();
@@ -268,7 +255,7 @@ public class RelatrixStream<T> implements Serializable,Stream<T> {
 
 	@Override
 	public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
-		return (U) stream.reduce(accumulator,combiner);
+		return stream.reduce(identity, accumulator, combiner);
 	}
 
 	@Override
@@ -357,6 +344,6 @@ public class RelatrixStream<T> implements Serializable,Stream<T> {
 			if( dmr_return[i] == 1 ) return false; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
 		}
 	    return true;
-	}	
+	}
 
 }

@@ -40,7 +40,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findSubStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findSubStreamAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -66,7 +67,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findHeadStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -81,7 +83,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findTailStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -228,7 +231,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findSubStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -261,7 +265,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -276,7 +281,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findStream(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -454,7 +460,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findHeadStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findHeadStreamAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -471,7 +478,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream findTailStreamAlias(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("findTailStreamAlias", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -488,7 +496,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream entrySetStream(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException {
 		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);
@@ -499,7 +508,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1, arg2);
 		try {
-			return (Stream)sendCommand(s);
+			RemoteIterator it = (RemoteIterator) sendCommand(s);
+			return (new RemoteStream(it));
 		} catch(Exception e) {
 			if(e instanceof java.io.IOException)
 				throw new java.io.IOException(e);

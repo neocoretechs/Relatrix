@@ -1,10 +1,10 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.stream;
 
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -21,31 +21,29 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-
-import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
-import com.neocoretechs.relatrix.stream.StreamHelper;
+import java.util.stream.StreamSupport;
 
 /**
- * Used by the RelatrixServer and RelatrixKVServer to produce and consume streams for remote delivery and retrieval.<p/>
- * There is no persistent contract here and no need to implement RemoteObjectInterface for a 'close' operation nor
- * extend RelatrixStatement for a 'process' operation since the entire payload is built here for delivery in one operation.<p/>
- * Unlike an iterator, a stream is atomic and requires no further calls to the server. Indeed, it must be so to follow the stream paradigm.
- * @author Jonathan Groff (C) NeoCoreTechs 2021
+ * Stream helper such that we can retrieve the original base iterator rather than the Spliterator adapter from the Iterator method
+ * @author Jonathan Groff Copy (C) NeoCoreTechs 2024
  *
+ * @param <T>
  */
-public class RemoteStream<T> implements Stream<T>, BaseIteratorAccessInterface {
-	private static boolean DEBUG = false;
-	protected StreamHelper<T> stream;
-	
-	public RemoteStream() {}
-	
-	public RemoteStream(RemoteIterator it) {
-		stream = new StreamHelper<T>(it);
+public class StreamHelper<T> implements Stream<T>, BaseIteratorAccessInterface {
+	public static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED; 
+	private Stream<T> stream;
+	private Iterator<?> iterator;
+
+	@SuppressWarnings("unchecked")
+	public StreamHelper(Iterator<?> iterator) {
+		this.iterator = iterator;
+    	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
+    	stream = (Stream<T>) StreamSupport.stream(spliterator, true);
 	}
 	
 	@Override
-	public Iterator getBaseIterator() {
-		return stream.getBaseIterator();
+	public Iterator<?> getBaseIterator() {
+		return iterator;
 	}
 	
 	@Override
@@ -194,11 +192,6 @@ public class RemoteStream<T> implements Stream<T>, BaseIteratorAccessInterface {
 	}
 
 	@Override
-	public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
-		return stream.reduce(identity, accumulator, combiner);
-	}
-
-	@Override
 	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
 		return (R) stream.collect(supplier, accumulator, combiner);
 	}
@@ -248,5 +241,8 @@ public class RemoteStream<T> implements Stream<T>, BaseIteratorAccessInterface {
 		return stream.findAny();
 	}
 
-	
+	@Override
+	public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
+		return stream.reduce(identity, accumulator, combiner);
+	}
 }

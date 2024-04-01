@@ -19,6 +19,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.stream.StreamHelper;
 
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
@@ -31,9 +32,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
 public final class RelatrixKVTransaction {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
-	private static boolean TRACE = true;
-	
-	private static final int characteristics = Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.ORDERED; 
+	private static boolean TRACE = true; 
 	
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
@@ -358,8 +357,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.tailMap(darg));
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -376,8 +374,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMap(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.tailMap(darg));
 	}
 
 	/**
@@ -426,8 +423,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapKVStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.tailMapKV(darg));
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
@@ -444,8 +440,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapKVStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.tailMapKV(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.tailMapKV(darg));
 	}
 
 	/**
@@ -459,7 +454,6 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Iterator<?> findHeadMap(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
 	}
 	/**
@@ -475,7 +469,6 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Iterator<?> findHeadMap(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
 	}
 
@@ -490,9 +483,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.headMap(darg));
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key as a stream.
@@ -507,9 +498,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMap(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.headMap(darg));
 	}
 
 	/**
@@ -525,7 +514,6 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Iterator<?> findHeadMapKV(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
 	}
 	/**
@@ -539,7 +527,6 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Iterator<?> findHeadMapKV(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
 	}
 
@@ -555,9 +542,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapKVStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.headMapKV(darg));
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -572,9 +557,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapKVStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		// check for at least one object reference in our headset factory
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize( ttm.headMapKV(darg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.headMapKV(darg));
 	}
 
 	/**
@@ -626,8 +609,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findSubMapStream(String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.subMap(darg, marg));
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first.
@@ -645,8 +627,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findSubMapStream(String alias, String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMap(darg, marg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.subMap(darg, marg));
 	}
 
 	/**
@@ -699,10 +680,8 @@ public final class RelatrixKVTransaction {
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Iterator<Result>
 	 */
 	public static Stream<?> findSubMapKVStream(String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		// check for at least one object reference
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.subMapKV(darg, marg));
 	}
 	/**
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
@@ -721,8 +700,7 @@ public final class RelatrixKVTransaction {
 	public static Stream<?> findSubMapKVStream(String alias, String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// check for at least one object reference
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.subMapKV(darg, marg), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.subMapKV(darg, marg));
 	}
 
 	/**
@@ -761,8 +739,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> entrySetStream(String xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
+		return new StreamHelper(ttm.entrySet());
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -776,8 +753,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> entrySetStream(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.entrySet(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true); //true = parallel
+		return new StreamHelper(ttm.entrySet());
 	}
 	/**
 	 * Return the keyset for the given class
@@ -815,8 +791,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> keySetStream(String xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.keySet());
 	}
 	/**
 	 * Return the keyset for the given class
@@ -830,8 +805,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> keySetStream(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(ttm.keySet(), characteristics);
-		return (Stream<?>) StreamSupport.stream(spliterator, true);
+		return new StreamHelper(ttm.keySet());
 	}
 	/**
 	 * return lowest valued key.

@@ -1,13 +1,7 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
 
 /**
@@ -25,10 +19,8 @@ public class RelatrixEntrysetStreamTransaction<T> extends RelatrixEntrysetStream
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetStreamTransaction(String xid, Class c) throws IOException {
-    	//stream = RelatrixKVTransaction.entrySetStream(xid, c);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixEntrysetIteratorTransaction(xid, c), RelatrixKV.characteristics);
-		stream = StreamSupport.stream(spliterator, true);
+    public RelatrixEntrysetStreamTransaction(String xid, Class c) throws IOException { 
+		stream = new StreamHelper<T>(new RelatrixEntrysetIteratorTransaction(xid, c));
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStreamTransaction Id:"+xid+" stream:"+stream);
     }
@@ -44,9 +36,7 @@ public class RelatrixEntrysetStreamTransaction<T> extends RelatrixEntrysetStream
      * @throws IOException 
      */
     public RelatrixEntrysetStreamTransaction(String alias, String xid, Class c) throws IOException {
-    	//stream = RelatrixKVTransaction.entrySetStream(xid, c);
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(new RelatrixEntrysetIteratorTransaction(alias, xid, c), RelatrixKV.characteristics);
-		stream = StreamSupport.stream(spliterator, true);
+		stream = new StreamHelper<T>(new RelatrixEntrysetIteratorTransaction(alias, xid, c));
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStreamTransaction Id:"+xid+" stream:"+stream);
     }

@@ -121,7 +121,7 @@ public class StreamRetrievalBattery {
 		System.out.println("20.) FindStream(<obj>,?,<obj>)...");		
 		rkvc.findStream(ar2.get(1).get(0), "?", ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("21.) FindSetStream(<obj>,<obj>,?)...");		
+		System.out.println("21.) FindStream(<obj>,<obj>,?)...");		
 		rkvc.findStream(ar2.get(2).get(0), ar2.get(2).get(1), "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));

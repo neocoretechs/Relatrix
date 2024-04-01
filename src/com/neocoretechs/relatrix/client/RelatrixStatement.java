@@ -9,6 +9,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.rocksack.iterator.EntrySetIterator;
 
 /**
@@ -138,11 +139,12 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
 		if(result != null && !(result instanceof Serializable) && !(result instanceof Externalizable) ) {
-			// Stream..?
-			if( result instanceof Stream) {
-				setObjectReturn( new RemoteStream((Stream) result) );
-				getCountDownLatch().countDown();
-				return;
+			// Stream..? If so, we basically forego the local stream and
+			// preserve the underlying iterator, sending back the corresponding remote iterator.
+			// The client, being engaged in a steam operation, will create the local RemoteStream with returned
+			// remote iterator
+			if( result instanceof BaseIteratorAccessInterface) {
+				result = ((BaseIteratorAccessInterface)result).getBaseIterator();
 			}
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);

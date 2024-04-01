@@ -1,10 +1,6 @@
 package com.neocoretechs.relatrix.client;
 
-import java.io.Serializable;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import com.neocoretechs.relatrix.stream.StreamHelper;
 
 /**
  * Used by the RelatrixServer and RelatrixKVServer to produce and consume streams for remote delivery and retrieval.<p/>
@@ -14,22 +10,12 @@ import java.util.stream.StreamSupport;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteStreamTransaction extends RemoteStream implements Serializable {
-	private static final long serialVersionUID = 3064585530528835745L;
+public class RemoteStreamTransaction<T> extends RemoteStream<T> {
 	private static boolean DEBUG = false;
 	String xid;
-	/**
-	 * 
-	 * @param result instance of stream to build collection that is serializable to return to client for
-	 * construction of client side stream
-	 */
-	public RemoteStreamTransaction(String xid, Stream result) {
-		super(result);
-		this.xid = xid;
-	}
+
 	public RemoteStreamTransaction(RemoteIteratorTransaction it) {
-		Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(it, characteristics);
-		stream = (Stream<?>) StreamSupport.stream(spliterator, true);
+		stream = new StreamHelper<T>(it);
 	}
 	
 	public String getTransactionId() { return xid; }

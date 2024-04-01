@@ -40,47 +40,47 @@ public class StreamRetrievalBattery2 {
 		Stream it = null;
 		System.out.println("Wildcard queries:");
 	
-		//System.out.println("1.) FindSetStream(*,*,*)...");// retrieves stream of DomainMapRange
+		//System.out.println("1.) findStream(*,*,*)...");// retrieves stream of DomainMapRange
 		//Relatrix.findStream("*", "*", "*").sorted().forEach(e -> 
 		//System.out.println(e.getClass().getName()+","+e.toString()));
 		
-		System.out.println("2.) FindSetStream(*,*,?)...");		
+		System.out.println("2.) findStream(*,*,?)...");		
 		Relatrix.findStream("*", "*", "?").sorted().forEach(e -> {
 			if(ar.size() == 0 ) ar.add( (Result) e);	
 			System.out.println(e.getClass().getName()+","+e);
 		});
 		
-		System.out.println("3.) FindSetStream(*,?,*)...");		
+		System.out.println("3.) findStream(*,?,*)...");		
 		Relatrix.findStream("*", "?", "*").sorted().forEach(e -> {
 			if(ar.size() == 1 ) ar.add( (Result) e);
 			System.out.println(e.getClass().getName()+","+e);
 		});
 		
-		System.out.println("4.) FindSetStream(?,*,*)...");		
+		System.out.println("4.) findStream(?,*,*)...");		
 		Relatrix.findStream("?", "*", "*").sorted().forEach(e -> {
 			if(ar.size() == 2 ) ar.add( (Result) e);
 			System.out.println(e.getClass().getName()+","+e);
 		});
 		
-		System.out.println("5.) FindSetStream(*,?,?)...");		
+		System.out.println("5.) findStream(*,?,?)...");		
 		Relatrix.findStream("*", "?", "?").sorted().forEach(e -> {
 			if(ar2.size() == 0) ar2.add((Result) e);
 			System.out.println(e.getClass().getName()+","+e);
 		});
 		
-		System.out.println("6.) FindSetStream(?,*,?)...");		
+		System.out.println("6.) findStream(?,*,?)...");		
 		Relatrix.findStream("?", "*", "?").sorted().forEach(e -> {
 			if(ar2.size() == 1) ar2.add((Result) e);
 			System.out.println(e.getClass().getName()+","+e);
 		});
 		
-		System.out.println("7.) FindSetStream(?,?,*)...");		
+		System.out.println("7.) findStream(?,?,*)...");		
 		Relatrix.findStream("?", "?", "*").sorted().forEach(e -> {
 			if(ar2.size() == 2) ar2.add((Result) e);
 			System.out.println(e.getClass().getName()+","+e);
 		});
 		
-		System.out.println("8.) FindSetStream(?,?,?)...");		
+		System.out.println("8.) findStream(?,?,?)...");		
 		Relatrix.findStream("?", "?", "?").sorted().forEach(e -> {
 			if(ar3.size() == 0) ar3.add((Result) e);
 			System.out.println(e.getClass().getName()+","+e);
@@ -89,55 +89,55 @@ public class StreamRetrievalBattery2 {
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. They should produce relationships with these elements");
 		
-		System.out.println("9.) FindSetStream(<obj>,<obj>,<obj>)...");
+		System.out.println("9.) findStream(<obj>,<obj>,<obj>)...");
 		Relatrix.findStream(ar3.get(0).get(0), ar3.get(0).get(1), ar3.get(0).get(2)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("10.) FindSetStream(*,*,<obj>)...");		
+		System.out.println("10.) findStream(*,*,<obj>)...");		
 		Relatrix.findStream("*", "*", ar.get(0)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 
-		System.out.println("11.) FindSetStream(*,<obj>,*)...");		
+		System.out.println("11.) findStream(*,<obj>,*)...");		
 		Relatrix.findStream("*", ar.get(1), "*").sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("12.) FindSetStream(<obj>,*,*)...");		
+		System.out.println("12.) findStream(<obj>,*,*)...");		
 		Relatrix.findStream(ar.get(2), "*", "*").sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("13.) FindSetStream(*,<obj>,<obj>)...");		
+		System.out.println("13.) findStream(*,<obj>,<obj>)...");		
 		Relatrix.findStream("*", ar2.get(0).get(0), ar2.get(0).get(1)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("14.) FindSetStream(<obj>,*,<obj>)...");		
+		System.out.println("14.) findStream(<obj>,*,<obj>)...");		
 		Relatrix.findStream(ar2.get(1).get(0), "*", ar2.get(1).get(1)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("15.) FindSetStream(<obj>,<obj>,*)...");		
+		System.out.println("15.) findStream(<obj>,<obj>,*)...");		
 		Relatrix.findStream(ar2.get(2).get(0), ar2.get(2).get(1), "*").sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("16.) FindSetStream(?,?,<obj>)...");		
+		System.out.println("16.) findStream(?,?,<obj>)...");		
 		Relatrix.findStream("?", "?", ar.get(0)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("17.) FindSetStream(?,<obj>,?)...");		
+		System.out.println("17.) findStream(?,<obj>,?)...");		
 		Relatrix.findStream("?", ar.get(1), "?").sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("18.) FindSetStream(<obj>,?,?)...");		
+		System.out.println("18.) findStream(<obj>,?,?)...");		
 		Relatrix.findStream(ar.get(2), "?", "?").sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("19.) FindSetStream(?,<obj>,<obj>)...");		
+		System.out.println("19.) findStream(?,<obj>,<obj>)...");		
 		Relatrix.findStream("?", ar2.get(0).get(0), ar2.get(0).get(1)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("20.) FindSetStream(<obj>,?,<obj>)...");		
+		System.out.println("20.) findStream(<obj>,?,<obj>)...");		
 		Relatrix.findStream(ar2.get(1).get(0), "?", ar2.get(1).get(1)).sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
-		System.out.println("21.) FindSetStream(<obj>,<obj>,?)...");		
+		System.out.println("21.) findStream(<obj>,<obj>,?)...");		
 		Relatrix.findStream(ar2.get(2).get(0), ar2.get(2).get(1), "?").sorted().
 		forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		

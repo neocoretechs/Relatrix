@@ -8,7 +8,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteSubMapIteratorTransaction extends RemoteIteratorTransaction {
+public class RemoteSubMapIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -112309448424952343L;
 	public RemoteSubMapIteratorTransaction(String xid, String session) {
 		super(xid, session);
