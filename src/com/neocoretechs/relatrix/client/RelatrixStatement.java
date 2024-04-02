@@ -152,7 +152,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			// put it in the array and send our intermediary back
 			RelatrixServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {
-				setObjectReturn( new RemoteTailSetIterator(getSession()) );
+				setObjectReturn( new RemoteSetIterator(getSession()) );
 			} else {
 				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
 					setObjectReturn( new RemoteSubSetIterator(getSession()) );
@@ -161,7 +161,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 						setObjectReturn( new RemoteHeadSetIterator(getSession()) );
 					} else {
 						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator.class ) {
-							setObjectReturn( new RemoteHeadMapIterator(getSession()) );
+							setObjectReturn( new RemoteTailSetIterator(getSession()) );
 						} else {
 							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
 								setObjectReturn( new RemoteEntrySetIterator(getSession()) );

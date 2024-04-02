@@ -92,7 +92,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 			// put it in the array and send our intermediary back
 			RelatrixTransactionServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction.class) {
-				setObjectReturn( new RemoteTailSetIteratorTransaction(xid, getSession()) );
+				setObjectReturn( new RemoteSetIteratorTransaction(xid, getSession()) );
 			} else {
 				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction.class ) {
 					setObjectReturn( new RemoteSubSetIteratorTransaction(xid, getSession()) );
