@@ -40,7 +40,7 @@ public class RemoteStream<T> implements Stream<T>, BaseIteratorAccessInterface {
 	public RemoteStream() {}
 	
 	public RemoteStream(RemoteIterator it) {
-		stream = new StreamHelper<T>(it);
+		stream = new StreamHelper<T>(it,false);
 	}
 	
 	@Override

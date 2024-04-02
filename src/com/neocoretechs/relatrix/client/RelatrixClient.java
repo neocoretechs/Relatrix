@@ -136,6 +136,8 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
+				if( DEBUG )
+					 System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				if( o instanceof Exception ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());

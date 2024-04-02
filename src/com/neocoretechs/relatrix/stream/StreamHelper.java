@@ -41,6 +41,13 @@ public class StreamHelper<T> implements Stream<T>, BaseIteratorAccessInterface {
     	stream = (Stream<T>) StreamSupport.stream(spliterator, true);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public StreamHelper(Iterator<?> iterator, boolean parallel) {
+		this.iterator = iterator;
+    	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
+    	stream = (Stream<T>) StreamSupport.stream(spliterator, parallel);
+	}
+	
 	@Override
 	public Iterator<?> getBaseIterator() {
 		return iterator;
