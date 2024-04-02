@@ -75,8 +75,11 @@ public class FindsetUtil {
     			}
     			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
     			// if we skipped any indexes in result3, they should be 0
-    			if(insert)
-    				resultSet.put(r, m.getValue());
+    			if(insert) {
+    				synchronized(resultSet) {
+    					resultSet.put(r, m.getValue());
+    				}
+    			}
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
@@ -134,8 +137,11 @@ public class FindsetUtil {
     			}
     			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
     			// if we skipped any indexes in result3, they should be 0
-    			if(insert)
-    				resultSet.put(r, m.getValue());
+    			if(insert) {
+    				synchronized(resultSet) {
+    					resultSet.put(r, m.getValue());
+    				}
+    			}
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | NoSuchElementException e) {
 			throw new IOException(e);
@@ -193,8 +199,11 @@ public class FindsetUtil {
     			}
     			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
     			// if we skipped any indexes in result3, they should be 0
-    			if(insert)
-    				resultSet.put(r, m.getValue());
+    			if(insert) {
+    				synchronized(resultSet) {
+    					resultSet.put(r, m.getValue());
+    				}
+    			}
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
@@ -253,8 +262,11 @@ public class FindsetUtil {
     			}
     			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
     			// if we skipped any indexes in result3, they should be 0
-    			if(insert)
-    				resultSet.put(r, m.getValue());
+    			if(insert) {
+    				synchronized(resultSet) {
+    					resultSet.put(r, m.getValue());
+    				}
+    			}
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | NoSuchElementException e) {
 			throw new IOException(e);
