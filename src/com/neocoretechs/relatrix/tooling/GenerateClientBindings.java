@@ -2,20 +2,23 @@ package com.neocoretechs.relatrix.tooling;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.lang.reflect.Constructor;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
+import com.neocoretechs.relatrix.client.RemoteIterator;
+import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
  * Call with args: classname, output interface name.<p/>
@@ -24,7 +27,12 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
  * Combinations of these tools simplifies the process of building and maintaining 2 tier client/server models from existing
  * class files.<p/>
  * The invokeMethod of ServerInvokeMethod can be used to call methods reflected from a supplied class on a supplied local Object. If that
- * local object is null, a static method is assumed. These requests come in the form of an encapsulated {@link RemoteRequestInterface}.
+ * local object is null, a static method is assumed. These requests come in the form of an encapsulated {@link RemoteRequestInterface}.<p/>
+ * A core assumption is that the transport of remote iterators is through a the implementation of a {@link RemoteIterator} interface
+ * that carries a method transport for "boolean hasNext()" and "Object next()" to be remotely invoked on a server-side concrete
+ * Iterator subclass. In conjunction with that, a {@link RemoteStream} implementation of {@link java.util.stream.Stream} that
+ * wraps that RemoteIterator is available in the same package as the one designated on the command line. In this way, local
+ * Stream functionality is provided using the remote iterator transport.
  * 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
@@ -156,14 +164,26 @@ public class GenerateClientBindings {
 					outStream.writeBytes("\t\ttry {\r\n\t");
 				}
 				// If not void, set up cast to return type for transport call
+				// If we are returning type of stream, get the remote iterator and wrap it in a remote stream thusly:
+				//return new RemoteStream((RemoteIterator) sendCommand(s));
+				// NOTE: WE ASSUME RemoteStream and RemoteIterator are in same package as generated class and interface!
 				if(!rmnap.returnTypes[mnum].equals(Void.class)) {
-					outStream.writeBytes("\t\treturn ("); // cast return to return type of method
-					outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
-					outStream.writeBytes(")");
-				} else
+					if(!Stream.class.isAssignableFrom(rmnap.returnTypes[mnum])) {
+						outStream.writeBytes("\t\treturn ("); // cast return to return type of method
+						outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
+						outStream.writeBytes(")");
+						outStream.writeBytes(command);
+						outStream.writeBytes("(s);\r\n");
+					} else {
+						outStream.writeBytes("\t\treturn new RemoteStream((RemoteIterator)"); // cast return to remote stream
+						outStream.writeBytes(command);
+						outStream.writeBytes("(s));\r\n");
+					}
+				} else {
 					outStream.writeBytes("\t\t");
-				outStream.writeBytes(command);
-				outStream.writeBytes("(s);\r\n");
+					outStream.writeBytes(command);
+					outStream.writeBytes("(s);\r\n");
+				}
 				// write exceptions, if any, trapped from call to transport
 				// these are exceptions coming back from server and trapped as generic Exception
 				// we now break it out into its possible subclasses which are the
