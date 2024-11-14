@@ -1,4 +1,3 @@
-<h1>NEW! Compliance with Java 8 streams, lambdas, and functional programming paradigm!</h1>
 <h1> A newer, easier way of looking at and manipulating data.</h1>
 The Relatrix:
 <h4>Full featured Database, Builds on the Key/Value Deep Store concept with transaction checkpointing and recovery, embedded and server modes. </h4>
