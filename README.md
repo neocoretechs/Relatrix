@@ -1,6 +1,7 @@
 <h1> A newer, easier way of looking at and manipulating data.</h1>
 The Relatrix:
-<h4>Full featured Database, Builds on the Key/Value Deep Store concept with transaction checkpointing and recovery, embedded and server modes. </h4>
+<h4>Full featured database which not only builds on the Key/Value Deep Store concept with full transaction checkpointing and recovery and
+ embedded and server models, but provides a novel way of storing, retrieving and relating complex unstructured object data. </h4>
 Toward an easier, more flexible, data management paradigm.
 In order to provide structure to unstructured data, an otherwise esoteric branch of math called category theory provides us with a 
 perfect description of how to add increasing levels of structure through its algebraic rules.
