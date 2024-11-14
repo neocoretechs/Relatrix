@@ -11,8 +11,8 @@ These relationships can be simple, standard key/value relationships, or a more c
 can themselves be relationships that can be composed into more complex relationships. 
 Relationships are defined as objects comprised of an overarching domain object, with a functional mapping object, that relates the domain to a range object.  
 Data is retrieved as sets presented as standard iterators or streams. There are a number of simple yet powerful sets of retrieval methods
-utilizing wildcards and concrete objects and class and object level set return indicators to get the data back out without getting lost ina deep, dark, thickets common
-to schemaless data stores.
+utilizing wildcards and concrete objects and class and object level set return indicators to get the data back out without getting lost in deep, dark, thickets common
+to schemaless data stores.<p/>
 To get slightly more technical; imagine that rather than being able to map keys one-to-one like a relational database you can map them through a function that adds more relevance. 
 We can then assign equivalence through isomorphism, or functional similarities between data. The relationships themselves are objects which can be composed into higher level relationships that
 open up the data to perform analysis not possible with conventional databases. Here are some concrete examples:
