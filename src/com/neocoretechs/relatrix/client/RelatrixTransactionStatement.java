@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * The following class allows the transport of transaction Relatrix method calls to the server.
@@ -16,7 +18,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 public class RelatrixTransactionStatement extends RelatrixStatement implements Serializable {
 	private static final long serialVersionUID = -503217108835099285L;
 	private static boolean DEBUG = false;
-    String xid;
+    TransactionId xid;
     String alias = null;
     
     public RelatrixTransactionStatement() {}
@@ -24,7 +26,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
     /**
     * Prep RelatrixStatement to send remote method call
     */
-    public RelatrixTransactionStatement(String tmeth, String xid, Object ... o1) {
+    public RelatrixTransactionStatement(String tmeth, TransactionId xid, Object ... o1) {
     	super(tmeth, o1);
     	this.xid = xid;
     	if(DEBUG)
@@ -33,19 +35,23 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
     /**
      * Prep RelatrixStatement to send remote method call
      */
-     public RelatrixTransactionStatement(String tmeth, String alias, String xid, Object ... o1) {
+     public RelatrixTransactionStatement(String tmeth, Alias alias, TransactionId xid, Object ... o1) {
      	super(alias, tmeth, o1);
      	this.xid = xid;
      	if(DEBUG)
      		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
      }
      
-    public RelatrixTransactionStatement(String xid, String session) {
+    public RelatrixTransactionStatement(TransactionId xid, String session) {
 		super(session);
 		this.xid = xid;
 	}
 
-	public String getTransactionId() {
+	public RelatrixTransactionStatement(String string, TransactionId arg1) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public TransactionId getTransactionId() {
     	return xid;
     }
     

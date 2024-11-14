@@ -10,6 +10,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.rocksack.Alias;
 /**
  * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.Morphism}s formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
@@ -82,7 +83,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-	public RelatrixIterator(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+	public RelatrixIterator(Alias alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
 	   	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);

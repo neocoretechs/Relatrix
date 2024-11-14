@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 5. Permutation with 2 objects.
@@ -18,7 +20,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindTailSetMode5Transaction extends FindSetMode5Transaction {
 	Object[] endarg;
-    public FindTailSetMode5Transaction(String xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
+    public FindTailSetMode5Transaction(TransactionId xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
     	super(xid, darg, mop, rarg);
 		if(endarg.length != 1)
 			throw new RuntimeException("Must supply 1 qualifying argument for Tailset map.");
@@ -43,7 +45,7 @@ public class FindTailSetMode5Transaction extends FindSetMode5Transaction {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();

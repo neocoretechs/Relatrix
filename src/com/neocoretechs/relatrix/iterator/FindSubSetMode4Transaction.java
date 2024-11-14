@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 4.
@@ -25,7 +27,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class FindSubSetMode4Transaction extends FindSetMode4Transaction {
 	Object[] endarg;
 	int argCtr = 0;
-    public FindSubSetMode4Transaction(String xid, Object darg, char mop, char rop, Object ... xarg) { 	
+    public FindSubSetMode4Transaction(TransactionId xid, Object darg, char mop, char rop, Object ... xarg) { 	
     	super(xid, darg, mop, rop);
 		this.endarg = xarg;
 		if(endarg.length < 2) throw new RuntimeException("Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -74,7 +76,7 @@ public class FindSubSetMode4Transaction extends FindSetMode4Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {

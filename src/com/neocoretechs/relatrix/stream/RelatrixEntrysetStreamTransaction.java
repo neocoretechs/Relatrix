@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys in a transaction context
@@ -19,13 +21,13 @@ public class RelatrixEntrysetStreamTransaction<T> extends RelatrixEntrysetStream
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetStreamTransaction(String xid, Class c) throws IOException { 
+    public RelatrixEntrysetStreamTransaction(TransactionId xid, Class c) throws IOException { 
 		stream = new StreamHelper<T>(new RelatrixEntrysetIteratorTransaction(xid, c));
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStreamTransaction Id:"+xid+" stream:"+stream);
     }
     
-    public RelatrixEntrysetStreamTransaction(String xid, Comparable c) throws IOException {
+    public RelatrixEntrysetStreamTransaction(TransactionId xid, Comparable c) throws IOException {
     	this(xid, c.getClass());
     }
     
@@ -35,13 +37,13 @@ public class RelatrixEntrysetStreamTransaction<T> extends RelatrixEntrysetStream
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetStreamTransaction(String alias, String xid, Class c) throws IOException {
+    public RelatrixEntrysetStreamTransaction(Alias alias, TransactionId xid, Class c) throws IOException {
 		stream = new StreamHelper<T>(new RelatrixEntrysetIteratorTransaction(alias, xid, c));
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStreamTransaction Id:"+xid+" stream:"+stream);
     }
     
-    public RelatrixEntrysetStreamTransaction(String alias, String xid, Comparable c) throws IOException {
+    public RelatrixEntrysetStreamTransaction(Alias alias, TransactionId xid, Comparable c) throws IOException {
     	this(alias, xid, c.getClass());
     }
 }

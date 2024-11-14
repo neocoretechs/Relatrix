@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
  * Used by to produce subsets for remote delivery.
@@ -9,7 +10,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class RemoteSubSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteSubSetIteratorTransaction(String xid, String session) {
+	public RemoteSubSetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 		paramArray = new Object[0];
 	}

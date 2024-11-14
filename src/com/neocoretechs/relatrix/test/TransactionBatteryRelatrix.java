@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
@@ -48,7 +49,7 @@ public class TransactionBatteryRelatrix {
 		RelatrixClientTransaction session = null;
 		DATABASE = argv[0];
 		session = new RelatrixClientTransaction(DATABASE, DATABASE, DATABASE_PORT);
-		String xid = session.getTransactionId();
+		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
 		//Relatrix.setTablespaceDirectory(argv[0]);
 		battery0(session, xid);
@@ -63,7 +64,7 @@ public class TransactionBatteryRelatrix {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery0(RelatrixClientTransaction rct, String xid) throws Exception {
+	public static void battery0(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
 		System.out.println("Battery0 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -84,7 +85,7 @@ public class TransactionBatteryRelatrix {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(RelatrixClientTransaction rct, String xid) throws Exception {
+	public static void battery1(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
 		System.out.println("Battery1 ");
 		String fmap;
 		long tims = System.currentTimeMillis();
@@ -104,7 +105,7 @@ public class TransactionBatteryRelatrix {
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
 	}
-	public static void battery2(RelatrixClientTransaction rct, String xid) throws Exception {
+	public static void battery2(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
 		System.out.println("Battery2 ");
 		String fmap;
 		long tims = System.currentTimeMillis();

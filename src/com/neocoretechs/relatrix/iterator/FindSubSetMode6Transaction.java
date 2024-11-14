@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
@@ -25,7 +27,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
 	Object[] endarg;
 	int argCtr = 0;
-    public FindSubSetMode6Transaction(String xid, Object darg, Object marg, char rop, Object ...endarg) { 	
+    public FindSubSetMode6Transaction(TransactionId xid, Object darg, Object marg, char rop, Object ...endarg) { 	
     	super(xid, darg, marg, rop);
        	this.endarg = endarg;
     	if(endarg.length < 1) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -59,7 +61,7 @@ public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {

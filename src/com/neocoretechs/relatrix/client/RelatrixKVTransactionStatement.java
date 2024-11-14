@@ -6,7 +6,9 @@ import java.io.Serializable;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
@@ -19,28 +21,28 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements Serializable {
 	private static final long serialVersionUID = 1452088222610286234L;
 	private static boolean DEBUG = false;
-    String xid;
+    TransactionId xid;
     
     public RelatrixKVTransactionStatement() { if(DEBUG)System.out.println("Default Constructor:"+this);}
     
-    public RelatrixKVTransactionStatement(String xid, String tmeth, Object ... o1) {
+    public RelatrixKVTransactionStatement(String tmeth, TransactionId xid, Object ... o1) {
     	super(tmeth, o1);
     	this.xid = xid;
     	if(DEBUG)
     		System.out.println("Constructor:"+this);
     }
-    public RelatrixKVTransactionStatement(String alias, String xid, String tmeth, Object ... o1) {
+    public RelatrixKVTransactionStatement(String tmeth, Alias alias, TransactionId xid, Object ... o1) {
     	super(tmeth, alias, o1);
     	this.xid = xid;
     	if(DEBUG)
     		System.out.println("Constructor:"+this);
     }
-    public RelatrixKVTransactionStatement(String xid, String session) {
+    public RelatrixKVTransactionStatement(TransactionId xid, String session) {
 		super(session);
 		this.xid = xid;
 	}
 
-	public String getTransactionId() {
+	public TransactionId getTransactionId() {
     	return xid;
     }
 

@@ -8,6 +8,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
@@ -21,7 +22,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
-    protected String alias = null;
+    protected Alias alias = null;
     protected String methodName;
     protected Object[] paramArray;
     private Object retObj;
@@ -50,7 +51,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     /**
      * Prep RelatrixStatement to send remote method call
      */
-    public RelatrixKVStatement(String tmeth, String alias, Object ... o1) {
+    public RelatrixKVStatement(String tmeth, Alias alias, Object ... o1) {
     	this.methodName = tmeth;
     	this.alias = alias;
     	this.paramArray = o1;

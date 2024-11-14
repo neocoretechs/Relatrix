@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
@@ -13,7 +15,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  */
 public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 		Object[] endarg;
-	   public FindTailSetMode1Transaction(String xid, char dop, char mop, Object rarg, Object ... endarg ) { 	
+	   public FindTailSetMode1Transaction(TransactionId xid, char dop, char mop, Object rarg, Object ... endarg ) { 	
 		   super(xid,dop,mop,rarg);
 			if(endarg.length != 2)
 				throw new RuntimeException("Must supply 2 qualifying arguments for Tailset domain and map.");
@@ -46,7 +48,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 	   }
 	   
 	   @Override
-	   protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	   protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 			Morphism xdmr = null;
 			try {
 				xdmr = (Morphism) tdmr.clone(); // concrete instance in range

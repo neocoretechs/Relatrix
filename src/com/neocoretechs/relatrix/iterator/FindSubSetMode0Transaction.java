@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
@@ -27,7 +29,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 public class FindSubSetMode0Transaction extends FindSetMode0Transaction {
 	Object[] endarg;
 	int argCtr = 0;
-	public FindSubSetMode0Transaction(String xid, char dop, char mop, char rop, Object ... endarg) { 	
+	public FindSubSetMode0Transaction(TransactionId xid, char dop, char mop, char rop, Object ... endarg) { 	
 		super(xid,dop,mop,rop);
 		if(endarg.length < 3)
 			throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -88,7 +90,7 @@ public class FindSubSetMode0Transaction extends FindSetMode0Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {

@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 	/**
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors
@@ -42,7 +44,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		* @throws IOException
 		* @throws NoSuchElementException if the alias is not found
 		*/
-		public abstract Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException;
+		public abstract Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException;
 		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
@@ -61,7 +63,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		protected abstract Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
+		protected abstract Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
 		
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
@@ -193,7 +195,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		
 		/**
 		 * Factory method, create the abstract factory which will manufacture our specific transactional iterator instances.
-		 * @param xid Transaction Id
+		 * @param transactionId Transaction Id
 		 * @param darg The domain argument from the driving findSet method being invoked. 
 		 * @param marg The map argument from the driving findSet method being invoked. 
 		 * @param rarg The range (codomain) argument from the driving findSet method being invoked. 
@@ -201,28 +203,28 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */
-		public static IteratorFactory createFactoryTransaction(String xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
+		public static IteratorFactory createFactoryTransaction(TransactionId transactionId, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
 		    
 		    if( DEBUG )
-		        System.out.println("Relatrix IteratorFactoryTransaction Id:"+xid+" findSet setting mode for "+darg+" "+marg+" "+rarg);
+		        System.out.println("Relatrix IteratorFactoryTransaction Id:"+transactionId+" findSet setting mode for "+darg+" "+marg+" "+rarg);
 			
 		    switch(processTripletParams(darg, marg, rarg)) {
                case 0:
-                   return new FindSetMode0Transaction(xid, dop, mop, rop);
+                   return new FindSetMode0Transaction(transactionId, dop, mop, rop);
                case 1:
-                   return new FindSetMode1Transaction(xid, dop, mop, rarg);
+                   return new FindSetMode1Transaction(transactionId, dop, mop, rarg);
                case 2:
-                   return new FindSetMode2Transaction(xid, dop, marg, rop);
+                   return new FindSetMode2Transaction(transactionId, dop, marg, rop);
                case 3:
-                   return new FindSetMode3Transaction(xid, dop, marg, rarg);
+                   return new FindSetMode3Transaction(transactionId, dop, marg, rarg);
                case 4:
-                   return new FindSetMode4Transaction(xid, darg, mop, rop);
+                   return new FindSetMode4Transaction(transactionId, darg, mop, rop);
                case 5:
-                   return new FindSetMode5Transaction(xid, darg, mop, rarg);
+                   return new FindSetMode5Transaction(transactionId, darg, mop, rarg);
                case 6:
-                   return new FindSetMode6Transaction(xid, darg, marg, rop);
+                   return new FindSetMode6Transaction(transactionId, darg, marg, rop);
                case 7:
-                   return new FindSetMode7Transaction(xid, darg, marg, rarg);
+                   return new FindSetMode7Transaction(transactionId, darg, marg, rarg);
         	    default:
                     throw new IllegalArgumentException("The findSet transaction factory mode is not supported.");
 		    }
@@ -272,7 +274,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static IteratorFactory createHeadsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
+		public static IteratorFactory createHeadsetFactoryTransaction(TransactionId xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
 			        System.out.println("Relatrix IteratorFactory createHeadsetFactoryTransaction setting mode for "+darg+" "+marg+" "+rarg);
@@ -345,7 +347,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IllegalArgumentException
 		 * @throws IOException
 		 */
-		public static IteratorFactory createSubsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
+		public static IteratorFactory createSubsetFactoryTransaction(TransactionId xid, Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
 			        System.out.println("Relatrix IteratorFactory createSubsetFactoryTransaction for "+darg+" "+marg+" "+rarg);
@@ -416,7 +418,7 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * @throws IOException 
 		 * @throws IllegalArgumentException 
 		 */
-		public static IteratorFactory createTailsetFactoryTransaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
+		public static IteratorFactory createTailsetFactoryTransaction(TransactionId xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
 			    
 			if( DEBUG )
 			        System.out.println("Relatrix IteratorFactory createTailsetFactoryTransaction setting mode for "+darg+" "+marg+" "+rarg);

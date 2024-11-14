@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server stream retrieval ops.
@@ -33,9 +34,9 @@ public class BatteryRelatrixKVStreamAlias {
 	static int numLookupByValue = 10; // lookup by value quite slow
 	static int i;
 	static int j;
-	static String alias1 = "ALIAS1";
-	static String alias2 = "ALIAS2";
-	static String alias3 = "ALIAS3";
+	static Alias alias1 = new Alias("ALIAS1");
+	static Alias alias2 = new Alias("ALIAS2");
+	static Alias alias3 = new Alias("ALIAS3");
 	/**
 	* Main test fixture driver
 	*/
@@ -142,7 +143,7 @@ public class BatteryRelatrixKVStreamAlias {
 		Stream stream3 = RelatrixKV.entrySetStream(alias3, String.class);
 		System.out.println("KV Battery1AR6");
 		stream1.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -154,7 +155,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -166,7 +167,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -191,7 +192,7 @@ public class BatteryRelatrixKVStreamAlias {
 		Stream stream3 = RelatrixKV.keySetStream(alias3, String.class);
 		System.out.println("KV Battery1AR7");
 		stream1.forEach(e ->{
-			if(!((String)e).endsWith(alias1) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias1.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -202,7 +203,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(!((String)e).endsWith(alias2) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias2.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -213,7 +214,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(!((String)e).endsWith(alias3) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias3.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -240,7 +241,7 @@ public class BatteryRelatrixKVStreamAlias {
 		Stream stream3 = RelatrixKV.findTailMapStream(alias3, fkey);
 		System.out.println("KV Battery1AR11");
 		stream1.forEach(e ->{
-			if(!((String)e).endsWith(alias1) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias1.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -251,7 +252,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(!((String)e).endsWith(alias2) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias2.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -262,7 +263,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(!((String)e).endsWith(alias3) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias3.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -287,7 +288,7 @@ public class BatteryRelatrixKVStreamAlias {
 		Stream stream3 = RelatrixKV.findTailMapKVStream(alias3, fkey);
 		System.out.println("KV Battery1AR12");
 		stream1.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -299,7 +300,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -311,7 +312,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -340,7 +341,7 @@ public class BatteryRelatrixKVStreamAlias {
 		// with i at max, should catch them all
 		i = min;
 		stream1.forEach(e ->{
-			if(!((String)e).endsWith(alias1) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias1.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -351,7 +352,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(!((String)e).endsWith(alias2) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias2.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -362,7 +363,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(!((String)e).endsWith(alias3) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias3.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -389,7 +390,7 @@ public class BatteryRelatrixKVStreamAlias {
 		System.out.println("KV Battery1AR14");
 		i = min;
 		stream1.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -401,7 +402,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -413,7 +414,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -444,7 +445,7 @@ public class BatteryRelatrixKVStreamAlias {
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		stream1.forEach(e ->{
-			if(!((String)e).endsWith(alias1) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias1.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -455,7 +456,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(!((String)e).endsWith(alias2) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias2.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -466,7 +467,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(!((String)e).endsWith(alias3) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
+			if(!((String)e).endsWith(alias3.getAlias()) || Integer.parseInt(((String)e).substring(0,100)) != i	) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
 				++i;
@@ -496,7 +497,7 @@ public class BatteryRelatrixKVStreamAlias {
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
 		stream1.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias1.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -508,7 +509,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream2.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias2.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -520,7 +521,7 @@ public class BatteryRelatrixKVStreamAlias {
 		}
 		i = min;
 		stream3.forEach(e ->{
-			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3) ||
+			if(((Map.Entry<String,Long>)e).getValue() != i || !((Map.Entry<String,Long>)e).getKey().endsWith(alias3.getAlias()) ||
 					Integer.parseInt(((Map.Entry<String,Long>)e).getKey().substring(0,100)) != i	) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
 			} else
@@ -537,7 +538,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param alias12
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String alias12) throws Exception {
+	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
 
 		// with j at max, should get them all since we stored to max -1

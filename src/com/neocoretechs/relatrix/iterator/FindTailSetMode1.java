@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
 /**
  * Concrete object instance in range component = mode 1
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
@@ -47,7 +48,7 @@ public class FindTailSetMode1 extends FindSetMode1 {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone(); // concrete instance in range

@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -28,9 +30,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
-	static String alias1 = "ALIAS1";
-	static String alias2 = "ALIAS2";
-	static String alias3 = "ALIAS3";
+	static Alias alias1 = new Alias("ALIAS1");
+	static Alias alias2 = new Alias("ALIAS2");
+	static Alias alias3 = new Alias("ALIAS3");
 	/**
 	* Main test fixture driver
 	*/
@@ -45,9 +47,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		RelatrixKV.setAlias(alias1,tablespace+alias1);
 		RelatrixKV.setAlias(alias2,tablespace+alias2);
 		RelatrixKV.setAlias(alias3,tablespace+alias3);
-		String xid1 = RelatrixKVTransaction.getTransactionId();
-		String xid2 = RelatrixKVTransaction.getTransactionId();
-		String xid3 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid1 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid3 = RelatrixKVTransaction.getTransactionId();
 		battery1(xid1,xid2,xid3);
 		battery11(xid1,xid2,xid3);
 		battery1AR6(xid1,xid2,xid3);
@@ -93,22 +95,22 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1(TransactionId xid1, TransactionId xid2, TransactionId xid3) throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
 		int j = min;
-		j = (int) RelatrixKVTransaction.size(alias1, xid, String.class);
+		j = (int) RelatrixKVTransaction.size(alias1, xid1, String.class);
 		if(j > 0) {
 			System.out.println("Cleaning "+alias1+" "+RelatrixKV.getAlias(alias1)+" of "+j+" elements.");
-			battery1AR17(alias1, xid,xid2,xid3);		
+			battery1AR17(alias1, xid1,xid2,xid3);		
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.store(alias1, xid, fkey+alias1, new Long(i));
+				RelatrixKVTransaction.store(alias1, xid1, fkey+alias1, new Long(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -116,7 +118,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		j = (int) RelatrixKVTransaction.size(alias2, xid2, String.class);
 		if(j > 0) {
 			System.out.println("Cleaning "+alias2+" "+RelatrixKV.getAlias(alias2)+" of "+j+" elements.");
-			battery1AR17(alias2, xid2,xid,xid3);		
+			battery1AR17(alias2, xid2,xid1,xid3);		
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
@@ -129,7 +131,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		j = (int) RelatrixKVTransaction.size(alias3, xid3, String.class);
 		if(j > 0) {
 			System.out.println("Cleaning "+alias3+" "+RelatrixKV.getAlias(alias3)+" of "+j+" elements.");
-			battery1AR17(alias3, xid3,xid,xid2);		
+			battery1AR17(alias3, xid3,xid1,xid2);		
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
@@ -148,7 +150,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery11(String xid, String xid2, String xid3) throws Exception {
+	public static void battery11(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
@@ -195,7 +197,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR6(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its1 = RelatrixKVTransaction.entrySet(alias1,xid,String.class);
@@ -227,7 +229,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR7(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its1 = RelatrixKVTransaction.keySet(alias1, xid, String.class);
@@ -239,9 +241,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
 			// Map.Entry
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
-					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
-					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3))
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias()))
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			else
 				++i;
@@ -258,7 +260,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR8(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = String.format(uniqKeyFmt, i);
@@ -289,16 +291,16 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR9(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Object k1 = RelatrixKVTransaction.firstKey(alias1, xid, String.class); // first key
 		Object k2 = RelatrixKVTransaction.firstKey(alias2, xid2, String.class); // first key
 		Object k3 = RelatrixKVTransaction.firstKey(alias3, xid3, String.class); // first key
 		System.out.println("KV Battery1AR9");
-		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1) ||
-				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2) ||
-				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3)) {
+		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1.getAlias()) ||
+				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2.getAlias()) ||
+				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3.getAlias())) {
 			System.out.println("KV BATTERY1A9 cant find first key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find first key "+i);
 		}
@@ -319,16 +321,16 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR10(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Object k1 = RelatrixKVTransaction.lastKey(alias1, xid, String.class); // last key
 		Object k2 = RelatrixKVTransaction.lastKey(alias2, xid2, String.class); // last key
 		Object k3 = RelatrixKVTransaction.lastKey(alias3, xid3, String.class); // last key
 		System.out.println("KV Battery1AR10");
-		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1) ||
-				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2) ||
-				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3)) {
+		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1.getAlias()) ||
+				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2.getAlias()) ||
+				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3.getAlias())) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last key "+i);
 		}
@@ -348,7 +350,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR101(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
 		long bits1 = RelatrixKVTransaction.size(alias1, xid, String.class);
@@ -368,7 +370,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR11(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -381,9 +383,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
 			// Map.Entry
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) 
-					|| Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) 
-					|| Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias())) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			}
@@ -398,7 +400,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR12(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -413,9 +415,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
-					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
-					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -432,7 +434,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR13(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -446,9 +448,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			String nex1 = (String) its1.next();
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
-					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
-					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias())) {
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			}
@@ -464,7 +466,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR14(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -480,9 +482,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
-					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
-					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -499,7 +501,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR15(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		int j = max;
@@ -515,9 +517,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			String nex1 = (String) its1.next();
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
-					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
-					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
@@ -534,7 +536,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR16(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		int j = max;
@@ -553,9 +555,9 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
-					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
-					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -567,23 +569,23 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	/**
 	 * remove entries
 	 * @param alias12
-	 * @param xid 
+	 * @param xid1 
 	 * @param xid3 
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String alias12, String xid, String xid2, String xid3) throws Exception {
+	public static void battery1AR17(Alias alias12, TransactionId xid1, TransactionId xid2, TransactionId xid3) throws Exception {
 		long tims = System.currentTimeMillis();
 		//int i = min;
 		//int j = max;
 
 		// with j at max, should get them all since we stored to max -1
 		//String tkey = String.format(uniqKeyFmt, j);
-		int j = (int) RelatrixKVTransaction.size(alias1, xid, String.class);
+		int j = (int) RelatrixKVTransaction.size(alias1, xid1, String.class);
 		System.out.println("KV Battery1AR17 for alias:"+alias12+" removing "+j+" elements.");
 		for(int i = min; i < j; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(alias12, xid, fkey+alias12);
+			RelatrixKVTransaction.remove(alias12, xid1, fkey+alias12);
 			// each entry should exist in transaction 2 isolation
 			if(!RelatrixKVTransaction.contains(alias12, xid2, fkey+alias12)) { 
 				System.out.println("KV RANGE XACTION ISO 2 1AR17 KEY MISMATCH:"+i);
@@ -595,14 +597,14 @@ public class BatteryRelatrixKVTransactionAliasIso {
 				throw new Exception("KV RANGE XACTION ISO 3 1AR17 KEY MISMATCH:"+i);
 			}
 			// each entry should NOT exist in transaction 1 isolation
-			if(RelatrixKVTransaction.contains(alias12, xid, fkey+alias12)) { 
+			if(RelatrixKVTransaction.contains(alias12, xid1, fkey+alias12)) { 
 				System.out.println("KV RANGE XACTION ISO 1 1AR17 KEY MISMATCH:"+i);
 				throw new Exception("KV RANGE XACTION ISO 1 1AR17 KEY MISMATCH:"+i);
 			}
 		}
-		long siz = RelatrixKVTransaction.size(alias12, xid, String.class);
+		long siz = RelatrixKVTransaction.size(alias12, xid1, String.class);
 		if(siz > 0) {
-			Iterator<?> its = RelatrixKVTransaction.entrySet(alias12, xid, String.class);
+			Iterator<?> its = RelatrixKVTransaction.entrySet(alias12, xid1, String.class);
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				//System.out.println(i+"="+nex);
@@ -621,7 +623,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery18(String xid, String xid2, String xid3) throws Exception {
+	public static void battery18(TransactionId xid, TransactionId xid2, TransactionId xid3) throws Exception {
 		System.out.println("KV Battery18 ");
 		int max1 = max - 50000;
 		long tims = System.currentTimeMillis();

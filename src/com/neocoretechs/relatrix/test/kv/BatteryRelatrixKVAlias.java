@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -27,9 +28,9 @@ public class BatteryRelatrixKVAlias {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
-	static String alias1 = "ALIAS1";
-	static String alias2 = "ALIAS2";
-	static String alias3 = "ALIAS3";
+	static Alias alias1 = new Alias("ALIAS1");
+	static Alias alias2 = new Alias("ALIAS2");
+	static Alias alias3 = new Alias("ALIAS3");
 	/**
 	* Main test fixture driver
 	*/
@@ -211,9 +212,9 @@ public class BatteryRelatrixKVAlias {
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
 			// Map.Entry
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
-					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
-					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3))
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias()))
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			else
 				++i;
@@ -264,9 +265,9 @@ public class BatteryRelatrixKVAlias {
 		Object k2 = RelatrixKV.firstKey(alias2, String.class); // first key
 		Object k3 = RelatrixKV.firstKey(alias3, String.class); // first key
 		System.out.println("KV Battery1AR9");
-		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1) ||
-				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2) ||
-				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3)) {
+		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1.getAlias()) ||
+				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2.getAlias()) ||
+				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3.getAlias())) {
 			System.out.println("KV BATTERY1A9 cant find first key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find first key "+i);
 		}
@@ -292,9 +293,9 @@ public class BatteryRelatrixKVAlias {
 		Object k2 = RelatrixKV.lastKey(alias2, String.class); // last key
 		Object k3 = RelatrixKV.lastKey(alias3, String.class); // last key
 		System.out.println("KV Battery1AR10");
-		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1) ||
-				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2) ||
-				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3)) {
+		if( Integer.parseInt(((String)k1).substring(0,100)) != i || !((String)k1).endsWith(alias1.getAlias()) ||
+				Integer.parseInt(((String)k2).substring(0,100)) != i || !((String)k2).endsWith(alias2.getAlias()) ||
+				Integer.parseInt(((String)k3).substring(0,100)) != i || !((String)k3).endsWith(alias3.getAlias())) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR10 unexpected cant find last key "+i);
 		}
@@ -343,9 +344,9 @@ public class BatteryRelatrixKVAlias {
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
 			// Map.Entry
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) 
-					|| Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) 
-					|| Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias())) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			}
@@ -373,9 +374,9 @@ public class BatteryRelatrixKVAlias {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
-					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
-					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -404,9 +405,9 @@ public class BatteryRelatrixKVAlias {
 			String nex1 = (String) its1.next();
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
-					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
-					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias())) {
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 			}
@@ -436,9 +437,9 @@ public class BatteryRelatrixKVAlias {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
-					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
-					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -469,9 +470,9 @@ public class BatteryRelatrixKVAlias {
 			String nex1 = (String) its1.next();
 			String nex2 = (String) its2.next();
 			String nex3 = (String) its3.next();
-			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1) ||
-					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2) ||
-					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3)) {
+			if(Integer.parseInt(nex1.substring(0,100)) != i || !nex1.endsWith(alias1.getAlias()) ||
+					Integer.parseInt(nex2.substring(0,100)) != i || !nex2.endsWith(alias2.getAlias()) ||
+					Integer.parseInt(nex3.substring(0,100)) != i || !nex3.endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
 				throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex1+"|"+nex2+"|"+nex3);
@@ -505,9 +506,9 @@ public class BatteryRelatrixKVAlias {
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
-			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1) 
-					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2) 
-					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3)) {
+			if(Integer.parseInt(nexe.getKey().substring(0,100)) != i || !nexe.getKey().endsWith(alias1.getAlias()) 
+					|| Integer.parseInt(nexf.getKey().substring(0,100)) != i || !nexf.getKey().endsWith(alias2.getAlias()) 
+					|| Integer.parseInt(nexg.getKey().substring(0,100)) != i || !nexg.getKey().endsWith(alias3.getAlias())) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
 				throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe+"|"+nexf+"|"+nexg);
@@ -521,7 +522,7 @@ public class BatteryRelatrixKVAlias {
 	 * @param alias12
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String alias12) throws Exception {
+	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB");
 		long s = RelatrixKV.size(alias12, String.class);

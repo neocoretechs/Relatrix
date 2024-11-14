@@ -23,6 +23,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
  * On the client and server the following are present as conventions:<br/>
@@ -255,14 +256,14 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * @return Object of iteration, depends on iterator being used, typically, Map.Entry derived serializable instance of next element
 	 * @throws Exception 
 	 */
-	public Object next(String xid, RelatrixKVTransactionStatement rii)  throws Exception {
+	public Object next(TransactionId xid, RelatrixKVTransactionStatement rii)  throws Exception {
 		rii.xid = xid;
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(String xid, RelatrixKVTransactionStatement rii) throws Exception {
+	public boolean hasNext(TransactionId xid, RelatrixKVTransactionStatement rii) throws Exception {
 		rii.xid = xid;
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];
@@ -274,7 +275,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * @param rii
 	 * @throws Exception 
 	 */
-	public void close(String xid, RelatrixKVTransactionStatement rii) throws Exception {
+	public void close(TransactionId xid, RelatrixKVTransactionStatement rii) throws Exception {
 		rii.xid = xid;
 		rii.methodName = "close";
 		rii.paramArray = new Object[] {xid};
@@ -332,7 +333,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 		//rc.send(rs);
 		i = 0;
 		RelatrixKVClientTransaction rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
-		String xid = rc.getTransactionId();
+		TransactionId xid = rc.getTransactionId();
 		switch(args.length) {
 			case 4:
 				/*
@@ -348,16 +349,16 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 				System.exit(0);
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVTransactionStatement(xid,args[3],args[4]);
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixKVTransactionStatement(xid,args[3],args[4],args[5]);
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixKVTransactionStatement(xid,args[3],args[4],args[5],args[6]);
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixKVTransactionStatement(xid,args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

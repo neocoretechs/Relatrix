@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Implementation of the standard Iterator interface which operates on Morphisms formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
@@ -40,7 +42,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-    public RelatrixIteratorTransaction(String xid, Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixIteratorTransaction(TransactionId xid, Morphism template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
@@ -70,7 +72,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-    public RelatrixIteratorTransaction(String alias, String xid, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixIteratorTransaction(Alias alias, TransactionId xid, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);

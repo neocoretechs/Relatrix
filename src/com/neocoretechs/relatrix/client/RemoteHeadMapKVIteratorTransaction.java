@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used by the Key/Value RelatrixKVServer to produce headmaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
@@ -8,7 +9,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteHeadMapKVIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -3324485838278832306L;
-	public RemoteHeadMapKVIteratorTransaction(String xid, String session) {
+	public RemoteHeadMapKVIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 		paramArray = new Object[0];
 	}

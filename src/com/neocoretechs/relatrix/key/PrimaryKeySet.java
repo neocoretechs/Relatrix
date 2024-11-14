@@ -9,9 +9,17 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.DatabaseClass;
+import com.neocoretechs.rocksack.TransactionId;
 /**
- * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.
+ * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p/>
+ * Since we are dealing with morphisms, basically an algebraic function mapping for f:x->y, or m:d->r, then
+ * the primary key is composed of the domain and map components of the morphism. Since a function which takes a domain
+ * object and maps it to a given range through a mapping object can result in only 1 mapping of a domain to range
+ * through a particular mapping function. Consider as an extremely simplified example the domain integer object 1 
+ * using the mapping function addOne results in a range object of 2, and only 2, and naturally composes with the
+ * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023
  *
  */
@@ -21,8 +29,8 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	private static boolean DEBUG = false;
 	protected DBKey domainKey;
     protected DBKey mapKey;
-	private transient String transactionId = null;
-	private transient String alias = null;
+	private transient TransactionId transactionId = null;
+	private transient Alias alias = null;
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public PrimaryKeySet() {}
@@ -86,12 +94,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 				}
 				return DBKey.newKey(indexTable, this);
 			}
-			setDomainKey(DBKey.newKeyAlias(alias, indexTable, skeyd)); // puts to index and instance
-			setMapKey(DBKey.newKeyAlias(alias, indexTable, skeym)); // puts to index and instance
+			setDomainKey(DBKey.newKey(alias, indexTable, skeyd)); // puts to index and instance
+			setMapKey(DBKey.newKey(alias, indexTable, skeym)); // puts to index and instance
 			if(RelatrixKV.get(alias,this) != null) {	
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}
-			return DBKey.newKeyAlias(alias, indexTable, this);
+			return DBKey.newKey(alias, indexTable, this);
 		} else {
 			if(alias == null) {
 				setDomainKey(DBKey.newKey(transactionId, indexTable, skeyd)); // puts to index and instance
@@ -102,13 +110,13 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 				}
 				return DBKey.newKey(transactionId, indexTable, this);
 			}
-			setDomainKey(DBKey.newKeyAlias(alias, transactionId, indexTable, skeyd)); // puts to index and instance
-			setMapKey(DBKey.newKeyAlias(alias, transactionId, indexTable, skeym)); // puts to index and instance
+			setDomainKey(DBKey.newKey(alias, transactionId, indexTable, skeyd)); // puts to index and instance
+			setMapKey(DBKey.newKey(alias, transactionId, indexTable, skeym)); // puts to index and instance
 			if(RelatrixKVTransaction.get(alias, transactionId,this) != null) {
 				RelatrixKVTransaction.rollback(alias,transactionId);
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}
-			return DBKey.newKeyAlias(alias, transactionId, indexTable, this);
+			return DBKey.newKey(alias, transactionId, indexTable, this);
 		}
 	}
 	

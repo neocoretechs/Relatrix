@@ -10,6 +10,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of KV transaction server stream ops.
@@ -28,7 +30,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  */
 public class BatteryRelatrixKVTransactionStreamAlias {
 	public static boolean DEBUG = false;
-	static String alias1 = "ALIAS1";
+	static Alias alias1 = new Alias("ALIAS1");
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
 	static int max = 100000;
@@ -50,7 +52,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 		if(!tablespace.endsWith("/"))
 			tablespace += "/";
 		RelatrixKV.setAlias(alias1,tablespace+alias1);
-		String xid = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  // build and store
 		battery1AR6(xid);
@@ -74,7 +76,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String xid) throws Exception {
+	public static void battery1(TransactionId xid) throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -102,12 +104,12 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery11(String xid) throws Exception {
+	public static void battery11(TransactionId xid) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
 		String fkey = null;
-		String xid2 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -137,7 +139,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String xid) throws Exception {
+	public static void battery1AR6(TransactionId xid) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream = RelatrixKVTransaction.entrySetStream(alias1, xid, String.class);
@@ -159,7 +161,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String xid) throws Exception {
+	public static void battery1AR7(TransactionId xid) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream = RelatrixKVTransaction.keySetStream(alias1, xid, String.class);
@@ -180,7 +182,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String xid) throws Exception {
+	public static void battery1AR8(TransactionId xid) throws Exception {
 		i = min;
 		System.out.println("KV Battery1AR8");
 		long tims = System.currentTimeMillis();
@@ -231,7 +233,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String xid) throws Exception {
+	public static void battery1AR9(TransactionId xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Object k = RelatrixKVTransaction.firstKey(alias1, xid, String.class); // first key
@@ -253,7 +255,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String xid) throws Exception {
+	public static void battery1AR10(TransactionId xid) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Object k = RelatrixKVTransaction.lastKey(alias1, xid, String.class); // key
@@ -274,7 +276,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String xid) throws Exception {
+	public static void battery1AR101(TransactionId xid) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
 		long bits = RelatrixKVTransaction.size(alias1, xid, String.class);
@@ -290,7 +292,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String xid) throws Exception {
+	public static void battery1AR11(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -310,7 +312,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String xid) throws Exception {
+	public static void battery1AR12(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -332,7 +334,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String xid) throws Exception {
+	public static void battery1AR13(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -356,7 +358,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String xid) throws Exception {
+	public static void battery1AR14(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -379,7 +381,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String xid) throws Exception {
+	public static void battery1AR15(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
@@ -405,7 +407,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String xid) throws Exception {
+	public static void battery1AR16(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
@@ -431,9 +433,9 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery17(String xid) throws Exception {
+	public static void battery17(TransactionId xid) throws Exception {
 		System.out.println("KV Battery17 ");
-		String xid2 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
 		int max1 = max + 50000;
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -476,7 +478,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	private static void batteryCleanDB(String xid) throws Exception {
+	private static void batteryCleanDB(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB");
 		long s = RelatrixKVTransaction.size(alias1, xid, String.class);

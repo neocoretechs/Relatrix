@@ -8,6 +8,8 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
   Legal permutations are:<br/>
@@ -18,7 +20,7 @@ import com.neocoretechs.relatrix.key.DBKey;
  */
 public class FindTailSetMode3Transaction extends FindSetMode3Transaction {
 	Object[] endarg;
-	public FindTailSetMode3Transaction(String xid, char dop, Object marg, Object rarg, Object ... endarg) { 	
+	public FindTailSetMode3Transaction(TransactionId xid, char dop, Object marg, Object rarg, Object ... endarg) { 	
 		super(xid, dop, marg, rarg);
        	if(endarg.length != 1)
     		throw new RuntimeException("Must supply 1 qualifying argument for Tailset domain.");
@@ -49,7 +51,7 @@ public class FindTailSetMode3Transaction extends FindSetMode3Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();

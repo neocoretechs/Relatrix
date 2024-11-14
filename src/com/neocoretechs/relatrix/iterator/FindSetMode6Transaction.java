@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 6 is for findSet(object,object,"?|*")
@@ -23,10 +25,10 @@ import com.neocoretechs.relatrix.Morphism;
 */
 public class FindSetMode6Transaction extends FindSetMode6 {
 	// mode 6
-	String xid;
-    public FindSetMode6Transaction(String xid, Object darg, Object marg, char rop) { 	
+	TransactionId xid;
+    public FindSetMode6Transaction(TransactionId transactionId, Object darg, Object marg, char rop) { 	
     	super(darg, marg, rop);
-    	this.xid = xid;
+    	this.xid = transactionId;
     }
     
     /**
@@ -47,13 +49,13 @@ public class FindSetMode6Transaction extends FindSetMode6 {
      *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
 	    Morphism dmr = new DomainMapRange(true, alias, xid, (Comparable)darg, (Comparable)marg, null);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

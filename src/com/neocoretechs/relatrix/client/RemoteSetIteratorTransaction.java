@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used to produce Relatrix triplesets for remote delivery.
  * @author Jonathan Groff (C) NeoCoreTechs 2024
@@ -8,7 +9,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class RemoteSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteSetIteratorTransaction(String xid, String session) {
+	public RemoteSetIteratorTransaction(TransactionId xid, String session) {
 		super(xid,session);
 		paramArray = new Object[0];
 	}

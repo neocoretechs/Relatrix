@@ -7,7 +7,9 @@ import java.io.ObjectOutput;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.DatabaseClass;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * This class represents the morphisms stored in map,domain,range (codomain) order.
@@ -25,7 +27,7 @@ public class MapDomainRange extends Morphism {
     public MapDomainRange(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
-    public MapDomainRange(String alias, Comparable d, Comparable m, Comparable r) {
+    public MapDomainRange(Alias alias, Comparable d, Comparable m, Comparable r) {
        	super(alias,d,m,r);
     }
 
@@ -34,7 +36,7 @@ public class MapDomainRange extends Morphism {
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public MapDomainRange(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+	public MapDomainRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
 			Comparable r, DBKey rangeKey) {
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
@@ -43,25 +45,25 @@ public class MapDomainRange extends Morphism {
 		super(d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public MapDomainRange(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+	public MapDomainRange(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
 			DBKey rangeKey) {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public MapDomainRange(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+	public MapDomainRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(flag, alias, transactionId, d, m, r);
 	}
 
-	public MapDomainRange(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+	public MapDomainRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m,
 			DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public MapDomainRange(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+	public MapDomainRange(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(alias, transactionId, d, m, r);
 	}
 
-	public MapDomainRange(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public MapDomainRange(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
@@ -77,7 +79,7 @@ public class MapDomainRange extends Morphism {
     	setRangeKey(identity.getRangeKey()); 	
     }
 	
-    public MapDomainRange(String alias, DomainMapRange identity) throws IOException {
+    public MapDomainRange(Alias alias, DomainMapRange identity) throws IOException {
     	this(identity);
     	this.alias = alias;
     }
@@ -86,7 +88,7 @@ public class MapDomainRange extends Morphism {
 		super(b, d, m, r);
 	}
 
-	public MapDomainRange(boolean b, String alias, Comparable d, Comparable m, Comparable r) {
+	public MapDomainRange(boolean b, Alias alias, Comparable d, Comparable m, Comparable r) {
 		super(b, alias, d, m, r);
 	}
 	

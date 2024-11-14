@@ -9,6 +9,8 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
  * Mathematically, based on Category Theory: deliver sets of compositions of {@link Morphism}s 
@@ -38,7 +40,7 @@ import com.neocoretechs.relatrix.key.DBKey;
  */
 public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator {
 	public static boolean DEBUG = false;
-	String xid;
+	TransactionId xid;
 
     public RelatrixHeadsetIteratorTransaction() {}
     /**
@@ -47,7 +49,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixHeadsetIteratorTransaction(String xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIteratorTransaction(TransactionId xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
     	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
@@ -130,7 +132,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			System.out.println("RelatrixHeadsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
-    public RelatrixHeadsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIteratorTransaction(Alias alias, TransactionId xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)

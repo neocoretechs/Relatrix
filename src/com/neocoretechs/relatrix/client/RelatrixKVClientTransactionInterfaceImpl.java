@@ -1,15 +1,22 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
-public abstract class RelatrixKVClientTransactionInterfaceImpl implements RelatrixKVClientTransactionInterface{
+
+public abstract class RelatrixKVClientTransactionInterfaceImpl implements RelatrixKVClientTransactionInterface {
 
 	public abstract Object sendCommand(RelatrixKVTransactionStatement s) throws Exception;
+	
 	@Override
-	public Object lastValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastValue", arg1, arg2, arg3);
+	public Object lastValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastValue", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -21,8 +28,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object lastValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastValue", arg1, arg2);
+	public Object lastValue(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastValue", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -32,8 +39,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object nearest(String arg1,Comparable arg2) throws java.lang.IllegalAccessException,java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("nearest", arg1, arg2);
+	public Object nearest(TransactionId transactionId, Comparable key) throws java.lang.IllegalAccessException,java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("nearest", transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -43,8 +50,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object nearest(String arg1,String arg2,Comparable arg3) throws java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("nearest", arg1, arg2, arg3);
+	public Object nearest(Alias alias, TransactionId transactionId, Comparable key) throws java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("nearest", alias, transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -56,8 +63,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findSubMapKV(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKV", arg1, arg2, arg3);
+	public Iterator findSubMapKV(TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKV", transactionId, from, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -71,8 +78,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findSubMapKV(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKV", arg1, arg2, arg3, arg4);
+	public Iterator findSubMapKV(Alias alias, TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKV", alias, transactionId, from, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -88,8 +95,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findHeadMapKV(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKV", arg1, arg2, arg3);
+	public Iterator findHeadMapKV(Alias alias, TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKV", alias, transactionId, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -105,8 +112,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findHeadMapKV(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKV", arg1, arg2);
+	public Iterator findHeadMapKV(TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKV", transactionId, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -120,8 +127,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findSubMap(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMap", arg1, arg2, arg3, arg4);
+	public Iterator findSubMap(Alias alias, TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMap", alias, transactionId, from, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -137,8 +144,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findSubMap(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMap", arg1, arg2, arg3);
+	public Iterator findSubMap(TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMap", transactionId, from, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -152,8 +159,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findHeadMapStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapStream", arg1, arg2, arg3);
+	public Stream findHeadMapStream(Alias alias, TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapStream", alias, transactionId, to);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -169,8 +176,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findHeadMapStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapStream", arg1, arg2);
+	public Stream findHeadMapStream(TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapStream", transactionId, to);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -184,8 +191,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findTailMapKV(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKV", arg1, arg2);
+	public Iterator findTailMapKV(TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKV", transactionId, from);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -199,8 +206,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findTailMapKV(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKV", arg1, arg2, arg3);
+	public Iterator  findTailMapKV(Alias alias, TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKV", alias, transactionId, from);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -216,8 +223,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void loadClassFromJar(String arg1) throws java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("loadClassFromJar", arg1);
+	public void loadClassFromJar(String jar) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("loadClassFromJar", null, jar);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -225,8 +232,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findTailMap(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMap", arg1, arg2, arg3);
+	public Iterator findTailMap(Alias alias, TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMap", alias, transactionId, from);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -242,8 +249,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findTailMap(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMap", arg1, arg2);
+	public Iterator findTailMap(TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMap", transactionId, from);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -257,8 +264,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("loadClassFromPath", arg1, arg2);
+	public void loadClassFromPath(String clazz,String path) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("loadClassFromPath", null, clazz, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -266,8 +273,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findHeadMap(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMap", arg1, arg2, arg3);
+	public Iterator findHeadMap(Alias alias, TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMap", alias, transactionId, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -283,8 +290,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator findHeadMap(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMap", arg1, arg2);
+	public Iterator findHeadMap(TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMap", transactionId, to);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -298,8 +305,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream keySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySetStream", arg1, arg2);
+	public Stream keySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySetStream", transactionId, clazz);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -309,8 +316,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream keySetStream(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySetStream", arg1, arg2, arg3);
+	public Stream keySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySetStream", alias, transactionId, clazz);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -322,40 +329,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findSubMapKVStream(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKVStream", arg1, arg2, arg3, arg4);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			if(e instanceof java.lang.IllegalAccessException)
-				throw new java.lang.IllegalAccessException(e.getMessage());
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
-	@Override
-	public Stream findSubMapKVStream(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKVStream", arg1, arg2, arg3);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-			if(e instanceof java.io.IOException)
-				throw new java.io.IOException(e);
-			if(e instanceof java.lang.IllegalArgumentException)
-				throw new java.lang.IllegalArgumentException(e);
-			if(e instanceof java.lang.ClassNotFoundException)
-				throw new java.lang.ClassNotFoundException(e.getMessage());
-			throw new java.lang.IllegalAccessException(e.getMessage());
-		}
-	}
-	@Override
-	public Stream findTailMapStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapStream", arg1, arg2, arg3);
+	public Stream findSubMapKVStream(Alias alias, TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKVStream", alias, transactionId, from, to);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -371,8 +346,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findTailMapStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapStream", arg1, arg2);
+	public Stream findSubMapKVStream(TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKVStream", transactionId, from, to);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -386,8 +361,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findSubMapStream(String arg1,String arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapStream", arg1, arg2, arg3, arg4);
+	public Stream findTailMapStream(Alias alias, TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapStream", alias, transactionId, from);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -403,8 +378,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findSubMapStream(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapStream", arg1, arg2, arg3);
+	public Stream findTailMapStream(TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapStream", transactionId, from);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -418,8 +393,40 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void removeAlias(String arg1) throws java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("removeAlias", arg1);
+	public Stream findSubMapStream(Alias alias, TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapStream", alias, transactionId, from, to);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			throw new java.util.NoSuchElementException(e.getMessage());
+		}
+	}
+	@Override
+	public Stream findSubMapStream(TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapStream", transactionId, from, to);
+		try {
+			return (Stream)sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			if(e instanceof java.lang.IllegalArgumentException)
+				throw new java.lang.IllegalArgumentException(e);
+			if(e instanceof java.lang.ClassNotFoundException)
+				throw new java.lang.ClassNotFoundException(e.getMessage());
+			throw new java.lang.IllegalAccessException(e.getMessage());
+		}
+	}
+	@Override
+	public void removeAlias(Alias alias) throws java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("removeAlias", null, alias);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -427,8 +434,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public String getAlias(String arg1) {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getAlias", arg1);
+	public String getAlias(Alias alias) {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getAlias", null, alias);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -437,7 +444,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	}
 	@Override
 	public String getTableSpace() {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getTableSpace","",new Object[]{});
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getTableSpace", null, new Object[]{});
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -445,8 +452,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void endTransaction(String arg1) throws java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("endTransaction", arg1);
+	public void endTransaction(TransactionId transactionId) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("endTransaction", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -455,7 +462,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	}
 	@Override
 	public String[][] getAliases() {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getAliases","",new Object[]{});
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getAliases", null, new Object[]{});
 		try {
 			return (String[][])sendCommand(s);
 		} catch(Exception e) {
@@ -463,10 +470,10 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public String getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getTransactionId","",new Object[]{});
+	public TransactionId getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getTransactionId", null, new Object[]{});
 		try {
-			return (String)sendCommand(s);
+			return (TransactionId)sendCommand(s);
 		} catch(Exception e) {
 			if(e instanceof java.lang.IllegalAccessException)
 				throw new java.lang.IllegalAccessException(e.getMessage());
@@ -476,8 +483,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void setAlias(String arg1,String arg2) throws java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("setAlias", arg1, arg2);
+	public void setAlias(Alias alias, String path) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("setAlias", null, alias, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -485,8 +492,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void setTablespace(String arg1) throws java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("setTablespace", arg1);
+	public void setTablespace(String path) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("setTablespace", null, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -494,8 +501,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void rollback(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollback", arg1, arg2);
+	public void rollback(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollback", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -507,8 +514,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void rollback(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollback", arg1);
+	public void rollback(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollback", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -518,8 +525,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void checkpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("checkpoint", arg1, arg2);
+	public void checkpoint(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("checkpoint", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -531,8 +538,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void checkpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("checkpoint", arg1);
+	public void checkpoint(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("checkpoint", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -542,8 +549,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findTailMapKVStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKVStream", arg1, arg2, arg3);
+	public Stream findTailMapKVStream(Alias alias, TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKVStream", alias, transactionId, from);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -559,8 +566,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findTailMapKVStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKVStream", arg1, arg2);
+	public Stream findTailMapKVStream(TransactionId transactionId, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKVStream", transactionId, from);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -575,7 +582,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	}
 	@Override
 	public void rollbackAllTransactions() {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackAllTransactions","",new Object[]{});
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackAllTransactions", null, new Object[]{});
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -583,7 +590,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	}
 	@Override
 	public Object[] getTransactionState() {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getTransactionState","",new Object[]{});
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("getTransactionState", null, new Object[]{});
 		try {
 			return (Object[])sendCommand(s);
 		} catch(Exception e) {
@@ -591,8 +598,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findHeadMapKVStream(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKVStream", arg1, arg2, arg3);
+	public Stream findHeadMapKVStream(Alias alias, TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKVStream", alias, transactionId, to);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -608,8 +615,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream findHeadMapKVStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKVStream", arg1, arg2);
+	public Stream findHeadMapKVStream(TransactionId transactionId, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKVStream", transactionId, to);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -623,8 +630,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void rollbackToCheckpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackToCheckpoint", arg1, arg2);
+	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackToCheckpoint", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -636,8 +643,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void rollbackToCheckpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackToCheckpoint", arg1);
+	public void rollbackToCheckpoint(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackToCheckpoint", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -647,8 +654,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void removePackageFromRepository(String arg1) throws java.io.IOException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("removePackageFromRepository", arg1);
+	public void removePackageFromRepository(String pack) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("removePackageFromRepository", null, pack);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -656,16 +663,16 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void rollbackTransaction(String arg1) {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackTransaction", arg1);
+	public void rollbackTransaction(TransactionId transactionId) {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("rollbackTransaction", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 		}
 	}
 	@Override
-	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySetStream", arg1, arg2);
+	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySetStream", transactionId, clazz);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -675,8 +682,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Stream entrySetStream(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySetStream", arg1, arg2, arg3);
+	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySetStream", alias, transactionId, clazz);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -688,8 +695,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object lastKey(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastKey", arg1, arg2, arg3);
+	public Object lastKey(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastKey", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -701,8 +708,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object lastKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastKey", arg1, arg2);
+	public Object lastKey(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("lastKey", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -712,8 +719,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void commit(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("commit", arg1, arg2);
+	public void commit(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("commit", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -725,8 +732,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void commit(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("commit", arg1);
+	public void commit(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("commit", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -736,8 +743,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object firstKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstKey", arg1, arg2);
+	public Object firstKey(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstKey", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -747,8 +754,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object firstKey(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstKey", arg1, arg2, arg3);
+	public Object firstKey(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstKey", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -760,8 +767,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object firstValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstValue", arg1, arg2, arg3);
+	public Object firstValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstValue", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -773,8 +780,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstValue", arg1, arg2);
+	public Object firstValue(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("firstValue", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -784,8 +791,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public boolean containsValue(String arg1,Class arg2,Object arg3) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("containsValue", arg1, arg2, arg3);
+	public boolean containsValue(TransactionId transactionId, Class clazz, Object key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("containsValue", transactionId, clazz, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -795,8 +802,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public boolean containsValue(String arg1,String arg2,Class arg3,Object arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("containsValue", arg1, arg2, arg3, arg4);
+	public boolean containsValue(Alias alias, TransactionId transactionId, Class clazz, Object key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("containsValue", alias, transactionId, clazz, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -808,8 +815,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator keySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySet", arg1, arg2, arg3);
+	public Iterator keySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySet", alias, transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -821,8 +828,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySet", arg1, arg2);
+	public Iterator keySet(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySet", transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -832,8 +839,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void close(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("close", arg1, arg2, arg3);
+	public void close(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("close", alias, transactionId, clazz);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -845,8 +852,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void close(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("close", arg1, arg2);
+	public void close(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("close", transactionId, clazz);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -856,8 +863,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySet", arg1, arg2);
+	public Iterator entrySet(TransactionId xid,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySet", xid, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -867,8 +874,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Iterator entrySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySet", arg1, arg2, arg3);
+	public Iterator entrySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySet", alias, transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -880,8 +887,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public boolean contains(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", arg1, arg2, arg3);
+	public boolean contains(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", alias, transactionId, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -893,8 +900,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", arg1, arg2);
+	public boolean contains(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", transactionId, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -904,8 +911,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public boolean contains(String arg1,Class arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", arg1, arg2, arg3);
+	public boolean contains(TransactionId transactionId, Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", transactionId, clazz, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -915,8 +922,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public boolean contains(String arg1,String arg2,Class arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", arg1, arg2, arg3, arg4);
+	public boolean contains(Alias alias, TransactionId transactionId, Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("contains", alias, transactionId, clazz, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -926,8 +933,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public long size(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("size", arg1, arg2, arg3);
+	public long size(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("size", alias, transactionId, clazz);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -939,8 +946,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public long size(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("size", arg1, arg2);
+	public long size(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("size", transactionId, clazz);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -950,8 +957,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void store(String arg1,String arg2,Comparable arg3,Object arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("store", arg1, arg2, arg3, arg4);
+	public void store(Alias alias, TransactionId transactionId, Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("store", alias, transactionId, key, value);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -965,8 +972,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public void store(String arg1,Comparable arg2,Object arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("store", arg1, arg2, arg3);
+	public void store(TransactionId transactionId, Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("store", transactionId, key, value);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -978,8 +985,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object get(String arg1,Class arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", arg1, arg2, arg3);
+	public Object get(TransactionId transactionId, Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", transactionId, clazz, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -989,8 +996,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", arg1, arg2);
+	public Object get(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1000,8 +1007,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object get(String arg1,String arg2,Class arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", arg1, arg2, arg3, arg4);
+	public Object get(Alias alias, TransactionId transactionId, Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", alias, transactionId, clazz, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1013,8 +1020,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object get(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", arg1, arg2, arg3);
+	public Object get(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("get", alias, transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1026,8 +1033,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("remove", arg1, arg2);
+	public Object remove(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("remove", transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1041,8 +1048,8 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object remove(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("remove", arg1, arg2, arg3);
+	public Object remove(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("remove", alias, transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {

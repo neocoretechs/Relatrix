@@ -33,6 +33,7 @@ import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+import com.neocoretechs.rocksack.Alias;
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
  * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
@@ -94,7 +95,7 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
      * @throws IOException 
      * @throws NoSuchElementException if alias does not exist
      */
-    public RelatrixStream(String alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixStream(Alias alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);

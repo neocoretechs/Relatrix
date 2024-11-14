@@ -15,6 +15,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.rocksack.Alias;
 /**
  *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
  * Mathematically, based on Category Theory: deliver sets of compositions of {@link Morphism}s 
@@ -45,7 +46,7 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
 public class RelatrixTailsetIterator implements Iterator<Result> {
 	public static boolean DEBUG = false;
 	public static boolean DEBUGITERATION = false;
-	protected String alias = null;
+	protected Alias alias = null;
 	protected Iterator iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
@@ -167,7 +168,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
      * @throws IOException
      * @throws NoSuchElementException
      */
-    public RelatrixTailsetIterator(String alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixTailsetIterator(Alias alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
       	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));

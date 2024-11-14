@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
@@ -35,7 +36,7 @@ public class BatteryKeysetTransaction {
 	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
 	static ArrayList<KeySet> findkeys = new ArrayList<KeySet>();
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
-	static String xid;
+	static TransactionId xid;
 	/**
 	* Main test fixture driver
 	*/

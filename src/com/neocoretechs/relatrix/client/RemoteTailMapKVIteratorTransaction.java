@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used to produce key/value tailmaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
@@ -8,7 +9,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteTailMapKVIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteTailMapKVIteratorTransaction(String xid, String session) {
+	public RemoteTailMapKVIteratorTransaction(TransactionId xid, String session) {
 		super(xid,session);
 		paramArray = new Object[0];
 	}

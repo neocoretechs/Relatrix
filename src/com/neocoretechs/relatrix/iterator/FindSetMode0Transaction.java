@@ -12,6 +12,8 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Construct an iterator from findSet or one of its subclasses (headSet, subset, tailSet is the default).
@@ -37,8 +39,8 @@ import com.neocoretechs.relatrix.Result3;
 public class FindSetMode0Transaction extends FindSetMode0 {
 	// mode 0
 	private static boolean DEBUG = false;
-	String xid;
-    public FindSetMode0Transaction(String xid, char dop, char mop, char rop) { 
+	TransactionId xid;
+    public FindSetMode0Transaction(TransactionId xid, char dop, char mop, char rop) { 
     	super(dop, mop, rop);
     	this.xid = xid;
     }
@@ -77,7 +79,7 @@ public class FindSetMode0Transaction extends FindSetMode0 {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
  	@Override
- 	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+ 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
  		Morphism dmr = null;
  		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
  			case 0: // dmr
@@ -110,7 +112,7 @@ public class FindSetMode0Transaction extends FindSetMode0 {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 7 all objects. Take subset of identity Morphisms from instance d, m, r
@@ -15,7 +17,7 @@ public class FindSubSetMode7Transaction extends FindSetMode7Transaction {
 	Object[] endarg;
 	int argCtr = 0;
 	// mode 7
-    public FindSubSetMode7Transaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
+    public FindSubSetMode7Transaction(TransactionId xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
     	super(xid, darg, marg, rarg);
        	this.endarg = endarg;
     	if(endarg.length != 0) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -44,7 +46,7 @@ public class FindSubSetMode7Transaction extends FindSetMode7Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {

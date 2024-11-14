@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
  * to the crucial methods that represents the ending range of the set valued results of our findSet query.
@@ -28,7 +30,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class FindSubSetMode1Transaction extends FindSetMode1Transaction {
 	   Object[] endarg;
 	   int argCtr = 0;
-	   public FindSubSetMode1Transaction(String xid, char dop, char mop, Object rarg, Object ... endarg) { 
+	   public FindSubSetMode1Transaction(TransactionId xid, char dop, char mop, Object rarg, Object ... endarg) { 
 		   super(xid,dop,mop,rarg);
 		   this.endarg = endarg;
 		   if(endarg.length < 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -72,7 +74,7 @@ public class FindSubSetMode1Transaction extends FindSetMode1Transaction {
 		}
 
 		@Override
-		protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 			Morphism xdmr = null;
 			Morphism ydmr = null;
 			try {

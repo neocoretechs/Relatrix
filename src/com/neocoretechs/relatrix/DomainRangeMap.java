@@ -7,7 +7,9 @@ import java.io.ObjectOutput;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.DatabaseClass;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * This class represents the morphisms stored in domain,range (codomain),map order.
@@ -33,7 +35,7 @@ public class DomainRangeMap extends Morphism {
     		throw new IOException("Range key of identity is invalid.");
     	setRangeKey(identity.getRangeKey()); 	
     }
-    public DomainRangeMap(String alias, DomainMapRange identity) throws IOException {
+    public DomainRangeMap(Alias alias, DomainMapRange identity) throws IOException {
        	this(identity);
     	this.alias = alias;
     }
@@ -41,7 +43,7 @@ public class DomainRangeMap extends Morphism {
        	super(d,m,r);
     }
 	
-	public DomainRangeMap(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+	public DomainRangeMap(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, d,m,r);
 	}
 
@@ -49,7 +51,7 @@ public class DomainRangeMap extends Morphism {
 		super(b, d, m, r);
 	}
 	
-	public DomainRangeMap(boolean b, String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+	public DomainRangeMap(boolean b, Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(b, alias, d, m, r);
 	}
 	
@@ -58,7 +60,7 @@ public class DomainRangeMap extends Morphism {
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainRangeMap(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+	public DomainRangeMap(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
 			Comparable r, DBKey rangeKey) {
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
@@ -67,25 +69,25 @@ public class DomainRangeMap extends Morphism {
 		super(d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainRangeMap(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
+	public DomainRangeMap(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
 			DBKey rangeKey) {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainRangeMap(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+	public DomainRangeMap(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(flag, alias, transactionId, d, m, r);
 	}
 
-	public DomainRangeMap(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m,
+	public DomainRangeMap(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m,
 			DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainRangeMap(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+	public DomainRangeMap(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(alias, transactionId, d, m, r);
 	}
 
-	public DomainRangeMap(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+	public DomainRangeMap(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
 			Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}

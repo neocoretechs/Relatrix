@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
  * Used by the Key/Value subsystem to produce submaps for remote delivery.
@@ -9,7 +10,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteSubMapKVIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -112309448424952343L;
-	public RemoteSubMapKVIteratorTransaction(String xid, String session) {
+	public RemoteSubMapKVIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 		paramArray = new Object[0];
 	}

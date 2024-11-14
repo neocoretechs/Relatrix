@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.tooling;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Roll back selected transactiosn on the server. Use with caution.
  * Exceptions likely to be thrown server side if active processes. use is mainly
@@ -37,8 +38,9 @@ public class RollbackServerTransaction {
 				asc.append((char)j);
 		}
 		int select = Integer.parseInt(asc.toString());
-		System.out.println("Removing "+select+".) "+((String)states[select-1]).substring(12,48));
-		rkvc.rollbackTransaction(((String)states[select-1]).substring(12,48));
+		TransactionId xid = new TransactionId(((String)states[select-1]).substring(12,48));
+		System.out.println("Removing "+select+".) " + xid);
+		rkvc.rollbackTransaction(xid);
 		rkvc.close();
 		System.exit(0);
 	}

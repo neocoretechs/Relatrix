@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 3. The findSet contains two object references, therefore the subset variable array must also.
@@ -24,7 +26,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class FindSubSetMode3Transaction extends FindSetMode3Transaction {
 	Object[] endarg;
 	int argCtr = 0;
-    public FindSubSetMode3Transaction(String xid, char dop, Object marg, Object rarg, Object ...endarg) { 	
+    public FindSubSetMode3Transaction(TransactionId xid, char dop, Object marg, Object rarg, Object ...endarg) { 	
     	super(xid, dop, marg, rarg);
 		this.endarg = endarg;
 		if(endarg.length < 1) throw new RuntimeException("Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -51,7 +53,7 @@ public class FindSubSetMode3Transaction extends FindSetMode3Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {

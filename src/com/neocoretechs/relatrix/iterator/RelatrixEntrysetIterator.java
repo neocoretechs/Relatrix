@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.rocksack.Alias;
 
 
 /**
@@ -44,7 +45,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetIterator(String alias, Class c) throws IOException, NoSuchElementException {
+    public RelatrixEntrysetIterator(Alias alias, Class c) throws IOException, NoSuchElementException {
     	try {
 			iter = RelatrixKV.entrySet(alias, c);
 		} catch (IllegalAccessException e) {
@@ -61,7 +62,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
     	this(c.getClass());
     }
     
-    public RelatrixEntrysetIterator(String alias, Comparable c) throws IOException, NoSuchElementException {
+    public RelatrixEntrysetIterator(Alias alias, Comparable c) throws IOException, NoSuchElementException {
     	this(alias, c.getClass());
     }
     

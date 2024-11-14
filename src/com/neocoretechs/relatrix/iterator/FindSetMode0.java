@@ -12,6 +12,7 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.rocksack.Alias;
 
 /**
 * Construct an iterator from findSet or one of its subclasses (headSet, subset, tailSet is the default).
@@ -91,7 +92,7 @@ public class FindSetMode0 extends IteratorFactory {
     * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
     */
 	@Override
-	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism dmr = null;
 		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
 			case 0: // dmr
@@ -119,7 +120,7 @@ public class FindSetMode0 extends IteratorFactory {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIterator(alias, tdmr, dmr_return);
 	}
 }

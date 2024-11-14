@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 /**
  * This has to get called from the client to invoke the proper server side iterator
@@ -29,7 +30,7 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 	 * Invoked on server where we create this and pass it back to the client linking the server side session id
 	 * @param session
 	 */
-	public RemoteIteratorTransaction(String xid, String session) {
+	public RemoteIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 	}
 	

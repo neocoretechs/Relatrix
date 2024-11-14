@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
@@ -23,10 +25,10 @@ import com.neocoretechs.relatrix.Morphism;
 */
 public class FindSetMode5Transaction extends FindSetMode5 {
 	// mode 5
-	String xid;
-    public FindSetMode5Transaction(String xid, Object darg, char mop, Object rarg) { 	
+	TransactionId xid;
+    public FindSetMode5Transaction(TransactionId transactionId, Object darg, char mop, Object rarg) { 	
     	super(darg, mop, rarg);
-    	this.xid = xid;
+    	this.xid = transactionId;
     }
     
     /**
@@ -34,7 +36,7 @@ public class FindSetMode5Transaction extends FindSetMode5 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		Morphism dmr = new DomainRangeMap(true, xid, (Comparable)darg, null, (Comparable)rarg);
+		Morphism dmr = new DomainRangeMap(true, null, xid, (Comparable)darg, null, (Comparable)rarg);
 		return createRelatrixIterator(dmr);
 	}
 	
@@ -47,13 +49,13 @@ public class FindSetMode5Transaction extends FindSetMode5 {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism dmr = new DomainRangeMap(true, alias, xid, (Comparable)darg, null, (Comparable)rarg);
 		return createRelatrixIterator(alias, dmr);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
 		return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

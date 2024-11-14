@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.iterator.EntrySetIterator;
 
 /**
@@ -21,7 +22,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     private String session = null;
-    protected String alias = null;
+    protected Alias alias = null;
     protected String methodName;
     protected Object[] paramArray;
     private Object retObj;
@@ -47,7 +48,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     /**
      * Prep RelatrixStatement to send remote method call
      */
-    public RelatrixStatement(String tmeth, String alias, Object ... o1) {
+    public RelatrixStatement(Alias alias, String tmeth, Object ... o1) {
     	this.methodName = tmeth;
     	this.alias = alias;
     	this.paramArray = o1;

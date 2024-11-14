@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of client side KV server stream transaction ops.
@@ -46,7 +47,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		}
 		System.out.println("local="+argv[0]+" remote="+argv[0]+" port="+argv[1]);
 		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
-		String xid = rkvc.getTransactionId();
+		TransactionId xid = rkvc.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  // build and store
 		battery1AR6(xid);
@@ -72,7 +73,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String xid) throws Exception {
+	public static void battery1(TransactionId xid) throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -100,12 +101,12 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery11(String xid) throws Exception {
+	public static void battery11(TransactionId xid) throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
 		String fkey = null;
-		String xid2 = rkvc.getTransactionId();
+		TransactionId xid2 = rkvc.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -135,7 +136,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String xid) throws Exception {
+	public static void battery1AR6(TransactionId xid) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream =  rkvc.entrySetStream(xid,String.class);
@@ -158,7 +159,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String xid) throws Exception {
+	public static void battery1AR7(TransactionId xid) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream = rkvc.keySetStream(xid, String.class);
@@ -180,7 +181,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String xid) throws Exception {
+	public static void battery1AR8(TransactionId xid) throws Exception {
 		i = min;
 		System.out.println("KV Battery1AR8");
 		long tims = System.currentTimeMillis();
@@ -231,7 +232,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String xid) throws Exception {
+	public static void battery1AR9(TransactionId xid) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Object k = rkvc.firstKey(xid, String.class); // first key
@@ -253,7 +254,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String xid) throws Exception {
+	public static void battery1AR10(TransactionId xid) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Object k = rkvc.lastKey(xid, String.class); // key
@@ -274,7 +275,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String xid) throws Exception {
+	public static void battery1AR101(TransactionId xid) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
 		long bits = rkvc.size(xid, String.class);
@@ -290,7 +291,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String xid) throws Exception {
+	public static void battery1AR11(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -310,7 +311,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String xid) throws Exception {
+	public static void battery1AR12(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -332,7 +333,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String xid) throws Exception {
+	public static void battery1AR13(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -356,7 +357,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String xid) throws Exception {
+	public static void battery1AR14(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -379,7 +380,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String xid) throws Exception {
+	public static void battery1AR15(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
@@ -405,7 +406,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param xid
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String xid) throws Exception {
+	public static void battery1AR16(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
@@ -430,9 +431,9 @@ public class BatteryRelatrixKVClientTransactionStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String xid) throws Exception {
+	public static void battery1AR17(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
-		String xid2 = rkvc.getTransactionId();
+		TransactionId xid2 = rkvc.getTransactionId();
 		System.out.println("KV Battery1AR17");
 		long timx = System.currentTimeMillis();
 		RemoteKVIteratorTransaction its = (RemoteKVIteratorTransaction) rkvc.keySet(xid2,String.class);

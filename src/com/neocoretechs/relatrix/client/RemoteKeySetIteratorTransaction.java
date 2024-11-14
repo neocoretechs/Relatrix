@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used by the Key/Value RelatrixKVServer to produce entry sets for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
@@ -9,7 +10,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  */
 public class RemoteKeySetIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = 1206621317830948409L;
-	public RemoteKeySetIteratorTransaction(String xid, String session) {
+	public RemoteKeySetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 		paramArray = new Object[0];
 	

@@ -1,13 +1,10 @@
 package com.neocoretechs.relatrix;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.Serializable;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * This class represents the morphisms stored in their natural retrieval order.
@@ -29,7 +26,7 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
     	super(d,m,r);
     }
   
-	public DomainMapRange(String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+	public DomainMapRange(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(alias, d, m, r);
 	}
     
@@ -37,7 +34,7 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
     	super(flag, d,m,r);
     }
   
-	public DomainMapRange(boolean flag, String alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
+	public DomainMapRange(boolean flag, Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) {
 		super(flag, alias, d, m, r);
 	}
 	
@@ -46,7 +43,7 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
+	public DomainMapRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
 			Comparable r, DBKey rangeKey) {
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
@@ -55,23 +52,23 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public DomainMapRange(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 	
-	public DomainMapRange(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+	public DomainMapRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(flag, alias, transactionId, d, m, r);
 	}
 
-	public DomainMapRange(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public DomainMapRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+	public DomainMapRange(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(alias, transactionId, d, m, r);
 	}
 
-	public DomainMapRange(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public DomainMapRange(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 

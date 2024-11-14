@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
  * to the crucial methods that represents the ending range of the set valued results of our findSet query.
@@ -73,7 +74,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 		}
 
 		@Override
-		protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 			Morphism xdmr = null;
 			Morphism ydmr = null;
 			try {

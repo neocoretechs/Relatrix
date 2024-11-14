@@ -14,6 +14,8 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
  * Our main representable analog. Instances of this class deliver the set of identity morphisms, or
@@ -30,7 +32,7 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
  *
  */
 public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
-	String xid;
+	TransactionId xid;
 	private static boolean DEBUG = false;
 
     public RelatrixSubsetIteratorTransaction() {}
@@ -42,7 +44,7 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
      * @param dmr_return The operator sequence encoded as array
      * @throws IOException
      */
-    public RelatrixSubsetIteratorTransaction(String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIteratorTransaction(TransactionId xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
       	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
       	this.xid = xid;
@@ -133,7 +135,7 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
      * @throws IOException
      * @throws NoSuchElementException
      */
-    public RelatrixSubsetIteratorTransaction(String alias, String xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.alias = alias;

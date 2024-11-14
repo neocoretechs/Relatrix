@@ -8,6 +8,8 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 
 /**
@@ -22,7 +24,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindHeadSetMode5Transaction extends FindSetMode5Transaction {
 	Object[] endarg;
-    public FindHeadSetMode5Transaction(String xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
+    public FindHeadSetMode5Transaction(TransactionId xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
     	super(xid, darg, mop, rarg);
 		if(endarg.length != 1)
 			throw new RuntimeException("Must supply 1 qualifying argument for Headset map.");
@@ -47,7 +49,7 @@ public class FindHeadSetMode5Transaction extends FindSetMode5Transaction {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();

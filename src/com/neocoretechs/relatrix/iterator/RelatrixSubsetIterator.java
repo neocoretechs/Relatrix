@@ -17,6 +17,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.rocksack.Alias;
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>                                                                                                                                                                                                                                                                                                                                                                      * Instances of this class deliver the set of identity {@link Morphism}s, or
  * Mathematically, based on Category Theory: deliver sets of compositions of {@link Morphism}s 
@@ -49,7 +50,7 @@ import com.neocoretechs.relatrix.key.PrimaryKeySet;
 public class RelatrixSubsetIterator implements Iterator<Result> {
 	private static boolean DEBUG = false;
 	public static boolean DEBUGITERATION = false;
-	protected String alias = null;
+	protected Alias alias = null;
 	protected Iterator iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
@@ -170,7 +171,7 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
      * @param dmr_return The operator sequence encoded as array
      * @throws IOException
      */
-    public RelatrixSubsetIterator(String alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIterator(Alias alias, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
     	this.alias = alias;
     	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, templatep, Arrays.toString(dmr_return));

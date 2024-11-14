@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 5. Permutation with 2 objects.
@@ -21,7 +23,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class FindSubSetMode5Transaction extends FindSetMode5Transaction {
 	Object[] endarg;
 	int argCtr = 0;
-    public FindSubSetMode5Transaction(String xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
+    public FindSubSetMode5Transaction(TransactionId xid, Object darg, char mop, Object rarg, Object ... endarg) { 	
     	super(xid, darg, mop, rarg);
     	this.endarg = endarg;
 		if(endarg.length < 1) throw new RuntimeException("Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
@@ -55,7 +57,7 @@ public class FindSubSetMode5Transaction extends FindSetMode5Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {

@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
+import com.neocoretechs.rocksack.Alias;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 1 = findset("*|?","*|?",object)
@@ -53,12 +54,12 @@ public class FindSetMode1 extends IteratorFactory {
      *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
 	    Morphism dmr = new RangeDomainMap(true, alias, null, null, (Comparable)rarg);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIterator(alias, tdmr, dmr_return);
 	}
 }

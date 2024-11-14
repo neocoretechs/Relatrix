@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.client.RelatrixClient;
 /**
  * NOTES:
  * program arguments are local_node remote_node remote_port_for_database
- * @author Jonathan Groff C 2021
+ * @author Jonathan Groff C 2024
  *
  */
 public class ServerRetrievalBattery0 {
@@ -34,7 +34,7 @@ public class ServerRetrievalBattery0 {
 		public static int max = 100000;
 		static String key = "This is a test"; 
 		static String uniqKeyFmt = "%0100d";
-		private static boolean DISPLAY = false;;
+		private static boolean DISPLAY = false;
 		/**
 		*/
 		public static void main(String[] argv) throws Exception {
@@ -238,7 +238,7 @@ public class ServerRetrievalBattery0 {
 			}
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10.) findSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(0)).get(3));		
+			System.out.println("10.) findSet(*,*,<obj>) using range="+((Result)ar3.get(0)).get(3));		
 			it = rkvc.findSet("*", "*", ((Result)ar3.get(0)).get(3));
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -250,7 +250,7 @@ public class ServerRetrievalBattery0 {
 			}
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11.) findSubSet(*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
+			System.out.println("11.) findSet(*,<obj>,*) using map="+((Result)ar.get(1)).get(0));		
 			it = rkvc.findSet("*", ((Result)ar.get(1)).get(0), "*");
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -260,7 +260,7 @@ public class ServerRetrievalBattery0 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("12.) FindSet(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
+			System.out.println("12.) FindSet(<obj>,*,*) using domain="+((Result)ar.get(2)).get(0));		
 			it = rkvc.findSet(((Result)ar.get(2)).get(0), "*", "*");
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -285,7 +285,7 @@ public class ServerRetrievalBattery0 {
 				//if(ar2.size() == 0) ar2.add(c);
 			}
 			displayLine = 0;
-			System.out.println("14.) findSubSet(<obj>,*,<obj>) using ="+((Result)ar2.get(1)).toArray()[0]+", "+((Result)ar2.get(1)).toArray()[1]);		
+			System.out.println("14.) findSet(<obj>,*,<obj>) using ="+((Result)ar2.get(1)).toArray()[0]+", "+((Result)ar2.get(1)).toArray()[1]);		
 			it = rkvc.findSet(((Result)ar2.get(1)).toArray()[0], "*", ((Result)ar2.get(1)).toArray()[1]);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -297,7 +297,7 @@ public class ServerRetrievalBattery0 {
 				//if(ar2.size() == 1) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("15.) findSubSet(<obj>,<obj>,*) using domain="+((Result)ar2.get(2)).toArray()[0]+", map="+((Result)ar2.get(2)).toArray()[1]);		
+			System.out.println("15.) findSet(<obj>,<obj>,*) using domain="+((Result)ar2.get(2)).toArray()[0]+", map="+((Result)ar2.get(2)).toArray()[1]);		
 			it = rkvc.findSet(((Result)ar2.get(2)).toArray()[0], ((Result)ar2.get(2)).toArray()[1], "*");
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -321,7 +321,7 @@ public class ServerRetrievalBattery0 {
 				//if(ar.size() == 0 ) ar.add(c[0]);
 			}
 			displayLine =0;
-			System.out.println("17.) findSubSet(?,<obj>,?) using map="+((Result)ar.get(1)).get(0));		
+			System.out.println("17.) findSet(?,<obj>,?) using map="+((Result)ar.get(1)).get(0));		
 			it = rkvc.findSet("?", ((Result)ar.get(1)).get(0), "?");
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -345,7 +345,7 @@ public class ServerRetrievalBattery0 {
 				//if(ar.size() == 2) ar.add(c[0]);
 			}
 			displayLine =0;
-			System.out.println("19.) findSubSet(?,<obj>,<obj>) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
+			System.out.println("19.) findSet(?,<obj>,<obj>) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
 			it = rkvc.findSet("?", ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1));
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -357,7 +357,7 @@ public class ServerRetrievalBattery0 {
 				//if(ar2.size() == 0) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("20.) findSubSet(<obj>,?,<obj>) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
+			System.out.println("20.) findSet(<obj>,?,<obj>) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
 			it = rkvc.findSet(((Result)ar2.get(1)).get(0), "?", ((Result)ar2.get(1)).get(1));
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -369,7 +369,7 @@ public class ServerRetrievalBattery0 {
 				//if(ar2.size() == 1) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("21.) findSubSet(<obj>,<obj>,?) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
+			System.out.println("21.) findSet(<obj>,<obj>,?) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
 			it = rkvc.findSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?");
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
@@ -380,45 +380,8 @@ public class ServerRetrievalBattery0 {
 					System.out.println(displayLine+"="+c);
 				//if(ar2.size() == 2) ar2.add(c);
 			}
-			Long lo = (max/2000L);
-			Long hi = (max/1000L);
-			displayLine =0;
-			System.out.println("22.) findSet(<obj>,<obj>,?) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
-			it = rkvc.findSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?");
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
-			}
-			System.out.println("23.) findSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
-			it = rkvc.findSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?");
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
-			}
-			lo+=1000L;
-			hi+=1000L;
-			System.out.println("23.) findSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
-			it = rkvc.findSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?");
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
-			}
-			System.out.println("BATTERY4A SUCCESS in "+(System.currentTimeMillis()-tims));
+
+			System.out.println("ServerRetrievalBattery0 SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
 		/**
 		 * remove entries
@@ -434,7 +397,7 @@ public class ServerRetrievalBattery0 {
 			while(it.hasNext()) {
 				Object fkey = it.next();
 				DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
-				rkvc.remove(dmr.getDomain(), dmr.getMap(), dmr.getRange());
+				rkvc.remove(dmr.getDomain(), dmr.getMap());
 				++i;
 				if((System.currentTimeMillis()-timx) > 1000) {
 					System.out.println("deleting "+i+" "+fkey);

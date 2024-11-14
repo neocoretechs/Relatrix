@@ -434,7 +434,7 @@ public class EmbeddedRetrievalBattery4A {
 		while(it.hasNext()) {
 			Object fkey = it.next();
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
-			Relatrix.remove(dmr.getDomain(), dmr.getMap(), dmr.getRange());
+			Relatrix.remove(dmr.getDomain(), dmr.getMap());
 			++i;
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("deleting "+i+" "+fkey);

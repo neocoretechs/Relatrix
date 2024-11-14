@@ -1,174 +1,181 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
+
 import java.util.stream.Stream;
+import java.io.IOException;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DuplicateKeyException;
 
 
 public interface RelatrixClientTransactionInterface{
 
-	public Stream entrySetStream(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public DatabaseCatalog getByPath(String arg1,boolean arg2);
+	public DatabaseCatalog getByPath(TransactionId transactionId, String path, boolean create);
 
-	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
+	public void loadClassFromPath(TransactionId transactionId,String arg2) throws java.io.IOException;
 
-	public String getAliasToPath(String arg1);
+	public String getAliasToPath(Alias alias, TransactionId transactionId);
 
-	public String getDatabasePath(DatabaseCatalog arg1);
+	public String getDatabasePath(TransactionId transactionId, DatabaseCatalog arg1);
 
-	public void loadClassFromJar(String arg1) throws java.io.IOException;
+	public void loadClassFromJar(TransactionId transactionId, String jar) throws java.io.IOException;
 
-	public DatabaseCatalog getByAlias(String arg1) throws java.util.NoSuchElementException;
+	public DatabaseCatalog getByAlias(Alias alias, TransactionId transactionId) throws java.util.NoSuchElementException;
 
-	public Stream findStream(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findStream(TransactionId transactionId,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void checkpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void checkpoint(Alias alias,TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void checkpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public void checkpoint(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Iterator findTailSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findTailSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator findTailSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findTailSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findHeadStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findHeadStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findHeadStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findHeadStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Stream findSubStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findSubStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findSubStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findSubStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findTailStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findTailStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findTailStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findTailStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object lastValue(String arg1,Class arg2) throws java.io.IOException;
+	public Object lastValue(TransactionId transactionId, Class clazz) throws java.io.IOException;
 
-	public Object lastValue(String arg1) throws java.io.IOException;
+	public Object lastValue(TransactionId transactionId) throws java.io.IOException;
 
-	public Object lastValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object lastValue(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Object lastValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object lastValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Iterator findHeadSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findHeadSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findSubSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findSubSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findSubSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findSubSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Object removekv(String arg1,Comparable arg2) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException;
+	public Object removekv(TransactionId transactionId, Comparable arg2) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException;
 
-	public Object removekv(String arg1,String arg2,Comparable arg3) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException;
+	public Object removekv(Alias alias, TransactionId transactionId, Comparable arg3) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException;
 
-	public Iterator findSet(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public String[][] getAliases();
+	public String[][] getAliases(TransactionId transactionId);
 
-	public void removeAlias(String arg1) throws java.util.NoSuchElementException;
+	public void removeAlias(Alias alias, TransactionId transactionId) throws java.util.NoSuchElementException;
 
-	public void setAlias(String arg1,String arg2) throws java.io.IOException;
+	public void setAlias(Alias alias, TransactionId transactionId, String path) throws java.io.IOException;
 
-	public String getTableSpace();
+	public String getTableSpace(TransactionId transactionId);
 
-	public void setWildcard(char arg1);
+	public void setWildcard(TransactionId transactionId, char wc);
 
-	public void setTuple(char arg1);
+	public void setTuple(TransactionId transactionId, char tc);
 
-	public String getAlias(String arg1);
+	public String getAlias(Alias alias, TransactionId transactionId);
 
-	public void setTablespace(String arg1) throws java.io.IOException;
+	public void setTablespace(TransactionId transactionId, String path) throws java.io.IOException;
 
-	public void rollback(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public void rollback(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public void rollback(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void rollback(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void endTransaction(String arg1) throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException;
+	public void endTransaction(TransactionId transactionId) throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException;
 
-	public String getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException;
+	public TransactionId getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException;
 
-	public void rollbackToCheckpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public void rollbackToCheckpoint(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public void rollbackToCheckpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object getByIndex(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,java.util.NoSuchElementException;
+	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,java.util.NoSuchElementException;
 
-	public Object getByIndex(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException;
+	public Object getByIndex(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException;
 
-	public void commit(String arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public void commit(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public void commit(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void commit(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object firstValue(String arg1) throws java.io.IOException;
+	public Object firstValue(TransactionId transactionId) throws java.io.IOException;
 
-	public Object firstValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object firstValue(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object firstValue(TransactionId transactionId,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Object firstValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object firstValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Iterator keySet(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Iterator keySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator keySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 	
-	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Iterator entrySet(TransactionId transactionId,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Iterator entrySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator entrySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object first(String arg1) throws java.io.IOException;
+	public Object first(TransactionId transactionId) throws java.io.IOException;
 
-	public Object first(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object first(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Object first(String arg1,Class arg2) throws java.io.IOException;
+	public Object first(TransactionId transactionId, Class clazz) throws java.io.IOException;
 
-	public Object first(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object first(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Object last(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object last(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Object last(String arg1,Class arg2) throws java.io.IOException;
+	public Object last(TransactionId transactionId, Class clazz) throws java.io.IOException;
 
-	public Object last(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public Object last(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public Object last(String arg1) throws java.io.IOException;
+	public Object last(TransactionId transactionId) throws java.io.IOException;
 
-	public boolean contains(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.util.NoSuchElementException;
+	public boolean contains(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException;
+	public boolean contains(TransactionId transactionId, Comparable key) throws java.io.IOException;
 
-	public long size(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException;
+	public long size(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public long size(String arg1, Class arg2) throws java.io.IOException;
+	public long size(TransactionId transactionId, Class clazz) throws java.io.IOException;
 	
-	public long size(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException;
+	public long size(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException;
 
-	public long size(String arg1) throws java.io.IOException;
+	public long size(TransactionId transactionId) throws java.io.IOException;
 
-	public void store(String arg1,Comparable arg2,Object arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public DomainMapRange store(TransactionId transactionId, Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException;
 
-	public DomainMapRange store(String arg1,String arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException;
+	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException;
 
-	public DomainMapRange store(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException;
+	public DomainMapRange store(TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException;
 
-	public Object get(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object get(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object get(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public void remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public void remove(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public void remove(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public void remove(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException,com.neocoretechs.relatrix.DuplicateKeyException;
 
-	public void remove(String arg1,String arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public void remove(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException;
 
-	public void remove(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException;
+	public void remove(TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException;
+
+	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException;
 
 }
 

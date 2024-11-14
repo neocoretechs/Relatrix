@@ -1,6 +1,9 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
+
 import java.util.stream.Stream;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.DomainMapRange;
@@ -10,8 +13,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 
 	public abstract Object sendCommand(RelatrixTransactionStatement s) throws Exception;
 	@Override
-	public Stream entrySetStream(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySetStream", arg1, arg2, arg3);
+	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySetStream", alias, transactionId, clazz);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -23,8 +26,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySetStream", arg1, arg2);
+	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySetStream", transactionId, clazz);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -34,8 +37,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DatabaseCatalog getByPath(String arg1,boolean arg2) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByPath","", arg1, arg2);
+	public DatabaseCatalog getByPath(TransactionId transactionId, String path, boolean create) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByPath", transactionId, path, create);
 		try {
 			return (DatabaseCatalog)sendCommand(s);
 		} catch(Exception e) {
@@ -43,8 +46,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath","", arg1, arg2);
+	public void loadClassFromPath(TransactionId transactionId, String path) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath", transactionId, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -52,8 +55,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getAliasToPath(String arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliasToPath","", arg1);
+	public String getAliasToPath(Alias alias, TransactionId transactionId) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliasToPath", alias, transactionId);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -61,8 +64,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getDatabasePath(DatabaseCatalog arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getDatabasePath","", arg1);
+	public String getDatabasePath(TransactionId transactionId, DatabaseCatalog arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getDatabasePath", transactionId, arg1);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -70,8 +73,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void loadClassFromJar(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar","", arg1);
+	public void loadClassFromJar(TransactionId transactionId, String jar) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar", transactionId, jar);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -79,8 +82,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DatabaseCatalog getByAlias(String arg1) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByAlias","", arg1);
+	public DatabaseCatalog getByAlias(Alias alias, TransactionId transactionId) throws java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByAlias", alias, transactionId);
 		try {
 			return (DatabaseCatalog)sendCommand(s);
 		} catch(Exception e) {
@@ -88,8 +91,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findStream(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", arg1, arg2, arg3, arg4);
+	public Stream findStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", transactionId, arg2, arg3, arg4);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -103,8 +106,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", alias, transactionId, darg, marg, rarg);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -120,8 +123,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void checkpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", arg1, arg2);
+	public void checkpoint(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -133,8 +136,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void checkpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", arg1);
+	public void checkpoint(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -144,8 +147,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findTailSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findTailSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", alias, transactionId, darg, marg, rarg, endarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -161,8 +164,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findTailSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findTailSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", transactionId, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -176,8 +179,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findHeadStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findHeadStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", transactionId, arg2, arg3, arg4, arg5);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -191,8 +194,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findHeadStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findHeadStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", alias, transactionId, darg, marg, rarg, endarg);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -208,8 +211,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findSubStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", alias, transactionId, darg, marg, rarg, endarg);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -223,8 +226,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findSubStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", transactionId, arg2, arg3, arg4, arg5);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -238,8 +241,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findTailStream(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findTailStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", transactionId, arg2, arg3, arg4, arg5);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -253,8 +256,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Stream findTailStream(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findTailStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", alias, transactionId, darg, marg, rarg, endarg);
 		try {
 			return (Stream)sendCommand(s);
 		} catch(Exception e) {
@@ -270,8 +273,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object lastValue(String arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2);
+	public Object lastValue(TransactionId transactionId, Class clazz) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -279,8 +282,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object lastValue(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1);
+	public Object lastValue(TransactionId transactionId) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -288,8 +291,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object lastValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2);
+	public Object lastValue(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", alias, transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -299,8 +302,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object lastValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", arg1, arg2, arg3);
+	public Object lastValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -310,8 +313,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findHeadSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findHeadSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", transactionId, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -325,8 +328,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findHeadSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findHeadSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", alias, transactionId, darg, rarg, marg, endarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -340,8 +343,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findSubSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findSubSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", alias, transactionId, darg, marg, rarg, endarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -355,8 +358,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findSubSet(String arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findSubSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", transactionId, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -370,8 +373,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object removekv(String arg1,Comparable arg2) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg1, arg2);
+	public Object removekv(TransactionId transactionId, Comparable key) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -385,8 +388,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object removekv(String arg1,String arg2,Comparable arg3) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", arg1, arg2, arg3);
+	public Object removekv(Alias alias, TransactionId transactionId, Comparable key) throws java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", alias, transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -402,8 +405,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findSet(String arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", transactionId, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -417,8 +420,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator findSet(String arg1,String arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", alias, transactionId, darg, marg, rarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -434,8 +437,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String[][] getAliases() {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases","",new Object[]{});
+	public String[][] getAliases(TransactionId transactionId) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases", transactionId, new Object[]{});
 		try {
 			return (String[][])sendCommand(s);
 		} catch(Exception e) {
@@ -443,8 +446,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void removeAlias(String arg1) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", arg1);
+	public void removeAlias(Alias alias, TransactionId transactionId) throws java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -452,8 +455,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void setAlias(String arg1,String arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setAlias", arg1, arg2);
+	public void setAlias(Alias alias, TransactionId transactionId, String path) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setAlias", alias, transactionId, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -461,8 +464,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getTableSpace() {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace","",new Object[]{});
+	public String getTableSpace(TransactionId transactionId) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace", transactionId, new Object[]{});
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -470,24 +473,24 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void setWildcard(char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard","", arg1);
+	public void setWildcard(TransactionId transactionId, char arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard", transactionId, arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 		}
 	}
 	@Override
-	public void setTuple(char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple","", arg1);
+	public void setTuple(TransactionId transactionId, char arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple", transactionId, arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 		}
 	}
 	@Override
-	public String getAlias(String arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", arg1);
+	public String getAlias(Alias alias, TransactionId transactionId) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", alias, transactionId);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -495,8 +498,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void setTablespace(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", arg1);
+	public void setTablespace(TransactionId transactionId, String path) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", transactionId, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -504,8 +507,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void rollback(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollback", arg1);
+	public void rollback(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollback", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -515,8 +518,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void rollback(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollback", arg1, arg2);
+	public void rollback(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollback", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -528,8 +531,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void endTransaction(String arg1) throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("endTransaction", arg1);
+	public void endTransaction(TransactionId transactionId) throws java.lang.IllegalAccessException,java.io.IOException,java.lang.ClassNotFoundException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("endTransaction", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -541,10 +544,10 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTransactionId","",new Object[]{});
+	public TransactionId getTransactionId() throws java.lang.IllegalAccessException,java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTransactionId", null, new Object[]{});
 		try {
-			return (String)sendCommand(s);
+			return (TransactionId)sendCommand(s);
 		} catch(Exception e) {
 			if(e instanceof java.lang.IllegalAccessException)
 				throw new java.lang.IllegalAccessException(e.getMessage());
@@ -552,8 +555,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void rollbackToCheckpoint(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", arg1);
+	public void rollbackToCheckpoint(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -563,8 +566,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void rollbackToCheckpoint(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", arg1, arg2);
+	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -576,8 +579,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object getByIndex(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", arg1, arg2, arg3);
+	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", alias, transactionId, index);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -591,8 +594,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object getByIndex(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", arg1, arg2);
+	public Object getByIndex(TransactionId transactionId, Comparable index) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", transactionId, index);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -604,8 +607,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void commit(String arg1) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", arg1);
+	public void commit(TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -615,8 +618,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void commit(String arg1,String arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", arg1, arg2);
+	public void commit(Alias alias, TransactionId transactionId) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", alias, transactionId);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -628,8 +631,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object firstValue(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1);
+	public Object firstValue(TransactionId transactionId) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -637,8 +640,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object firstValue(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1, arg2);
+	public Object firstValue(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", alias, transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -648,8 +651,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1, arg2);
+	public Object firstValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -659,8 +662,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object firstValue(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", arg1, arg2, arg3);
+	public Object firstValue(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -672,8 +675,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", arg1, arg2);
+	public Iterator keySet(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -683,8 +686,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator keySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", arg1, arg2, arg3);
+	public Iterator keySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", alias, transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -696,8 +699,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", arg1, arg2);
+	public Iterator entrySet(TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -707,8 +710,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Iterator entrySet(String arg1,String arg2,Class arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", arg1, arg2, arg3);
+	public Iterator entrySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", alias, transactionId, clazz);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -720,8 +723,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object first(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1);
+	public Object first(TransactionId transactionId) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -729,8 +732,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object first(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1, arg2, arg3);
+	public Object first(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -740,8 +743,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object first(String arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1, arg2);
+	public Object first(TransactionId transactionId, Class clazz) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -749,8 +752,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object first(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", arg1, arg2);
+	public Object first(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", alias, transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -760,8 +763,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2, arg3);
+	public Object last(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", alias, transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -771,8 +774,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(String arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2);
+	public Object last(TransactionId transactionId, Class clazz) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", transactionId, clazz);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -780,8 +783,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1, arg2);
+	public Object last(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", alias, transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -791,8 +794,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", arg1);
+	public Object last(TransactionId transactionId) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", transactionId);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -800,8 +803,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public boolean contains(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("contains", arg1, arg2, arg3);
+	public boolean contains(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("contains", alias, transactionId, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -811,8 +814,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("contains", arg1, arg2);
+	public boolean contains(TransactionId transactionId, Comparable key) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("contains", transactionId, key);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -820,8 +823,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public long size(String arg1,String arg2) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1, arg2);
+	public long size(Alias alias, TransactionId transactionId) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", alias, transactionId);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -831,8 +834,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public long size(String arg1) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1);
+	public long size(TransactionId transactionId) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", transactionId);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -840,8 +843,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public long size(String arg1,String arg2,Class arg3) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1, arg2, arg3);
+	public long size(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", alias, transactionId, clazz);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -851,8 +854,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public long size(String arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", arg1, arg2);
+	public long size(TransactionId transactionId, Class clazz) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", transactionId, clazz);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -860,10 +863,24 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void store(String arg1,Comparable arg2,Object arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2, arg3);
+	public DomainMapRange store(TransactionId transactionId, Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", transactionId, key, value);
 		try {
-			sendCommand(s);
+			return (DomainMapRange) sendCommand(s);
+		} catch(Exception e) {
+			if(e instanceof java.lang.IllegalAccessException)
+				throw new java.lang.IllegalAccessException(e.getMessage());
+			if(e instanceof java.io.IOException)
+				throw new java.io.IOException(e);
+			throw new com.neocoretechs.relatrix.DuplicateKeyException();
+		}
+	}
+
+	@Override
+	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", alias, transactionId, key, value);
+		try {
+			return (DomainMapRange) sendCommand(s);
 		} catch(Exception e) {
 			if(e instanceof java.lang.IllegalAccessException)
 				throw new java.lang.IllegalAccessException(e.getMessage());
@@ -873,8 +890,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DomainMapRange store(String arg1,String arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2, arg3, arg4, arg5);
+	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", alias, transactionId, darg, marg, rarg);
 		try {
 			return (DomainMapRange)sendCommand(s);
 		} catch(Exception e) {
@@ -888,8 +905,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DomainMapRange store(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2, arg3, arg4);
+	public DomainMapRange store(TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.lang.ClassNotFoundException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", transactionId, darg, marg, rarg);
 		try {
 			return (DomainMapRange)sendCommand(s);
 		} catch(Exception e) {
@@ -903,8 +920,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object get(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", arg1, arg2, arg3);
+	public Object get(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", alias, transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -916,8 +933,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", arg1, arg2);
+	public Object get(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", transactionId, key);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -927,8 +944,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2);
+	public void remove(TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", transactionId, key);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -942,8 +959,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void remove(String arg1,String arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException,com.neocoretechs.relatrix.DuplicateKeyException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2, arg3);
+	public void remove(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException,com.neocoretechs.relatrix.DuplicateKeyException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", alias, transactionId, key);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -961,8 +978,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void remove(String arg1,String arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2, arg3, arg4, arg5);
+	public void remove(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,com.neocoretechs.relatrix.DuplicateKeyException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", alias, transactionId, darg, marg);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -980,8 +997,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void remove(String arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", arg1, arg2, arg3, arg4);
+	public void remove(TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException,java.lang.IllegalAccessException,java.lang.ClassNotFoundException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", transactionId, darg, marg);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {

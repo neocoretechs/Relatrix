@@ -12,6 +12,8 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Helper routines to be used with headset, subset, tailset to populate a TreeMap with DBKeys ordered by indexes in 
  * three arraylists designated dkey, mkey and rkey for domain key, map key and range key, from a range of Morphisms.<p/>
@@ -99,7 +101,7 @@ public class FindsetUtil {
      * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
      * @throws IOException
      */
-    public static void getMorphismRange(String alias, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRange(Alias alias, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKV.findTailMapKVStream(alias,xdmr).forEach(e ->{
@@ -161,7 +163,7 @@ public class FindsetUtil {
      * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
      * @throws IOException
      */
-    public static void getMorphismRangeTransaction(String xid, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRangeTransaction(TransactionId xid, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKVTransaction.findTailMapKVStream(xid,xdmr).forEach(e ->{
@@ -224,7 +226,7 @@ public class FindsetUtil {
      * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
      * @throws IOException
      */
-    public static void getMorphismRangeTransaction(String alias, String xid, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRangeTransaction(Alias alias, TransactionId xid, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKVTransaction.findTailMapKVStream(alias,xid,xdmr).forEach(e ->{

@@ -10,7 +10,9 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.NotifyDBCompareTo;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Morphism - domain, map, range structure
@@ -44,9 +46,9 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
         
-    	protected transient String transactionId;
+    	protected transient TransactionId transactionId;
         
-        protected transient String alias = null;
+        protected transient Alias alias = null;
         
         //protected transient boolean keyCompare = false;
         
@@ -73,7 +75,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        public Morphism(String alias, Comparable d, Comparable m, Comparable r) {
+        public Morphism(Alias alias, Comparable d, Comparable m, Comparable r) {
         	this.alias = alias;
         	this.templateFlag = false;
         	setDomain(alias, d);
@@ -104,7 +106,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        public Morphism(boolean flag, String alias, Comparable d, Comparable m, Comparable r) {
+        public Morphism(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
         	this.templateFlag = flag;
         	this.alias = alias;
         	setDomainTemplate(alias, d);
@@ -141,7 +143,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        public Morphism(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
         	this.alias = alias;
         	this.templateFlag = false;
         	domain = d;
@@ -183,7 +185,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, String alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        public Morphism(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
         	this.templateFlag = flag;
         	this.alias = alias;
          	domain = d;
@@ -202,7 +204,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	 * @param m
     	 * @param r
     	 */
-    	public Morphism(String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+    	public Morphism(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
     		this.transactionId = transactionId;
     		this.alias = alias;
     		if(alias != null) {
@@ -223,7 +225,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	 * @param m
     	 * @param r
     	 */
-    	public Morphism(boolean flag, String alias, String transactionId, Comparable d, Comparable m, Comparable r) {
+    	public Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
     		this.templateFlag = flag;
     		this.transactionId = transactionId;
     		this.alias = alias;
@@ -249,7 +251,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        public Morphism(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
         	this.alias = alias;
         	this.templateFlag = false;
         	this.transactionId = transactionId;
@@ -273,7 +275,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, String alias, String transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        public Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
         	this.templateFlag = flag;
            	this.transactionId = transactionId;
         	this.alias = alias;
@@ -285,11 +287,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
             setRangeKey(rangeKey);
         } 
         
-		public String getTransactionId() {
+		public TransactionId getTransactionId() {
     		return transactionId;
     	}
 
-    	public void setTransactionId(String xid) {
+    	public void setTransactionId(TransactionId xid) {
     		this.transactionId = xid;
     	}
     	   
@@ -308,11 +310,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	}
         */
         
-    	public String getAlias() {
+    	public Alias getAlias() {
     		return alias;
     	}
     	
-    	public void setAlias(String alias)  {
+    	public void setAlias(Alias alias)  {
     		this.alias = alias;
     	}
     	
@@ -393,17 +395,17 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * In the DBKey, the index of the database in the master catalog and the index of the instance form the index. The DBKey
          * points to the primary database and the alias here is used if we create an entirely new instance.
-         * @param alias the database alias if we end up creating an index to a new instance
+         * @param alias2 the database alias if we end up creating an index to a new instance
          * @param domain
          */
-        public void setDomain(String alias, Comparable<?> domain) {
+        public void setDomain(Alias alias2, Comparable<?> domain) {
         	if(domain == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.domain = domain;
         		DBKey dbKey = null;
-        		if((dbKey = resolveInstance(alias, domain)) == null)
-        			setDomainKey(newKey(alias, domain)); // stores instance
+        		if((dbKey = resolveInstance(alias2, domain)) == null)
+        			setDomainKey(newKey(alias2, domain)); // stores instance
         		else
         			setDomainKey(dbKey);
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
@@ -464,23 +466,23 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
          * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex}  
          * The DBKey points to the primary database and the alias here is used if we create an entirely new instance.
-         * @param alias the database alias if we end up creating an index to a new instance
+         * @param alias2 the database alias if we end up creating an index to a new instance
          * @param domain
          */
-        public void setDomainTemplate(String alias, Comparable<?> domain) {
+        public void setDomainTemplate(Alias alias2, Comparable<?> domain) {
         	try {
         		this.domain = domain;
         		if(domain != null) { 
         			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(alias,domain)) == null) {
+        			if((dbKey = resolveInstance(alias2,domain)) == null) {
         				dbKey = new DBKey();
-        				dbKey.setNullKey(alias);
+        				dbKey.setNullKey(alias2);
         				setDomainKey(dbKey);
         			} else
         				setDomainKey(dbKey);
         		} else {
         			DBKey dbKey = new DBKey();
-        			dbKey.setNullKey(alias);
+        			dbKey.setNullKey(alias2);
         			setDomainKey(dbKey);
         		}
 
@@ -541,14 +543,14 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
-        public void setMap(String alias, Comparable<?> map) {
+        public void setMap(Alias alias2, Comparable<?> map) {
         	if(map == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.map = map;
         		DBKey dbKey = null;
-        		if((dbKey = resolveInstance(alias, map)) == null)
-        			setMapKey(newKey(alias, map)); // store instance
+        		if((dbKey = resolveInstance(alias2, map)) == null)
+        			setMapKey(newKey(alias2, map)); // store instance
         		else
         			setMapKey(dbKey);
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
@@ -592,21 +594,21 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
-        public void setMapTemplate(String alias, Comparable<?> map) {
+        public void setMapTemplate(Alias alias2, Comparable<?> map) {
         	try {
         		this.map = map;
         		if(map != null) {
         			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(alias, map)) == null) {
+        			if((dbKey = resolveInstance(alias2, map)) == null) {
         				dbKey = new DBKey();
-        				dbKey.setNullKey(alias);
+        				dbKey.setNullKey(alias2);
         				setMapKey(dbKey);
         			} else {
         				setMapKey(dbKey);
         			} 
         		} else {
         			DBKey dbKey = new DBKey();
-        			dbKey.setNullKey(alias);
+        			dbKey.setNullKey(alias2);
         			setMapKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
@@ -670,14 +672,14 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
-        public void setRange(String alias, Comparable<?> range) {
+        public void setRange(Alias alias2, Comparable<?> range) {
         	if(range == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		this.range = range;
         		DBKey dbKey = null;
-        		if((dbKey = resolveInstance(alias, range)) == null)
-        			setRangeKey(newKey(alias, range));
+        		if((dbKey = resolveInstance(alias2, range)) == null)
+        			setRangeKey(newKey(alias2, range));
         		else
         			setRangeKey(dbKey);						
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
@@ -722,21 +724,21 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
-        public void setRangeTemplate(String alias, Comparable<?> range) {
+        public void setRangeTemplate(Alias alias2, Comparable<?> range) {
         	try {
         		this.range = range;
         		if(range != null) {
         			DBKey dbKey = null;
-        			if((dbKey = resolveInstance(alias, range)) == null) {
+        			if((dbKey = resolveInstance(alias2, range)) == null) {
         				dbKey = new DBKey();
-        				dbKey.setNullKey(alias);
+        				dbKey.setNullKey(alias2);
         				setRangeKey(dbKey);
         			} else {
         				setRangeKey(dbKey);
         			}
         		} else {
         			DBKey dbKey = new DBKey();
-        			dbKey.setNullKey(alias);						
+        			dbKey.setNullKey(alias2);						
         			setRangeKey(dbKey);        
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
@@ -755,11 +757,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 				return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
 		}
 		
-		protected DBKey newKey(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		protected DBKey newKey(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(transactionId == null)
-				return DBKey.newKeyAlias(alias, IndexResolver.getIndexInstanceTable(), instance);
+				return DBKey.newKey(alias2, IndexResolver.getIndexInstanceTable(), instance);
 			else
-	 			return DBKey.newKeyAlias(alias, transactionId, IndexResolver.getIndexInstanceTable(), instance);
+	 			return DBKey.newKey(alias2, transactionId, IndexResolver.getIndexInstanceTable(), instance);
 		}
 		
 
@@ -799,22 +801,22 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, instance);
 		}
 		  
-		protected DBKey resolveInstance(String alias, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
+		protected DBKey resolveInstance(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 			if(DEBUG) {
 				if(transactionId == null) {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
-					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(alias2, instance);
+					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias2,instance,c);
 					return c;
 				} else {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
-					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias,instance,c);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(alias2, transactionId, instance);
+					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias2,instance,c);
 					return c;	
 				}
 			}
 			if(transactionId == null)
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(alias2, instance);
 			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstanceAlias(alias, transactionId, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(alias2, transactionId, instance);
 		}
 		
    

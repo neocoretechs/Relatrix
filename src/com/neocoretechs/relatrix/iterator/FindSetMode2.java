@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapDomainRange;
 
 
@@ -51,12 +52,12 @@ public class FindSetMode2 extends IteratorFactory {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException {
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException {
 		Morphism dmr = new MapDomainRange(true, alias, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(alias, dmr);
 	}
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixIterator(alias, tdmr, dmr_return);	
 	}
 }

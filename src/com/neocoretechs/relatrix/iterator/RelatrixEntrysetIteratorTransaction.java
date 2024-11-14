@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 
 /**
@@ -21,7 +23,7 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetIteratorTransaction(String xid, Class c) throws IOException {
+    public RelatrixEntrysetIteratorTransaction(TransactionId xid, Class c) throws IOException {
     	try {
 			iter = RelatrixKVTransaction.entrySet(xid, c);
 		} catch (IllegalAccessException e) {
@@ -34,7 +36,7 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	}
     }
     
-    public RelatrixEntrysetIteratorTransaction(String alias, String xid, Class c) throws IOException, NoSuchElementException {
+    public RelatrixEntrysetIteratorTransaction(Alias alias, TransactionId xid, Class c) throws IOException, NoSuchElementException {
     	try {
 			iter = RelatrixKVTransaction.entrySet(alias, xid, c);
 		} catch (IllegalAccessException e) {

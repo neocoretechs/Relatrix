@@ -8,6 +8,8 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Find elements strictly less than 'to' target.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
@@ -15,7 +17,7 @@ import com.neocoretechs.relatrix.key.DBKey;
  */
 public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 	Object[] endarg;
-	public FindTailSetMode0Transaction(String xid, char dop, char mop, char rop, Object ... endarg) { 	
+	public FindTailSetMode0Transaction(TransactionId xid, char dop, char mop, char rop, Object ... endarg) { 	
 		super(xid,dop,mop,rop);
 		if(endarg.length != 3)
 			throw new RuntimeException("Must supply 3 qualifying arguments for Headset domain and map and range.");
@@ -56,7 +58,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.MapRangeDomain;
 
 /**
@@ -22,10 +24,10 @@ Legal permutations are:<br/>
 */
 public class FindSetMode3Transaction extends FindSetMode3 {
 	// mode 3
-	String xid;
-    public FindSetMode3Transaction(String xid, char dop, Object marg, Object rarg) { 	
+	TransactionId xid;
+    public FindSetMode3Transaction(TransactionId transactionId, char dop, Object marg, Object rarg) { 	
     	super(dop, marg, rarg);
-    	this.xid = xid;
+    	this.xid = transactionId;
     }
     
     /**
@@ -33,7 +35,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    Morphism dmr = new MapRangeDomain(true, xid, null, (Comparable)marg, (Comparable)rarg);
+	    Morphism dmr = new MapRangeDomain(true, null, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(dmr);
 	}
 	
@@ -53,7 +55,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(String alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
 	    Morphism dmr = new MapRangeDomain(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(alias, dmr);
 	}
@@ -66,7 +68,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

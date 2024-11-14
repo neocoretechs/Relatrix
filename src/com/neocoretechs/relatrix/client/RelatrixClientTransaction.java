@@ -21,11 +21,14 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
@@ -266,14 +269,14 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @param rii
 	 * @return
 	 */
-	public Object next(String xid, RelatrixTransactionStatement rii) throws Exception {
+	public Object next(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
 		rii.xid = xid;
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
 	}
 	
-	public boolean hasNext(String xid, RelatrixTransactionStatement rii) throws Exception {
+	public boolean hasNext(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
 		rii.xid = xid;
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];
@@ -285,7 +288,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(String xid, RelatrixTransactionStatement rii) throws Exception {
+	public void close(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
 		rii.xid = xid;
 		rii.methodName = "close";
 		rii.paramArray = new Object[0];
@@ -304,7 +307,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 */
 	public static void main(String[] args) throws Exception {
 		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
-		String xid = rc.getTransactionId();
+		TransactionId xid = rc.getTransactionId();
 		RelatrixTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
@@ -315,16 +318,16 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(xid,args[4]);
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(xid,args[3],args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(xid,args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
@@ -334,6 +337,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		rc.endTransaction(xid);
 		rc.close();
 	}
+
 
 
 }

@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 
 /**
@@ -23,7 +25,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 */
 public class FindTailSetMode2Transaction extends FindSetMode2Transaction {
 	Object[] endarg;
-    public FindTailSetMode2Transaction(String xid, char dop, Object marg, char rop, Object ... endarg) { 	
+    public FindTailSetMode2Transaction(TransactionId xid, char dop, Object marg, char rop, Object ... endarg) { 	
     	super(xid, dop, marg, rop);
     	if(endarg.length != 2)
     		throw new RuntimeException("Must supply 2 qualifying arguments for Tailset domain and range.");
@@ -58,7 +60,7 @@ public class FindTailSetMode2Transaction extends FindSetMode2Transaction {
 	}
 	
 	@Override
-	public Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();

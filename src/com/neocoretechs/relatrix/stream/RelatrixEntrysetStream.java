@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
@@ -35,13 +36,13 @@ public class RelatrixEntrysetStream<T> extends RelatrixStream<T> {
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetStream(String alias, Class c) throws IOException, NoSuchElementException {
+    public RelatrixEntrysetStream(Alias alias, Class c) throws IOException, NoSuchElementException {
     	super(new RelatrixEntrysetIterator(alias, c));
     	if( DEBUG )
 			System.out.println("RelatrixEntrysetStream "+stream);
     }
     
-    public RelatrixEntrysetStream(String alias, Comparable c) throws IOException, NoSuchElementException {
+    public RelatrixEntrysetStream(Alias alias, Comparable c) throws IOException, NoSuchElementException {
     	this(alias, c.getClass());
     }
     

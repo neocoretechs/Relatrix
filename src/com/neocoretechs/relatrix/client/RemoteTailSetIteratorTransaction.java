@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used to produce tailsets for remote delivery in a transaction context.
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
@@ -8,7 +9,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class RemoteTailSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120088L;
-	public RemoteTailSetIteratorTransaction(String xid, String session) {
+	public RemoteTailSetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 		paramArray = new Object[0];
 	}

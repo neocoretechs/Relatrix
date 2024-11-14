@@ -15,6 +15,8 @@ import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * The RemoteIndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -72,7 +74,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey put(String transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey put(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
@@ -101,7 +103,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 	
 	@Override
-	public void delete(String transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public void delete(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		Comparable instance = null;
 		instance = (Comparable) getByIndex(index);
 		if(instance != null) {
@@ -111,17 +113,17 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 	
 	@Override
-	public void commit(String transactionId) throws IOException, IllegalAccessException {
+	public void commit(TransactionId transactionId) throws IOException, IllegalAccessException {
 		rcx.commit(transactionId);
 	}
 	
 	@Override
-	public void rollback(String transactionId) throws IOException, IllegalAccessException {
+	public void rollback(TransactionId transactionId) throws IOException, IllegalAccessException {
 		rcx.rollback(transactionId);
 	}
 	
 	@Override
-	public void checkpoint(String transactionId) throws IllegalAccessException, IOException {
+	public void checkpoint(TransactionId transactionId) throws IllegalAccessException, IOException {
 		rcx.checkpoint(transactionId);
 	}
 	/**
@@ -145,7 +147,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public Object getByIndex(String transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		return rcx.getByIndex(transactionId, index);
 	}
 	/**
@@ -177,28 +179,36 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey getByInstance(String transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey getByInstance(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		return (DBKey)rcx.get(transactionId, (Comparable) instance);
 	}
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getByPath(Relatrix.getTableSpace(), true).getRelatrixIndex(), getNewKey());
+		return new DBKey(rc.getByPath(Relatrix.getTableSpace(), true).getRelatrixIndex(), getNewKey());
 	}
 	
 	@Override
-	public DBKey getNewDBKey(String alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rcx.getByAlias(alias).getRelatrixIndex(), getNewKey());
+	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+			return new DBKey(rc.getByAlias(alias).getRelatrixIndex(), getNewKey());
 	}
 	
 	@Override
-	public void rollbackToCheckpoint(String transactionId) throws IOException, IllegalAccessException {
+	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
+		return new DBKey(rcx.getByPath(transactionId, Relatrix.getTableSpace(), true).getRelatrixIndex(), getNewKey());
+	}
+	
+	@Override
+	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+			return new DBKey(rcx.getByAlias(alias, transactionId).getRelatrixIndex(), getNewKey());
+	}
+	@Override
+	public void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException {
 		rcx.rollbackToCheckpoint(transactionId);	
 	}
 
 	@Override
-	public DBKey putAlias(String alias, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public DBKey put(Alias alias, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex ) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
@@ -239,11 +249,10 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public DBKey putAlias(String alias, String transactionId, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public DBKey put(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstanceAlias(alias, transactionId, instance);
+			DBKey retKey = getByInstance(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey(alias);
@@ -253,7 +262,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					@Override
 					public void run() {
 						try {
-							rcx.store(alias, index, instance);
+							rcx.store(alias, transactionId, index, instance);
 						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 							throw new RuntimeException(e);
 						}
@@ -263,7 +272,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					@Override
 					public void run() {
 						try {
-							rcx.store(alias, instance, index);
+							rcx.store(alias, transactionId, instance, index);
 						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 							throw new RuntimeException(e);
 						}
@@ -312,8 +321,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void putAlias(String alias, DBKey index, Comparable instance)
-			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public void put(Alias alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
@@ -349,7 +357,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void put(String transactionId, DBKey index, Comparable instance)
+	public void put(TransactionId transactionId, DBKey index, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
@@ -385,7 +393,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void putAlias(String alias, String transactionId, DBKey index, Comparable instance)
+	public void put(Alias alias, TransactionId transactionId, DBKey index, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
@@ -395,7 +403,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rcx.store(alias, transactionId, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException | ClassNotFoundException e) {
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -405,7 +413,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rcx.store(alias, transactionId, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException | ClassNotFoundException e) {
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -419,7 +427,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		
 	}
 	@Override
-	public void commit(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+	public void commit(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.commitAlias committing alias:"+alias+" Xid:"+transactionId);
@@ -429,7 +437,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void rollback(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+	public void rollback(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.rollback alias:"+alias+" Xid:"+transactionId);
@@ -439,7 +447,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void checkpoint(String alias, String transactionId) throws IllegalAccessException, IOException, NoSuchElementException {
+	public void checkpoint(Alias alias, TransactionId transactionId) throws IllegalAccessException, IOException, NoSuchElementException {
 		//synchronized(mutex) {
 			rcx.checkpoint(alias, transactionId);
 		//}
@@ -447,7 +455,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void rollbackToCheckpoint(String alias, String transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("IndexInstanceTable.rollbackToCheckpoint alias:"+alias+" Xid:"+transactionId);
@@ -457,13 +465,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public DBKey getByInstanceAlias(String alias, Object instance) 
+	public DBKey getByInstance(Alias alias, Object instance) 
 			throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
 		return (DBKey) rc.get(alias, (Comparable) instance);
 	}
 
 	@Override
-	public DBKey getByInstanceAlias(String alias, String transactionId, Object instance)
+	public DBKey getByInstance(Alias alias, TransactionId transactionId, Object instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		return (DBKey) rcx.get(alias, transactionId, (Comparable) instance);
 	}
@@ -482,7 +490,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void deleteInstance(String transactionId, Comparable instance)
+	public void deleteInstance(TransactionId transactionId, Comparable instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		//synchronized(mutex) {
 			// index is valid
@@ -495,7 +503,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void deleteAlias(String alias, DBKey index)
+	public void delete(Alias alias, DBKey index)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		//synchronized(mutex) {
 			Object instance = rc.removekv(index);
@@ -507,7 +515,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void deleteAlias(String alias, String transactionId, DBKey index)
+	public void delete(Alias alias, TransactionId transactionId, DBKey index)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		synchronized(mutex) {
 			Object instance = rcx.removekv(alias, transactionId, index);
@@ -519,7 +527,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void deleteInstanceAlias(String alias, Comparable instance)
+	public void deleteInstance(Alias alias, Comparable instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		//synchronized(mutex) {
 			// index is valid
@@ -531,7 +539,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void deleteInstanceAlias(String alias, String transactionId, Comparable instance)
+	public void deleteInstance(Alias alias, TransactionId transactionId, Comparable instance)
 			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		//synchronized(mutex) {
 		// index is valid

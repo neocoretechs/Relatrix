@@ -11,6 +11,8 @@ import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Class fronts the actual instances in the Relatrix relations so as to normalize those actual instances.<p/>
@@ -61,7 +63,7 @@ public final class DBKey implements Comparable, Externalizable {
 		this.instanceIndex = nullKey;
 	}
 	
-	public void setNullKey(String alias) {
+	public void setNullKey(Alias alias) {
 		this.databaseIndex = Relatrix.getByAlias(alias).getRelatrixIndex();
 		this.instanceIndex = nullKey;
 	}
@@ -96,14 +98,14 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static DBKey newKeyAlias(String alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
-		return indexTable.putAlias(alias, (Comparable) instance); // the passed key is updated
+	public static DBKey newKey(Alias alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+		return indexTable.put(alias, (Comparable) instance); // the passed key is updated
 	}
 	
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
 	 * The instance then receives and index into the instance table and the index table.
-	 * @param xid transaction id
+	 * @param transactionId transaction id
 	 * @param indexTable the local or remote interface to facilitate the index creation
 	 * @param instance The actual object instance, may be another DBKey for a relationship.
 	 * @return The new DBKey
@@ -111,15 +113,15 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static DBKey newKey(String xid, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-		return indexTable.put(xid, (Comparable) instance); // the passed key is updated
+	public static DBKey newKey(TransactionId transactionId, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		return indexTable.put(transactionId, (Comparable) instance); // the passed key is updated
 	}
 	
 	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
 	 * The instance then receives and index into the instance table and the index table.
 	 * @param alias the database alias
-	 * @param xid transaction id
+	 * @param transactionId transaction id
 	 * @param indexTable the local or remote interface to facilitate the index creation
 	 * @param instance The actual object instance, may be another DBKey for a relationship.
 	 * @return The new DBKey
@@ -127,8 +129,8 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static DBKey newKeyAlias(String alias, String xid, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
-		return indexTable.putAlias(alias, xid, (Comparable) instance); // the passed key is updated
+	public static DBKey newKey(Alias alias, TransactionId transactionId, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
+		return indexTable.put(alias, transactionId, (Comparable) instance); // the passed key is updated
 	}
 
 	@Override

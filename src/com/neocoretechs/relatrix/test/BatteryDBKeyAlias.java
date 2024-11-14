@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -21,9 +22,9 @@ public class BatteryDBKeyAlias {
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
-	static String alias1 = "ALIAS1";
-	static String alias2 = "ALIAS2";
-	static String alias3 = "ALIAS3";
+	static Alias alias1 = new Alias("ALIAS1");
+	static Alias alias2 = new Alias("ALIAS2");
+	static Alias alias3 = new Alias("ALIAS3");
 	/**
 	* Main test fixture driver
 	*/
@@ -80,7 +81,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String alias) throws Exception {
+	public static void battery1(Alias alias12) throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -88,14 +89,14 @@ public class BatteryDBKeyAlias {
 		DBKey fkey = null;
 		//Integer payload = 0;
 		int j = min;
-		j = (int) RelatrixKV.size(alias, DBKey.class);
+		j = (int) RelatrixKV.size(alias12, DBKey.class);
 		if(j > 0) {
-			System.out.println("Cleaning DB "+alias+" of "+j+" elements.");
-			battery1AR17(alias);		
+			System.out.println("Cleaning DB "+alias12+" of "+j+" elements.");
+			battery1AR17(alias12);		
 		}
 		for(int i = min; i < max; i++) {
 			//try {
-				fkey = DBKey.newKeyAlias(alias, indexTable, i); // puts to index and instance
+				fkey = DBKey.newKey(alias12, indexTable, i); // puts to index and instance
 				//RelatrixKV.store(fkey, new Long(i));
 				++recs;
 			//} catch(DuplicateKeyException dke) { ++dupes; }
@@ -107,7 +108,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR4(String alias) throws Exception {
+	public static void battery1AR4(Alias alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		DBKey prev = null;
 		Iterator<?> its = RelatrixKV.findTailMapKV(alias, (Comparable) RelatrixKV.firstKey(alias, DBKey.class));
@@ -131,7 +132,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR5(String alias) throws Exception {
+	public static void battery1AR5(Alias alias) throws Exception {
 		int i;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.entrySet(alias, Integer.class);
@@ -160,7 +161,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String alias) throws Exception {
+	public static void battery1AR6(Alias alias) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.entrySet(alias, Integer.class);
@@ -184,7 +185,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String alias) throws Exception {
+	public static void battery1AR7(Alias alias) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.keySet(alias, Integer.class);
@@ -210,7 +211,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String alias) throws Exception {
+	public static void battery1AR9(Alias alias) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Object k = RelatrixKV.firstKey(alias, Integer.class); // first key
@@ -228,7 +229,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String alias) throws Exception {
+	public static void battery1AR10(Alias alias) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Object k = RelatrixKV.lastKey(alias, Integer.class); // key
@@ -245,7 +246,7 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String alias) throws Exception {
+	public static void battery1AR101(Alias alias) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
 		long bits = RelatrixKV.size(alias, DBKey.class);
@@ -262,14 +263,14 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String alias) throws Exception {
+	public static void battery1AR12(Alias alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.findTailMapKV(alias, (Comparable) RelatrixKV.firstKey(alias, DBKey.class));
 		System.out.println(alias+" KV Battery1AR12");
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			DBKey db = indexTable.getByInstanceAlias(alias, nexe.getValue()); // get the DBKey for this instance integer
+			DBKey db = indexTable.getByInstance(alias, nexe.getValue()); // get the DBKey for this instance integer
 			if(nexe.getKey().compareTo(db) != 0) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+nex);
@@ -286,14 +287,14 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String alias) throws Exception {
+	public static void battery1AR14(Alias alias) throws Exception {
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.findHeadMapKV(alias, (Comparable) RelatrixKV.lastKey(alias, DBKey.class));
 		System.out.println(alias+" KV Battery1AR14");
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			DBKey db = indexTable.getByInstanceAlias(alias, nexe.getValue()); // get the DBKey for this instance integer
+			DBKey db = indexTable.getByInstance(alias, nexe.getValue()); // get the DBKey for this instance integer
 			if(nexe.getKey().compareTo(db) != 0) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+nex);
@@ -309,35 +310,35 @@ public class BatteryDBKeyAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String alias) throws Exception {
+	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB "+alias);
-		long s = RelatrixKV.size(alias, DBKey.class);
-		Iterator it = RelatrixKV.keySet(alias, DBKey.class);
+		System.out.println("CleanDB "+alias12);
+		long s = RelatrixKV.size(alias12, DBKey.class);
+		Iterator it = RelatrixKV.keySet(alias12, DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKV.remove(alias, (Comparable) fkey);
+			RelatrixKV.remove(alias12, (Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(alias+" DBKey "+i+" "+fkey);
+				System.out.println(alias12+" DBKey "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
 		// remove payload reverse index
-		s = RelatrixKV.size(alias, Integer.class);
-		it = RelatrixKV.keySet(alias, Integer.class);
+		s = RelatrixKV.size(alias12, Integer.class);
+		it = RelatrixKV.keySet(alias12, Integer.class);
 		timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKV.remove(alias, (Comparable) fkey);
+			RelatrixKV.remove(alias12, (Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("Integer "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		long siz = RelatrixKV.size(alias, DBKey.class);
+		long siz = RelatrixKV.size(alias12, DBKey.class);
 		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet(alias, DBKey.class);
+			Iterator<?> its = RelatrixKV.entrySet(alias12, DBKey.class);
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				//System.out.println(i+"="+nex);

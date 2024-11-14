@@ -12,7 +12,9 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
@@ -59,7 +61,7 @@ public final class RelatrixKVTransaction {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void setAlias(String alias, String path) throws IOException {
+	public static void setAlias(Alias alias, String path) throws IOException {
 		File p = new File(path);
 		if(!new File(p.getParent()).isDirectory())
 			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
@@ -71,7 +73,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
-	public static void removeAlias(String alias) throws NoSuchElementException {
+	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		DatabaseManager.removeAlias(alias);
 	}
 	
@@ -79,7 +81,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias the alias to which a path is assigned
 	 * @return the path to this alias, null if alias does not exist.
 	 */
-	public static String getAlias(String alias) {
+	public static String getAlias(Alias alias) {
 		return DatabaseManager.getTableSpaceDir(alias);
 	}
 	/**
@@ -95,8 +97,8 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
-	public static String getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
-		String xid = DatabaseManager.getTransactionId();
+	public static TransactionId getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
+		TransactionId xid = DatabaseManager.getTransactionId();
 		return xid;
 	}
 	
@@ -106,7 +108,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
-	public static void endTransaction(String xid) throws IOException {
+	public static void endTransaction(TransactionId xid) throws IOException {
 		DatabaseManager.endTransaction(xid);
 	}	
 	
@@ -115,7 +117,7 @@ public final class RelatrixKVTransaction {
 		DatabaseManager.clearAllOutstandingTransactions();
 	}
 	
-	public static synchronized void rollbackTransaction(String uid) {
+	public static synchronized void rollbackTransaction(TransactionId uid) {
 		DatabaseManager.clearOutstandingTransaction(uid);
 	}
 	
@@ -133,7 +135,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static void store(String xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static void store(TransactionId xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(key.getClass(), xid);
 		if( DEBUG  )
 			System.out.println("RelatrixKVTransaction.transactionalStore Id:"+xid+" storing key:"+key+" value:"+value);
@@ -152,7 +154,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws NoSuchElementException If alias not found
 	 */
-	public static void store(String alias, String xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+	public static void store(Alias alias, TransactionId xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, key.getClass(), xid);
 		if( DEBUG  )
 			System.out.println("RelatrixKVTransaction.transactionalStore Id:"+xid+" storing key:"+key+" value:"+value);
@@ -165,7 +167,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void commit(String xid) throws IOException, IllegalAccessException {
+	public static void commit(TransactionId xid) throws IOException, IllegalAccessException {
 		long startTime = System.currentTimeMillis();
 		DatabaseManager.commitTransaction(xid);
 		if( DEBUG || TRACE )
@@ -178,7 +180,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void commit(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static void commit(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		long startTime = System.currentTimeMillis();
 		DatabaseManager.commitTransaction(alias, xid);
 		if( DEBUG || TRACE )
@@ -187,29 +189,29 @@ public final class RelatrixKVTransaction {
 	
 	/**
 	 * Rollback the outstanding transaction data in each active class.
-	 * @param xid the transaction id
+	 * @param transactionId the transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void rollback(String xid) throws IOException, IllegalAccessException {
+	public static void rollback(TransactionId transactionId) throws IOException, IllegalAccessException {
 		long startTime = System.currentTimeMillis();
-		DatabaseManager.rollbackTransaction(xid);
+		DatabaseManager.rollbackTransaction(transactionId);
 		if( DEBUG || TRACE )
-			System.out.println("Rolled back transaction:"+xid+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
+			System.out.println("Rolled back transaction:"+transactionId+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 	}
 	/**
 	 * Rollback the outstanding transaction data in each active class.
 	 * @param alias the database alias
-	 * @param xid the transaction id
+	 * @param transactionId the transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if alias not found
 	 */
-	public static void rollback(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static void rollback(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
 		long startTime = System.currentTimeMillis();
-		DatabaseManager.rollbackTransaction(alias, xid);
+		DatabaseManager.rollbackTransaction(alias, transactionId);
 		if( DEBUG || TRACE )
-			System.out.println("Rolled back transaction:"+xid+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
+			System.out.println("Rolled back transaction:"+transactionId+" in " + (System.currentTimeMillis() - startTime) + "ms.");		
 	}
 
 	/**
@@ -217,25 +219,25 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void checkpoint(String xid) throws IOException, IllegalAccessException {
+	public static void checkpoint(TransactionId xid) throws IOException, IllegalAccessException {
 		DatabaseManager.checkpointTransaction(xid);
 	}
 	/**
 	 * @param alias the database alias
-	 * @param xid transaction id
+	 * @param transactionId transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
-	public static void checkpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
-		DatabaseManager.checkpointTransaction(alias, xid);
+	public static void checkpoint(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
+		DatabaseManager.checkpointTransaction(alias, transactionId);
 	}
 	/**
 	 * @param xid transaction id
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static void rollbackToCheckpoint(String xid) throws IOException, IllegalAccessException {
+	public static void rollbackToCheckpoint(TransactionId xid) throws IOException, IllegalAccessException {
 		DatabaseManager.rollbackToCheckpoint(xid);
 	}
 	/**
@@ -245,7 +247,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
-	public static void rollbackToCheckpoint(String alias, String xid) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static void rollbackToCheckpoint(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		DatabaseManager.rollbackToCheckpoint(alias, xid);
 	}
 
@@ -278,7 +280,7 @@ public final class RelatrixKVTransaction {
 	}
 	/**
 	 * Delete element with given key that this object participates in
-	 * @param xid the transaction id
+	 * @param transactionId the transaction id
 	 * @param c The Comparable key
 	 * @return the previous value for removed key, or null if no key was found to remove
 	 * @exception IOException low-level access or problems modifying schema
@@ -286,8 +288,8 @@ public final class RelatrixKVTransaction {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
-	public static Object remove(String xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = DatabaseManager.getTransactionalMap(c.getClass(), xid);
+	public static Object remove(TransactionId transactionId, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(c.getClass(), transactionId);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKVTransaction.remove prepping to remove:"+c);
 		return ttm.remove(c);
@@ -295,7 +297,7 @@ public final class RelatrixKVTransaction {
 	/**
 	 * Delete element with given key that this object participates in
 	 * @param alias the database alias
-	 * @param xid the transaction id
+	 * @param transactionId the transaction id
 	 * @param c The Comparable key
 	 * @return the previous value for removed key or null if no key was found to remove
 	 * @exception IOException low-level access or problems modifying schema
@@ -304,8 +306,8 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalArgumentException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Object remove(String alias, String xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, c.getClass(), xid);
+	public static Object remove(Alias alias, TransactionId transactionId, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, c.getClass(), transactionId);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKVTransaction.remove prepping to remove:"+c);
 		return ttm.remove(c);
@@ -322,7 +324,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static Iterator<?> findTailMap(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findTailMap(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return ttm.tailMap(darg);
 	}
@@ -339,7 +341,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static Iterator<?> findTailMap(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findTailMap(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return ttm.tailMap(darg);
 	}
@@ -355,7 +357,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
-	public static Stream<?> findTailMapStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Stream<?> findTailMapStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return new StreamHelper(ttm.tailMap(darg));
 	}
@@ -372,7 +374,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
-	public static Stream<?> findTailMapStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> findTailMapStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return new StreamHelper(ttm.tailMap(darg));
 	}
@@ -388,7 +390,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static Iterator<?> findTailMapKV(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findTailMapKV(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return ttm.tailMapKV(darg);
 	}
@@ -405,7 +407,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static Iterator<?> findTailMapKV(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findTailMapKV(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return ttm.tailMapKV(darg);
 	}
@@ -421,7 +423,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
-	public static Stream<?> findTailMapKVStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Stream<?> findTailMapKVStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return new StreamHelper(ttm.tailMapKV(darg));
 	}
@@ -438,7 +440,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
-	public static Stream<?> findTailMapKVStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> findTailMapKVStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return new StreamHelper(ttm.tailMapKV(darg));
 	}
@@ -452,7 +454,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMap(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findHeadMap(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return ttm.headMap(darg);
 	}
@@ -467,7 +469,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMap(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findHeadMap(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return ttm.headMap(darg);
 	}
@@ -481,7 +483,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Stream<?> findHeadMapStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return new StreamHelper(ttm.headMap(darg));
 	}
@@ -496,7 +498,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> findHeadMapStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return new StreamHelper(ttm.headMap(darg));
 	}
@@ -512,7 +514,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMapKV(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findHeadMapKV(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return ttm.headMapKV(darg);
 	}
@@ -525,7 +527,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findHeadMapKV(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findHeadMapKV(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return ttm.headMapKV(darg);
 	}
@@ -540,7 +542,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapKVStream(String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Stream<?> findHeadMapKVStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return new StreamHelper(ttm.headMapKV(darg));
 	}
@@ -555,7 +557,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
-	public static Stream<?> findHeadMapKVStream(String alias, String xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> findHeadMapKVStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return new StreamHelper(ttm.headMapKV(darg));
 	}
@@ -572,7 +574,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findSubMap(String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findSubMap(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return ttm.subMap(darg, marg);
 	}
@@ -590,7 +592,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
-	public static Iterator<?> findSubMap(String alias, String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findSubMap(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return ttm.subMap(darg, marg);
 	}
@@ -607,7 +609,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
-	public static Stream<?> findSubMapStream(String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Stream<?> findSubMapStream(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return new StreamHelper(ttm.subMap(darg, marg));
 	}
@@ -625,7 +627,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException If the alias was not found
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
-	public static Stream<?> findSubMapStream(String alias, String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> findSubMapStream(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return new StreamHelper(ttm.subMap(darg, marg));
 	}
@@ -642,7 +644,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static Iterator<?> findSubMapKV(String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findSubMapKV(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		// check for at least one object reference
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return ttm.subMapKV(darg, marg);
@@ -661,7 +663,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static Iterator<?> findSubMapKV(String alias, String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findSubMapKV(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// check for at least one object reference
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return ttm.subMapKV(darg, marg);
@@ -679,7 +681,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Iterator<Result>
 	 */
-	public static Stream<?> findSubMapKVStream(String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Stream<?> findSubMapKVStream(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(darg.getClass(), xid);
 		return new StreamHelper(ttm.subMapKV(darg, marg));
 	}
@@ -697,7 +699,7 @@ public final class RelatrixKVTransaction {
 	 * @throws NoSuchElementException if the alias was not found
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Sterator<Result>
 	 */
-	public static Stream<?> findSubMapKVStream(String alias, String xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> findSubMapKVStream(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// check for at least one object reference
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, darg.getClass(), xid);
 		return new StreamHelper(ttm.subMapKV(darg, marg));
@@ -711,7 +713,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Iterator<?> entrySet(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.entrySet();
 	}
@@ -725,7 +727,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Iterator<?> entrySet(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> entrySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.entrySet();
 	}
@@ -737,7 +739,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Stream<?> entrySetStream(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return new StreamHelper(ttm.entrySet());
 	}
@@ -751,7 +753,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Stream<?> entrySetStream(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> entrySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return new StreamHelper(ttm.entrySet());
 	}
@@ -763,7 +765,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Iterator<?> keySet(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Iterator<?> keySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.keySet();
 	}
@@ -777,7 +779,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
-	public static Iterator<?> keySet(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> keySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.keySet();
 	}
@@ -789,7 +791,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static Stream<?> keySetStream(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Stream<?> keySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return new StreamHelper(ttm.keySet());
 	}
@@ -803,7 +805,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Stream<?> keySetStream(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Stream<?> keySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return new StreamHelper(ttm.keySet());
 	}
@@ -815,7 +817,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object firstKey(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Object firstKey(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.firstKey();
 	}
@@ -829,20 +831,20 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Object firstKey(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Object firstKey(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.firstKey();
 	}
 	/**
 	 * Return the value for the key.
-	 * @param xid the transaction id
+	 * @param transactionId the transaction id
 	 * @param key the key to retrieve
 	 * @return The value for the key.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object get(String xid, Comparable key) throws IOException, IllegalAccessException {
-		TransactionalMap ttm = DatabaseManager.getTransactionalMap(key.getClass(), xid);
+	public static Object get(TransactionId transactionId, Comparable key) throws IOException, IllegalAccessException {
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(key.getClass(), transactionId);
 		Object o = ttm.get(key);
 		if( o == null )
 			return null;
@@ -851,15 +853,15 @@ public final class RelatrixKVTransaction {
 	/**
 	 * Return the value for the key.
 	 * @param alias the database alias
-	 * @param xid the transaction id
+	 * @param transactionId the transaction id
 	 * @param key the key to retrieve
 	 * @return The value for the key.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Object get(String alias, String xid, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, key.getClass(), xid);
+	public static Object get(Alias alias, TransactionId transactionId, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException {
+		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, key.getClass(), transactionId);
 		Object o = ttm.get(key);
 		if( o == null )
 			return null;
@@ -874,7 +876,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static <T> Object get(String xid, Class<T> mainClass, Comparable<? extends T> key) throws IOException, IllegalAccessException
+	public static <T> Object get(TransactionId xid, Class<T> mainClass, Comparable<? extends T> key) throws IOException, IllegalAccessException
 	{
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(mainClass, xid);
 		Object o = ttm.get(key);
@@ -892,7 +894,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
-	public static <T> Object get(String alias, String xid, Class<T> mainClass, Comparable<? extends T> key) throws IOException, IllegalAccessException, NoSuchElementException
+	public static <T> Object get(Alias alias, TransactionId xid, Class<T> mainClass, Comparable<? extends T> key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, mainClass, xid);
 		Object o = ttm.get(key);
@@ -908,7 +910,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object firstValue(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Object firstValue(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.first();
 	}
@@ -922,7 +924,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Object firstValue(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Object firstValue(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.first();
 	}
@@ -934,7 +936,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object lastKey(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Object lastKey(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.lastKey();
 	}
@@ -948,7 +950,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Object lastKey(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Object lastKey(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.lastKey();
 	}
@@ -960,7 +962,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static Object lastValue(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static Object lastValue(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.last();
 	}
@@ -974,7 +976,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static Object lastValue(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static Object lastValue(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.last();
 	}
@@ -986,7 +988,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static long size(String xid, Class clazz) throws IOException, IllegalAccessException {
+	public static long size(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(clazz, xid);
 		return ttm.size();
 	}
@@ -1000,7 +1002,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static long size(String alias, String xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static long size(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, clazz, xid);
 		return ttm.size();
 	}
@@ -1012,7 +1014,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static boolean contains(String xid, Comparable obj) throws IOException, IllegalAccessException {
+	public static boolean contains(TransactionId xid, Comparable obj) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(obj.getClass(), xid);
 		return ttm.containsKey(obj);
 	}
@@ -1026,7 +1028,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias does not exist
 	 */
-	public static boolean contains(String alias, String xid, Comparable obj) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static boolean contains(Alias alias, TransactionId xid, Comparable obj) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, obj.getClass(), xid);
 		return ttm.containsKey(obj);
 	}
@@ -1040,7 +1042,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static <T> boolean contains(String xid, Class<T> mainClass, Comparable<? extends T> subclass) throws IOException, IllegalAccessException
+	public static <T> boolean contains(TransactionId xid, Class<T> mainClass, Comparable<? extends T> subclass) throws IOException, IllegalAccessException
 	{
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(mainClass, xid);
 		return ttm.containsKey(subclass);
@@ -1057,7 +1059,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
-	public static <T> boolean contains(String alias, String xid, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
+	public static <T> boolean contains(Alias alias, TransactionId xid, Class<T> mainClass, Comparable<? extends T> subClass) throws IOException, IllegalAccessException
 	{
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, mainClass, xid);
 		return ttm.containsKey(subClass);
@@ -1071,7 +1073,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static boolean containsValue(String xid, Class keyType, Object obj) throws IOException, IllegalAccessException {
+	public static boolean containsValue(TransactionId xid, Class keyType, Object obj) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(keyType, xid);
 		return ttm.containsValue(obj);
 	}
@@ -1086,7 +1088,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
 	 */
-	public static boolean containsValue(String alias, String xid, Class keyType, Object obj) throws IOException, IllegalAccessException, NoSuchElementException {
+	public static boolean containsValue(Alias alias, TransactionId xid, Class keyType, Object obj) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias, keyType, xid);
 		return ttm.containsValue(obj);
 	}
@@ -1099,7 +1101,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static Object nearest(String xid, Comparable key) throws IllegalAccessException, IOException {
+	public static Object nearest(TransactionId xid, Comparable key) throws IllegalAccessException, IOException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(key, xid);
 		return ttm.nearest(key);
 	}
@@ -1113,21 +1115,21 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static Object nearest(String alias, String xid, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
+	public static Object nearest(Alias alias, TransactionId xid, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
 		TransactionalMap ttm = DatabaseManager.getTransactionalMap(alias,key,xid);
 		return ttm.nearest(key);
 	}
 
 	/**
 	 * Close and remove database from available set
-	 * @param xid transaction id
 	 * @param alias
+	 * @param xid Transaction id
 	 * @param clazz
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static void close(String xid, String alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static void close(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
 		DatabaseManager.removeTransactionalMap(alias, ttm);
@@ -1139,7 +1141,7 @@ public final class RelatrixKVTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static void close(String xid, Class clazz) throws IOException, IllegalAccessException
+	public static void close(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = DatabaseManager.getMap(clazz);
 		DatabaseManager.removeTransactionalMap(xid, ttm);

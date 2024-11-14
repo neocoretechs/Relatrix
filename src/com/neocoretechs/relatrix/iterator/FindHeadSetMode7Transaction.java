@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
@@ -16,7 +18,7 @@ import com.neocoretechs.relatrix.Morphism;
 public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	Object[] endarg;
 	// mode 7
-	public FindHeadSetMode7Transaction(String xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
+	public FindHeadSetMode7Transaction(TransactionId xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
 		super(xid, darg, marg, rarg);
 		if(endarg.length != 0)
 			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");
@@ -35,7 +37,7 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(String alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
 		Morphism ydmr = null;
 		try {
