@@ -1,17 +1,21 @@
 <h1>NEW! Compliance with Java 8 streams, lambdas, and functional programming paradigm!</h1>
-<h1> A true Function Oriented Database integrated with the language!</h1>
+<h1> A newer, easier way of looking at and manipulating data.</h1>
 The Relatrix:
-<h4>Full featured Function Oriented Database, Key/Value Deep Store with transaction checkpointing and recovery, embedded and server modes!</h4>
-Toward a Category Theoretic data management paradigm.
-In order to provide structure to unstructured data, category theory provides us with a perfect description of how to add increasing
-levels of structure through algebraic rules.
-The Relatrix is a new data management system based on the branch of mathematics called 'Category Theory'. 
-The Relatrix is a Java framework that manages unstructured data by the mapping of the functional relationships within the data sets. 
-Relationships are defined as objects comprised of a â€˜domainâ€™ Java object, with a functional â€˜mappingâ€™ object, that relates the domain to a â€˜rangeâ€™ object.  
-Data is retrieved using 'functors' that take categories to sets presented as standard Java Iterators. 
-More plainly, imagine that rather than being able to map keys one-to-one like a relational database you can map them through a function that adds more relevance. 
+<h4>Full featured Database, Builds on the Key/Value Deep Store concept with transaction checkpointing and recovery, embedded and server modes. </h4>
+Toward an easier, more flexible, data management paradigm.
+In order to provide structure to unstructured data, an otherwise esoteric branch of math called category theory provides us with a 
+perfect description of how to add increasing levels of structure through its algebraic rules.
+The Relatrix is a new data management system whose underlying principles are loosely based on this branch of mathematics. 
+The Relatrix is a framework that manages unstructured data by the mapping of the functional relationships within the data sets.
+These relationships can be simple, standard key/value relationships, or a more complex triplet that contains three objects. The objects in the triplets
+can themselves be relationships that can be composed into more complex relationships. 
+Relationships are defined as objects comprised of an overarching domain object, with a functional mapping object, that relates the domain to a range object.  
+Data is retrieved as sets presented as standard iterators or streams. There are a number of simple yet powerful sets of retrieval methods
+utilizing wildcards and concrete objects and class and object level set return indicators to get the data back out without getting lost ina deep, dark, thickets common
+to schemaless data stores.
+To get slightly more technical; imagine that rather than being able to map keys one-to-one like a relational database you can map them through a function that adds more relevance. 
 We can then assign equivalence through isomorphism, or functional similarities between data. The relationships themselves are objects which can be composed into higher level relationships that
-harness the power of Category theory to perform analysis not possible with conventional databases.
+open up the data to perform analysis not possible with conventional databases. Here are some concrete examples:
 <br/><br/><i> Building relationships is as easy as saying:</i><br/>
 <code>
 Relatrix.store([fromObject],[mapObject],[toObject]); // This stores a functional relationship<br/>
