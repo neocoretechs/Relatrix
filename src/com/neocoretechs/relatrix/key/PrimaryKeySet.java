@@ -152,7 +152,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 					RelatrixKVTransaction.rollback(transactionId);
 					throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 				}
-				newKey = indexTable.getNewDBKey();
+				newKey = indexTable.getNewDBKey(transactionId);
 				RelatrixKVTransaction.store(transactionId, this, newKey);
 				return newKey;
 			}
@@ -160,7 +160,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 				RelatrixKVTransaction.rollback(alias,transactionId);
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}
-			newKey = indexTable.getNewDBKey();
+			newKey = indexTable.getNewDBKey(transactionId);
 			RelatrixKVTransaction.store(alias, transactionId, this, newKey);
 			return newKey;
 		}

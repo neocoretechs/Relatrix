@@ -126,6 +126,14 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	public void checkpoint(TransactionId transactionId) throws IllegalAccessException, IOException {
 		rcx.checkpoint(transactionId);
 	}
+	
+	public static synchronized RelatrixIndex getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID uuid = UUID.randomUUID();
+		RelatrixIndex nkey = new RelatrixIndex(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
+		if(DEBUG)
+			System.out.printf("Returning NewKey=%s%n", nkey.toString());
+		return nkey;
+	}
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey
 	 * @param index
@@ -163,13 +171,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		return (DBKey)rc.get((Comparable) instance);
 	}
 	
-	public static synchronized RelatrixIndex getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		UUID uuid = UUID.randomUUID();
-		RelatrixIndex nkey = new RelatrixIndex(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
-		if(DEBUG)
-			System.out.printf("Returning NewKey=%s%n", nkey.toString());
-		return nkey;
-	}
 	/**
 	 * Get the Integer index of the instance by retrieving the InstanceIndex using the instance present in the passed object
 	 * @param instance the DBKey containing the instance
@@ -195,12 +196,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getByPath(transactionId, Relatrix.getTableSpace(), true).getRelatrixIndex(), getNewKey());
+		return new DBKey(rcx.getByPath(RelatrixTransaction.getTableSpace(), true).getRelatrixIndex(), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rcx.getByAlias(alias, transactionId).getRelatrixIndex(), getNewKey());
+			return new DBKey(rcx.getByAlias(alias).getRelatrixIndex(), getNewKey());
 	}
 	@Override
 	public void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException {
@@ -255,7 +256,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			DBKey retKey = getByInstance(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(alias);
+				DBKey index = getNewDBKey(alias, transactionId);
 				// no new instance exists. store both new entries
 				// no new instance exists. store both new entries
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {

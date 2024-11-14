@@ -37,8 +37,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DatabaseCatalog getByPath(TransactionId transactionId, String path, boolean create) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByPath", transactionId, path, create);
+	public DatabaseCatalog getByPath(String path, boolean create) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByPath", null, path, create);
 		try {
 			return (DatabaseCatalog)sendCommand(s);
 		} catch(Exception e) {
@@ -46,8 +46,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void loadClassFromPath(TransactionId transactionId, String path) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath", transactionId, path);
+	public void loadClassFromPath(String path) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath", null, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -55,8 +55,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getAliasToPath(Alias alias, TransactionId transactionId) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliasToPath", alias, transactionId);
+	public String getAliasToPath(Alias alias) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliasToPath", alias, null);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -64,8 +64,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getDatabasePath(TransactionId transactionId, DatabaseCatalog arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getDatabasePath", transactionId, arg1);
+	public String getDatabasePath(DatabaseCatalog arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getDatabasePath", null, arg1);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -73,8 +73,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void loadClassFromJar(TransactionId transactionId, String jar) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar", transactionId, jar);
+	public void loadClassFromJar(String jar) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar", null, jar);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -82,8 +82,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DatabaseCatalog getByAlias(Alias alias, TransactionId transactionId) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByAlias", alias, transactionId);
+	public DatabaseCatalog getByAlias(Alias alias) throws java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByAlias", alias, null);
 		try {
 			return (DatabaseCatalog)sendCommand(s);
 		} catch(Exception e) {
@@ -437,8 +437,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String[][] getAliases(TransactionId transactionId) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases", transactionId, new Object[]{});
+	public String[][] getAliases() {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases", null, new Object[]{});
 		try {
 			return (String[][])sendCommand(s);
 		} catch(Exception e) {
@@ -446,8 +446,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void removeAlias(Alias alias, TransactionId transactionId) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", alias, transactionId);
+	public void removeAlias(Alias alias) throws java.util.NoSuchElementException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", alias, null);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -455,8 +455,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void setAlias(Alias alias, TransactionId transactionId, String path) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setAlias", alias, transactionId, path);
+	public void setAlias(Alias alias, String path) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setAlias", alias, null, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -464,8 +464,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getTableSpace(TransactionId transactionId) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace", transactionId, new Object[]{});
+	public String getTableSpace() {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace", null, new Object[]{});
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -473,24 +473,24 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void setWildcard(TransactionId transactionId, char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard", transactionId, arg1);
+	public void setWildcard(char arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard", null, arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 		}
 	}
 	@Override
-	public void setTuple(TransactionId transactionId, char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple", transactionId, arg1);
+	public void setTuple(char arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple", null, arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 		}
 	}
 	@Override
-	public String getAlias(Alias alias, TransactionId transactionId) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", alias, transactionId);
+	public String getAlias(Alias alias) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", alias, null);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -498,8 +498,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void setTablespace(TransactionId transactionId, String path) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", transactionId, path);
+	public void setTablespace(String path) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", null, path);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {

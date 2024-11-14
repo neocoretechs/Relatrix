@@ -252,7 +252,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			DBKey retKey = getByInstance(transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey();
+				DBKey index = getNewDBKey(transactionId);
 				// no new instance exists. store both new entries
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -352,7 +352,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			DBKey retKey = getByInstance(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(alias);
+				DBKey index = getNewDBKey(alias, transactionId);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {
