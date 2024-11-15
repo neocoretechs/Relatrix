@@ -632,7 +632,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			throw new IOException("The database for the index "+index.databaseIndex+" was not found. May have been deleted.");
 		}
 		TransactionalMap tm = DatabaseManager.getTransactionalMapByPath(sdb, DBKey.class, transactionId);
-		Object o =  tm.get(index);
+		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
 		return ((KeyValue)o).getmValue();
