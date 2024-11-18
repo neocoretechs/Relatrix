@@ -1,46 +1,37 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.RelatrixKV;
+
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIterator;
 
 /**
- * Client side test of KV server. Yes, this should be a nice JUnit fixture someday.
+ * Client side test of KV server database alias using {@link RelatrixKVClient}. Yes, this should be a nice JUnit fixture someday.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals
+ * a series of canonically correct sort order strings for the DB in the range of min to max vals with
+ * alias name appended to the end of the string to identify each dataset uniquely.<p/>
+ * The distinction between methods like findTailMap and findTailMapKV is just one of
+ * returning the keys, or the keys and values. Some performance gains can be realized by just retrieving
+ * needed data.
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
- * as examples of Relatrix processing.
+ * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
  * NOTES:
- * start server RelatrixKVServer.
- * A database unique to this test module should be used. When starting the server to allow alias, a default tablespace isnt necessary.
- * program argument is node of local client, node server is running on, port of server and remote tablespace alias designator.
- * i.e. java BatteryRelatrixKVClientAlias localnode remotenode 9010 "C:/etc/db/test"
+ * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer D:/etc/Relatrix/db/test DBMACHINE 9010 <p/>
+ * would start the server on the machine called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
+ * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p/>
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
- *
  */
 public class BatteryRelatrixKVClientAlias {
 	public static boolean DEBUG = false;
 	public static RelatrixKVClient rkvc;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
@@ -88,7 +79,8 @@ public class BatteryRelatrixKVClientAlias {
 		
 	}
 	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
+	 * Check the size of test database, if non zero, proceed to delete existing data.
+	 * Loads up on keys from min to max-1
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -125,7 +117,7 @@ public class BatteryRelatrixKVClientAlias {
 	}
 	
 	/**
-	 * Tries to store partial key that should match existing keys, should reject all
+	 * Perform a get on presumed keys, checking and verifying each
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -155,26 +147,20 @@ public class BatteryRelatrixKVClientAlias {
 	
 	/**
 	 * Test the higher level functions in the RelatrixKV.
-	 * public Set<Map.Entry<K,V>> entrySet()
+	 * public Set<Map.Entry<K,V>> entrySet() of class String for database alias1
 	 * Returns a Set view of the mappings contained in this map. 
 	 * The set's iterator returns the entries in ascending key order. 
-	 * The set is backed by the map, so changes to the map are reflected in the set, and vice-versa.
-	 *  If the map is modified while an iteration over the set is in progress (except through the iterator's 
-	 *  own remove operation, or through the setValue operation on a map entry returned by the iterator) the results
-	 *   of the iteration are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
-	 *   via the Iterator.remove, Set.remove, removeAll, retainAll and clear operations. 
-	 *   It does not support the add or addAll operations.
-	 *   from battery1 we should have 0 to max, say 1000 keys of length 100
+	 * from battery1 we should have min to max-1 keys
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR6(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetKVIterator its = (RemoteEntrySetKVIterator) rkvc.entrySet(alias1, String.class);
+		Iterator its = rkvc.entrySet(alias1, String.class);
 		System.out.println("KV Battery1AR6 "+alias1);
-		while(rkvc.hasNext(its)) {
-			Object nex =  rkvc.next(its);
+		while(its.hasNext()) {
+			Object nex =  its.next();
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
@@ -188,13 +174,16 @@ public class BatteryRelatrixKVClientAlias {
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
+	/**
+	 * Entry set of alias2 class String verifying each previously inserted entry.
+	 */
 	public static void battery1AR6A(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetKVIterator its = (RemoteEntrySetKVIterator) rkvc.entrySet(alias2, String.class);
+		Iterator its = rkvc.entrySet(alias2, String.class);
 		System.out.println("KV Battery1AR6A "+alias2);
-		while(rkvc.hasNext(its)) {
-			Object nex =  rkvc.next(its);
+		while(its.hasNext()) {
+			Object nex =  its.next();
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
@@ -208,13 +197,17 @@ public class BatteryRelatrixKVClientAlias {
 		}
 		 System.out.println("BATTERY1AR6A SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
+	/**
+	 * entrySet of database alias3 class String verifying each entry
+	 *
+	 */
 	public static void battery1AR6B(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteEntrySetKVIterator its = (RemoteEntrySetKVIterator) rkvc.entrySet(alias3, String.class);
+		Iterator its = rkvc.entrySet(alias3, String.class);
 		System.out.println("KV Battery1AR6B "+alias3);
-		while(rkvc.hasNext(its)) {
-			Object nex =  rkvc.next(its);
+		while(its.hasNext()) {
+			Object nex =  its.next();
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
@@ -229,16 +222,16 @@ public class BatteryRelatrixKVClientAlias {
 		 System.out.println("BATTERY1AR6B SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixKV.keySet;
+	 * Testing of Iterator<?> its = RelatrixKV.keySet for all 3 database aliases
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		RemoteKVIterator its = (RemoteKVIterator) rkvc.keySet(alias1,String.class);
-		RemoteKVIterator itt = (RemoteKVIterator) rkvc.keySet(alias2,String.class);
-		RemoteKVIterator itu = (RemoteKVIterator) rkvc.keySet(alias3,String.class);
+		Iterator its =  rkvc.keySet(alias1,String.class);
+		Iterator itt =  rkvc.keySet(alias2,String.class);
+		Iterator itu =  rkvc.keySet(alias3,String.class);
 		System.out.println("KV Battery1AR7");
 		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
 			String nex1 = (String) its.next();
@@ -258,8 +251,7 @@ public class BatteryRelatrixKVClientAlias {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * @param argv
-	 * @throws Exception
+	 * perform contains for each entry in alias1 and alias2 and containsValue on subset of alias3
 	 */
 	public static void battery1AR8(String[] argv) throws Exception {
 		int i = min;
@@ -307,10 +299,7 @@ public class BatteryRelatrixKVClientAlias {
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * 
-	 * Testing of first(), and firstValue
-	 * @param argv
-	 * @throws Exception
+	 * Testing of firstKey and firstValue for all 3 alias
 	 */
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
@@ -350,9 +339,7 @@ public class BatteryRelatrixKVClientAlias {
 	}
 
 	/**
-	 * test last and lastKey
-	 * @param argv
-	 * @throws Exception
+	 * test lastValue and lastKey on aliases
 	 */
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
@@ -393,10 +380,8 @@ public class BatteryRelatrixKVClientAlias {
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	* test size
-	 * @param argv
-	 * @throws Exception
-	 */
+	* Check size of all 3 alias
+	*/
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
@@ -420,7 +405,8 @@ public class BatteryRelatrixKVClientAlias {
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMap test, basically tailmap returning keys
+	 * findMap test, basically tailMap returning keys step through all 3 alias one
+	 * record at a time simultaneously.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -428,9 +414,9 @@ public class BatteryRelatrixKVClientAlias {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteKVIterator its = (RemoteKVIterator) rkvc.findTailMap(alias1, fkey);
-		RemoteKVIterator itt = (RemoteKVIterator) rkvc.findTailMap(alias2, fkey);
-		RemoteKVIterator itu = (RemoteKVIterator) rkvc.findTailMap(alias3, fkey);
+		Iterator its = rkvc.findTailMap(alias1, fkey);
+		Iterator itt = rkvc.findTailMap(alias2, fkey);
+		Iterator itu = rkvc.findTailMap(alias3, fkey);
 		System.out.println("KV Battery1AR11");
 		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
 			String nex1 = (String) its.next();
@@ -447,22 +433,20 @@ public class BatteryRelatrixKVClientAlias {
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMapKV tailmapKV
-	 * @param argv
-	 * @throws Exception
+	 * tailmapKV obtain 3 iterators, step though key/value records for all 3 alias at once.
 	 */
 	public static void battery1AR12(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVIterator its = (RemoteTailMapKVIterator) rkvc.findTailMapKV(alias1,fkey);
-		RemoteTailMapKVIterator itt = (RemoteTailMapKVIterator) rkvc.findTailMapKV(alias2,fkey);
-		RemoteTailMapKVIterator itu = (RemoteTailMapKVIterator) rkvc.findTailMapKV(alias3,fkey);
+		Iterator its = rkvc.findTailMapKV(alias1,fkey);
+		Iterator itt = rkvc.findTailMapKV(alias2,fkey);
+		Iterator itu = rkvc.findTailMapKV(alias3,fkey);
 		System.out.println("KV Battery1AR12");
-		while(rkvc.hasNext(its) && rkvc.hasNext(itt) && rkvc.hasNext(itu)) {
-			Comparable nex1 = (Comparable) rkvc.next(its);
-			Comparable nex2 = (Comparable) rkvc.next(itt);
-			Comparable nex3 = (Comparable) rkvc.next(itu);
+		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
+			Comparable nex1 = (Comparable) its.next();
+			Comparable nex2 = (Comparable) itt.next();
+			Comparable nex3 = (Comparable) itu.next();
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
@@ -478,25 +462,23 @@ public class BatteryRelatrixKVClientAlias {
 	}
 	
 	/**
-	 * findMapKV findHeadMap - Returns a view of the portion of this map whose keys are strictly less than toKey.
-	 * @param argv
-	 * @throws Exception
+	 * findHeadMap - Returns a view of the portion of this map whose keys are strictly less than toKey
+	 * for all 3 alias one record at a time.
 	 */
 	public static void battery1AR13(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapIterator its = (RemoteHeadMapIterator) rkvc.findHeadMap(alias1,fkey);
-		RemoteHeadMapIterator itt = (RemoteHeadMapIterator) rkvc.findHeadMap(alias2,fkey);
-		RemoteHeadMapIterator itu = (RemoteHeadMapIterator) rkvc.findHeadMap(alias3,fkey);
+		Iterator its = rkvc.findHeadMap(alias1,fkey);
+		Iterator itt = rkvc.findHeadMap(alias2,fkey);
+		Iterator itu = rkvc.findHeadMap(alias3,fkey);
 		//System.out.println(its+", "+itt+", "+itu);
 		System.out.println("KV Battery1AR13");
-		// with i at max, should catch them all
 		i = min;
-		while(rkvc.hasNext(its) && rkvc.hasNext(itt) && rkvc.hasNext(itu)) {
-			Comparable nex1 = (Comparable) rkvc.next(its);
-			Comparable nex2 = (Comparable) rkvc.next(itt);
-			Comparable nex3 = (Comparable) rkvc.next(itu);
+		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
+			Comparable nex1 = (Comparable) its.next();
+			Comparable nex2 = (Comparable) itt.next();
+			Comparable nex3 = (Comparable) itu.next();
 			//System.out.println(i+"="+nex1+", "+nex2+", "+nex3);
 			if( Long.parseLong(((String)nex1).substring(0,100)) != (long)i || !((String)nex1).endsWith(alias1.getAlias()) ||
 				Long.parseLong(((String)nex2).substring(0,100)) != (long)i || !((String)nex2).endsWith(alias2.getAlias()) ||
@@ -510,23 +492,22 @@ public class BatteryRelatrixKVClientAlias {
 	}
 	
 	/**
-	 * findHeadMapKV
-	 * @param argv
-	 * @throws Exception
+	 * findHeadMapKV - Returns a view of the portion of this map whose key/value pairs are strictly less than toKey
+	 * for all 3 alias one record at a time, so set key at max for retrieval.
 	 */
 	public static void battery1AR14(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteHeadMapKVIterator its = (RemoteHeadMapKVIterator) rkvc.findHeadMapKV(alias1,fkey);
-		RemoteHeadMapKVIterator itt = (RemoteHeadMapKVIterator) rkvc.findHeadMapKV(alias2,fkey);
-		RemoteHeadMapKVIterator itu = (RemoteHeadMapKVIterator) rkvc.findHeadMapKV(alias3,fkey);
+		Iterator its =  rkvc.findHeadMapKV(alias1,fkey);
+		Iterator itt =  rkvc.findHeadMapKV(alias2,fkey);
+		Iterator itu =  rkvc.findHeadMapKV(alias3,fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
-		while(rkvc.hasNext(its) && rkvc.hasNext(itt) && rkvc.hasNext(itu)) {
-			Comparable nex1 = (Comparable) rkvc.next(its);
-			Comparable nex2 = (Comparable) rkvc.next(itt);
-			Comparable nex3 = (Comparable) rkvc.next(itu);
+		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
+			Comparable nex1 = (Comparable) its.next();
+			Comparable nex2 = (Comparable) itt.next();
+			Comparable nex3 = (Comparable) itu.next();
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
@@ -542,9 +523,8 @@ public class BatteryRelatrixKVClientAlias {
 	}
 	
 	/**
-	 * findSubMap findSubMap - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
-	 * @param argv
-	 * @throws Exception
+	 * findSubMap - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
+	 * set lower bound at min, upper at max for the 3 alias then iterate through the 3.
 	 */
 	public static void battery1AR15(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
@@ -553,15 +533,15 @@ public class BatteryRelatrixKVClientAlias {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteSubMapIterator its = (RemoteSubMapIterator) rkvc.findSubMap(alias1, fkey, tkey);
-		RemoteSubMapIterator itt = (RemoteSubMapIterator) rkvc.findSubMap(alias2, fkey, tkey);
-		RemoteSubMapIterator itu = (RemoteSubMapIterator) rkvc.findSubMap(alias3, fkey, tkey);
+		Iterator its = rkvc.findSubMap(alias1, fkey, tkey);
+		Iterator itt = rkvc.findSubMap(alias2, fkey, tkey);
+		Iterator itu = rkvc.findSubMap(alias3, fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
-		while(rkvc.hasNext(its) && rkvc.hasNext(itt) && rkvc.hasNext(itu)) {
-			Comparable nex1 = (Comparable) rkvc.next(its);
-			Comparable nex2 = (Comparable) rkvc.next(itt);
-			Comparable nex3 = (Comparable) rkvc.next(itu);
+		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
+			Comparable nex1 = (Comparable) its.next();
+			Comparable nex2 = (Comparable) itt.next();
+			Comparable nex3 = (Comparable) itu.next();
 			if( Long.parseLong(((String)nex1).substring(0,100)) != (long)i || !((String)nex1).endsWith(alias1.getAlias()) ||
 				Long.parseLong(((String)nex2).substring(0,100)) != (long)i || !((String)nex2).endsWith(alias2.getAlias()) ||
 				Long.parseLong(((String)nex3).substring(0,100)) != (long)i || !((String)nex3).endsWith(alias3.getAlias()) ) {
@@ -574,9 +554,8 @@ public class BatteryRelatrixKVClientAlias {
 	}
 	
 	/**
-	 * findSubMap findSubMapKV - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
-	 * @param argv
-	 * @throws Exception
+	 * findSubMapKV - Returns a view of the portion of this map whose key/value pairs range from fromKey, inclusive, to toKey, exclusive.
+	 * set lower bound at min, upper at max.
 	 */
 	public static void battery1AR16(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
@@ -585,15 +564,15 @@ public class BatteryRelatrixKVClientAlias {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		RemoteKVIterator its = (RemoteKVIterator) rkvc.findSubMapKV(alias1, fkey, tkey);
-		RemoteKVIterator itt = (RemoteKVIterator) rkvc.findSubMapKV(alias2, fkey, tkey);
-		RemoteKVIterator itu = (RemoteKVIterator) rkvc.findSubMapKV(alias3, fkey, tkey);
+		Iterator its = rkvc.findSubMapKV(alias1, fkey, tkey);
+		Iterator itt = rkvc.findSubMapKV(alias2, fkey, tkey);
+		Iterator itu = rkvc.findSubMapKV(alias3, fkey, tkey);
 		System.out.println("KV Battery1AR16");
 		// with i at max, should catch them all
-		while(rkvc.hasNext(its) && rkvc.hasNext(itt) && rkvc.hasNext(itu)) {
-			Comparable nex1 = (Comparable) rkvc.next(its);
-			Comparable nex2 = (Comparable) rkvc.next(itt);
-			Comparable nex3 = (Comparable) rkvc.next(itu);
+		while(its.hasNext() && itt.hasNext() && itu.hasNext()) {
+			Comparable nex1 = (Comparable) its.next();
+			Comparable nex2 = (Comparable) itt.next();
+			Comparable nex3 = (Comparable) itu.next();
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex1;
 			Map.Entry<String, Long> nexf = (Map.Entry<String,Long>)nex2;
 			Map.Entry<String, Long> nexg = (Map.Entry<String,Long>)nex3;
@@ -608,14 +587,15 @@ public class BatteryRelatrixKVClientAlias {
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * remove entries
-	 * @param argv
-	 * @throws Exception
+	 * remove entries. Pass the Alias to operate upon.
+	 * Obtain a keySet for String.class for the given alias, iterate each removing each new entry.
+	 * At 5 second intervals, print the current record being removed. At the end, check the size
+	 * and if greater than zero, get an entrySet and display the records not removed.
 	 */
 	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17");
-		RemoteKeySetIterator its = (RemoteKeySetIterator) rkvc.keySet(alias12, String.class);
+		Iterator its = rkvc.keySet(alias12, String.class);
 		System.out.println("KV Battery1AR7");
 		long timx = System.currentTimeMillis();
 		while(its.hasNext()) {
@@ -631,15 +611,15 @@ public class BatteryRelatrixKVClientAlias {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+fkey);
 			}
 		}
-		its.close();
+		((RelatrixKVClient) its).close();
 		long siz = rkvc.size(alias12, String.class);
 		if(siz > 0) {
-			RemoteEntrySetKVIterator ets = (RemoteEntrySetKVIterator) rkvc.entrySet(alias12, String.class);
-			while(rkvc.hasNext(ets)) {
-				Object nex = rkvc.next(ets);
+			Iterator ets = rkvc.entrySet(alias12, String.class);
+			while(ets.hasNext()) {
+				Object nex = ets.next();
 				System.out.println(nex);
 			}
-			ets.close();
+			((RelatrixKVClient) ets).close();
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
