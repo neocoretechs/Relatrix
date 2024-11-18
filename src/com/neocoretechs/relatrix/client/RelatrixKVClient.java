@@ -184,8 +184,13 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
-		if(DEBUG)
-			System.out.println("Attempting to send "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+		if(DEBUG) {
+			System.out.println("Attempting to send "+iori+" to "+workerSocket);
+			if(workerSocket != null)
+				System.out.println("Socket bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+			else
+				System.out.println("Socket NULL!");
+		}
 		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
 		//if(DEBUG) {
 		//	byte[] b = SerializedComparator.serializeObject(iori);

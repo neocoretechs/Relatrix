@@ -416,27 +416,15 @@ public class HandlerClassLoader extends ClassLoader {
             	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in local repository for class:"+name);
         	} else {
         		if(remoteRepository != null) {
-					try {
-						remoteRepository.store(name, cnab);
-						//remoteRepository.transactionCommit(String.class);
-	             	 	if(DEBUG || DEBUGSETREPOSITORY)
-	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in remote repository for class:"+name);
-					} catch (DuplicateKeyException dce) {
-	             	 	if(DEBUG || DEBUGSETREPOSITORY)
-	            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Removing existing bytecode in remote repository prior to replace for class "+name);
-						remoteRepository.remove(name);
-						try {
-							remoteRepository.store(name, cnab);
-							//remoteRepository.transactionCommit(String.class);
-		             	 	if(DEBUG || DEBUGSETREPOSITORY)
-		            	 		System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Replaced and committed bytecode in remote repository for class:"+name);
-						} catch (DuplicateKeyException e) {}
-					}
+					remoteRepository.store(name, cnab);
+					//remoteRepository.transactionCommit(String.class);
+					if(DEBUG || DEBUGSETREPOSITORY)
+						System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in remote repository for class:"+name);
         		} else {
         			System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO ADDITION POSSIBLE!");
         		}
         	}
-        } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
+        } catch(IOException | IllegalAccessException e ) {
                 e.printStackTrace();
                 //if( useEmbedded ) {
 					//if(DEBUG || DEBUGSETREPOSITORY)
@@ -503,7 +491,7 @@ public class HandlerClassLoader extends ClassLoader {
       		} else
 	      		System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
       	}
-      } catch(IOException | ClassNotFoundException | IllegalAccessException e ) {
+      } catch(IOException | IllegalAccessException e ) {
               System.out.println(e);
               e.printStackTrace();
               //if( useEmbedded )

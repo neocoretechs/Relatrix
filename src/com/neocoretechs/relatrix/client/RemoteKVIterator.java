@@ -17,13 +17,13 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
  */
 public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjectInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 4422613369716655753L;
-	private transient RelatrixKVClient relatrixClient;
+	private transient RelatrixKVClient relatrixKVClient;
 	/**
 	 * Client side creation where we link the client transport
 	 * @param relatrixClient
 	 */
 	public RemoteKVIterator(RelatrixKVClient relatrixClient) {
-		this.relatrixClient = relatrixClient;
+		this.relatrixKVClient = relatrixClient;
 	}
 	/**
 	 * Invoked on server where we create this and pass it back to the client linking the server side session id
@@ -34,13 +34,13 @@ public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjec
 	}
 	
 	public void setClient(RelatrixKVClient client) {
-		this.relatrixClient = client;
+		this.relatrixKVClient = client;
 	}
 	
 	@Override
 	public boolean hasNext() {
 		try {
-			return relatrixClient.hasNext(this);
+			return relatrixKVClient.hasNext(this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -49,7 +49,7 @@ public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjec
 	@Override
 	public Object next() {
 		try {
-			return relatrixClient.next(this);
+			return relatrixKVClient.next(this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -57,7 +57,8 @@ public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjec
 
 	@Override
 	public void close() {
-		relatrixClient.close();	
+		//TODO:remove iterator, dont close client.
+		//relatrixClient.close();	
 	}
 
 }

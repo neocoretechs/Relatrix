@@ -158,11 +158,11 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 				}
 		  }
 		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
+			//if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
 				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-			}
+			//}
 		} finally {
 			shutdown();
   	    }

@@ -12,7 +12,6 @@ public class RemoteHeadMapIterator extends RemoteKVIterator {
 	public RemoteHeadMapIterator(String session) {
 		super(session);
 		paramArray = new Object[0];
-		setSession(session);
 	}
 	
 	@Override

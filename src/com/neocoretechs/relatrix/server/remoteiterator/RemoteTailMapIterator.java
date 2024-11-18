@@ -1,13 +1,13 @@
 package com.neocoretechs.relatrix.server.remoteiterator;
 
-import com.neocoretechs.relatrix.client.RemoteIterator;
+import com.neocoretechs.relatrix.client.RemoteKVIterator;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 /**
  * Used by RelatrixKVServer to produce tailmaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailMapIterator extends RemoteIterator{
+public class RemoteTailMapIterator extends RemoteKVIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteTailMapIterator(String session) {
 		super(session);
