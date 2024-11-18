@@ -15,6 +15,8 @@ import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of KV transaction server stream ops.
+ * NOTE: rather than a database, specify only the PATH for the series of databases that will be 
+ * designated ALIAS1java.lang.String<p/>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -25,7 +27,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is local server, remote server, remote port
- * @author jg (C) 2022
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2022,2024
  *
  */
 public class BatteryRelatrixKVTransactionStreamAlias {

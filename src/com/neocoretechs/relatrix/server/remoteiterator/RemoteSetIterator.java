@@ -1,8 +1,9 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Used to produce Relatrix triplesets for remote delivery.
+ * Used to produce RelatrixServer triplesets for remote delivery.
  * @author Jonathan Groff (C) NeoCoreTechs 2024
  *
  */

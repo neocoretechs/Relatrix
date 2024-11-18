@@ -20,8 +20,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * A database unique to this test module should be used.
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2. 
  * C:/users/you/Relatrix should be valid path. C:/users/you/Relatrix/TestDB2java.lang.String will be created.
- * @author jg (C) 2020
- *
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2024
  */
 public class BatteryRelatrixKVStream {
 	public static boolean DEBUG = false;

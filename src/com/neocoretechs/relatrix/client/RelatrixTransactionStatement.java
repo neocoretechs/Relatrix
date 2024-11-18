@@ -6,6 +6,12 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubSetIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -18,7 +24,7 @@ import com.neocoretechs.rocksack.TransactionId;
 public class RelatrixTransactionStatement extends RelatrixStatement implements Serializable {
 	private static final long serialVersionUID = -503217108835099285L;
 	private static boolean DEBUG = false;
-    TransactionId xid;
+    protected TransactionId xid;
     String alias = null;
     
     public RelatrixTransactionStatement() {}

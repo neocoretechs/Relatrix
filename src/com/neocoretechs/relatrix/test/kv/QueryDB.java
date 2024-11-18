@@ -7,7 +7,7 @@ import com.neocoretechs.relatrix.Result;
 
 /**
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2, domain wildcard, map wildcard, range wildcard
- * @author jg (C) 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
 public class QueryDB {

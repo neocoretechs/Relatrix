@@ -11,6 +11,14 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -21,7 +29,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements Serializable {
 	private static final long serialVersionUID = 1452088222610286234L;
 	private static boolean DEBUG = false;
-    TransactionId xid;
+    protected TransactionId xid;
     
     public RelatrixKVTransactionStatement() { if(DEBUG)System.out.println("Default Constructor:"+this);}
     

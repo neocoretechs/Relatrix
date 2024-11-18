@@ -7,16 +7,16 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteSubMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteTailMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIteratorTransaction;
 
 /**
  * Transaction KV client test battery. Test of client side transaction KV server.

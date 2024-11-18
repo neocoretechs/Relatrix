@@ -10,6 +10,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server with alias.
+ * NOTE: rather than a database, specify only the PATH for the series of databases that will be 
+ * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p/>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -18,8 +20,8 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * NOTES:
  * The database aliases define db names and program argument defines tablespace, alias is prepended for fully qualified tablespace names
- * C:/users/you/Relatrix should be valid path as program arg. C:/users/you/Relatrix/ALIAS1java.lang.String through ALIAS3... will be created.
- * @author jg (C) 2020
+ * C:/users/you/Relatrix should be a valid path as in program arg. C:/users/you/Relatrix/ALIAS1java.lang.String through ALIAS3... will be created.
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2024
  *
  */
 public class BatteryRelatrixKVAlias {

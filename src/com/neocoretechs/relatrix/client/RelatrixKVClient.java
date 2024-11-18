@@ -245,7 +245,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 	 * @return 
 	 */
 	@Override
-	public Object sendCommand(RelatrixKVStatement rs) throws Exception {
+	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);

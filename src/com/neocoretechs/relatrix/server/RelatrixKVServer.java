@@ -166,7 +166,7 @@ public final class RelatrixKVServer extends TCPServer {
 	}
 	/**
 	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVServer.<p/>
-	 * @param args If length 1, then default port 9000
+	 * @param args If length 1, then default port 9000, must specify tablespace or alias subsequently. Same for 2 arg: host, port. 3 args then arg 0 is to set default tablespace
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {

@@ -1,17 +1,17 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 /**
- * Used to produce key/value tailmaps for remote delivery.
+ * Used by RelatrixKVServer to produce tailmaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailMapKVIterator extends RemoteKVIterator {
+public class RemoteTailMapIterator extends RemoteIterator{
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteTailMapKVIterator(String session) {
+	public RemoteTailMapIterator(String session) {
 		super(session);
 		paramArray = new Object[0];
-
 	}
 	
 	@Override
@@ -24,7 +24,7 @@ public class RemoteTailMapKVIterator extends RemoteKVIterator {
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixKVServer.relatrixTailmapKVMethods.invokeMethod(this, itInst);
+			Object result = RelatrixKVServer.relatrixTailmapMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters

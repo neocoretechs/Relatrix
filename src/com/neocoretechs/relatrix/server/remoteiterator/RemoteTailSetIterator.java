@@ -1,15 +1,15 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
- * Used by to produce subsets for remote delivery.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
+ * Used by RelatrixServer to produce tailsets for remote delivery.
+ * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RemoteSubSetIterator extends RemoteIterator {
+public class RemoteTailSetIterator extends RemoteIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteSubSetIterator(String session) {
+	public RemoteTailSetIterator(String session) {
 		super(session);
 		paramArray = new Object[0];
 	}
@@ -24,12 +24,11 @@ public class RemoteSubSetIterator extends RemoteIterator {
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixServer.relatrixSubsetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixServer.relatrixTailsetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
 	}
 
-	
 }

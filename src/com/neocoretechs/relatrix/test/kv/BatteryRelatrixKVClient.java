@@ -7,16 +7,17 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteEntrySetKVIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
+import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIterator;
 
 /**
  * Client side test of KV server. Yes, this should be a nice JUnit fixture someday.
@@ -32,8 +33,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * start server RelatrixKVServer.
  * A database unique to this test module should be used.
  * program argument is node of local client, node server is running on, port of server started with database of your choice.
- * @author jg (C) 2020,2022
- *
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  */
 public class BatteryRelatrixKVClient {
 	public static boolean DEBUG = false;
@@ -301,7 +301,7 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteKVIterator its =  (RemoteKVIterator) rkvc.findTailMap(fkey);
+		Iterator its =  rkvc.findTailMap(fkey);
 		System.out.println("KV Battery1AR11");
 		while(its.hasNext()) {
 			String nex = (String) its.next();
@@ -323,10 +323,12 @@ public class BatteryRelatrixKVClient {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
-		RemoteTailMapKVIterator its = (RemoteTailMapKVIterator) rkvc.findTailMapKV(fkey);
+		//RemoteTailMapKVIterator its = (RemoteTailMapKVIterator) rkvc.findTailMapKV(fkey);
+		Iterator its = rkvc.findTailMapKV(fkey);
 		System.out.println("KV Battery1AR12");
-		while(rkvc.hasNext(its)) {
-			Comparable nex = (Comparable) rkvc.next(its);
+		//while(rkvc.hasNext(its)) {
+		while(its.hasNext()) {
+			Comparable nex = (Comparable) its.next();//(Comparable) rkvc.next(its);
 			Map.Entry<String, Long> nexe = (Map.Entry<String,Long>)nex;
 			if(Integer.parseInt(nexe.getKey()) != i) {
 			// Map.Entry

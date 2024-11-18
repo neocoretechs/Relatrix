@@ -181,7 +181,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 		oos.flush();
 	}
 	
-	public Object sendCommand(RelatrixStatement rs) throws Exception {
+	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);

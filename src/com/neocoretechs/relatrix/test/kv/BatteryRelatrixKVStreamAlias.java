@@ -11,6 +11,8 @@ import com.neocoretechs.rocksack.Alias;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server stream retrieval ops.
+ * NOTE: rather than a database, specify only the PATH for the series of databases that will be 
+ * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p/>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals

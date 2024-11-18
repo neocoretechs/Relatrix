@@ -1,22 +1,19 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- * Used by the Key/Value RelatrixKVServer to produce entry sets for remote delivery.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
+ * Used by RelatrixKVTransactionServer to produce tailmaps for remote delivery.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteEntrySetKVIteratorTransaction extends RemoteKVIteratorTransaction {
-	private static boolean DEBUG = false;
-	private static final long serialVersionUID = 1206621317830948409L;
-	public RemoteEntrySetKVIteratorTransaction(TransactionId xid, String session) {
-		super(xid,session);
+public class RemoteTailMapIteratorTransaction extends RemoteIteratorTransaction{
+	private static final long serialVersionUID = -7652502684740120087L;
+	public RemoteTailMapIteratorTransaction(TransactionId xid, String session) {
+		super(xid, session);
 		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
-		if(DEBUG)
-			System.out.println(this);
+
 	}
 	
 	@Override
@@ -29,13 +26,11 @@ public class RemoteEntrySetKVIteratorTransaction extends RemoteKVIteratorTransac
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			//System.out.println(itInst+" class:"+itInst.getClass());
-			Object result = RelatrixKVTransactionServer.relatrixEntrysetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixKVTransactionServer.relatrixTailmapMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
 	}
-
 
 }

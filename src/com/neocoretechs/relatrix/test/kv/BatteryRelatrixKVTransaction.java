@@ -11,23 +11,23 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteEntrySetKVIterator;
-import com.neocoretechs.relatrix.client.RemoteEntrySetIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIteratorTransaction;
 
 /**
  * Transaction KV client test battery. Test of transaction KV server.
@@ -42,8 +42,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is node server is running on, which was started on port designated by command line arg 2, with database of your choice
- * @author jg (C) 2022
- *
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2023
  */
 public class BatteryRelatrixKVTransaction {
 	public static boolean DEBUG = false;

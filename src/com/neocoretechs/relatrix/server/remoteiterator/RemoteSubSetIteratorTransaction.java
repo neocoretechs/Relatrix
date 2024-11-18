@@ -1,19 +1,21 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- * Used by the category theoretic Relatrix server to produce headsets for remote delivery.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
+ * Used by RelatrixTransactionServer to produce subsets for remote delivery.
+ * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteHeadSetIteratorTransaction extends RemoteIteratorTransaction {
-	private static final long serialVersionUID = -7652502684740120088L;
-	public RemoteHeadSetIteratorTransaction(TransactionId xid, String session) {
+public class RemoteSubSetIteratorTransaction extends RemoteIteratorTransaction {
+	private static final long serialVersionUID = -7652502684740120087L;
+	public RemoteSubSetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 		paramArray = new Object[0];
 	}
-	
+
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
@@ -24,7 +26,7 @@ public class RemoteHeadSetIteratorTransaction extends RemoteIteratorTransaction 
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixTransactionServer.relatrixHeadsetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixTransactionServer.relatrixSubsetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters

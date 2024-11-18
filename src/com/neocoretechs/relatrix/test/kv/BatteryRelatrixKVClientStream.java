@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream retrieval ops.
@@ -22,7 +22,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * start server RelatrixKVServer.
  * A database unique to this test module should be used.
  * program argument is local server, remote server, remote port
- * @author jg (C) 2020
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  *
  */
 public class BatteryRelatrixKVClientStream {

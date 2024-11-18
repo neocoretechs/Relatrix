@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientInterface{
 
-	public abstract Object sendCommand(RelatrixKVStatement s) throws Exception;
+	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	@Override
 	public Object lastValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException {
 		RelatrixKVStatement s = new RelatrixKVStatement("lastValue", arg1, arg2);

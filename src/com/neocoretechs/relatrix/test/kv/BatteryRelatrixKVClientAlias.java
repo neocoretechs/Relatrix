@@ -6,15 +6,15 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteEntrySetKVIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.client.RemoteHeadMapKVIterator;
 import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.client.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIterator;
 
 /**
  * Client side test of KV server. Yes, this should be a nice JUnit fixture someday.
@@ -31,7 +31,7 @@ import com.neocoretechs.relatrix.client.RemoteTailMapKVIterator;
  * A database unique to this test module should be used. When starting the server to allow alias, a default tablespace isnt necessary.
  * program argument is node of local client, node server is running on, port of server and remote tablespace alias designator.
  * i.e. java BatteryRelatrixKVClientAlias localnode remotenode 9010 "C:/etc/db/test"
- * @author jg (C) 2020,2022
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  *
  */
 public class BatteryRelatrixKVClientAlias {

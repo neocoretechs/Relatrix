@@ -1,19 +1,25 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- * Used to produce Relatrix triplesets for remote delivery.
- * @author Jonathan Groff (C) NeoCoreTechs 2024
+ * Used by the RelatrixTransactionServer to produce entry sets for remote delivery.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteSetIteratorTransaction extends RemoteIteratorTransaction {
-	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteSetIteratorTransaction(TransactionId xid, String session) {
+public class RemoteEntrySetIteratorTransaction extends RemoteIteratorTransaction {
+	private static boolean DEBUG = false;
+	private static final long serialVersionUID = 1206621317830948409L;
+	public RemoteEntrySetIteratorTransaction(TransactionId xid, String session) {
 		super(xid,session);
 		paramArray = new Object[0];
+		setSession(session);
+		this.xid = xid;
+		if(DEBUG)
+			System.out.println(this);
 	}
-
+	
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
@@ -24,11 +30,13 @@ public class RemoteSetIteratorTransaction extends RemoteIteratorTransaction {
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixTransactionServer.relatrixSetMethods.invokeMethod(this, itInst);
+			//System.out.println(itInst+" class:"+itInst.getClass());
+			Object result = RelatrixTransactionServer.relatrixEntrysetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
 	}
+
 
 }

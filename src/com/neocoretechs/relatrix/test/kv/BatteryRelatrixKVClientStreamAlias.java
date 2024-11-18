@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream ops.

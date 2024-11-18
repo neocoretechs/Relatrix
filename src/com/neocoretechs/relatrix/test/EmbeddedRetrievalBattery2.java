@@ -17,9 +17,9 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.client.RelatrixClient;
-import com.neocoretechs.relatrix.client.RemoteTailSetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIterator;
 
 /**
  * NOTES:

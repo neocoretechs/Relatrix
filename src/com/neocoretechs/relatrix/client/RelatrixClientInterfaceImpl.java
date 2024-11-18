@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 
 public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInterface {
 
-	public abstract Object sendCommand(RelatrixStatement s) throws Exception;
+	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	@Override
 	public DatabaseCatalog getByAlias(Alias alias) throws java.util.NoSuchElementException {
 		RelatrixStatement s = new RelatrixStatement("getByAlias", alias);

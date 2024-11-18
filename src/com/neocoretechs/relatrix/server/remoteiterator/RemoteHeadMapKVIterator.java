@@ -1,5 +1,6 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.client.RemoteKVIterator;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 /**
  * Used by the Key/Value RelatrixKVServer to produce headmaps for remote delivery.

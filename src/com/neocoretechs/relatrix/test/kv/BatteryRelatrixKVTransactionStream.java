@@ -23,7 +23,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is local server, remote server, remote port
- * @author jg (C) 2022
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2023
  *
  */
 public class BatteryRelatrixKVTransactionStream {

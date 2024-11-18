@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
-import com.neocoretechs.relatrix.client.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIteratorTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 

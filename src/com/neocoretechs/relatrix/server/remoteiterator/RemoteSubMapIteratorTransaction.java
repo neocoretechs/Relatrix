@@ -1,9 +1,10 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
+import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
+ * Used by RelatrixTransactionServer for remote iterator delivery
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
  * Used by the Key/Value subsystem to produce submaps for remote delivery.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022

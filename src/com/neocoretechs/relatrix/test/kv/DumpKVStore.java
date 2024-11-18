@@ -8,7 +8,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2, class i.e. com.your.class.class
- * @author jg (C) 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
 public class DumpKVStore {

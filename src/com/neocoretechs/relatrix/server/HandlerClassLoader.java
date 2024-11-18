@@ -29,8 +29,8 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteKeySetIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
 
 /**
 * This is a generic ClassLoader of which many examples abound.
