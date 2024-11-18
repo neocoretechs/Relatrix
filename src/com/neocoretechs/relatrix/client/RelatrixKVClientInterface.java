@@ -1,140 +1,151 @@
 package com.neocoretechs.relatrix.client;
 
 import java.util.stream.Stream;
+
+import com.neocoretechs.rocksack.Alias;
+
 import java.util.Iterator;
 
 
 public interface RelatrixKVClientInterface{
 
-	public Object lastValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object lastValue(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object lastValue(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object lastValue( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Stream entrySetStream(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object nearest( Comparable key) throws java.lang.IllegalAccessException,java.io.IOException;
 
-	public Stream entrySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object nearest(Alias alias, Comparable key) throws java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException;
 
-	public Object nearest(String arg1,Comparable arg2) throws java.lang.IllegalAccessException,java.io.IOException,java.util.NoSuchElementException;
+	public Iterator findSubMapKV( Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Object nearest(Comparable arg1) throws java.lang.IllegalAccessException,java.io.IOException;
+	public Iterator findSubMapKV(Alias alias, Comparable from,Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
+	public Iterator findHeadMapKV(Alias alias, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator findSubMap(Comparable arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadMapKV( Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findSubMap(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findSubMap(Alias alias, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator findHeadMap(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findSubMap( Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findHeadMap(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findHeadMapStream(Alias alias, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator findTailMap(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findHeadMapStream( Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findTailMap(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findTailMapKV( Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findTailMapStream(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findTailMapKV(Alias alias, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Stream findTailMapStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public void loadClassFromJar(String jar) throws java.io.IOException;
 
-	public Stream keySetStream(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator findTailMap(Alias alias, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Stream keySetStream(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Iterator findTailMap( Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findSubMapKV(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void loadClassFromPath(String clazz, String path) throws java.io.IOException;
 
-	public Iterator findSubMapKV(Comparable arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadMap(Alias alias, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator findHeadMapKV(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Iterator findHeadMap( Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findHeadMapKV(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream keySetStream( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Stream findSubMapStream(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream keySetStream(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Stream findSubMapStream(Comparable arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findSubMapKVStream(Alias alias, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator findTailMapKV(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findSubMapKVStream( Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Iterator findTailMapKV(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findTailMapStream(Alias alias, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Stream findHeadMapStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findTailMapStream( Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findHeadMapStream(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public Stream findSubMapStream(Alias alias, Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void loadClassFromJar(String arg1) throws java.io.IOException;
+	public Stream findSubMapStream(Comparable from, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Stream findSubMapKVStream(Comparable arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public void removeAlias(Alias alias) throws java.util.NoSuchElementException;
 
-	public Stream findSubMapKVStream(String arg1,Comparable arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
-
-	public String getAlias(String arg1);
-
-	public String[][] getAliases();
-
-	public void removeAlias(String arg1) throws java.util.NoSuchElementException;
-
-	public void setAlias(String arg1,String arg2) throws java.io.IOException;
-
-	public void setTablespace(String arg1) throws java.io.IOException;
+	public String getAlias(Alias alias);
 
 	public String getTableSpace();
 
-	public Stream findHeadMapKVStream(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public String[][] getAliases();
 
-	public Stream findHeadMapKVStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void setAlias(Alias alias, String path) throws java.io.IOException;
 
-	public Stream findTailMapKVStream(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public void setTablespace(String path) throws java.io.IOException;
 
-	public Stream findTailMapKVStream(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findTailMapKVStream(Alias alias, Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void removePackageFromRepository(String arg1) throws java.io.IOException;
+	public Stream findTailMapKVStream( Comparable from) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Object lastKey(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Stream findHeadMapKVStream(Alias alias, Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object lastKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream findHeadMapKVStream( Comparable to) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
 
-	public Object firstKey(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public void removePackageFromRepository(String pack) throws java.io.IOException;
 
-	public Object firstKey(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Stream entrySetStream( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Object firstValue(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Stream entrySetStream(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object firstValue(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object lastKey(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public boolean containsValue(Class arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object lastKey( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public boolean containsValue(String arg1,Class arg2,Comparable arg3) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object firstKey( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Iterator keySet(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Object firstKey(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator keySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object firstValue(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void close(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Object firstValue( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public void close(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public boolean containsValue( Class clazz, Object key) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Iterator entrySet(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public boolean containsValue(Alias alias, Class clazz, Object key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Iterator entrySet(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator keySet(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public boolean contains(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException;
+	public Iterator keySet( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public boolean contains(Comparable arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public void close(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public long size(Class arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public void close( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public long size(String arg1,Class arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public Iterator entrySet( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public void store(Comparable arg1,Object arg2) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException;
+	public Iterator entrySet(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public void store(String arg1,Comparable arg2,Object arg3) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException;
+	public boolean contains(Alias alias, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
-	public Object get(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public boolean contains( Comparable key) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Object get(Comparable arg1) throws java.io.IOException,java.lang.IllegalAccessException;
+	public boolean contains( Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Object remove(Comparable arg1) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+	public boolean contains(Alias alias, Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException;
 
-	public Object remove(String arg1,Comparable arg2) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+	public long size(Alias alias, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public long size( Class clazz) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public void store(Alias alias, Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException,java.util.NoSuchElementException;
+
+	public void store( Comparable key, Object value) throws java.lang.IllegalAccessException,java.io.IOException,com.neocoretechs.relatrix.DuplicateKeyException;
+
+	public Object get( Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Object get( Comparable key) throws java.io.IOException,java.lang.IllegalAccessException;
+
+	public Object get(Alias alias, Class clazz, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object get(Alias alias, Comparable key) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
+
+	public Object remove( Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException;
+
+	public Object remove(Alias alias, Comparable key) throws java.io.IOException,java.lang.IllegalArgumentException,java.lang.ClassNotFoundException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 
 }
 
