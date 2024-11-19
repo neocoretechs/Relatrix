@@ -68,7 +68,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	/**
 	 * Checks existing database size. If non zero perform a clean operation to remove all elements.
-	 * proceed to store test keys of key String.format(uniqKeyFmt, i); key Long(i) value from min to max.
+	 * proceed to store test keys of key String.format(uniqKeyFmt, i), value Long(i) from min to max.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -208,7 +208,6 @@ public class BatteryRelatrixKVClientStream {
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * 
 	 * Testing of first, and firstValue for String.class, verify they are at min
 	 * @param argv
 	 * @throws Exception

@@ -1,31 +1,35 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.client.RemoteStream;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
+
 import com.neocoretechs.rocksack.Alias;
 
 /**
- * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream ops.
+ * Client side test of streams in KV server database alias using {@link RelatrixKVClient}. 
+ * Yes, this should be a nice JUnit fixture someday.<p/>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals with variation to differentiate databases.
+ * a series of canonically correct sort order strings for the DB in the range of min to max vals with
+ * alias name appended to the end of the string to identify each dataset uniquely.<p/>
+ * The distinction between methods like findTailMap and findTailMapKV is just one of
+ * returning the keys, or the keys and values. Some performance gains can be realized by just retrieving
+ * needed data.
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable.
- * This tests the complete set of client side Java 8 stream calls with database alias directed to the server.
+ * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
  * NOTES:
- * start server RelatrixKVServer.
- * A database unique to this test module should be used.
- * program argument is local server, remote server, remote port, remote tablespace prefix.<br/>
- * Remote tablespace prefix will be appended with alias1, alias2, alias3 variables for tests.
- * @author Jonathan Groff (C) NeoCoreTechs 2020,2023
- *
+ * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer DBMACHINE 9010 <p/>
+ * would start the server on the node called DBMACHINE using port 9010. Note that no
+ * tablespace path is specified since we are going to specify the aliases via the client, hence when starting the
+ * client you would specify java com.neocoretechs.relatrix.text.kv.BatteryRelatrixKVClientAlias LOCALMACHINE DBMACHINE 9010 D:/etc/Relatrix/db
+ * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc. using local node LOCALMACHINE remote node DBMACHINE port 9010<p/>
+ * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  */
 public class BatteryRelatrixKVClientStreamAlias {
 	public static boolean DEBUG = false;
@@ -42,15 +46,16 @@ public class BatteryRelatrixKVClientStreamAlias {
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
 	private static int numLookupByValue = 10;
+	private static long timx;
 	/**
-	* Main test fixture driver
+	* Main test fixture driver. Prepare the alias definitions then call methods repeatedly
+	* for each given alias.
 	*/
 	public static void main(String[] argv) throws Exception {
 		if(argv.length < 4) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStreamAlias <DB local client NODE> <DB remote server node> <DB PORT> <server_directory_path_to_tablespace_alias");
 			System.exit(1);
 		}
-		//rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
 		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
 		String tablespace = argv[3];
@@ -104,8 +109,9 @@ public class BatteryRelatrixKVClientStreamAlias {
 		
 	}
 	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
-	 * @param argv
+	 * Checks existing database size for passed alias. If non zero perform a clean operation to remove all elements.
+	 * proceed to store test keys of key String.format(uniqKeyFmt, i)+alias, value Long(i) from min to max.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1(Alias alias12) throws Exception {
@@ -128,8 +134,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 	
 	/**
-	 * Tries to store partial key that should match existing keys, should reject all
-	 * @param argv
+	 * Perform a get on each presumed stored key from min to max for passed alias. Verify against increment.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery11(Alias alias12) throws Exception {
@@ -148,18 +154,10 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 	
 	/**
-	 * Test the higher level functions in the RelatrixKV.
-	 * public Set<Map.Entry<K,V>> entrySet()
-	 * Returns a Set view of the mappings contained in this map. 
-	 * The set's stream returns the entries in ascending key order. 
-	 * The set is backed by the map, so changes to the map are reflected in the set, and vice-versa.
-	 * If the map is modified while an iteration over the set is in progress (except through the stream's 
-	 * own remove operation, or through the setValue operation on a map entry returned by the stream) the results
-	 * of the streaming are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
-	 * via the stream. Remove, Set.remove, removeAll, retainAll and clear operations. 
-	 * It does not support the add or addAll operations.
-	 * from battery1 we should have 0 to max, say 1000 keys of length 100
-	 * @param argv
+	 * Testing of entrySetStream for String.class for passed alias stored data and verify 
+	 * each entry starts at min and increments properly.
+	 * Throw exception if we do not end at max.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1AR6(Alias alias12) throws Exception {
@@ -181,8 +179,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 		 System.out.println(alias12+" BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream<?> its = RelatrixKV.keySet;
-	 * @param argv
+	 * Testing of keySetStream starting at min for whole of stored dataset for passed alias;
+	 * @param alias32
 	 * @throws Exception
 	 */
 	public static void battery1AR7(Alias alias32) throws Exception {
@@ -204,7 +202,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream<?> its = Relatrix.findSet("?", "?", "*");
+	 * Testing of contains forward and backward against stored data for each alias, and containsValue for a subset of the data
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -262,8 +260,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * 
-	 * Testing of first(), and firstValue
+	 * Testing of first, and firstValue for each alias databse of String.class, verify they are at min
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -291,7 +288,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 
 	/**
-	 * test last and lastKey
+	 * Make remote call to get lastValue and lastKey for String.class for each alias database, verify against max-1
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -318,10 +315,10 @@ public class BatteryRelatrixKVClientStreamAlias {
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	* test size
-	 * @param argv
-	 * @throws Exception
-	 */
+	* Make a remote call to verify size of each String.class alias database is equal to max
+	* @param argv
+	* @throws Exception
+	*/
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
@@ -336,7 +333,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMap test, basically tailmap returning keys
+	 * findTailmapStream for alias- Returns a key stream of the portion of this set whose elements are greater than or equal to fromElement
+	 * starting at min.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -356,8 +354,9 @@ public class BatteryRelatrixKVClientStreamAlias {
 		 System.out.println(alias12+" BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMapKV tailmapKV
-	 * @param argv
+	 * findTailmapKVStream for alias- Returns a key/value stream of the portion of this set whose elements are greater than or equal to fromElement
+	 * starting at min.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1AR12(Alias alias12) throws Exception {
@@ -378,8 +377,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 	
 	/**
-	 * findMapKV findHeadMap - Returns a view of the portion of this map whose keys are strictly less than toKey.
-	 * @param argv
+	 * findHeadMapStream for alias- Returns a stream view of the portion of this map whose keys are strictly less than toKey.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1AR13(Alias alias12) throws Exception {
@@ -401,8 +400,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 	
 	/**
-	 * findHeadMapKV
-	 * @param argv
+	 * findHeadMapKVStream for alias-  Returns a key/value stream of the portion of this map whose keys are strictly less than toKey.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1AR14(Alias alias12) throws Exception {
@@ -424,8 +423,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 	
 	/**
-	 * findSubMap findSubMap - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
-	 * @param argv
+	 * findSubMapStream for alias- Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1AR15(Alias alias12) throws Exception {
@@ -449,8 +448,8 @@ public class BatteryRelatrixKVClientStreamAlias {
 	}
 	
 	/**
-	 * findSubMap findSubMapKV - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
-	 * @param argv
+	 * findSubMapKVStream for alias- Returns a key/value view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
+	 * @param alias12
 	 * @throws Exception
 	 */
 	public static void battery1AR16(Alias alias12) throws Exception {
@@ -473,24 +472,28 @@ public class BatteryRelatrixKVClientStreamAlias {
 		 System.out.println(alias12+" BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * remove entries
-	 * @param alias12
-	 * @throws Exception
+	 * remove entries.
+	 * Obtain a keySet for String.class for given alias, remove each new entry.
+	 * At 5 second intervals, print the current record being removed. At the end, check the size
+	 * and if greater than zero, get an entrySet and display the records not removed.
 	 */
 	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17 for alias "+alias12);
-		RemoteKVIterator its = (RemoteKVIterator) rkvc.keySet(alias12, String.class);
-		long timx = System.currentTimeMillis();
-		while(its.hasNext()) {
-			String fkey = (String) its.next();
-			rkvc.remove(alias12, fkey);
+		Iterator its = rkvc.keySet(alias12, String.class);
+		timx = System.currentTimeMillis();
+		its.forEachRemaining(e ->{	
+			try {
+				rkvc.remove(alias12, (Comparable)e);
+			} catch (IOException e1) {
+				throw new RuntimeException(e1);
+			}
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(fkey);
+				System.out.println(e);
 				timx = System.currentTimeMillis();
 			}
-		}
-		its.close();
+		});
+		((RemoteKVIterator)its).close();
 		long siz = rkvc.size(alias12, String.class);
 		if(siz > 0) {
 				Stream stream =  rkvc.entrySetStream(alias12, String.class);
