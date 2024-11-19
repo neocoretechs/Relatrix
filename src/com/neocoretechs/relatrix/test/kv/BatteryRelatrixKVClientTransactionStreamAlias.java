@@ -133,10 +133,8 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(alias12, xid, fkey+alias12, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rkvc.store(alias12, xid, fkey+alias12, new Long(i));
+			++recs;
 		}
 		rkvc.commit(alias12, xid);
 		System.out.println(alias12+" KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -155,10 +153,8 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 		TransactionId xid2 = rkvc.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(alias12, xid2, fkey+alias12, new Long(fkey));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rkvc.store(alias12, xid2, fkey+alias12, new Long(fkey));
+			++recs;
 		}
 		if( recs > 0) {
 			rkvc.rollback(alias12,xid2);

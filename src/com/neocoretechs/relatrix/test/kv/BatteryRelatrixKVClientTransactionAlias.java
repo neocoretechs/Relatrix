@@ -140,10 +140,8 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(alias12, xid, fkey+alias12, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rkvc.store(alias12, xid, fkey+alias12, new Long(i));
+			++recs;
 		}
 		rkvc.commit(alias12, xid);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -162,12 +160,10 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		TransactionId xid2 = rkvc.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(alias1, xid2, fkey+alias1, new Long(fkey));
-				rkvc.store(alias2, xid2, fkey+alias2, new Long(fkey));
-				rkvc.store(alias3, xid2, fkey+alias3, new Long(fkey));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rkvc.store(alias1, xid2, fkey+alias1, new Long(fkey));
+			rkvc.store(alias2, xid2, fkey+alias2, new Long(fkey));
+			rkvc.store(alias3, xid2, fkey+alias3, new Long(fkey));
+			++recs;
 		}
 		if( recs > 0) {
 			rkvc.rollback(alias1, xid2);
@@ -540,19 +536,15 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		String fkey = null;
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(alias12, xid2, fkey+alias12, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rkvc.store(alias12, xid2, fkey+alias12, new Long(i));
+			++recs;
 		}
 		System.out.println(alias12+" Checkpointing..");
 		rkvc.checkpoint(xid2);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			try {
-				rkvc.store(alias12, xid2, fkey+alias12, new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rkvc.store(alias12, xid2, fkey+alias12, new Long(i));
+			++recs;
 		}
 		rkvc.rollbackToCheckpoint(alias12, xid2);
 		String lkey = (String) rkvc.lastKey(alias12, xid2, String.class);

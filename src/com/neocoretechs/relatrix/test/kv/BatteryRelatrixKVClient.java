@@ -213,8 +213,7 @@ public class BatteryRelatrixKVClient {
 		}
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * 
+	/** 
 	 * Testing of firstKey(), and firstValue()
 	 * @param argv
 	 * @throws Exception
@@ -258,15 +257,15 @@ public class BatteryRelatrixKVClient {
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	* test size
+	 * test size
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
+		System.out.println("KV Battery1AR101");
 		long tims = System.currentTimeMillis();
 		long bits = rkvc.size(String.class);
-		System.out.println("KV Battery1AR101");
 		if( bits != i ) {
 			System.out.println("KV BATTERY1AR101 size mismatch "+bits+" should be:"+i);
 			//throw new Exception("KV BATTERY1AR101 size mismatch "+bits+" should be "+i);

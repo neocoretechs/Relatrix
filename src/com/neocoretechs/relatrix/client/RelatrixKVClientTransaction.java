@@ -348,20 +348,16 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 				rc.endTransaction(xid);
 				System.exit(0);
 			case 5:
-				xid = rc.getTransactionId();
-				rs = new RelatrixKVTransactionStatement(args[3],new Object[]{xid,args[4]});
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4]);
 				break;
 			case 6:
-				xid = rc.getTransactionId();
-				rs = new RelatrixKVTransactionStatement(args[3],new Object[]{xid,args[4],args[5]});
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5]);
 				break;
 			case 7:
-				xid = rc.getTransactionId();
-				rs = new RelatrixKVTransactionStatement(args[3],new Object[]{xid,args[4],args[5],args[6]});
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6]);
 				break;
 			case 8:
-				xid = rc.getTransactionId();
-				rs = new RelatrixKVTransactionStatement(args[3],new Object[] {xid,args[4],args[5],args[6],args[7]});
+				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

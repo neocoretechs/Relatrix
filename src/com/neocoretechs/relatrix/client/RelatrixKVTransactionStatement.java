@@ -40,8 +40,29 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 	
 	public RelatrixKVTransactionStatement(String tmeth, Object ... o1) {
 		super(tmeth, o1);
+		if(o1.length > 1) {
+			if(o1[0].getClass().equals(TransactionId.class)) {
+				this.xid = (TransactionId) o1[0];
+			} else {
+				if(o1[1].getClass().equals(TransactionId.class))
+					this.xid = (TransactionId) o1[1];
+			}
+		} else {
+			if(o1.length > 0) {
+				if(o1[0].getClass().equals(TransactionId.class))
+					this.xid = (TransactionId) o1[0];
+			}
+		}
+	}
+	/*
+	public RelatrixKVTransactionStatement(String tmeth, TransactionId xid, Object ... o1) {
+		super(tmeth, new Object[]{xid, o1});
 	}
 	
+	public RelatrixKVTransactionStatement(String tmeth, Alias alias, TransactionId xid, Object ... o1) {
+		super(tmeth, new Object[]{alias, xid, o1});
+	}
+	*/
 	public TransactionId getTransactionId() {
     	return xid;
     }
