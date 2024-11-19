@@ -1,13 +1,12 @@
 package com.neocoretechs.relatrix.test.kv;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RemoteKVIterator;
-import com.neocoretechs.relatrix.client.RemoteStream;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream retrieval ops.
@@ -19,9 +18,9 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * This test the client side Java 8 streams obtained from the server
  * NOTES:
- * start server RelatrixKVServer.
- * A database unique to this test module should be used.
- * program argument is local server, remote server, remote port
+ * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer D:/etc/Relatrix/db/test DBMACHINE 9010 <p/>
+ * would start the server on the node called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
+ * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p/>
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  *
  */
@@ -36,6 +35,7 @@ public class BatteryRelatrixKVClientStream {
 	static int i;
 	static int j;
 	private static int numLookupByValue = 10;
+	static long timx;
 	/**
 	* Main test fixture driver
 	*/
@@ -44,14 +44,13 @@ public class BatteryRelatrixKVClientStream {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStream <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
-		//rkvc = new RelatrixKVClient("volvatron", "volvatron", 9500);
 		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
 		battery1(argv);	// build and store
-		battery11(argv);  // build and store
+		battery11(argv);
 		battery1AR6(argv);
 		battery1AR7(argv);
-		battery1AR8(argv); // search by value, slow operation no key
+		battery1AR8(argv);
 		battery1AR9(argv);
 		battery1AR10(argv);
 		battery1AR101(argv);
@@ -68,7 +67,8 @@ public class BatteryRelatrixKVClientStream {
 		
 	}
 	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
+	 * Checks existing database size. If non zero perform a clean operation to remove all elements.
+	 * proceed to store test keys of key String.format(uniqKeyFmt, i); key Long(i) value from min to max.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -92,7 +92,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	
 	/**
-	 * Tries to store partial key that should match existing keys, should reject all
+	 * Perform a get on each presumed stored key from min to max. Verify against increment.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -112,24 +112,15 @@ public class BatteryRelatrixKVClientStream {
 	}
 	
 	/**
-	 * Test the higher level functions in the RelatrixKV.
-	 * public Set<Map.Entry<K,V>> entrySet()
-	 * Returns a Set view of the mappings contained in this map. 
-	 * The set's stream returns the entries in ascending key order. 
-	 * The set is backed by the map, so changes to the map are reflected in the set, and vice-versa.
-	 *  If the map is modified while an iteration over the set is in progress (except through the stream's 
-	 *  own remove operation, or through the setValue operation on a map entry returned by the stream) the results
-	 *   of the streaming are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
-	 *   via the stream. Remove, Set.remove, removeAll, retainAll and clear operations. 
-	 *   It does not support the add or addAll operations.
-	 *   from battery1 we should have 0 to max, say 1000 keys of length 100
+	 * Testing of entrySetStream for String.class stored data and verify each entry starts at min and increments properly.
+	 * Throw exception if we do not end at max.
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR6(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = (RemoteStream) rkvc.entrySetStream(String.class);
+		Stream stream = rkvc.entrySetStream(String.class);
 		System.out.println("KV Battery1AR6");
 		stream.forEach(e ->{
 			if(((Map.Entry<String,Long>)e).getValue() != i) {
@@ -145,14 +136,14 @@ public class BatteryRelatrixKVClientStream {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream<?> its = RelatrixKV.keySet;
+	 * Testing of keySetStream starting at min for whole of stored dataset;
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR7(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		RemoteStream stream = (RemoteStream) rkvc.keySetStream(String.class);
+		Stream stream = rkvc.keySetStream(String.class);
 		System.out.println("KV Battery1AR7");
 		stream.forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
@@ -167,7 +158,7 @@ public class BatteryRelatrixKVClientStream {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream<?> its = Relatrix.findSet("?", "?", "*");
+	 * Testing of contains forward and backward against stored data, and containsValue for a subset of the data
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -218,7 +209,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	/**
 	 * 
-	 * Testing of first(), and firstValue
+	 * Testing of first, and firstValue for String.class, verify they are at min
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -240,7 +231,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 
 	/**
-	 * test last and lastKey
+	 * Make remote call to get lastValue and lastKey for String.class, verify against max-1
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -261,10 +252,10 @@ public class BatteryRelatrixKVClientStream {
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	* test size
-	 * @param argv
-	 * @throws Exception
-	 */
+	* Make a remote call to verify size is equal to max
+	* @param argv
+	* @throws Exception
+	*/
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
@@ -277,7 +268,8 @@ public class BatteryRelatrixKVClientStream {
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMap test, basically tailmap returning keys
+	 * findTailmapStream - Returns a key stream of the portion of this set whose elements are greater than or equal to fromElement
+	 * starting at min.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -297,7 +289,8 @@ public class BatteryRelatrixKVClientStream {
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMapKV tailmapKV
+	 * findTailmapKVStream - Returns a key/value stream of the portion of this set whose elements are greater than or equal to fromElement
+	 * starting at min.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -319,7 +312,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	
 	/**
-	 * findMapKV findHeadMap - Returns a view of the portion of this map whose keys are strictly less than toKey.
+	 * findHeadMapStream - Returns a stream view of the portion of this map whose keys are strictly less than toKey.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -327,7 +320,7 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		Stream stream = (RemoteStream) rkvc.findHeadMapStream(fkey);
+		Stream stream = rkvc.findHeadMapStream(fkey);
 		System.out.println("KV Battery1AR13");
 		// with i at max, should catch them all
 		i = min;
@@ -343,7 +336,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	
 	/**
-	 * findHeadMapKV
+	 * findHeadMapKVStream -  Returns a key/value stream of the portion of this map whose keys are strictly less than toKey.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -351,7 +344,7 @@ public class BatteryRelatrixKVClientStream {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
-		Stream stream = (RemoteStream) rkvc.findHeadMapKVStream(fkey);
+		Stream stream = rkvc.findHeadMapKVStream(fkey);
 		System.out.println("KV Battery1AR14");
 		i = min;
 		stream.forEach(e ->{
@@ -366,7 +359,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	
 	/**
-	 * findSubMap findSubMap - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
+	 * findSubMapStream - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -377,7 +370,7 @@ public class BatteryRelatrixKVClientStream {
 		String fkey = String.format(uniqKeyFmt, i);
 		// with j at max, should get them all since we stored to max -1
 		String tkey = String.format(uniqKeyFmt, j);
-		Stream stream = (RemoteStream) rkvc.findSubMapStream(fkey, tkey);
+		Stream stream = rkvc.findSubMapStream(fkey, tkey);
 		System.out.println("KV Battery1AR15");
 		// with i at max, should catch them all
 		stream.forEach(e ->{
@@ -392,7 +385,7 @@ public class BatteryRelatrixKVClientStream {
 	}
 	
 	/**
-	 * findSubMap findSubMapKV - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
+	 * findSubMapKVStream - Returns a key/value view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -417,25 +410,29 @@ public class BatteryRelatrixKVClientStream {
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * remove entries
-	 * @param argv
-	 * @throws Exception
+	 * remove entries.
+	 * Obtain a keySet for String.class, remove each new entry.
+	 * At 5 second intervals, print the current record being removed. At the end, check the size
+	 * and if greater than zero, get an entrySet and display the records not removed.
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17");
-		RemoteKVIterator its = (RemoteKVIterator) rkvc.keySet(String.class);
+		Iterator its = rkvc.keySet(String.class);
 		System.out.println("KV Battery1AR7");
-		long timx = System.currentTimeMillis();
-		while(its.hasNext()) {
-			String fkey = (String) its.next();
-			rkvc.remove(fkey);
+		timx = System.currentTimeMillis();
+		its.forEachRemaining(e ->{	
+			try {
+				rkvc.remove((Comparable)e);
+			} catch (IOException e1) {
+				throw new RuntimeException(e1);
+			}
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(fkey);
+				System.out.println(e);
 				timx = System.currentTimeMillis();
 			}
-		}
-		its.close();
+		});
+		((RemoteKVIterator)its).close();
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
 				Stream stream = rkvc.entrySetStream(String.class);
@@ -455,7 +452,7 @@ public class BatteryRelatrixKVClientStream {
 	 */
 	public static void battery18(String[] argv) throws Exception {
 		System.out.println("KV Battery18 ");
-		int max1 = max - 50000;
+		int max1 = max - (max/2);
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;

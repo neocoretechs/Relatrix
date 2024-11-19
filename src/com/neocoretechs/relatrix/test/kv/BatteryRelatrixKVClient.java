@@ -274,7 +274,7 @@ public class BatteryRelatrixKVClient {
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMap test, basically tailmap returning keys
+	 * findTailMap test, basically tailmap returning keys
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -295,7 +295,7 @@ public class BatteryRelatrixKVClient {
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * findMapKV tailmapKV
+	 * findTailMapKV
 	 * @param argv
 	 * @throws Exception
 	 */

@@ -35,7 +35,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream entrySetStream(Class clazz) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("entrySetStream", clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -44,7 +44,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream entrySetStream(Alias alias, Class clazz)throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("entrySetStream", alias, clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -134,7 +134,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findTailMapStream(Comparable arg1) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findTailMapStream", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -143,7 +143,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findTailMapStream(Alias alias, Comparable from)  throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findTailMapStream", alias, from);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -152,7 +152,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream keySetStream(Alias alias, Class clazz)throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("keySetStream", alias, clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -161,7 +161,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream keySetStream(Class arg1) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("keySetStream", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -206,7 +206,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findSubMapStream(Alias alias, Comparable from, Comparable to) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findSubMapStream", alias, from, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -215,7 +215,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findSubMapStream(Comparable arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findSubMapStream", arg1, arg2);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -242,7 +242,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findHeadMapStream(Alias alias, Comparable to) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findHeadMapStream", alias, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -251,7 +251,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findHeadMapStream(Comparable arg1) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findHeadMapStream", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -269,7 +269,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findSubMapKVStream(Comparable arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findSubMapKVStream", arg1, arg2);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -278,7 +278,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findSubMapKVStream(Alias alias, Comparable from, Comparable to) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findSubMapKVStream", alias, from, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -341,7 +341,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findHeadMapKVStream(Comparable arg1) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findHeadMapKVStream", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -350,7 +350,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findHeadMapKVStream(Alias alias, Comparable to) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findHeadMapKVStream", alias, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -359,7 +359,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findTailMapKVStream(Comparable arg1) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findTailMapKVStream", arg1);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -368,7 +368,7 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	public Stream findTailMapKVStream(Alias alias, Comparable from) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement("findTailMapKVStream", alias, from);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStream((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
