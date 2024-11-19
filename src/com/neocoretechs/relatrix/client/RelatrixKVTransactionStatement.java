@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
-
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -33,23 +33,15 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
     
     public RelatrixKVTransactionStatement() { if(DEBUG)System.out.println("Default Constructor:"+this);}
     
-    public RelatrixKVTransactionStatement(String tmeth, TransactionId xid, Object ... o1) {
-    	super(tmeth, o1);
-    	this.xid = xid;
-    	if(DEBUG)
-    		System.out.println("Constructor:"+this);
-    }
-    public RelatrixKVTransactionStatement(String tmeth, Alias alias, TransactionId xid, Object ... o1) {
-    	super(tmeth, alias, o1);
-    	this.xid = xid;
-    	if(DEBUG)
-    		System.out.println("Constructor:"+this);
-    }
-    public RelatrixKVTransactionStatement(TransactionId xid, String session) {
-		super(session);
+	public RelatrixKVTransactionStatement(TransactionId xid, String session) {
 		this.xid = xid;
+		this.session = session;
 	}
-
+	
+	public RelatrixKVTransactionStatement(String tmeth, Object ... o1) {
+		super(tmeth, o1);
+	}
+	
 	public TransactionId getTransactionId() {
     	return xid;
     }

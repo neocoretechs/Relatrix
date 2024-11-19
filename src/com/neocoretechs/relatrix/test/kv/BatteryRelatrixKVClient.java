@@ -21,7 +21,7 @@ import com.neocoretechs.relatrix.client.RemoteKVIterator;
  * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
  * NOTES:
  * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer D:/etc/Relatrix/db/test DBMACHINE 9010 <p/>
- * would start the server on the machine called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
+ * would start the server on the node called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
  * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p/>
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  */

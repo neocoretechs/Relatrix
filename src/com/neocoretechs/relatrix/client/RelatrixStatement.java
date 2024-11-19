@@ -26,7 +26,7 @@ import com.neocoretechs.rocksack.iterator.EntrySetIterator;
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
-    private String session = null;
+    protected String session = null;
     protected Alias alias = null;
     protected String methodName;
     protected Object[] paramArray;
@@ -50,17 +50,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	this.paramArray = o1;
     	this.session = UUID.randomUUID().toString();
     }
-    /**
-     * Prep RelatrixStatement to send remote method call
-     */
-    public RelatrixStatement(Alias alias, String tmeth, Object ... o1) {
-    	this.methodName = tmeth;
-    	this.alias = alias;
-    	this.paramArray = o1;
-    	this.session = UUID.randomUUID().toString();
-    }
    
-
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
 	 */

@@ -328,12 +328,10 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		//RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
 		RelatrixKVTransactionStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
-		//rc.send(rs);
 		i = 0;
 		RelatrixKVClientTransaction rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
-		TransactionId xid = rc.getTransactionId();
+		TransactionId xid = null;
 		switch(args.length) {
 			case 4:
 				/*
@@ -342,29 +340,35 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 					System.out.println(++i+"="+((Map.Entry) (e)).getKey()+" / "+((Map.Entry) (e)).getValue());
 				});
 				*/
+				xid = rc.getTransactionId();
 				Iterator it = rc.entrySet(xid,Class.forName(args[3]));
 				it.forEachRemaining(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
-				System.exit(0);
+				rc.endTransaction(xid);
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4]);
+				xid = rc.getTransactionId();
+				rs = new RelatrixKVTransactionStatement(args[3],new Object[]{xid,args[4]});
 				break;
 			case 6:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5]);
+				xid = rc.getTransactionId();
+				rs = new RelatrixKVTransactionStatement(args[3],new Object[]{xid,args[4],args[5]});
 				break;
 			case 7:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				xid = rc.getTransactionId();
+				rs = new RelatrixKVTransactionStatement(args[3],new Object[]{xid,args[4],args[5],args[6]});
 				break;
 			case 8:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				xid = rc.getTransactionId();
+				rs = new RelatrixKVTransactionStatement(args[3],new Object[] {xid,args[4],args[5],args[6],args[7]});
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
 				return;
 		}
 		rc.sendCommand(rs);
+		rc.endTransaction(xid);
 		rc.close();
 	}
 

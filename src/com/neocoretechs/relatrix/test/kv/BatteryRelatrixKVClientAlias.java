@@ -7,6 +7,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.iterator.Entry;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
+import com.neocoretechs.relatrix.client.RemoteKVIterator;
 
 /**
  * Client side test of KV server database alias using {@link RelatrixKVClient}. Yes, this should be a nice JUnit fixture someday.
@@ -21,9 +22,11 @@ import com.neocoretechs.relatrix.client.RelatrixKVClient;
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
  * NOTES:
- * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer D:/etc/Relatrix/db/test DBMACHINE 9010 <p/>
- * would start the server on the machine called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
- * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p/>
+ * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer DBMACHINE 9010 <p/>
+ * would start the server on the node called DBMACHINE using port 9010. Note that no
+ * tablespace path is specified since we are going to specify the aliases via the client, hence when starting the
+ * client you would specify java com.neocoretechs.relatrix.text.kv.BatteryRelatrixKVClientAlias LOCALMACHINE DBMACHINE 9010 D:/etc/Relatrix/db
+ * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc. using local node LOCALMACHINE remote node DBMACHINE port 9010<p/>
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  */
 public class BatteryRelatrixKVClientAlias {
@@ -611,7 +614,7 @@ public class BatteryRelatrixKVClientAlias {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+fkey);
 			}
 		}
-		((RelatrixKVClient) its).close();
+		((RemoteKVIterator)its).close();
 		long siz = rkvc.size(alias12, String.class);
 		if(siz > 0) {
 			Iterator ets = rkvc.entrySet(alias12, String.class);
@@ -619,7 +622,7 @@ public class BatteryRelatrixKVClientAlias {
 				Object nex = ets.next();
 				System.out.println(nex);
 			}
-			((RelatrixKVClient) ets).close();
+			((RemoteKVIterator)ets).close();
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}

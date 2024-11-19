@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.client;
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
@@ -32,29 +33,16 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
     /**
     * Prep RelatrixStatement to send remote method call
     */
-    public RelatrixTransactionStatement(String tmeth, TransactionId xid, Object ... o1) {
-    	super(tmeth, o1);
-    	this.xid = xid;
-    	if(DEBUG)
-    		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
-    }
     /**
      * Prep RelatrixStatement to send remote method call
      */
-     public RelatrixTransactionStatement(String tmeth, Alias alias, TransactionId xid, Object ... o1) {
-     	super(alias, tmeth, o1);
-     	this.xid = xid;
-     	if(DEBUG)
-     		System.out.println(this.getClass().getName()+" Id:"+xid+" meth:"+tmeth+" o1:"+Arrays.toString(o1));
-     }
-     
-    public RelatrixTransactionStatement(TransactionId xid, String session) {
-		super(session);
+    public RelatrixTransactionStatement(String tmeth, Object ... o1) {
+    	super(tmeth, o1);
+    }
+    
+	public RelatrixTransactionStatement(TransactionId xid, String session) {
 		this.xid = xid;
-	}
-
-	public RelatrixTransactionStatement(String string, TransactionId arg1) {
-		// TODO Auto-generated constructor stub
+		this.session = session;
 	}
 
 	public TransactionId getTransactionId() {
