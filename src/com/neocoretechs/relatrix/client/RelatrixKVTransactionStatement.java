@@ -12,6 +12,7 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIteratorTransaction;
@@ -54,15 +55,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 			}
 		}
 	}
-	/*
-	public RelatrixKVTransactionStatement(String tmeth, TransactionId xid, Object ... o1) {
-		super(tmeth, new Object[]{xid, o1});
-	}
-	
-	public RelatrixKVTransactionStatement(String tmeth, Alias alias, TransactionId xid, Object ... o1) {
-		super(tmeth, new Object[]{alias, xid, o1});
-	}
-	*/
+
 	public TransactionId getTransactionId() {
     	return xid;
     }
@@ -135,7 +128,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 									setObjectReturn( new RemoteHeadMapIteratorTransaction(xid, getSession()) );
 								} else {
 									if( result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
-										setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
+										setObjectReturn( new RemoteEntrySetKVIteratorTransaction(xid, getSession()) );
 									} else {
 										if( result.getClass() == com.neocoretechs.rocksack.iterator.KeySetIterator.class) {
 											setObjectReturn( new RemoteKeySetIteratorTransaction(xid, getSession()) );

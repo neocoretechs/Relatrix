@@ -34,8 +34,8 @@ public class RemoteKVIteratorTransaction extends RelatrixKVTransactionStatement 
 		super(xid, session);
 	}
 	
-	public void setClient(RelatrixKVClientTransaction client) {
-		this.relatrixClient = client;
+	public void setClient(ClientInterface client) {
+		this.relatrixClient = (RelatrixKVClientTransaction) client;
 	}
 	
 	@Override

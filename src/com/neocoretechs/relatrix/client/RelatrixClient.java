@@ -44,7 +44,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runnable {
+public class RelatrixClient extends RelatrixClientInterfaceImpl implements ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
@@ -148,8 +148,8 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Runna
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
-					if(o instanceof RemoteIterator)
-						((RemoteIterator)o).setClient(this);
+					if(o instanceof Iterator)
+						((RemoteObjectInterface)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

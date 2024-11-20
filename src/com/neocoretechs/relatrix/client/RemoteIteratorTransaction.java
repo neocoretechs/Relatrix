@@ -34,8 +34,8 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 		super(xid, session);
 	}
 	
-	public void setClient(RelatrixClientTransaction client) {
-		this.relatrixClient = client;
+	public void setClient(ClientInterface client) {
+		this.relatrixClient = (RelatrixClientTransaction) client;
 	}
 	
 	@Override

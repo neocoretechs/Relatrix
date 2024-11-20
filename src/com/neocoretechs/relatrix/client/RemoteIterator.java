@@ -34,8 +34,8 @@ public class RemoteIterator extends RelatrixStatement implements RemoteObjectInt
 		super(session);
 	}
 	
-	public void setClient(RelatrixClient client) {
-		this.relatrixClient = client;
+	public void setClient(ClientInterface client) {
+		this.relatrixClient = (RelatrixClient) client;
 	}
 	
 	@Override

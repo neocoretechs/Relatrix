@@ -33,8 +33,8 @@ public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjec
 		super(session);
 	}
 	
-	public void setClient(RelatrixKVClient client) {
-		this.relatrixKVClient = client;
+	public void setClient(ClientInterface client) {
+		this.relatrixKVClient = (RelatrixKVClient) client;
 	}
 	
 	@Override

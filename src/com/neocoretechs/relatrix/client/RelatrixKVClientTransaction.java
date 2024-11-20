@@ -40,7 +40,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInterfaceImpl implements Runnable {
+public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInterfaceImpl implements ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
@@ -154,8 +154,8 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
-					if(o instanceof RemoteKVIteratorTransaction)
-						((RemoteKVIteratorTransaction)o).setClient(this);
+					if(o instanceof Iterator)
+						((RemoteObjectInterface)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

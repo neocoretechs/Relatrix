@@ -13,6 +13,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadSetIteratorTran
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteSetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -104,13 +105,9 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 							setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
 						} else {
 							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
-								setObjectReturn( new RemoteSubMapKVIteratorTransaction(xid, getSession()) );
+								setObjectReturn( new RemoteTailSetIteratorTransaction(xid, getSession()) );
 							} else {
-								if(result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
-									setObjectReturn( new RemoteEntrySetKVIteratorTransaction(xid, getSession()) );
-								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-								}
 							}
 						}
 					}

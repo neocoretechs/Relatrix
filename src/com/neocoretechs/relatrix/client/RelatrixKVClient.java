@@ -41,7 +41,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements Runnable {
+public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
@@ -159,8 +159,8 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements R
 				} else {
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
-					if(o instanceof RemoteKVIterator)
-						((RemoteKVIterator)o).setClient(this);
+					if(o instanceof Iterator)
+						((RemoteObjectInterface)o).setClient(this);
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
 					rs.getCountDownLatch().countDown();

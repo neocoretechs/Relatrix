@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 
-public interface RelatrixClientTransactionInterface{
+public interface RelatrixClientTransactionInterface {
 
 	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException,java.lang.IllegalAccessException,java.util.NoSuchElementException;
 

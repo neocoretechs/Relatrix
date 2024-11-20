@@ -12,7 +12,7 @@ import java.util.List;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 
-public interface RelatrixClientInterface{
+public interface RelatrixClientInterface {
 
 	public void loadClassFromPath(String clazz,String pack) throws java.io.IOException;
 

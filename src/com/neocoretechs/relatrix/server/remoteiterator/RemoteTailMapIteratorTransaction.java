@@ -1,6 +1,6 @@
 package com.neocoretechs.relatrix.server.remoteiterator;
 
-import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
+import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -8,7 +8,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailMapIteratorTransaction extends RemoteIteratorTransaction{
+public class RemoteTailMapIteratorTransaction extends RemoteKVIteratorTransaction{
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteTailMapIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);

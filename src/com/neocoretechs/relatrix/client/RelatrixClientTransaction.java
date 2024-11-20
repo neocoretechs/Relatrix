@@ -49,7 +49,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements Runnable {
+public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements ClientInterface,Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
@@ -150,8 +150,8 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
-					if(o instanceof RemoteIteratorTransaction)
-						((RemoteIteratorTransaction)o).setClient(this);
+					if(o instanceof Iterator)
+						((RemoteObjectInterface)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);
