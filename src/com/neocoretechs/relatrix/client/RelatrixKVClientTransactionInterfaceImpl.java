@@ -1,10 +1,8 @@
 package com.neocoretechs.relatrix.client;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -106,7 +104,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findHeadMapStream(Alias alias, TransactionId transactionId, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapStream", alias, transactionId, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -115,7 +113,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findHeadMapStream(TransactionId transactionId, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapStream", transactionId, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -196,7 +194,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream keySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySetStream", transactionId, clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -205,7 +203,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream keySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("keySetStream", alias, transactionId, clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -214,7 +212,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findSubMapKVStream(Alias alias, TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKVStream", alias, transactionId, from, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -223,7 +221,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findSubMapKVStream(TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapKVStream", transactionId, from, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -232,7 +230,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findTailMapStream(Alias alias, TransactionId transactionId, Comparable from) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapStream", alias, transactionId, from);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -241,7 +239,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findTailMapStream(TransactionId transactionId, Comparable from) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapStream", transactionId, from);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -250,7 +248,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findSubMapStream(Alias alias, TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapStream", alias, transactionId, from, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -259,7 +257,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findSubMapStream(TransactionId transactionId, Comparable from, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findSubMapStream", transactionId, from, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -376,7 +374,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findTailMapKVStream(Alias alias, TransactionId transactionId, Comparable from) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKVStream", alias, transactionId, from);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -385,7 +383,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findTailMapKVStream(TransactionId transactionId, Comparable from) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findTailMapKVStream", transactionId, from);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -411,7 +409,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findHeadMapKVStream(Alias alias, TransactionId transactionId, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKVStream", alias, transactionId, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -420,7 +418,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream findHeadMapKVStream(TransactionId transactionId, Comparable to) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("findHeadMapKVStream", transactionId, to);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -464,7 +462,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySetStream", transactionId, clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}
@@ -473,7 +471,7 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("entrySetStream", alias, transactionId, clazz);
 		try {
-			return (Stream)sendCommand(s);
+			return (new RemoteStreamTransaction((Iterator)sendCommand(s)));
 		} catch(Exception e) {
 				throw new java.io.IOException(e);
 		}

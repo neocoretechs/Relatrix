@@ -7,7 +7,6 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteObjectInterface;
 
 /**
  * Client side test of transaction KV server using {@link RelatrixKVClientTransaction}. Yes, this should be a nice JUnit fixture someday.
@@ -69,7 +68,7 @@ public class BatteryRelatrixKVClientTransaction {
 	/**
 	 * Check the size of test database, if non zero, proceed to delete existing data.
 	 * Loads up db for String.class on keys from min to max-1
-	 * @param argv
+	 * @param xid
 	 * @throws Exception
 	 */
 	public static void battery1(TransactionId xid) throws Exception {
@@ -220,7 +219,6 @@ public class BatteryRelatrixKVClientTransaction {
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * 
 	 * Testing of firstKey(), and firstValue()
 	 * @param xid
 	 * @throws Exception

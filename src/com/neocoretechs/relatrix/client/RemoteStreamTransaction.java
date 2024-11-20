@@ -1,5 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
+import java.util.Iterator;
+
 import com.neocoretechs.relatrix.stream.StreamHelper;
 
 /**
@@ -14,7 +16,7 @@ public class RemoteStreamTransaction<T> extends RemoteStream<T> {
 	private static boolean DEBUG = false;
 	String xid;
 
-	public RemoteStreamTransaction(RemoteIteratorTransaction it) {
+	public RemoteStreamTransaction(Iterator it) {
 		stream = new StreamHelper<T>(it);
 	}
 	

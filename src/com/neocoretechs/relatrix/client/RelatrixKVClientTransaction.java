@@ -25,7 +25,8 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
+ * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
+ * Worker threads located on a remote node.<p/>
  * On the client and server the following are present as conventions:<br/>
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
  * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
@@ -33,7 +34,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the RelatrixServer. The client contacts the boot time server port, the desired database
+ * which is on the RelatrixKVTransactionServer. The client contacts the boot time server port, the desired database
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
