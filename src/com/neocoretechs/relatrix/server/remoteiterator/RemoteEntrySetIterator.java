@@ -10,7 +10,6 @@ public class RemoteEntrySetIterator extends RemoteIterator {
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteEntrySetIterator(String session) {
 		super(session);
-		paramArray = new Object[0];
 	}
 	
 	@Override

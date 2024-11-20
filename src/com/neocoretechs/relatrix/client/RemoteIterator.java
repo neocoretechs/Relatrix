@@ -24,6 +24,7 @@ public class RemoteIterator extends RelatrixStatement implements RemoteObjectInt
 	 * @param relatrixClient
 	 */
 	public RemoteIterator(RelatrixClient relatrixClient) {
+		super();
 		this.relatrixClient = relatrixClient;
 	}
 	/**
@@ -56,9 +57,6 @@ public class RemoteIterator extends RelatrixStatement implements RemoteObjectInt
 		}
 	}
 
-	@Override
-	public void close() {
-		relatrixClient.close();	
-	}
+
 
 }

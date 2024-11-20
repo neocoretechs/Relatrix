@@ -270,17 +270,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		sendCommand(rs);
 	}
 	
-
-	/**
-	 * Issue a close which will merely remove the request resident object here and on the server
-	 * @param rii
-	 * @throws Exception 
-	 */
-	public void close(RemoteObjectInterface rii) throws Exception {
-		((RelatrixStatement)rii).methodName = "close";
-		((RelatrixStatement)rii).paramArray = new Object[0];
-		sendCommand((RelatrixStatement) rii);
-	}
 	/**
 	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
 	 * @param bootNode local MASTER node name to connect back to

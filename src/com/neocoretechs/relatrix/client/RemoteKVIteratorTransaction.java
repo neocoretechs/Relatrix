@@ -24,6 +24,7 @@ public class RemoteKVIteratorTransaction extends RelatrixKVTransactionStatement 
 	 * @param relatrixClient
 	 */
 	public RemoteKVIteratorTransaction(RelatrixKVClientTransaction relatrixClient) {
+		super();
 		this.relatrixClient = relatrixClient;
 	}
 	/**
@@ -56,9 +57,5 @@ public class RemoteKVIteratorTransaction extends RelatrixKVTransactionStatement 
 		}
 	}
 
-	@Override
-	public void close() {
-		relatrixClient.close();	
-	}
 
 }

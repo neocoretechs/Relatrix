@@ -12,8 +12,6 @@ public class RemoteKeySetIteratorTransaction extends RemoteKVIteratorTransaction
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteKeySetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
-		paramArray = new Object[0];
-	
 	}
 	
 	@Override

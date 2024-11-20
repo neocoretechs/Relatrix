@@ -7,7 +7,7 @@ import com.neocoretechs.rocksack.Alias;
 import java.util.Iterator;
 
 
-public interface RelatrixKVClientInterface{
+public interface RelatrixKVClientInterface {
 
 	public Object lastValue(Alias alias, Class clazz) throws java.io.IOException;
 

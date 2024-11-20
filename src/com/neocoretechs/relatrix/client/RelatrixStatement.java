@@ -37,10 +37,12 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     
     public RelatrixStatement() {
    		session = UUID.randomUUID().toString();
+   		this.paramArray = new Object[0];
     }
     
     public RelatrixStatement(String session) {
     	this.session = session;
+    	this.paramArray = new Object[0];
     }
     /**
      * Prep RelatrixStatement to send remote method call

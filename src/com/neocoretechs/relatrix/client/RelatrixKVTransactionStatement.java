@@ -2,16 +2,13 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
-import java.util.UUID;
-import java.util.stream.Stream;
+
 
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
+
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIteratorTransaction;
@@ -23,7 +20,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIteratorTr
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
- * The following class allows the transport of RelatrixKV method calls to the server using a ransaction context.
+ * The following class allows the transport of method calls to the server {@link RelatrixKVTransactionServer} using a transaction context.
  * @author Jonathan Groff (C) neoCoreTechs 2022
  *
  */
@@ -32,11 +29,15 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 	private static boolean DEBUG = false;
     protected TransactionId xid;
     
-    public RelatrixKVTransactionStatement() { if(DEBUG)System.out.println("Default Constructor:"+this);}
+    public RelatrixKVTransactionStatement() {
+    	super();
+    	if(DEBUG)
+    		System.out.println("Default Constructor:"+this);
+    }
     
 	public RelatrixKVTransactionStatement(TransactionId xid, String session) {
+		super(session);
 		this.xid = xid;
-		this.session = session;
 	}
 	
 	public RelatrixKVTransactionStatement(String tmeth, Object ... o1) {

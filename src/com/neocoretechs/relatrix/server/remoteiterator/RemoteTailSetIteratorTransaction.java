@@ -12,7 +12,6 @@ public class RemoteTailSetIteratorTransaction extends RemoteIteratorTransaction 
 	private static final long serialVersionUID = -7652502684740120088L;
 	public RemoteTailSetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
-		paramArray = new Object[0];
 	}
 	
 	@Override

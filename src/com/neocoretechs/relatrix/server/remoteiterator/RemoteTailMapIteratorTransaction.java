@@ -8,12 +8,10 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteTailMapIteratorTransaction extends RemoteKVIteratorTransaction{
+public class RemoteTailMapIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteTailMapIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
-		paramArray = new Object[0];
-
 	}
 	
 	@Override

@@ -504,7 +504,6 @@ public class BatteryRelatrixKVClientTransactionAlias {
 				timx = System.currentTimeMillis();
 			}
 		}
-		its.close();
 		long siz = rkvc.size(alias12, xid2, String.class);
 		if(siz > 0) {
 			Iterator itt = rkvc.entrySet(alias12, xid2, String.class);
@@ -512,7 +511,6 @@ public class BatteryRelatrixKVClientTransactionAlias {
 				Object nex = itt.next();
 				System.out.println(nex);
 			}
-			((RemoteIteratorTransaction)itt).close();
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}

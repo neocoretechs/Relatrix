@@ -24,6 +24,7 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 	 * @param relatrixClient
 	 */
 	public RemoteIteratorTransaction(RelatrixClientTransaction relatrixClient) {
+		super();
 		this.relatrixClient = relatrixClient;
 	}
 	/**
@@ -56,9 +57,5 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 		}
 	}
 
-	@Override
-	public void close() {
-		relatrixClient.close();	
-	}
 
 }

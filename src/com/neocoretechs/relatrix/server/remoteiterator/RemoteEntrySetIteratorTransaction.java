@@ -13,9 +13,6 @@ public class RemoteEntrySetIteratorTransaction extends RemoteIteratorTransaction
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteEntrySetIteratorTransaction(TransactionId xid, String session) {
 		super(xid,session);
-		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
 		if(DEBUG)
 			System.out.println(this);
 	}

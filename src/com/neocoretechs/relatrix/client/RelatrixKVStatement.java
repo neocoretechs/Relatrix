@@ -39,11 +39,13 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     
     public RelatrixKVStatement() {
    		session = UUID.randomUUID().toString();
+   		this.paramArray = new Object[0];
     	if(DEBUG)System.out.println("Default Constructor:"+this);
     }
     
     public RelatrixKVStatement(String session) {
     	this.session = session;
+ 		this.paramArray = new Object[0];
     }
     /**
      * Prep RelatrixStatement to send remote method call

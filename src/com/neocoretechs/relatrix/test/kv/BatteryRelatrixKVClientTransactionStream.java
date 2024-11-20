@@ -441,7 +441,6 @@ public class BatteryRelatrixKVClientTransactionStream {
 				timx = System.currentTimeMillis();
 			}
 		}
-		its.close();
 		rkvc.commit(xid2);
 		long siz = rkvc.size(xid2, String.class);
 		i = 0;

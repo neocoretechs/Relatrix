@@ -55,10 +55,5 @@ public class RemoteKVIterator extends RelatrixKVStatement implements RemoteObjec
 		}
 	}
 
-	@Override
-	public void close() {
-		//TODO:remove iterator, dont close client.
-		//relatrixClient.close();	
-	}
 
 }

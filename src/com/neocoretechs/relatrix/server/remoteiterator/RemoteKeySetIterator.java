@@ -11,7 +11,6 @@ public class RemoteKeySetIterator extends RemoteKVIterator {
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteKeySetIterator(String session) {
 		super(session);
-		paramArray = new Object[0];
 	}
 	
 	@Override

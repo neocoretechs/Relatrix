@@ -19,7 +19,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * The following class allows the transport of transaction Relatrix method calls to the server.
+ * The following class allows the transport of transaction method calls to the server {@link RelatrixTransactionServer}.
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
  */
@@ -29,21 +29,17 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
     protected TransactionId xid;
     String alias = null;
     
-    public RelatrixTransactionStatement() {}
+    public RelatrixTransactionStatement() {
+    	super();
+    }
     
-    /**
-    * Prep RelatrixStatement to send remote method call
-    */
-    /**
-     * Prep RelatrixStatement to send remote method call
-     */
     public RelatrixTransactionStatement(String tmeth, Object ... o1) {
     	super(tmeth, o1);
     }
     
 	public RelatrixTransactionStatement(TransactionId xid, String session) {
+		super(session);
 		this.xid = xid;
-		this.session = session;
 	}
 
 	public TransactionId getTransactionId() {

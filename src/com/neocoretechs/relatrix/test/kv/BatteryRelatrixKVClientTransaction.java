@@ -7,7 +7,7 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
+import com.neocoretechs.relatrix.client.RemoteObjectInterface;
 
 /**
  * Client side test of transaction KV server using {@link RelatrixKVClientTransaction}. Yes, this should be a nice JUnit fixture someday.
@@ -447,7 +447,6 @@ public class BatteryRelatrixKVClientTransaction {
 				timx = System.currentTimeMillis();
 			}
 		}
-		((RemoteIteratorTransaction)its).close();
 		rkvc.commit(xid2);
 		long siz = rkvc.size(xid2, String.class);
 		if(siz > 0) {
@@ -456,7 +455,6 @@ public class BatteryRelatrixKVClientTransaction {
 				Object nex = itt.next();
 				System.out.println(nex);
 			}
-			((RemoteIteratorTransaction)itt).close();
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}

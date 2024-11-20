@@ -12,7 +12,6 @@ public class RemoteSubSetIterator extends RemoteIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
 	public RemoteSubSetIterator(String session) {
 		super(session);
-		paramArray = new Object[0];
 	}
 
 	@Override

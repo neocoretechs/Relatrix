@@ -11,7 +11,6 @@ public class RemoteHeadMapIterator extends RemoteKVIterator {
 	private static final long serialVersionUID = -6767314283313398274L;
 	public RemoteHeadMapIterator(String session) {
 		super(session);
-		paramArray = new Object[0];
 	}
 	
 	@Override

@@ -431,7 +431,6 @@ public class BatteryRelatrixKVClientStream {
 				timx = System.currentTimeMillis();
 			}
 		});
-		((RemoteKVIterator)its).close();
 		long siz = rkvc.size(String.class);
 		if(siz > 0) {
 				Stream stream = rkvc.entrySetStream(String.class);

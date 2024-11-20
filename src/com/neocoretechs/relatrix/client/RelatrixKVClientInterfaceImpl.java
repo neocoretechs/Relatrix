@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 
-public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientInterface{
+public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientInterface {
 
 	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	

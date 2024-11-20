@@ -13,9 +13,6 @@ public class RemoteEntrySetKVIteratorTransaction extends RemoteKVIteratorTransac
 	private static final long serialVersionUID = 1206621317830948409L;
 	public RemoteEntrySetKVIteratorTransaction(TransactionId xid, String session) {
 		super(xid,session);
-		paramArray = new Object[0];
-		setSession(session);
-		this.xid = xid;
 		if(DEBUG)
 			System.out.println(this);
 	}
