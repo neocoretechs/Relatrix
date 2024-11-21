@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteKVIterator;
 
 import com.neocoretechs.rocksack.Alias;
 

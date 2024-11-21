@@ -134,7 +134,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream =  rkvc.entrySetStream(xid,String.class);
-		System.out.println("KV Battery1AR6 entrySetStream in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV Battery1AR6 entrySetStream took "+(System.currentTimeMillis()-tims)+" ms.");
 		stream.forEach(e ->{
 			if(((Map.Entry<String,Long>)e).getValue() != i) {
 				System.out.println("RANGE KEY MISMATCH:"+i+" - "+e);
@@ -157,7 +157,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream = rkvc.keySetStream(xid, String.class);
-		System.out.println("KV Battery1AR7 keySetStream"+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("KV Battery1AR7 keySetStream took "+(System.currentTimeMillis()-tims)+" ms.");
 		stream.forEach(e ->{
 			if(Integer.parseInt((String)e) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+e);
