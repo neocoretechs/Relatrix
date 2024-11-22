@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,8 +26,33 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 
 /**
- * Process the apache log files and place in a Relatrix database
- * @author jg
+ * Process the apache log files and place in a Relatrix database.
+ * Store the relationship (accessLogEntryEpoch,"accessed by",remoteHost) and use this relationship
+ * as the domain of the remainder of the log entry data.<p/>
+ * Comparable rel = Relatrix.store(accessLogEntryEpoch,"accessed by",remoteHost);<br/>
+ * Relatrix.store(rel, "remote user", remoteUser); // unreliable info field remoteUser<br/>
+ * Relatrix.transactionalStore(rel, "access time",accessLogEntryEpoch);<br/>
+ * Relatrix.store(rel, "client request",clientRequest);<br/>
+ * Relatrix.store(rel, "http status",httpStatusCode);<br/>
+ * Relatrix.store(rel, "bytes returned",numBytes);<br/>
+ * Relatrix.store(rel, "referer",referer);<br/>
+ * Relatrix.store(rel, "user agent",userAgent);<br/>
+ * Relatrix.store(rel, "OS",Os);<br/>
+ * Relatrix.store(rel,"OS Ver.",OsVer);<br/>
+ * You could then use something like :<dd/>
+ * Iterator it = Relatrix.findSet("*","accessed by","*");<br>
+ * it.forEachRemaining(e->{<br/>
+ *			Iterator it2 = null;<br/>
+ *			try {<br/>
+ *				it2 = Relatrix.findSet((Comparable)e,"?","?");<br/>
+ *			} catch (Exception e1) {<br/>
+ *				e1.printStackTrace();<br/>
+ *			} <br/>
+ *			it2.forEachRemaining(e2->{<br/>
+ *				System.out.println(e2);<br/>
+ *			});<br/>
+ *		});<br/>
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2024
  *
  */
 public class ApacheLog {
@@ -160,20 +186,34 @@ public class ApacheLog {
 		if(!accessLogEntryMatcher.matches()) {
 			System.out.println("Can't parse:"+line );
 			throw new ParseException(line +" : couldn't be parsed", 0);
-			//continue;
-		}
-		else
-		{
+		} else {
 			remoteHost = accessLogEntryMatcher.group(1);
+			if(DEBUG)
+				System.out.println("Got host:"+remoteHost);
 			remoteUser = accessLogEntryMatcher.group(2); // unreliable info in this field
+			if(DEBUG)
+				System.out.println("Got user:"+remoteUser);
 			requestTime=accessLogEntryMatcher.group(4);
+			if(DEBUG)
+				System.out.println("Got request time:"+requestTime);
 			accessLogEntryEpoch = (accesslogDateFormat.parse(requestTime)).getTime();
-			//System.out.println("Got time:"+accessLogEntryEpoch);
+			if(DEBUG)
+				System.out.println("Got epoch:"+accessLogEntryEpoch);
 			clientRequest = (String)accessLogEntryMatcher.group(5);
+			if(DEBUG)
+				System.out.println("Got client:"+clientRequest);
 			httpStatusCode = accessLogEntryMatcher.group(6);
+			if(DEBUG)
+				System.out.println("Got http stat:"+httpStatusCode);
 			numBytes = accessLogEntryMatcher.group(7);
+			if(DEBUG)
+				System.out.println("Got numBytes:"+numBytes);
 			referer = accessLogEntryMatcher.group(9);
+			if(DEBUG)
+				System.out.println("Got referer:"+referer);
 			String userAgents[] = accessLogEntryMatcher.group(11).split(" ");
+			if(DEBUG)
+				System.out.println("Got userAgents:"+Arrays.toString(userAgents));
 			userAgent = userAgents[0];
 			if( userAgents.length > 1)
 				Os = userAgents[1].replace("(".subSequence(0,1), "".subSequence(0, 0));
@@ -183,8 +223,8 @@ public class ApacheLog {
 				OsVer = userAgents[2];
 			else
 				OsVer = "N/A";
-			System.out.println(toString());
 			++totalRecords;
+			System.out.println(totalRecords+".) "+toString());
 			//	System.out.println("" + index + " : " +(remoteUser.split(" "))[1]);
 			//	for(index = 0; index < accessLogEntryMatcher.groupCount(); index++) {
 			//	System.out.println("Line num : " + index + " " +
@@ -197,15 +237,60 @@ public class ApacheLog {
 		return "Remote host:"+remoteHost+" Remote user:"+remoteUser+" Request time:"+accessLogEntryEpoch+" Client Request:"+clientRequest+
 				" Status:"+httpStatusCode+" Referer:"+referer+" User Agent:"+userAgent+" Os:"+Os+" ver:"+OsVer;
 	}
+	
+	/**
+	 * usage java com.neocoretechs.relatrix.test.ApacheLog <tablespace dir> [log file dir]
+	 * Option is to use a directory of log files or a sample test set of canned hardcoded lines. Omit directory to use test lines.
+	 * @param args
+	 * @throws ParseException
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
 	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException, ClassNotFoundException {
 		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
 		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
 		lin += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
-		DatabaseManager.setTableSpaceDir("C:/users/jg/Relatrix/logs");
+		
+		String lin2 = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:20:01 -0400] ";
+		lin2 += "\"GET /faticon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/hummus.html\" ";
+		lin2 += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
+		
+		String lin3 = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:25:21 -0400] ";
+		lin3 += "\"GET /flabicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/falafel.html\" ";
+		lin3 += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
+		
+		// get either the test line or a directory of log files
 		ApacheLog alfoo = new ApacheLog();
-		//alfoo.readAndProcess(lin);
-		alfoo.getFiles(args[0]);
-
+		if(args.length == 2) {
+			DatabaseManager.setTableSpaceDir(args[0]);
+			alfoo.getFiles(args[1]);
+		} else {
+			if(args.length == 1) {
+				DatabaseManager.setTableSpaceDir(args[0]);
+				alfoo.readAndProcess(lin);
+				alfoo.readAndProcess(lin2);
+				alfoo.readAndProcess(lin3);
+			} else {
+				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <tablespace dir> [log file dir]");
+			}	
+		}
+		System.out.println("Stored..now retrieving stored data:");
+		// now display the results processed by the input
+		Iterator it = Relatrix.findSet("*","accessed by","*");
+		it.forEachRemaining(e->{
+			System.out.println("Primary relation:"+e);
+			Iterator it2 = null;
+			try {
+				it2 = Relatrix.findSet((Comparable)e,"?","?");
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			} 
+			it2.forEachRemaining(e2->{
+				System.out.println(e2);
+			});
+		});
+		System.out.println("End of stored data.");
 	}
 
 }
