@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 import com.neocoretechs.rocksack.TransactionId;
@@ -122,8 +121,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 	}
 	
 	/**
-	 * Test the higher level functions in the RelatrixKVTransaction.
-	 * public Set<Map.Entry<K,V>> entrySetStream()
+	 * entrySetStream()
 	 * Returns a Set view of the mappings contained in this map. 
 	 * The set's stream returns the entries in ascending key order. 
 	 * from battery1 we should have min to max-1 keys
