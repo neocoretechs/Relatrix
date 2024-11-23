@@ -16,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -24,6 +25,7 @@ import java.util.zip.ZipInputStream;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.Result;
 
 /**
  * Process the apache log files and place in a Relatrix database.
@@ -74,6 +76,8 @@ public class ApacheLog {
 	static String OsVer = null;
 	
 	private int totalRecords = 0;
+	static int cnt, cnt2 = 0;
+	static Result result;
 
 	SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateForm);
 	Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(),Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -284,17 +288,25 @@ public class ApacheLog {
 		System.out.println("Stored..now retrieving stored data:");
 		// now display the results processed by the input
 		//Iterator it = Relatrix.findSet("*","accessed by","*");
+
+		// Find all identity relationships
 		Iterator it = Relatrix.findSet("*","*","*");
 		it.forEachRemaining(e->{
-			System.out.println("Primary relation:"+e);
+			System.out.println(++cnt+".) Primary relation:"+e);
 			Iterator it2 = null;
+			// findSet returns Result as the lambda, which contians components of the relationships
+			result = (Result) e;
+			// use the identity as the first element to retrieve related elements
 			try {
-				it2 = Relatrix.findSet((Comparable)e,"?","?");
+				it2 = Relatrix.findSet(result.get(),"?","?");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} 
+			// If there are any elements related to the identity, display them
+			cnt2 = 0;
 			it2.forEachRemaining(e2->{
-				System.out.println("primary has:"+e2);
+				List<?> l = Relatrix.resolve(result.get());
+				System.out.println(++cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
 			});
 		});
 		System.out.println("End of stored data.");
