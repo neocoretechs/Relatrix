@@ -58,23 +58,20 @@ import com.neocoretechs.relatrix.Relatrix;
 public class ApacheLog {
 	private static final String dateForm = "dd/MMM/yyyy:HH:mm:ss Z";
 	boolean DEBUG = false;
-
 	/*Log file fields*/
-	String remoteHost = null;
+	static String remoteHost = null;
 	String shouldBDash = null;
 	String requestTime = null;
+	static Long accessLogEntryEpoch;
 	String requestMethodUrl = null;
-	String remoteUser = null;
-	String clientRequest = null;
-	String httpStatusCode = null;
-	String numBytes = null;
-	String referer = null;
-	String userAgent = null;
-	
-	String Os = null;
-	String OsVer = null;
-
-	private long accessLogEntryEpoch;
+	static String remoteUser = null;
+	static String clientRequest = null;
+	static Integer httpStatusCode = null;
+	static Integer numBytes = null;
+	static String referer = null;
+	static String userAgent = null;
+	static String Os = null;
+	static String OsVer = null;
 	
 	private int totalRecords = 0;
 
@@ -160,25 +157,30 @@ public class ApacheLog {
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess(line);
-				Comparable rel = Relatrix.store(accessLogEntryEpoch,"accessed by",remoteHost);
-				Relatrix.store(rel, "remote user", remoteUser); // unreliable info field remoteUser
-				//Relatrix.transactionalStore(rel, "access time",accessLogEntryEpoch);
-				Relatrix.store(rel, "client request",clientRequest);
-				Relatrix.store(rel, "http status",httpStatusCode);
-				Relatrix.store(rel, "bytes returned",numBytes);
-				Relatrix.store(rel, "referer",referer);
-				Relatrix.store(rel, "user agent",userAgent);
-				Relatrix.store(rel, "OS",Os);
-				Relatrix.store(rel,"OS Ver.",OsVer);
-			} catch(ParseException pe) { //its in chinese
-				
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
+				storeRelatrix();
+			} catch(ParseException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
 		br.close();
 	}
+	
+	private static void storeRelatrix() throws IllegalAccessException, ClassNotFoundException, IOException {
+		try {
+			Comparable rel = Relatrix.store(accessLogEntryEpoch,"accessed by",remoteHost);
+			Relatrix.store(rel, "remote user", remoteUser);
+			// unreliable info field remoteUser
+			Relatrix.store(rel, "access time",accessLogEntryEpoch);
+			Relatrix.store(rel, "client request",clientRequest);
+			Relatrix.store(rel, "http status",httpStatusCode);
+			Relatrix.store(rel, "bytes returned",numBytes);
+			Relatrix.store(rel, "referer",referer);
+			Relatrix.store(rel, "user agent",userAgent);
+			Relatrix.store(rel, "OS",Os);
+			Relatrix.store(rel,"OS Ver.",OsVer);
+		} catch (DuplicateKeyException e) {}
+	}
+	
 	public void readAndProcess(String line) throws ParseException {
 		//int index = 0;
 
@@ -193,7 +195,7 @@ public class ApacheLog {
 			remoteUser = accessLogEntryMatcher.group(2); // unreliable info in this field
 			if(DEBUG)
 				System.out.println("Got user:"+remoteUser);
-			requestTime=accessLogEntryMatcher.group(4);
+			requestTime= accessLogEntryMatcher.group(4);
 			if(DEBUG)
 				System.out.println("Got request time:"+requestTime);
 			accessLogEntryEpoch = (accesslogDateFormat.parse(requestTime)).getTime();
@@ -202,10 +204,10 @@ public class ApacheLog {
 			clientRequest = (String)accessLogEntryMatcher.group(5);
 			if(DEBUG)
 				System.out.println("Got client:"+clientRequest);
-			httpStatusCode = accessLogEntryMatcher.group(6);
+			httpStatusCode = Integer.parseInt(accessLogEntryMatcher.group(6));
 			if(DEBUG)
 				System.out.println("Got http stat:"+httpStatusCode);
-			numBytes = accessLogEntryMatcher.group(7);
+			numBytes = Integer.parseInt(accessLogEntryMatcher.group(7));
 			if(DEBUG)
 				System.out.println("Got numBytes:"+numBytes);
 			referer = accessLogEntryMatcher.group(9);
@@ -246,6 +248,7 @@ public class ApacheLog {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
+	 * @throws DuplicateKeyException 
 	 */
 	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException, ClassNotFoundException {
 		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
@@ -269,15 +272,19 @@ public class ApacheLog {
 			if(args.length == 1) {
 				DatabaseManager.setTableSpaceDir(args[0]);
 				alfoo.readAndProcess(lin);
+				storeRelatrix();
 				alfoo.readAndProcess(lin2);
+				storeRelatrix();
 				alfoo.readAndProcess(lin3);
+				storeRelatrix();
 			} else {
 				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <tablespace dir> [log file dir]");
 			}	
 		}
 		System.out.println("Stored..now retrieving stored data:");
 		// now display the results processed by the input
-		Iterator it = Relatrix.findSet("*","accessed by","*");
+		//Iterator it = Relatrix.findSet("*","accessed by","*");
+		Iterator it = Relatrix.findSet("*","*","*");
 		it.forEachRemaining(e->{
 			System.out.println("Primary relation:"+e);
 			Iterator it2 = null;
@@ -287,7 +294,7 @@ public class ApacheLog {
 				e1.printStackTrace();
 			} 
 			it2.forEachRemaining(e2->{
-				System.out.println(e2);
+				System.out.println("primary has:"+e2);
 			});
 		});
 		System.out.println("End of stored data.");
