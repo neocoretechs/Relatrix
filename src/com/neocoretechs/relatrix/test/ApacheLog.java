@@ -46,14 +46,13 @@ import com.neocoretechs.relatrix.Result;
  * it.forEachRemaining(e->{<br/>
  *			Iterator it2 = null;<br/>
  *			try {<br/>
- *				it2 = Relatrix.findSet((Comparable)e,"?","?");<br/>
+ *				it2 = Relatrix.findSet(((Result)e).get(),"?","?");<br/>
  *			} catch (Exception e1) {<br/>
  *				e1.printStackTrace();<br/>
  *			} <br/>
- *			it2.forEachRemaining(e2->{<br/>
- *				System.out.println(e2);<br/>
- *			});<br/>
+ *			it2.forEachRemaining(System.out::println);<br/>
  *		});<br/>
+ * This allows us to select sets of primary relationships, then subsets of related data.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2024
  *
  */
@@ -84,7 +83,7 @@ public class ApacheLog {
 	Matcher accessLogEntryMatcher;
 	/**
 	* Structures Apache combined access log
-	*@return regex
+	* @return regex string
 	*/
 	private String getAccessLogRegex() {
 		String clientHost = "^([\\d.]+)"; // Client IP, remote host
@@ -98,6 +97,14 @@ public class ApacheLog {
 		String agent = " \"([^\"]+|(.+?))\""; // Agent
 		return clientHost+shouldBDash+clientRequest+requestTime+requestMethodUrl+httpStatusCode+numOfBytes+referer+agent;
 	}
+	/**
+	 * Process all files in the given directory
+	 * @param dir
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
 	public void getFiles(String dir) throws IOException, ParseException, IllegalAccessException, ClassNotFoundException {
 		Path path = FileSystems.getDefault().getPath(dir);
 		DirectoryStream<Path> files = Files.newDirectoryStream(path); 
@@ -132,7 +139,12 @@ public class ApacheLog {
 		//Relatrix.transactionCommit();
 		System.out.println("FINISHED! with "+totalRecords+" processed");
 	}
-	
+	/**
+	 * Unzip the specified file
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
 	public byte[] unzipFile(String filePath) throws IOException{
 	         
 	        FileInputStream fis = null;
@@ -154,7 +166,14 @@ public class ApacheLog {
 	        zipIs.close();
 	        return baos.toByteArray();
 	}
-	
+	/**
+	 * Parse and store a line of data
+	 * @param pl
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws DuplicateKeyException
+	 * @throws ClassNotFoundException
+	 */
 	public void processPayload(byte[] pl) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
@@ -168,10 +187,17 @@ public class ApacheLog {
 		}
 		br.close();
 	}
-	
+	/**
+	 * Store the parsed data as a relationship, then as a series of relationships that contain
+	 * the primary relationship as the domain of the subsequent relationships. This allows us to select sets
+	 * of primary relationships, then subsets of related data.
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	private static void storeRelatrix() throws IllegalAccessException, ClassNotFoundException, IOException {
 		try {
-			Comparable rel = Relatrix.store(accessLogEntryEpoch,"accessed by",remoteHost);
+			Comparable<?> rel = Relatrix.store(accessLogEntryEpoch,"accessed by",remoteHost);
 			Relatrix.store(rel, "remote user", remoteUser);
 			// unreliable info field remoteUser
 			Relatrix.store(rel, "access time",accessLogEntryEpoch);
@@ -184,7 +210,11 @@ public class ApacheLog {
 			Relatrix.store(rel,"OS Ver.",OsVer);
 		} catch (DuplicateKeyException e) {}
 	}
-	
+	/**
+	 * Use the regex patterns to parse out specific fields in the data
+	 * @param line
+	 * @throws ParseException
+	 */
 	public void readAndProcess(String line) throws ParseException {
 		//int index = 0;
 
@@ -289,14 +319,15 @@ public class ApacheLog {
 		// now display the results processed by the input
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
-		Iterator it = Relatrix.findTailSet("*","accessed by","*", new Long(0),"");
+		// retrieve all identity relationships that contain the concrete object specified
+		Iterator<?> it = Relatrix.findTailSet("*","accessed by","*", new Long(0),"");
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
-		// Find all identity relationships
+		// Iterate all the retrieved identity relationships
 		it.forEachRemaining(e->{
 			//System.out.println(++cnt+".) Primary relation:"+e);
-			Iterator it2 = null;
-			// findSet returns Result as the lambda, which contians components of the relationships
+			Iterator<?> it2 = null;
+			// findSet returns Result as the lambda, which contains components of the relationships
 			result = (Result) e;
 			// use the identity as the first element to retrieve related elements
 			try {
@@ -306,8 +337,10 @@ public class ApacheLog {
 			} 
 			// If there are any elements related to the identity, display them
 			cnt2 = 0;
-			it2.forEachRemaining(e2->{
-				List<?> l = Relatrix.resolve(result.get());
+			// break the identity relationship object out into a list of its components
+			List<?> l = Relatrix.resolve(result.get());
+			// display the primary relationship and each element it is related to
+			it2.forEachRemaining(/*System.out::println*/ e2->{
 				System.out.println(++cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
 			});
 			System.out.println("-----------------");
