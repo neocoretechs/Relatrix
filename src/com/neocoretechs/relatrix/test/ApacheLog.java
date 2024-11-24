@@ -287,12 +287,14 @@ public class ApacheLog {
 		}
 		System.out.println("Stored..now retrieving stored data:");
 		// now display the results processed by the input
-		//Iterator it = Relatrix.findSet("*","accessed by","*");
-
+		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
+		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
+		Iterator it = Relatrix.findTailSet("*","accessed by","*", new Long(0),"");
+		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
+		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Find all identity relationships
-		Iterator it = Relatrix.findSet("*","*","*");
 		it.forEachRemaining(e->{
-			System.out.println(++cnt+".) Primary relation:"+e);
+			//System.out.println(++cnt+".) Primary relation:"+e);
 			Iterator it2 = null;
 			// findSet returns Result as the lambda, which contians components of the relationships
 			result = (Result) e;
@@ -308,8 +310,10 @@ public class ApacheLog {
 				List<?> l = Relatrix.resolve(result.get());
 				System.out.println(++cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
 			});
+			System.out.println("-----------------");
 		});
 		System.out.println("End of stored data.");
+		System.exit(0);
 	}
 
 }
