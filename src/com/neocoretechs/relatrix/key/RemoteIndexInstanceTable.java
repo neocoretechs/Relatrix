@@ -58,7 +58,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				try {
 					rc.storekv(index, instance);
 					rc.storekv(instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+				} catch (IOException e) {
 					throw new IOException(e);
 				}
 				return index;
@@ -224,7 +224,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					public void run() {
 						try {
 							rc.storekv(alias, index, instance);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
 					}
@@ -234,7 +234,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					public void run() {
 						try {
 							rc.storekv(alias, instance, index);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
 					}
@@ -299,7 +299,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rc.storekv(dbKey, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -309,7 +309,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rc.storekv(instance, dbKey);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -333,7 +333,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rc.storekv(alias, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -343,7 +343,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rc.storekv(alias, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}

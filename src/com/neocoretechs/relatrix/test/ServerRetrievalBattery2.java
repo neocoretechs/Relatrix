@@ -82,18 +82,15 @@ public class ServerRetrievalBattery2 {
 		public static void battery0(String[] argv) throws Exception {
 			System.out.println("Battery0 ");
 			long tims = System.currentTimeMillis();
-			int dupes = 0;
 			int recs = 0;
 			String fkey = null;
 			DomainMapRange dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
-				try {
-					dmr = rkvc.store(fkey, "Has unit", new Long(i));
-					++recs;
-				} catch(DuplicateKeyException dke) { ++dupes; }
+				dmr = rkvc.store(fkey, "Has unit", new Long(i));
+				++recs;
 			}
-			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
 		}
 
 		/**
