@@ -62,7 +62,7 @@ public class StreamRetrievalBattery0 {
 		ArrayList<Result> ar2 = new ArrayList<Result>(); // will store 2 element result sets
 		ArrayList<Result> ar3 = new ArrayList<Result>(); // will store 3 element result sets
 	
-		Stream it = null;
+		Stream<?> it = null;
 		System.out.println("Wildcard queries:");
 		
 		displayLine = 0;
