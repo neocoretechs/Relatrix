@@ -1,0 +1,6 @@
+/set mode Relatrix -quiet
+/set prompt Relatrix "->" ".."
+import com.neocoretechs.relatrix.*;
+import com.neocoretechs.relatrix.test.*;
+import com.neocoretechs.relatrix.tooling.*;
+

@@ -330,28 +330,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		//rc.send(rs);
 		rc.close();
 	}
-	/*
-	// stubs for relatrixclientinterfaceimpl
-	public Object getByIndex(DBKey index) throws NoSuchElementException {
-		// TODO Auto-generated method stub
-		return new NoSuchElementException("yo");
-	}
-	public Iterator findSet(Comparable comparable, Comparable comparable2, Comparable string, Object...comparable4) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public Stream findStream(Comparable comparable, Comparable comparable2, Comparable comparable3) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public Iterator findSet(Comparable comparable, Comparable comparable2, Comparable comparable3) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public Iterator findSet(String comparable, Comparable comparable2, Comparable comparable3, Comparable comparable4) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	*/
+
 	
 }

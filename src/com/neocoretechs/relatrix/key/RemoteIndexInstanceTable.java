@@ -81,13 +81,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		DBKey retKey = getByInstance(transactionId, instance);
 		if(instance == null) {
 			DBKey index = getNewDBKey();
-			try {
-				rcx.store(transactionId, index, instance);
-				rcx.store(transactionId,  instance, index);
-				return index;
-			} catch(DuplicateKeyException dke) {
-				throw new IOException(dke);
-			}
+			rcx.store(transactionId, index, instance);
+			rcx.store(transactionId,  instance, index);
+			return index;
 		}
 		return retKey;
 	}
@@ -264,7 +260,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					public void run() {
 						try {
 							rcx.store(alias, transactionId, index, instance);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
 					}
@@ -274,7 +270,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					public void run() {
 						try {
 							rcx.store(alias, transactionId, instance, index);
-						} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
 					}
@@ -369,7 +365,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rcx.store(transactionId, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -379,7 +375,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rcx.store(transactionId, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -404,7 +400,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rcx.store(alias, transactionId, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -414,7 +410,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				public void run() {
 					try {
 						rcx.store(alias, transactionId, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 				}

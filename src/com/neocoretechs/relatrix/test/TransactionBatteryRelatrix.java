@@ -73,10 +73,8 @@ public class TransactionBatteryRelatrix {
 		int i = min;
 		//for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			try {
-				rct.store(xid, fkey, "Has unit", new Long(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			rct.store(xid, fkey, "Has unit", new Long(i));
+			++recs;
 		//}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}

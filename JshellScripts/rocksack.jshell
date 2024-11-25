@@ -1,0 +1,8 @@
+/set mode RockSack -quiet
+/set prompt RockSack "->" ".."
+import com.neocoretechs.rocksack.*;
+import com.neocoretechs.rocksack.test.*;
+import com.neocoretechs.rocksack.iterator.*;
+import com.neocoretechs.rocksack.session.*;
+import com.neocoretechs.rocksack.stream.*;
+
