@@ -15,7 +15,6 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 
 /**
@@ -42,6 +41,8 @@ public class BatteryRelatrix {
 	static int min = 0;
 	static int max = 100000;
 	static int numDelete = 100; // for delete test
+	static int i = 0;
+	private static long timx;
 	/**
 	* Main test fixture driver
 	*/
@@ -402,19 +403,21 @@ public class BatteryRelatrix {
 		System.out.println("CleanDB RDM size="+RelatrixKV.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixKV.size(RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator it = Relatrix.findSet("*","*","*");
-		long timx = System.currentTimeMillis();
-		int i = 0;
-		while(it.hasNext()) {
-			Object fkey = it.next();
+		Iterator<?> it = Relatrix.findSet("*","*","*");
+		timx = System.currentTimeMillis();
+		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
-			Relatrix.remove(dmr);
+			try {
+				Relatrix.remove(dmr);
+			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			}
 			++i;
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("deleting "+i+" total, current="+fkey);
 				timx = System.currentTimeMillis();
 			}
-		}
+		});
 		Iterator<?> its = Relatrix.findSet("*","*","*");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -434,21 +437,21 @@ public class BatteryRelatrix {
 		if(DEBUG) {
 			it = RelatrixKV.entrySet(DomainMapRange.class);
 			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
+				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("DomainMapRange:"+nex);
 			}
 		}
 		if(DEBUG) {
 			it = RelatrixKV.entrySet(DomainRangeMap.class);
 			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
+				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("DomainRangeMap:"+nex);
 			}
 		}
 		if(DEBUG) {
 			it = RelatrixKV.entrySet(MapDomainRange.class);
 			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
+				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("MapDomainRange:"+nex);
 			}
 		}
@@ -462,7 +465,7 @@ public class BatteryRelatrix {
 		if(DEBUG) {
 			it = RelatrixKV.entrySet(MapRangeDomain.class);
 			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
+				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("MapRangeDomain:"+nex);
 			}
 		}
@@ -476,7 +479,7 @@ public class BatteryRelatrix {
 		if(DEBUG) {
 			it = RelatrixKV.entrySet(RangeDomainMap.class);
 			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
+				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("RangeDomainMap:"+nex);
 			}
 		}
@@ -490,7 +493,7 @@ public class BatteryRelatrix {
 		if(DEBUG) {
 			it = RelatrixKV.entrySet(RangeMapDomain.class);
 			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
+				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("RangeMapDomain:"+nex);
 			}
 		}
