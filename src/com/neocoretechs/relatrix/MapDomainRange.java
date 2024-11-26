@@ -69,13 +69,13 @@ public class MapDomainRange extends Morphism {
 
 	public MapDomainRange(DomainMapRange identity) throws IOException {
     	if(!identity.isDomainKeyValid())
-    		throw new IOException("Domain key of identity is invalid.");
+    		throw new IOException("Domain key of identity is invalid: "+DBKey.whyInvalid(identity.getDomainKey())+".");
     	setDomainKey(identity.getDomainKey());
       	if(!identity.isMapKeyValid())
-    		throw new IOException("Map key of identity is invalid.");
+    		throw new IOException("Map key of identity is invalid: "+DBKey.whyInvalid(identity.getMapKey())+".");
     	setMapKey(identity.getMapKey());
     	if(!identity.isRangeKeyValid())
-    		throw new IOException("Range key of identity is invalid.");
+    		throw new IOException("Range key of identity is invalid: "+DBKey.whyInvalid(identity.getRangeKey())+".");
     	setRangeKey(identity.getRangeKey()); 	
     }
 	

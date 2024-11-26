@@ -96,7 +96,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 			}
 			setDomainKey(DBKey.newKey(alias, indexTable, skeyd)); // puts to index and instance
 			setMapKey(DBKey.newKey(alias, indexTable, skeym)); // puts to index and instance
-			if(RelatrixKV.get(alias,this) != null) {	
+			if(RelatrixKV.get(alias, this) != null) {	
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}
 			return DBKey.newKey(alias, indexTable, this);
@@ -104,7 +104,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 			if(alias == null) {
 				setDomainKey(DBKey.newKey(transactionId, indexTable, skeyd)); // puts to index and instance
 				setMapKey(DBKey.newKey(transactionId, indexTable, skeym)); // puts to index and instance
-				if(RelatrixKVTransaction.get(transactionId,this) != null) {
+				if(RelatrixKVTransaction.get(transactionId, this) != null) {
 					RelatrixKVTransaction.rollback(transactionId);
 					throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 				}
@@ -112,8 +112,8 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 			}
 			setDomainKey(DBKey.newKey(alias, transactionId, indexTable, skeyd)); // puts to index and instance
 			setMapKey(DBKey.newKey(alias, transactionId, indexTable, skeym)); // puts to index and instance
-			if(RelatrixKVTransaction.get(alias, transactionId,this) != null) {
-				RelatrixKVTransaction.rollback(alias,transactionId);
+			if(RelatrixKVTransaction.get(alias, transactionId, this) != null) {
+				RelatrixKVTransaction.rollback(alias, transactionId);
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}
 			return DBKey.newKey(alias, transactionId, indexTable, this);
@@ -140,10 +140,10 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 				RelatrixKV.store(this, newKey);
 				return newKey;
 			} 
-			if(RelatrixKV.get(alias,this) != null) {	
+			if(RelatrixKV.get(alias, this) != null) {	
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}
-			newKey = indexTable.getNewDBKey();
+			newKey = indexTable.getNewDBKey(alias);
 			RelatrixKV.store(alias, this, newKey);
 			return newKey;
 		} else {
@@ -156,7 +156,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 				RelatrixKVTransaction.store(transactionId, this, newKey);
 				return newKey;
 			}
-			if(RelatrixKVTransaction.get(alias, transactionId,this) != null) {
+			if(RelatrixKVTransaction.get(alias, transactionId, this) != null) {
 				RelatrixKVTransaction.rollback(alias,transactionId);
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}

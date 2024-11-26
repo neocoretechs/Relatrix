@@ -74,6 +74,32 @@ public final class DBKey implements Comparable, Externalizable {
 		return key.databaseIndex != null && !key.databaseIndex.equals(nullKey) && key.instanceIndex != null && !key.instanceIndex.equals(nullKey);
 	}
 	/**
+	 * Returns an expanded diagnostic reason for DBKey being invalid.
+	 * Recall the DBKey is composed of a database index and an instance index. 
+	 * The database index points to the corresponding entry in the {@link DatabaseCatalog} database catalog. 
+	 * The instance index is the key to the instance in the tablespace by {@link PrimaryKeySet}
+	 * and {@link KeySet}, which means
+	 * it has an entry in the {@link DBKey} class of the database in question and is also the value
+	 * in the key/value portion of the class it represents.<p/>
+	 * If either of these is null when it is presumed valid, or if the value is equal to the null
+	 * key representation when presumed valid, the key is considered invalid.
+	 * @param key the {@link DBKey}
+	 * @return the string representation of the reason for invalid
+	 */
+	public static String whyInvalid(DBKey key) {
+		if(key == null) 
+			return "Key is null";
+		if(key.databaseIndex == null) 
+			return "Database index is null";
+		if(key.databaseIndex.equals(nullKey))
+			return "Database index has null key component";
+		if(key.instanceIndex == null)
+			return "Instance index is null";
+		if(key.instanceIndex.equals(nullKey))
+			return "Instance index has null key component";
+		return "No known reason, should be valid!";
+	}
+	/**
 	 * Factory method to construct a new key and enforce the storage of the instance.
 	 * The instance then receives an index into the instance table and the index table.
 	 * @param indexTable the local or remote interface to facilitate the index creation

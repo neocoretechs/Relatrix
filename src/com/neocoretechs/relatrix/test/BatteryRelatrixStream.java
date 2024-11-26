@@ -1,20 +1,12 @@
 package com.neocoretechs.relatrix.test;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.MapDomainRange;
-import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Morphism.displayLevels;
-import com.neocoretechs.relatrix.RangeDomainMap;
-import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.IndexResolver;
 
@@ -26,7 +18,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The set of tests verifies the higher level 'transactionalStore' and 'findSet' functors in the Relatrix, which can be used
+ * The set of tests verifies the higher level 'findSet' functors in the Relatrix, which can be used
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
