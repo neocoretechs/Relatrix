@@ -49,11 +49,11 @@ public class BatteryRelatrixStream {
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = displayLevels.VERBOSE;
 		System.out.println("BatteryRelatrixStream");
-		if(argv.length > 2 && argv[2].equals("max")) {
-			System.out.println("Setting max items to "+argv[3]);
-			max = Integer.parseInt(argv[3]);
+		if(argv.length > 2 && argv[1].equals("max")) {
+			System.out.println("Setting max items to "+argv[2]);
+			max = Integer.parseInt(argv[2]);
 		} else {
-			if(argv.length > 1 && argv[2].equals("init")) {
+			if(argv.length > 1 && argv[1].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
 				battery1AR17(argv);
 				System.exit(0);
