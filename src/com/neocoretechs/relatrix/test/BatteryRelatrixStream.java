@@ -1,10 +1,16 @@
 package com.neocoretechs.relatrix.test;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.MapDomainRange;
+import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RangeDomainMap;
+import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Morphism.displayLevels;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
@@ -18,11 +24,11 @@ import com.neocoretechs.relatrix.key.IndexResolver;
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The set of tests verifies the higher level 'findSet' functors in the Relatrix, which can be used
+ * The set of tests verifies the higher level 'findSet' functions in the {@link Relatrix}, which can be used
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2024
  *
  */
@@ -43,13 +49,22 @@ public class BatteryRelatrixStream {
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = displayLevels.VERBOSE;
 		System.out.println("BatteryRelatrixStream");
-		
+		if(argv.length > 2 && argv[2].equals("max")) {
+			System.out.println("Setting max items to "+argv[3]);
+			max = Integer.parseInt(argv[3]);
+		} else {
+			if(argv.length > 1 && argv[2].equals("init")) {
+				System.out.println("Initialize database to zero items, then terminate...");
+				battery1AR17(argv);
+				System.exit(0);
+			}
+		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
-				System.out.println("Begin test battery 1");
+				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
 			battery1(argv);
 			if(DEBUG)
-				System.out.println("Begin test battery 11");
+				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 			battery11(argv);
 		}
 		if(DEBUG)
@@ -322,7 +337,38 @@ public class BatteryRelatrixStream {
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
-
+	/**
+	 * remove entries, all relationships should be recursively deleted
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR17(String[] argv) throws Exception {
+		long tims = System.currentTimeMillis();
+		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
+		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
+		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		Iterator<?> it = Relatrix.findSet("*","*","*");
+		timx = System.currentTimeMillis();
+		it.forEachRemaining(fkey-> {
+			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			try {
+				Relatrix.remove(dmr);
+			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			}
+			++i;
+			if((System.currentTimeMillis()-timx) > 1000) {
+				System.out.println("deleting "+i+" total, current="+fkey);
+				timx = System.currentTimeMillis();
+			}
+		});
+		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	
 	public static void displayMorphism(Object fkey) throws IllegalAccessException, ClassNotFoundException, IOException {
 		System.out.println(" class:"+fkey.getClass()+" value:"+fkey);
 		if(fkey.getClass().isArray()) {

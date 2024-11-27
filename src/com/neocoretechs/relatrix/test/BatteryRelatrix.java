@@ -24,11 +24,11 @@ import com.neocoretechs.relatrix.key.IndexResolver;
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * The set of tests verifies the higher level 'findSet' functions in the{@link  Relatrix}, which can be used
+ * The set of tests verifies the higher level 'findSet' functions in the {@link  Relatrix}, which can be used
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NoeCoreTechs 2016,2017
  *
  */
@@ -48,15 +48,22 @@ public class BatteryRelatrix {
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 1 && argv[2].equals("init")) {
-			battery1AR17(argv);
+		if(argv.length > 2 && argv[2].equals("max")) {
+			System.out.println("Setting max items to "+argv[3]);
+			max = Integer.parseInt(argv[3]);
+		} else {
+			if(argv.length > 1 && argv[2].equals("init")) {
+				System.out.println("Initialize database to zero items, then terminate...");
+				battery1AR17(argv);
+				System.exit(0);
+			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
-				System.out.println("Begin test battery 1");
+				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
 			battery1(argv);
 			if(DEBUG)
-				System.out.println("Begin test battery 11");
+				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 			battery11(argv);
 		}
 		if(DEBUG)

@@ -29,6 +29,7 @@ import com.neocoretechs.rocksack.Alias;
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
+ * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NoeCoreTechs 2016,2017,2024
  *
  */
@@ -56,19 +57,26 @@ public class BatteryRelatrixAlias {
 		Relatrix.setAlias(alias2,tablespace+alias2);
 		Relatrix.setAlias(alias3,tablespace+alias3);
 		Morphism.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 1 && argv[2].equals("init")) {
-			battery1AR17(argv, alias1);
-			battery1AR17(argv, alias2);
-			battery1AR17(argv, alias3);
+		if(argv.length > 2 && argv[2].equals("max")) {
+			System.out.println("Setting max items to "+argv[3]);
+			max = Integer.parseInt(argv[3]);
+		} else {
+			if(argv.length > 1 && argv[2].equals("init")) {
+				System.out.println("Initialize database to zero items, then terminate...");
+				battery1AR17(argv, alias1);
+				battery1AR17(argv, alias2);
+				battery1AR17(argv, alias3);
+				System.exit(0);
+			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
-				System.out.println("Begin test battery 1");
+				System.out.println("Zero items, Begin insertion test from "+min+" to "+max);
 			battery1(argv, alias1);
 			battery1(argv, alias2);
 			battery1(argv, alias3);
 			if(DEBUG)
-				System.out.println("Begin test battery 11");
+				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 			battery11(argv, alias1);
 			battery11(argv, alias2);
 			battery11(argv, alias3);
