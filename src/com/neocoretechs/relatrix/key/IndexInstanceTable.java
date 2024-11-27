@@ -721,22 +721,22 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true).getRelatrixIndex(), Relatrix.getNewKey());
+			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(Relatrix.getByAlias(alias).getRelatrixIndex(), Relatrix.getNewKey());
+			return new DBKey(Relatrix.getByAlias(alias), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(RelatrixTransaction.getByPath(RelatrixTransaction.getTableSpace(), true).getRelatrixIndex(), Relatrix.getNewKey());
+		return new DBKey(RelatrixTransaction.getByPath(RelatrixTransaction.getTableSpace(), true), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		return new DBKey(RelatrixTransaction.getByAlias(alias).getRelatrixIndex(), Relatrix.getNewKey());
+		return new DBKey(RelatrixTransaction.getByAlias(alias), Relatrix.getNewKey());
 	}
 
 }

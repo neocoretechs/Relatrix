@@ -182,22 +182,22 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rc.getByPath(Relatrix.getTableSpace(), true).getRelatrixIndex(), getNewKey());
+		return new DBKey(rc.getByPath(Relatrix.getTableSpace(), true), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rc.getByAlias(alias).getRelatrixIndex(), getNewKey());
+			return new DBKey(rc.getByAlias(alias), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getByPath(RelatrixTransaction.getTableSpace(), true).getRelatrixIndex(), getNewKey());
+		return new DBKey(rcx.getByPath(RelatrixTransaction.getTableSpace(), true), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rcx.getByAlias(alias).getRelatrixIndex(), getNewKey());
+			return new DBKey(rcx.getByAlias(alias), getNewKey());
 	}
 	@Override
 	public void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException {

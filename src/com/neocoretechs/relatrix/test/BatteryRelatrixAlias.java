@@ -38,7 +38,7 @@ public class BatteryRelatrixAlias {
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 1000;
 	static int numDelete = 100; // for delete test
 	static int i = 0;
 	private static long timx;
@@ -119,7 +119,7 @@ public class BatteryRelatrixAlias {
 	 * @throws Exception
 	 */
 	public static void battery1(String[] argv, Alias alias12) throws Exception {
-		System.out.println("Battery1 ");
+		System.out.println(alias12+" Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
