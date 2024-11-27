@@ -86,7 +86,7 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 			}
 			setDomainKey(DBKey.newKey(alias, indexTable, skeyd)); // puts to index and instance
 			setMapKey(DBKey.newKey(alias, indexTable, skeym)); // puts to index and instance
-			setRangeKey(DBKey.newKey(alias,indexTable, skeyr)); // puts to index and instance
+			setRangeKey(DBKey.newKey(alias, indexTable, skeyr)); // puts to index and instance
 			if(RelatrixKV.get(alias,this) != null) {	
 				throw new DuplicateKeyException("Duplicate key for relationship:"+this);
 			}

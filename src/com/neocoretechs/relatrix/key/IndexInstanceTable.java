@@ -151,9 +151,13 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
 			DBKey retKey = getByInstance(alias, instance);
+			if(DEBUG)
+				System.out.printf("%s.putAlias alias=%s class=%s instance=%s getByInstance result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, retKey.toString());
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey(alias);
+				if(DEBUG)
+					System.out.printf("%s.putAlias alias=%s class=%s instance=%s getNewDBKey result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, index.toString());			
 				// no new instance exists. store both new entries
 				// no new instance exists. store both new entries
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
@@ -181,6 +185,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				return index;
 			}
 			return retKey;
 		//}
@@ -202,7 +207,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(Alias alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
-				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
+				System.out.printf("%s.putAlias alias=%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias.getAlias(), index.toString(), instance.getClass().getName(), instance);
 			// no new instance exists, based on primary check. store both new entries
 			// no new instance exists. store both new entries
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
@@ -278,7 +283,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}	
+				}
+				return index;
 			} 
 			if(DEBUG)
 				System.out.printf("%s.put returning existing key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, retKey, instance.getClass().getName(), instance);
@@ -301,7 +307,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(TransactionId transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
-				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
+				System.out.printf("%s.put DBKey=%s class=%s instance=%s%n", this.getClass().getName(),index.toString(), instance.getClass().getName(), instance);
 			// no new instance exists, based on primary check. store both new entries
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
@@ -377,7 +383,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}	
+				}
+				return index;
 			}
 			return retKey;
 		//}
@@ -401,7 +408,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(Alias alias, TransactionId transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			if(DEBUG)
-				System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
+				System.out.printf("%s.putAlias Alias:%s Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId,index.toString(), instance.getClass().getName(), instance);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {
