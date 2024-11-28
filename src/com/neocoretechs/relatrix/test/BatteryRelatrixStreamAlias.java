@@ -15,9 +15,10 @@ import com.neocoretechs.relatrix.Morphism.displayLevels;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.rocksack.Alias;
 
 /**
- * Stream version of BatteryRelatrix.<p/>
+ * Stream version of BatteryRelatrixAlias.<p/>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -32,7 +33,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2024
  *
  */
-public class BatteryRelatrixStream {
+public class BatteryRelatrixStreamAlias {
 	public static boolean DEBUG = false;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
@@ -42,52 +43,82 @@ public class BatteryRelatrixStream {
 	static int numDelete = 100; // for delete test
 	static int i = 0;
 	private static long timx;
+	static Alias alias1 = new Alias("ALIAS1");
+	static Alias alias2 = new Alias("ALIAS2");
+	static Alias alias3 = new Alias("ALIAS3"); 
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = displayLevels.VERBOSE;
-		System.out.println("BatteryRelatrixStream");
+		System.out.println("BatteryRelatrixStreamAlias");
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
 		} else {
 			if(argv.length > 1 && argv[1].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
+				battery1AR17(argv, alias1);
+				battery1AR17(argv, alias2);
+				battery1AR17(argv, alias3);
 				System.exit(0);
 			}
 		}
-		if(Relatrix.size() == 0) {
+		String tablespace = argv[0];
+		if(!tablespace.endsWith("/"))
+			tablespace += "/";
+		Relatrix.setAlias(alias1,tablespace+alias1);
+		Relatrix.setAlias(alias2,tablespace+alias2);
+		Relatrix.setAlias(alias3,tablespace+alias3);
+		Morphism.displayLevel = displayLevels.VERBOSE;
+		if(Relatrix.size(alias1) == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv);
+			battery1(argv, alias1);
+			battery1(argv, alias2);
+			battery1(argv, alias3);
 			if(DEBUG)
 				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-			battery11(argv);
+			battery11(argv, alias1);
+			battery11(argv, alias2);
+			battery11(argv, alias3);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv);
+		battery1AR6(argv, alias1);
+		battery1AR6(argv, alias2);
+		battery1AR6(argv, alias3);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR7");
-		battery1AR7(argv);
+		battery1AR7(argv, alias1);
+		battery1AR7(argv, alias2);
+		battery1AR7(argv, alias3);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR8");
-		battery1AR8(argv);
+		battery1AR8(argv, alias1);
+		battery1AR8(argv, alias2);
+		battery1AR8(argv, alias3);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR9");
-		battery1AR9(argv);
+		battery1AR9(argv, alias1);
+		battery1AR9(argv, alias2);
+		battery1AR9(argv, alias3);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR10");
-		battery1AR10(argv);
+		battery1AR10(argv, alias1);
+		battery1AR10(argv, alias2);
+		battery1AR10(argv, alias3);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR101");
-		battery1AR101(argv);
+		battery1AR101(argv, alias1);
+		battery1AR101(argv, alias2);
+		battery1AR101(argv, alias3);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR11");
-		battery1AR11(argv);
+		battery1AR11(argv, alias1);
+		battery1AR11(argv, alias2);
+		battery1AR11(argv, alias3);
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -95,10 +126,11 @@ public class BatteryRelatrixStream {
 	/**
 	 * Loads up on keys
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
-		System.out.println("Battery1 ");
+	public static void battery1(String[] argv, Alias alias12) throws Exception {
+		System.out.println(alias12+" Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
@@ -107,7 +139,7 @@ public class BatteryRelatrixStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(i));
+				Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -122,11 +154,11 @@ public class BatteryRelatrixStream {
 	 * Tries to store partial key that should match existing keys, should reject all.
 	 * Domain/map determines unique key
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv) throws Exception {
-		System.out.println("Battery11 ");
-		long tims = System.currentTimeMillis();
+	public static void battery11(String[] argv, Alias alias12) throws Exception {
+		System.out.println(alias12+" Battery11 ");
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
@@ -134,7 +166,7 @@ public class BatteryRelatrixStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr = Relatrix.store(fkey, "Has unit", new Long(99999));
+				DomainMapRange dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -154,21 +186,21 @@ public class BatteryRelatrixStream {
 	 * Test the higher level functions in the Relatrix. Use the 'findStream' permutations to
 	 * verify the previously inserted data
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6(String[] argv, Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR6");
-		Relatrix.findStream("?", "?", "?").forEach(e->{
+		System.out.println(alias12+" Battery1AR6");
+		Relatrix.findStream(alias12,"?", "?", "?").forEach(e->{
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
 			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
-			//String fkey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 3) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
 			}
 			++i;
 		});
@@ -181,19 +213,19 @@ public class BatteryRelatrixStream {
 	/**
 	 * Testing of Stream Relatrix.findStream("?", "*", "*");
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7(String[] argv, Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR7");
-		Relatrix.findStream("?", "*", "*").forEach(e->{
+		System.out.println(alias12+" Battery1AR7");
+		Relatrix.findStream(alias12, "?", "*", "*").forEach(e->{
 			Result nex = (Result)e;
 			// one '?' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
-			//String fkey = key + String.format(uniqKeyFmt, i);
-			// No guarantee of order with unqualified findSet/findStream
-			if(!((String)nex.get(0)).startsWith(key) || nex.length() != 1) {
+			// no guarantee of ordering with unqualified findSet/findStream
+			if(!((String) nex.get(0)).startsWith(key) || nex.length() != 1) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
 			}
@@ -208,21 +240,22 @@ public class BatteryRelatrixStream {
 	/**
 	 * Testing of Stream Relatrix.findStream("?", "?", "*");
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String[] argv) throws Exception {
+	public static void battery1AR8(String[] argv, Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR8");
-		Relatrix.findStream("?", "?", "*").forEach(e ->{
+		System.out.println(alias12+" Battery1AR8");
+		Relatrix.findStream(alias12, "?", "?", "*").forEach(e ->{
 			Result nex = (Result)e;
-			// two '?' in findStream gives use 2 element array, the domain and map
+			// two '?' in findStream gives use 2 element result, the domain and map
 			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
-			//String fkey = key + String.format(uniqKeyFmt, i);
+			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 2) {
+				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
+				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
 			}
 			++i;
 		});
@@ -236,13 +269,14 @@ public class BatteryRelatrixStream {
 	 * 
 	 * Testing of Relatrix.findStream("*", "*", "*");
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv) throws Exception {
+	public static void battery1AR9(String[] argv, Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR9");
-		Relatrix.findStream("*", "*", "*").forEach(e->{
+		System.out.println(alias12+" Battery1AR9");
+		Relatrix.findStream(alias12, "*", "*", "*").forEach(e->{
 			Result nex = (Result)e;
 			// the returned array has 1 element, the identity Morphism DomainMapRange
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
@@ -250,8 +284,8 @@ public class BatteryRelatrixStream {
 			// no guarantee of ordering with unqualified findSet/findStream
 			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
+			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit "+alias12))
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
 			++i;
 		});
 		if( i != max ) {
@@ -265,14 +299,15 @@ public class BatteryRelatrixStream {
 	 * Relatrix.findSetStream(fkey, "Has unit", "*");
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String[] argv) throws Exception {
+	public static void battery1AR10(String[] argv, Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR10");
+		System.out.println(alias12+" Battery1AR10");
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Relatrix.findStream(fkey, "Has unit", "*").forEach(e-> {
+		Relatrix.findStream(alias12, fkey, "Has unit "+alias12, "*").forEach(e-> {
 		// return all identities with the given key for all ranges, should be 1
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
@@ -284,8 +319,8 @@ public class BatteryRelatrixStream {
 			// no guarantee of ordering with unqualified findSet/findStream
 			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
+			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit "+alias12))
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
 			++i;
 		});
 		if( i != 1 ) {
@@ -295,18 +330,20 @@ public class BatteryRelatrixStream {
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
+	 * Negative assertion test
 	 * Relatrix.findStream(fkey, "Has unit", new Long(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv) throws Exception {
+	public static void battery1AR101(String[] argv, Alias alias12) throws Exception {
 		i = 0;
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR101");
+		System.out.println(alias12+" Battery1AR101");
 		String fkey = key + String.format(uniqKeyFmt, max);
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Relatrix.findStream(fkey, "Has unit", new Long(max)).forEach(e->{
+		Relatrix.findStream(alias12, fkey, "Has unit "+alias12, new Long(max)).forEach(e->{
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
 			Result nex = (Result) e;
@@ -317,8 +354,8 @@ public class BatteryRelatrixStream {
 			// no guarantee of ordering with unqualified findSet/findStream
 			if(!( (String)((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
+			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit "+alias12))
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
 			//Long unit = new Long(i);
 			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
@@ -331,18 +368,19 @@ public class BatteryRelatrixStream {
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * negative assertion of above
+	 * negative assertion test
 	 * Relatrix.findStream(fkey, "Has time", "*");
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv) throws Exception {
+	public static void battery1AR11(String[] argv, Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR11");
+		System.out.println(alias12+" Battery1AR11");
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Relatrix.findStream(fkey, "Has time", "*").forEach(e->{
+		Relatrix.findStream(alias12, fkey, "Has time", "*").forEach(e->{
 			Result nex = (Result)e;
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
 			throw new RuntimeException("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
@@ -353,23 +391,24 @@ public class BatteryRelatrixStream {
 	/**
 	 * remove entries, all relationships should be recursively deleted
 	 * @param argv
+	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17(String[] argv, Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
-		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
-		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
-		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
-		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
-		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
+		System.out.println(alias12+" CleanDB DMR size="+Relatrix.size(alias12,DomainMapRange.class));
+		System.out.println("CleanDB DRM size="+Relatrix.size(alias12,DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(alias12,MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(alias12,MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+Relatrix.size(alias12,RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+Relatrix.size(alias12,RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet("*","*","*");
+		Iterator<?> it = Relatrix.findSet(alias12,"*","*","*");
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
 			try {
-				Relatrix.remove(dmr);
+				Relatrix.remove(alias12,dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
