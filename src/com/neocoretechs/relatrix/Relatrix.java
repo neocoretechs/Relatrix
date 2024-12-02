@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Spliterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -86,7 +85,8 @@ public final class Relatrix {
 		if(System.getProperty(databaseCatalogProperty) != null)
 			databaseCatalog = System.getProperty(databaseCatalogProperty);
 		try {
-			setAlias(databaseCatalogAlias, databaseCatalog);
+			if(getAlias(databaseCatalogAlias) == null) // account for RelatrixTransaction static initializer
+				setAlias(databaseCatalogAlias, databaseCatalog);
 			readDatabaseCatalog();
 		} catch (IOException | IllegalAccessException | NoSuchElementException e) {
 			e.printStackTrace();
