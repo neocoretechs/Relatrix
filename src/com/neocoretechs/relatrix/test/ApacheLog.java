@@ -270,7 +270,12 @@ public class ApacheLog {
 				System.out.println("Cant get http status!:");
 			}
 			try {
-				numBytes = Integer.parseInt(accessLogEntryMatcher.group(7));
+				// a 404 status gives us a - for number bytes
+				String snum = accessLogEntryMatcher.group(7);
+				if(snum.equals("-"))
+					numBytes = 0;
+				else
+					numBytes = Integer.parseInt(snum);
 				if(DEBUG)
 					System.out.println("Got numBytes:"+numBytes);
 			} catch(IllegalStateException e) {
