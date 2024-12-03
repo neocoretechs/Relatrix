@@ -121,6 +121,7 @@ public class BatteryRelatrixTransaction {
 				}
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
+		RelatrixTransaction.commit(xid2);
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -157,7 +158,6 @@ public class BatteryRelatrixTransaction {
 		}
 	}
 	
-
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data
@@ -173,18 +173,18 @@ public class BatteryRelatrixTransaction {
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// 3 question marks = dimension 3 in return array
-				if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
-				//String skey = key + String.format(uniqKeyFmt, i);
-				//if(!skey.equals(nex[0]) )
-					//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-				if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
-					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-					throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				}
-				//Long unit = new Long(i);
-				//if(!nex[2].equals(unit))
-					//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[2]);
-				++i;
+			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
+			//String skey = key + String.format(uniqKeyFmt, i);
+			//if(!skey.equals(nex[0]) )
+			//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
+			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			}
+			//Long unit = new Long(i);
+			//if(!nex[2].equals(unit))
+			//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[2]);
+			++i;
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
@@ -442,6 +442,7 @@ public class BatteryRelatrixTransaction {
 				timx = System.currentTimeMillis();
 			}
 		});
+		RelatrixTransaction.commit(xid2);
 		Iterator<?> its = RelatrixTransaction.findSet(xid2,"*","*","*");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();

@@ -62,7 +62,7 @@ public class SynchronizedFixedThreadPoolManager {
 			if( ftl != null ) {
 				//ftl.exs.shutdownNow();
 				//executor.remove(ftl.group);
-				System.out.println("Group "+tgn+" already initialized, use reinit to alter.");
+				//System.out.println("Group "+tgn+" already initialized, use reinit to alter.");
 				continue;
 			}
 			//executor.put(tgn, getInstance(maxExecution, executionLimit).new ExtendedExecutor(maxExecution, executionLimit, new ArrayBlockingQueue<Runnable>(executionLimit)));
@@ -102,7 +102,7 @@ public class SynchronizedFixedThreadPoolManager {
 		if( ftl != null ) {
 			//ftl.exs.shutdownNow();
 			//executor.remove(ftl.group);
-			System.out.println("Default group SYSTEMSYNC already initialized, use reinit to alter.");
+			//System.out.println("Default group SYSTEMSYNC already initialized, use reinit to alter.");
 			return;
 		}
 		DaemonThreadFactory dtf = new DaemonThreadFactory("SYSTEMSYNC");

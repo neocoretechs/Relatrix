@@ -268,7 +268,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 							throw new RuntimeException(e);
 						}
 					}
-				},Relatrix.storeI);
+				},RelatrixTransaction.storeITransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {
@@ -278,9 +278,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 							throw new RuntimeException(e);
 						}
 					}
-				},Relatrix.storeI);
+				},RelatrixTransaction.storeITransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -318,7 +318,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 						throw new RuntimeException(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixTransaction.storeITransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {
@@ -328,9 +328,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 						throw new RuntimeException(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixTransaction.storeITransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -368,7 +368,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 							throw new RuntimeException(e);
 						}
 					}
-				},Relatrix.storeI);
+				},RelatrixTransaction.storeITransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {
@@ -378,9 +378,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 							throw new RuntimeException(e);
 						}
 					}
-				},Relatrix.storeI);
+				},RelatrixTransaction.storeITransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -418,7 +418,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 						throw new RuntimeException(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixTransaction.storeITransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {
@@ -428,9 +428,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 						throw new RuntimeException(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixTransaction.storeITransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

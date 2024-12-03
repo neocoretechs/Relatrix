@@ -71,10 +71,10 @@ public final class RelatrixTransaction {
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
 	private static SynchronizedFixedThreadPoolManager sftpm;
-	public static final String storeX = "STOREX";
-	public static final String storeI = "STOREI";
-	public static final String deleteX = "DELETEX";
-	public static final String deleteI = "DELETEI";
+	public static final String storeXTransaction = "STOREXTX";
+	public static final String storeITransaction = "STOREITX";
+	public static final String deleteXTransaction = "DELETEXTX";
+	public static final String deleteITransaction = "DELETEITX";
 	
 	static {
 		if(System.getProperty(databaseCatalogProperty) != null)
@@ -87,8 +87,8 @@ public final class RelatrixTransaction {
 			e.printStackTrace();
 		}
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
-		sftpm.init(5, 5, new String[] {storeX,deleteX});
-		sftpm.init(2, 2, new String[] {storeI,deleteI});
+		sftpm.init(5, 5, new String[] {storeXTransaction,deleteXTransaction});
+		sftpm.init(2, 2, new String[] {storeITransaction,deleteITransaction});
 	}
 	
 	/**
@@ -230,7 +230,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			} // run
-		},storeX); // spin 
+		},storeXTransaction); // spin 
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -244,7 +244,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -258,7 +258,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {  
@@ -272,7 +272,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {    
@@ -286,9 +286,9 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeX);
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -342,7 +342,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			} // run
-		},storeX); // spin 
+		},storeXTransaction); // spin 
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -356,7 +356,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -370,7 +370,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {  
@@ -384,7 +384,7 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {    
@@ -398,9 +398,9 @@ public final class RelatrixTransaction {
 					throw new RuntimeException(e);
 				}
 			}
-		},storeX);
+		},storeXTransaction);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeX);
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -552,7 +552,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -562,7 +562,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -572,7 +572,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -582,7 +582,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -592,9 +592,9 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -650,7 +650,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -660,7 +660,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -670,7 +670,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -680,7 +680,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -690,9 +690,9 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -748,7 +748,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -758,7 +758,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -768,7 +768,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -778,7 +778,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -788,9 +788,9 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -826,7 +826,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -836,7 +836,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -846,7 +846,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -856,7 +856,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -866,9 +866,9 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -904,7 +904,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -914,7 +914,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -924,7 +924,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -934,7 +934,7 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -944,9 +944,9 @@ public final class RelatrixTransaction {
 							throw new RuntimeException(e);
 						}
 					}
-				},deleteX);
+				},deleteXTransaction);
 				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -996,7 +996,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1006,7 +1006,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1016,7 +1016,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1026,7 +1026,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1036,9 +1036,9 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -1074,7 +1074,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1084,7 +1084,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1094,7 +1094,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1104,7 +1104,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1114,9 +1114,9 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -1152,7 +1152,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1162,7 +1162,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1172,7 +1172,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1182,7 +1182,7 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
@@ -1192,9 +1192,9 @@ public final class RelatrixTransaction {
 						throw new RuntimeException(e);
 					}
 				}
-			},deleteX);
+			},deleteXTransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
