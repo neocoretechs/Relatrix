@@ -24,8 +24,8 @@ import com.neocoretechs.rocksack.Alias;
  * In general the tests compare the number of items retrieved 
  * against expected value since findSet retrieves items in no particular order.
  * NOTES:
- * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+ * program argument is database tablespace i.e. C:/users/you/Relatrix [ [init] [max nnn] ]
+ * a series of databases prefixed by ALIAS1, ALIAS2, ALIAS3 will be created
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2024
  *
  */

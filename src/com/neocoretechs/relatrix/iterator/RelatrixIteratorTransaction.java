@@ -62,7 +62,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIteratorTransaction Id:"+xid+" hasNext:"+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
+			System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
     }
 	/**
 	 * Pass the array we use to indicate which values to return and element 0 counter
@@ -92,7 +92,11 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIteratorTransaction Id:"+xid+" hasNext:"+iter.hasNext()+" "+needsIter+" "+buffer+" BASELINE:"+base);
+			System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
     }
 	
+    @Override
+    public String toString() {
+    	return "RelatrixIteratorTransaction:"+super.toString();
+    }
 }

@@ -427,7 +427,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void commit(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		// first commit components of relationships
-		IndexResolver.getIndexInstanceTable().commit(xid);
+		IndexResolver.getIndexInstanceTable().commit(alias,xid);
 		RelatrixKVTransaction.commit(alias, xid);
 	}
 	/**
@@ -524,7 +524,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void remove(TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove prepping to remove:"+c);
+			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
 		try {
 			removeRecursive(transactionId, c);
 			if(c instanceof DomainMapRange) {
@@ -605,7 +605,7 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove exiting remove for key:"+c);
+			System.out.println("RelatrixTransaction.remove exiting remove for key:"+c);
 	}
 
 	/**
@@ -622,7 +622,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized void remove(Alias alias, TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove prepping to remove:"+c);
+			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
 		try {
 			removeRecursive(alias, transactionId, c);
 			if(c instanceof DomainMapRange) {
@@ -697,13 +697,13 @@ public final class RelatrixTransaction {
 					e.printStackTrace();
 				}
 			} else {
-				IndexResolver.getIndexInstanceTable().deleteInstance(alias,c);
+				IndexResolver.getIndexInstanceTable().deleteInstance(alias, transactionId, c);
 			}
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove exiting remove for key:"+c);
+			System.out.println("RelatrixTransaction.remove exiting remove for key:"+c);
 	}
 
 	/**
@@ -722,7 +722,7 @@ public final class RelatrixTransaction {
 			while(it.hasNext()) {
 				Result o = (Result) it.next();
 				if( DEBUG || DEBUGREMOVE)
-					System.out.println("Relatrix.remove iterated perm 1 "+o+" of type "+o.get(0).getClass().getName());
+					System.out.println("RelatrixTransaction.remove iterated perm 1 "+o+" of type "+o.get(0).getClass().getName());
 				DomainMapRange dmr = (DomainMapRange)o.get(0);
 				dmr.setTransactionId(transactionId);
 				DomainRangeMap drm = new DomainRangeMap(dmr);
@@ -800,7 +800,7 @@ public final class RelatrixTransaction {
 			while(it.hasNext()) {
 				Result o = (Result) it.next();
 				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+					System.out.println("RelatrixTransaction.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
 				DomainMapRange dmr = (DomainMapRange)o.get(0);
 				dmr.setTransactionId(transactionId);
 				DomainRangeMap drm = new DomainRangeMap(dmr);
@@ -878,7 +878,7 @@ public final class RelatrixTransaction {
 			while(it.hasNext()) {
 				Result o = (Result) it.next();
 				if( DEBUG || DEBUGREMOVE )
-					System.out.println("Relatrix.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+					System.out.println("RelatrixTransaction.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
 				DomainMapRange dmr = (DomainMapRange)o.get(0);
 				dmr.setTransactionId(transactionId);
 				DomainRangeMap drm = new DomainRangeMap(dmr);
@@ -970,7 +970,7 @@ public final class RelatrixTransaction {
 		while(it.hasNext()) {
 			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE)
-				System.out.println("Relatrix.remove iterated perm 1 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+				System.out.println("RelatrixTransaction.remove iterated perm 1 "+o.get(0)+" of type "+o.get(0).getClass().getName());
 			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			dmr.setTransactionId(transactionId);
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
@@ -1048,7 +1048,7 @@ public final class RelatrixTransaction {
 		while(it.hasNext()) {
 			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+				System.out.println("RelatrixTransaction.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
 			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			dmr.setTransactionId(transactionId);
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
@@ -1126,7 +1126,7 @@ public final class RelatrixTransaction {
 		while(it.hasNext()) {
 			Result o = (Result) it.next();
 			if( DEBUG || DEBUGREMOVE )
-				System.out.println("Relatrix.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
+				System.out.println("RelatrixTransaction.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
 			DomainMapRange dmr = (DomainMapRange)o.get(0);
 			dmr.setTransactionId(transactionId);
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);

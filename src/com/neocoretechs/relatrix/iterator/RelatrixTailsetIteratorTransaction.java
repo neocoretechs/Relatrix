@@ -135,7 +135,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixTailsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
+			System.out.println("RelatrixTailsetIteratorTransaction xid:"+xid+" "+super.toString());
     }
     
     public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
@@ -219,13 +219,13 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixTailsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);  
+			System.out.println("RelatrixTailsetIteratorTransaction xid:"+xid+" "+super.toString());  
     }
     
 	@Override
 	public boolean hasNext() {
 		if( DEBUGITERATION )
-			System.out.println("RelatrixTailsetIteratorTransaction.hasNext() "+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
+			System.out.println("RelatrixTailsetIteratorTransaction.hasNext() xid:"+xid+" "+super.toString());
 		return needsIter;	
 	}
 
@@ -234,7 +234,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 		try {
 		if( buffer == null || needsIter) {
 			if( DEBUGITERATION ) {
-	    			System.out.println("RelatrixTailsetIteratorTransaction.next() before iteration hasNext:"+iter.hasNext()+" needsIter:"+needsIter+", buffer:"+buffer+", nextit"+nextit);
+	    			System.out.println("RelatrixTailsetIteratorTransaction.next() before iteration xid:"+xid+" "+super.toString());
 			}
 			if( nextit != null )
 				buffer = nextit;
@@ -259,7 +259,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 		}
 		// always return using this with non null buffer
 		if( DEBUGITERATION ) {
-			System.out.println("RelatrixIteratorTransaction.next() template match after iteration hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
+			System.out.println("RelatrixIteratorTransaction.next() template match after iteration xid:"+xid+" "+super.toString());
 		}
 		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
 		

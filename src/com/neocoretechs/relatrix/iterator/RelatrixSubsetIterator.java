@@ -161,7 +161,7 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixSubsetIterator hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:");
+			System.out.println(this.toString());
     }
     /**
      * @param alias the database alias
@@ -250,13 +250,13 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     		needsIter = false;
     	}
     	if( DEBUG )
-    		System.out.println("RelatrixSubsetIterator hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
+    		System.out.println(this.toString());
     }
 
 	@Override
 	public boolean hasNext() {
 		if( DEBUGITERATION )
-			System.out.println("RelatrixSubsetIterator.hasNext() "+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
+			System.out.println(this.toString());
 		return needsIter;	
 	}
 	
@@ -265,7 +265,7 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 		try {
 		if( buffer == null || needsIter) {
 			if( DEBUGITERATION ) {
-	    			System.out.println("RelatrixSubsetIterator.next() before iteration hasNext:"+iter.hasNext()+" needsIter:"+needsIter+", buffer:"+buffer+", nextit"+nextit);
+	    			System.out.println("RelatrixSubsetIterator.next() before iteration:"+this.toString());
 			}
 			if( nextit != null )
 				buffer = nextit;
@@ -290,7 +290,7 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 		}
 		// always return using this with non null buffer
 		if( DEBUGITERATION ) {
-			System.out.println("RelatrixSubsetIterator.next() template match after iteration hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
+			System.out.println("RelatrixSubsetIterator.next() template match after iteration:"+this.toString());
 		}
 		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
 		
@@ -303,5 +303,26 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 	@Override
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("RelatrixSubsetIterator: hasNext:");
+	    sb.append(iter == null ? "iter NULL" : iter.hasNext());
+	    sb.append(" alias:");
+	    sb.append(alias);
+		sb.append(" needsIter:");
+		sb.append(needsIter);
+		sb.append(" Identity:");
+		sb.append(identity);
+		sb.append(" buffer:");
+		sb.append(buffer);
+		sb.append(" base:");
+		sb.append(base);
+		sb.append(" nextit:");
+		sb.append(nextit);
+		sb.append(" dmr_return:");
+		sb.append(Arrays.toString(dmr_return));
+		return sb.toString();
 	}
 }

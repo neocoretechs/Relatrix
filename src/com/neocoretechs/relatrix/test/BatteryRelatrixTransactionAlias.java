@@ -13,23 +13,26 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 
 import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * The set of tests verifies the higher level 'findSet' functions in the {@link Relatrix} in conjunction with database alias.
+ * The set of tests verifies the higher level 'findSet' functions in the {@link RelatrixTransaction} in conjunction with database alias.
  * Yes, this should be a nice JUnit fixture someday
- * TEsts show examples of {@link Relatrix} processing. In general the tests compare the number of items retrieved 
+ * TEsts show examples of RelatrixTransaction processing. In general the tests compare the number of items retrieved 
  * against expected value since findSet retrieves items in no particular order.
  * NOTES:
+ * A database unique to this test module should be used.
  * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
  * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2024
  *
  */
-public class BatteryRelatrixAlias {
-	public static boolean DEBUG = false;
+public class BatteryRelatrixTransactionAlias {
+	public static boolean DEBUG = true;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
@@ -41,6 +44,7 @@ public class BatteryRelatrixAlias {
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
+	static TransactionId xid;
 	/**
 	* Main test fixture driver
 	*/
@@ -48,9 +52,10 @@ public class BatteryRelatrixAlias {
 		String tablespace = argv[0];
 		if(!tablespace.endsWith("/"))
 			tablespace += "/";
-		Relatrix.setAlias(alias1,tablespace+alias1);
-		Relatrix.setAlias(alias2,tablespace+alias2);
-		Relatrix.setAlias(alias3,tablespace+alias3);
+		RelatrixTransaction.setAlias(alias1,tablespace+alias1);
+		RelatrixTransaction.setAlias(alias2,tablespace+alias2);
+		RelatrixTransaction.setAlias(alias3,tablespace+alias3);
+		xid = RelatrixTransaction.getTransactionId();
 		Morphism.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
@@ -58,60 +63,80 @@ public class BatteryRelatrixAlias {
 		} else {
 			if(argv.length > 1 && argv[1].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, alias1);
-				battery1AR17(argv, alias2);
-				battery1AR17(argv, alias3);
+				battery1AR17(argv, alias1, xid);
+				battery1AR17(argv, alias2, xid);
+				battery1AR17(argv, alias3, xid);
 				System.exit(0);
 			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion test from "+min+" to "+max);
-			battery1(argv, alias1);
-			battery1(argv, alias2);
-			battery1(argv, alias3);
+			battery1(argv, alias1, xid);
+			battery1(argv, alias2, xid);
+			battery1(argv, alias3, xid);
+			RelatrixTransaction.commit(alias1,xid);
+			RelatrixTransaction.commit(alias2,xid);
+			RelatrixTransaction.commit(alias3,xid);
+			xid = RelatrixTransaction.getTransactionId();
 			if(DEBUG)
 				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-			battery11(argv, alias1);
-			battery11(argv, alias2);
-			battery11(argv, alias3);
+			battery11(argv, alias1, xid);
+			battery11(argv, alias2, xid);
+			battery11(argv, alias3, xid);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv, alias1);
-		battery1AR6(argv, alias2);
-		battery1AR6(argv, alias3);
+		battery1AR6(argv, alias1, xid);
+		battery1AR6(argv, alias2, xid);
+		battery1AR6(argv, alias3, xid);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR7");
-		battery1AR7(argv,alias1);
-		battery1AR7(argv,alias2);
-		battery1AR7(argv,alias3);
+		battery1AR7(argv,alias1, xid);
+		battery1AR7(argv,alias2, xid);
+		battery1AR7(argv,alias3, xid);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR8");
-		battery1AR8(argv, alias1);
-		battery1AR8(argv, alias2);
-		battery1AR8(argv, alias3);
+		battery1AR8(argv, alias1, xid);
+		battery1AR8(argv, alias2, xid);
+		battery1AR8(argv, alias3, xid);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR9");
-		battery1AR9(argv, alias1);
-		battery1AR9(argv, alias2);
-		battery1AR9(argv, alias3);
+		battery1AR9(argv, alias1, xid);
+		battery1AR9(argv, alias2, xid);
+		battery1AR9(argv, alias3, xid);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR10");
-		battery1AR10(argv, alias1);
-		battery1AR10(argv, alias2);
-		battery1AR10(argv, alias3);
+		battery1AR10(argv, alias1, xid);
+		battery1AR10(argv, alias2, xid);
+		battery1AR10(argv, alias3, xid);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR101");
-		battery1AR101(argv, alias1);
-		battery1AR101(argv, alias2);
-		battery1AR101(argv, alias3);
+		battery1AR101(argv, alias1, xid);
+		battery1AR101(argv, alias2, xid);
+		battery1AR101(argv, alias3, xid);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR11");
-		battery1AR11(argv, alias1);
-		battery1AR11(argv, alias2);
-		battery1AR11(argv, alias3);
-	
+		battery1AR11(argv, alias1, xid);
+		battery1AR11(argv, alias2, xid);
+		battery1AR11(argv, alias3, xid);
+		
+		RelatrixTransaction.commit(alias1,xid);
+		RelatrixTransaction.commit(alias2,xid);
+		RelatrixTransaction.commit(alias3,xid);
+		
+		TransactionId xid2 = RelatrixTransaction.getTransactionId();
+		
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR12");
+		battery1AR12(argv, alias1, xid2);
+		battery1AR12(argv, alias2, xid2);
+		battery1AR12(argv, alias3, xid2);
+		
+		RelatrixTransaction.commit(alias1, xid2);
+		RelatrixTransaction.commit(alias2, xid2);
+		RelatrixTransaction.commit(alias3, xid2);
+		
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
@@ -119,10 +144,11 @@ public class BatteryRelatrixAlias {
 	 * Loads up on keys in the designated alias
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, Alias alias12) throws Exception {
-		System.out.println(alias12+" Battery1 ");
+	public static void battery1(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+		System.out.println(alias12+" Battery1 "+xid2);
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
@@ -131,7 +157,7 @@ public class BatteryRelatrixAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
+				RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, new Long(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -147,10 +173,11 @@ public class BatteryRelatrixAlias {
 	 * Domain/map determines unique key
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv, Alias alias12) throws Exception {
-		System.out.println(alias12+" Battery11 ");
+	public static void battery11(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+		System.out.println(alias12+" Battery11 "+xid2);
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
@@ -158,7 +185,7 @@ public class BatteryRelatrixAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(99999));
+				DomainMapRange dmr = RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, new Long(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -176,19 +203,21 @@ public class BatteryRelatrixAlias {
 	
 
 	/**
-	 * Test the higher level functions in the Relatrix. Use the 'findSet' alias permutations to
+	 * Test the higher level functions in the RelatrixTransaction. Use the 'findSet' alias permutations to
 	 * verify the previously inserted data
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR6(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "?", "?", "?");
-		System.out.println(alias12+" Battery1AR6 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "?", "?", "?");
+		System.out.println(alias12+" Battery1AR6 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
+			System.out.println(its);
 			// 3 question marks = dimension 3 in return array
 				if( DEBUG ) 
 					System.out.println("1AR6:"+i+" "+nex);
@@ -211,16 +240,17 @@ public class BatteryRelatrixAlias {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, "?", "*", "*");
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, "?", "*", "*");
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR7(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "?", "*", "*");
-		System.out.println(alias12+" Battery1AR7 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "?", "*", "*");
+		System.out.println(alias12+" Battery1AR7 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// one '?' in findset gives us one element returned
@@ -241,16 +271,17 @@ public class BatteryRelatrixAlias {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, "?", "?", "*");
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, "?", "?", "*");
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR8(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "?", "?", "*");
-		System.out.println(alias12+" Battery1AR8 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "?", "?", "*");
+		System.out.println(alias12+" Battery1AR8 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// two '?' in findset gives use 2 element array, the domain and map
@@ -272,16 +303,17 @@ public class BatteryRelatrixAlias {
 	}
 	/**
 	 * 
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, "*", "*", "*");
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, "*", "*", "*");
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR9(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "*", "*", "*");
-		System.out.println(alias12+" Batter1AR9 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "*", "*", "*");
+		System.out.println(alias12+" Batter1AR9 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// the returned array has 1 element, the identity Morphism DomainMapRange
@@ -304,18 +336,19 @@ public class BatteryRelatrixAlias {
 	}
 
 	/**
-	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has unit", "*");
+	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has unit", "*");
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR10(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has unit "+alias12, "*");
-		System.out.println(alias12+" Battery1AR10 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has unit "+alias12, "*");
+		System.out.println(alias12+" Battery1AR10 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		// return all identities with the given key for all ranges, should be 1
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
@@ -341,19 +374,20 @@ public class BatteryRelatrixAlias {
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has unit", new Long(max));
+	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has unit", new Long(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR101(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		int i = 0;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max);
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has unit "+alias12, new Long(max));
-		System.out.println(alias12+" Battery1AR101 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has unit "+alias12, new Long(max));
+		System.out.println(alias12+" Battery1AR101 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
@@ -379,20 +413,21 @@ public class BatteryRelatrixAlias {
 	}
 	/**
 	 * negative assertion of above
-	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has time", "*");
+	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has time", "*");
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR11(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has time", "*");
-		System.out.println(alias12+" Battery1AR11 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has time", "*");
+		System.out.println(alias12+" Battery1AR11 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
@@ -407,24 +442,24 @@ public class BatteryRelatrixAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR12(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Relatrix.remove(alias12,fkey);
+		RelatrixTransaction.remove(alias12, xid2, fkey);
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "*", "*");
-		System.out.println(alias12+" Battery1AR12 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "*", "*");
+		System.out.println(alias12+" Battery1AR12 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
-		Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(min));
-		its = Relatrix.findSet(alias12, "*", fkey, "*");
+		RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, new Long(min));
+		its = RelatrixTransaction.findSet(alias12, xid2, "*", fkey, "*");
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
 		}
-		its = Relatrix.findSet(alias12, "*", "*", fkey);
+		its = RelatrixTransaction.findSet(alias12, xid2, "*", "*", fkey);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
 		}
@@ -435,23 +470,24 @@ public class BatteryRelatrixAlias {
 	 * remove entries
 	 * @param argv
 	 * @param alias12 
+	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR17(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB DMR size="+Relatrix.size(alias12, DomainMapRange.class));
-		System.out.println("CleanDB DRM size="+Relatrix.size(alias12, DomainRangeMap.class));
-		System.out.println("CleanDB MDR size="+Relatrix.size(alias12, MapDomainRange.class));
-		System.out.println("CleanDB MDR size="+Relatrix.size(alias12, MapRangeDomain.class));
-		System.out.println("CleanDB RDM size="+Relatrix.size(alias12, RangeDomainMap.class));
-		System.out.println("CleanDB RMD size="+Relatrix.size(alias12, RangeMapDomain.class));
+		System.out.println(xid+" CleanDB DMR size="+RelatrixTransaction.size(alias12, xid, DomainMapRange.class));
+		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(alias12, xid, DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12, xid, MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12, xid, MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(alias12, xid, RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(alias12, xid, RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet(alias12, "*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(alias12, xid, "*","*","*");
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
 			try {
-				Relatrix.remove(alias12, dmr);
+				RelatrixTransaction.remove(alias12, xid, dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -461,7 +497,7 @@ public class BatteryRelatrixAlias {
 				timx = System.currentTimeMillis();
 			}
 		});
-		Iterator<?> its = Relatrix.findSet(alias12, "*","*","*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid, "*","*","*");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);
@@ -470,7 +506,7 @@ public class BatteryRelatrixAlias {
 			else
 				throw new Exception("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 		}
-		long siz = Relatrix.size(alias12);
+		long siz = RelatrixTransaction.size(alias12, xid);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -478,27 +514,27 @@ public class BatteryRelatrixAlias {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, DomainMapRange.class);
+			it = RelatrixTransaction.entrySet(alias12, xid, DomainMapRange.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("DomainMapRange:"+nex);
 			}
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, DomainRangeMap.class);
+			it = RelatrixTransaction.entrySet(alias12, xid, DomainRangeMap.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("DomainRangeMap:"+nex);
 			}
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, MapDomainRange.class);
+			it = RelatrixTransaction.entrySet(alias12, xid, MapDomainRange.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("MapDomainRange:"+nex);
 			}
 		}
-		siz = Relatrix.size(alias12, MapDomainRange.class);
+		siz = RelatrixTransaction.size(alias12, xid, MapDomainRange.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -506,13 +542,13 @@ public class BatteryRelatrixAlias {
 				throw new Exception("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, MapRangeDomain.class);
+			it = RelatrixTransaction.entrySet(alias12, xid, MapRangeDomain.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("MapRangeDomain:"+nex);
 			}
 		}
-		siz = Relatrix.size(alias12, MapRangeDomain.class);
+		siz = RelatrixTransaction.size(alias12,xid,  MapRangeDomain.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -520,13 +556,13 @@ public class BatteryRelatrixAlias {
 				throw new Exception("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, RangeDomainMap.class);
+			it = RelatrixTransaction.entrySet(alias12, xid, RangeDomainMap.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("RangeDomainMap:"+nex);
 			}
 		}
-		siz = Relatrix.size(alias12, RangeDomainMap.class);
+		siz = RelatrixTransaction.size(alias12, xid, RangeDomainMap.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -534,13 +570,13 @@ public class BatteryRelatrixAlias {
 				throw new Exception("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, RangeMapDomain.class);
+			it = RelatrixTransaction.entrySet(alias12, xid, RangeMapDomain.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("RangeMapDomain:"+nex);
 			}
 		}
-		siz = Relatrix.size(alias12, RangeMapDomain.class);
+		siz = RelatrixTransaction.size(alias12, xid, RangeMapDomain.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");

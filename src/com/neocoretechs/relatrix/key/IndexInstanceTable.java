@@ -474,10 +474,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public void delete(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		//synchronized(mutex) {
-			Object instance = RelatrixKVTransaction.remove(transactionId, index);
+			Object instance = RelatrixKVTransaction.remove(alias, transactionId, index);
 			// index is valid
 			if(instance != null) {
-				RelatrixKVTransaction.remove(transactionId, (Comparable) instance);
+				RelatrixKVTransaction.remove(alias, transactionId, (Comparable) instance);
 			}	
 		//}
 	}
@@ -715,6 +715,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public DBKey getByInstance(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
+		//Object o = RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
+		//if(!(o instanceof DBKey))
+		//		System.out.println("Error getting "+o+" instance:"+instance+" alias:"+alias+" xid:"+transactionId);
 			return (DBKey) RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
 		//}
 	}

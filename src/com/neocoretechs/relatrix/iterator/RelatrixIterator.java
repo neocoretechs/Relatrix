@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -74,7 +75,7 @@ public class RelatrixIterator implements Iterator<Result> {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIterator hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", template:"+base);
+			System.out.println(this.toString());
     }
 	/**
 	 * Pass the array we use to indicate which values to return and element 0 counter
@@ -103,13 +104,13 @@ public class RelatrixIterator implements Iterator<Result> {
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIterator hasNext:"+iter.hasNext()+", needsIter"+needsIter+", buffer:"+buffer+", template:"+base);
+			System.out.println(this.toString());
 	}
 	
 	@Override
 	public boolean hasNext() {
 		if( DEBUG )
-			System.out.println("RelatrixIterator.hasNext() "+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
+			System.out.println(this.toString());
 		return needsIter;
 	}
 
@@ -119,7 +120,7 @@ public class RelatrixIterator implements Iterator<Result> {
 		try {
 		if( buffer == null || needsIter) {
 			if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.next() before iteration hasNext::"+iter.hasNext()+" needsIter:"+needsIter+", buffer:"+buffer+", nextit"+nextit);
+	    			System.out.println(this.toString());
 			}
 			if( nextit != null )
 				buffer = nextit;
@@ -137,7 +138,7 @@ public class RelatrixIterator implements Iterator<Result> {
 		}
 		// always return using this with non null buffer
 		if( DEBUG ) {
-			System.out.println("RelatrixIterator.next() template match after iteration hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
+			System.out.println("RelatrixIterator.next() template match after iteration "+this.toString());
 		}
 		return iterateDmr();
 		
@@ -234,7 +235,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	 */
 	protected static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
 		if( DEBUG )
-			System.out.println("RelatrixIterator.templateMatches template:"+template+" record:"+record+" dmr_return:"+dmr_return[0]+","+dmr_return[1]+","+dmr_return[2]+","+dmr_return[3]);
+			System.out.println("RelatrixIterator.templateMatches template:"+template+" record:"+record+" dmr_return:"+Arrays.toString(dmr_return));
 		if(template.getDomainKey() != null)
 			if( dmr_return[1] == 0 && template.getDomainKey().compareTo(record.getDomainKey()) != 0 ) return false;
 		if(template.getMapKey() != null)
@@ -243,5 +244,23 @@ public class RelatrixIterator implements Iterator<Result> {
 			if( dmr_return[3] == 0 && template.getRangeKey().compareTo(record.getRangeKey()) != 0) return false;
 		return true;
 	}
-
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("RelatrixIterator: hasNext:");
+	    sb.append(iter == null ? "iter NULL" : iter.hasNext());
+		sb.append(" needsIter:");
+		sb.append(needsIter);
+		sb.append(" Identity:");
+		sb.append(identity);
+		sb.append(" buffer:");
+		sb.append(buffer);
+		sb.append(" base:");
+		sb.append(base);
+		sb.append(" nextit:");
+		sb.append(nextit);
+		sb.append(" dmr_return:");
+		sb.append(Arrays.toString(dmr_return));
+		return sb.toString();
+	}
 }
