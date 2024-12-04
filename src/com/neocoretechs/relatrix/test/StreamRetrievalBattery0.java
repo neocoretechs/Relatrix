@@ -8,8 +8,11 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 
 /**
- * NOTES: program args are local_node remote_node remote_database_port
- * @author Jonathan Groff (c) 2021
+ * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
+ * and verifying findStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
+ * NOTES:
+ * program arguments are local_node remote_node remote_port_for_database
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
 public class StreamRetrievalBattery0 {

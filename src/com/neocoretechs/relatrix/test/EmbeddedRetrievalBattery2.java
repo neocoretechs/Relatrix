@@ -16,15 +16,14 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
-import com.neocoretechs.relatrix.client.RelatrixClient;
-import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIterator;
+
 
 /**
+ * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
+ * and verifying findHeadSet retrieval.
  * NOTES:
  * program arguments are _database
- * @author Jonathan Groff C 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
 public class EmbeddedRetrievalBattery2 {

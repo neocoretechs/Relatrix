@@ -17,19 +17,13 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.IndexResolver;
 
 /**
- * Yes, this should be a nice JUnit fixture someday
- * The static constant fields in the class control the key generation for the tests
- * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals
- * In general most of the testing relies on checking order against expected values hence the importance of
- * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable.
  * The set of tests verifies the higher level 'findSet' functions in the {@link  Relatrix}, which can be used
- * as examples of Relatrix processing.
+ * as examples of {@link Relatrix} processing. In general the tests compare the number of items retrieved 
+ * against expected value since findSet retrieves items in no particular order.
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
- * @author Jonathan Groff Copyright (C) NoeCoreTechs 2016,2017
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
 public class BatteryRelatrix {
@@ -152,7 +146,6 @@ public class BatteryRelatrix {
 		}
 	}
 	
-
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data

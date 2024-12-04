@@ -1,36 +1,21 @@
 package com.neocoretechs.relatrix.test;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.neocoretechs.rocksack.KeyValue;
-import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DuplicateKeyException;
-
-import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
-import com.neocoretechs.relatrix.client.RemoteStream;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * Yes, this should be a nice JUnit fixture someday
- * The static constant fields in the class control the key generation for the tests
- * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals
- * In general most of the battery1 testing relies on checking order against expected values hence the importance of
- * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable.
+ * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
+ * and verifying findStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer}.
  * NOTES:
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
- * A database unique to this test module should be used.
- * @author jg C 2017
- *
+ * program arguments are local_node remote_node remote_port_for_database
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
 public class TransactionBatteryRelatrix {
 	public static boolean DEBUG = false;
@@ -40,15 +25,14 @@ public class TransactionBatteryRelatrix {
 	static int min = 0;
 	static int max = 2000;
 	public static String DATABASE;
-	public static int DATABASE_PORT = 9030;
 
 	/**
 	* Analysis test fixture
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixClientTransaction session = null;
-		DATABASE = argv[0];
-		session = new RelatrixClientTransaction(DATABASE, DATABASE, DATABASE_PORT);
+		DATABASE = argv[0];		
+		session = new RelatrixClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]) );
 		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
 		//Relatrix.setTablespaceDirectory(argv[0]);

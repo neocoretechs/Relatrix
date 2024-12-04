@@ -17,9 +17,11 @@ import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 
 /**
+ * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
+ * and verifying findSubStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * NOTES:
  * program arguments are local_node remote_node remote_port_for_database
- * @author Jonathan Groff C 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
 public class StreamRetrievalBattery1 {

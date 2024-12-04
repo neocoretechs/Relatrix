@@ -19,9 +19,11 @@ import com.neocoretechs.relatrix.Result3;
 
 
 /**
+ * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
+ * and verifying findSubSet retrieval.
  * NOTES:
  * program arguments are _database
- * @author Jonathan Groff C 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2024
  *
  */
 public class EmbeddedRetrievalBattery4 {
@@ -220,9 +222,7 @@ public class EmbeddedRetrievalBattery4 {
 			if(ar3.size() == 0) {
 				ar3.add(c);
 			}
-		}
-		
-		
+		}	
 		System.out.println("BATTERY4 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
 	/**

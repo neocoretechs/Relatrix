@@ -6,14 +6,18 @@ import java.util.Map;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 
 /**
- * @author jg (C) 2024
- *
+ * The set of tests verifies the lower level {@link DBKey} functions with alias in the {@link  Relatrix}
+ * NOTES:
+ * A database unique to this test module should be used.
+ * program argument is database path i.e. C:/users/you/Relatrix
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  */
 public class BatteryDBKeyAlias {
 	public static boolean DEBUG = false;

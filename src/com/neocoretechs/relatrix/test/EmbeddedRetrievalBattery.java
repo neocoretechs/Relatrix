@@ -13,14 +13,12 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.client.RelatrixClient;
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIterator;
 
 /**
+ * This series of tests uses classes and concrete object instances in various FindSet permutations.
  * NOTES:
  * program arguments are _database
- * @author Jonathan Groff C 2021
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
 public class EmbeddedRetrievalBattery {

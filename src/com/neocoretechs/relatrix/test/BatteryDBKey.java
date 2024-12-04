@@ -6,16 +6,20 @@ import java.util.Map;
 import java.util.Random;
 
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
-import com.neocoretechs.relatrix.key.KeySet;
 
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 
 /**
- * @author jg (C) 2024
+ * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
+ * NOTES:
+ * A database unique to this test module should be used.
+ * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
 public class BatteryDBKey {

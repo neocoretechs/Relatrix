@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -20,7 +17,11 @@ import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 /**
- * @author jg (C) 2024
+ * The set of tests verifies the lower level {@link KeySet} functions in the {@link  Relatrix}
+ * NOTES:
+ * A database unique to this test module should be used.
+ * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
 public class BatteryKeyset {
