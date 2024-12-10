@@ -70,7 +70,7 @@ public final class Relatrix {
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
   
 	static final String databaseCatalogProperty = "Relatrix.Catalog";
-	static final Alias databaseCatalogAlias = new Alias(databaseCatalogProperty);
+	public static final Alias databaseCatalogAlias = new Alias(databaseCatalogProperty);
 	static String databaseCatalog = "/etc/db/";
 	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
@@ -95,6 +95,22 @@ public final class Relatrix {
 		sftpm.init(5, 5, new String[] {storeX,deleteX});
 		sftpm.init(2, 2, new String[] {storeI,deleteI});
 	}
+	
+	// Multithreaded double check Singleton setups:
+	// 1.) privatized constructor; no other class can call
+	private Relatrix() {
+	}
+	// 2.) volatile instance
+	private static volatile Relatrix instance = null;
+	// 3.) lock class, assign instance if null
+	public static Relatrix getInstance() {
+		synchronized(Relatrix.class) {
+			if(instance == null) {
+				instance = new Relatrix();
+			}
+		}
+		return instance;
+	}	
 	
 
 	/**
@@ -174,12 +190,11 @@ public final class Relatrix {
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
 		identity.setDomain(d);
 		identity.setMap(m);
-		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		DBKey dbkey = primary.store();
+		DBKey dbkey = identity.store();
 		identity.setRange(r); // form it as template for duplicate key search
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
@@ -285,12 +300,11 @@ public final class Relatrix {
 		identity.setDomain(alias,d);
 		identity.setMap(alias,m);
 		identity.setAlias(alias);
-		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		DBKey dbkey = primary.store();
+		DBKey dbkey = identity.store();
 		identity.setRange(alias,r); // form it as template for duplicate key search
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
@@ -406,14 +420,13 @@ public final class Relatrix {
 		try {
 			removeRecursive(c);
 			if(c instanceof DomainMapRange) {
-				PrimaryKeySet primary = new PrimaryKeySet((DomainMapRange) c);
 				DomainRangeMap drm = new DomainRangeMap((DomainMapRange) c);
 				MapDomainRange mdr = new MapDomainRange((DomainMapRange) c);
 				MapRangeDomain mrd = new MapRangeDomain((DomainMapRange) c);
 				RangeDomainMap rdm = new RangeDomainMap((DomainMapRange) c);
 				RangeMapDomain rmd = new RangeMapDomain((DomainMapRange) c);
 				
-				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(c);
 				IndexResolver.getIndexInstanceTable().delete(primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -497,14 +510,13 @@ public final class Relatrix {
 		try {
 			removeRecursive(alias,c);
 			if(c instanceof DomainMapRange) {
-				PrimaryKeySet primary = new PrimaryKeySet((DomainMapRange) c);
 				DomainRangeMap drm = new DomainRangeMap(alias,(DomainMapRange) c);
 				MapDomainRange mdr = new MapDomainRange(alias,(DomainMapRange) c);
 				MapRangeDomain mrd = new MapRangeDomain(alias,(DomainMapRange) c);
 				RangeDomainMap rdm = new RangeDomainMap(alias,(DomainMapRange) c);
 				RangeMapDomain rmd = new RangeMapDomain(alias,(DomainMapRange) c);
 
-				DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, c);
 				IndexResolver.getIndexInstanceTable().delete(alias, primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -594,8 +606,7 @@ public final class Relatrix {
 				RangeDomainMap rdm = new RangeDomainMap(dmr);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
-				PrimaryKeySet primary = new PrimaryKeySet(dmr);
-				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(dmr);
 				IndexResolver.getIndexInstanceTable().delete(primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -666,8 +677,7 @@ public final class Relatrix {
 				RangeDomainMap rdm = new RangeDomainMap(dmr);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
-				PrimaryKeySet primary = new PrimaryKeySet(dmr);
-				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary); // remove primary key
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(dmr); // remove primary key
 				IndexResolver.getIndexInstanceTable().delete(primaryKey); // remove DMR index table and instance table via primary key
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -738,8 +748,7 @@ public final class Relatrix {
 				RangeDomainMap rdm = new RangeDomainMap(dmr);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 
-				PrimaryKeySet primary = new PrimaryKeySet(dmr);
-				DBKey primaryKey = (DBKey) RelatrixKV.remove(primary);
+				DBKey primaryKey = (DBKey) RelatrixKV.remove(dmr);
 				IndexResolver.getIndexInstanceTable().delete(primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -824,8 +833,7 @@ public final class Relatrix {
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
-			PrimaryKeySet primary = new PrimaryKeySet(dmr);
-			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, dmr);
 			IndexResolver.getIndexInstanceTable().delete(alias, primaryKey);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
@@ -896,8 +904,7 @@ public final class Relatrix {
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
-			PrimaryKeySet primary = new PrimaryKeySet(dmr);
-			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, dmr);
 			IndexResolver.getIndexInstanceTable().delete(alias, primaryKey);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
@@ -968,8 +975,7 @@ public final class Relatrix {
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 
-			PrimaryKeySet primary = new PrimaryKeySet(dmr);
-			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, primary);
+			DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, dmr);
 			IndexResolver.getIndexInstanceTable().delete(alias, primaryKey);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override

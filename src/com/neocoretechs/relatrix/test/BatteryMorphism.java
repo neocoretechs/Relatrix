@@ -77,13 +77,12 @@ public class BatteryMorphism {
 			DomainMapRange identity = new DomainMapRange();
 			identity.setDomainKey(DBKey.newKey(indexTable, d));
 			identity.setMapKey(DBKey.newKey(indexTable, m));
-			PrimaryKeySet primary = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			try {
-				DBKey dbkey = primary.store();
+				DBKey dbkey = identity.store();
 				identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
 				// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 				// and maintains the classes stores in IndexInstanceTable for future commit.

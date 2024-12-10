@@ -38,7 +38,7 @@ import com.neocoretechs.rocksack.TransactionId;
 */
 public class FindSetMode0Transaction extends FindSetMode0 {
 	// mode 0
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	TransactionId xid;
     public FindSetMode0Transaction(TransactionId xid, char dop, char mop, char rop) { 
     	super(dop, mop, rop);
@@ -71,7 +71,7 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  				break;
  		}
  		if( DEBUG  )
- 			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
+ 			System.out.printf("%s.createIterator xid=%s setting search for %s%n",this.getClass().getName(),xid,dmr);
  	    return createRelatrixIterator(dmr);
  	}
  	
@@ -102,7 +102,7 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  				break;
  		}
  		if( DEBUG  )
- 			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
+ 			System.out.printf("%s.createIterator xid=%s alias=%s setting search for %s%n",this.getClass().getName(),xid,alias,dmr);
  	    return createRelatrixIterator(alias, dmr);
  	}
  	

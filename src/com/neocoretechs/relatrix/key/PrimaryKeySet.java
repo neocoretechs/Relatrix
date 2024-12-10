@@ -6,7 +6,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.rocksack.Alias;
@@ -19,8 +18,10 @@ import com.neocoretechs.rocksack.TransactionId;
  * object and maps it to a given range through a mapping object can result in only 1 mapping of a domain to range
  * through a particular mapping function. Consider as an extremely simplified example the domain integer object 1 
  * using the mapping function addOne results in a range object of 2, and only 2, and naturally composes with the
- * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.
- * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023
+ * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.<p/>
+ * As is stated by the annotation, this class functions as DomainMapRange in the database, and that class
+ * is a subclass of this. 
+ * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023,2024
  *
  */
 @DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
@@ -29,17 +30,27 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	private static boolean DEBUG = false;
 	protected DBKey domainKey;
     protected DBKey mapKey;
-	private transient TransactionId transactionId = null;
-	private transient Alias alias = null;
+    protected transient DBKey identity;
+	protected transient TransactionId transactionId = null;
+	protected transient Alias alias = null;
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public PrimaryKeySet() {}
     
-	public PrimaryKeySet(Morphism identity) {
-		setDomainKey(identity.getDomainKey());
-		setMapKey(identity.getMapKey());
-		this.transactionId = identity.getTransactionId();
-		this.alias = identity.getAlias();
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey) {
+		this.domainKey = domainKey;
+		this.mapKey = mapKey;
+	}
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, TransactionId transactionId) {
+		this.domainKey = domainKey;
+		this.mapKey = mapKey;
+		this.transactionId = transactionId;
+	}
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias, TransactionId transactionId) {
+		this.domainKey = domainKey;
+		this.mapKey = mapKey;
+		this.transactionId = transactionId;
+		this.alias = alias;
 	}
 	public DBKey getDomainKey() {
 		return domainKey;
@@ -53,6 +64,21 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	public void setMapKey(DBKey mapKey) {
 		this.mapKey = mapKey;
 	}
+	/**
+	 * Get the identity key, that is, the key that is used as key in index table, and value in instance class table.
+	 * @return the identity DBKey
+	 */
+	public DBKey getDBKey() {
+		return identity;
+	}
+	/**
+	 * Set the identity key, that is, the key that is used as key in index table, and value in instance class table.
+	 * @param identity
+	 */
+	public void setDBKey(DBKey identity) {
+		this.identity = identity;
+	}
+	
 	public boolean isValid() {
 		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey);
 	}
@@ -68,7 +94,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	public boolean mapKeyEquals(PrimaryKeySet o) {
 		return mapKey.equals(o.mapKey);
 	}
-
+	public TransactionId getTransactionId() {
+		return transactionId;
+	}
+	public void setTransactionId(TransactionId xid) {
+		this.transactionId = xid;
+	}
 	/**
 	 * Universal Store the instances to index and instance tables creating instance/DBKey and DBKey/instance tablespace entries
 	 * @param skeyd instance for domain

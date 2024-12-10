@@ -111,6 +111,7 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     	if( iter.hasNext() ) {
     		try {
 				buffer = (Morphism) RelatrixKVTransaction.get(xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+				buffer.setTransactionId(xid);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -203,6 +204,8 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     	if( iter.hasNext() ) {
     		try {
 				buffer = (Morphism) RelatrixKVTransaction.get(alias, xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+				buffer.setAlias(alias);
+				buffer.setTransactionId(xid);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -237,10 +240,13 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
 			
 			if( iter.hasNext()) {
 	    		try {
-	    			if(alias == null)
+	    			if(alias == null) {
 	    				nextit = (Morphism) RelatrixKVTransaction.get(xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
-	    			else
+	    			} else {
 	    				nextit = (Morphism) RelatrixKVTransaction.get(alias, xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+	    				nextit.setAlias(alias);
+	    			}
+    				nextit.setTransactionId(xid);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}

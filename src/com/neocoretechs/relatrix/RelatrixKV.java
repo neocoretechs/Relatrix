@@ -8,14 +8,18 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.rocksdb.RocksDBException;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-
+import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.StreamHelper;
 
@@ -29,16 +33,52 @@ public final class RelatrixKV {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
-
+	private static ConcurrentHashMap<String, BufferedMap> mapCache = new ConcurrentHashMap<String, BufferedMap>();
+	// Multithreaded double check Singleton setups:
+	// 1.) privatized constructor; no other class can call
+	private RelatrixKV() {}
+	// 2.) volatile instance
+	private static volatile RelatrixKV instance = null;
+	// 3.) lock class, assign instance if null
+	public static RelatrixKV getInstance() {
+		synchronized(RelatrixKV.class) {
+			if(instance == null) {
+				instance = new RelatrixKV();
+			}
+		}
+		return instance;
+	}
+	
+	public static BufferedMap getMap(Comparable type) throws IllegalAccessException, IOException {
+		return getMap(type.getClass());
+	}
+	
+	public static BufferedMap getMap(Alias alias, Comparable type) throws IllegalAccessException, IOException {
+		return getMap(alias, type.getClass());
+	}
+	
+	public static BufferedMap getMap(Class type) throws IllegalAccessException, IOException {
+		BufferedMap t = mapCache.get(type.getName());
+		if(t == null) {
+			t = DatabaseManager.getMap(type);
+			mapCache.put(type.getName(), t);
+		}
+		return t;
+	}
+	public static BufferedMap getMap(Alias alias, Class type) throws IllegalAccessException, IOException {
+		BufferedMap t = mapCache.get(type.getName()+alias.getAlias());
+		if(t == null) {
+			t = DatabaseManager.getMap(alias, type);
+			mapCache.put(type.getName()+alias.getAlias(), t);
+		}
+		return t;
+	}
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
 	 * @param path
 	 * @throws IOException
 	 */
 	public static void setTablespace(String path) throws IOException {
-		File p = new File(path);
-		if(!new File(p.getParent()).isDirectory())
-			throw new IOException("Cannot set tablespace directory for fileset "+path+" to allocate persistent storage.");
 		DatabaseManager.setTableSpaceDir(path);
 	}
 	
@@ -53,9 +93,6 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void setAlias(Alias alias, String path) throws IOException {
-		File p = new File(path);
-		if(!new File(p.getParent()).isDirectory())
-			throw new IOException("Cannot set alias for tablespace directory using fileset "+path+" to allocate persistent storage.");
 		DatabaseManager.setTableSpaceDir(alias, path);
 	}
 	
@@ -91,7 +128,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void store(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		BufferedMap ttm = DatabaseManager.getMap(key);
+		BufferedMap ttm = getMap(key);
 		if( DEBUG  )
 			System.out.println("RelatrixKV.store storing key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
@@ -106,7 +143,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void store(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		BufferedMap ttm = DatabaseManager.getMap(alias, key);
+		BufferedMap ttm = getMap(alias, key);
 		if( DEBUG  )
 			System.out.println("RelatrixKV.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
@@ -150,7 +187,7 @@ public final class RelatrixKV {
 	 */
 	public static Object remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(c);
+		BufferedMap ttm = getMap(c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove prepping to remove:"+c);
 		return ttm.remove(c);
@@ -166,7 +203,7 @@ public final class RelatrixKV {
 	 */
 	public static Object remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, c);
+		BufferedMap ttm = getMap(alias, c);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKV.remove prepping to remove:"+c);
 		return ttm.remove(c);
@@ -184,7 +221,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return ttm.tailMap(darg);
 	}
 	/**
@@ -201,7 +238,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return ttm.tailMap(darg);
 	}
 
@@ -217,7 +254,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return new StreamHelper(ttm.tailMap(darg));
 	}
 	/**
@@ -233,7 +270,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return new StreamHelper(ttm.tailMap(darg));
 	}
 
@@ -249,7 +286,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return ttm.tailMapKV(darg);
 	}
 	/**
@@ -266,7 +303,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findTailMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return ttm.tailMapKV(darg);
 	}
 
@@ -281,7 +318,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return new StreamHelper(ttm.tailMapKV(darg));
 	}
 	/**
@@ -297,7 +334,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findTailMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return new StreamHelper(ttm.tailMapKV(darg));
 	}
 
@@ -311,7 +348,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
 	}
@@ -327,7 +364,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMap(darg);
 	}
@@ -342,7 +379,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return new StreamHelper(ttm.headMap(darg));
 	}
 	/**
@@ -357,7 +394,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return new StreamHelper(ttm.headMap(darg));
 	}
 
@@ -371,7 +408,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
 	}
@@ -387,7 +424,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findHeadMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return ttm.headMapKV(darg);
 	}
@@ -402,7 +439,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return new StreamHelper(ttm.headMapKV(darg));
 	}
 	/**
@@ -417,7 +454,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findHeadMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		// check for at least one object reference in our headset factory
 		return new StreamHelper(ttm.headMapKV(darg));
 	}
@@ -435,7 +472,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findSubMap(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return ttm.subMap(darg, marg);
 	}
 	/**
@@ -453,7 +490,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> findSubMap(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return ttm.subMap(darg, marg);
 	}
 
@@ -470,7 +507,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findSubMapStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return new StreamHelper(ttm.subMap(darg, marg));
 	}
 	/**
@@ -488,7 +525,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> findSubMapStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return new StreamHelper(ttm.subMap(darg, marg));
 	}
 
@@ -506,7 +543,7 @@ public final class RelatrixKV {
 	public static Iterator<?> findSubMapKV(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return ttm.subMapKV(darg, marg);
 	}
 	/**
@@ -525,7 +562,7 @@ public final class RelatrixKV {
 	public static Iterator<?> findSubMapKV(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return ttm.subMapKV(darg, marg);
 	}
 
@@ -543,7 +580,7 @@ public final class RelatrixKV {
 	public static Stream<?> findSubMapKVStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
-		BufferedMap ttm = DatabaseManager.getMap(darg);
+		BufferedMap ttm = getMap(darg);
 		return new StreamHelper(ttm.subMapKV(darg, marg));
 	}
 	/**
@@ -562,7 +599,7 @@ public final class RelatrixKV {
 	public static Stream<?> findSubMapKVStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
-		BufferedMap ttm = DatabaseManager.getMap(alias, darg);
+		BufferedMap ttm = getMap(alias, darg);
 		return new StreamHelper(ttm.subMapKV(darg, marg));
 	}
 
@@ -575,7 +612,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> entrySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.entrySet();
 	}
 	/**
@@ -589,7 +626,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> entrySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.entrySet();
 	}
 	/**
@@ -601,7 +638,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> entrySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return new StreamHelper(ttm.entrySet());
 	}
 	/**
@@ -615,7 +652,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> entrySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return new StreamHelper(ttm.entrySet());
 	}
 	/**
@@ -627,7 +664,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> keySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.keySet();
 	}
 	/**
@@ -641,7 +678,7 @@ public final class RelatrixKV {
 	 */
 	public static Iterator<?> keySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.keySet();
 	}
 	/**
@@ -653,7 +690,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> keySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return new StreamHelper(ttm.keySet());
 	}
 	/**
@@ -667,7 +704,7 @@ public final class RelatrixKV {
 	 */
 	public static Stream<?> keySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return new StreamHelper(ttm.keySet());
 	}
 	/**
@@ -679,7 +716,7 @@ public final class RelatrixKV {
 	 */
 	public static Object firstKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.firstKey();
 	}
 	/**
@@ -693,7 +730,7 @@ public final class RelatrixKV {
 	 */
 	public static Object firstKey(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.firstKey();
 	}
 	/**
@@ -705,7 +742,7 @@ public final class RelatrixKV {
 	 */
 	public static Object get(Comparable<?> key) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(key);
+		BufferedMap ttm = getMap(key);
 		Object o = ttm.get(key);
 		if( o == null )
 			return null;
@@ -722,7 +759,7 @@ public final class RelatrixKV {
 	 */
 	public static Object get(Alias alias, Comparable<?> key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, key);
+		BufferedMap ttm = getMap(alias, key);
 		Object o = ttm.get(key);
 		if( o == null )
 			return null;
@@ -738,7 +775,7 @@ public final class RelatrixKV {
 	 */
 	public static Object firstValue(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.first();
 	}
 	/**
@@ -752,7 +789,7 @@ public final class RelatrixKV {
 	 */
 	public static Object firstValue(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.first();
 	}
 	/**
@@ -764,7 +801,7 @@ public final class RelatrixKV {
 	 */
 	public static Object lastKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.lastKey();
 	}
 	/**
@@ -778,7 +815,7 @@ public final class RelatrixKV {
 	 */
 	public static Object lastKey(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.lastKey();
 	}
 	/**
@@ -790,7 +827,7 @@ public final class RelatrixKV {
 	 */
 	public static Object lastValue(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.last();
 	}
 	/**
@@ -804,7 +841,7 @@ public final class RelatrixKV {
 	 */
 	public static Object lastValue(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.last();
 	}
 	/**
@@ -816,7 +853,7 @@ public final class RelatrixKV {
 	 */
 	public static long size(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.size();
 	}
 	/**
@@ -830,7 +867,7 @@ public final class RelatrixKV {
 	 */
 	public static long size(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.size();
 	}
 	/**
@@ -842,7 +879,7 @@ public final class RelatrixKV {
 	 */
 	public static boolean contains(Comparable<?> obj) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(obj);
+		BufferedMap ttm = getMap(obj);
 		return ttm.containsKey(obj);
 	}
 	/**
@@ -856,7 +893,7 @@ public final class RelatrixKV {
 	 */
 	public static boolean contains(Alias alias, Comparable<?> obj) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, obj);
+		BufferedMap ttm = getMap(alias, obj);
 		return ttm.containsKey(obj);
 	}
 
@@ -869,7 +906,7 @@ public final class RelatrixKV {
 	 */
 	public static boolean containsValue(Class<?> clazz, Comparable obj) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		return ttm.containsValue(obj);
 	}
 
@@ -885,7 +922,7 @@ public final class RelatrixKV {
 	 */
 	public static boolean containsValue(Alias alias, Class<?> clazz, Comparable obj) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		return ttm.containsValue(obj);
 	}
 	/**
@@ -897,7 +934,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static Object nearest(Comparable<?> key) throws IllegalAccessException, IOException {
-		BufferedMap ttm = DatabaseManager.getMap(key);
+		BufferedMap ttm = getMap(key);
 		return ttm.nearest(key);
 	}
 	/**
@@ -910,7 +947,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static Object nearest(Alias alias, Comparable<?> key) throws IllegalAccessException, IOException, NoSuchElementException {
-		BufferedMap ttm = DatabaseManager.getMap(alias,key);
+		BufferedMap ttm = getMap(alias,key);
 		return ttm.nearest(key);
 	}
 
@@ -924,7 +961,7 @@ public final class RelatrixKV {
 	 */
 	public static void close(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(alias, clazz);
+		BufferedMap ttm = getMap(alias, clazz);
 		DatabaseManager.removeMap(alias, ttm);
 	}
 	/**
@@ -936,7 +973,7 @@ public final class RelatrixKV {
 	 */
 	public static void close(Class<?> clazz) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = DatabaseManager.getMap(clazz);
+		BufferedMap ttm = getMap(clazz);
 		DatabaseManager.removeMap(ttm);
 	}
 

@@ -78,7 +78,6 @@ public class BatteryRelatrixTransactionAlias {
 			RelatrixTransaction.commit(alias1,xid);
 			RelatrixTransaction.commit(alias2,xid);
 			RelatrixTransaction.commit(alias3,xid);
-			xid = RelatrixTransaction.getTransactionId();
 			if(DEBUG)
 				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 			battery11(argv, alias1, xid);
@@ -125,17 +124,15 @@ public class BatteryRelatrixTransactionAlias {
 		RelatrixTransaction.commit(alias2,xid);
 		RelatrixTransaction.commit(alias3,xid);
 		
-		TransactionId xid2 = RelatrixTransaction.getTransactionId();
-		
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR12");
-		battery1AR12(argv, alias1, xid2);
-		battery1AR12(argv, alias2, xid2);
-		battery1AR12(argv, alias3, xid2);
+		battery1AR12(argv, alias1, xid);
+		battery1AR12(argv, alias2, xid);
+		battery1AR12(argv, alias3, xid);
 		
-		RelatrixTransaction.commit(alias1, xid2);
-		RelatrixTransaction.commit(alias2, xid2);
-		RelatrixTransaction.commit(alias3, xid2);
+		RelatrixTransaction.commit(alias1, xid);
+		RelatrixTransaction.commit(alias2, xid);
+		RelatrixTransaction.commit(alias3, xid);
 		
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);

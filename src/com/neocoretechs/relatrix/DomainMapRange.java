@@ -18,7 +18,6 @@ import com.neocoretechs.rocksack.TransactionId;
 public class DomainMapRange extends Morphism implements Comparable, Serializable, Cloneable {
 	private static final long serialVersionUID = 8664384659501163179L;
 	private static boolean DEBUG = false;
-    protected transient DBKey identity;
     
     public DomainMapRange() {}
     
@@ -71,15 +70,6 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 	public DomainMapRange(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
-
-	public DBKey getDBKey() {
-		return identity;
-	}
-	
-	public void setDBKey(DBKey identity) {
-		this.identity = identity;
-	}
-	
 
 	@Override
 	public int hashCode() {

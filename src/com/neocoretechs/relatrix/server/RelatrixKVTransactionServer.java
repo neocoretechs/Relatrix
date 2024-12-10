@@ -161,7 +161,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		new RelatrixKVTransaction();
+		RelatrixKVTransaction.getInstance();
 		if(args.length == 3) {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());

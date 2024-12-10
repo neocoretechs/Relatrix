@@ -20,7 +20,7 @@ import com.neocoretechs.rocksack.TransactionId;
 	 *
 	 */
 	public abstract class IteratorFactory {
-		private static boolean DEBUG = false; 
+		private static boolean DEBUG = true; 
 	    protected static char dop, mop, rop;
 		
 		/**

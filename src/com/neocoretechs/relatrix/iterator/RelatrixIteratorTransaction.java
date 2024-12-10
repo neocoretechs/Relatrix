@@ -34,7 +34,7 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class RelatrixIteratorTransaction extends RelatrixIterator {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	/**
 	 * Pass the array we use to indicate which values to return and element 0 counter
 	 * @param xid the transaction id
@@ -53,6 +53,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 		}//(TailSetIterator) bts.tailSet(template);
     	if( iter.hasNext() ) {
 			buffer = (Morphism) iter.next();
+			buffer.setTransactionId(xid);
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;
@@ -83,6 +84,8 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 		}//(TailSetIterator) bts.tailSet(template);
     	if( iter.hasNext() ) {
 			buffer = (Morphism) iter.next();
+			buffer.setTransactionId(xid);
+			buffer.setAlias(alias);
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;

@@ -36,7 +36,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
 public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = false;
+		private static boolean DEBUG = true;
 
         static final long serialVersionUID = -9129948317265641091L;
         public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
@@ -45,9 +45,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		protected transient Comparable  domain;       // domain object
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
-        
-    	protected transient TransactionId transactionId;
-        
+          
         protected transient Alias alias = null;
         
         //protected transient boolean keyCompare = false;
@@ -286,14 +284,6 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
             setMapKey(mapKey);
             setRangeKey(rangeKey);
         } 
-        
-		public TransactionId getTransactionId() {
-    		return transactionId;
-    	}
-
-    	public void setTransactionId(TransactionId xid) {
-    		this.transactionId = xid;
-    	}
     	   
         @Override
         public abstract Object clone() throws CloneNotSupportedException;
@@ -773,7 +763,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 					return c;
 				} else {
 					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId,key);
-					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
+					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,c);
 					return c;
 				}
 			}
@@ -791,7 +781,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 					return c;
 				} else {
 					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(transactionId,instance);
-					System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
+					System.out.printf("%s.resolveInstance for xid:%s instance:%s resulted in:%s%n",this.getClass().getName(),transactionId,instance,c);
 					return c;
 				}
 			}
@@ -809,7 +799,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 					return c;
 				} else {
 					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(alias2, transactionId, instance);
-					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias2,instance,c);
+					System.out.printf("%s.resolveInstance for xid:%s alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),transactionId,alias2,instance,c);
 					return c;	
 				}
 			}

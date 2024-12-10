@@ -66,7 +66,7 @@ public final class RelatrixTransaction {
 	
 	static final String databaseCatalogProperty = "Relatrix.Catalog";
 	static String databaseCatalog = "/etc/db/";
-	static final Alias databaseCatalogAlias = new Alias(databaseCatalogProperty);
+	public static final Alias databaseCatalogAlias = new Alias(databaseCatalogProperty);
 	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
@@ -206,11 +206,10 @@ public final class RelatrixTransaction {
 		identity.setTransactionId(xid);
 		identity.setDomain(d);
 		identity.setMap(m);
-		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
-		DBKey dbkey = primary.store();
+		DBKey dbkey = identity.store();
 		identity.setRange(r); // form it as template for duplicate key search
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
@@ -317,12 +316,11 @@ public final class RelatrixTransaction {
 		identity.setTransactionId(xid);
 		identity.setDomain(alias,d);
 		identity.setMap(alias,m);
-		PrimaryKeySet primary = new PrimaryKeySet(identity);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		DBKey dbkey = primary.store();
+		DBKey dbkey = identity.store();
 		identity.setRange(alias,r); // form it as template for duplicate key search
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
@@ -529,7 +527,6 @@ public final class RelatrixTransaction {
 			removeRecursive(transactionId, c);
 			if(c instanceof DomainMapRange) {
 				((DomainMapRange)c).setTransactionId(transactionId);
-				PrimaryKeySet primary = new PrimaryKeySet((DomainMapRange) c);
 				DomainRangeMap drm = new DomainRangeMap((DomainMapRange) c);
 				drm.setTransactionId(transactionId);
 				MapDomainRange mdr = new MapDomainRange((DomainMapRange) c);
@@ -541,7 +538,7 @@ public final class RelatrixTransaction {
 				RangeMapDomain rmd = new RangeMapDomain((DomainMapRange) c);
 				rmd.setTransactionId(transactionId);
 				
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, primary);
+				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, drm);
 				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -627,7 +624,7 @@ public final class RelatrixTransaction {
 			removeRecursive(alias, transactionId, c);
 			if(c instanceof DomainMapRange) {
 				((DomainMapRange)c).setTransactionId(transactionId);
-				PrimaryKeySet primary = new PrimaryKeySet((DomainMapRange) c);
+				((DomainMapRange)c).setAlias(alias);
 				DomainRangeMap drm = new DomainRangeMap(alias,(DomainMapRange) c);
 				drm.setTransactionId(transactionId);
 				MapDomainRange mdr = new MapDomainRange(alias,(DomainMapRange) c);
@@ -639,7 +636,7 @@ public final class RelatrixTransaction {
 				RangeMapDomain rmd = new RangeMapDomain(alias,(DomainMapRange) c);
 				rmd.setTransactionId(transactionId);
 
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, primary);
+				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, c);
 				IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -736,8 +733,7 @@ public final class RelatrixTransaction {
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 				rmd.setTransactionId(transactionId);
 
-				PrimaryKeySet primary = new PrimaryKeySet(dmr);
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, primary);
+				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, dmr);
 				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -814,8 +810,7 @@ public final class RelatrixTransaction {
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 				rmd.setTransactionId(transactionId);
 
-				PrimaryKeySet primary = new PrimaryKeySet(dmr);
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, primary); // remove primary key
+				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, dmr); // remove primary key
 				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey); // remove DMR index table and instance table via primary key
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -892,8 +887,7 @@ public final class RelatrixTransaction {
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 				rmd.setTransactionId(transactionId);
 
-				PrimaryKeySet primary = new PrimaryKeySet(dmr);
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, primary);
+				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, dmr);
 				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -984,8 +978,7 @@ public final class RelatrixTransaction {
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 			rmd.setTransactionId(transactionId);
 
-			PrimaryKeySet primary = new PrimaryKeySet(dmr);
-			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, primary);
+			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, dmr);
 			IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
@@ -1062,8 +1055,7 @@ public final class RelatrixTransaction {
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 			rmd.setTransactionId(transactionId);
 
-			PrimaryKeySet primary = new PrimaryKeySet(dmr);
-			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, primary);
+			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, dmr);
 			IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
@@ -1140,8 +1132,7 @@ public final class RelatrixTransaction {
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 			rmd.setTransactionId(transactionId);
 
-			PrimaryKeySet primary = new PrimaryKeySet(dmr);
-			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, primary);
+			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, dmr);
 			IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override

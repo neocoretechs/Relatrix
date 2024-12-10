@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -16,7 +15,6 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.BufferedMap;
-import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -209,7 +207,6 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias.getAlias(), index.toString(), instance.getClass().getName(), instance);
 			// no new instance exists, based on primary check. store both new entries
-			// no new instance exists. store both new entries
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {
@@ -606,13 +603,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(new DatabaseCatalog(index.databaseIndex));
-		if(sdb == null) {
-			throw new IOException("The database for the index "+index.databaseIndex+" was not found. May have been deleted.");
-		}
 		if(DEBUG)
-			System.out.printf("%s getByIndex for key:%s produces db path:%s%n", this.getClass().getName(), index, sdb);
-		BufferedMap bm = DatabaseManager.getMapByPath(sdb, DBKey.class);
+			System.out.printf("%s getByIndex for key:%s%n", this.getClass().getName(), index);
+		BufferedMap bm = RelatrixKV.getMap(Relatrix.databaseCatalogAlias, DBKey.class);
 		Object o =  bm.get(index);
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
@@ -634,11 +627,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		String sdb = Relatrix.getDatabasePath(new DatabaseCatalog(index.databaseIndex));
-		if(sdb == null) {
-			throw new IOException("The database for the index "+index.databaseIndex+" was not found. May have been deleted.");
-		}
-		TransactionalMap tm = DatabaseManager.getTransactionalMapByPath(sdb, DBKey.class, transactionId);
+		TransactionalMap tm = RelatrixKVTransaction.getMap(RelatrixTransaction.databaseCatalogAlias, DBKey.class, transactionId);
 		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
