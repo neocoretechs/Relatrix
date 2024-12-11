@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -30,8 +31,9 @@ public class BatteryKeysetTransaction {
 	static int max = 1000;
 	static int numDelete = 100; // for delete test
 	static ArrayList<PrimaryKeySet> keys = new ArrayList<PrimaryKeySet>();
-	static ArrayList<PrimaryKeySet> findkeys = new ArrayList<PrimaryKeySet>();
+
 	static TransactionId xid;
+	static ConcurrentHashMap<DBKey, Comparable> dbtable = new ConcurrentHashMap<DBKey, Comparable>();
 	/**
 	* Main test fixture driver
 	*/
@@ -44,7 +46,8 @@ public class BatteryKeysetTransaction {
 		xid = RelatrixTransaction.getTransactionId();
 		battery1AR17(argv);
 		battery1(argv);
-		battery1AR4(argv);
+		//battery1AR4(argv);
+		battery1AR4A(argv);
 		battery1AR44(argv);
 		battery1AR5(argv);
 		battery1AR9(argv);
@@ -72,12 +75,10 @@ public class BatteryKeysetTransaction {
 		int recs = 0;
 		String d = null;
 		String m = null;
-		String r = null;
 
 		for(int i = min; i < max; i++) {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
-			r = String.format(uniqKeyFmt, i+2);
 			PrimaryKeySet identity = new PrimaryKeySet();
 			identity.setDomainKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(), d));
 			identity.setMapKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(), m));
@@ -89,6 +90,10 @@ public class BatteryKeysetTransaction {
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			DBKey dbkey = identity.store();
+			if(!DBKey.isValid(dbkey)) {
+				System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
+				throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
+			}
 			//identity.setRangeKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(),r)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
@@ -96,6 +101,7 @@ public class BatteryKeysetTransaction {
 			// this will store the key to its class table with identity as value, and the identity to its class
 			// table with key as value
 			IndexResolver.getIndexInstanceTable().put(xid, dbkey, identity);
+			dbtable.put(dbkey, identity);
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("DBKey stored "+recs+" "+identity);
 				timx = System.currentTimeMillis();
@@ -106,7 +112,6 @@ public class BatteryKeysetTransaction {
 		}	
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	
 	
 	/**
 	 * check order of DBKey
@@ -120,33 +125,72 @@ public class BatteryKeysetTransaction {
 		System.out.println("firstKey="+prev);
 		Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,(Comparable) prev);
 		System.out.println("Battery1AR4");
-		PrimaryKeySet first = null;
-		if(its.hasNext())
-			first =  ((Map.Entry<PrimaryKeySet,DBKey>)its.next()).getKey();
-		else
-			System.out.println("No next, expected second key");
-		findkeys.add(first); // skip first key we just got
-		keys.add(first);
 		while(its.hasNext()) {
-			Comparable nex = (Comparable) its.next();
-			Map.Entry<PrimaryKeySet, DBKey> nexe = (Map.Entry<PrimaryKeySet,DBKey>)nex;
-			if(nexe.getKey().compareTo(prev) <= 0) { // should always be >
-			// Map.Entry
-				System.out.println("RANGE KEY MISMATCH: "+nex);
-				throw new Exception("RANGE KEY MISMATCH: "+nex);
+			Map.Entry<PrimaryKeySet, DBKey> nexe = (Map.Entry<PrimaryKeySet,DBKey>)its.next();
+			if(cnt > 0 && nexe.getKey().compareTo(prev) <= 0) { // should always be >
+				System.out.println("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
+				throw new Exception("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
 			}
 			prev = nexe.getKey();
-			findkeys.add(nexe.getKey());
-			keys.add(nexe.getKey());
+			prev.setDBKey(nexe.getValue());
+			if(!DBKey.isValid(nexe.getValue())) {
+				System.out.println("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
+				throw new Exception("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
+			}
+			keys.add(prev);
 			if(DEBUG)
-				System.out.println("1AR4 "+(cnt++)+"="+nex);
+				System.out.println("1AR4 "+(cnt)+"="+nexe);
+			++cnt;
 		}
-		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+findkeys.size());
+		if(keys.size() != max) {
+			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
+			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
+		}
+		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
 	}
 	/**
-	 * Get a random element from the array we built in  findkeys from PrimaryKeySet
-	 * remove it from array, make sure we can locate it. Do this until the array is empty
-	 * and we verified we can locate them all.
+	 * Alternate test to load keys table from DBKey
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR4A(String[] argv) throws Exception {
+		int cnt = 0;
+		long tims = System.currentTimeMillis();
+		DBKey prev = (DBKey) RelatrixKVTransaction.firstKey(xid,DBKey.class);
+		PrimaryKeySet pk = null;
+		System.out.println("firstKey="+prev);
+		Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,(Comparable) prev);
+		System.out.println("Battery1AR4A");
+		while(its.hasNext()) {
+			Map.Entry<DBKey, Comparable> nexe = (Map.Entry<DBKey, Comparable>)its.next();
+			if(cnt > 0 && nexe.getKey().compareTo(prev) <= 0) { // should always be >
+				System.out.println("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
+				throw new Exception("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
+			}
+			prev = nexe.getKey();
+			Object o = nexe.getValue();	
+			if(!DBKey.isValid(prev)) {
+				System.out.println("Keys table element from tailMap iterator "+prev+" not valid due to:"+DBKey.whyInvalid(prev));
+				throw new Exception("Keys table element from tailMap iterator "+prev+" not valid due to:"+DBKey.whyInvalid(prev));
+			}
+			if(o instanceof PrimaryKeySet) {
+				pk = (PrimaryKeySet) o;
+				pk.setDBKey(prev);
+				keys.add(pk);
+			}
+			if(DEBUG)
+				System.out.println("1AR4A "+(cnt)+"="+nexe);
+			++cnt;
+		}
+		if(keys.size() != max) {
+			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
+			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
+		}
+		 System.out.println("BATTERY1AR4A SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
+	}
+	/**
+	 * Make sure we can resolve the stored keys IndexResolver. Iterates the keys table we built earlier,
+	 * uses the resolver to get the PrimaryKeySet pointed to by iterated DBKey, make
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -154,26 +198,63 @@ public class BatteryKeysetTransaction {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR44");
-		while(!findkeys.isEmpty()) {
-			int rnd = new Random().nextInt(findkeys.size());
-			PrimaryKeySet ident = findkeys.get(rnd);
-			findkeys.remove(rnd);
-
-			// check for domain/map match
-			// Enforce categorical structure; domain->map function uniquely determines range.
-			// If the search winds up at the key or the key is empty or the domain->map exists, the key
-			// cannot be inserted
-			if(RelatrixKVTransaction.nearest(xid,ident) == null) {
-				if(DEBUG)
-					System.out.println("Didnt find "+ident);
-				else
-					throw new Exception("Didnt find "+ident);
-			} else {
-				if(DEBUG)
-					System.out.println("FOUND "+ident);
+		PrimaryKeySet pk;
+		// first make sure our tables coincide
+		Iterator<?> its = keys.iterator();
+		if(its != null) {
+			while(its.hasNext()) {
+				PrimaryKeySet nex = (PrimaryKeySet) its.next();
+				if(nex.getDBKey() == null) {
+					System.out.println("KEY ERROR, DBKey null in mirror: "+nex+" at "+cnt);
+					throw new Exception("KEY ERROR DBKey null in mirror: "+nex+" at "+cnt);
+				}
+				if(!DBKey.isValid(nex.getDBKey())) {
+					System.out.println("Keys table element "+nex.getDBKey()+" not valid due to:"+DBKey.whyInvalid(nex.getDBKey()));
+					throw new Exception("Keys table element "+nex.getDBKey()+" not valid due to:"+DBKey.whyInvalid(nex.getDBKey()));
+				}
+				if(dbtable.get(nex.getDBKey()) == null) {
+					System.out.println("Did NOT find element "+cnt+":"+nex.getDBKey()+" in dbtable of "+dbtable.size()+" tables dont match.");
+					throw new Exception("Did NOT find element "+cnt+":"+nex.getDBKey()+" in dbtable of "+dbtable.size()+" tables dont match.");
+				}
+				++cnt;
 			}
-			
+			// proceed to work with verified tables
+			cnt = 0;
+			its = keys.iterator();
+			while(its.hasNext()) {
+				PrimaryKeySet nex = (PrimaryKeySet) its.next();
+				pk = (PrimaryKeySet) IndexResolver.getIndexInstanceTable().getByIndex(xid,nex.getDBKey()); 
+				// if we didnt resolve it, see if its in the table we built that mirrors what should be in db
+				if( pk == null ) {
+					if(dbtable.get(nex.getDBKey()) != null)
+						System.out.println("Found element "+nex.getDBKey()+" in dbtable of "+dbtable.size());
+					else
+						System.out.println("Did NOT find element "+nex.getDBKey()+" in dbtable of "+dbtable.size());
+					throw new Exception("IndexResolver for "+nex+" returned null at "+cnt);
+				}
+				if(pk.getDBKey() == null) {
+					System.out.println("KEY ERROR, DBKey null from resolved: "+nex+" for "+pk+" at "+cnt);
+					throw new Exception("KEY ERROR DBKey null from resolved: "+nex+" for "+pk+" at "+cnt);
+				}
+				// get it from our mirrored table by DbKey, and make sure it matches
+				// this should verify everything
+				Object pk2 = dbtable.get(nex.getDBKey());
+				if(pk2 == null) {
+					System.out.println("Failed to locate DBKey in mirror table: "+nex+" at "+cnt+" but resolved "+pk);
+					throw new Exception("Failed to locate DBKey in mirror table: "+nex+" at "+cnt+" but resolved "+pk);
+				}
+				if(((Comparable)pk2).compareTo(pk) != 0) {
+					System.out.println("KEY MISMATCH: "+nex+" for "+pk+" at "+cnt);
+					throw new Exception("KEY MISMATCH: "+nex+" for "+pk+" at "+cnt);
+				}
+				++cnt;
+				if(DEBUG)
+					System.out.println("1AR44 "+(cnt)+"="+nex);
+			}
+		} else {
+			throw new Exception("Iterator returned null");
 		}
+		
 		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
@@ -189,18 +270,24 @@ public class BatteryKeysetTransaction {
 		Iterator<?> its = RelatrixKVTransaction.entrySet(xid,PrimaryKeySet.class);
 		System.out.println("Battery1AR5");
 		if(its != null) {
-		while(its.hasNext()) {
-			Entry nex = (Entry) its.next();
-			i = IndexResolver.getIndexInstanceTable().getByIndex(xid,(DBKey) nex.getValue()); 
-			if( i == null )
-				throw new Exception("IndexResolver for "+nex+" returned null");
-			if(((Comparable)i).compareTo(nex.getKey()) != 0) {
-				System.out.println("RANGE KEY MISMATCH: "+nex+" for "+i);
-				throw new Exception("RANGE KEY MISMATCH: "+nex+" for "+i);
+			while(its.hasNext()) {
+				Entry nex = (Entry) its.next();
+				i = IndexResolver.getIndexInstanceTable().getByIndex(xid,(DBKey) nex.getValue()); 
+				if( i == null ) {
+					if(dbtable.get(nex.getValue()) != null)
+						System.out.println("Found element in dbtable");
+					else
+						System.out.println("Did NOT find element in dbtable)");
+					throw new Exception("IndexResolver for "+nex+" returned null at "+cnt);
+				}
+				if(((Comparable)i).compareTo(nex.getKey()) != 0) {
+					System.out.println("RANGE KEY MISMATCH: "+nex+" for "+i+" at "+cnt);
+					throw new Exception("RANGE KEY MISMATCH: "+nex+" for "+i+" at "+cnt);
+				}
+				++cnt;
+				if(DEBUG)
+					System.out.println("1AR5 "+(cnt)+"="+nex);
 			}
-			if(DEBUG)
-				System.out.println("1AR5 "+(cnt++)+"="+nex);
-		}
 		} else {
 			throw new Exception("Iterator returned null");
 		}
