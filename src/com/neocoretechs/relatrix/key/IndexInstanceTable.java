@@ -605,7 +605,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//synchronized(mutex) {
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s%n", this.getClass().getName(), index);
-		BufferedMap bm = RelatrixKV.getMap(Relatrix.databaseCatalogAlias, DBKey.class);
+		BufferedMap bm = RelatrixKV.getMap(DatabaseCatalog.databaseCatalogAlias, DBKey.class);
 		Object o =  bm.get(index);
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
@@ -627,7 +627,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		TransactionalMap tm = RelatrixKVTransaction.getMap(RelatrixTransaction.databaseCatalogAlias, DBKey.class, transactionId);
+		TransactionalMap tm = RelatrixKVTransaction.getMap(DatabaseCatalog.databaseCatalogAlias, DBKey.class, transactionId);
 		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
@@ -713,22 +713,44 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-			return new DBKey(Relatrix.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());
+			return new DBKey(DatabaseCatalog.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(Relatrix.getByAlias(alias), Relatrix.getNewKey());
+			return new DBKey(DatabaseCatalog.getByAlias(alias), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(RelatrixTransaction.getByPath(RelatrixTransaction.getTableSpace(), true), Relatrix.getNewKey());
+		return new DBKey(DatabaseCatalog.getByPath(RelatrixTransaction.getTableSpace(), true), Relatrix.getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		return new DBKey(RelatrixTransaction.getByAlias(alias), Relatrix.getNewKey());
+		return new DBKey(DatabaseCatalog.getByAlias(alias), Relatrix.getNewKey());
+	}
+	@Override
+	public void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(skeyd);
+		delete(dKey);
+	}
+	@Override
+	public void remove(Alias alias, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(alias, skeyd);
+		delete(alias, dKey);
+	}
+	@Override
+	public void remove(TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(transactionId, skeyd);
+		delete(transactionId, dKey);
+		
+	}
+	@Override
+	public void remove(Alias alias, TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(alias, transactionId, skeyd);
+		delete(alias, transactionId, dKey);
+		
 	}
 
 }

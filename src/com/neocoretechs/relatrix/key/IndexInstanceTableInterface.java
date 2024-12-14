@@ -216,5 +216,13 @@ public interface IndexInstanceTableInterface {
 	DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException;
 	
 	DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
+	
+	void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
+	
+	void remove(Alias alias, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
+
+	void remove(TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
+	
+	void remove(Alias alias, TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
 
 }

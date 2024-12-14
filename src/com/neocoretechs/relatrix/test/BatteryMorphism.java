@@ -75,19 +75,12 @@ public class BatteryMorphism {
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+2);
 			DomainMapRange identity = new DomainMapRange();
-			identity.setDomainKey(DBKey.newKey(indexTable, d));
-			identity.setMapKey(DBKey.newKey(indexTable, m));
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			try {
-				DBKey dbkey = identity.store();
-				identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
-				// re-create it, now that we know its valid, in a form that stores the components with DBKeys
-				// and maintains the classes stores in IndexInstanceTable for future commit.
-				identity.setDBKey(dbkey);
-				IndexResolver.getIndexInstanceTable().put(dbkey, identity);
+				DBKey dbkey = identity.store(d,m,r);
 				if( DEBUG  ) {
 					if((System.currentTimeMillis()-timx) >= 1000) {
 						System.out.println("Relatrix.store stored :"+identity);

@@ -182,22 +182,22 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rc.getByPath(Relatrix.getTableSpace(), true), getNewKey());
+		return new DBKey(DatabaseCatalog.getByPath(Relatrix.getTableSpace(), true), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rc.getByAlias(alias), getNewKey());
+			return new DBKey(DatabaseCatalog.getByAlias(alias), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(rcx.getByPath(RelatrixTransaction.getTableSpace(), true), getNewKey());
+		return new DBKey(DatabaseCatalog.getByPath(RelatrixTransaction.getTableSpace(), true), getNewKey());
 	}
 	
 	@Override
 	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(rcx.getByAlias(alias), getNewKey());
+			return new DBKey(DatabaseCatalog.getByAlias(alias), getNewKey());
 	}
 	@Override
 	public void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException {
@@ -546,6 +546,30 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		}	
 	//}
 		
+	}
+
+	@Override
+	public void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(skeyd);
+		delete(dKey);
+	}
+
+	@Override
+	public void remove(Alias alias, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(alias, skeyd);
+		delete(alias, dKey);
+	}
+
+	@Override
+	public void remove(TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(transactionId, skeyd);
+		delete(transactionId, dKey);
+	}
+
+	@Override
+	public void remove(Alias alias, TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		deleteInstance(alias, transactionId, skeyd);
+		delete(alias, transactionId, dKey);
 	}
 
 }

@@ -1,8 +1,10 @@
 package com.neocoretechs.relatrix;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -71,6 +73,16 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
+	public DBKey store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
+		if(locate(d, m)) {
+			setDomainResolved(d);
+			setMapResolved(m);
+			setRange(r);
+			identity = DBKey.newKey(IndexResolver.getIndexInstanceTable(), this);
+			return identity;
+		}
+		throw new DuplicateKeyException("Relationship "+d+"->"+r+" already exists.");
+	}
 	@Override
 	public int hashCode() {
 		int result = 17;

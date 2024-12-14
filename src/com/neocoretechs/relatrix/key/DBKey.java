@@ -63,8 +63,8 @@ public final class DBKey implements Comparable, Externalizable {
 		this.instanceIndex = nullKey;
 	}
 	
-	public void setNullKey(Alias alias) {
-		this.databaseIndex = Relatrix.getByAlias(alias);
+	public void setNullKey(Alias alias) throws IOException {
+		this.databaseIndex = DatabaseCatalog.getByAlias(alias);
 		this.instanceIndex = nullKey;
 	}
 	

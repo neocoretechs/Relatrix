@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,15 +15,12 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.rocksack.session.DatabaseManager;
 
 /**
 * Top-level class that imparts behavior to the {@link Morphism} subclasses which contain references for domain, map, range.<p/>
@@ -69,9 +65,6 @@ public final class Relatrix {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
   
-	static final String databaseCatalogProperty = "Relatrix.Catalog";
-	public static final Alias databaseCatalogAlias = new Alias(databaseCatalogProperty);
-	static String databaseCatalog = "/etc/db/";
 	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
 	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
 	
@@ -82,15 +75,6 @@ public final class Relatrix {
 	public static final String deleteI = "DELETEI";
 	
 	static {
-		if(System.getProperty(databaseCatalogProperty) != null)
-			databaseCatalog = System.getProperty(databaseCatalogProperty);
-		try {
-			if(getAlias(databaseCatalogAlias) == null) // account for RelatrixTransaction static initializer
-				setAlias(databaseCatalogAlias, databaseCatalog);
-			readDatabaseCatalog();
-		} catch (IOException | IllegalAccessException | NoSuchElementException e) {
-			e.printStackTrace();
-		}
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
 		sftpm.init(5, 5, new String[] {storeX,deleteX});
 		sftpm.init(2, 2, new String[] {storeI,deleteI});
@@ -186,20 +170,14 @@ public final class Relatrix {
 	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
-		identity.setDomain(d);
-		identity.setMap(m);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		DBKey dbkey = identity.store();
-		identity.setRange(r); // form it as template for duplicate key search
+		identity.store(d,m,r);
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
-		identity.setDBKey(dbkey);
-		IndexResolver.getIndexInstanceTable().put(dbkey, identity);
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
 		// Start threads to store remaining indexes now that we have our primary set up
@@ -297,19 +275,12 @@ public final class Relatrix {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
-		identity.setDomain(alias,d);
-		identity.setMap(alias,m);
 		identity.setAlias(alias);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		DBKey dbkey = identity.store();
-		identity.setRange(alias,r); // form it as template for duplicate key search
-		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
-		// and maintains the classes stores in IndexInstanceTable for future commit.
-		identity.setDBKey(dbkey);
-		IndexResolver.getIndexInstanceTable().put(alias, dbkey, identity);
+		identity.store(d, m, r);
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
 		// Start threads to store remaining indexes now that we have our primary set up
@@ -1808,84 +1779,6 @@ public final class Relatrix {
 	}
 	
 	/**
-	 * Read the primary database catalog as an entrySet using RelatrixKV. The entrySet is
-	 * obtained from the databaseCatalogAlias pointing to the {@link DatabaseCatalog} class instances.
-	 * The indexToPath and pathToIndex hashMaps are populated with the actual paths to the individual
-	 * database references in the entrySet indexed by the DatabaseCatalog instances in the entrySet.
-	 * @throws IllegalAccessException
-	 * @throws NoSuchElementException
-	 * @throws IOException
-	 */
-	static void readDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException {
-		if(DEBUG)
-			System.out.println("Relatrix.readDatabaseCatalog");
-		Iterator<?> it = RelatrixKV.entrySet(databaseCatalogAlias, DatabaseCatalog.class);
-		while(it.hasNext()) {
-			Entry e = (Entry) it.next();
-			indexToPath.put((DatabaseCatalog)e.getKey(), (String)e.getValue());
-			pathToIndex.put((String)e.getValue(), (DatabaseCatalog)e.getKey());
-			if(DEBUG)
-				System.out.println("Relatrix.readDatabaseCatalog indexToPath:"+e.getKey()+" pathToIndex:"+e.getValue());
-		}
-		if(DEBUG)
-			System.out.println("Closing "+databaseCatalogProperty);
-		//RelatrixKV.close(databaseCatalogProperty, UUID.class);
-		if(DEBUG)
-			System.out.println("Closed "+databaseCatalogProperty);
-	}
-	
-	/**
-	 * Write the {@link DatabaseCatalog} from the indexToPath hashMap using the databaseCatalogAlias and
-	 * RelatrixKV.store method. The DatabaseCatalog instance key and the path value will be written for each entry.
-	 * @throws IllegalAccessException
-	 * @throws NoSuchElementException
-	 * @throws IOException
-	 * @throws DuplicateKeyException
-	 */
-	static void writeDatabaseCatalog() throws IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
-		Iterator<Map.Entry<DatabaseCatalog, String>> it = indexToPath.entrySet().iterator();
-		while(it.hasNext()) {
-			Map.Entry<DatabaseCatalog, String> entry = it.next();
-			RelatrixKV.store(databaseCatalogAlias, entry.getKey(), entry.getValue());
-		}
-	}
-	/**
-	 * Get the {@link DatabaseCatalog} containing the {@link RelatrixIndex} for the given tablespace path. 
-	 * If the index does not exist, it will be created based on path param
-	 * @param path
-	 * @param create
-	 * @return the {@link DatabaseCatalog} containing the {@link RelatrixIndex} of path
-	 */
-	public static DatabaseCatalog getByPath(String path, boolean create) {
-		if(DEBUG)
-			System.out.println("Relatrix.getByPath attempt for path:"+path+" create:"+create);
-		DatabaseCatalog v = pathToIndex.get(path);
-		// If we did not find it and another process created it, read catalog
-		if(v == null) {
-			try {
-				readDatabaseCatalog();
-				v = pathToIndex.get(path);
-			} catch (IllegalAccessException | NoSuchElementException | IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if(v == null && create) {
-			v = new DatabaseCatalog(UUID.randomUUID());
-			if(DEBUG)
-				System.out.println("Relatrix.getByPath creating new index for path:"+path+" with catalog:"+v);
-			pathToIndex.put(path, v);
-			indexToPath.put(v, path);
-			try {
-				RelatrixKV.store(databaseCatalogAlias, v, path);
-			} catch (IllegalAccessException | NoSuchElementException | IOException | DuplicateKeyException e) {
-				e.printStackTrace();
-			}
-		}
-		if(DEBUG)
-			System.out.println("Relatrix.getByPath returning:"+v+" for path:"+path+" create:"+create);
-		return v;
-	}
-	/**
 	 * Get the path for the given index. If the path does not exist, it will NOT be created.
 	 * @param index
 	 * @return path from indexToPath
@@ -1894,68 +1787,6 @@ public final class Relatrix {
 		if(DEBUG)
 			System.out.println("Relatrix.getDatabasePath for catalog:"+index+" will result in:"+indexToPath.get(index));
 		return indexToPath.get(index);
-	}
-	/**
-	 * Get the tablespace path for the given alias
-	 * @param alias
-	 * @return The path for this alias or null if none
-	 */
-	public static String getAliasToPath(Alias alias) {
-		if(DEBUG)
-			System.out.println("Relatrix.getAliasToPath attempt for alias:"+alias+" will return:"+DatabaseManager.getAliasToPath(alias));
-		return DatabaseManager.getAliasToPath(alias);
-	}
-	/**
-	 * Get the index for the given alias. If the index does not exist, it will be created
-	 * @param alias
-	 * @return The {@link DatabaseCatalog} index for the alias
-	 * @throws NoSuchElementException If the alias was not found
-	 */
-	public static DatabaseCatalog getByAlias(Alias alias) throws NoSuchElementException {
-		String path = getAliasToPath(alias);
-		if(path == null)
-			throw new NoSuchElementException("The alias "+alias+" was not found.");
-		if(DEBUG)
-			System.out.println("Relatrix.getByAlias attempt for alias:"+alias+" got path:"+path);
-		return getByPath(path, true);
-	}
-
-	/**
-	 * Remove the given tablespace path for {@link DatabaseCatalog} index.
-	 * @param index
-	 * @return previous String path of removed {@link DatabaseCatalog} index
-	 */
-	static String removeDatabaseCatalog(DatabaseCatalog index) {
-		if(DEBUG)
-			System.out.println("Relatrix.removeDatabaseCatalog for index:"+index);
-		String ret = indexToPath.remove(index);
-		if(ret != null)
-			pathToIndex.remove(ret);
-		try {
-			RelatrixKV.remove(index);
-			//RelatrixKV.close(databaseCatalogProperty, UUID.class);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-			e.printStackTrace();
-		}
-		return ret;
-	}
-	/**
-	 * Remove the index for the given tablespace path.
-	 * @param path
-	 * @return {@link DatabaseCatalog} index of removed path
-	 */
-	static DatabaseCatalog removeDatabaseCatalog(String path) {
-		DatabaseCatalog ret = pathToIndex.remove(path);
-		if(DEBUG)
-			System.out.println("Relatrix.removeDatabaseCatalog for path:"+path+" will return previous index:"+ret);		
-		if(ret != null)
-			indexToPath.remove(ret);
-		try {
-			RelatrixKV.remove(ret);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-			e.printStackTrace();
-		}
-		return ret;
 	}
 
 	public static void main(String[] args) throws Exception {

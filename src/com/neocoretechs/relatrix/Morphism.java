@@ -583,7 +583,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        /**
+         * Set a map template from another database
+         * @param alias2
+         * @param map
+         */
         public void setMapTemplate(Alias alias2, Comparable<?> map) {
         	try {
         		this.map = map;
@@ -741,20 +745,40 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         }
         
 		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-			if(transactionId == null)
-				return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);
-			else
-				return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
+			if(alias == null) {
+				if(transactionId == null) {
+					return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);
+				} else {
+					return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
+				}
+			} else {
+				return newKey(alias, instance);
+			}
 		}
-		
-		protected DBKey newKey(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-			if(transactionId == null)
-				return DBKey.newKey(alias2, IndexResolver.getIndexInstanceTable(), instance);
-			else
-	 			return DBKey.newKey(alias2, transactionId, IndexResolver.getIndexInstanceTable(), instance);
+		/**
+		 * To relate a key in another database
+		 * @param aliasOther
+		 * @param instance
+		 * @return
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws IOException
+		 */
+		protected DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(transactionId == null) {
+				return DBKey.newKey(aliasOther, IndexResolver.getIndexInstanceTable(), instance);
+			} else {
+				return DBKey.newKey(aliasOther, transactionId, IndexResolver.getIndexInstanceTable(), instance);
+			}
 		}
-		
-
+		/**
+		 * When resolving a key, the alias is determined by the key itself
+		 * @param key
+		 * @return
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws IOException
+		 */
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
 				if(transactionId == null) {
@@ -775,6 +799,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		
 		protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
+				if(alias != null)
+					return resolveInstance(alias, instance);
 				if(transactionId == null) {
 					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(instance);
 					System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
@@ -785,6 +811,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 					return c;
 				}
 			}
+			if(alias != null)
+				return resolveInstance(alias, instance);
 			if(transactionId == null)
 				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(instance);
 			else

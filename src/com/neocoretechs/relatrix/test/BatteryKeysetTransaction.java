@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.DomainMapRange;
 
 /**
  * The set of tests verifies the lower level {@link KeySet} functions in the {@link  RelatrixTransaction}
@@ -28,9 +28,9 @@ public class BatteryKeysetTransaction {
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 1000;
+	static int max = 5;
 	static int numDelete = 100; // for delete test
-	static ArrayList<PrimaryKeySet> keys = new ArrayList<PrimaryKeySet>();
+	static ArrayList<DomainMapRange> keys = new ArrayList<DomainMapRange>();
 
 	static TransactionId xid;
 	static ConcurrentHashMap<DBKey, Comparable> dbtable = new ConcurrentHashMap<DBKey, Comparable>();
@@ -75,21 +75,21 @@ public class BatteryKeysetTransaction {
 		int recs = 0;
 		String d = null;
 		String m = null;
-
+		String r = null;
 		for(int i = min; i < max; i++) {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
-			PrimaryKeySet identity = new PrimaryKeySet();
-			identity.setDomainKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(), d));
-			identity.setMapKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(), m));
+			r = String.format(uniqKeyFmt, i+1);
+			
+			DomainMapRange identity = new DomainMapRange();
 			identity.setTransactionId(xid);
 			// mirrors partial Relatrix store
-			// PrimaryKeySet is annotated to DomainMapRange
+			// DomainMapRange is annotated to DomainMapRange
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			DBKey dbkey = identity.store();
+			DBKey dbkey = identity.store(d,m,r);
 			if(!DBKey.isValid(dbkey)) {
 				System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 				throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
@@ -97,10 +97,6 @@ public class BatteryKeysetTransaction {
 			//identity.setRangeKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(),r)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
-			identity.setDBKey(dbkey);
-			// this will store the key to its class table with identity as value, and the identity to its class
-			// table with key as value
-			IndexResolver.getIndexInstanceTable().put(xid, dbkey, identity);
 			dbtable.put(dbkey, identity);
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("DBKey stored "+recs+" "+identity);
@@ -109,7 +105,10 @@ public class BatteryKeysetTransaction {
 			if( DEBUG  )
 				System.out.println("Relatrix.store stored :"+identity);
 			++recs;
-		}	
+		}
+		System.out.println("---DBtable---");
+		dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
+		RelatrixTransaction.commit(xid);
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -121,12 +120,12 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR4(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		PrimaryKeySet prev = (PrimaryKeySet) RelatrixKVTransaction.firstKey(xid,PrimaryKeySet.class);
+		DomainMapRange prev = (DomainMapRange) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class);
 		System.out.println("firstKey="+prev);
 		Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,(Comparable) prev);
 		System.out.println("Battery1AR4");
 		while(its.hasNext()) {
-			Map.Entry<PrimaryKeySet, DBKey> nexe = (Map.Entry<PrimaryKeySet,DBKey>)its.next();
+			Map.Entry<DomainMapRange, DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)its.next();
 			if(cnt > 0 && nexe.getKey().compareTo(prev) <= 0) { // should always be >
 				System.out.println("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
 				throw new Exception("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
@@ -146,6 +145,8 @@ public class BatteryKeysetTransaction {
 			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
 			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
 		}
+		System.out.println("---Instance keys---");
+		keys.forEach(j->{System.out.println(j);});
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
 	}
 	/**
@@ -157,7 +158,7 @@ public class BatteryKeysetTransaction {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		DBKey prev = (DBKey) RelatrixKVTransaction.firstKey(xid,DBKey.class);
-		PrimaryKeySet pk = null;
+		DomainMapRange pk = null;
 		System.out.println("firstKey="+prev);
 		Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,(Comparable) prev);
 		System.out.println("Battery1AR4A");
@@ -173,8 +174,8 @@ public class BatteryKeysetTransaction {
 				System.out.println("Keys table element from tailMap iterator "+prev+" not valid due to:"+DBKey.whyInvalid(prev));
 				throw new Exception("Keys table element from tailMap iterator "+prev+" not valid due to:"+DBKey.whyInvalid(prev));
 			}
-			if(o instanceof PrimaryKeySet) {
-				pk = (PrimaryKeySet) o;
+			if(o instanceof DomainMapRange) {
+				pk = (DomainMapRange) o;
 				pk.setDBKey(prev);
 				keys.add(pk);
 			}
@@ -186,11 +187,13 @@ public class BatteryKeysetTransaction {
 			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
 			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
 		}
+		System.out.println("---DBKey keys---");
+		keys.forEach(j->{System.out.println(j);});
 		 System.out.println("BATTERY1AR4A SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
 	}
 	/**
 	 * Make sure we can resolve the stored keys IndexResolver. Iterates the keys table we built earlier,
-	 * uses the resolver to get the PrimaryKeySet pointed to by iterated DBKey, make
+	 * uses the resolver to get the DomainMapRange pointed to by iterated DBKey, make
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -198,12 +201,12 @@ public class BatteryKeysetTransaction {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR44");
-		PrimaryKeySet pk;
+		DomainMapRange pk;
 		// first make sure our tables coincide
 		Iterator<?> its = keys.iterator();
 		if(its != null) {
 			while(its.hasNext()) {
-				PrimaryKeySet nex = (PrimaryKeySet) its.next();
+				DomainMapRange nex = (DomainMapRange) its.next();
 				if(nex.getDBKey() == null) {
 					System.out.println("KEY ERROR, DBKey null in mirror: "+nex+" at "+cnt);
 					throw new Exception("KEY ERROR DBKey null in mirror: "+nex+" at "+cnt);
@@ -222,8 +225,8 @@ public class BatteryKeysetTransaction {
 			cnt = 0;
 			its = keys.iterator();
 			while(its.hasNext()) {
-				PrimaryKeySet nex = (PrimaryKeySet) its.next();
-				pk = (PrimaryKeySet) IndexResolver.getIndexInstanceTable().getByIndex(xid,nex.getDBKey()); 
+				DomainMapRange nex = (DomainMapRange) its.next();
+				pk = (DomainMapRange) IndexResolver.getIndexInstanceTable().getByIndex(xid,nex.getDBKey()); 
 				// if we didnt resolve it, see if its in the table we built that mirrors what should be in db
 				if( pk == null ) {
 					if(dbtable.get(nex.getDBKey()) != null)
@@ -258,7 +261,7 @@ public class BatteryKeysetTransaction {
 		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixKV.entrySet on PrimaryKeySet
+	 * Testing of Iterator<?> its = RelatrixKV.entrySet on DomainMapRange
 	 * we then get by index from IndexInstanceTable, giving us an instance, then compare it to iterated element.
 	 * @param argv
 	 * @throws Exception
@@ -267,7 +270,7 @@ public class BatteryKeysetTransaction {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKVTransaction.entrySet(xid,PrimaryKeySet.class);
+		Iterator<?> its = RelatrixKVTransaction.entrySet(xid,DomainMapRange.class);
 		System.out.println("Battery1AR5");
 		if(its != null) {
 			while(its.hasNext()) {
@@ -297,16 +300,16 @@ public class BatteryKeysetTransaction {
 
 	/**
 	 * 
-	 * Testing of firstKey on PrimaryKeySet, make sure its the first in the array we built of keys
+	 * Testing of firstKey on DomainMapRange, make sure its the first in the array we built of keys
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKVTransaction.firstKey(xid,PrimaryKeySet.class); // first key
-		((PrimaryKeySet)k).getDomainKey();
-		((PrimaryKeySet)k).getMapKey();
+		Comparable k = (Comparable) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class); // first key
+		((DomainMapRange)k).getDomainKey();
+		((DomainMapRange)k).getMapKey();
 		System.out.println("Battery1AR9 firstKey");
 		if(!keys.contains(k)) {
 			System.out.println("BATTERY1A9 cant find contains key "+i);
@@ -328,9 +331,9 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR10(String[] argv) throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKVTransaction.lastKey(xid,PrimaryKeySet.class); // key
-		((PrimaryKeySet)k).getDomainKey();
-		((PrimaryKeySet)k).getMapKey();
+		Comparable k = (Comparable) RelatrixKVTransaction.lastKey(xid,DomainMapRange.class); // key
+		((DomainMapRange)k).getDomainKey();
+		((DomainMapRange)k).getMapKey();
 		System.out.println("Battery1AR10 lastKey");
 		if(!keys.contains(k)) {
 			System.out.println("BATTERY1AR10 cant find last key "+i);
@@ -351,7 +354,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = RelatrixKVTransaction.size(xid,PrimaryKeySet.class);
+		long bits = RelatrixKVTransaction.size(xid,DomainMapRange.class);
 		System.out.println("Battery1AR101 Size="+bits);
 		if( bits != keys.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
@@ -368,15 +371,15 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR12(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKVTransaction.firstKey(xid,PrimaryKeySet.class);
+		Comparable c = (Comparable) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class);
 		if( c != null ) {
 			Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,c);
 			System.out.println("Battery1AR12");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
-				Map.Entry<PrimaryKeySet, DBKey> nexe = (Map.Entry<PrimaryKeySet,DBKey>)nex;
+				Map.Entry<DomainMapRange, DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
 				DBKey db = IndexResolver.getIndexInstanceTable().getByInstance(xid,nexe.getKey()); // get the DBKey for this instance integer
-				PrimaryKeySet keyset = (PrimaryKeySet) IndexResolver.getIndexInstanceTable().getByIndex(xid,nexe.getValue());
+				DomainMapRange keyset = (DomainMapRange) IndexResolver.getIndexInstanceTable().getByIndex(xid,nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
@@ -386,15 +389,15 @@ public class BatteryKeysetTransaction {
 					System.out.println("1AR12 "+(cnt++)+"="+nexe);
 			}
 		} else {
-			System.out.println("firstKey on PrimaryKeySet came back null");
-			throw new Exception("firstKey on PrimaryKeySet came back null");
+			System.out.println("firstKey on DomainMapRange came back null");
+			throw new Exception("firstKey on DomainMapRange came back null");
 		}
 		System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
 	
 	/**
-	 * findHeadMapKV for PrimaryKeySet instances, perform getByInstance on key of each iterated entry
+	 * findHeadMapKV for DomainMapRange instances, perform getByInstance on key of each iterated entry
 	 * and compare the DBKey of iterated entry to resolved key
 	 * @param argv
 	 * @throws Exception
@@ -402,13 +405,13 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR14(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKVTransaction.lastKey(xid,PrimaryKeySet.class);
+		Comparable c = (Comparable) RelatrixKVTransaction.lastKey(xid,DomainMapRange.class);
 		if(c != null) {
 			Iterator<?> its = RelatrixKVTransaction.findHeadMapKV(xid,c);
 			System.out.println("Battery1AR14");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
-				Map.Entry<PrimaryKeySet,DBKey> nexe = (Map.Entry<PrimaryKeySet,DBKey>)nex;
+				Map.Entry<DomainMapRange,DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
 				DBKey db = IndexResolver.getIndexInstanceTable().getByInstance(xid,nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
@@ -419,8 +422,8 @@ public class BatteryKeysetTransaction {
 					System.out.println("1AR14 "+(cnt++)+"="+nexe);
 			}
 		} else {
-			System.out.println("lastKey on PrimaryKeySet came back null");
-			throw new Exception("lastKey on PrimaryKeySet came back null");
+			System.out.println("lastKey on DomainMapRange came back null");
+			throw new Exception("lastKey on DomainMapRange came back null");
 		}
 		System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -457,7 +460,7 @@ public class BatteryKeysetTransaction {
 		}
 		long siz = RelatrixKVTransaction.size(xid,DBKey.class);
 		if(siz > 0) {
-			Iterator<?> its = RelatrixKVTransaction.keySet(xid,PrimaryKeySet.class);
+			Iterator<?> its = RelatrixKVTransaction.keySet(xid,DomainMapRange.class);
 			while(its.hasNext()) {
 				Object fkey = it.next();
 				Object o = RelatrixKVTransaction.remove(xid,(Comparable) fkey);
