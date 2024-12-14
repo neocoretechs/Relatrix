@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.rocksack.Alias;
@@ -11,20 +10,13 @@ import java.util.stream.Stream;
 import java.util.List;
 import com.neocoretechs.relatrix.DomainMapRange;
 
-
 public interface RelatrixClientInterface {
 
 	public void loadClassFromPath(String clazz,String pack) throws java.io.IOException;
 
-	public DatabaseCatalog getByAlias(Alias alias) throws java.util.NoSuchElementException;
-
 	public void loadClassFromJar(String jar) throws java.io.IOException;
 
-	public DatabaseCatalog getByPath(String path,boolean create);
-
 	public String getAliasToPath(Alias alias);
-
-	public String getDatabasePath(DatabaseCatalog index);
 
 	public RelatrixIndex getNewKey() throws java.io.IOException;
 

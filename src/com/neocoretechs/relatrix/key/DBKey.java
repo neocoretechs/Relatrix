@@ -4,13 +4,10 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -27,61 +24,48 @@ public final class DBKey implements Comparable, Externalizable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
 	public static RelatrixIndex nullKey = new RelatrixIndex(0L, 0L);
-	public static RelatrixIndex fullKey = new RelatrixIndex(0xFFFFFFFFFFFFFFFFL, 0xFFFFFFFFFFFFFFFFL);
-	public static DBKey nullDBKey = new DBKey(nullKey, nullKey);
-	public static DBKey fullDBKey = new DBKey(fullKey, fullKey);
+	public static RelatrixIndex fullKey = new RelatrixIndex(0xFFFFFFFFFFFFFFFFL,0xFFFFFFFFFFFFFFFFL);
+	public static DBKey nullDBKey = new DBKey(nullKey);
+	public static DBKey fullDBKey = new DBKey(fullKey);
 	
 	RelatrixIndex instanceIndex = null;
-	RelatrixIndex databaseIndex = null;
 	
 	public DBKey() {}
 	
-	public DBKey(UUID databaseIndex, UUID instanceIndex) {
-		this.databaseIndex = new RelatrixIndex(databaseIndex.getMostSignificantBits(), databaseIndex.getLeastSignificantBits());
+	public DBKey(UUID instanceIndex) {
 		this.instanceIndex = new RelatrixIndex(instanceIndex.getMostSignificantBits(), instanceIndex.getLeastSignificantBits());
 		if(DEBUG)
-			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
+			System.out.println("DBKey ctor:"+this.instanceIndex);
 	}
 	
-	public DBKey(RelatrixIndex databaseIndex, RelatrixIndex instanceIndex) {
-		this.databaseIndex = databaseIndex;
+	public DBKey(RelatrixIndex instanceIndex) {
 		this.instanceIndex = instanceIndex;
 		if(DEBUG)
-			System.out.println("DBKey ctor:"+this.databaseIndex+" "+this.instanceIndex);
+			System.out.println("DBKey ctor:"+this.instanceIndex);
 	}
 	
 	public RelatrixIndex getInstanceIndex() {
 			return instanceIndex;
 	}
 	
-	public RelatrixIndex getDatabaseIndex() {
-		return databaseIndex;
-	}
 	
 	public void setNullKey() {
-		this.databaseIndex = nullKey;
-		this.instanceIndex = nullKey;
-	}
-	
-	public void setNullKey(Alias alias) throws IOException {
-		this.databaseIndex = DatabaseCatalog.getByAlias(alias);
 		this.instanceIndex = nullKey;
 	}
 	
 	public static boolean isValid(DBKey key) {
 		if(key == null)
 			return false;
-		return key.databaseIndex != null && !key.databaseIndex.equals(nullKey) && key.instanceIndex != null && !key.instanceIndex.equals(nullKey);
+		return key.instanceIndex != null && !key.instanceIndex.equals(nullKey);
 	}
 	/**
 	 * Returns an expanded diagnostic reason for DBKey being invalid.
 	 * Recall the DBKey is composed of a database index and an instance index. 
-	 * The database index points to the corresponding entry in the {@link DatabaseCatalog} database catalog. 
 	 * The instance index is the key to the instance in the tablespace by {@link PrimaryKeySet}
 	 * and {@link KeySet}, which means
 	 * it has an entry in the {@link DBKey} class of the database in question and is also the value
 	 * in the key/value portion of the class it represents.<p/>
-	 * If either of these is null when it is presumed valid, or if the value is equal to the null
+	 * If null when it is presumed valid, or if the value is equal to the null
 	 * key representation when presumed valid, the key is considered invalid.
 	 * @param key the {@link DBKey}
 	 * @return the string representation of the reason for invalid
@@ -89,10 +73,6 @@ public final class DBKey implements Comparable, Externalizable {
 	public static String whyInvalid(DBKey key) {
 		if(key == null) 
 			return "Key is null";
-		if(key.databaseIndex == null) 
-			return "Database index is null";
-		if(key.databaseIndex.equals(nullKey))
-			return "Database index has null key component";
 		if(key.instanceIndex == null)
 			return "Instance index is null";
 		if(key.instanceIndex.equals(nullKey))
@@ -174,13 +154,13 @@ public final class DBKey implements Comparable, Externalizable {
 			return false;
 		}
 		*/
-		return instanceIndex.equals(((DBKey)o).instanceIndex) && databaseIndex.equals(((DBKey)o).databaseIndex);
+		return instanceIndex.equals(((DBKey)o).instanceIndex);
 		
 	}
 	
 	@Override
 	public int hashCode() {
-		return instanceIndex.hashCode()+ databaseIndex.hashCode();	
+		return instanceIndex.hashCode();	
 	}
 	
 	@Override
@@ -188,17 +168,6 @@ public final class DBKey implements Comparable, Externalizable {
 		/*
 		synchronized(instanceIndex) {
 			int n = 0;
-			if(databaseIndex != null && ((DBKey)o).databaseIndex != null) {
-				n = databaseIndex.compareTo(((DBKey)o).databaseIndex);
-			} else {
-				if(databaseIndex == null && ((DBKey)o).databaseIndex == null) {
-					throw new RuntimeException("DBKEY DATABASE INDEX BOTH INSTANCES NULL IN COMPARETO");
-				}
-				if(databaseIndex != null && ((DBKey)o).databaseIndex == null) {
-					throw new RuntimeException("DBKEY DATABASE INDEX TARGET INSTANCE NULL IN COMPARETO");
-				}
-				throw new RuntimeException("DBKEY DATABASE INDEX SOURCE INSTANCE NULL IN COMPARETO");
-			}
 			if(instanceIndex != null && ((DBKey)o).instanceIndex != null) {
 				if(n != 0)
 					return n;
@@ -214,31 +183,25 @@ public final class DBKey implements Comparable, Externalizable {
 			throw new RuntimeException("DBKEY INSTANCE INDEX SOURCE INSTANCE NULL IN COMPARETO");
 		}
 		*/
-		int i = instanceIndex.compareTo(((DBKey)o).instanceIndex);
-		if(i != 0)
-			return i;
-		return databaseIndex.compareTo(((DBKey)o).databaseIndex);
+		return instanceIndex.compareTo(((DBKey)o).instanceIndex);
 	}
 
 	@Override
 	public String toString() {
 		//synchronized(instanceIndex) {
-			return String.format("key:%s %s%n", databaseIndex != null ? databaseIndex.toString() : "NULL" ,instanceIndex != null ? instanceIndex.toString() : "NULL");
+			return String.format("key: %s%n", instanceIndex != null ? instanceIndex.toString() : "NULL");
 		//}
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		instanceIndex.writeExternal(out);
-		databaseIndex.writeExternal(out);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		instanceIndex = new RelatrixIndex();
-		databaseIndex = new RelatrixIndex();
 		instanceIndex.readExternal(in);
-		databaseIndex.readExternal(in);
 	}
 	
 	public static byte[] longsToBytes(long x, long y) {

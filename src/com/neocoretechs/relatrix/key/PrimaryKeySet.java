@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.rocksack.Alias;
@@ -33,7 +32,6 @@ public class PrimaryKeySet implements Externalizable, Comparable {
     protected transient DBKey identity;
 	protected transient TransactionId transactionId = null;
 	protected transient Alias alias = null;
-    //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public PrimaryKeySet() {}
     
@@ -68,14 +66,14 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * Get the identity key, that is, the key that is used as key in index table, and value in instance class table.
 	 * @return the identity DBKey
 	 */
-	public DBKey getDBKey() {
+	public DBKey getIdentity() {
 		return identity;
 	}
 	/**
 	 * Set the identity key, that is, the key that is used as key in index table, and value in instance class table.
 	 * @param identity
 	 */
-	public void setDBKey(DBKey identity) {
+	public void setIdentity(DBKey identity) {
 		this.identity = identity;
 	}
 	
@@ -220,27 +218,20 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		}
 	}
 	
-
 	@Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
-		RelatrixIndex d2 = new RelatrixIndex(in.readLong(), in.readLong());
 		RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
-		RelatrixIndex m2 = new RelatrixIndex(in.readLong(), in.readLong());
 		RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
-		domainKey = new DBKey(d1,d2);
-		mapKey = new DBKey(m1, m2);	
+		domainKey = new DBKey(d1);
+		mapKey = new DBKey(m1);	
 	} 
 	
 	@Override  
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeLong(domainKey.getInstanceIndex().getMsb());
 		out.writeLong(domainKey.getInstanceIndex().getLsb());
-		out.writeLong(domainKey.getDatabaseIndex().getMsb());
-		out.writeLong(domainKey.getDatabaseIndex().getLsb());
 		out.writeLong(mapKey.getInstanceIndex().getMsb());
 		out.writeLong(mapKey.getInstanceIndex().getLsb());
-		out.writeLong(mapKey.getDatabaseIndex().getMsb());
-		out.writeLong(mapKey.getDatabaseIndex().getLsb());
 	}
 	
 	@Override
@@ -268,7 +259,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	}
 	
 	public String toString() {
-		return String.format("domainKey:%s mapKey:%s%n", domainKey, mapKey);
+		return String.format("Identity %s domainKey:%s mapKey:%s%n", identity, domainKey, mapKey);
 	}
 	
 }

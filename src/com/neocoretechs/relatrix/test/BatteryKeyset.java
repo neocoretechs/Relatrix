@@ -115,7 +115,7 @@ public class BatteryKeyset {
 			KeySet identity = new KeySet();
 			identity.setDomainKey(indexTable.getByInstance(d));
 			identity.setMapKey(indexTable.getByInstance(m));
-			identity.setRangeKey(new DBKey(DBKey.nullKey, DBKey.nullKey));
+			identity.setRangeKey(new DBKey(DBKey.nullKey));
 			//PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
@@ -124,9 +124,8 @@ public class BatteryKeyset {
 			//Object o = RelatrixKV.nearest(identity);
 			//if(!Relatrix.isPrimaryKey(o, identity))
 				//System.out.println("FAILED to find:"+identity+" found key="+o);
-			Iterator it = RelatrixKV.findTailMapKV(identity);
+			Iterator<?> it = RelatrixKV.findTailMapKV(identity);
 			int cnt = 0;
-			boolean found = false;
 			while(it.hasNext()) {
 				Object o = it.next();
 				Map.Entry e = (Map.Entry)o;
@@ -134,7 +133,6 @@ public class BatteryKeyset {
 				if(k.domainKeyEquals(identity) && k.mapKeyEquals(identity)) {
 					if(DEBUG)
 						System.out.println("Found at "+cnt);
-					found = true;
 					break;
 				}
 				cnt++;
@@ -172,7 +170,6 @@ public class BatteryKeyset {
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	public static void battery1AR44(String[] argv) throws Exception {
-		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR44");
 		while(!findkeys.isEmpty()) {

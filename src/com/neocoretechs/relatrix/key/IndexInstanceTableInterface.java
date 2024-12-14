@@ -187,8 +187,6 @@ public interface IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
-	
-	DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException;
 
 	void commit(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
 
@@ -212,10 +210,6 @@ public interface IndexInstanceTableInterface {
 	void deleteInstance(Alias alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	void deleteInstance(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-	
-	DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException;
-	
-	DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException;
 	
 	void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
 	

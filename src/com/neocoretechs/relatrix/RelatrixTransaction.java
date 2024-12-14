@@ -188,7 +188,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new MapDomainRange(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -202,7 +202,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new DomainRangeMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -216,7 +216,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new MapRangeDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -230,7 +230,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new RangeDomainMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -244,7 +244,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new RangeMapDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(xid, dmr,identity.getDBKey());
+					RelatrixKVTransaction.store(xid, dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -292,7 +292,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new MapDomainRange(alias,identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -306,7 +306,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new DomainRangeMap(alias,identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -320,7 +320,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new MapRangeDomain(alias,identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -334,7 +334,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new RangeDomainMap(alias, identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -348,7 +348,7 @@ public final class RelatrixTransaction {
 				try {
 					Morphism dmr = new RangeMapDomain(alias, identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getDBKey());
+					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -370,8 +370,6 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void commit(TransactionId xid) throws IOException, IllegalAccessException {
-		// first commit components of relationships
-		IndexResolver.getIndexInstanceTable().commit(xid);
 		RelatrixKVTransaction.commit(xid);
 	}
 	/**
@@ -383,8 +381,6 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the database alias doesnt exist.
 	 */
 	public static synchronized void commit(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
-		// first commit components of relationships
-		IndexResolver.getIndexInstanceTable().commit(alias,xid);
 		RelatrixKVTransaction.commit(alias, xid);
 	}
 	/**
@@ -394,8 +390,6 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void rollback(TransactionId xid) throws IOException, IllegalAccessException {
-		// first roll back components
-		IndexResolver.getIndexInstanceTable().rollback(xid);
 		RelatrixKVTransaction.rollback(xid);
 	}
 	
@@ -408,8 +402,6 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias doesnt exist 
 	 */
 	public static synchronized void rollback(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
-		// first roll back components
-		IndexResolver.getIndexInstanceTable().rollback(xid);
 		RelatrixKVTransaction.rollback(alias, xid);
 	}
 	/**
@@ -419,8 +411,6 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void rollbackToCheckpoint(TransactionId xid) throws IOException, IllegalAccessException {
-		// first roll back components
-		IndexResolver.getIndexInstanceTable().rollbackToCheckpoint(xid);
 		RelatrixKVTransaction.rollbackToCheckpoint(xid);
 	}
 	
@@ -433,8 +423,6 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias doesnt exist 
 	 */
 	public static synchronized void rollbackToCheckpoint(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
-		// first roll back components
-		IndexResolver.getIndexInstanceTable().rollbackToCheckpoint(xid);
 		RelatrixKVTransaction.rollbackToCheckpoint(alias, xid);
 	}
 	/**
@@ -445,7 +433,6 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 */
 	public static synchronized void checkpoint(TransactionId xid) throws IOException, IllegalAccessException {
-		IndexResolver.getIndexInstanceTable().checkpoint(xid);
 		RelatrixKVTransaction.checkpoint(xid);
 	}
 	
@@ -459,7 +446,6 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias doesnt exist.
 	 */
 	public static synchronized void checkpoint(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
-		IndexResolver.getIndexInstanceTable().checkpoint(xid);
 		RelatrixKVTransaction.checkpoint(alias, xid);
 	}
 	

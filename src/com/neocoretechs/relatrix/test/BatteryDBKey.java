@@ -121,7 +121,7 @@ public class BatteryDBKey {
 			// cannot be inserted
 			RelatrixIndex ri = ident.getInstanceIndex();
 			ri.setLsb(0); // set artificial partial instance key
-			DBKey pks = new DBKey(ident.getDatabaseIndex(), ri); // new dbkey with partial instance
+			DBKey pks = new DBKey(ri); // new dbkey with partial instance
 			if(!RelatrixKV.contains(pks)) { // shouldnt find this
 				System.out.println("Expected Didnt find "+pks+" using "+ident);
 			} else {

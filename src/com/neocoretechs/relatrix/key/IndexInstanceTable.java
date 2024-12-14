@@ -153,7 +153,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s getByInstance result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, retKey.toString());
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(alias);
+				DBKey index = getNewDBKey();
 				if(DEBUG)
 					System.out.printf("%s.putAlias alias=%s class=%s instance=%s getNewDBKey result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, index.toString());			
 				// no new instance exists. store both new entries
@@ -254,7 +254,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			DBKey retKey = getByInstance(transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(transactionId);
+				DBKey index = getNewDBKey();
 				// no new instance exists. store both new entries
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
@@ -355,7 +355,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			DBKey retKey = getByInstance(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(alias, transactionId);
+				DBKey index = getNewDBKey();
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {
@@ -605,13 +605,16 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//synchronized(mutex) {
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s%n", this.getClass().getName(), index);
-		BufferedMap bm = RelatrixKV.getMap(DatabaseCatalog.databaseCatalogAlias, DBKey.class);
+		BufferedMap bm = RelatrixKV.getMap(DBKey.class);
 		Object o =  bm.get(index);
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
 		if(o == null)
 			return null;
-		return ((KeyValue)o).getmValue();
+		o = ((KeyValue)o).getmValue();
+		if(o instanceof PrimaryKeySet)
+			((PrimaryKeySet)o).setIdentity(index);
+		return o;
 		//}
 	}
 	
@@ -627,11 +630,14 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		TransactionalMap tm = RelatrixKVTransaction.getMap(DatabaseCatalog.databaseCatalogAlias, DBKey.class, transactionId);
+		TransactionalMap tm = RelatrixKVTransaction.getMap(DBKey.class, transactionId);
 		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
-		return ((KeyValue)o).getmValue();
+		o = ((KeyValue)o).getmValue();
+		if(o instanceof PrimaryKeySet)
+			((PrimaryKeySet)o).setIdentity(index);
+		return o;
 		//}
 	}
 	
@@ -713,23 +719,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-			return new DBKey(DatabaseCatalog.getByPath(Relatrix.getTableSpace(), true), Relatrix.getNewKey());
+			return new DBKey(Relatrix.getNewKey());
 	}
 	
-	@Override
-	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(DatabaseCatalog.getByAlias(alias), Relatrix.getNewKey());
-	}
-	
-	@Override
-	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(DatabaseCatalog.getByPath(RelatrixTransaction.getTableSpace(), true), Relatrix.getNewKey());
-	}
-	
-	@Override
-	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		return new DBKey(DatabaseCatalog.getByAlias(alias), Relatrix.getNewKey());
-	}
 	@Override
 	public void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
 		deleteInstance(skeyd);

@@ -7,12 +7,7 @@ import java.util.UUID;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
@@ -53,7 +48,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
 			DBKey retKey = getByInstance(instance);
-			if(instance == null) {
+			if(retKey == null) {
 				DBKey index = getNewDBKey();
 				try {
 					rc.storekv(index, instance);
@@ -76,10 +71,10 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	@Override
 	public DBKey put(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
-				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
+			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
 		DBKey retKey = getByInstance(transactionId, instance);
-		if(instance == null) {
+		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			rcx.store(transactionId, index, instance);
 			rcx.store(transactionId,  instance, index);
@@ -140,7 +135,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return ((RelatrixClient)rc).getByIndex(index);
+		return rc.getByIndex(index);
 	}
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey
@@ -182,23 +177,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(DatabaseCatalog.getByPath(Relatrix.getTableSpace(), true), getNewKey());
+		return new DBKey(getNewKey());
 	}
 	
-	@Override
-	public DBKey getNewDBKey(Alias alias) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(DatabaseCatalog.getByAlias(alias), getNewKey());
-	}
-	
-	@Override
-	public DBKey getNewDBKey(TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException {
-		return new DBKey(DatabaseCatalog.getByPath(RelatrixTransaction.getTableSpace(), true), getNewKey());
-	}
-	
-	@Override
-	public DBKey getNewDBKey(Alias alias, TransactionId transactionId) throws ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-			return new DBKey(DatabaseCatalog.getByAlias(alias), getNewKey());
-	}
 	@Override
 	public void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException {
 		rcx.rollbackToCheckpoint(transactionId);	
@@ -212,7 +193,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			DBKey retKey = getByInstance(alias, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(alias);
+				DBKey index = getNewDBKey();
 				// no new instance exists. store both new entries
 				// no new instance exists. store both new entries
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
@@ -252,7 +233,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			DBKey retKey = getByInstance(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
-				DBKey index = getNewDBKey(alias, transactionId);
+				DBKey index = getNewDBKey();
 				// no new instance exists. store both new entries
 				// no new instance exists. store both new entries
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
@@ -280,6 +261,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				return index;
 			}
 			return retKey;		
 	}
@@ -483,7 +465,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				rc.remove((Comparable<?>) index);
 			}
 		//}
-		
 	}
 
 	@Override
@@ -495,8 +476,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			if(index != null) {
 				rcx.remove(transactionId, (Comparable) index);
 			}	
-		//}
-		
+		//}	
 	}
 
 	@Override

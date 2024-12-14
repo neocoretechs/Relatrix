@@ -36,7 +36,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
 public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = true;
+		private static boolean DEBUG = false;
 
         static final long serialVersionUID = -9129948317265641091L;
         public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
@@ -466,13 +466,13 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         			DBKey dbKey = null;
         			if((dbKey = resolveInstance(alias2,domain)) == null) {
         				dbKey = new DBKey();
-        				dbKey.setNullKey(alias2);
+        				dbKey.setNullKey();
         				setDomainKey(dbKey);
         			} else
         				setDomainKey(dbKey);
         		} else {
         			DBKey dbKey = new DBKey();
-        			dbKey.setNullKey(alias2);
+        			dbKey.setNullKey();
         			setDomainKey(dbKey);
         		}
 
@@ -595,14 +595,14 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         			DBKey dbKey = null;
         			if((dbKey = resolveInstance(alias2, map)) == null) {
         				dbKey = new DBKey();
-        				dbKey.setNullKey(alias2);
+        				dbKey.setNullKey();
         				setMapKey(dbKey);
         			} else {
         				setMapKey(dbKey);
         			} 
         		} else {
         			DBKey dbKey = new DBKey();
-        			dbKey.setNullKey(alias2);
+        			dbKey.setNullKey();
         			setMapKey(dbKey);
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
@@ -725,14 +725,14 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         			DBKey dbKey = null;
         			if((dbKey = resolveInstance(alias2, range)) == null) {
         				dbKey = new DBKey();
-        				dbKey.setNullKey(alias2);
+        				dbKey.setNullKey();
         				setRangeKey(dbKey);
         			} else {
         				setRangeKey(dbKey);
         			}
         		} else {
         			DBKey dbKey = new DBKey();
-        			dbKey.setNullKey(alias2);						
+        			dbKey.setNullKey();						
         			setRangeKey(dbKey);        
         		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {

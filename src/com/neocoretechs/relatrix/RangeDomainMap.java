@@ -150,31 +150,22 @@ public class RangeDomainMap extends Morphism {
     
     @Override  
  	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
-    	RelatrixIndex r2 = new RelatrixIndex(in.readLong(), in.readLong());
     	RelatrixIndex r1 = new RelatrixIndex(in.readLong(), in.readLong());
-    	RelatrixIndex d2 = new RelatrixIndex(in.readLong(), in.readLong());
     	RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
-       	RelatrixIndex m2 = new RelatrixIndex(in.readLong(), in.readLong());
     	RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
-       	rangeKey = new DBKey(r1,r2);
-       	domainKey = new DBKey(d1,d2);
-    	mapKey = new DBKey(m1, m2);
+       	rangeKey = new DBKey(r1);
+       	domainKey = new DBKey(d1);
+    	mapKey = new DBKey(m1);
  	} 
  	
  	@Override  
  	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeLong(rangeKey.getInstanceIndex().getMsb());
 		out.writeLong(rangeKey.getInstanceIndex().getLsb());
-		out.writeLong(rangeKey.getDatabaseIndex().getMsb());
-		out.writeLong(rangeKey.getDatabaseIndex().getLsb());
 		out.writeLong(domainKey.getInstanceIndex().getMsb());
 		out.writeLong(domainKey.getInstanceIndex().getLsb());
-		out.writeLong(domainKey.getDatabaseIndex().getMsb());
-		out.writeLong(domainKey.getDatabaseIndex().getLsb());
 		out.writeLong(mapKey.getInstanceIndex().getMsb());
 		out.writeLong(mapKey.getInstanceIndex().getLsb());
-		out.writeLong(mapKey.getDatabaseIndex().getMsb());
-		out.writeLong(mapKey.getDatabaseIndex().getLsb());
  	}
  	
 	public String toString() {

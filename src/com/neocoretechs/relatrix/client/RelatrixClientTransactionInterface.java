@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -16,17 +15,11 @@ public interface RelatrixClientTransactionInterface {
 
 	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException;
 
-	public DatabaseCatalog getByPath(String path, boolean create);
-
 	public void loadClassFromPath(String arg2) throws java.io.IOException;
 
 	public String getAliasToPath(Alias alias);
 
-	public String getDatabasePath(DatabaseCatalog arg1);
-
 	public void loadClassFromJar(String jar) throws java.io.IOException;
-
-	public DatabaseCatalog getByAlias(Alias alias) throws java.util.NoSuchElementException;
 
 	public Stream findStream(TransactionId transactionId,Object darg,Object marg,Object rarg) throws java.io.IOException;
 

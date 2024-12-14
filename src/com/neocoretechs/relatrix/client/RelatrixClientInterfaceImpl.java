@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.rocksack.Alias;
@@ -15,15 +14,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInterface {
 
 	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
-	@Override
-	public DatabaseCatalog getByAlias(Alias alias) throws java.util.NoSuchElementException {
-		RelatrixStatement s = new RelatrixStatement("getByAlias", alias);
-		try {
-			return (DatabaseCatalog)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
+
 	@Override
 	public RelatrixIndex getNewKey() throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("getNewKey",new Object[]{});
@@ -81,15 +72,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 				throw new java.io.IOException(e);
 		}
 	}
-	@Override
-	public DatabaseCatalog getByPath(String path, boolean create) {
-		RelatrixStatement s = new RelatrixStatement("getByPath", path, create);
-		try {
-			return (DatabaseCatalog)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
+	
 	@Override
 	public Iterator findTailSet(Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("findTailSet", darg, marg, rarg, endarg);
@@ -108,15 +91,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 				throw new java.io.IOException(e);
 		}
 	}
-	@Override
-	public String getDatabasePath(DatabaseCatalog darg) {
-		RelatrixStatement s = new RelatrixStatement("getDatabasePath", darg);
-		try {
-			return (String)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
+
 	@Override
 	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("loadClassFromPath", arg1, arg2);

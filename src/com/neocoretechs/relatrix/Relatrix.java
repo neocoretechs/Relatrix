@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
 
@@ -65,9 +64,6 @@ public final class Relatrix {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
   
-	private static ConcurrentHashMap<String, DatabaseCatalog> pathToIndex = new ConcurrentHashMap<String,DatabaseCatalog>();
-	private static ConcurrentHashMap<DatabaseCatalog, String> indexToPath = new ConcurrentHashMap<DatabaseCatalog,String>();
-	
 	private static SynchronizedFixedThreadPoolManager sftpm;
 	public static final String storeX = "STOREX";
 	public static final String storeI = "STOREI";
@@ -187,7 +183,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new MapDomainRange(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(dmr,identity.getDBKey());
+					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -201,7 +197,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new DomainRangeMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(dmr,identity.getDBKey());
+					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -215,7 +211,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new MapRangeDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(dmr,identity.getDBKey());
+					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -229,7 +225,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new RangeDomainMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(dmr,identity.getDBKey());
+					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -243,7 +239,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new RangeMapDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(dmr,identity.getDBKey());
+					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -290,7 +286,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new MapDomainRange(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -304,7 +300,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new DomainRangeMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -318,7 +314,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new MapRangeDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -332,7 +328,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new RangeDomainMap(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -346,7 +342,7 @@ public final class Relatrix {
 				try {
 					Morphism dmr = new RangeMapDomain(identity);
 					//IndexResolver.getIndexInstanceTable().put(dmr);
-					RelatrixKV.store(alias,dmr,identity.getDBKey());
+					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -1777,20 +1773,9 @@ public final class Relatrix {
 	public static synchronized void removePackageFromRepository(String pack) throws IOException {
 		HandlerClassLoader.removeBytesInRepository(pack);
 	}
-	
-	/**
-	 * Get the path for the given index. If the path does not exist, it will NOT be created.
-	 * @param index
-	 * @return path from indexToPath
-	 */
-	public static String getDatabasePath(DatabaseCatalog index) {
-		if(DEBUG)
-			System.out.println("Relatrix.getDatabasePath for catalog:"+index+" will result in:"+indexToPath.get(index));
-		return indexToPath.get(index);
-	}
 
 	public static void main(String[] args) throws Exception {
-		indexToPath.entrySet().forEach(System.out::println);
+		
 	}
 
 }

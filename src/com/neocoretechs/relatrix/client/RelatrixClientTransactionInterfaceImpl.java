@@ -1,13 +1,11 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.key.DatabaseCatalog;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 import java.util.stream.Stream;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.DomainMapRange;
-
 
 public abstract class RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface {
 
@@ -30,15 +28,7 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 				throw new java.io.IOException(e);
 		}
 	}
-	@Override
-	public DatabaseCatalog getByPath(String path, boolean create) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByPath", null, path, create);
-		try {
-			return (DatabaseCatalog)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
+
 	@Override
 	public void loadClassFromPath(String path) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath", null, path);
@@ -57,15 +47,7 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 			return null;
 		}
 	}
-	@Override
-	public String getDatabasePath(DatabaseCatalog arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getDatabasePath", null, arg1);
-		try {
-			return (String)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
+
 	@Override
 	public void loadClassFromJar(String jar) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar", null, jar);
@@ -75,15 +57,7 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 			throw new java.io.IOException(e);
 		}
 	}
-	@Override
-	public DatabaseCatalog getByAlias(Alias alias) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByAlias", alias, null);
-		try {
-			return (DatabaseCatalog)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.util.NoSuchElementException(e.getMessage());
-		}
-	}
+
 	@Override
 	public Stream findStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", transactionId, arg2, arg3, arg4);

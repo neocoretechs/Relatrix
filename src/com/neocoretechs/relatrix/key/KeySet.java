@@ -69,9 +69,8 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 	@Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
 		super.readExternal(in);
-		RelatrixIndex r2 = new RelatrixIndex(in.readLong(), in.readLong());
 		RelatrixIndex r1 = new RelatrixIndex(in.readLong(), in.readLong());
-		rangeKey = new DBKey(r1,r2);
+		rangeKey = new DBKey(r1);
 	} 
 	
 	@Override  
@@ -79,8 +78,6 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 		super.writeExternal(out);
 		out.writeLong(rangeKey.getInstanceIndex().getMsb());
 		out.writeLong(rangeKey.getInstanceIndex().getLsb());
-		out.writeLong(rangeKey.getDatabaseIndex().getMsb());
-		out.writeLong(rangeKey.getDatabaseIndex().getLsb());
 	}
 	
 	@Override
