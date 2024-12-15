@@ -28,10 +28,8 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
@@ -39,10 +37,8 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		Morphism xdmr = null;
-		Morphism ydmr = null;
 		try {
 			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}

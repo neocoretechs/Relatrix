@@ -1,11 +1,14 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -47,13 +50,15 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
     	try {
-			iter = RelatrixKVTransaction.findTailMap(xid, template);
+			iter = RelatrixKVTransaction.findTailMapKV(xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}//(TailSetIterator) bts.tailSet(template);
     	if( iter.hasNext() ) {
-			buffer = (Morphism) iter.next();
+    		Map.Entry me = (Entry) iter.next();
+			buffer = (Morphism) me.getKey();
 			buffer.setTransactionId(xid);
+			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;
@@ -78,14 +83,16 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
     	try {
-			iter = RelatrixKVTransaction.findTailMap(alias, xid, template);
+			iter = RelatrixKVTransaction.findTailMapKV(alias, xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}//(TailSetIterator) bts.tailSet(template);
     	if( iter.hasNext() ) {
-			buffer = (Morphism) iter.next();
+       		Map.Entry me = (Entry) iter.next();
+			buffer = (Morphism)me.getKey();
 			buffer.setTransactionId(xid);
 			buffer.setAlias(alias);
+			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;
@@ -100,6 +107,6 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	
     @Override
     public String toString() {
-    	return "RelatrixIteratorTransaction:"+super.toString();
+    	return this.getClass().getName()+":"+super.toString();
     }
 }

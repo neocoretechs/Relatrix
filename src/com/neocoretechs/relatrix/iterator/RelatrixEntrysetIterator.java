@@ -2,9 +2,12 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 
 
@@ -20,6 +23,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
     protected Comparable buffer = null;
     protected Comparable nextit = null;
     protected boolean needsIter = true;
+    protected Alias alias = null;
     
     public RelatrixEntrysetIterator() {}
     /**
@@ -35,8 +39,11 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
+			if(((Map.Entry)buffer).getKey() instanceof Morphism) {
+				((Morphism)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+			}
     	if( DEBUG )
-			System.out.println("RelatrixEntrysetIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
+			System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
     	}
     }
     
@@ -46,6 +53,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
      * @throws IOException 
      */
     public RelatrixEntrysetIterator(Alias alias, Class c) throws IOException, NoSuchElementException {
+    	this.alias = alias;
     	try {
 			iter = RelatrixKV.entrySet(alias, c);
 		} catch (IllegalAccessException e) {
@@ -53,8 +61,12 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
+			if(((Map.Entry)buffer).getKey() instanceof Morphism) {
+				((Morphism)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+				((Morphism)((Map.Entry)buffer).getKey()).setAlias(alias);
+			}
     	if( DEBUG )
-			System.out.println("RelatrixEntrysetIterator "+iter.hasNext()+" "+needsIter+" "+buffer);
+    		System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
     	}
     }
     
@@ -69,21 +81,25 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 	@Override
 	public boolean hasNext() {
 		if( DEBUG )
-			System.out.println("RelatrixEntrysetIterator.hasNext() "+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+			System.out.printf("%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
 		return needsIter;
 	}
 
 	@Override
 	public Comparable next() {
-		if( buffer == null || needsIter) {
+		if(buffer == null || needsIter) {
 			if( DEBUG ) {
-	    			System.out.println("RelatrixEntrysetIterator.next() before iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+				System.out.printf("%s.next before iter hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
 			}
 			if( nextit != null )
 				buffer = nextit;
 			
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
+				if(((Map.Entry)nextit).getKey() instanceof Morphism) {
+					((Morphism)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
+					((Morphism)((Map.Entry)nextit).getKey()).setAlias(alias);
+				}
 			} else {
 				nextit = null;
 				needsIter = false;
@@ -91,9 +107,9 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 		}
 		// always return using this with non null buffer
 		if( DEBUG ) {
-			System.out.println("RelatrixEntrysetIterator.next() template match after iteration:"+iter.hasNext()+" "+needsIter+" "+buffer+" "+nextit);
+			System.out.printf("%s after iter hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
 		}
-		return nextit;
+		return buffer;
 	}
 
 	@Override

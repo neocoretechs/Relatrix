@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
@@ -11,6 +13,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 /**
  * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.Morphism}s formed into a template
@@ -60,12 +63,14 @@ public class RelatrixIterator implements Iterator<Result> {
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
     	try {
-			iter = RelatrixKV.findTailMap(template);
+			iter = RelatrixKV.findTailMapKV(template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
-		}//(TailSetIterator) bts.tailSet(template);
+		}
     	if( iter.hasNext() ) {
-			buffer = (Morphism) iter.next();
+    		Map.Entry me = (Entry) iter.next();
+			buffer = (Morphism)me.getKey();
+			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;
@@ -89,12 +94,15 @@ public class RelatrixIterator implements Iterator<Result> {
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
     	try {
-			iter = RelatrixKV.findTailMap(alias, template);
+			iter = RelatrixKV.findTailMapKV(alias, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
 		}
     	if( iter.hasNext() ) {
-			buffer = (Morphism) iter.next();
+      		Map.Entry me = (Entry) iter.next();
+			buffer = (Morphism)me.getKey();
+			buffer.setIdentity((DBKey)me.getValue());
+			buffer.setAlias(alias);
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;
@@ -113,7 +121,6 @@ public class RelatrixIterator implements Iterator<Result> {
 			System.out.println(this.toString());
 		return needsIter;
 	}
-
 	
 	@Override
 	public Result next() {
@@ -126,7 +133,9 @@ public class RelatrixIterator implements Iterator<Result> {
 				buffer = nextit;
 			
 			if( iter.hasNext()) {
-				nextit = (Morphism)iter.next();
+				Map.Entry me = (Entry) iter.next();
+				nextit = (Morphism)me.getKey();
+				nextit.setIdentity((DBKey) me.getValue());
 				if( !templateMatches(base, nextit, dmr_return) ) {
 					nextit = null;
 					needsIter = false;
@@ -247,7 +256,8 @@ public class RelatrixIterator implements Iterator<Result> {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("RelatrixIterator: hasNext:");
+		StringBuilder sb = new StringBuilder(this.getClass().getName());
+		sb.append(" hasNext:");
 	    sb.append(iter == null ? "iter NULL" : iter.hasNext());
 		sb.append(" needsIter:");
 		sb.append(needsIter);

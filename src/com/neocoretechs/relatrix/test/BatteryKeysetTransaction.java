@@ -57,12 +57,13 @@ public class BatteryKeysetTransaction {
 		battery1AR4(argv);
 		battery1AR44(argv);
 		battery1AR5(argv);
+		battery1AR55(argv);
 		battery1AR101(argv);
 		// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
 		keys.clear();
 		battery1AR4A(argv);
 		battery1AR44(argv);
-		battery1AR5(argv);
+		// 5 and 55 dont involve keys table, only dbtable
 		battery1AR101(argv);
 		// and perform balance of testing
 		battery1AR12(argv);
@@ -318,6 +319,55 @@ public class BatteryKeysetTransaction {
 		}
 		
 		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	/**
+	 * Testing of Iterator<?> its = RelatrixTransaction.entrySet on DomainMapRange
+	 * Should produce a set of morphisms with resolved identities etc.
+	 * we then get by index from IndexInstanceTable, giving us an instance, then compare it to iterated element.
+	 * Compare resolved identity to tables to verify those as well
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR55(String[] argv) throws Exception {
+		int cnt = 0;
+		Object i;
+		long tims = System.currentTimeMillis();
+		Iterator<?> its = RelatrixTransaction.entrySet(xid, DomainMapRange.class);
+		System.out.println("Battery1AR55");
+		if(its != null) {
+			while(its.hasNext()) {
+				Entry nex = (Entry) its.next();
+				i = IndexResolver.getIndexInstanceTable().getByIndex(xid,(DBKey) nex.getValue()); 
+				if( i == null ) {
+					if(dbtable.get(nex.getValue()) != null)
+						System.out.println("Found element in dbtable");
+					else
+						System.out.println("Did NOT find element in dbtable)");
+					throw new Exception("IndexResolver for "+nex+" returned null at "+cnt);
+				}
+				if(((Comparable)i).compareTo(nex.getKey()) != 0) {
+					System.out.println("RANGE KEY MISMATCH: "+nex+" for "+i+" at "+cnt);
+					throw new Exception("RANGE KEY MISMATCH: "+nex+" for "+i+" at "+cnt);
+				}
+				// make sure identity is valid
+				if(((DomainMapRange)nex.getKey()).getIdentity() == null) {
+					System.out.println("DomainMapRange identity is null for "+nex.getKey()+" at "+cnt);
+					throw new Exception("DomainMapRange identity is null for "+nex.getKey()+" at "+cnt);
+				}
+				DomainMapRange dmr = ((DomainMapRange)nex.getKey());
+				if(dbtable.get(dmr.getIdentity()).compareTo(dmr) != 0) {
+					System.out.println("Table instance does not match retrieved instance:"+dmr+" -- "+dbtable.get(dmr.getIdentity())+" at "+cnt);
+					throw new Exception("Table instance does not match retrieved instance:"+dmr+" -- "+dbtable.get(dmr.getIdentity())+" at "+cnt);
+				}
+				++cnt;
+				if(DEBUG)
+					System.out.println("1AR55 "+(cnt)+"="+nex);
+			}
+		} else {
+			throw new Exception("Iterator returned null");
+		}
+		
+		 System.out.println("BATTERY1AR55 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
 	/**

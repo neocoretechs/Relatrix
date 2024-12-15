@@ -116,8 +116,10 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     	iter = resultSet.values().iterator();
     	if( iter.hasNext() ) {
     		try {
-				buffer = (Morphism) RelatrixKVTransaction.get(xid,(Comparable<?>) iter.next()); // primary DBKey for Morphism
+    			DBKey dbkey = (DBKey) iter.next();
+				buffer = (Morphism) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for Morphism
 				buffer.setTransactionId(xid);
+				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -201,9 +203,11 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     	iter = resultSet.values().iterator();
     	if( iter.hasNext() ) {
     		try {
-				buffer = (Morphism) RelatrixKVTransaction.get(alias, xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+    			DBKey dbkey = (DBKey) iter.next();
+				buffer = (Morphism) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for Morphism
 				buffer.setAlias(alias);
 				buffer.setTransactionId(xid);
+				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -238,13 +242,15 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			
 			if( iter.hasNext()) {
 	    		try {
+	    			DBKey dbkey = (DBKey) iter.next();
 	    			if(alias == null) {
-	    				nextit = (Morphism) RelatrixKVTransaction.get(xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+	    				nextit = (Morphism) RelatrixKVTransaction.get(xid, dbkey ); // primary DBKey for Morphism
 	    			} else {
-	    				nextit = (Morphism) RelatrixKVTransaction.get(alias, xid, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+	    				nextit = (Morphism) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for Morphism
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setTransactionId(xid);
+    				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}

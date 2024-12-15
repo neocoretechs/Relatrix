@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
+import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.RelatrixIndex;
@@ -1711,12 +1712,12 @@ public final class Relatrix {
 	}
 	public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKV.entrySet(clazz);
+		return new RelatrixEntrysetIterator(clazz);
 	}
 
 	public static synchronized Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKV.entrySet(alias, clazz);
+		return new RelatrixEntrysetIterator(alias, clazz);
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -1727,12 +1728,12 @@ public final class Relatrix {
 	 */
 	public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKV.entrySetStream(clazz);
+		return new RelatrixStream(new RelatrixEntrysetIterator(clazz));
 	}
 
 	public static synchronized Stream<?> entrySetStream(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKV.entrySetStream(alias, clazz);
+		return new RelatrixStream(new RelatrixEntrysetIterator(alias,clazz));
 	}
 
 	/**

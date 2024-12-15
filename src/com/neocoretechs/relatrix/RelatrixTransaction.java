@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
+import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
@@ -2062,7 +2063,7 @@ public final class RelatrixTransaction {
 	
 	public static synchronized Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKVTransaction.entrySet(xid, clazz);
+		return new RelatrixEntrysetIteratorTransaction(xid, clazz);
 	}
 	
 	/**
@@ -2076,7 +2077,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Iterator<?> entrySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKVTransaction.entrySet(alias, xid, clazz);
+		return new RelatrixEntrysetIteratorTransaction(alias, xid, clazz);
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -2088,7 +2089,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKVTransaction.entrySetStream(xid, clazz);
+		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(xid, clazz));
 	}
 	
 	/**
@@ -2102,7 +2103,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Stream<?> entrySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKVTransaction.entrySetStream(alias, xid, clazz);
+		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(alias, xid, clazz));
 	}
 	
 	/**

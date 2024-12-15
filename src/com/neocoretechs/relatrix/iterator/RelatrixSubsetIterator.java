@@ -148,7 +148,9 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     	iter = resultSet.values().iterator();
     	if( iter.hasNext() ) {
     		try {
-				buffer = (Morphism) RelatrixKV.get((Comparable<?>) iter.next()); // primary DBKey for Morphism
+     			DBKey dbkey = (DBKey) iter.next();
+				buffer = (Morphism) RelatrixKV.get(dbkey); // primary DBKey for Morphism
+				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -237,7 +239,10 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     	iter = resultSet.values().iterator();
     	if( iter.hasNext() ) {
     		try {
-    			buffer = (Morphism) RelatrixKV.get(alias, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+    			DBKey dbkey = (DBKey) iter.next();
+    			buffer = (Morphism) RelatrixKV.get(alias, dbkey); // primary DBKey for Morphism
+    			buffer.setIdentity(dbkey);
+    			buffer.setAlias(alias);
     		} catch (IllegalAccessException | IOException e) {
     			throw new RuntimeException(e);
     		}
@@ -272,10 +277,14 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 			
 			if( iter.hasNext()) {
 	    		try {
-	    			if(alias == null)
-	    				nextit = (Morphism) RelatrixKV.get((Comparable<?>) iter.next()); // primary DBKey for Morphism
-	    			else
-	    				nextit = (Morphism) RelatrixKV.get(alias, (Comparable<?>) iter.next()); // primary DBKey for Morphism
+	    			DBKey dbkey = (DBKey) iter.next();
+	    			if(alias == null) {
+	    				nextit = (Morphism) RelatrixKV.get(dbkey); // primary DBKey for Morphism
+	    			} else {
+	    				nextit = (Morphism) RelatrixKV.get(alias, dbkey); // primary DBKey for Morphism
+	    				nextit.setAlias(alias);
+	    			}
+	    			nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -307,7 +316,8 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("RelatrixSubsetIterator: hasNext:");
+		StringBuilder sb = new StringBuilder(this.getClass().getName());
+		sb.append(" hasNext:");
 	    sb.append(iter == null ? "iter NULL" : iter.hasNext());
 	    sb.append(" alias:");
 	    sb.append(alias);
