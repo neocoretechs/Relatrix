@@ -31,13 +31,11 @@ public class MapDomainRange extends Morphism {
        	super(alias,d,m,r);
     }
 
-    public MapDomainRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
-			DBKey rangeKey) {
+    public MapDomainRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public MapDomainRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
-			Comparable r, DBKey rangeKey) {
+	public MapDomainRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
@@ -54,8 +52,7 @@ public class MapDomainRange extends Morphism {
 		super(flag, alias, transactionId, d, m, r);
 	}
 
-	public MapDomainRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m,
-			DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public MapDomainRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
@@ -68,15 +65,22 @@ public class MapDomainRange extends Morphism {
 	}
 
 	public MapDomainRange(DomainMapRange identity) throws IOException {
-    	if(!identity.isDomainKeyValid())
-    		throw new IOException("Domain key of identity is invalid: "+DBKey.whyInvalid(identity.getDomainKey())+".");
+	   	this.templateFlag = identity.templateFlag;
+    	this.alias = identity.getAlias();
+    	this.transactionId = identity.getTransactionId();
+    	this.identity = identity.getIdentity();
+    	//if(!identity.isDomainKeyValid())
+    	//	throw new IOException("Domain key of identity is invalid: "+DBKey.whyInvalid(identity.getDomainKey())+".");
     	setDomainKey(identity.getDomainKey());
-      	if(!identity.isMapKeyValid())
-    		throw new IOException("Map key of identity is invalid: "+DBKey.whyInvalid(identity.getMapKey())+".");
+    	domain = identity.domain;
+      	//if(!identity.isMapKeyValid())
+    	//	throw new IOException("Map key of identity is invalid: "+DBKey.whyInvalid(identity.getMapKey())+".");
     	setMapKey(identity.getMapKey());
-    	if(!identity.isRangeKeyValid())
-    		throw new IOException("Range key of identity is invalid: "+DBKey.whyInvalid(identity.getRangeKey())+".");
-    	setRangeKey(identity.getRangeKey()); 	
+    	map = identity.map;
+    	//if(!identity.isRangeKeyValid())
+    	//	throw new IOException("Range key of identity is invalid: "+DBKey.whyInvalid(identity.getRangeKey())+".");
+    	setRangeKey(identity.getRangeKey());
+    	range = identity.range;
     }
 	
     public MapDomainRange(Alias alias, DomainMapRange identity) throws IOException {
@@ -92,6 +96,14 @@ public class MapDomainRange extends Morphism {
 		super(b, alias, d, m, r);
 	}
 	
+	public MapDomainRange(boolean templateFlag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(templateFlag, transactionId,d, domainKey, m , mapKey, r, rangeKey);
+	}
+
+	public MapDomainRange(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
+	}
+
 	@Override
 	public int compareTo(Object o) {
 		//if(!keyCompare)
@@ -123,9 +135,7 @@ public class MapDomainRange extends Morphism {
 	    result = prime * result + getRangeKey().hashCode();
 	    return result;
 	}
-	
-	
-	
+		
     /*
     public Comparable returnTupleOrder(int n) {
     	// default dmr
@@ -144,9 +154,24 @@ public class MapDomainRange extends Morphism {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-   		if(templateFlag)
-			return new MapDomainRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-   		return new MapDomainRange(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+       	if(alias == null) {
+    		if(transactionId == null) {
+    			if(templateFlag)
+    				return new MapDomainRange(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    			return new MapDomainRange(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		}
+  			if(templateFlag)
+				return new MapDomainRange(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+			return new MapDomainRange(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey()); 		
+    	}
+    	if(transactionId == null) {
+    		if(templateFlag)
+    			return new MapDomainRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new MapDomainRange(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+    	if(templateFlag)
+    		return new MapDomainRange(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	return new MapDomainRange(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
     @Override  

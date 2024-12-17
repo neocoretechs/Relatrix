@@ -45,8 +45,6 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		protected transient Comparable  domain;       // domain object
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
-          
-        protected transient Alias alias = null;
         
         //protected transient boolean keyCompare = false;
         
@@ -55,19 +53,20 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         public Morphism() {}
         
         /**
+         * Resolving constructor 1 <p/>
          * Construct and establish key position for the elements of a morphism.
-         * @param d
-         * @param m
-         * @param r
+         * @param d domain instance object
+         * @param m map instance object
+         * @param r range instance object
          */
         public Morphism(Comparable d, Comparable m, Comparable r) {
-        	this.templateFlag = false;
         	setDomain(d);
             setMap(m);
             setRange(r);
         }
         
         /**
+         * Resolving constructor 2 <p/>
          * Construct and establish key position for the elements of a morphism.
          * @param d
          * @param m
@@ -75,127 +74,13 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          */
         public Morphism(Alias alias, Comparable d, Comparable m, Comparable r) {
         	this.alias = alias;
-        	this.templateFlag = false;
         	setDomain(alias, d);
             setMap(alias, m);
             setRange(alias, r);
         }
-        
-        /**
-         * Construct and establish key position for the elements of a morphism template. 
-         * In a template, we dont create instances, merely resolve them leaving effective
-         * null key for those without instances
-         * @param d
-         * @param m
-         * @param r
-         */
-        public Morphism(boolean flag, Comparable d, Comparable m, Comparable r) {
-        	this.templateFlag = flag;
-        	setDomainTemplate(d);
-            setMapTemplate(m);
-            setRangeTemplate(r);
-        }
-        
-        /**
-         * Construct and establish key position for the elements of a morphism.
-         * In a template, we dont create instances, merely resolve them leaving effective
-         * null key for those without instances
-         * @param d
-         * @param m
-         * @param r
-         */
-        public Morphism(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
-        	this.templateFlag = flag;
-        	this.alias = alias;
-        	setDomainTemplate(alias, d);
-            setMapTemplate(alias, m);
-            setRangeTemplate(alias, r);
-        } 
-        
-        /**
-         * Copy constructor 1, default
-         * @param d
-         * @param dkey
-         * @param m
-         * @param mapKey
-         * @param r
-         * @param rangeKey
-         */
-        public Morphism(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-        	this.templateFlag = false;
-        	domain = d;
-            map = m;
-            range = r;
-            setDomainKey(domainkey);
-            setMapKey(mapKey);
-            setRangeKey(rangeKey);
-        }
-        
-        /**
-         * Copy constructor 2, alias
-         * @param alias
-         * @param d
-         * @param domainkey
-         * @param m
-         * @param mapKey
-         * @param r
-         * @param rangeKey
-         */
-        public Morphism(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-        	this.alias = alias;
-        	this.templateFlag = false;
-        	domain = d;
-            map = m;
-            range = r;
-            setDomainKey(domainkey);
-            setMapKey(mapKey);
-            setRangeKey(rangeKey);
-        }
-        
-        /**
-         * Copy constructor 3 template default
-         * @param flag
-         * @param d
-         * @param domainkey
-         * @param m
-         * @param mapKey
-         * @param r
-         * @param rangeKey
-         */
-        public Morphism(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-        	this.templateFlag = flag;
-        	domain = d;
-            map = m;
-            range = r;
-            setDomainKey(domainkey);
-            setMapKey(mapKey);
-            setRangeKey(rangeKey);
-        }
-        
-        /**
-         * Copy constructor 4 template alias
-         * @param flag
-         * @param alias
-         * @param d
-         * @param domainkey
-         * @param m
-         * @param mapKey
-         * @param r
-         * @param rangeKey
-         */
-        public Morphism(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-        	this.templateFlag = flag;
-        	this.alias = alias;
-         	domain = d;
-            map = m;
-            range = r;
-            setDomainKey(domainkey);
-            setMapKey(mapKey);
-            setRangeKey(rangeKey);
-        }
-        
-      	/**
-    	 * We need transaction id first, so we cant call superclass constructor
+    	/**
+    	 * Resolving constructor 3 <p/>
+    	 * We need transaction id first, so we cant call superclass constructor. When we dont yet have keys, we must resolve.
     	 * @param alias
     	 * @param transactionId
     	 * @param d
@@ -215,8 +100,41 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     			setRange(r);
     		}
     	}
-    	 
+    	
+        /**
+         * Template constructor 1 <p/>
+         * Construct and establish key position for the elements of a morphism template. 
+         * In a template, we dont create instances, merely resolve them leaving effective
+         * null key for those without instances
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(boolean flag, Comparable d, Comparable m, Comparable r) {
+        	this.templateFlag = flag;
+        	setDomainTemplate(d);
+            setMapTemplate(m);
+            setRangeTemplate(r);
+        }
+        
+        /**
+         * Template constructor 2 <p/>
+         * Construct and establish key position for the elements of a morphism.
+         * In a template, we dont create instances, merely resolve them leaving effective
+         * null key for those without instances
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
+        	this.templateFlag = flag;
+        	this.alias = alias;
+        	setDomainTemplate(alias, d);
+            setMapTemplate(alias, m);
+            setRangeTemplate(alias, r);
+        } 
     	/**
+    	 * Template constructor 3 <p/>
     	 * Construct and establish key position for the elements of a morphism template.
     	 * In a template, we dont create keys for instances that dont resolve, we use effective null key
     	 * @param d
@@ -239,7 +157,58 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	}
         
         /**
-         * Copy constructor 2, alias
+         * Copy constructor 1, default, if we have keys, assume references are resolved.
+         * @param d
+         * @param dkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        	super(domainKey, mapKey, rangeKey);
+        	this.templateFlag = false;
+        	domain = d;
+            map = m;
+            range = r;
+        }
+        
+        /**
+         * Copy constructor 2, alias, if we have keys, assume instances are resolved.
+         * @param alias
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+           	super(domainKey, mapKey, rangeKey, alias);
+        	this.templateFlag = false;
+        	domain = d;
+            map = m;
+            range = r;
+        }
+        
+        /**
+         * Copy constructor 3, transaction id <p/>
+         * @param transactionId
+         * @param d
+         * @param domainKey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+      	public Morphism(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+           	super(domainKey, mapKey, rangeKey, transactionId);
+         	domain = d;
+            map = m;
+            range = r;
+		}
+        /**
+         * Copy constructor 4, alias, transaction id
          * @param alias
          * @param transactionId
          * @param d
@@ -249,20 +218,71 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-        	this.alias = alias;
+        public Morphism(Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+           	super(domainKey, mapKey, rangeKey, alias, transactionId);
         	this.templateFlag = false;
-        	this.transactionId = transactionId;
         	domain = d;
             map = m;
             range = r;
-            setDomainKey(domainkey);
-            setMapKey(mapKey);
-            setRangeKey(rangeKey);
         }
         
         /**
-         * Copy constructor 4 template alias
+         * Copy constructor 5 template default, if we have keys, assume we have resolution.
+         * @param flag
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(boolean flag, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+           	super(domainKey, mapKey, rangeKey);
+        	this.templateFlag = flag;
+        	domain = d;
+            map = m;
+            range = r;
+        }
+        
+        /**
+         * Copy constructor 6 template, alias
+         * @param flag
+         * @param alias
+         * @param d
+         * @param domainkey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(boolean flag, Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+           	super(domainKey, mapKey, rangeKey, alias);
+        	this.templateFlag = flag;
+         	domain = d;
+            map = m;
+            range = r;
+        }
+        
+        /**
+         * Copy constructor 7 template, transactionId
+         * @param flag
+         * @param transactionId
+         * @param d
+         * @param domainKey
+         * @param m
+         * @param mapKey
+         * @param r
+         * @param rangeKey
+         */
+        public Morphism(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+          	super(domainKey, mapKey, rangeKey, transactionId);
+        	this.templateFlag = flag;
+         	domain = d;
+            map = m;
+            range = r;
+		}
+        /**
+         * Copy constructor 8 template, alias, transactionId
          * @param flag
          * @param alias
          * @param transactionId
@@ -273,19 +293,15 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        public Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+           	super(domainKey, mapKey, rangeKey, alias, transactionId);
         	this.templateFlag = flag;
-           	this.transactionId = transactionId;
-        	this.alias = alias;
          	domain = d;
             map = m;
             range = r;
-            setDomainKey(domainkey);
-            setMapKey(mapKey);
-            setRangeKey(rangeKey);
-        } 
-    	   
-        @Override
+        }
+
+		@Override
         public abstract Object clone() throws CloneNotSupportedException;
         
         /*
@@ -299,15 +315,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     		keyCompare = false;
     	}
         */
-        
-    	public Alias getAlias() {
-    		return alias;
-    	}
-    	
-    	public void setAlias(Alias alias)  {
-    		this.alias = alias;
-    	}
-    	
+         	
         /**
          * Method invoked from custom deserializer to indicate that RockSack is retrieving keys and
          * comparison should be on keys rather then resolved instances.

@@ -41,6 +41,10 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 		super(domainKey, mapKey, transactionId);
 		this.rangeKey = rangeKey;
 	}
+	public KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, Alias alias) {
+		super(domainKey, mapKey, alias);
+		this.rangeKey = rangeKey;
+	}
 	public KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, Alias alias, TransactionId transactionId) {
 		super(domainKey, mapKey, alias, transactionId);
 		this.rangeKey = rangeKey;

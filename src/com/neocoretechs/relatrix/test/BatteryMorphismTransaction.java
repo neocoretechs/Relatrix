@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  */
-public class BatteryKeysetTransaction {
+public class BatteryMorphismTransaction {
 	public static boolean DEBUG = false;
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
@@ -46,7 +46,7 @@ public class BatteryKeysetTransaction {
 	*/
 	public static void main(String[] argv) throws Exception {
 		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryKeysetTransaction <directory_tablespace_path>");
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.BatteryMorphismTransaction <directory_tablespace_path>");
 			System.exit(1);
 		}
 		RelatrixTransaction.setTablespace(argv[0]);
@@ -71,7 +71,7 @@ public class BatteryKeysetTransaction {
 		RelatrixTransaction.commit(xid);
 		RelatrixTransaction.endTransaction(xid);
 		//battery1AR17(argv);
-		 System.out.println("BatteryKeysetTransaction TEST BATTERY COMPLETE.");
+		 System.out.println("BatteryMorphismTransaction TEST BATTERY COMPLETE.");
 		 System.exit(0);	
 	}
 	/**
@@ -107,9 +107,7 @@ public class BatteryKeysetTransaction {
 				System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 				throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 			}
-			//identity.setRangeKey(DBKey.newKey(xid,IndexResolver.getIndexInstanceTable(),r)); // form it as template for duplicate key search
-			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
-			// and maintains the classes stores in IndexInstanceTable for future commit.
+			// store in mirror table
 			dbtable.put(dbkey, identity);
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("DBKey stored "+recs+" "+identity);
@@ -135,7 +133,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR4(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		DomainMapRange prev = (DomainMapRange) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class);
+		DomainMapRange prev = (DomainMapRange) RelatrixTransaction.firstKey(xid,DomainMapRange.class);
 		System.out.println("firstKey="+prev);
 		Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,(Comparable) prev);
 		System.out.println("Battery1AR4");
@@ -174,7 +172,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR4A(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		DBKey prev = (DBKey) RelatrixKVTransaction.firstKey(xid,DBKey.class);
+		DBKey prev = (DBKey) RelatrixTransaction.firstKey(xid,DBKey.class);
 		DomainMapRange pk = null;
 		System.out.println("firstKey="+prev);
 		Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,(Comparable) prev);
@@ -293,7 +291,7 @@ public class BatteryKeysetTransaction {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKVTransaction.entrySet(xid,DomainMapRange.class);
+		Iterator<?> its = RelatrixTransaction.entrySet(xid,DomainMapRange.class);
 		System.out.println("Battery1AR5");
 		if(its != null) {
 			while(its.hasNext()) {
@@ -378,7 +376,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR101(String[] argv) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = RelatrixKVTransaction.size(xid,DomainMapRange.class);
+		long bits = RelatrixTransaction.size(xid,DomainMapRange.class);
 		System.out.println("Battery1AR101 Size="+bits);
 		if( bits != keys.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
@@ -395,7 +393,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR12(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class);
+		Comparable c = (Comparable) RelatrixTransaction.firstKey(xid,DomainMapRange.class);
 		if( c != null ) {
 			Iterator<?> its = RelatrixKVTransaction.findTailMapKV(xid,c);
 			System.out.println("Battery1AR12");
@@ -428,7 +426,7 @@ public class BatteryKeysetTransaction {
 	public static void battery1AR14(String[] argv) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKVTransaction.lastKey(xid,DomainMapRange.class);
+		Comparable c = (Comparable) RelatrixTransaction.lastKey(xid,DomainMapRange.class);
 		if(c != null) {
 			Iterator<?> its = RelatrixKVTransaction.findHeadMapKV(xid,c);
 			System.out.println("Battery1AR14");
@@ -458,37 +456,37 @@ public class BatteryKeysetTransaction {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		long s = RelatrixKVTransaction.size(xid,DBKey.class);
+		long s = RelatrixTransaction.size(xid,DBKey.class);
 		System.out.println("Cleaning DB of "+s+" elements.");
 		Iterator<?> it = RelatrixKVTransaction.keySet(xid,DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKVTransaction.remove(xid,(Comparable) fkey);
+			RelatrixTransaction.remove(xid,(Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("DBKey remove "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		s = RelatrixKVTransaction.size(xid,String.class);
-		it = RelatrixKVTransaction.keySet(xid,String.class);
+		s = RelatrixTransaction.size(xid,String.class);
+		it = RelatrixTransaction.keySet(xid,String.class);
 		timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKVTransaction.remove(xid,(Comparable) fkey);
+			RelatrixTransaction.remove(xid,(Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("String remove "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		long siz = RelatrixKVTransaction.size(xid,DBKey.class);
+		long siz = RelatrixTransaction.size(xid,DBKey.class);
 		if(siz > 0) {
-			Iterator<?> its = RelatrixKVTransaction.keySet(xid,DomainMapRange.class);
+			Iterator<?> its = RelatrixTransaction.keySet(xid,DomainMapRange.class);
 			while(its.hasNext()) {
 				Object fkey = it.next();
-				Object o = RelatrixKVTransaction.remove(xid,(Comparable) fkey);
+				RelatrixTransaction.remove(xid,(Comparable) fkey);
 				if((System.currentTimeMillis()-timx) > 5000) {
-					System.out.println("DomainMapRange remove "+o);
+					System.out.println("DomainMapRange remove "+fkey);
 					timx = System.currentTimeMillis();
 				}
 			}

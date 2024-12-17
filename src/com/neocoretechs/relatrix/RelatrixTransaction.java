@@ -1627,6 +1627,72 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
+	public static synchronized Object firstKey(TransactionId xid) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.firstKey(xid, DomainMapRange.class);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * This method returns the first DomainMapRange
+	 * instance having the lowest valued key.
+	 * @param xid the transaction id
+	 * @param clazz the class of the the target instances
+	 * @return the DomainMapRange morphism first key.
+	 * @throws IOException
+	 */
+	public static synchronized Object firstKey(TransactionId xid, Class clazz) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.firstKey(xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * this method returns the first DomainMapRange
+	 * instance having the lowest valued key value of the index classes.
+	 * @param alias the database alias
+	 * @param xid transaction id
+	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 * @throws IOException
+	 */
+	public static synchronized Object firstKey(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.firstKey(alias, xid, DomainMapRange.class);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * This method returns the first class
+	 * instance having the lowest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class of the the target instances
+	 * @return the class instance first key.
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 */
+	public static synchronized Object firstKey(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.firstKey(alias, xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	/**
+	 * this method returns the first DomainMapRange
+	 * instance having the lowest valued key value of the index classes.
+	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @throws IOException
+	 */
 	public static synchronized Object first(TransactionId xid) throws IOException
 	{
 		try {
@@ -1783,39 +1849,7 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
-
-	/**
-	 * This method returns the last DBKey of DomainMapRange
-	 * instance having the value of the highest valued key.
-	 * @param xid the transaction id
-	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
-	 * @throws IOException
-	 */
-	public static synchronized Object lastValue(TransactionId xid) throws IOException
-	{
-		try {
-			return RelatrixKVTransaction.lastValue(xid, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
-	}
-	/**
-	 * This method returns the last DBKey of DomainMapRange
-	 * instance having the value of the highest valued key.
-	 * @param alias the database alias
-	 * @param xid the transaction id
-	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
-	 * @throws IOException
-	 * @throws NoSuchElementException if the alias doesnt exist
-	 */
-	public static synchronized Object lastValue(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
-	{
-		try {
-			return RelatrixKVTransaction.lastValue(alias, xid, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
-	}
+	
 	/**
 	 * this method returns the last target class
 	 * instance having the highest valued key.
@@ -1832,6 +1866,7 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
+	
 	/**
 	 * this method returns the last class instance
 	 * instance having the highest valued key.
@@ -1845,6 +1880,109 @@ public final class RelatrixTransaction {
 	{
 		try {
 			return RelatrixKVTransaction.lastKey(alias, xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+
+	/**
+	 * This method returns the last DomainMapRange
+	 * instance having the highest valued key.
+	 * @param xid the transaction id
+	 * @return the DomainMapRange morphism having the highest key value.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastKey(TransactionId xid) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.lastKey(xid, DomainMapRange.class);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * This method returns the last DomainMapRange
+	 * instance having the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @return the DomainMapRange morphism having the highest key value.
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 */
+	public static synchronized Object lastKey(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.lastKey(alias, xid, DomainMapRange.class);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * this method returns the last target class
+	 * instance having the highest valued key.
+	 * @param xid the transaction id
+	 * @param clazz the class of the target
+	 * @return the target class having the highest key value.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastKey(TransactionId xid, Class clazz) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.lastKey(xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * this method returns the last class instance
+	 * instance having the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param clazz the class of the target
+	 * @return the class instance having the highest key value.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastKey(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.lastKey(alias, xid, clazz);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * This method returns the last DBKey of DomainMapRange
+	 * instance having the value of the highest valued key.
+	 * @param xid the transaction id
+	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
+	 * @throws IOException
+	 */
+	public static synchronized Object lastValue(TransactionId xid) throws IOException
+	{
+		try {
+			return RelatrixKVTransaction.lastValue(xid, DomainMapRange.class);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	 * This method returns the last DBKey of DomainMapRange
+	 * instance having the value of the highest valued key.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
+	 * @throws IOException
+	 * @throws NoSuchElementException if the alias doesnt exist
+	 */
+	public static synchronized Object lastValue(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
+	{
+		try {
+			return RelatrixKVTransaction.lastValue(alias, xid, DomainMapRange.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}

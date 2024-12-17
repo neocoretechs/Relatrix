@@ -44,6 +44,11 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		this.mapKey = mapKey;
 		this.transactionId = transactionId;
 	}
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias) {
+		this.domainKey = domainKey;
+		this.mapKey = mapKey;
+		this.alias = alias;
+	}
 	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias, TransactionId transactionId) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
@@ -76,7 +81,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	public void setIdentity(DBKey identity) {
 		this.identity = identity;
 	}
-	
+   	public Alias getAlias() {
+		return alias;
+	}
+	public void setAlias(Alias alias) {
+		this.alias = alias;
+	}
 	public boolean isValid() {
 		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey);
 	}

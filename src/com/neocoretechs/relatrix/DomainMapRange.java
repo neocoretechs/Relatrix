@@ -39,13 +39,11 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(flag, alias, d, m, r);
 	}
 	
-    public DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
-			DBKey rangeKey) {
+    public DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey,
-			Comparable r, DBKey rangeKey) {
+	public DomainMapRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
@@ -73,6 +71,14 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
+	public DomainMapRange(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, transactionId, d, domainKey, m, mapKey, r, rangeKey);
+	}
+
+	public DomainMapRange(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
+	}
+
 	public DBKey store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
 		if(locate(d, m)) {
 			setDomainResolved(d);
@@ -96,13 +102,23 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
     @Override
     public Object clone() throws CloneNotSupportedException {
     	if(alias == null) {
-    		if(templateFlag)
-    			return new DomainMapRange(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		return new DomainMapRange(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		if(transactionId == null) {
+    			if(templateFlag)
+    				return new DomainMapRange(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    			return new DomainMapRange(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		}
+  			if(templateFlag)
+				return new DomainMapRange(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+			return new DomainMapRange(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());		
     	}
-   		if(templateFlag)
-			return new DomainMapRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-   		return new DomainMapRange(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	if(transactionId == null) {
+    		if(templateFlag)
+    			return new DomainMapRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    		return new DomainMapRange(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	}
+    	if(templateFlag)
+    		return new DomainMapRange(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	return new DomainMapRange(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
 
