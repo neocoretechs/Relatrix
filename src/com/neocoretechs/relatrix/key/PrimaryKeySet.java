@@ -155,7 +155,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 				}
 				return true; // must now call DBKey.newKey(indexTable, this);
 			}
-			// alias not null
+			// alias not null, transaction id null
 			Object d = RelatrixKV.get(alias,skeyd);
 			if( d == null ) {
 				pk.setDomainKey(DBKey.newKey(alias, indexTable, skeyd)); // puts to index and instance

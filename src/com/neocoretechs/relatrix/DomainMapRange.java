@@ -78,13 +78,23 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 	public DomainMapRange(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
-
+	/**
+	 * Store the fully prepared Morphism. The assumption is that all tenasactionId, alias, instances etc have been set and resolved.
+	 * @param d
+	 * @param m
+	 * @param r
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws DuplicateKeyException
+	 */
 	public DBKey store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
 		if(locate(d, m)) {
 			setDomainResolved(d);
 			setMapResolved(m);
 			setRange(r);
-			identity = DBKey.newKey(IndexResolver.getIndexInstanceTable(), this);
+			identity = newKey(this);
 			return identity;
 		}
 		throw new DuplicateKeyException("Relationship "+d+"->"+r+" already exists.");

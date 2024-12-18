@@ -165,8 +165,8 @@ public class BatteryMorphismTransactionAlias2 {
 			++cnt;
 		}
 		if(keys.size() != max*2) {
-			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
-			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
+			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max*2);
+			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max*2);
 		}
 		if(DEBUG) {
 			System.out.println("---Instance keys---");
@@ -209,8 +209,8 @@ public class BatteryMorphismTransactionAlias2 {
 			++cnt;
 		}
 		if(keys.size() != max*2) {
-			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
-			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
+			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max*2);
+			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max*2);
 		}
 		if(DEBUG) {
 			System.out.println("---DBKey keys---");

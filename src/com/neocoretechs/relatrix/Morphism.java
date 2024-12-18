@@ -774,7 +774,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		 * @throws ClassNotFoundException
 		 * @throws IOException
 		 */
-		protected DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		private DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(transactionId == null) {
 				return DBKey.newKey(aliasOther, IndexResolver.getIndexInstanceTable(), instance);
 			} else {
@@ -819,7 +819,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		 * @throws ClassNotFoundException
 		 * @throws IOException
 		 */
-		protected Comparable resolveKey(Alias alias2, DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
+		private Comparable resolveKey(Alias alias2, DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
 				if(transactionId == null) {
 					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
@@ -877,7 +877,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		 * @throws NoSuchElementException
 		 * @throws IOException
 		 */
-		protected DBKey resolveInstance(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
+		private DBKey resolveInstance(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 			if(DEBUG) {
 				if(transactionId == null) {
 					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(alias2, instance);
