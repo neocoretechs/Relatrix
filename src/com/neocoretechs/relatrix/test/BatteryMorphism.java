@@ -238,7 +238,7 @@ public class BatteryMorphism {
 				its = keys.iterator();
 				while(its.hasNext()) {
 					DomainMapRange nex = (DomainMapRange) its.next();
-					pk = (DomainMapRange) IndexResolver.getIndexInstanceTable().getByIndex(nex.getIdentity()); 
+					pk = (DomainMapRange) IndexResolver.getIndexInstanceTable().get(nex.getIdentity()); 
 					// if we didnt resolve it, see if its in the table we built that mirrors what should be in db
 					if( pk == null ) {
 						if(dbtable.get(nex.getIdentity()) != null)
@@ -287,7 +287,7 @@ public class BatteryMorphism {
 			if(its != null) {
 				while(its.hasNext()) {
 					Entry nex = (Entry) its.next();
-					i = IndexResolver.getIndexInstanceTable().getByIndex((DBKey) nex.getValue()); 
+					i = IndexResolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
 					if( i == null ) {
 						if(dbtable.get(nex.getValue()) != null)
 							System.out.println("Found element in dbtable");
@@ -326,7 +326,7 @@ public class BatteryMorphism {
 			if(its != null) {
 				while(its.hasNext()) {
 					Entry nex = (Entry) its.next();
-					i = IndexResolver.getIndexInstanceTable().getByIndex((DBKey) nex.getValue()); 
+					i = IndexResolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
 					if( i == null ) {
 						if(dbtable.get(nex.getValue()) != null)
 							System.out.println("Found element in dbtable");
@@ -391,8 +391,8 @@ public class BatteryMorphism {
 				while(its.hasNext()) {
 					Comparable nex = (Comparable) its.next();
 					Map.Entry<DomainMapRange, DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
-					DBKey db = IndexResolver.getIndexInstanceTable().getByInstance(nexe.getKey()); // get the DBKey for this instance integer
-					DomainMapRange keyset = (DomainMapRange) IndexResolver.getIndexInstanceTable().getByIndex(nexe.getValue());
+					DBKey db = IndexResolver.getIndexInstanceTable().get(nexe.getKey()); // get the DBKey for this instance integer
+					DomainMapRange keyset = (DomainMapRange) IndexResolver.getIndexInstanceTable().get(nexe.getValue());
 					if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 						// Map.Entry
 						System.out.println("COMPARISON KEY MISMATCH:"+nex+" ["+db+","+keyset+"]");
@@ -424,7 +424,7 @@ public class BatteryMorphism {
 				while(its.hasNext()) {
 					Comparable nex = (Comparable) its.next();
 					Map.Entry<DomainMapRange,DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
-					DBKey db = IndexResolver.getIndexInstanceTable().getByInstance(nexe.getKey()); // get the DBKey for this instance 
+					DBKey db = IndexResolver.getIndexInstanceTable().get(nexe.getKey()); // get the DBKey for this instance 
 					if(nexe.getValue().compareTo(db) != 0) {
 						// Map.Entry
 						System.out.println("RESOLVED KEY MISMATCH:"+nex+" with resolved key "+db);

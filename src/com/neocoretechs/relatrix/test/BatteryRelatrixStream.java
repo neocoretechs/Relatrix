@@ -388,15 +388,15 @@ public class BatteryRelatrixStream {
 				if(dmr.isDomainKeyValid())
 					System.out.println("Domain:"+dmr.getDomain());
 				if(dmr.getDomain() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().getByIndex(dmr.getDomainKey()));
+					System.out.println(IndexResolver.getIndexInstanceTable().get(dmr.getDomainKey()));
 				if(dmr.isMapKeyValid())
 					System.out.println("Map:"+dmr.getMap());
 				if(dmr.getMap() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().getByIndex(dmr.getMapKey()));
+					System.out.println(IndexResolver.getIndexInstanceTable().get(dmr.getMapKey()));
 				if(dmr.isRangeKeyValid())
 					System.out.println("Range:"+dmr.getRange());
 				if(dmr.getRange() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().getByIndex(dmr.getRangeKey()));
+					System.out.println(IndexResolver.getIndexInstanceTable().get(dmr.getRangeKey()));
 			}
 		}
 	}

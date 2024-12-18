@@ -330,9 +330,6 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * it will be returned without further processing. If the domain is null and the key in the {@link KeySet} is
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
          * to perform a getByIndex call on the domain key of the KeySet, thus retrieving a domain from the database indicated
-         * in the first half of the DBKey, and the key to the instance in the last half of the DBKey. Recall that the
-         * database catalog has as its index key the {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * in the first half of a DBKey, and as its value the path to the database holding the actual instance we are seeking.
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getDomain() {
@@ -356,12 +353,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * using the domain instance value stored to the current index table using the IndexResolver.
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
-         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a 
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex}  class key, and values being the database path.
-         * In the DBKey, the {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * of the database in the master catalog and the {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * of the instance form the index.
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class. 
+         * {@link com.neocoretechs.relatrix.key.RelatrixIndex} .
          * @param domain
          */
         public void setDomain(Comparable<?> domain) {
@@ -389,11 +382,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index. The DBKey
-         * points to the primary database and the alias here is used if we create an entirely new instance.
-         * @param alias2 the database alias if we end up creating an index to a new instance
+         * master table for each database. {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * @param alias2 the database alias
          * @param domain
          */
         public void setDomain(Alias alias2, Comparable<?> domain) {
@@ -421,10 +411,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
-         * @param domain
+         * master table for each database. {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * @param domain the domain instance
          */
         public void setDomainTemplate(Comparable<?> domain) {
         	try {
@@ -446,25 +434,27 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        
+        /**
+         * Set the domain instance without additional resolution
+         * @param domain
+         */
         public void setDomainResolved(Comparable<?> domain) {
         	this.domain = domain;
         }
+        
         /**
          * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
          * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
          * If the domain key is not valid, a getByInstance of the domain on the database indicated by the alias tablespace is
          * performed to try and obtain a domain DBKey. If this method call comes back null, then a new key is formed
-         * using the effective null key value where database index is set to alias and instance is null key.
+         * using the effective null key value.
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex}  
-         * The DBKey points to the primary database and the alias here is used if we create an entirely new instance.
-         * @param alias2 the database alias if we end up creating an index to a new instance
+         * master table for each database. {@link com.neocoretechs.relatrix.key.RelatrixIndex}  
+         * @param alias2 the database alias 
          * @param domain
          */
         public void setDomainTemplate(Alias alias2, Comparable<?> domain) {
@@ -493,10 +483,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * it will be returned without further processing. If the map is null and the key in the {@link KeySet} is
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
          * to perform a getByIndex call on the map key of the KeySet, thus retrieving a map from the database indicated
-         * in the first half of the DBKey, and the key to the instance in the last half of the DBKey. Recall that the
-         * database catalog has as its index key the index in the first half of a DBKey, and as its value the path to the
-         * database holding the actual instance we are seeking.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * in the first half of the DBKey, and the key to the instance in the last half of the DBKey.
+         * {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getMap() {
@@ -521,10 +509,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * If the method call to getByInstance for the map instance comes back not null, then we simply set the map key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
-         * @param map
+         * master table for each database. {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * @param map the map instance
          */
         public void setMap(Comparable<?> map) {
         	if(map == null)
@@ -540,7 +526,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        /**
+         * Set the map instance, resolving the key from the alias database
+         * @param alias2
+         * @param map
+         */
         public void setMap(Alias alias2, Comparable<?> map) {
         	if(map == null)
         		throw new RuntimeException("Cannot set relationship component null.");
@@ -565,10 +555,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * If the method call to getByInstance for the map instance comes back not null, then we simply set the map key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
-         * @param map
+         * master table for each database. {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * @param map the map instance
          */
         public void setMapTemplate(Comparable<?> map) {
         	try {
@@ -617,7 +605,10 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        /**
+         * Set the map instance without further resolution
+         * @param map
+         */
         public void setMapResolved(Comparable<?> map) {
         	this.map = map;
         }
@@ -625,11 +616,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * Transparently process DBKey, returning actual instance. If the range is already deserialized as an instance
          * it will be returned without further processing. If the range is null and the key in the {@link KeySet} is
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
-         * to perform a getByIndex call on the range key of the KeySet, thus retrieving a range from the database indicated
-         * in the first half of the DBKey, and the key to the instance in the last half of the DBKey. Recall that the
-         * database catalog has as its index key the index in the first half of a DBKey, and as its value the path to the
-         * database holding the actual instance we are seeking.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * to perform a getByIndex call on the range key of the KeySet, thus retrieving a range from the DBKey. 
+		 * {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @return The real Comparable instance, pointed to by DBKey
          */
         public Comparable getRange() {
@@ -653,11 +641,9 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * using the range instance value stored to the current index table using the IndexResolver.
          * If the method call to getByInstance for the range instance comes back not null, then we simply set the range key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
-         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * @param range
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class.
+         * {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * @param range the range instance
          */
         public void setRange(Comparable<?> range) {
         	if(range == null)
@@ -673,7 +659,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        /**
+         * 
+         * @param alias2
+         * @param range
+         */
         public void setRange(Alias alias2, Comparable<?> range) {
         	if(range == null)
         		throw new RuntimeException("Cannot set relationship component null.");
@@ -698,10 +688,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * using the effective null key value.
          * If the method call to getByInstance for the range instance comes back not null, then we simply set the range key
          * in the KeySet to the value retrieved from the IndexResolver.<p/>
-         * Recall that our tables are stored using an instance key and DBKey value for each database/class, and a DBKey key and instance value 
-         * master table for each database. The master catalog is stored using a class key, and values being the database path.
-         * In the DBKey, the index of the database in the master catalog and the index of the instance form the index.
-         * {@link com.neocoretechs.relatrix.key.DatabaseCatalog} {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
+         * Recall that our tables are stored using an instance key and DBKey value for each database/class.
+         * {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
          * @param range
          */
         public void setRangeTemplate(Comparable<?> range) {
@@ -725,7 +713,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        /**
+         * 
+         * @param alias2
+         * @param range
+         */
         public void setRangeTemplate(Alias alias2, Comparable<?> range) {
         	try {
         		this.range = range;
@@ -747,11 +739,21 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         		throw new RuntimeException(e);
         	}
         }
-
+        /**
+         * 
+         * @param range
+         */
         public void setRangeResolved(Comparable<?> range) {
         	this.range = range;
         }
-        
+        /**
+         * 
+         * @param instance
+         * @return
+         * @throws IllegalAccessException
+         * @throws ClassNotFoundException
+         * @throws IOException
+         */
 		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(alias == null) {
 				if(transactionId == null) {
@@ -780,7 +782,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 			}
 		}
 		/**
-		 * When resolving a key, the alias is determined by the key itself
+		 * Resolve an instance from the passed DBKey
 		 * @param key
 		 * @return
 		 * @throws IllegalAccessException
@@ -789,32 +791,70 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		 */
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
+				if(alias != null)
+					return resolveKey(alias, key);
 				if(transactionId == null) {
-					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().get(key);
 					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
 					return c;
 				} else {
-					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId,key);
+					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().get(transactionId,key);
+					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,c);
+					return c;
+				}
+			}
+			if(alias != null)
+				return resolveKey(alias, key);
+			if(transactionId == null)
+				return (Comparable) IndexResolver.getIndexInstanceTable().get(key);
+			else
+				return (Comparable) IndexResolver.getIndexInstanceTable().get(transactionId,key);
+		}
+		
+		/**
+		 * Resolve an instance from the passed DBKey from the aliased database
+		 * @param key
+		 * @return
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws IOException
+		 */
+		protected Comparable resolveKey(Alias alias2, DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(DEBUG) {
+				if(transactionId == null) {
+					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
+					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,c);
+					return c;
+				} else {
+					Comparable c = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
 					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,c);
 					return c;
 				}
 			}
 			if(transactionId == null)
-				return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(key);
+				return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
 			else
-				return (Comparable) IndexResolver.getIndexInstanceTable().getByIndex(transactionId,key);
+				return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
 		}
 		
+		/**
+		 * 
+		 * @param instance
+		 * @return
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws IOException
+		 */
 		protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
 				if(alias != null)
 					return resolveInstance(alias, instance);
 				if(transactionId == null) {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(instance);
 					System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
 					return c;
 				} else {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(transactionId,instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(transactionId,instance);
 					System.out.printf("%s.resolveInstance for xid:%s instance:%s resulted in:%s%n",this.getClass().getName(),transactionId,instance,c);
 					return c;
 				}
@@ -822,30 +862,39 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 			if(alias != null)
 				return resolveInstance(alias, instance);
 			if(transactionId == null)
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().get(instance);
 			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(transactionId, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().get(transactionId, instance);
 		}
-		  
+		
+		/**
+		 * 
+		 * @param alias2
+		 * @param instance
+		 * @return
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws NoSuchElementException
+		 * @throws IOException
+		 */
 		protected DBKey resolveInstance(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 			if(DEBUG) {
 				if(transactionId == null) {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(alias2, instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(alias2, instance);
 					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias2,instance,c);
 					return c;
 				} else {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getByInstance(alias2, transactionId, instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(alias2, transactionId, instance);
 					System.out.printf("%s.resolveInstance for xid:%s alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),transactionId,alias2,instance,c);
 					return c;	
 				}
 			}
 			if(transactionId == null)
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(alias2, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().get(alias2, instance);
 			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getByInstance(alias2, transactionId, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().get(alias2, transactionId, instance);
 		}
 		
-   
         /**
         * for relate cmpr, we return a value in the range 0-63
         * in which the values for domain,map range : >,<,=,dont care = 0-3

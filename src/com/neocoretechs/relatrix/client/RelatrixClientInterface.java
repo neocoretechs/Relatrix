@@ -91,6 +91,8 @@ public interface RelatrixClientInterface {
 	public Stream findTailStream(Alias alias, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
 
 	public Object getByIndex(DBKey key) throws java.io.IOException;
+	
+	public Object getByIndex(Alias alias, DBKey index) throws java.io.IOException;
 
 	public Object lastKey() throws java.io.IOException;
 
@@ -169,6 +171,7 @@ public interface RelatrixClientInterface {
 	Object removekv(Comparable<?> key) throws IOException;
 
 	Object removekv(Alias alias, Comparable key) throws IOException;
+
 
 }
 

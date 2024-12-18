@@ -23,7 +23,7 @@ public interface IndexInstanceTableInterface {
 
 	/**
 	 * Put the key to the proper tables
-	 * @return TODO
+	 * @return The DBKey identity of the instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -37,29 +37,6 @@ public interface IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	DBKey put(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;	
-
-	/**
-	 * Get the instance by using the Instance contained in the passed DBKey
-	 * @param index
-	 * @return
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	/**
-	 * Get the index of the instance by retrieving the instance present in the passed object
-	 * @param instance the DbKey containing the instance
-	 * @return The index contained in the retrieved InstanceIndex
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
-
-	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
-
 	/**
 	 * Put the key to the proper tables
 	 * @return TODO
@@ -76,7 +53,6 @@ public interface IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	DBKey put(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
-	
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
@@ -132,51 +108,26 @@ public interface IndexInstanceTableInterface {
 	 * @throws NoSuchElementException
 	 */
 	void put(Alias alias, TransactionId transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
-
-	void delete(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void commit(TransactionId transactionId) throws IOException, IllegalAccessException;
-
-	void rollback(TransactionId transactionId) throws IOException, IllegalAccessException;
-
-	void checkpoint(TransactionId transactionId) throws IllegalAccessException, IOException;
-
-	void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException;
-	/**
-	 * Get the index of the instance by retrieving the instance present in the passed object
-	 * @param alias the database alias
-	 * @param instance the DbKey containing the instance
-	 * @return The index contain@Override
-	ed in the retrieved Instance
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws NoSuchElementException
-	 */
-	DBKey getByInstance(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
-
-	/**
-	 * Get index of the instance by retrieving the key for the instance present in the passed object
-	 * @param alias the database alias
-	 * @param transactionId
-	 * @param instance the DbKey containing the instance
-	 * @return The index contained in the retrieved Instance
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws NoSuchElementException
-	 */
-	DBKey getByInstance(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
-	/**
-	 * Get the index of the instance by retrieving instance present in the passed object
-	 * @param instance the DbKey containing the instance
-	 * @return The index contained in the retrieved Instance
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	DBKey getByInstance(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 	
+	/**
+	 * Get the instance by using the Instance contained in the passed DBKey
+	 * @param index
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
+	/**
+	 * Get the instance references by the passed DBKey
+	 * @param alias the alias to the desired database
+	 * @param index the DBKey index in the alias database
+	 * @return The instance desired
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
 	/**
 	 * Get the instance contained in the passed DBKey
 	 * @param transactionId
@@ -186,26 +137,99 @@ public interface IndexInstanceTableInterface {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
+	Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
+	/**
+	 * Get the instance in the alias database under transaction control
+	 * @param alias
+	 * @param transactionId
+	 * @param index
+	 * @return the instance desired
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException;
 
+	/**
+	 * Get the index of the instance by retrieving the instance present in the passed object
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved InstanceIndex
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	DBKey get(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+
+	/**
+	 * Get the index of the instance by retrieving the instance present in the passed object
+	 * @param alias the database alias
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	DBKey get(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
+
+	/**
+	 * Get index of the instance by retrieving the key for the instance present in the passed object
+	 * @param alias the database alias
+	 * @param transactionId
+	 * @param instance the DBKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException
+	 */
+	DBKey get(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	/**
+	 * Get the index of the instance by retrieving instance present in the passed object
+	 * @param instance the DbKey containing the instance
+	 * @return The index contained in the retrieved Instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	DBKey get(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	
+	/**
+	 * Return a newly generated DBKey
+	 * @return a UUID based DBKey
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
+
+	void checkpoint(TransactionId transactionId) throws IllegalAccessException, IOException;
+	
+	void checkpoint(Alias alias, TransactionId transactionId) throws IllegalAccessException, IOException, NoSuchElementException;
+	
+	void commit(TransactionId transactionId) throws IOException, IllegalAccessException;
+	
 	void commit(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
+	
+	void rollback(TransactionId transactionId) throws IOException, IllegalAccessException;
 
 	void rollback(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
-
-	void checkpoint(Alias alias, TransactionId transactionId) throws IllegalAccessException, IOException, NoSuchElementException;
+	
+	void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException;
 
 	void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
+	
+	void delete(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void deleteInstance(Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void deleteInstance(TransactionId transactionId, Comparable instance)
-			throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
+	
 	void delete(Alias alias, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	void delete(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteInstance(Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
+
+	void deleteInstance(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 
 	void deleteInstance(Alias alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
 

@@ -7,12 +7,12 @@ import java.io.ObjectOutput;
 import java.util.UUID;
 /**
  * An index to the components of idempotent Relatrix entries. These indexes are used to uniquely identify
- * entries in the {@link DatabaseCatalog} and {@link DBKey} tables and are originally generated from random Java UUID's
+ * entries in the {@link DBKey} tables and are originally generated from random Java UUID's
  * but encapsulated here to give predictable behavior and offer greater flexibility.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class RelatrixIndex implements Cloneable, Comparable, Externalizable {
+public final class RelatrixIndex implements Cloneable, Comparable, Externalizable {
 	private long msb;
 	private long lsb;
 	

@@ -45,10 +45,8 @@ import com.neocoretechs.rocksack.Alias;
 * since conceptually a Morphism is a domain acted upon by the map function yielding the range.<p/>
 * A given domain run through a 'map function' always yields the same range, 
 * as any function that processes an element yields one consistent result.<p/>
-* The morphism components are indexed by a {@link com.neocoretechs.relatrix.key.DBKey} that contains a reference to the database and instance
-* within that database as 2 unique Id's (UUIDs). The first Id points to the entry in the database catalog. The catalog
-* sets up an alias called Relatrix.Catalog to a path set with the system property also called Relatrix.Catalog, or lacking that property, 
-* the path the alias refers to defaults to the static variable databaseCatalog.<p/> 
+* The morphism components are indexed by a {@link com.neocoretechs.relatrix.key.DBKey} that contains a reference to the instance
+* within that database as a (UUID). <p/> 
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism and the works of
@@ -1691,7 +1689,7 @@ public final class Relatrix {
 	 */
 	public static synchronized Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable().getByIndex(key);
+		return IndexResolver.getIndexInstanceTable().get(key);
 	}
 
 	/**

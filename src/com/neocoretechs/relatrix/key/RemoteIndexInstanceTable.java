@@ -47,7 +47,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
-			DBKey retKey = getByInstance(instance);
+			DBKey retKey = get(instance);
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
 				try {
@@ -73,7 +73,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 			// instance index not valid, key not fully formed, we may have to add instance value to table and index it
-		DBKey retKey = getByInstance(transactionId, instance);
+		DBKey retKey = get(transactionId, instance);
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			rcx.store(transactionId, index, instance);
@@ -86,7 +86,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	@Override
 	public void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		Comparable instance = null;
-		instance = (Comparable) getByIndex(index);
+		instance = (Comparable) get(index);
 		if(instance != null) {
 				rc.remove(instance);
 		}
@@ -96,7 +96,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	@Override
 	public void delete(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		Comparable instance = null;
-		instance = (Comparable) getByIndex(index);
+		instance = (Comparable) get(index);
 		if(instance != null) {
 				rcx.remove(transactionId, instance);
 		}
@@ -134,8 +134,35 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		return rc.getByIndex(index);
+	}
+	/**
+	 * Get the instance by using the InstanceIndex contained in the passed DBKey from the alias database
+	 * @param alias
+	 * @param index
+	 * @return the instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@Override
+	public Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+		return rc.getByIndex(alias,index);
+	}
+	/**
+	 * Get the instance by using the InstanceIndex contained in the passed DBKey from the alias database under transaction control
+	 * @param alias
+	 * @param transactionId
+	 * @param index
+	 * @return the instance
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@Override
+	public Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+		return rcx.getByIndex(alias, transactionId, index);
 	}
 	/**
 	 * Get the instance by using the InstanceIndex contained in the passed DBKey
@@ -146,7 +173,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		return rcx.getByIndex(transactionId, index);
 	}
 	/**
@@ -158,7 +185,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey get(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		return (DBKey)rc.get((Comparable) instance);
 	}
 	
@@ -171,7 +198,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey getByInstance(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey get(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		return (DBKey)rcx.get(transactionId, (Comparable) instance);
 	}
 	
@@ -190,7 +217,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		//synchronized(mutex ) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(alias, instance);
+			DBKey retKey = get(alias, instance);
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
@@ -230,7 +257,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	public DBKey put(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(alias, transactionId, instance);
+			DBKey retKey = get(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
@@ -444,13 +471,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public DBKey getByInstance(Alias alias, Object instance) 
+	public DBKey get(Alias alias, Object instance) 
 			throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
 		return (DBKey) rc.get(alias, (Comparable) instance);
 	}
 
 	@Override
-	public DBKey getByInstance(Alias alias, TransactionId transactionId, Object instance)
+	public DBKey get(Alias alias, TransactionId transactionId, Object instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		return (DBKey) rcx.get(alias, transactionId, (Comparable) instance);
 	}
@@ -551,5 +578,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		deleteInstance(alias, transactionId, skeyd);
 		delete(alias, transactionId, dKey);
 	}
+
 
 }

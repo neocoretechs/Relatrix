@@ -80,8 +80,8 @@ public class BatteryKeyset {
 			r = String.format(uniqKeyFmt, i+2);
 	
 			PrimaryKeySet pks = new PrimaryKeySet();
-			pks.setDomainKey(IndexResolver.getIndexInstanceTable().getByInstance(d));
-			pks.setMapKey(IndexResolver.getIndexInstanceTable().getByInstance(m));
+			pks.setDomainKey(IndexResolver.getIndexInstanceTable().get(d));
+			pks.setMapKey(IndexResolver.getIndexInstanceTable().get(m));
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -113,8 +113,8 @@ public class BatteryKeyset {
 			String d = String.format(uniqKeyFmt, i);
 			String m = String.format(uniqKeyFmt, i+1);
 			KeySet identity = new KeySet();
-			identity.setDomainKey(indexTable.getByInstance(d));
-			identity.setMapKey(indexTable.getByInstance(m));
+			identity.setDomainKey(indexTable.get(d));
+			identity.setMapKey(indexTable.get(m));
 			identity.setRangeKey(new DBKey(DBKey.nullKey));
 			//PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
@@ -207,7 +207,7 @@ public class BatteryKeyset {
 		System.out.println("Battery1AR5");
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
-			i =  indexTable.getByIndex((DBKey) nex.getValue()); 
+			i =  indexTable.get((DBKey) nex.getValue()); 
 			if(((Comparable)i).compareTo(nex.getKey()) != 0) {
 				System.out.println("RANGE KEY MISMATCH: "+nex);
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
@@ -293,8 +293,8 @@ public class BatteryKeyset {
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = indexTable.getByInstance(nexe.getKey()); // get the DBKey for this instance integer
-				KeySet keyset = (KeySet) indexTable.getByIndex(nexe.getValue());
+				DBKey db = indexTable.get(nexe.getKey()); // get the DBKey for this instance integer
+				KeySet keyset = (KeySet) indexTable.get(nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
@@ -323,7 +323,7 @@ public class BatteryKeyset {
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet,DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = indexTable.getByInstance(nexe.getKey()); // get the DBKey for this instance 
+				DBKey db = indexTable.get(nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);

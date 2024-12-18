@@ -368,6 +368,15 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
+	public Object getByIndex(Alias alias, DBKey index) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("getByIndex", alias, index);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+				throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Object lastKey() throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("lastKey",new Object[]{});
 		try {

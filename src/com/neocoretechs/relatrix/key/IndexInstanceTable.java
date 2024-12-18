@@ -45,7 +45,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(instance);
+			DBKey retKey = get(instance);
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
@@ -148,7 +148,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(alias, instance);
+			DBKey retKey = get(alias, instance);
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s getByInstance result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, retKey.toString());
 			// did the instance exist?
@@ -251,7 +251,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.put Xid:%s class=%s instance=%s%n", this.getClass().getName(), transactionId, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(transactionId, instance);
+			DBKey retKey = get(transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
@@ -352,7 +352,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//synchronized(mutex) {
 			if(DEBUG)
 				System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
-			DBKey retKey = getByInstance(alias, transactionId, instance);
+			DBKey retKey = get(alias, transactionId, instance);
 			// did the instance exist?
 			if(retKey == null) {
 				DBKey index = getNewDBKey();
@@ -601,7 +601,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public Object getByIndex(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s%n", this.getClass().getName(), index);
@@ -618,6 +618,25 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		//}
 	}
 	
+	@Override
+	public Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+		//synchronized(mutex) {
+		if(DEBUG)
+			System.out.printf("%s getByIndex for key:%s%n", this.getClass().getName(), index);
+		BufferedMap bm = RelatrixKV.getMap(alias, DBKey.class);
+		Object o =  bm.get(index);
+		if(DEBUG)
+			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
+		if(o == null)
+			return null;
+		o = ((KeyValue)o).getmValue();
+		if(o instanceof PrimaryKeySet) {
+			((PrimaryKeySet)o).setIdentity(index);
+			((PrimaryKeySet)o).setAlias(alias);
+		}
+		return o;
+		//}
+	}
 	/**
 	 * Get the instance contained in the passed DBKey using a transactional context. 
 	 * @param transactionId the transaction
@@ -628,19 +647,37 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public Object getByIndex(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
 		TransactionalMap tm = RelatrixKVTransaction.getMap(DBKey.class, transactionId);
 		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
 		o = ((KeyValue)o).getmValue();
-		if(o instanceof PrimaryKeySet)
+		if(o instanceof PrimaryKeySet) {
 			((PrimaryKeySet)o).setIdentity(index);
+			((PrimaryKeySet)o).setTransactionId(transactionId);
+		}
 		return o;
 		//}
 	}
 	
+	@Override
+	public Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+		//synchronized(mutex) {
+		TransactionalMap tm = RelatrixKVTransaction.getMap(alias, DBKey.class, transactionId);
+		Object o =  tm.get(transactionId, index);
+		if(o == null)
+			return null;
+		o = ((KeyValue)o).getmValue();
+		if(o instanceof PrimaryKeySet) {
+			((PrimaryKeySet)o).setIdentity(index);
+			((PrimaryKeySet)o).setAlias(alias);
+			((PrimaryKeySet)o).setTransactionId(transactionId);
+		}
+		return o;
+		//}
+	}
 	/**
 	 * Get the index of the instance by retrieving the key for the instance present in the passed object.
 	 * Merely does a RelatrixKV.get on instance, whose payload is presumed to be a {@link DBKey}.
@@ -652,7 +689,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey getByInstance(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey get(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
 		if(DEBUG) {
 			DBKey dbkey = (DBKey) RelatrixKV.get((Comparable) instance);
@@ -674,7 +711,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws NoSuchElementException
 	 */
 	@Override
-	public DBKey getByInstance(Alias alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public DBKey get(Alias alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 			return (DBKey) RelatrixKV.get(alias, (Comparable) instance);
 		//}
@@ -690,7 +727,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey getByInstance(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey get(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
 			return (DBKey) RelatrixKVTransaction.get(transactionId, (Comparable) instance);
 		//}
@@ -708,7 +745,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 * @throws NoSuchElementException
 	 */
 	@Override
-	public DBKey getByInstance(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public DBKey get(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		//synchronized(mutex) {
 		//Object o = RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
 		//if(!(o instanceof DBKey))

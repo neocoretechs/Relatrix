@@ -2155,7 +2155,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object getByIndex(TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable().getByIndex(xid, (DBKey) key);
+		return IndexResolver.getIndexInstanceTable().get(xid, (DBKey) key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -2170,7 +2170,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object getByIndex(Alias alias, TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
 	{
-		return IndexResolver.getIndexInstanceTable().getByIndex(xid, (DBKey) key);
+		return IndexResolver.getIndexInstanceTable().get(xid, (DBKey) key);
 	}
 	/**
 	 * Return the keyset for the given class

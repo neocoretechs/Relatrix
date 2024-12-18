@@ -143,7 +143,7 @@ public class BatteryDBKeyAlias {
 		System.out.println(alias+" KV Battery1AR5");
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
-			i = (int) indexTable.getByIndex((DBKey) nex.getValue()); // get value, which is dbkey, then look up dbkey key
+			i = (int) indexTable.get((DBKey) nex.getValue()); // get value, which is dbkey, then look up dbkey key
 			//System.out.println(i+"="+nex);
 			if((Integer)nex.getKey() != i)
 				System.out.println("KEY MISMATCH:"+i+" - "+nex);
@@ -274,7 +274,7 @@ public class BatteryDBKeyAlias {
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			DBKey db = indexTable.getByInstance(alias, nexe.getValue()); // get the DBKey for this instance integer
+			DBKey db = indexTable.get(alias, nexe.getValue()); // get the DBKey for this instance integer
 			if(nexe.getKey().compareTo(db) != 0) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+nex);
@@ -298,7 +298,7 @@ public class BatteryDBKeyAlias {
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			DBKey db = indexTable.getByInstance(alias, nexe.getValue()); // get the DBKey for this instance integer
+			DBKey db = indexTable.get(alias, nexe.getValue()); // get the DBKey for this instance integer
 			if(nexe.getKey().compareTo(db) != 0) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+nex);
