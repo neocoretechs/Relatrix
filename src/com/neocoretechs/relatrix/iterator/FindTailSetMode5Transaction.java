@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -35,7 +34,7 @@ public class FindTailSetMode5Transaction extends FindSetMode5Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[0]));
+				xdmr.setMap((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[0]));
 			} else {
 				xdmr.setMap((Comparable)endarg[0]);
 			}
@@ -52,7 +51,7 @@ public class FindTailSetMode5Transaction extends FindSetMode5Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[0]));
+				xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[0]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[0]);
 			}

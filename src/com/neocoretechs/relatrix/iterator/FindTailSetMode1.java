@@ -6,7 +6,6 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 /**
  * Concrete object instance in range component = mode 1

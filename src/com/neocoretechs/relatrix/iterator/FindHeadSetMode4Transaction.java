@@ -5,12 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-
 
 /**
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br/>
@@ -43,7 +40,7 @@ public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[0]));
+				xdmr.setMap((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[0]));
 			} else {
 				xdmr.setMap((Comparable)endarg[0]);
 			}
@@ -51,7 +48,7 @@ public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[1]));
+				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[1]));
 			} else {
 				xdmr.setRange((Comparable)endarg[1]);
 			}
@@ -68,7 +65,7 @@ public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[0]));
+				xdmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[0]);
 			}
@@ -76,7 +73,7 @@ public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[1]));
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[1]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[1]);
 			}

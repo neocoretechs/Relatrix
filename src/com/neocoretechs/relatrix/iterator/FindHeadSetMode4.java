@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -36,7 +35,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
+				xdmr.setMap((Comparable) Relatrix.lastKey((Class)endarg[0]));
 			} else {
 				xdmr.setMap((Comparable)endarg[0]);
 			}
@@ -44,7 +43,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[1]));
+				xdmr.setRange((Comparable) Relatrix.lastKey((Class)endarg[1]));
 			} else {
 				xdmr.setRange((Comparable)endarg[1]);
 			}
@@ -61,7 +60,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
+				xdmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[0]);
 			}
@@ -69,7 +68,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[1]));
+				xdmr.setRange(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[1]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[1]);
 			}

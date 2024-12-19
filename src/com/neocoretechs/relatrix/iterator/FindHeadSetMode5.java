@@ -5,10 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
-
 
 /**
 * Mode 5. Permutation with 2 objects.
@@ -36,7 +34,7 @@ public class FindHeadSetMode5 extends FindSetMode5 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
+				xdmr.setMap((Comparable) Relatrix.lastKey((Class)endarg[0]));
 			} else {
 				xdmr.setMap((Comparable)endarg[0]);
 			}
@@ -53,7 +51,7 @@ public class FindHeadSetMode5 extends FindSetMode5 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
+				xdmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[0]);
 			}

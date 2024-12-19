@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -32,7 +30,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[0]));
+				xdmr.setDomain((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
@@ -40,7 +38,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[1]));
+				xdmr.setMap((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[1]));
 			} else {
 				xdmr.setMap((Comparable)endarg[1]);
 			}
@@ -48,7 +46,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[2] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[2]));
+				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[2]));
 			} else {
 				xdmr.setRange((Comparable)endarg[2]);
 			}
@@ -65,7 +63,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[0]));
+				xdmr.setDomain(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
@@ -73,7 +71,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[1]));
+				xdmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[1]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[1]);
 			}
@@ -81,7 +79,7 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[2] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[2]));
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[2]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[2]);
 			}

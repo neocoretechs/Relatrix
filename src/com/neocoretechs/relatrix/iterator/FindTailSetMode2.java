@@ -5,10 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
-
 
 /**
 * Mode 2 find returns a tailSet in map, domain, range order. The map value is matched against the constructor
@@ -42,7 +40,7 @@ public class FindTailSetMode2 extends FindSetMode2 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
+				xdmr.setDomain((Comparable) Relatrix.firstKey((Class)endarg[0]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[0]);
 			}
@@ -50,7 +48,7 @@ public class FindTailSetMode2 extends FindSetMode2 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[1]));
+				xdmr.setRange((Comparable) Relatrix.firstKey((Class)endarg[1]));
 			} else {
 				xdmr.setRange((Comparable)endarg[1]);
 			}
@@ -67,7 +65,7 @@ public class FindTailSetMode2 extends FindSetMode2 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
+				xdmr.setDomain(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[0]);
 			}
@@ -75,7 +73,7 @@ public class FindTailSetMode2 extends FindSetMode2 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[1]));
+				xdmr.setRange(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[1]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[1]);
 			}

@@ -5,10 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
-
 
 /**
 * Legal permutations are:<br/>
@@ -37,7 +35,7 @@ public class FindTailSetMode4 extends FindSetMode4 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
+				xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg[0]));
 			} else {
 				xdmr.setMap((Comparable)endarg[0]);
 			}
@@ -45,7 +43,7 @@ public class FindTailSetMode4 extends FindSetMode4 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[1]));
+				xdmr.setRange((Comparable) Relatrix.firstKey((Class)endarg[1]));
 			} else {
 				xdmr.setRange((Comparable)endarg[1]);
 			}
@@ -62,7 +60,7 @@ public class FindTailSetMode4 extends FindSetMode4 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
+				xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[0]);
 			}
@@ -70,7 +68,7 @@ public class FindTailSetMode4 extends FindSetMode4 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[1]));
+				xdmr.setRange(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[1]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[1]);
 			}

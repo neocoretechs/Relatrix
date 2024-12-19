@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -40,10 +39,10 @@ public class FindSubSetMode5 extends FindSetMode5 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg[argCtr]));
+				xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg[argCtr]));
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				ydmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[argCtr++]));
+				ydmr.setMap((Comparable) Relatrix.lastKey((Class)endarg[argCtr++]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -67,10 +66,10 @@ public class FindSubSetMode5 extends FindSetMode5 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[argCtr]));
+				xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				ydmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[argCtr++]));
+				ydmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[argCtr++]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");

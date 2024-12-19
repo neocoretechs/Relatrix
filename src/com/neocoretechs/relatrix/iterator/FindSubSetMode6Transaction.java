@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -45,8 +44,8 @@ public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				xdmr.setRange((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[argCtr]));
-				ydmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[argCtr]));
+				xdmr.setRange((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[argCtr]));
+				ydmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[argCtr]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -72,8 +71,8 @@ public class FindSubSetMode6Transaction extends FindSetMode6Transaction {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				xdmr.setRange(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
-				ydmr.setRange(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr]));
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
+				ydmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[argCtr]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");

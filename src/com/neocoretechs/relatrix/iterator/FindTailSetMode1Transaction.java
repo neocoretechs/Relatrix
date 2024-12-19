@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -30,7 +30,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
 				if(endarg[0] instanceof Class) {
-					xdmr.setDomain((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[0]));
+					xdmr.setDomain((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[0]));
 				} else {
 					xdmr.setDomain((Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 				}
@@ -38,7 +38,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 				throw new IllegalAccessException("Improper Morphism template.");
 			if(tdmr.getMap() == null) {
 				if(endarg[1] instanceof Class) {
-					xdmr.setMap((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[1]));
+					xdmr.setMap((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[1]));
 				} else {
 					xdmr.setMap((Comparable)endarg[1]);
 				}
@@ -55,7 +55,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
 				if(endarg[0] instanceof Class) {
-					xdmr.setDomain(alias, (Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[0]));
+					xdmr.setDomain(alias, (Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[0]));
 				} else {
 					xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 				}
@@ -63,7 +63,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 				throw new IllegalAccessException("Improper Morphism template.");
 			if(tdmr.getMap() == null) {
 				if(endarg[1] instanceof Class) {
-					xdmr.setMap(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[1]));
+					xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[1]));
 				} else {
 					xdmr.setMap(alias,(Comparable)endarg[1]);
 				}

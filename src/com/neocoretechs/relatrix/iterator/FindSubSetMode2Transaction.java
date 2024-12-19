@@ -5,11 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-
 
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
@@ -44,8 +42,8 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[argCtr]));
-				ydmr.setDomain((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[argCtr++]));
+				xdmr.setDomain((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[argCtr]));
+				ydmr.setDomain((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[argCtr++]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
 				ydmr.setDomain((Comparable)endarg[argCtr++]);
@@ -57,8 +55,8 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				xdmr.setRange((Comparable) RelatrixKVTransaction.firstKey(xid,(Class)endarg[argCtr]));
-				ydmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[argCtr]));
+				xdmr.setRange((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[argCtr]));
+				ydmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[argCtr]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -82,8 +80,8 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
-				ydmr.setDomain(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
+				xdmr.setDomain(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
+				ydmr.setDomain(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[argCtr++]); // same as concrete type in d,m,r field, but we are returning relations with that value
 				ydmr.setDomain(alias,(Comparable)endarg[argCtr++]);
@@ -92,10 +90,10 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[argCtr] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
+				xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				ydmr.setMap(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
+				ydmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -110,8 +108,8 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				xdmr.setRange(alias,(Comparable) RelatrixKVTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
-				ydmr.setRange(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[argCtr]));
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
+				ydmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[argCtr]));
 			} else {
 				if(argCtr >= endarg.length)
 					throw new IllegalAccessException("Wrong number of arguments to findSubSet");

@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -40,7 +39,7 @@ public class FindHeadSetMode3 extends FindSetMode3 {
 		} catch (CloneNotSupportedException e) {}
     	if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
+				xdmr.setDomain((Comparable) Relatrix.lastKey((Class)endarg[0]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[0]);
 			}
@@ -57,7 +56,7 @@ public class FindHeadSetMode3 extends FindSetMode3 {
 		} catch (CloneNotSupportedException e) {}
     	if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
+				xdmr.setDomain(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[0]);
 			}

@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -35,7 +34,7 @@ public class FindTailSetMode6 extends FindSetMode6 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKV.firstKey((Class)endarg[0]));
+				xdmr.setRange((Comparable) Relatrix.firstKey((Class)endarg[0]));
 			} else {
 				xdmr.setRange((Comparable)endarg[0]);
 			}
@@ -52,7 +51,7 @@ public class FindTailSetMode6 extends FindSetMode6 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg[0]));
+				xdmr.setRange(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[0]);
 			}

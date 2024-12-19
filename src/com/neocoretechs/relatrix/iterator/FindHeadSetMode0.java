@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 /**
  * Find elements strictly less than 'to' target.
@@ -30,7 +29,7 @@ public class FindHeadSetMode0 extends FindSetMode0 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
+				xdmr.setDomain((Comparable) Relatrix.lastKey((Class)endarg[0]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
@@ -38,7 +37,7 @@ public class FindHeadSetMode0 extends FindSetMode0 {
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[1]));
+				xdmr.setMap((Comparable) Relatrix.lastKey((Class)endarg[1]));
 			} else {
 				xdmr.setMap((Comparable)endarg[1]);
 			}
@@ -46,7 +45,7 @@ public class FindHeadSetMode0 extends FindSetMode0 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[2] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKV.lastKey((Class)endarg[2]));
+				xdmr.setRange((Comparable) Relatrix.lastKey((Class)endarg[2]));
 			} else {
 				xdmr.setRange((Comparable)endarg[2]);
 			}
@@ -63,7 +62,7 @@ public class FindHeadSetMode0 extends FindSetMode0 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
+				xdmr.setDomain(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
@@ -71,7 +70,7 @@ public class FindHeadSetMode0 extends FindSetMode0 {
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[1]));
+				xdmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[1]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[1]);
 			}
@@ -79,7 +78,7 @@ public class FindHeadSetMode0 extends FindSetMode0 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[2] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[2]));
+				xdmr.setRange(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[2]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[2]);
 			}

@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 /**
  * Find elements strictly less than 'to' target.<p/>
@@ -31,7 +30,7 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKV.lastKey((Class)endarg[0]));
+				xdmr.setDomain((Comparable) Relatrix.lastKey((Class)endarg[0]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
@@ -39,7 +38,7 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.lastKey((Class)endarg[1]));
+				xdmr.setMap((Comparable) Relatrix.lastKey((Class)endarg[1]));
 			} else {
 				xdmr.setMap((Comparable)endarg[1]);
 			}
@@ -58,7 +57,7 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias, (Comparable) RelatrixKV.lastKey(alias,(Class)endarg[0]));
+				xdmr.setDomain(alias, (Comparable) Relatrix.lastKey(alias,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
@@ -66,7 +65,7 @@ public class FindHeadSetMode1 extends FindSetMode1 {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getMap() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.lastKey(alias,(Class)endarg[1]));
+				xdmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[1]));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg[1]);
 			}

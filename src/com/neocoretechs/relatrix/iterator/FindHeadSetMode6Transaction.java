@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -38,7 +37,7 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid,(Class)endarg[0]));
+				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[0]));
 			} else {
 				xdmr.setRange((Comparable)endarg[0]);
 			}
@@ -55,7 +54,7 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setRange(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[0]));
+				tdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[0]);
 			}

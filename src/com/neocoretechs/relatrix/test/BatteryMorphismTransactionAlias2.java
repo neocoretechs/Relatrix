@@ -327,7 +327,7 @@ public class BatteryMorphismTransactionAlias2 {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKVTransaction.entrySet(alias1,xid,DomainMapRange.class);
+		Iterator<?> its = RelatrixTransaction.entrySet(alias1,xid,DomainMapRange.class);
 		System.out.println(alias1+" Battery1AR5 "+xid);
 		if(its != null) {
 			while(its.hasNext()) {

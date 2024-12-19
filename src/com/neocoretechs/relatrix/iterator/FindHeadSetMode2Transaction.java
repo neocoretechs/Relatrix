@@ -5,11 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-
 
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
@@ -46,7 +44,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKVTransaction.lastKey(xid, (Class)endarg[0]));
+				xdmr.setDomain((Comparable) RelatrixTransaction.lastKey(xid, (Class)endarg[0]));
 			} else {
 				xdmr.setDomain((Comparable)endarg[0]);
 			}
@@ -54,7 +52,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixKVTransaction.lastKey(xid, (Class)endarg[1]));
+				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid, (Class)endarg[1]));
 			} else {
 				xdmr.setRange((Comparable)endarg[1]);
 			}
@@ -71,7 +69,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[0]));
+				xdmr.setDomain(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg[0]);
 			}
@@ -79,7 +77,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
 			if(endarg[1] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixKVTransaction.lastKey(alias,xid,(Class)endarg[1]));
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[1]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[1]);
 			}

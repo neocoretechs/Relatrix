@@ -44,14 +44,16 @@ public class FindsetUtil {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKV.findTailMapKVStream(xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
-    			if(m.getKey().compareTo(ydmr) > 0)
+    			Morphism m0 = m.getKey();
+    			m0.setIdentity(m.getValue());
+    			if(m0.compareTo(ydmr) > 0)
     				return;
     			Result3 r = new Result3();
     			boolean insert = true;
     			r.set(0,0);
     			if(dkey.size() > 0) {
     				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m.getKey().getDomainKey());
+    				int insd = dkey.indexOf(m0.getDomainKey());
     				// no, this Morphism is not eligible
     				if(insd == -1)
     					insert = false;
@@ -61,7 +63,7 @@ public class FindsetUtil {
     			}
     			r.set(1,0);
     			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m.getKey().getMapKey());
+    				int insm = mkey.indexOf(m0.getMapKey());
     				if(insm == -1)
     					insert = false;
     				else
@@ -69,7 +71,7 @@ public class FindsetUtil {
     			}
     			r.set(2,0);
     			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m.getKey().getRangeKey());
+    				int insr = rkey.indexOf(m0.getRangeKey());
     				if(insr == -1)
     					insert = false;
     				else
@@ -106,14 +108,17 @@ public class FindsetUtil {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKV.findTailMapKVStream(alias,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
-    			if(m.getKey().compareTo(ydmr) > 0)
+     			Morphism m0 = m.getKey();
+    			m0.setIdentity(m.getValue());
+    			m0.setAlias(alias);
+    			if(m0.compareTo(ydmr) > 0)
     				return;
     			Result3 r = new Result3();
     			boolean insert = true;
     			r.set(0,0);
     			if(dkey.size() > 0) {
     				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m.getKey().getDomainKey());
+    				int insd = dkey.indexOf(m0.getDomainKey());
     				// no, this Morphism is not eligible
     				if(insd == -1)
     					insert = false;
@@ -123,7 +128,7 @@ public class FindsetUtil {
     			}
     			r.set(1,0);
     			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m.getKey().getMapKey());
+    				int insm = mkey.indexOf(m0.getMapKey());
     				if(insm == -1)
     					insert = false;
     				else
@@ -131,7 +136,7 @@ public class FindsetUtil {
     			}
     			r.set(2,0);
     			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m.getKey().getRangeKey());
+    				int insr = rkey.indexOf(m0.getRangeKey());
     				if(insr == -1)
     					insert = false;
     				else
@@ -168,14 +173,17 @@ public class FindsetUtil {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKVTransaction.findTailMapKVStream(xid,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
-    			if(m.getKey().compareTo(ydmr) > 0)
+      			Morphism m0 = m.getKey();
+    			m0.setIdentity(m.getValue());
+    			m0.setTransactionId(xid);
+    			if(m0.compareTo(ydmr) > 0)
     				return;
     			Result3 r = new Result3();
     			boolean insert = true;
     			r.set(0,0);
     			if(dkey.size() > 0) {
     				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m.getKey().getDomainKey());
+    				int insd = dkey.indexOf(m0.getDomainKey());
     				// no, this Morphism is not eligible
     				if(insd == -1)
     					insert = false;
@@ -185,7 +193,7 @@ public class FindsetUtil {
     			}
     			r.set(1,0);
     			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m.getKey().getMapKey());
+    				int insm = mkey.indexOf(m0.getMapKey());
     				if(insm == -1)
     					insert = false;
     				else
@@ -193,7 +201,7 @@ public class FindsetUtil {
     			}
     			r.set(2,0);
     			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m.getKey().getRangeKey());
+    				int insr = rkey.indexOf(m0.getRangeKey());
     				if(insr == -1)
     					insert = false;
     				else
@@ -231,14 +239,18 @@ public class FindsetUtil {
     		// stream of DBKeys in Morphism relation, and primary key to said Morphism
     		RelatrixKVTransaction.findTailMapKVStream(alias,xid,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
-    			if(m.getKey().compareTo(ydmr) > 0)
+      			Morphism m0 = m.getKey();
+    			m0.setIdentity(m.getValue());
+    			m0.setAlias(alias);
+    			m0.setTransactionId(xid);
+    			if(m0.compareTo(ydmr) > 0)
     				return;
     			Result3 r = new Result3();
     			boolean insert = true;
     			r.set(0,0);
     			if(dkey.size() > 0) {
     				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m.getKey().getDomainKey());
+    				int insd = dkey.indexOf(m0.getDomainKey());
     				// no, this Morphism is not eligible
     				if(insd == -1)
     					insert = false;
@@ -248,7 +260,7 @@ public class FindsetUtil {
     			}
     			r.set(1,0);
     			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m.getKey().getMapKey());
+    				int insm = mkey.indexOf(m0.getMapKey());
     				if(insm == -1)
     					insert = false;
     				else
@@ -256,7 +268,7 @@ public class FindsetUtil {
     			}
     			r.set(2,0);
     			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m.getKey().getRangeKey());
+    				int insr = rkey.indexOf(m0.getRangeKey());
     				if(insr == -1)
     					insert = false;
     				else
