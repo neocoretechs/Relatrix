@@ -158,7 +158,7 @@ public interface IndexInstanceTableInterface {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	DBKey get(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	DBKey getKey(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 
 	/**
 	 * Get the index of the instance by retrieving the instance present in the passed object
@@ -170,7 +170,7 @@ public interface IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchElementException
 	 */
-	DBKey get(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
+	DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException;
 
 	/**
 	 * Get index of the instance by retrieving the key for the instance present in the passed object
@@ -183,7 +183,7 @@ public interface IndexInstanceTableInterface {
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchElementException
 	 */
-	DBKey get(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
+	DBKey getKey(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 	/**
 	 * Get the index of the instance by retrieving instance present in the passed object
 	 * @param instance the DbKey containing the instance
@@ -192,7 +192,7 @@ public interface IndexInstanceTableInterface {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	DBKey get(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
+	DBKey getKey(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 	
 	/**
 	 * Return a newly generated DBKey

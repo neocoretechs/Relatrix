@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * This class represents the morphisms stored in their natural retrieval order.
+ * This class represents a {@link Morphism} stored in its natural retrieval order.<p/>
  * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
  * By storing these indexes with all their possible retrieval combinations for the morphisms,
- * which turns out to be 6 indexes, we facilitate the retrieval of posets from our categories
+ * which turns out to be 6 indexes, we facilitate the retrieval of ordered sets from our categories
  * based on any number of possible operators and objects passed to the various 'findSet' permutations. 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2023,2024
  *
@@ -79,11 +78,12 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 	/**
-	 * Store the fully prepared Morphism. The assumption is that all tenasactionId, alias, instances etc have been set and resolved.
-	 * @param d
-	 * @param m
-	 * @param r
-	 * @return
+	 * Store the fully prepared Morphism. The assumption is that all tenasactionId, alias, primary key, have been set and resolved.
+	 * The range will added and resolved and a newKey operation will be performed to set the identity.
+	 * @param d The domain instance resolved via locate in {@link com.neocoretechs.relatrix.key.PrimaryKeySet}
+	 * @param m The map instance resolved via loate in {@link com.neocoretechs.relatrix.key.PrimaryKeySet}
+	 * @param r The range instance which will be resolved via setRange.
+	 * @return The {@link DBKey} identity of the new dmr relation.
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -93,11 +93,14 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		if(locate(d, m)) {
 			setDomainResolved(d);
 			setMapResolved(m);
-			setRange(r);
+			if(alias != null)
+				setRange(alias, r);
+			else
+				setRange(r);
 			identity = newKey(this);
 			return identity;
 		}
-		throw new DuplicateKeyException("Relationship "+d+"->"+r+" already exists.");
+		throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
 	}
 	@Override
 	public int hashCode() {
@@ -107,7 +110,6 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
 		return result;
 	}
-	
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -131,35 +133,4 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
     	return new DomainMapRange(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
-
-    public String toString() { 
-    	switch(displayLevel) {
-    	case VERBOSE:
-    		return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
-    				(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
-    				(getDomain() == null ? "NULL" : getDomain().toString()),
-    				(getDomainKey() == null ? "NULL" : getDomainKey().toString()),
-    				(getMap() == null ? "NULL" : getMap().getClass().getName()),
-    				(getMap() == null ? "NULL" : getMap().toString()),
-    				(getMapKey() == null ? "NULL" : getMapKey().toString()),
-    				(getRange() == null ? "NULL" : getRange().getClass().getName()),	
-    				(getRange() == null ? "NULL" : getRange().toString()),
-    				(getRangeKey() == null ? "NULL" : getRangeKey().toString()));
-    	case BRIEF:
-    		return String.format("Class:%s %n %s%n%s%n %s%n%s%n %s%n%s%n-----%n",this.getClass().getName(),
-    				(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
-    				(getDomain() == null ? "NULL" : getDomain().toString()),
-    				(getMap() == null ? "NULL" : getMap().getClass().getName()),
-    				(getMap() == null ? "NULL" : getMap().toString()),
-    				(getRange() == null ? "NULL" : getRange().getClass().getName()),	
-    				(getRange() == null ? "NULL" : getRange().toString()));
-    	case MINIMAL:
-    	default:
-    		return String.format("[%s->%s->%s]%n",
-    				(getDomain() == null ? "NULL" : getDomain().toString()),
-    				(getMap() == null ? "NULL" : getMap().toString()),
-    				(getRange() == null ? "NULL" : getRange().toString()));
-    	}
-    }
-
 }

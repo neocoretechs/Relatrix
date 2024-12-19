@@ -274,7 +274,7 @@ public class BatteryDBKeyAlias {
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			DBKey db = indexTable.get(alias, nexe.getValue()); // get the DBKey for this instance integer
+			DBKey db = indexTable.getKey(alias, nexe.getValue()); // get the DBKey for this instance integer
 			if(nexe.getKey().compareTo(db) != 0) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+nex);
@@ -298,7 +298,7 @@ public class BatteryDBKeyAlias {
 		while(its.hasNext()) {
 			Comparable nex = (Comparable) its.next();
 			Map.Entry<DBKey, Integer> nexe = (Map.Entry<DBKey,Integer>)nex;
-			DBKey db = indexTable.get(alias, nexe.getValue()); // get the DBKey for this instance integer
+			DBKey db = indexTable.getKey(alias, nexe.getValue()); // get the DBKey for this instance integer
 			if(nexe.getKey().compareTo(db) != 0) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+nex);

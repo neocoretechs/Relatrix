@@ -850,11 +850,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 				if(alias != null)
 					return resolveInstance(alias, instance);
 				if(transactionId == null) {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getKey(instance);
 					System.out.printf("%s.resolveInstance for instance:%s resulted in:%s%n",this.getClass().getName(),instance,c);
 					return c;
 				} else {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(transactionId,instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getKey(transactionId,instance);
 					System.out.printf("%s.resolveInstance for xid:%s instance:%s resulted in:%s%n",this.getClass().getName(),transactionId,instance,c);
 					return c;
 				}
@@ -862,9 +862,9 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 			if(alias != null)
 				return resolveInstance(alias, instance);
 			if(transactionId == null)
-				return (DBKey)IndexResolver.getIndexInstanceTable().get(instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(instance);
 			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().get(transactionId, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(transactionId, instance);
 		}
 		
 		/**
@@ -880,19 +880,19 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		private DBKey resolveInstance(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 			if(DEBUG) {
 				if(transactionId == null) {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(alias2, instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getKey(alias2, instance);
 					System.out.printf("%s.resolveInstance for alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),alias2,instance,c);
 					return c;
 				} else {
-					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().get(alias2, transactionId, instance);
+					DBKey c = (DBKey) IndexResolver.getIndexInstanceTable().getKey(alias2, transactionId, instance);
 					System.out.printf("%s.resolveInstance for xid:%s alias:%s instance:%s resulted in:%s%n",this.getClass().getName(),transactionId,alias2,instance,c);
 					return c;	
 				}
 			}
 			if(transactionId == null)
-				return (DBKey)IndexResolver.getIndexInstanceTable().get(alias2, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, instance);
 			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().get(alias2, transactionId, instance);
+				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, transactionId, instance);
 		}
 		
         /**
@@ -1064,6 +1064,75 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(DEBUG)
         		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
    
+        }
+        
+        @Override
+        public String toString() {
+     		String s = String.format("Class:%s Key:%s%n",this.getClass().getName(),this.getIdentity());
+    		StringBuffer sb = new StringBuffer(s);
+    		if(alias != null) {
+    			sb.append("Alias:");
+    			sb.append(alias);
+    		}
+    		if(transactionId != null) {
+    			sb.append(" Xid:");
+    			sb.append(transactionId);
+    		}
+    		if(templateFlag)
+    			sb.append(" <template>");
+       		if(alias != null || transactionId != null || templateFlag)
+    			sb.append("\n");
+       		switch(displayLevel) {
+       		case VERBOSE:
+       			sb.append("Class:[");
+       			sb.append(getDomain() == null ? "NULL" :getDomain().getClass().getName());
+       			sb.append("->");
+       			sb.append(getMap() == null ? "NULL" : getMap().getClass().getName());
+       			sb.append("->");
+       			sb.append(getRange() == null ? "NULL" : getRange().getClass().getName());
+       			sb.append("]\n");
+       			sb.append("Keys:[");
+       			sb.append(getDomainKey() == null ? "NULL" : getDomainKey().toString());
+       			sb.append("->");
+       			sb.append(getMapKey() == null ? "NULL" : getMapKey().toString());
+       			sb.append("->");
+       			sb.append(getRangeKey() == null ? "NULL" : getRangeKey().toString());
+       			sb.append("]\n");
+       			sb.append("Vals:[");
+       			sb.append(getDomain() == null ? "NULL" : getDomain().toString());
+       			sb.append("->");
+       			sb.append(getMap() == null ? "NULL" : getMap().toString());
+       			sb.append("->");
+       			sb.append(getRange() == null ? "NULL" : getRange().toString());
+       			sb.append("]\n");
+       			return sb.toString();
+       		case BRIEF:
+       			sb.append("Class:[");
+       			sb.append(getDomain() == null ? "NULL" :getDomain().getClass().getName());
+       			sb.append("->");
+       			sb.append(getMap() == null ? "NULL" : getMap().getClass().getName());
+       			sb.append("->");
+       			sb.append(getRange() == null ? "NULL" : getRange().getClass().getName());
+       			sb.append("]\n");
+       			sb.append("Vals:[");
+       			sb.append(getDomain() == null ? "NULL" : getDomain().toString());
+       			sb.append("->");
+       			sb.append(getMap() == null ? "NULL" : getMap().toString());
+       			sb.append("->");
+       			sb.append(getRange() == null ? "NULL" : getRange().toString());
+       			sb.append("]\n");
+       			return sb.toString();
+       		case MINIMAL:
+       		default:
+       			sb.append("Vals:[");
+       			sb.append(getDomain() == null ? "NULL" : getDomain().toString());
+       			sb.append("->");
+       			sb.append(getMap() == null ? "NULL" : getMap().toString());
+       			sb.append("->");
+       			sb.append(getRange() == null ? "NULL" : getRange().toString());
+       			sb.append("]\n");
+       			return sb.toString();
+       		}
         }
 
 }

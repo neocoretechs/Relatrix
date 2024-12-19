@@ -74,7 +74,7 @@ public class BatteryMorphismTransactionAlias2 {
 		// and perform balance of testing
 		battery1AR12(argv);
 		battery1AR14(argv);
-		RelatrixTransaction.commit(xid);
+		RelatrixTransaction.commit(alias1,xid);
 		RelatrixTransaction.endTransaction(xid);
 		//battery1AR17(argv);
 		 System.out.println("BatteryMorphismTransaction2 TEST BATTERY COMPLETE.");
@@ -87,7 +87,7 @@ public class BatteryMorphismTransactionAlias2 {
 	 * @throws Exception
 	 */
 	public static void battery1(String[] argv) throws Exception {
-		System.out.println(alias1+ "Battery1 "+xid);
+		System.out.println(alias1+" Battery1 "+xid);
 		long tims = System.currentTimeMillis();
 		long timx = System.currentTimeMillis();
 		int dupes = 0;
@@ -436,7 +436,7 @@ public class BatteryMorphismTransactionAlias2 {
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<DomainMapRange, DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
-				DBKey db = IndexResolver.getIndexInstanceTable().get(alias1,xid,nexe.getKey()); // get the DBKey for this instance integer
+				DBKey db = IndexResolver.getIndexInstanceTable().getKey(alias1,xid,nexe.getKey()); // get the DBKey for this instance integer
 				DomainMapRange keyset = (DomainMapRange) IndexResolver.getIndexInstanceTable().get(alias1,xid,nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
@@ -469,7 +469,7 @@ public class BatteryMorphismTransactionAlias2 {
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<DomainMapRange,DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
-				DBKey db = IndexResolver.getIndexInstanceTable().get(alias1,xid,nexe.getKey()); // get the DBKey for this instance 
+				DBKey db = IndexResolver.getIndexInstanceTable().getKey(alias1,xid,nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RESOLVED KEY MISMATCH:"+nex+" with resolved key "+db);

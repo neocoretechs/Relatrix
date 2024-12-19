@@ -200,34 +200,4 @@ public class MapRangeDomain extends Morphism {
 		out.writeLong(domainKey.getInstanceIndex().getLsb());
 	}
 	
-	public String toString() { 
-		switch(displayLevel) {
-		case VERBOSE:
-			return String.format("Class:%s %n %s%n%s%n%s%n %s%n%s%n%s%n %s%n%s%n%s%n-----%n",this.getClass().getName(),
-					(getMap() == null ? "NULL" : getMap().getClass().getName()),
-					(getMap() == null ? "NULL" : getMap().toString()),
-					(getMapKey() == null ? "NULL" : getMapKey().toString()),
-					(getRange() == null ? "NULL" : getRange().getClass().getName()),	
-					(getRange() == null ? "NULL" : getRange().toString()),
-					(getRangeKey() == null ? "NULL" : getRangeKey().toString()),
-					(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
-					(getDomain() == null ? "NULL" : getDomain().toString()),
-					(getDomainKey() == null ? "NULL" : getDomainKey().toString()));
-		case BRIEF:
-			return String.format("Class:%s %n %s%n%s%n %s%n%s%n %s%n%s%n-----%n",this.getClass().getName(),
-					(getMap() == null ? "NULL" : getMap().getClass().getName()),
-					(getMap() == null ? "NULL" : getMap().toString()),
-					(getRange() == null ? "NULL" : getRange().getClass().getName()),	
-					(getRange() == null ? "NULL" : getRange().toString()),
-					(getDomain() == null ? "NULL" :getDomain().getClass().getName()), 
-					(getDomain() == null ? "NULL" : getDomain().toString()));
-		case MINIMAL:
-		default:
-			return String.format("[%s->%s->%s]%n",
-					(getDomain() == null ? "NULL" : getDomain().toString()),
-					(getMap() == null ? "NULL" : getMap().toString()),
-					(getRange() == null ? "NULL" : getRange().toString()));
-		}
-	}
-
 }
