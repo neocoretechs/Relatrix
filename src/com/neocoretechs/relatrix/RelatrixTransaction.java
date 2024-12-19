@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -1629,11 +1628,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object firstKey(TransactionId xid) throws IOException
 	{
-		try {
-			return RelatrixKVTransaction.firstKey(xid, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return first(xid);
 	}
 	
 	/**
@@ -1646,11 +1641,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object firstKey(TransactionId xid, Class clazz) throws IOException
 	{
-		try {
-			return RelatrixKVTransaction.firstKey(xid, clazz);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return first(xid, clazz);
 	}
 	/**
 	 * this method returns the first DomainMapRange
@@ -1663,11 +1654,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object firstKey(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKVTransaction.firstKey(alias, xid, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return first(alias, xid);
 	}
 	/**
 	 * This method returns the first class
@@ -1681,11 +1668,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object firstKey(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKVTransaction.firstKey(alias, xid, clazz);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return first(alias, xid, clazz);
 	}
 	/**
 	 * this method returns the first DomainMapRange
@@ -1696,7 +1679,11 @@ public final class RelatrixTransaction {
 	public static synchronized Object first(TransactionId xid) throws IOException
 	{
 		try {
-			return RelatrixKVTransaction.firstKey(xid, DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(xid,DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			dmr.setTransactionId(xid);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1714,7 +1701,12 @@ public final class RelatrixTransaction {
 	public static synchronized Object first(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKVTransaction.firstKey(alias, xid, DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.firstKey(alias,xid, DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(alias,xid,DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			dmr.setAlias(alias);
+			dmr.setTransactionId(xid);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1763,11 +1755,18 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object first(TransactionId xid, Class clazz) throws IOException
 	{
+		Object o = null;
 		try {
-			return RelatrixKVTransaction.firstKey(xid, clazz);
+			o = RelatrixKVTransaction.firstKey(xid,clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(xid,clazz);
+				((Morphism)o).setIdentity(dbkey);
+				((Morphism)o).setTransactionId(xid);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 	
 	/**
@@ -1782,11 +1781,19 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object first(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
+		Object o = null;
 		try {
-			return RelatrixKVTransaction.firstKey(alias, xid, clazz);
+			o = RelatrixKVTransaction.firstKey(alias,xid,clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(alias,xid,clazz);
+				((Morphism)o).setIdentity(dbkey);
+				((Morphism)o).setAlias(alias);
+				((Morphism)o).setTransactionId(xid);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 	
 	/**
@@ -1826,7 +1833,11 @@ public final class RelatrixTransaction {
 	public static synchronized Object last(TransactionId xid) throws IOException
 	{
 		try {
-			return RelatrixKVTransaction.lastKey(xid, DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.lastKey(xid,DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(xid,DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			dmr.setTransactionId(xid);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1844,7 +1855,12 @@ public final class RelatrixTransaction {
 	public static synchronized Object last(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKVTransaction.lastKey(alias, xid, DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.lastKey(alias,xid, DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(alias,xid,DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			dmr.setAlias(alias);
+			dmr.setTransactionId(xid);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1860,11 +1876,18 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object last(TransactionId xid, Class clazz) throws IOException
 	{
+		Object o = null;
 		try {
-			return RelatrixKVTransaction.lastKey(xid, clazz);
+			o = RelatrixKVTransaction.lastKey(xid,clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(xid,clazz);
+				((Morphism)o).setIdentity(dbkey);
+				((Morphism)o).setTransactionId(xid);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 	
 	/**
@@ -1878,11 +1901,19 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object last(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
+		Object o = null;
 		try {
-			return RelatrixKVTransaction.lastKey(alias, xid, clazz);
+			o = RelatrixKVTransaction.lastKey(alias,xid,clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(alias,xid,clazz);
+				((Morphism)o).setIdentity(dbkey);
+				((Morphism)o).setAlias(alias);
+				((Morphism)o).setTransactionId(xid);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 
 	/**
@@ -1894,11 +1925,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object lastKey(TransactionId xid) throws IOException
 	{
-		try {
-			return RelatrixKVTransaction.lastKey(xid, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(xid);
 	}
 	
 	/**
@@ -1912,11 +1939,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object lastKey(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKVTransaction.lastKey(alias, xid, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(alias, xid);
 	}
 	
 	/**
@@ -1929,11 +1952,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object lastKey(TransactionId xid, Class clazz) throws IOException
 	{
-		try {
-			return RelatrixKVTransaction.lastKey(xid, clazz);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(xid,clazz);
 	}
 	
 	/**
@@ -1947,11 +1966,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object lastKey(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKVTransaction.lastKey(alias, xid, clazz);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(alias, xid, clazz);
 	}
 	
 	/**

@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
@@ -1326,7 +1325,10 @@ public final class Relatrix {
 	public static synchronized Object first() throws IOException
 	{
 		try {
-			return RelatrixKV.firstKey(DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKV.firstKey(DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKV.firstValue(DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1335,7 +1337,11 @@ public final class Relatrix {
 	public static synchronized Object first(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.firstKey(alias, DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKV.firstKey(alias,DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			dmr.setAlias(alias);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1348,30 +1354,21 @@ public final class Relatrix {
 	 */
 	public static synchronized Object firstKey() throws IOException
 	{
-		try {
-			return RelatrixKV.firstKey(DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return first();
 	}
 
 	public static synchronized Object firstKey(Alias alias) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKV.firstKey(alias, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return first(alias);
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
 	 * instance having the lowest valued key value of the index classes.
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @return the DBKey having the lowest valued key value.
 	 * @throws IOException
 	 */
 	public static synchronized Object firstValue() throws IOException
 	{
-	
 		try {
 			return RelatrixKV.firstValue(DomainMapRange.class);
 		} catch (IllegalAccessException e) {
@@ -1390,36 +1387,52 @@ public final class Relatrix {
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
 	 * instance having the lowest valued key value.
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @return the class having the lowest valued key value.
 	 * @throws IOException
 	 */
 	public static synchronized Object first(Class clazz) throws IOException
 	{
+		Object o = null;
 		try {
-			return RelatrixKV.firstKey(clazz);
+			o = RelatrixKV.firstKey(clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKV.firstValue(clazz);
+				((Morphism)o).setIdentity(dbkey);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 
 	public static synchronized Object first(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
+		Object o = null;
 		try {
-			return RelatrixKV.firstKey(alias, clazz);
+			o = RelatrixKV.firstKey(alias,clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,clazz);
+				((Morphism)o).setIdentity(dbkey);
+				((Morphism)o).setAlias(alias);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
-	 * instance having the highest valued key.
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * instance having the last valued key.
+	 * @return the DomainMapRange morphism having the last key value.
 	 * @throws IOException
 	 */
 	public static synchronized Object last() throws IOException
 	{
 		try {
-			return RelatrixKV.lastKey(DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKV.lastKey(DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKV.lastValue(DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1428,7 +1441,11 @@ public final class Relatrix {
 	public static synchronized Object last(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.lastKey(alias, DomainMapRange.class);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKV.lastKey(alias,DomainMapRange.class);
+			DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,DomainMapRange.class);
+			dmr.setIdentity(dbkey);
+			dmr.setAlias(alias);
+			return dmr;
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -1441,20 +1458,12 @@ public final class Relatrix {
 	 */
 	public static synchronized Object lastKey() throws IOException
 	{
-		try {
-			return RelatrixKV.lastKey(DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last();
 	}
 
 	public static synchronized Object lastKey(Alias alias) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKV.lastKey(alias, DomainMapRange.class);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(alias);
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
@@ -1487,20 +1496,33 @@ public final class Relatrix {
 	 */
 	public static synchronized Object last(Class clazz) throws IOException
 	{
+		Object o = null;
 		try {
-			return RelatrixKV.lastKey(clazz);
+			o = RelatrixKV.lastKey(clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKV.lastValue(clazz);
+				((Morphism)o).setIdentity(dbkey);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 
 	public static synchronized Object last(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
+		Object o = null;
 		try {
-			return RelatrixKV.lastKey(alias, clazz);
+			o = RelatrixKV.lastKey(alias,clazz);
+			if(o instanceof Morphism) {
+				DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,clazz);
+				((Morphism)o).setIdentity(dbkey);
+				((Morphism)o).setAlias(alias);
+			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
+		return o;
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
@@ -1510,20 +1532,12 @@ public final class Relatrix {
 	 */
 	public static synchronized Object lastKey(Class clazz) throws IOException
 	{
-		try {
-			return RelatrixKV.lastKey(clazz);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(clazz);
 	}
 
 	public static synchronized Object lastKey(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
-		try {
-			return RelatrixKV.lastKey(alias, clazz);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+		return last(alias, clazz);
 	}
 	/**
 	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange

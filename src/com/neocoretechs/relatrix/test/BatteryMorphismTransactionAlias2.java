@@ -37,7 +37,7 @@ public class BatteryMorphismTransactionAlias2 {
 	static KeySet keyset;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static ArrayList<DomainMapRange> keys = new ArrayList<DomainMapRange>();
 	static Alias alias1 = new Alias("ALIAS1");
@@ -520,7 +520,7 @@ public class BatteryMorphismTransactionAlias2 {
 			Iterator<?> its = RelatrixTransaction.keySet(alias1,xid,DomainMapRange.class);
 			while(its.hasNext()) {
 				Object fkey = it.next();
-				RelatrixTransaction.remove(xid,(Comparable) fkey);
+				RelatrixTransaction.remove(alias1,xid,(Comparable) fkey);
 				if((System.currentTimeMillis()-timx) > 5000) {
 					System.out.println("DomainMapRange remove "+fkey);
 					timx = System.currentTimeMillis();

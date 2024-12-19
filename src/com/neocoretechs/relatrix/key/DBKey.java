@@ -188,9 +188,7 @@ public final class DBKey implements Comparable, Externalizable {
 
 	@Override
 	public String toString() {
-		//synchronized(instanceIndex) {
-			return String.format("key: %s%n", instanceIndex != null ? instanceIndex.toString() : "NULL");
-		//}
+		return instanceIndex != null ? instanceIndex.toString() : "[NULL KEY]";
 	}
 
 	@Override
