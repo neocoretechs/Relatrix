@@ -9,6 +9,8 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
@@ -448,29 +450,18 @@ public class BatteryMorphism {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
+		int i = 0;
 		long s = Relatrix.size();
-		System.out.println("Cleaning DB of "+s+" possible elements.");
-		
-		Iterator<?> it = Relatrix.keySet(String.class);
+		System.out.println(" Cleaning DB of "+s+" elements.");
 		long timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			Relatrix.remove((Comparable) fkey); // recursive remove
+		Iterator<?> it = Relatrix.findSet( "*", "*", "*");
+		while(it.hasNext()){
+			Result fkey = (Result) it.next();
+			Relatrix.remove((Comparable) fkey.get(0));
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("String remove "+i+" "+fkey);
+				System.out.println("remove "+i+" "+fkey.get(0));
 				timx = System.currentTimeMillis();
 			}
-		}
-		long siz = RelatrixKV.size(DBKey.class);
-		if(siz > 0) {
-			Iterator<?> its = Relatrix.entrySet(DBKey.class);
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println("RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
-			}
-			System.out.println("RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

@@ -11,6 +11,7 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
@@ -155,6 +156,7 @@ public class BatteryMorphismTransactionAlias2 {
 			}
 			prev = nexe.getKey();
 			prev.setIdentity(nexe.getValue());
+			prev.setAlias(alias1);
 			if(!DBKey.isValid(nexe.getValue())) {
 				System.out.println("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 				throw new Exception("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
@@ -202,6 +204,7 @@ public class BatteryMorphismTransactionAlias2 {
 			if(o instanceof DomainMapRange) {
 				pk = (DomainMapRange) o;
 				pk.setIdentity(prev);
+				pk.setAlias(alias1);
 				keys.add(pk);
 			}
 			if(DEBUG)
@@ -492,39 +495,19 @@ public class BatteryMorphismTransactionAlias2 {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		long s = RelatrixKVTransaction.size(alias1,xid,DBKey.class);
+		int i = 0;
+		long s = RelatrixTransaction.size(alias1,xid);
 		System.out.println(alias1+" Cleaning DB of "+s+" elements. for xid:"+xid);
-		Iterator<?> it = RelatrixTransaction.keySet(alias1,xid,DBKey.class);
 		long timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixTransaction.remove(alias1,xid,(Comparable) fkey);
+		Iterator<?> it = RelatrixTransaction.findSet(alias1, xid, "*", "*", "*");
+		while(it.hasNext()){
+			Result fkey = (Result) it.next();
+			if(fkey.get(0) == null)
+				break;
+			RelatrixTransaction.remove(alias1,xid,(Comparable) fkey.get(0));
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("DBKey remove "+i+" "+fkey);
+				System.out.println("remove "+i+" "+fkey.get(0));
 				timx = System.currentTimeMillis();
-			}
-		}
-		s = RelatrixTransaction.size(alias1,xid,String.class);
-		it = RelatrixTransaction.keySet(alias1,xid,String.class);
-		timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixTransaction.remove(alias1,xid,(Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("String remove "+i+" "+fkey);
-				timx = System.currentTimeMillis();
-			}
-		}
-		long siz = RelatrixTransaction.size(alias1,xid,DBKey.class);
-		if(siz > 0) {
-			Iterator<?> its = RelatrixTransaction.keySet(alias1,xid,DomainMapRange.class);
-			while(its.hasNext()) {
-				Object fkey = it.next();
-				RelatrixTransaction.remove(alias1,xid,(Comparable) fkey);
-				if((System.currentTimeMillis()-timx) > 5000) {
-					System.out.println("DomainMapRange remove "+fkey);
-					timx = System.currentTimeMillis();
-				}
 			}
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");

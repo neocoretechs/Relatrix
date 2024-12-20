@@ -10,6 +10,7 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.iterator.Entry;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
@@ -456,39 +457,17 @@ public class BatteryMorphismTransaction {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		long s = RelatrixTransaction.size(xid,DBKey.class);
-		System.out.println("Cleaning DB of "+s+" elements.");
-		Iterator<?> it = RelatrixKVTransaction.keySet(xid,DBKey.class);
+		int i = 0;
+		long s = RelatrixTransaction.size(xid);
+		System.out.println(" Cleaning DB of "+s+" elements. for xid:"+xid);
 		long timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixTransaction.remove(xid,(Comparable) fkey);
+		Iterator<?> it = RelatrixTransaction.findSet(xid, "*", "*", "*");
+		while(it.hasNext()){
+			Result fkey = (Result) it.next();
+			RelatrixTransaction.remove(xid,(Comparable) fkey.get(0));
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("DBKey remove "+i+" "+fkey);
+				System.out.println("remove "+i+" "+fkey.get(0));
 				timx = System.currentTimeMillis();
-			}
-		}
-		s = RelatrixTransaction.size(xid,String.class);
-		it = RelatrixTransaction.keySet(xid,String.class);
-		timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixTransaction.remove(xid,(Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("String remove "+i+" "+fkey);
-				timx = System.currentTimeMillis();
-			}
-		}
-		long siz = RelatrixTransaction.size(xid,DBKey.class);
-		if(siz > 0) {
-			Iterator<?> its = RelatrixTransaction.keySet(xid,DomainMapRange.class);
-			while(its.hasNext()) {
-				Object fkey = it.next();
-				RelatrixTransaction.remove(xid,(Comparable) fkey);
-				if((System.currentTimeMillis()-timx) > 5000) {
-					System.out.println("DomainMapRange remove "+fkey);
-					timx = System.currentTimeMillis();
-				}
 			}
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
