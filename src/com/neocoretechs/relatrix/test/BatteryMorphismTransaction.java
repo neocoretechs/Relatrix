@@ -146,6 +146,7 @@ public class BatteryMorphismTransaction {
 			}
 			prev = nexe.getKey();
 			prev.setIdentity(nexe.getValue());
+			prev.setTransactionId(xid);
 			if(!DBKey.isValid(nexe.getValue())) {
 				System.out.println("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 				throw new Exception("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
@@ -193,6 +194,7 @@ public class BatteryMorphismTransaction {
 			if(o instanceof DomainMapRange) {
 				pk = (DomainMapRange) o;
 				pk.setIdentity(prev);
+				pk.setTransactionId(xid);
 				keys.add(pk);
 			}
 			if(DEBUG)
