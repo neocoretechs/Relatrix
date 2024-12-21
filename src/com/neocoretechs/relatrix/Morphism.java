@@ -457,7 +457,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param alias2 the database alias 
          * @param domain
          */
-        public void setDomainTemplate(Alias alias2, Comparable<?> domain) {
+        private void setDomainTemplate(Alias alias2, Comparable<?> domain) {
         	try {
         		this.domain = domain;
         		if(domain != null) { 
@@ -584,7 +584,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param alias2
          * @param map
          */
-        public void setMapTemplate(Alias alias2, Comparable<?> map) {
+        private void setMapTemplate(Alias alias2, Comparable<?> map) {
         	try {
         		this.map = map;
         		if(map != null) {
@@ -718,7 +718,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param alias2
          * @param range
          */
-        public void setRangeTemplate(Alias alias2, Comparable<?> range) {
+        private void setRangeTemplate(Alias alias2, Comparable<?> range) {
         	try {
         		this.range = range;
         		if(range != null) {
