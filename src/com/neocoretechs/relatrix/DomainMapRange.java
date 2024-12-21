@@ -38,19 +38,19 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(flag, alias, d, m, r);
 	}
 	
-    public DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+    DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 	
@@ -58,7 +58,7 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(flag, alias, transactionId, d, m, r);
 	}
 
-	public DomainMapRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
@@ -66,15 +66,15 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(alias, transactionId, d, m, r);
 	}
 
-	public DomainMapRange(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	public DomainMapRange(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	DomainMapRange(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 	/**

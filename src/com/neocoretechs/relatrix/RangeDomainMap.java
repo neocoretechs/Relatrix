@@ -24,14 +24,14 @@ public class RangeDomainMap extends Morphism {
 	private static final long serialVersionUID = -1689898604140078900L;
     public RangeDomainMap() {}
     
-    public RangeDomainMap(Comparable d, Comparable m, Comparable r) {
+    RangeDomainMap(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
-    public RangeDomainMap(Alias alias, Comparable d, Comparable m, Comparable r) {
+    RangeDomainMap(Alias alias, Comparable d, Comparable m, Comparable r) {
        	super(alias,d,m,r);
     }
 
-    public RangeDomainMap(DomainMapRange identity) throws IOException {
+    RangeDomainMap(DomainMapRange identity) throws IOException {
 	   	this.templateFlag = identity.templateFlag;
     	this.alias = identity.getAlias();
     	this.transactionId = identity.getTransactionId();
@@ -50,7 +50,7 @@ public class RangeDomainMap extends Morphism {
     	range = identity.range;
     }
     
-    public RangeDomainMap(Alias alias, DomainMapRange identity) throws IOException {
+    RangeDomainMap(Alias alias, DomainMapRange identity) throws IOException {
     	this(identity);
     	this.alias = alias;
     }
@@ -63,44 +63,43 @@ public class RangeDomainMap extends Morphism {
 		super(b, alias, d, m, r);
 	}
 	
-	public RangeDomainMap(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r,
-			DBKey rangeKey) {
-		super(flag, d, domainkey, m, mapKey, r, rangeKey);
+	RangeDomainMap(boolean flag, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	public RangeDomainMap(boolean flag, Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
+	RangeDomainMap(boolean flag, Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(flag, alias, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	public RangeDomainMap(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-		super(d, domainkey, m, mapKey, r, rangeKey);
+	RangeDomainMap(Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	public RangeDomainMap(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
-		super(alias, d, domainkey, m, mapKey, r, rangeKey);
+	RangeDomainMap(Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+		super(alias, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
 	public RangeDomainMap(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(flag, alias, transactionId, d, m, r);
 	}
 
-	public RangeDomainMap(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	RangeDomainMap(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, alias, transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	public RangeDomainMap(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
+	RangeDomainMap(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
 		super(alias, transactionId, d, m, r);
 	}
 
-	public RangeDomainMap(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	RangeDomainMap(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	public RangeDomainMap(boolean templateFlag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	RangeDomainMap(boolean templateFlag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(templateFlag, transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	public RangeDomainMap(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	RangeDomainMap(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 

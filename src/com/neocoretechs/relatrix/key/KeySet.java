@@ -33,19 +33,20 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
     //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public KeySet() {}
-	public KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey) {
+    
+	protected KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey) {
 		super(domainKey, mapKey);
 		this.rangeKey = rangeKey;
 	}
-	public KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, TransactionId transactionId) {
+	protected KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, TransactionId transactionId) {
 		super(domainKey, mapKey, transactionId);
 		this.rangeKey = rangeKey;
 	}
-	public KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, Alias alias) {
+	protected KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, Alias alias) {
 		super(domainKey, mapKey, alias);
 		this.rangeKey = rangeKey;
 	}
-	public KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, Alias alias, TransactionId transactionId) {
+	protected KeySet(DBKey domainKey, DBKey mapKey, DBKey rangeKey, Alias alias, TransactionId transactionId) {
 		super(domainKey, mapKey, alias, transactionId);
 		this.rangeKey = rangeKey;
 	} 
@@ -58,7 +59,7 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 	}
 	
 	@Override
-	public boolean isValid() {
+	boolean isValid() {
 		return super.isValid() && DBKey.isValid(rangeKey);
 	}
 

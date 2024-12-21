@@ -110,7 +110,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        public Morphism(boolean flag, Comparable d, Comparable m, Comparable r) {
+        Morphism(boolean flag, Comparable d, Comparable m, Comparable r) {
         	this.templateFlag = flag;
         	setDomainTemplate(d);
             setMapTemplate(m);
@@ -126,7 +126,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        public Morphism(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
+        Morphism(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
         	this.templateFlag = flag;
         	this.alias = alias;
         	setDomainTemplate(alias, d);
@@ -141,7 +141,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	 * @param m
     	 * @param r
     	 */
-    	public Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
+    	Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
     		this.templateFlag = flag;
     		this.transactionId = transactionId;
     		this.alias = alias;
@@ -165,7 +165,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
         	super(domainKey, mapKey, rangeKey);
         	this.templateFlag = false;
         	domain = d;
@@ -183,7 +183,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias);
         	this.templateFlag = false;
         	domain = d;
@@ -201,7 +201,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-      	public Morphism(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+      	Morphism(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, transactionId);
          	domain = d;
             map = m;
@@ -218,7 +218,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias, transactionId);
         	this.templateFlag = false;
         	domain = d;
@@ -236,7 +236,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(boolean flag, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey);
         	this.templateFlag = flag;
         	domain = d;
@@ -255,7 +255,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(boolean flag, Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias);
         	this.templateFlag = flag;
          	domain = d;
@@ -274,7 +274,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
           	super(domainKey, mapKey, rangeKey, transactionId);
         	this.templateFlag = flag;
          	domain = d;
@@ -293,7 +293,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        public Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias, transactionId);
         	this.templateFlag = flag;
          	domain = d;

@@ -35,21 +35,21 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 
     public PrimaryKeySet() {}
     
-	public PrimaryKeySet(DBKey domainKey, DBKey mapKey) {
+	PrimaryKeySet(DBKey domainKey, DBKey mapKey) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 	}
-	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, TransactionId transactionId) {
+	PrimaryKeySet(DBKey domainKey, DBKey mapKey, TransactionId transactionId) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.transactionId = transactionId;
 	}
-	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias) {
+	PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.alias = alias;
 	}
-	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias, TransactionId transactionId) {
+	PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias, TransactionId transactionId) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.transactionId = transactionId;
@@ -87,7 +87,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	public void setAlias(Alias alias) {
 		this.alias = alias;
 	}
-	public boolean isValid() {
+	boolean isValid() {
 		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey);
 	}
 	public boolean isDomainKeyValid() {
@@ -123,7 +123,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public boolean locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	protected boolean locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
 		PrimaryKeySet pk = new PrimaryKeySet();
 		// check for domain/map match
@@ -228,7 +228,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		}
 	}
 	
-	@Override  
+	@Override
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
 		RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
 		RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
