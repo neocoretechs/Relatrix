@@ -109,7 +109,9 @@ public class GenerateClientBindings {
 		//outStream.writeBytes(inputClass.substring(0,inputClass.lastIndexOf(".")));
 		outStream.writeBytes(packageDecl);
 		outStream.writeBytes(";\r\n\r\n");
-		for(String imps: imports) {
+		// collect types for import decls
+		ArrayList<String> importsList = generateImports(rmnap);
+		for(String imps: importsList) {
 			outStream.writeBytes("import ");
 			outStream.writeBytes(imps);
 			outStream.writeBytes(";\r\n");
@@ -311,25 +313,7 @@ public class GenerateClientBindings {
 		outStream.writeBytes(packageDecl);
 		outStream.writeBytes(";\r\n\r\n");
 		// collect types for import decls
-		List<String> abstractList = Arrays.asList(imports);
-		ArrayList<String> importsList = new ArrayList<String>();
-		importsList.addAll(abstractList);
-		for(int i = 0; i < rmnap.methodParams.length; i++) {
-			for(int j = 0; j < rmnap.methodParams[i].length; j++) {
-				if(!importsList.contains(rmnap.methodParams[i][j].getName()) && 
-						!rmnap.methodParams[i][j].isPrimitive() &&
-						!rmnap.methodParams[i][j].isArray() &&
-						!rmnap.methodParams[i][j].getName().startsWith("java.lang"))
-					importsList.add(rmnap.methodParams[i][j].getName());
-			}
-		}
-		for(int i = 0; i < rmnap.returnTypes.length; i++) {
-			if(!importsList.contains(rmnap.returnTypes[i].getName()) && 
-					!rmnap.returnTypes[i].isPrimitive() &&
-					!rmnap.returnTypes[i].isArray() &&
-					!rmnap.returnTypes[i].getName().startsWith("java.lang"))
-				importsList.add(rmnap.returnTypes[i].getName());
-		}
+		ArrayList<String> importsList = generateImports(rmnap);
 		for(String imps: importsList) {
 			outStream.writeBytes("import ");
 			outStream.writeBytes(imps);
@@ -385,5 +369,28 @@ public class GenerateClientBindings {
 		fos.flush();
 		outStream.close();
 		fos.close();
+	}
+
+	private static ArrayList<String> generateImports(MethodNamesAndParams rmnap) {
+		List<String> abstractList = Arrays.asList(imports);
+		ArrayList<String> importsList = new ArrayList<String>();
+		importsList.addAll(abstractList);
+		for(int i = 0; i < rmnap.methodParams.length; i++) {
+			for(int j = 0; j < rmnap.methodParams[i].length; j++) {
+				if(!importsList.contains(rmnap.methodParams[i][j].getName()) && 
+						!rmnap.methodParams[i][j].isPrimitive() &&
+						!rmnap.methodParams[i][j].isArray() &&
+						!rmnap.methodParams[i][j].getName().startsWith("java.lang"))
+					importsList.add(rmnap.methodParams[i][j].getName());
+			}
+		}
+		for(int i = 0; i < rmnap.returnTypes.length; i++) {
+			if(!importsList.contains(rmnap.returnTypes[i].getName()) && 
+					!rmnap.returnTypes[i].isPrimitive() &&
+					!rmnap.returnTypes[i].isArray() &&
+					!rmnap.returnTypes[i].getName().startsWith("java.lang"))
+				importsList.add(rmnap.returnTypes[i].getName());
+		}
+		return importsList;
 	}
 }
