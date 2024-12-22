@@ -361,6 +361,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(domain == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
+        		checkKeyComaptibility(domain);
         		this.domain = domain;
         		DBKey dbKey = null;
     			if((dbKey = resolveInstance(domain)) == null)
@@ -372,7 +373,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }
 
-        /**
+		/**
          * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
          * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
@@ -390,6 +391,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(domain == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
+         		checkKeyComaptibility(alias2, domain);
         		this.domain = domain;
         		DBKey dbKey = null;
         		if((dbKey = resolveInstance(alias2, domain)) == null)
@@ -401,7 +403,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
         }		
 
-        /**
+		/**
          * If domain is null, create a new {@link DBKey} in {@link KeySet}. If domain not null, get the domain
          * key from KeySet and check if its valid. If it is valid, the domain will be set to the {@link IndexResolver}
          * {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface} getByIndex for the domain key of the KeySet.
@@ -416,6 +418,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          */
         public void setDomainTemplate(Comparable<?> domain) {
         	try {
+         		checkKeyComaptibility(domain);
         		this.domain = domain;
         		if(domain != null) { 
         			DBKey dbKey = null;
@@ -516,6 +519,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(map == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
+         		checkKeyComaptibility(map);
         		this.map = map;
         		DBKey dbKey = null;
         		if((dbKey = resolveInstance(map)) == null)
@@ -535,6 +539,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(map == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
+         		checkKeyComaptibility(alias2, map);
         		this.map = map;
         		DBKey dbKey = null;
         		if((dbKey = resolveInstance(alias2, map)) == null)
@@ -560,6 +565,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          */
         public void setMapTemplate(Comparable<?> map) {
         	try {
+         		checkKeyComaptibility(map);
         		this.map = map;
         		if(map != null) {
         			DBKey dbKey = null;
@@ -649,6 +655,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(range == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
+         		checkKeyComaptibility(range);
         		this.range = range;
         		DBKey dbKey = null;
         		if((dbKey = resolveInstance(range)) == null)
@@ -668,6 +675,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	if(range == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
+         		checkKeyComaptibility(alias2, range);
         		this.range = range;
         		DBKey dbKey = null;
         		if((dbKey = resolveInstance(alias2, range)) == null)
@@ -694,6 +702,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          */
         public void setRangeTemplate(Comparable<?> range) {
         	try {
+         		checkKeyComaptibility(range);
         		this.range = range;
         		if(range != null) {
         			DBKey dbKey = null;
@@ -894,7 +903,37 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 			else
 				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, transactionId, instance);
 		}
-		
+		/**
+		 * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias
+		 * as the instance it is being assigned to such that the keys are of the same database.
+		 * @param alias The alias from which the element will be retrieved
+		 * @param m The possible Morphism we will check or compatibility
+		 * @throws IllegalAccessException If the param is a Morphism and the alias is not the alias of this instance
+		 */
+        private void checkKeyComaptibility(Alias alias, Comparable<?> m) throws IllegalAccessException {
+			if(m instanceof Morphism) {
+				if(this.alias == null || (this.alias != null && !alias.equals(this.alias)))
+					throw new IllegalAccessException("Alias "+alias+" is not the same database and therefore cannot assign Morphism "+this);		
+			}	
+		}
+        /**
+         * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias
+		 * as the instance it is being assigned to such that the keys are of the same database.
+         * @param m The possible Morphism we will check for compatibility if it has an alias and its a Morphism
+         * @throws IllegalAccessException
+         */
+        private void checkKeyComaptibility(Comparable<?> m) throws IllegalAccessException {
+    		if(m instanceof Morphism) {
+				if(((Morphism)m).alias != null) {
+					if(this.alias == null || (this.alias != null && !((Morphism)m).alias.equals(this.alias)))
+						throw new IllegalAccessException("Alias of Morphism "+((Morphism)m)+" is not the same database and therefore cannot assign Morphism:"+m);
+				} else {
+					// Morphism alias is null
+					if(this.alias != null)
+						throw new IllegalAccessException("Alias of this Morphism "+this+" is not the default database and therefore cannot assign Morphism:"+m);
+				}
+    		}
+ 		}		
         /**
         * for relate cmpr, we return a value in the range 0-63
         * in which the values for domain,map range : >,<,=,dont care = 0-3
