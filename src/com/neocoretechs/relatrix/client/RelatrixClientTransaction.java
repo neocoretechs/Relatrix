@@ -175,7 +175,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	public void send(RelatrixTransactionStatement iori) throws Exception {
+	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
 		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 		oos.writeObject(iori);
@@ -183,7 +183,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	}
 	
 	@Override
-	public Object sendCommand(RelatrixTransactionStatement rs) throws Exception {
+	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);

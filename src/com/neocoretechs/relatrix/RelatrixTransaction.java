@@ -2116,7 +2116,20 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
-
+	
+	/**
+	 * Store our permutations of the key/value within the scope of this transaction. In other words, this
+	 * instance will not be visible outside this transaction scope until 'commit'. It can also be rolled back
+	 * based on the transaction id.
+	 * @param xid the transaction id
+	 * @param key of comparable whose order is determined by Comparable interface contract via value of compareTo method
+	 * @param value the value payload
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public static synchronized void storekv(Alias alias, TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		RelatrixKVTransaction.store(alias, xid, key, value);
+	}
 
 	/**
 	 * Store our permutations of the key/value within the scope of this transaction. In other words, this
@@ -2128,7 +2141,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public static synchronized void store(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static synchronized void storekv(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVTransaction.store(xid, key, value);
 	}
 

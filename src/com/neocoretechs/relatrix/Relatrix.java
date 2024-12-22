@@ -1726,7 +1726,19 @@ public final class Relatrix {
 	{
 		return IndexResolver.getIndexInstanceTable().get(key);
 	}
-
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param alias the db alias
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	public static synchronized Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return IndexResolver.getIndexInstanceTable().get(alias,key);
+	}
 	/**
 	 * Return the keyset for the given class
 	 * @param clazz the class to retrieve

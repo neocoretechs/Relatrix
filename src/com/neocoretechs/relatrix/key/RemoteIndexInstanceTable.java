@@ -76,8 +76,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		DBKey retKey = getKey(transactionId, instance);
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
-			rcx.store(transactionId, index, instance);
-			rcx.store(transactionId,  instance, index);
+			rcx.storekv(transactionId, index, instance);
+			rcx.storekv(transactionId,  instance, index);
 			return index;
 		}
 		return retKey;
@@ -267,7 +267,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					@Override
 					public void run() {
 						try {
-							rcx.store(alias, transactionId, index, instance);
+							rcx.storekv(alias, transactionId, index, instance);
 						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
@@ -277,7 +277,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					@Override
 					public void run() {
 						try {
-							rcx.store(alias, transactionId, instance, index);
+							rcx.storekv(alias, transactionId, instance, index);
 						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
@@ -373,7 +373,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rcx.store(transactionId, index, instance);
+						rcx.storekv(transactionId, index, instance);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -383,7 +383,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rcx.store(transactionId, instance, index);
+						rcx.storekv(transactionId, instance, index);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -408,7 +408,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rcx.store(alias, transactionId, index, instance);
+						rcx.storekv(alias, transactionId, index, instance);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -418,7 +418,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rcx.store(alias, transactionId, instance, index);
+						rcx.storekv(alias, transactionId, instance, index);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}

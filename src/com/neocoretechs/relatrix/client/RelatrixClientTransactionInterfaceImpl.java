@@ -1,282 +1,173 @@
+// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
-
-import java.util.stream.Stream;
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.List;
+import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.DomainMapRange;
+
 
 public abstract class RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface {
 
-	public abstract Object sendCommand(RelatrixTransactionStatement s) throws Exception;
+	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	@Override
-	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySetStream", alias, transactionId, clazz);
+	public Object getByIndex(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("getByIndex", arg1, arg2);
 		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySetStream", transactionId, clazz);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-
-	@Override
-	public void loadClassFromPath(String path) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromPath", null, path);
-		try {
-			sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public String getAliasToPath(Alias alias) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliasToPath", alias, null);
+	public Object getByIndex(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("getByIndex", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastValue(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastValue", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastValue(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastValue", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastValue(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastValue", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastValue(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastValue", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastKey(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastKey(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastKey(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastKey(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream entrySetStream(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1, arg2, arg3);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream entrySetStream(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1, arg2);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object removekv(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object removekv(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public String getAlias(Alias arg1) {
+		RelatrixStatement s = new RelatrixStatement("getAlias", arg1);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
 			return null;
 		}
 	}
-
 	@Override
-	public void loadClassFromJar(String jar) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("loadClassFromJar", null, jar);
+	public void setTuple(char arg1) {
+		RelatrixStatement s = new RelatrixStatement("setTuple", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+		}
+	}
+	@Override
+	public void removeAlias(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removeAlias", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
-		}
-	}
-
-	@Override
-	public Stream findStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", transactionId, arg2, arg3, arg4);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", alias, transactionId, darg, marg, rarg);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void checkpoint(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", alias, transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void checkpoint(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("checkpoint", transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", alias, transactionId, darg, marg, rarg, endarg);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailSet", transactionId, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findHeadStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", transactionId, arg2, arg3, arg4, arg5);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findHeadStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadStream", alias, transactionId, darg, marg, rarg, endarg);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findSubStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", alias, transactionId, darg, marg, rarg, endarg);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findSubStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubStream", transactionId, arg2, arg3, arg4, arg5);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", transactionId, arg2, arg3, arg4, arg5);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findTailStream", alias, transactionId, darg, marg, rarg, endarg);
-		try {
-			return (Stream)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object lastValue(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", transactionId, clazz);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object lastValue(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", transactionId);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object lastValue(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", alias, transactionId);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object lastValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("lastValue", alias, transactionId, clazz);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findHeadSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", transactionId, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findHeadSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findHeadSet", alias, transactionId, darg, rarg, marg, endarg);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", alias, transactionId, darg, marg, rarg, endarg);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4, Object... arg5) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSubSet", transactionId, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object removekv(TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", transactionId, key);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object removekv(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removekv", alias, transactionId, key);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSet(TransactionId transactionId, Object arg2, Object arg3, Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", transactionId, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", alias, transactionId, darg, marg, rarg);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
 		}
 	}
 	@Override
 	public String[][] getAliases() {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAliases", null, new Object[]{});
+		RelatrixStatement s = new RelatrixStatement("getAliases",new Object[]{});
 		try {
 			return (String[][])sendCommand(s);
 		} catch(Exception e) {
@@ -284,17 +175,53 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void removeAlias(Alias alias) throws java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("removeAlias", alias, null);
+	public String getTableSpace() {
+		RelatrixStatement s = new RelatrixStatement("getTableSpace",new Object[]{});
 		try {
-			sendCommand(s);
+			return (String)sendCommand(s);
 		} catch(Exception e) {
-			throw new java.util.NoSuchElementException(e.getMessage());
+			return null;
 		}
 	}
 	@Override
-	public void setAlias(Alias alias, String path) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setAlias", alias, null, path);
+	public Stream findTailStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findTailSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findTailSet(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void commit(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("commit", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -302,42 +229,115 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public String getTableSpace() {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTableSpace", null, new Object[]{});
+	public void commit(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("commit", arg1);
 		try {
-			return (String)sendCommand(s);
+			sendCommand(s);
 		} catch(Exception e) {
-			return null;
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void endTransaction(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("endTransaction", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void setAlias(Alias arg1,String arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("setAlias", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findSubStream(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findStream(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((RemoteIterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
 	public void setWildcard(char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setWildcard", null, arg1);
+		RelatrixStatement s = new RelatrixStatement("setWildcard", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
 		}
 	}
 	@Override
-	public void setTuple(char arg1) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTuple", null, arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-		}
-	}
-	@Override
-	public String getAlias(Alias alias) {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getAlias", alias, null);
-		try {
-			return (String)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	@Override
-	public void setTablespace(String path) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("setTablespace", null, path);
+	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("loadClassFromPath", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -345,35 +345,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void rollback(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollback", transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void rollback(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollback", alias, transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void endTransaction(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("endTransaction", transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
 	public TransactionId getTransactionId() throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getTransactionId", null, new Object[]{});
+		RelatrixStatement s = new RelatrixStatement("getTransactionId",new Object[]{});
 		try {
 			return (TransactionId)sendCommand(s);
 		} catch(Exception e) {
@@ -381,134 +354,116 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public void rollbackToCheckpoint(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", alias, transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", alias, transactionId, index);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object getByIndex(TransactionId transactionId, Comparable index) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", transactionId, index);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void commit(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void commit(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("commit", alias, transactionId);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object firstValue(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", transactionId);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object firstValue(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", alias, transactionId);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object firstValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", alias, transactionId, clazz);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object firstValue(TransactionId transactionId, Class clazz) throws java.io.IOException,java.util.NoSuchElementException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("firstValue", transactionId, clazz);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator keySet(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", transactionId, clazz);
+	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator keySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("keySet", alias, transactionId, clazz);
+	public Iterator findHeadSet(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator entrySet(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", transactionId, clazz);
+	public void setTablespace(String arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("setTablespace", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void rollback(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("rollback", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void rollback(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("rollback", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator entrySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("entrySet", alias, transactionId, clazz);
+	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object first(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", transactionId);
+	public void checkpoint(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("checkpoint", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void checkpoint(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("checkpoint", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void loadClassFromJar(String arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("loadClassFromJar", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void rollbackToCheckpoint(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("rollbackToCheckpoint", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void rollbackToCheckpoint(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("rollbackToCheckpoint", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object firstKey(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -516,17 +471,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object first(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", alias, transactionId, clazz);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object first(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", transactionId, clazz);
+	public Object firstKey(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstKey", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -534,26 +480,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object first(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("first", alias, transactionId);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object last(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", alias, transactionId, clazz);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object last(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", transactionId, clazz);
+	public Object firstKey(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -561,17 +489,8 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Object last(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", alias, transactionId);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object last(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("last", transactionId);
+	public Object firstKey(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstKey", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -579,148 +498,291 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public boolean contains(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("contains", alias, transactionId, key);
+	public Object firstValue(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue", arg1, arg2);
 		try {
-			return (boolean)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public boolean contains(TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("contains", transactionId, key);
-		try {
-			return (boolean)sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public long size(Alias alias, TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", alias, transactionId);
+	public Object firstValue(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue", arg1, arg2);
 		try {
-			return (long)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public long size(TransactionId transactionId) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", transactionId);
-		try {
-			return (long)sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public long size(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", alias, transactionId, clazz);
+	public Object firstValue(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue", arg1, arg2, arg3);
 		try {
-			return (long)sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public long size(TransactionId transactionId, Class clazz) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("size", transactionId, clazz);
-		try {
-			return (long)sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public DomainMapRange store(TransactionId transactionId, Comparable key, Object value) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", transactionId, key, value);
+	public Object firstValue(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue", arg1);
 		try {
-			return (DomainMapRange) sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
-		}
-	}
-
-	@Override
-	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable key, Object value) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", alias, transactionId, key, value);
-		try {
-			return (DomainMapRange) sendCommand(s);
-		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", alias, transactionId, darg, marg, rarg);
+	public Iterator keySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("keySet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator keySet(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("keySet", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public DomainMapRange store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (DomainMapRange)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public DomainMapRange store(TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", transactionId, darg, marg, rarg);
+	public DomainMapRange store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2, arg3, arg4);
 		try {
 			return (DomainMapRange)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object get(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", alias, transactionId, key);
+	public void storekv(TransactionId arg1,Comparable arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2, arg3);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void storekv(Alias arg0,TransactionId arg1,Comparable arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("store", arg0, arg1, arg2, arg3);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object first(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("first", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object get(TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", transactionId, key);
+	public Object first(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("first", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void remove(TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", transactionId, key);
+	public Object first(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("first", arg1, arg2);
 		try {
-			sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void remove(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", alias, transactionId, key);
+	public Object first(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("first", arg1, arg2, arg3);
 		try {
-			sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void remove(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", alias, transactionId, darg, marg);
+	public Iterator entrySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySet", arg1, arg2, arg3);
 		try {
-			sendCommand(s);
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void remove(TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException {
-		RelatrixTransactionStatement s = new RelatrixTransactionStatement("remove", transactionId, darg, marg);
+	public Iterator entrySet(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySet", arg1, arg2);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public long size(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("size", arg1, arg2);
+		try {
+			return (long)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public long size(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("size", arg1, arg2);
+		try {
+			return (long)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public long size(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("size", arg1);
+		try {
+			return (long)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public long size(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("size", arg1, arg2, arg3);
+		try {
+			return (long)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object last(TransactionId arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object last(Alias arg1,TransactionId arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object last(TransactionId arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object last(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public boolean contains(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("contains", arg1, arg2, arg3);
+		try {
+			return (boolean)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public boolean contains(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("contains", arg1, arg2);
+		try {
+			return (boolean)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object get(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object get(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2, arg3, arg4);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
-				throw new java.io.IOException(e);
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void remove(TransactionId arg1,Comparable arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2, arg3);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2, arg3);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
 		}
 	}
 }

@@ -1,173 +1,188 @@
+// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
-
-import java.util.stream.Stream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.stream.Stream;
+import java.util.List;
+import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.DomainMapRange;
 
 
 public interface RelatrixClientTransactionInterface {
 
-	public Stream entrySetStream(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Object getByIndex(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
-	public Stream entrySetStream(TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Object getByIndex(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
 
-	public void loadClassFromPath(String arg2) throws java.io.IOException;
+	public Object lastValue(TransactionId arg1) throws java.io.IOException;
 
-	public String getAliasToPath(Alias alias);
+	public Object lastValue(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public void loadClassFromJar(String jar) throws java.io.IOException;
+	public Object lastValue(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public Stream findStream(TransactionId transactionId,Object darg,Object marg,Object rarg) throws java.io.IOException;
+	public Object lastValue(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public Stream findStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException;
+	public Object lastKey(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public void checkpoint(Alias alias,TransactionId transactionId) throws java.io.IOException;
+	public Object lastKey(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public void checkpoint(TransactionId transactionId) throws java.io.IOException;
+	public Object lastKey(TransactionId arg1) throws java.io.IOException;
 
-	public Iterator findTailSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
+	public Object lastKey(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public Iterator findTailSet(TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endrarg) throws java.io.IOException;
+	public Stream entrySetStream(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public Stream findHeadStream(TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endrarg) throws java.io.IOException;
+	public Stream entrySetStream(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public Stream findHeadStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
+	public Object removekv(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
-	public Stream findSubStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
+	public Object removekv(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
 
-	public Stream findSubStream(TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endrarg) throws java.io.IOException;
+	public String getAlias(Alias arg1);
 
-	public Stream findTailStream(TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endrarg) throws java.io.IOException;
+	public void setTuple(char arg1);
 
-	public Stream findTailStream(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
-
-	public Object lastValue(TransactionId transactionId, Class clazz) throws java.io.IOException;
-
-	public Object lastValue(TransactionId transactionId) throws java.io.IOException;
-
-	public Object lastValue(Alias alias, TransactionId transactionId) throws java.io.IOException;
-
-	public Object lastValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
-
-	public Iterator findHeadSet(TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endrarg) throws java.io.IOException;
-
-	public Iterator findHeadSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
-
-	public Iterator findSubSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException;
-
-	public Iterator findSubSet(TransactionId transactionId, Object darg, Object marg, Object rarg, Object... endrarg) throws java.io.IOException;
-
-	public Object removekv(TransactionId transactionId, Comparable arg2) throws java.io.IOException;
-
-	public Object removekv(Alias alias, TransactionId transactionId, Comparable arg3) throws java.io.IOException;
-
-	public Iterator findSet(TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException;
-
-	public Iterator findSet(Alias alias, TransactionId transactionId, Object darg, Object marg, Object rarg) throws java.io.IOException;
+	public void removeAlias(Alias arg1) throws java.io.IOException;
 
 	public String[][] getAliases();
 
-	public void removeAlias(Alias alias) throws java.util.NoSuchElementException;
-
-	public void setAlias(Alias alias, String path) throws java.io.IOException;
-
 	public String getTableSpace();
 
-	public void setWildcard(char wc);
+	public Stream findTailStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException;
 
-	public void setTuple(char tc);
+	public Stream findTailStream(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
 
-	public String getAlias(Alias alias);
+	public Iterator findTailSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException;
 
-	public void setTablespace(String path) throws java.io.IOException;
+	public Iterator findTailSet(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
 
-	public void rollback(TransactionId transactionId) throws java.io.IOException;
+	public void commit(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public void rollback(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public void commit(TransactionId arg1) throws java.io.IOException;
 
-	public void endTransaction(TransactionId transactionId) throws java.io.IOException;
+	public Iterator findSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public void endTransaction(TransactionId arg1) throws java.io.IOException;
+
+	public void setAlias(Alias arg1,String arg2) throws java.io.IOException;
+
+	public Stream findSubStream(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException;
+
+	public Stream findStream(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException;
+
+	public void setWildcard(char arg1);
+
+	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
 
 	public TransactionId getTransactionId() throws java.io.IOException;
 
-	public void rollbackToCheckpoint(TransactionId transactionId) throws java.io.IOException;
+	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException;
 
-	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public Iterator findHeadSet(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
 
-	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public void setTablespace(String arg1) throws java.io.IOException;
 
-	public Object getByIndex(TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public void rollback(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public void commit(TransactionId transactionId) throws java.io.IOException;
+	public void rollback(TransactionId arg1) throws java.io.IOException;
 
-	public void commit(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public Iterator findSubSet(TransactionId arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
 
-	public Object firstValue(TransactionId transactionId) throws java.io.IOException;
+	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5,Object... arg6) throws java.io.IOException;
 
-	public Object firstValue(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public void checkpoint(TransactionId arg1) throws java.io.IOException;
 
-	public Object firstValue(TransactionId transactionId,Class arg2) throws java.io.IOException;
+	public void checkpoint(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public Object firstValue(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public void loadClassFromJar(String arg1) throws java.io.IOException;
 
-	public Iterator keySet(TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public void rollbackToCheckpoint(TransactionId arg1) throws java.io.IOException;
 
-	public Iterator keySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public void rollbackToCheckpoint(Alias arg1,TransactionId arg2) throws java.io.IOException;
+
+	public Object firstKey(Alias arg1,TransactionId arg2) throws java.io.IOException;
+
+	public Object firstKey(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
+
+	public Object firstKey(TransactionId arg1,Class arg2) throws java.io.IOException;
+
+	public Object firstKey(TransactionId arg1) throws java.io.IOException;
+
+	public Object firstValue(Alias arg1,TransactionId arg2) throws java.io.IOException;
+
+	public Object firstValue(TransactionId arg1,Class arg2) throws java.io.IOException;
+
+	public Object firstValue(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
+
+	public Object firstValue(TransactionId arg1) throws java.io.IOException;
+
+	public Iterator keySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
+
+	public Iterator keySet(TransactionId arg1,Class arg2) throws java.io.IOException;
+
+	public DomainMapRange store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException;
+
+	public DomainMapRange store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
+
+	public void storekv(TransactionId arg1,Comparable arg2,Object arg3) throws java.io.IOException;
 	
-	public Iterator entrySet(TransactionId transactionId,Class arg2) throws java.io.IOException;
+	public void storekv(Alias arg0,TransactionId arg1,Comparable arg2,Object arg3) throws java.io.IOException;
 
-	public Iterator entrySet(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Object first(TransactionId arg1) throws java.io.IOException;
 
-	public Object first(TransactionId transactionId) throws java.io.IOException;
+	public Object first(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public Object first(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Object first(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public Object first(TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Object first(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public Object first(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public Iterator entrySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public Object last(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Iterator entrySet(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public Object last(TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public long size(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public Object last(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public long size(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public Object last(TransactionId transactionId) throws java.io.IOException;
+	public long size(TransactionId arg1) throws java.io.IOException;
 
-	public boolean contains(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public long size(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public boolean contains(TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public Object last(TransactionId arg1) throws java.io.IOException;
 
-	public long size(Alias alias, TransactionId transactionId) throws java.io.IOException;
+	public Object last(Alias arg1,TransactionId arg2) throws java.io.IOException;
 
-	public long size(TransactionId transactionId, Class clazz) throws java.io.IOException;
-	
-	public long size(Alias alias, TransactionId transactionId, Class clazz) throws java.io.IOException;
+	public Object last(TransactionId arg1,Class arg2) throws java.io.IOException;
 
-	public long size(TransactionId transactionId) throws java.io.IOException;
+	public Object last(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public DomainMapRange store(TransactionId transactionId, Comparable key, Object value) throws java.io.IOException;
+	public boolean contains(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
 
-	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.io.IOException;
+	public boolean contains(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
-	public DomainMapRange store(TransactionId transactionId, Comparable darg, Comparable marg, Comparable rarg) throws java.io.IOException;
+	public Object get(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
 
-	public Object get(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public Object get(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
-	public Object get(TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
 
-	public void remove(TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public void remove(TransactionId arg1,Comparable arg2,Comparable arg3) throws java.io.IOException;
 
-	public void remove(Alias alias, TransactionId transactionId, Comparable key) throws java.io.IOException;
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
 
-	public void remove(Alias alias, TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException;
-
-	public void remove(TransactionId transactionId, Comparable darg, Comparable marg) throws java.io.IOException;
-
-	public DomainMapRange store(Alias alias, TransactionId transactionId, Comparable key, Object value) throws IOException;
+	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
 }
 
