@@ -6,10 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.lang.reflect.Constructor;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -21,7 +22,7 @@ import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
- * Call with args: classname, output interface name.<p/>
+ * Call with args: classname, output interface name, statement and transport method names,and desired package declaration.<p/>
  * This is an adjunct to the {@link ServerInvokeMethod} class that generates the server side callable method bindings
  * for a given class, such that a remote client side transport can invoke those methods and receive returned responses.<p/>
  * Combinations of these tools simplifies the process of building and maintaining 2 tier client/server models from existing
@@ -32,29 +33,54 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * that carries a method transport for "boolean hasNext()" and "Object next()" to be remotely invoked on a server-side concrete
  * Iterator subclass. In conjunction with that, a {@link RemoteStream} implementation of {@link java.util.stream.Stream} that
  * wraps that RemoteIterator is available in the same package as the one designated on the command line. In this way, local
- * Stream functionality is provided using the remote iterator transport.
- * 
+ * Stream functionality is provided using the remote iterator transport.<p/>
+ * Of course, the hardcoded params are specific to the Relatrix package, but can be changed to any code that uses the ServerInvokeMethod
+ * reflection paradigm.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
 public class GenerateClientBindings {
-	public static String outputClass = "clientInterface";
-	public static String inputClass = "InputClass";
-	public static String statement = "transportStatement";
-	public static String command = "sendCommand";
-	public static String packageDecl = "package com.your.package;";
-	public static ArrayList<String> imports = new ArrayList<String>();
+	public static String outputClass = "RelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
+	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
+	public static String statement = "RelatrixStatement"; //RelatrixTransactionStatement, etc that provides encapsulated method and parameter container class
+	public static String command = "sendCommand"; // method used for wire transport in the client that extends generated bindings, will be abstract method: public abstract Object
+	public static String packageDecl = "com.neocoretechs.relatrix.client"; // fully qualified name to be formed into package decl
+	public static String[] imports = new String[] {	// prime this with best guess, system will fill in required fully qualified class names for import
+		"java.io.IOException",
+		"java.util.Iterator",
+		"java.util.stream.Stream",
+		"java.util.List"
+	};
+	// if you want the client to trap Exception(s) and generate a simplified version, indicate it here
+	public static boolean exceptionOverride = false;
+	public static String simplifiedException = "java.io.IOException";
 	
 	public GenerateClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
-		if(args.length < 5)
-			throw new Exception("usage: java GenerateClientBindings [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [package decl]");
-		inputClass = args[0];
-		outputClass = args[1];
-		statement = args[2];
-		command = args[3];
-		packageDecl = args[4];
+		if(args.length < 1 || args.length > 6)
+			throw new Exception("usage: java GenerateClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [package decl]");
+		if(!args[0].equals("false")) {
+			exceptionOverride = true;
+			simplifiedException = args[0];
+			try {
+				Class c = Class.forName(args[0]);
+				if(!Exception.class.isAssignableFrom(c))
+					throw new Exception("Simplified exception not a valid Exception");
+			} catch(ClassNotFoundException cnfe) {
+				throw new Exception("Simplified exception name is not a valid class");
+			}
+		}
+		if(args.length > 1)
+			inputClass = args[1];
+		if(args.length > 2)
+			outputClass = args[2];
+		if(args.length > 3)
+			statement = args[3];
+		if(args.length > 4)
+			command = args[4];
+		if(args.length > 5)
+			packageDecl = args[5];
 		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0, false);
 		MethodNamesAndParams rmnap = sim.getMethodNamesAndParams();
 		generateInterface(rmnap);
@@ -62,7 +88,7 @@ public class GenerateClientBindings {
 		System.exit(0);
 	}
 	/**
-	 * GEnerate the implementation of the interface for the client bindings to our processed server side source class
+	 * Generate the implementation of the interface for the client bindings to our processed server side source class
 	 * @param rmnap
 	 * @throws IOException
 	 */
@@ -78,6 +104,7 @@ public class GenerateClientBindings {
 		// statement and command are passed from command line
 		FileOutputStream fos = new FileOutputStream(outputClass+"Impl.java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings\r\n");
 		outStream.writeBytes("package ");
 		//outStream.writeBytes(inputClass.substring(0,inputClass.lastIndexOf(".")));
 		outStream.writeBytes(packageDecl);
@@ -130,8 +157,15 @@ public class GenerateClientBindings {
 				LinkedHashMap<Class,String> excepts = null;
 				if(ithrows != -1) {
 					outStream.writeBytes(") ");
-					outStream.writeBytes(rmnap.methodSigs[mnum].substring(ithrows));
-					excepts = generateExceptions(rmnap.methodSigs[mnum].substring(ithrows+7));
+					if(exceptionOverride) {
+						outStream.writeBytes("throws ");
+						outStream.writeBytes(simplifiedException);
+						excepts = new LinkedHashMap<Class,String>();
+						excepts.put(Exception.class, "\t\t\tthrow new "+simplifiedException+"(e);\r\n");
+					} else {
+						outStream.writeBytes(rmnap.methodSigs[mnum].substring(ithrows));
+						excepts = generateExceptions(rmnap.methodSigs[mnum].substring(ithrows+7));
+					}
 				} else {
 					outStream.writeBytes(")");
 					excepts = new LinkedHashMap<Class,String>();
@@ -271,28 +305,32 @@ public class GenerateClientBindings {
 		//}
 		FileOutputStream fos = new FileOutputStream(outputClass+".java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings\r\n");
 		outStream.writeBytes("package ");
 		//outStream.writeBytes(inputClass.substring(0,inputClass.lastIndexOf(".")));
 		outStream.writeBytes(packageDecl);
 		outStream.writeBytes(";\r\n\r\n");
 		// collect types for import decls
+		List<String> abstractList = Arrays.asList(imports);
+		ArrayList<String> importsList = new ArrayList<String>();
+		importsList.addAll(abstractList);
 		for(int i = 0; i < rmnap.methodParams.length; i++) {
 			for(int j = 0; j < rmnap.methodParams[i].length; j++) {
-				if(!imports.contains(rmnap.methodParams[i][j].getName()) && 
+				if(!importsList.contains(rmnap.methodParams[i][j].getName()) && 
 						!rmnap.methodParams[i][j].isPrimitive() &&
 						!rmnap.methodParams[i][j].isArray() &&
 						!rmnap.methodParams[i][j].getName().startsWith("java.lang"))
-					imports.add(rmnap.methodParams[i][j].getName());
+					importsList.add(rmnap.methodParams[i][j].getName());
 			}
 		}
 		for(int i = 0; i < rmnap.returnTypes.length; i++) {
-			if(!imports.contains(rmnap.returnTypes[i].getName()) && 
+			if(!importsList.contains(rmnap.returnTypes[i].getName()) && 
 					!rmnap.returnTypes[i].isPrimitive() &&
 					!rmnap.returnTypes[i].isArray() &&
 					!rmnap.returnTypes[i].getName().startsWith("java.lang"))
-				imports.add(rmnap.returnTypes[i].getName());
+				importsList.add(rmnap.returnTypes[i].getName());
 		}
-		for(String imps: imports) {
+		for(String imps: importsList) {
 			outStream.writeBytes("import ");
 			outStream.writeBytes(imps);
 			outStream.writeBytes(";\r\n");
@@ -328,8 +366,13 @@ public class GenerateClientBindings {
 				}
 				int ithrows = rmnap.methodSigs[mnum].indexOf("throws");
 				if(ithrows != -1) {
-					outStream.writeBytes(") ");
-					outStream.writeBytes(rmnap.methodSigs[mnum].substring(ithrows));
+					if(exceptionOverride) {
+						outStream.writeBytes(") throws ");
+						outStream.writeBytes(simplifiedException);
+					} else {
+						outStream.writeBytes(") ");
+						outStream.writeBytes(rmnap.methodSigs[mnum].substring(ithrows));
+					}
 				} else
 					outStream.writeBytes(")");
 				outStream.writeBytes(";\r\n\r\n");

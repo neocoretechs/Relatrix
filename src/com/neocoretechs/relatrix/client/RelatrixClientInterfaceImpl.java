@@ -84,7 +84,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	}
 	@Override
 	public Iterator findTailSet(Alias alias, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSetAlias", alias, darg, marg, rarg, endarg);
+		RelatrixStatement s = new RelatrixStatement("findTailSet", alias, darg, marg, rarg, endarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -103,7 +103,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	}
 	@Override
 	public Iterator findHeadSet(Alias alias, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSetAlias", alias, darg, marg, rarg, endarg);
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", alias, darg, marg, rarg, endarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -112,7 +112,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	}
 	@Override
 	public Iterator findSubSet(Alias alias, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSetAlias", alias, darg, marg, rarg, endarg);
+		RelatrixStatement s = new RelatrixStatement("findSubSet", alias, darg, marg, rarg, endarg);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -320,7 +320,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	}
 	@Override
 	public Stream findHeadStream(Alias alias, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStreamAlias", alias, darg, marg, rarg, endarg);
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", alias, darg, marg, rarg, endarg);
 		try {
 			RemoteIterator it = (RemoteIterator) sendCommand(s);
 			return (new RemoteStream(it));
@@ -330,7 +330,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	}
 	@Override
 	public Stream findTailStream(Alias alias, Object darg, Object marg, Object rarg, Object... endarg) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStreamAlias", alias, darg, marg, rarg, endarg);
+		RelatrixStatement s = new RelatrixStatement("findTailStream", alias, darg, marg, rarg, endarg);
 		try {
 			RemoteIterator it = (RemoteIterator) sendCommand(s);
 			return (new RemoteStream(it));
