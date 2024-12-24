@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Relatrix;
 
@@ -48,7 +47,7 @@ public interface RelatrixClientInterface{
 
 	public void removeAlias(Alias arg1) throws java.io.IOException;
 
-	public RelatrixIndex getNewKey() throws java.io.IOException;
+	public DBKey getNewKey() throws java.io.IOException;
 
 	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
 

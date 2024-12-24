@@ -4,18 +4,11 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p/>
- *  * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p/>
  * Since we are dealing with morphisms, basically an algebraic function mapping for f:x->y, or m:d->r, then
  * the primary key is composed of the domain and map components of the morphism. Since a function which takes a domain
  * object and maps it to a given range through a mapping object can result in only 1 mapping of a domain to range
@@ -24,13 +17,11 @@ import com.neocoretechs.rocksack.TransactionId;
  * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.<p/>
  * KeySet extends {@link PrimaryKeySet} to include the range object forming a complete morphism.
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023,2024
- *
  */
 public class KeySet extends PrimaryKeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
     protected DBKey rangeKey;
-    //private ConcurrentHashMap<String, Boolean> primaryKeyCheck = new ConcurrentHashMap<String,Boolean>();
 
     public KeySet() {}
     
@@ -74,15 +65,14 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 	@Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
 		super.readExternal(in);
-		RelatrixIndex r1 = new RelatrixIndex(in.readLong(), in.readLong());
-		rangeKey = new DBKey(r1);
+		rangeKey = new DBKey(in.readLong(), in.readLong());
 	} 
 	
 	@Override  
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
-		out.writeLong(rangeKey.getInstanceIndex().getMsb());
-		out.writeLong(rangeKey.getInstanceIndex().getLsb());
+		out.writeLong(rangeKey.getMsb());
+		out.writeLong(rangeKey.getLsb());
 	}
 	
 	@Override
@@ -112,7 +102,7 @@ public class KeySet extends PrimaryKeySet implements Externalizable, Comparable 
 	
 	@Override
 	public String toString() {
-		return String.format("domainKey:%s mapKey:%s rangeKey:%s%n", domainKey, mapKey, rangeKey);
+		return super.toString()+String.format(" rangeKey:%s%n", rangeKey);
 	}
 	
 }

@@ -12,8 +12,6 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 
-import com.neocoretechs.relatrix.key.RelatrixIndex;
-
 /**
  * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
  * NOTES:
@@ -119,9 +117,8 @@ public class BatteryDBKey {
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			RelatrixIndex ri = ident.getInstanceIndex();
-			ri.setLsb(0); // set artificial partial instance key
-			DBKey pks = new DBKey(ri); // new dbkey with partial instance
+			ident.setLsb(0); // set artificial partial instance key
+			DBKey pks = ident; // new dbkey with partial instance
 			if(!RelatrixKV.contains(pks)) { // shouldnt find this
 				System.out.println("Expected Didnt find "+pks+" using "+ident);
 			} else {

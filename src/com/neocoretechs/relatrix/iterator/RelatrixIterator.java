@@ -47,6 +47,7 @@ public class RelatrixIterator implements Iterator<Result> {
     protected Morphism nextit = null;
     protected Morphism base;
     protected short dmr_return[] = new short[4];
+    protected Alias alias = null;
 
     protected boolean needsIter = true;
     protected boolean identity = false;
@@ -92,6 +93,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	public RelatrixIterator(Alias alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
 	   	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.alias = alias;
     	identity = isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKV.findTailMapKV(alias, template);
@@ -136,6 +138,8 @@ public class RelatrixIterator implements Iterator<Result> {
 				Map.Entry me = (Entry) iter.next();
 				nextit = (Morphism)me.getKey();
 				nextit.setIdentity((DBKey) me.getValue());
+				if(alias != null)
+					nextit.setAlias(alias);
 				if( !templateMatches(base, nextit, dmr_return) ) {
 					nextit = null;
 					needsIter = false;

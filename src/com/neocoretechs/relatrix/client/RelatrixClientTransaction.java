@@ -11,22 +11,13 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
-import com.neocoretechs.rocksack.Alias;
+
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 

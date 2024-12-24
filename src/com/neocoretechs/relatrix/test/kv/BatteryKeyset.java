@@ -115,7 +115,7 @@ public class BatteryKeyset {
 			KeySet identity = new KeySet();
 			identity.setDomainKey(indexTable.getKey(d));
 			identity.setMapKey(indexTable.getKey(m));
-			identity.setRangeKey(new DBKey(DBKey.nullKey));
+			identity.setRangeKey(DBKey.nullDBKey);
 			//PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.

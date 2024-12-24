@@ -756,23 +756,23 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	this.range = range;
         }
         /**
-         * 
-         * @param instance
-         * @return
+         * Using the passed instance and this Morphism, check the alias and transactionId for non null
+         * and then call proper {@link DBKey}.newKey with the indexResolver {@link com.neocoretechs.relatrix.key.IndexInstanceTable}
+         * and instance. The process will store the instance in the proper class table as key, and the DBKey table as value,
+         * and return the DBKey that links both together.
+         * @param instance The instance to be stored
+         * @return The DBKey newly created from storage and resolution process
          * @throws IllegalAccessException
          * @throws ClassNotFoundException
          * @throws IOException
          */
 		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(alias == null) {
-				if(transactionId == null) {
+				if(transactionId == null)
 					return DBKey.newKey(IndexResolver.getIndexInstanceTable(), instance);
-				} else {
-					return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
-				}
-			} else {
-				return newKey(alias, instance);
+				return DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), instance);
 			}
+			return newKey(alias, instance);
 		}
 		/**
 		 * To relate a key in another database
@@ -786,9 +786,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		private DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(transactionId == null) {
 				return DBKey.newKey(aliasOther, IndexResolver.getIndexInstanceTable(), instance);
-			} else {
-				return DBKey.newKey(aliasOther, transactionId, IndexResolver.getIndexInstanceTable(), instance);
-			}
+			} 
+			return DBKey.newKey(aliasOther, transactionId, IndexResolver.getIndexInstanceTable(), instance);
 		}
 		/**
 		 * Resolve an instance from the passed DBKey
@@ -816,8 +815,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 				return resolveKey(alias, key);
 			if(transactionId == null)
 				return (Comparable) IndexResolver.getIndexInstanceTable().get(key);
-			else
-				return (Comparable) IndexResolver.getIndexInstanceTable().get(transactionId,key);
+			return (Comparable) IndexResolver.getIndexInstanceTable().get(transactionId,key);
 		}
 		
 		/**
@@ -842,8 +840,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 			}
 			if(transactionId == null)
 				return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
-			else
-				return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
+			return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
 		}
 		
 		/**
@@ -872,8 +869,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 				return resolveInstance(alias, instance);
 			if(transactionId == null)
 				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(instance);
-			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(transactionId, instance);
+			return (DBKey)IndexResolver.getIndexInstanceTable().getKey(transactionId, instance);
 		}
 		
 		/**
@@ -900,8 +896,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 			}
 			if(transactionId == null)
 				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, instance);
-			else
-				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, transactionId, instance);
+			return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, transactionId, instance);
 		}
 		/**
 		 * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias

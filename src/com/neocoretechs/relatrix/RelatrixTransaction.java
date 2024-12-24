@@ -187,7 +187,6 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					Morphism dmr = new MapDomainRange(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -201,7 +200,6 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					Morphism dmr = new DomainRangeMap(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -215,7 +213,6 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					Morphism dmr = new MapRangeDomain(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -229,7 +226,6 @@ public final class RelatrixTransaction {
 			public void run() {  
 				try {
 					Morphism dmr = new RangeDomainMap(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -243,7 +239,6 @@ public final class RelatrixTransaction {
 			public void run() {    
 				try {
 					Morphism dmr = new RangeMapDomain(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(xid, dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -291,7 +286,6 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					Morphism dmr = new MapDomainRange(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -305,7 +299,6 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					Morphism dmr = new DomainRangeMap(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -319,7 +312,6 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					Morphism dmr = new MapRangeDomain(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -333,7 +325,6 @@ public final class RelatrixTransaction {
 			public void run() {  
 				try {
 					Morphism dmr = new RangeDomainMap(alias, identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -347,7 +338,6 @@ public final class RelatrixTransaction {
 			public void run() {    
 				try {
 					Morphism dmr = new RangeMapDomain(alias, identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -2183,7 +2173,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object getByIndex(TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable().get(xid, (DBKey) key);
+		return RelatrixKVTransaction.get(xid, (DBKey) key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -2198,7 +2188,7 @@ public final class RelatrixTransaction {
 	 */
 	public static synchronized Object getByIndex(Alias alias, TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
 	{
-		return IndexResolver.getIndexInstanceTable().get(xid, (DBKey) key);
+		return RelatrixKVTransaction.get(xid, (DBKey) key);
 	}
 	/**
 	 * Return the keyset for the given class

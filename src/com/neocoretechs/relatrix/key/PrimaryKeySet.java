@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.DatabaseClass;
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p/>
@@ -23,7 +20,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023,2024
  *
  */
-@DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
+//@DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
 public class PrimaryKeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
@@ -32,6 +29,8 @@ public class PrimaryKeySet implements Externalizable, Comparable {
     protected transient DBKey identity;
 	protected transient TransactionId transactionId = null;
 	protected transient Alias alias = null;
+	private transient boolean isIdentityImmutable = false; // once identity or alias is set, instance is immutable
+	private transient boolean isAliasImmutable = false; // once identity or alias is set, instance is immutable
 
     public PrimaryKeySet() {}
     
@@ -48,12 +47,14 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.alias = alias;
+		this.isAliasImmutable = true;
 	}
 	PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias, TransactionId transactionId) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.transactionId = transactionId;
 		this.alias = alias;
+		this.isAliasImmutable = true;
 	}
 	public DBKey getDomainKey() {
 		return domainKey;
@@ -79,13 +80,19 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param identity
 	 */
 	public void setIdentity(DBKey identity) {
+		if(this.isIdentityImmutable)
+			throw new RuntimeException("Identity is immutable for Morphism instance "+this);
 		this.identity = identity;
+		this.isIdentityImmutable = true;
 	}
    	public Alias getAlias() {
 		return alias;
 	}
 	public void setAlias(Alias alias) {
+		if(this.isAliasImmutable)
+			throw new RuntimeException("Alias is immutable for Morphism instance "+this);
 		this.alias = alias;
+		this.isAliasImmutable = true;
 	}
 	boolean isValid() {
 		return DBKey.isValid(domainKey) && DBKey.isValid(mapKey);
@@ -111,149 +118,174 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	/**
 	 * Locate the primary key in prep for storage.  For the passed key instances 
 	 * create the instance/DBKey and DBKey/instance tablespace entries for domain and map.
-	 * If the decision is made to toss out the entry, may have spurious instances of domain and map. New key must be
-	 * created for relationship itself during storage via setDBKey(DBKey.newKey) once range is populated, and
-	 * setDomainResolved with domain object, setMapResolved with map object and setRange with range object.
-	 * Other values will be set from locate for main instance. This method will create a new temporary PrimaryKeySet
-	 * instance to locate using only the domain and map keys, then the key values will be used to populate 'this' instance.
+	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
 	 * @param skeyd domain instance
 	 * @param skeym instance for map
-	 * @return true if key of stored KeySet, which represents domain, map identity unique, else false
+	 * @return The PrimaryKeySet instance with either null or resolved identity
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	protected boolean locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
-		IndexInstanceTableInterface indexTable = IndexResolver.getIndexInstanceTable();
+	protected static PrimaryKeySet locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		if(transactionId == null) {
-			if(alias == null) {
-				Object d = RelatrixKV.get(skeyd);
-				if( d == null ) {
-					pk.setDomainKey(DBKey.newKey(indexTable, skeyd)); // puts to index and instance
-				} else {
-					pk.setDomainKey((DBKey) d);
-				}
-				Object m = RelatrixKV.get(skeym);
-				if( m == null ) {
-					pk.setMapKey(DBKey.newKey(indexTable, skeym)); // puts to index and instance
-				} else {
-					pk.setMapKey((DBKey) m);
-				}
-				// set the keys, use set..Template to set values
-				this.domainKey = pk.domainKey;
-				this.mapKey = pk.mapKey;
-				// do we have a relation already?
-				Object dKey = RelatrixKV.get(pk);
-				if(dKey != null) {
-					this.identity = (DBKey) dKey;
-					return false;
-				}
-				return true; // must now call DBKey.newKey(indexTable, this);
-			}
-			// alias not null, transaction id null
-			Object d = RelatrixKV.get(alias,skeyd);
-			if( d == null ) {
-				pk.setDomainKey(DBKey.newKey(alias, indexTable, skeyd)); // puts to index and instance
-			} else {
-				pk.setDomainKey((DBKey) d);
-			}
-			Object m = RelatrixKV.get(alias,skeym);
-			if( m == null ) {
-				pk.setMapKey(DBKey.newKey(alias, indexTable, skeym)); // puts to index and instance
-			} else {
-				pk.setMapKey((DBKey) m);
-			}
-			this.domainKey = pk.domainKey;
-			this.mapKey = pk.mapKey;
-			pk.alias = alias;
-			Object dKey = RelatrixKV.get(alias, pk);
-			if(dKey != null) {
-				this.identity = (DBKey) dKey;
-				return false;
-			}
-			return true; // now call DBKey.newKey(alias, indexTable, this);
+		Object d = IndexResolver.getIndexInstanceTable().getKey(skeyd);
+		if( d == null ) {
+			pk.setDomainKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
 		} else {
-			// Transaction Id not null
-			if(alias == null) {
-				Object d = RelatrixKVTransaction.get(transactionId, skeyd);
-				if( d == null ) {
-					pk.setDomainKey(DBKey.newKey(transactionId, indexTable, skeyd)); // puts to index and instance
-				} else {
-					pk.setDomainKey((DBKey) d);
-				}
-				Object m = RelatrixKVTransaction.get(transactionId,skeym);
-				if( m == null ) {
-					pk.setMapKey(DBKey.newKey(transactionId, indexTable, skeym)); // puts to index and instance
-				} else {
-					pk.setMapKey((DBKey) m);
-				}
-				this.domainKey = pk.domainKey;
-				this.mapKey = pk.mapKey;
-				pk.transactionId = transactionId;
-				Object dKey = RelatrixKVTransaction.get(transactionId, pk);
-				if(dKey != null) {
-					this.identity = (DBKey) dKey;
-					return false;
-				}
-				return true; // now DBKey.newKey(transactionId, indexTable, this);
-			}
-			// transaction id and alias not null
-			Object d = RelatrixKVTransaction.get(alias, transactionId, skeyd);
-			if( d == null ) {
-				pk.setDomainKey(DBKey.newKey(alias, transactionId, indexTable, skeyd)); // puts to index and instance
-			} else {
-				pk.setDomainKey((DBKey)d);
-			}
-			Object m = RelatrixKVTransaction.get(alias, transactionId, skeym);
-			if(m == null) {
-				pk.setMapKey(DBKey.newKey(alias, transactionId, indexTable, skeym)); // puts to index and instance
-			} else {
-				pk.setMapKey((DBKey)m);
-			}
-			this.domainKey = pk.domainKey;
-			this.mapKey = pk.mapKey;
-			pk.alias = alias;
-			pk.transactionId = transactionId;
-			Object dKey = RelatrixKVTransaction.get(alias, transactionId, pk);
-			if(dKey != null) {
-				this.identity = (DBKey) dKey;
-				return false;
-			}
-			return true; // now do DBKey.newKey(alias, transactionId, indexTable, this);
+			pk.setDomainKey((DBKey) d);
 		}
+		Object m = IndexResolver.getIndexInstanceTable().getKey(skeym);
+		if( m == null ) {
+			pk.setMapKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
+		} else {
+			pk.setMapKey((DBKey) m);
+		}
+		// do we have a relation already?
+		Object dKey = IndexResolver.getIndexInstanceTable().getKey(pk);
+		// is it found, hence not unique?
+		if(dKey != null) {
+			pk.identity = (DBKey) dKey;
+			pk.isIdentityImmutable = true;
+		}
+		return pk;	
+	}
+	/**
+	 * Locate the primary key in prep for storage.  For the passed key instances 
+	 * create the instance/DBKey and DBKey/instance tablespace entries for domain and map.
+	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
+	 * @param alias
+	 * @param skeyd
+	 * @param skeym
+	 * @return The PrimaryKeySet instance with either null or resolved identity
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	protected static PrimaryKeySet locate(Alias alias, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+		PrimaryKeySet pk = new PrimaryKeySet();
+		//
+		pk.setAlias(alias);
+		Object d = IndexResolver.getIndexInstanceTable().getKey(alias,skeyd);
+		if( d == null ) {
+			pk.setDomainKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
+		} else {
+			pk.setDomainKey((DBKey) d);
+		}
+		Object m = IndexResolver.getIndexInstanceTable().getKey(alias,skeym);
+		if( m == null ) {
+			pk.setMapKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
+		} else {
+			pk.setMapKey((DBKey) m);
+		}
+		Object dKey = IndexResolver.getIndexInstanceTable().getKey(alias, pk);
+		if(dKey != null) {
+			pk.identity = (DBKey) dKey;
+			pk.isIdentityImmutable = true;
+		}
+		return pk; // now call DBKey.newKey(alias, indexTable, this);		
+	}
+	/**
+	 * Locate the primary key in prep for storage.  For the passed key instances 
+	 * create the instance/DBKey and DBKey/instance tablespace entries for domain and map.
+	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
+	 * @param transactionId
+	 * @param skeyd
+	 * @param skeym
+	 * @return The PrimaryKeySet instance with either null or resolved identity 
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	protected static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+		PrimaryKeySet pk = new PrimaryKeySet();
+		pk.transactionId = transactionId;
+		Object d = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeyd);
+		if( d == null ) {
+			pk.setDomainKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
+		} else {
+			pk.setDomainKey((DBKey) d);
+		}
+		Object m = IndexResolver.getIndexInstanceTable().getKey(transactionId,skeym);
+		if( m == null ) {
+			pk.setMapKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
+		} else {
+			pk.setMapKey((DBKey) m);
+		}
+		Object dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, pk);
+		if(dKey != null) {
+			pk.identity = (DBKey) dKey;
+			pk.isIdentityImmutable = true;
+		}
+		return pk; // now DBKey.newKey(transactionId, indexTable, this);		
+	}
+	/**
+	 * Locate the primary key in prep for storage.  For the passed key instances 
+	 * create the instance/DBKey and DBKey/instance tablespace entries for domain and map.
+	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
+	 * @param alias
+	 * @param transactionId
+	 * @param skeyd
+	 * @param skeym
+	 * @return The PrimaryKeySet instance with either null or resolved identity 
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	protected static PrimaryKeySet locate(Alias alias, TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+		PrimaryKeySet pk = new PrimaryKeySet();
+		pk.setAlias(alias);
+		pk.transactionId = transactionId;
+		// transaction id and alias not null
+		Object d = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeyd);
+		if( d == null ) {
+			pk.setDomainKey(DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
+		} else {
+			pk.setDomainKey((DBKey)d);
+		}
+		Object m = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeym);
+		if(m == null) {
+			pk.setMapKey(DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
+		} else {
+			pk.setMapKey((DBKey)m);
+		}
+		Object dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, pk);
+		if(dKey != null) {
+			pk.identity = (DBKey) dKey;
+			pk.isIdentityImmutable = true;
+		}
+		return pk;	
 	}
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException { 
-		RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
-		RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
-		domainKey = new DBKey(d1);
-		mapKey = new DBKey(m1);	
+		domainKey = new DBKey(in.readLong(), in.readLong());
+		mapKey = new DBKey(in.readLong(), in.readLong());	
 	} 
 	
 	@Override  
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeLong(domainKey.getInstanceIndex().getMsb());
-		out.writeLong(domainKey.getInstanceIndex().getLsb());
-		out.writeLong(mapKey.getInstanceIndex().getMsb());
-		out.writeLong(mapKey.getInstanceIndex().getLsb());
+		out.writeLong(domainKey.getMsb());
+		out.writeLong(domainKey.getLsb());
+		out.writeLong(mapKey.getMsb());
+		out.writeLong(mapKey.getLsb());
 	}
 	
 	@Override
 	public int compareTo(Object o) {
-		//if(DEBUG)
-			//System.out.println("Keyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((KeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((KeySet)o).getMapKey());
+		if(DEBUG)
+			System.out.println("PrimaryKeyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((PrimaryKeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((PrimaryKeySet)o).getMapKey());
 		int i = getDomainKey().compareTo(((PrimaryKeySet)o).getDomainKey());
 		if(i != 0) {
-			//if(DEBUG)
-				//System.out.println("Keyset CompareTo returning "+i+" at DomainKey");
+			if(DEBUG)
+				System.out.println("PrimaryKeyset CompareTo returning "+i+" at DomainKey");
 			return i;
 		}
+		if(DEBUG)
+			System.out.println("PrimaryKeyset CompareTo returning "+getMapKey().compareTo(((PrimaryKeySet)o).getMapKey())+" at MapKey");
 		return getMapKey().compareTo(((PrimaryKeySet)o).getMapKey());
 	}
 	
@@ -269,6 +301,13 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	}
 	
 	public String toString() {
+		if(alias != null)
+			if(transactionId != null)
+				return String.format("Identity %s Alias %s Xid %s domainKey:%s mapKey:%s%n", identity, alias, transactionId, domainKey, mapKey);
+			else
+				return String.format("Identity %s Alias %s domainKey:%s mapKey:%s%n", identity, alias, domainKey, mapKey);
+		if(transactionId != null)
+			return String.format("Identity %s Xid %s domainKey:%s mapKey:%s%n", identity, transactionId, domainKey, mapKey);
 		return String.format("Identity %s domainKey:%s mapKey:%s%n", identity, domainKey, mapKey);
 	}
 	

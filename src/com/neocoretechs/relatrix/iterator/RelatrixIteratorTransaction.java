@@ -81,6 +81,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     public RelatrixIteratorTransaction(Alias alias, TransactionId xid, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.alias = alias;
     	identity = isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKVTransaction.findTailMapKV(alias, xid, template);

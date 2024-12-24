@@ -6,7 +6,7 @@ import java.io.ObjectOutput;
 
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.RelatrixIndex;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.DatabaseClass;
 import com.neocoretechs.rocksack.TransactionId;
@@ -176,22 +176,19 @@ public class DomainRangeMap extends Morphism {
 
     @Override  
 	public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {  
-		RelatrixIndex d1 = new RelatrixIndex(in.readLong(), in.readLong());
-		RelatrixIndex r1 = new RelatrixIndex(in.readLong(), in.readLong());
-		RelatrixIndex m1 = new RelatrixIndex(in.readLong(), in.readLong());
-		domainKey = new DBKey(d1);
-		rangeKey = new DBKey(r1);
-		mapKey = new DBKey(m1);
+		domainKey = new DBKey(in.readLong(), in.readLong());
+		rangeKey = new DBKey(in.readLong(), in.readLong());
+		mapKey = new DBKey(in.readLong(), in.readLong());
 	} 
 	
 	@Override  
 	public void writeExternal(ObjectOutput out) throws IOException { 
-		out.writeLong(domainKey.getInstanceIndex().getMsb());
-		out.writeLong(domainKey.getInstanceIndex().getLsb());
-		out.writeLong(rangeKey.getInstanceIndex().getMsb());
-		out.writeLong(rangeKey.getInstanceIndex().getLsb());
-		out.writeLong(mapKey.getInstanceIndex().getMsb());
-		out.writeLong(mapKey.getInstanceIndex().getLsb());
+		out.writeLong(domainKey.getMsb());
+		out.writeLong(domainKey.getLsb());
+		out.writeLong(rangeKey.getMsb());
+		out.writeLong(rangeKey.getLsb());
+		out.writeLong(mapKey.getMsb());
+		out.writeLong(mapKey.getLsb());
 	}
 	
 }

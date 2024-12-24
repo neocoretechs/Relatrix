@@ -23,40 +23,35 @@ import com.neocoretechs.rocksack.TransactionId;
 public final class DBKey implements Comparable, Externalizable {
 	private static final long serialVersionUID = -7511519913473997228L;
 	private static boolean DEBUG = false;
-	public static RelatrixIndex nullKey = new RelatrixIndex(0L, 0L);
-	public static RelatrixIndex fullKey = new RelatrixIndex(0xFFFFFFFFFFFFFFFFL,0xFFFFFFFFFFFFFFFFL);
-	public static DBKey nullDBKey = new DBKey(nullKey);
-	public static DBKey fullDBKey = new DBKey(fullKey);
-	
-	RelatrixIndex instanceIndex = null;
+	private long msb;
+	private long lsb;
+
+	public static DBKey nullDBKey = new DBKey(0L,0L);
+	public static DBKey fullDBKey = new DBKey(0xFFFFFFFFFFFFFFFFL,0xFFFFFFFFFFFFFFFFL);
 	
 	public DBKey() {}
 	
-	public DBKey(UUID instanceIndex) {
-		this.instanceIndex = new RelatrixIndex(instanceIndex.getMostSignificantBits(), instanceIndex.getLeastSignificantBits());
+	public DBKey(UUID uuid) {
+		this.msb = uuid.getMostSignificantBits();
+		this.lsb = uuid.getLeastSignificantBits();
 		if(DEBUG)
-			System.out.println("DBKey ctor:"+this.instanceIndex);
+			System.out.println("DBKey ctor:"+this.msb+","+this.lsb);
 	}
 	
-	public DBKey(RelatrixIndex instanceIndex) {
-		this.instanceIndex = instanceIndex;
-		if(DEBUG)
-			System.out.println("DBKey ctor:"+this.instanceIndex);
+	public DBKey(long msb, long lsb) {
+		this.msb = msb;
+		this.lsb = lsb;
 	}
-	
-	public RelatrixIndex getInstanceIndex() {
-			return instanceIndex;
-	}
-	
 	
 	public void setNullKey() {
-		this.instanceIndex = nullKey;
+		msb = 0L;
+		lsb = 0L;
 	}
 	
 	public static boolean isValid(DBKey key) {
 		if(key == null)
 			return false;
-		return key.instanceIndex != null && !key.instanceIndex.equals(nullKey);
+		return key.equals(nullDBKey);
 	}
 	/**
 	 * Returns an expanded diagnostic reason for DBKey being invalid.
@@ -73,9 +68,7 @@ public final class DBKey implements Comparable, Externalizable {
 	public static String whyInvalid(DBKey key) {
 		if(key == null) 
 			return "Key is null";
-		if(key.instanceIndex == null)
-			return "Instance index is null";
-		if(key.instanceIndex.equals(nullKey))
+		if(key.equals(nullDBKey))
 			return "Instance index has null key component";
 		return "No known reason, should be valid!";
 	}
@@ -138,68 +131,98 @@ public final class DBKey implements Comparable, Externalizable {
 	public static DBKey newKey(Alias alias, TransactionId transactionId, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
 		return indexTable.put(alias, transactionId, (Comparable) instance); // the passed key is updated
 	}
+	/**
+	 * @return the msb
+	 */
+	public long getMsb() {
+		return msb;
+	}
 
-	@Override
-	public boolean equals(Object o) {
-		/*
-		synchronized(instanceIndex) {
-			if(databaseIndex != null && ((DBKey)o).databaseIndex != null)
-				b = databaseIndex.equals(((DBKey)o).databaseIndex);
-			if(databaseIndex == null && ((DBKey)o).databaseIndex == null)
-				b = true;
-			if(instanceIndex != null && ((DBKey)o).instanceIndex != null)
-				return b && instanceIndex.equals(((DBKey)o).instanceIndex);
-			if(instanceIndex == null && ((DBKey)o).instanceIndex == null)
-				return b && true;
-			return false;
-		}
-		*/
-		return instanceIndex.equals(((DBKey)o).instanceIndex);
-		
+	/**
+	 * @param msb the msb to set
+	 */
+	public void setMsb(long msb) {
+		this.msb = msb;
+	}
+
+	/**
+	 * @return the lsb
+	 */
+	public long getLsb() {
+		return lsb;
+	}
+
+	/**
+	 * @param lsb the lsb to set
+	 */
+	public void setLsb(long lsb) {
+		this.lsb = lsb;
+	}
+
+	public UUID getAsUUID() {
+		return new UUID(msb, lsb);
 	}
 	
 	@Override
 	public int hashCode() {
-		return instanceIndex.hashCode();	
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (lsb ^ (lsb >>> 32));
+		result = prime * result + (int) (msb ^ (msb >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DBKey other = (DBKey) obj;
+		if (lsb != other.lsb)
+			return false;
+		if (msb != other.msb)
+			return false;
+		return true;
 	}
 	
 	@Override
-	public int compareTo(Object o) {
-		/*
-		synchronized(instanceIndex) {
-			int n = 0;
-			if(instanceIndex != null && ((DBKey)o).instanceIndex != null) {
-				if(n != 0)
-					return n;
-				return instanceIndex.compareTo(((DBKey)o).instanceIndex);
-			}
-			
-			if(instanceIndex == null && ((DBKey)o).instanceIndex == null) {
-				throw new RuntimeException("DBKEY INSTANCE INDEX BOTH INSTANCES NULL IN COMPARETO");
-			}
-			if(instanceIndex != null && ((DBKey)o).instanceIndex == null) {
-				throw new RuntimeException("DBKEY INSTANCE INDEX TARGET INSTANCE NULL IN COMPARETO");
-			}
-			throw new RuntimeException("DBKEY INSTANCE INDEX SOURCE INSTANCE NULL IN COMPARETO");
-		}
-		*/
-		return instanceIndex.compareTo(((DBKey)o).instanceIndex);
-	}
-
-	@Override
-	public String toString() {
-		return instanceIndex != null ? instanceIndex.toString() : "[NULL KEY]";
-	}
-
-	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		instanceIndex.writeExternal(out);
+		out.writeLong(msb);
+		out.writeLong(lsb);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		instanceIndex = new RelatrixIndex();
-		instanceIndex.readExternal(in);
+		msb = in.readLong();
+		lsb = in.readLong();
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		int i = Long.compareUnsigned(msb, ((DBKey)o).msb);
+		if(i != 0)
+			return i;
+		return Long.compareUnsigned(lsb, ((DBKey)o).lsb);
+	}
+	
+	@Override
+	public Object clone() {
+		return new DBKey(msb,lsb);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("[0x%16X,0x%16X]", msb,lsb);
+	}
+
+	public byte[] toBytes() {
+	    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES*2);
+	    buffer.putLong(msb);
+	    buffer.putLong(lsb);
+	    return buffer.array();
 	}
 	
 	public static byte[] longsToBytes(long x, long y) {

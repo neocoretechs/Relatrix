@@ -2,8 +2,12 @@ package com.neocoretechs.relatrix;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -19,7 +23,7 @@ import com.neocoretechs.rocksack.TransactionId;
 public class DomainMapRange extends Morphism implements Comparable, Serializable, Cloneable {
 	private static final long serialVersionUID = 8664384659501163179L;
 	private static boolean DEBUG = false;
-    
+  
     public DomainMapRange() {}
     
     public DomainMapRange(Comparable d, Comparable m, Comparable r) {
@@ -90,25 +94,110 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 	 * @throws DuplicateKeyException
 	 */
 	public DBKey store(Comparable d, Comparable m, Comparable r) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
-		if(locate(d, m)) {
-			setDomainResolved(d);
-			setMapResolved(m);
-			if(alias != null)
-				setRange(alias, r);
-			else
-				setRange(r);
-			identity = newKey(this);
-			return identity;
+		PrimaryKeySet pk = null;
+		if(alias == null) {
+			if(transactionId == null) {
+				pk = locate(d, m);
+				if(pk.getIdentity() == null) {
+					setDomainKey(pk.getDomainKey());
+					setMapKey(pk.getMapKey());
+					setDomainResolved(d);
+					setMapResolved(m);
+					setRange(r);
+					// newKey will call into DBKey.newKey with proper transactionId and alias
+					// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+					// and return the new DBKey reference
+					identity = newKey(this);
+					IndexResolver.getIndexInstanceTable().put(identity, pk);
+					return identity;
+				}
+			} else {
+				pk = locate(transactionId, d, m);
+				if(pk.getIdentity() == null) {
+					setDomainKey(pk.getDomainKey());
+					setMapKey(pk.getMapKey());
+					setDomainResolved(d);
+					setMapResolved(m);
+					setRange(r);
+					// newKey will call into DBKey.newKey with proper transactionId and alias
+					// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+					// and return the new DBKey reference
+					identity = newKey(this);
+					IndexResolver.getIndexInstanceTable().put(transactionId, identity, pk);
+					return identity;
+				}
+			}
+		} else {
+			if(transactionId == null) {
+				pk = locate(alias, d, m);
+				if(pk.getIdentity() == null) {
+					setDomainKey(pk.getDomainKey());
+					setMapKey(pk.getMapKey());
+					setDomainResolved(d);
+					setMapResolved(m);
+					setRange(alias, r);
+					// newKey will call into DBKey.newKey with proper transactionId and alias
+					// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+					// and return the new DBKey reference
+					identity = newKey(this);
+					IndexResolver.getIndexInstanceTable().put(alias, identity, pk);
+					return identity;
+				}
+			} else {
+				pk = locate(alias, transactionId, d, m);
+				if(pk.getIdentity() == null) {
+					setDomainKey(pk.getDomainKey());
+					setMapKey(pk.getMapKey());
+					setDomainResolved(d);
+					setMapResolved(m);
+					setRange(alias, r);
+					// newKey will call into DBKey.newKey with proper transactionId and alias
+					// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+					// and return the new DBKey reference
+					identity = newKey(this);
+					IndexResolver.getIndexInstanceTable().put(alias, transactionId, identity, pk);
+					return identity;
+				}
+			}
 		}
 		throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
 	}
+	
+	@Override
+	public int compareTo(Object o) {
+		if(DEBUG)
+			System.out.println("DomainMapRange CompareTo:"+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((DomainMapRange)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((DomainMapRange)o).getMapKey());
+		int i = getDomainKey().compareTo(((DomainMapRange)o).getDomainKey());
+		if(i != 0) {
+			if(DEBUG)
+				System.out.println("DomainMapRange CompareTo returning "+i+" at DomainKey");
+			return i;
+		}
+		i = getMapKey().compareTo(((DomainMapRange)o).getMapKey());
+		if(i != 0) {
+			if(DEBUG)
+				System.out.println("DomainMapRange CompareTo returning "+i+" at MapKey");
+			return i;
+		}
+		if(DEBUG)
+			System.out.println("DomainMapRange CompareTo returning "+getRangeKey().compareTo(((DomainMapRange)o).getRangeKey())+" at last RangeKey");
+		return getRangeKey().compareTo(((DomainMapRange)o).getRangeKey());
+	}
+	
 	@Override
 	public int hashCode() {
 		int result = 17;
-		result = 37*result + (getDomain() == null ? 0 : getDomain().hashCode());
-		result = 37*result + (getMap() == null ? 0 : getMap().hashCode());
-		result = 37*result + (getRange() == null ? 0 : getRange().hashCode());
+		result = 37*result + (getDomainKey() == null ? 0 : getDomainKey().hashCode());
+		result = 37*result + (getMapKey() == null ? 0 : getMapKey().hashCode());
+		result = 37*result + (getRangeKey() == null ? 0 : getRangeKey().hashCode());
 		return result;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return getDomainKey().equals(((DomainMapRange)o).getDomainKey()) &&
+				getMapKey().equals(((DomainMapRange)o).getMapKey()) &&
+				getRangeKey().equals(((DomainMapRange)o).getRangeKey());
 	}
 	
     @Override

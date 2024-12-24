@@ -64,7 +64,7 @@ public class BatteryRelatrixAlias {
 				System.exit(0);
 			}
 		}
-		if(Relatrix.size() == 0) {
+		if(Relatrix.size(alias1) == 0 && Relatrix.size(alias2) == 0 && Relatrix.size(alias3) == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion test from "+min+" to "+max);
 			battery1(argv, alias1);
@@ -76,6 +76,7 @@ public class BatteryRelatrixAlias {
 			battery11(argv, alias2);
 			battery11(argv, alias3);
 		}
+		System.exit(0);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
 		battery1AR6(argv, alias1);
@@ -131,10 +132,10 @@ public class BatteryRelatrixAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
+				DomainMapRange dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
-					System.out.println("storing "+recs+" "+fkey);
+					System.out.println(alias12+" storing "+recs+" "+dmr);
 					tims = System.currentTimeMillis();
 				}
 			} catch(DuplicateKeyException dke) { ++dupes; }

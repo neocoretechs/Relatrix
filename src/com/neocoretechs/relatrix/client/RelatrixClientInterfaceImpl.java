@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.RelatrixIndex;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Relatrix;
 
@@ -168,10 +167,10 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public RelatrixIndex getNewKey() throws java.io.IOException {
+	public DBKey getNewKey() throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("getNewKey",new Object[]{});
 		try {
-			return (RelatrixIndex)sendCommand(s);
+			return (DBKey)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

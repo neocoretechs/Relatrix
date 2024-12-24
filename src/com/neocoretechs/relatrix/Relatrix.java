@@ -14,7 +14,6 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.RelatrixIndex;
 
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
@@ -180,7 +179,6 @@ public final class Relatrix {
 			public void run() {
 				try {
 					Morphism dmr = new MapDomainRange(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -194,7 +192,6 @@ public final class Relatrix {
 			public void run() {
 				try {
 					Morphism dmr = new DomainRangeMap(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -208,7 +205,6 @@ public final class Relatrix {
 			public void run() {
 				try {
 					Morphism dmr = new MapRangeDomain(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -222,7 +218,6 @@ public final class Relatrix {
 			public void run() {  
 				try {
 					Morphism dmr = new RangeDomainMap(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -236,7 +231,6 @@ public final class Relatrix {
 			public void run() {    
 				try {
 					Morphism dmr = new RangeMapDomain(identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -283,7 +277,6 @@ public final class Relatrix {
 			public void run() {
 				try {
 					Morphism dmr = new MapDomainRange(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -297,7 +290,6 @@ public final class Relatrix {
 			public void run() {
 				try {
 					Morphism dmr = new DomainRangeMap(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -311,7 +303,6 @@ public final class Relatrix {
 			public void run() {
 				try {
 					Morphism dmr = new MapRangeDomain(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -325,7 +316,6 @@ public final class Relatrix {
 			public void run() {  
 				try {
 					Morphism dmr = new RangeDomainMap(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -339,7 +329,6 @@ public final class Relatrix {
 			public void run() {    
 				try {
 					Morphism dmr = new RangeMapDomain(alias,identity);
-					//IndexResolver.getIndexInstanceTable().put(dmr);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -1674,9 +1663,9 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized RelatrixIndex getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	public static synchronized DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		UUID uuid = UUID.randomUUID();
-		RelatrixIndex nkey = new RelatrixIndex(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
+		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 		if(DEBUG)
 			System.out.printf("Returning NewKey=%s%n", nkey.toString());
 		return nkey;
@@ -1724,7 +1713,7 @@ public final class Relatrix {
 	 */
 	public static synchronized Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable().get(key);
+		return RelatrixKV.get(key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -1737,7 +1726,7 @@ public final class Relatrix {
 	 */
 	public static synchronized Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return IndexResolver.getIndexInstanceTable().get(alias,key);
+		return RelatrixKV.get(alias,key);
 	}
 	/**
 	 * Return the keyset for the given class
