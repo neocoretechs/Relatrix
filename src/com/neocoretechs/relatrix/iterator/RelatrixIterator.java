@@ -42,7 +42,7 @@ import com.neocoretechs.rocksack.Alias;
  */
 public class RelatrixIterator implements Iterator<Result> {
 	private static boolean DEBUG = false;
-	protected Iterator iter;
+	protected Iterator<?> iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
     protected Morphism base;

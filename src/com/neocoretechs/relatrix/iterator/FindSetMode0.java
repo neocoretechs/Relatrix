@@ -115,7 +115,7 @@ public class FindSetMode0 extends IteratorFactory {
 				break;
 		}
 		if( DEBUG  )
-			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
+			System.out.println("Relatrix FindsetMode0.createIterator alias:"+alias+" setting search for "+dmr);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	

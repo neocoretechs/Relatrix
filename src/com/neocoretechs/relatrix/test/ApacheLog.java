@@ -60,7 +60,7 @@ import com.neocoretechs.relatrix.Result;
  */
 public class ApacheLog {
 	private static final String dateForm = "dd/MMM/yyyy:HH:mm:ss Z";
-	boolean DEBUG = false;
+	static boolean DEBUG = false;
 	/*Log file fields*/
 	static String remoteHost = null;
 	String shouldBDash = null;
@@ -79,6 +79,7 @@ public class ApacheLog {
 	private int totalRecords = 0;
 	static int cnt, cnt2 = 0;
 	static Result result;
+	private static long tims;
 
 	SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateForm);
 	Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(),Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -207,7 +208,8 @@ public class ApacheLog {
 			}
 
 			++totalRecords;
-			System.out.println(totalRecords+".) "+toString());
+			if(DEBUG)
+				System.out.println(totalRecords+".) "+toString());
 			//	System.out.println("" + index + " : " +(remoteUser.split(" "))[1]);
 			//	for(index = 0; index < accessLogEntryMatcher.groupCount(); index++) {
 			//	System.out.println("Line num : " + index + " " +
@@ -283,7 +285,8 @@ public class ApacheLog {
 			}
 	
 			++totalRecords;
-			System.out.println(totalRecords+".) "+toString());
+			if(DEBUG)
+				System.out.println(totalRecords+".) "+toString());
 			//	System.out.println("" + index + " : " +(remoteUser.split(" "))[1]);
 			//	for(index = 0; index < accessLogEntryMatcher.groupCount(); index++) {
 			//	System.out.println("Line num : " + index + " " +
@@ -376,10 +379,15 @@ public class ApacheLog {
 	public void processPayload(byte[] pl) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
+		tims = System.currentTimeMillis();
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess(line);
 				storeRelatrix();
+				if((System.currentTimeMillis()-tims) > 5000) {
+					System.out.println("Processed "+totalRecords+" current:"+toString());
+					tims = System.currentTimeMillis();
+				}
 			} catch(ParseException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
@@ -397,10 +405,15 @@ public class ApacheLog {
 	public void processPayload2(byte[] pl) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
+		tims = System.currentTimeMillis();
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess2(line);
 				storeRelatrix2();
+				if((System.currentTimeMillis()-tims) > 5000) {
+					System.out.println("Processed "+totalRecords+" current:"+toString());
+					tims = System.currentTimeMillis();
+				}
 			} catch(ParseException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
@@ -499,7 +512,8 @@ public class ApacheLog {
 				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <tablespace dir> [log file dir]");
 			}	
 		}
-		System.out.println("Stored..now retrieving stored data:");
+		System.out.println("Stored..now retrieving stored data as a series of relations:");
+		tims = System.currentTimeMillis();
 		// now display the results processed by the input
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
@@ -525,9 +539,17 @@ public class ApacheLog {
 			List<?> l = Relatrix.resolve(result.get());
 			// display the primary relationship and each element it is related to
 			it2.forEachRemaining(/*System.out::println*/ e2->{
-				System.out.println(++cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
+				++cnt2;
+				if(DEBUG)
+					System.out.println(cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
+				else
+					if((System.currentTimeMillis()-tims) > 5000) {
+						System.out.println("Processed "+cnt2+" current:"+cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
+						tims = System.currentTimeMillis();
+					}
 			});
-			System.out.println("-----------------");
+			if(DEBUG)
+				System.out.println("-----------------");
 		});
 		System.out.println("End of stored data.");
 		System.exit(0);

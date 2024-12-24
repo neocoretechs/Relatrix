@@ -32,7 +32,7 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class BatteryRelatrixTransactionAlias {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering

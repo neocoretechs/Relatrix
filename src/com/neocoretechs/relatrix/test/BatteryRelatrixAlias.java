@@ -76,7 +76,6 @@ public class BatteryRelatrixAlias {
 			battery11(argv, alias2);
 			battery11(argv, alias3);
 		}
-		System.exit(0);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
 		battery1AR6(argv, alias1);

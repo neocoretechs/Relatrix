@@ -51,7 +51,7 @@ public final class DBKey implements Comparable, Externalizable {
 	public static boolean isValid(DBKey key) {
 		if(key == null)
 			return false;
-		return key.equals(nullDBKey);
+		return !key.equals(nullDBKey);
 	}
 	/**
 	 * Returns an expanded diagnostic reason for DBKey being invalid.

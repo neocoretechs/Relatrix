@@ -38,7 +38,7 @@ import com.neocoretechs.rocksack.TransactionId;
 */
 public class FindSetMode0Transaction extends FindSetMode0 {
 	// mode 0
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	TransactionId xid;
     public FindSetMode0Transaction(TransactionId xid, char dop, char mop, char rop) { 
     	super(dop, mop, rop);
