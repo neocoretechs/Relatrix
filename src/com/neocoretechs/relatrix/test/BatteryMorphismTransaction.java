@@ -110,7 +110,7 @@ public class BatteryMorphismTransaction {
 				throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 			}
 			// store in mirror table
-			dbtable.put(dbkey, identity);
+			dbtable.put(dbkey, mo);
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("DBKey stored "+recs+" "+identity);
 				timx = System.currentTimeMillis();

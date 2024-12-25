@@ -66,7 +66,7 @@ public final class RelatrixTransaction {
 	
 	static {
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
-		sftpm.init(5, 5, new String[] {storeXTransaction,deleteXTransaction});
+		sftpm.init(6, 6, new String[] {storeXTransaction,deleteXTransaction});
 		sftpm.init(2, 2, new String[] {storeITransaction,deleteITransaction});
 	}
 	

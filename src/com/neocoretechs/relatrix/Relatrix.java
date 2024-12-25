@@ -69,7 +69,7 @@ public final class Relatrix {
 	
 	static {
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
-		sftpm.init(5, 5, new String[] {storeX,deleteX});
+		sftpm.init(6, 6, new String[] {storeX,deleteX});
 		sftpm.init(2, 2, new String[] {storeI,deleteI});
 	}
 	
