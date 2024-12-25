@@ -97,13 +97,14 @@ public class BatteryMorphismTransaction {
 			
 			DomainMapRange identity = new DomainMapRange();
 			identity.setTransactionId(xid);
-			// mirrors partial Relatrix store
+			// Relatrix store
 			// DomainMapRange is annotated to DomainMapRange
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			DBKey dbkey = identity.store(d,m,r);
+			DomainMapRange mo = RelatrixTransaction.store(xid,d,m,r);
+			DBKey dbkey = mo.getIdentity();
 			if(!DBKey.isValid(dbkey)) {
 				System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 				throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));

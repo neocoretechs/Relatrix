@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
-
+import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
@@ -168,11 +168,36 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		identity.store(d,m,r);
+		PrimaryKeySet pk = PrimaryKeySet.locate(d, m);
+		if(pk.getIdentity() == null) {
+			identity.setDomainKey(pk.getDomainKey());
+			identity.setMapKey(pk.getMapKey());
+			identity.setDomainResolved(d);
+			identity.setMapResolved(m);
+			identity.setRange(r);
+			// newKey will call into DBKey.newKey with proper transactionId and alias
+			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+			// and return the new DBKey reference
+			identity.setIdentity(identity.newKey(identity));
+		} else
+			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
+		// store the primary, but not in the DBKey table
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					RelatrixKV.store(pk,identity.getIdentity());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored primary key :"+pk);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			} // run
+		},storeX); // spin 
 		// Start threads to store remaining indexes now that we have our primary set up
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
@@ -268,9 +293,36 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		identity.store(d, m, r);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, d, m);
+		if(pk.getIdentity() == null) {
+			identity.setDomainKey(pk.getDomainKey());
+			identity.setMapKey(pk.getMapKey());
+			identity.setDomainResolved(d);
+			identity.setMapResolved(m);
+			identity.setRange(alias, r);
+			// newKey will call into DBKey.newKey with proper transactionId and alias
+			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+			// and return the new DBKey reference
+			identity.setIdentity(identity.newKey(identity));
+		} else
+			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
+		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
+		// and maintains the classes stores in IndexInstanceTable for future commit.
 		if( DEBUG  )
 			System.out.println("Relatrix.store stored :"+identity);
+		// store the primary, but not in the DBKey table
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					RelatrixKV.store(alias, pk, identity.getIdentity());
+					if( DEBUG  )
+						System.out.println("Relatrix.store stored primary key :"+pk);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					throw new RuntimeException(e);
+				}
+			} // run
+		},storeX); // spin 
 		// Start threads to store remaining indexes now that we have our primary set up
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override

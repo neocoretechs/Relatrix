@@ -121,12 +121,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
 	 * @param skeyd domain instance
 	 * @param skeym instance for map
-	 * @return The PrimaryKeySet instance with either null or resolved identity
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	protected static PrimaryKeySet locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
@@ -160,12 +160,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param alias
 	 * @param skeyd
 	 * @param skeym
-	 * @return The PrimaryKeySet instance with either null or resolved identity
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	protected static PrimaryKeySet locate(Alias alias, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(Alias alias, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		//
 		pk.setAlias(alias);
@@ -195,12 +195,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param transactionId
 	 * @param skeyd
 	 * @param skeym
-	 * @return The PrimaryKeySet instance with either null or resolved identity 
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	protected static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		pk.transactionId = transactionId;
 		Object d = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeyd);
@@ -230,12 +230,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param transactionId
 	 * @param skeyd
 	 * @param skeym
-	 * @return The PrimaryKeySet instance with either null or resolved identity 
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	protected static PrimaryKeySet locate(Alias alias, TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(Alias alias, TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		pk.setAlias(alias);
 		pk.transactionId = transactionId;
