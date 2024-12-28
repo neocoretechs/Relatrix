@@ -203,44 +203,6 @@ public interface IndexInstanceTableInterface {
 	 */
 	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
 
-	void checkpoint(TransactionId transactionId) throws IllegalAccessException, IOException;
-	
-	void checkpoint(Alias alias, TransactionId transactionId) throws IllegalAccessException, IOException, NoSuchElementException;
-	
-	void commit(TransactionId transactionId) throws IOException, IllegalAccessException;
-	
-	void commit(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
-	
-	void rollback(TransactionId transactionId) throws IOException, IllegalAccessException;
 
-	void rollback(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
-	
-	void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException;
-
-	void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException;
-	
-	void delete(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-	
-	void delete(Alias alias, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void delete(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void deleteInstance(Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void deleteInstance(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void deleteInstance(Alias alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-
-	void deleteInstance(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException;
-	
-	void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
-	
-	void remove(Alias alias, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
-
-	void remove(TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
-	
-	void remove(Alias alias, TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException;
 
 }

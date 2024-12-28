@@ -94,9 +94,6 @@ public class BatteryMorphismTransaction {
 			d = String.format(uniqKeyFmt, i);
 			m = String.format(uniqKeyFmt, i+1);
 			r = String.format(uniqKeyFmt, i+1);
-			
-			DomainMapRange identity = new DomainMapRange();
-			identity.setTransactionId(xid);
 			// Relatrix store
 			// DomainMapRange is annotated to DomainMapRange
 			// check for domain/map match
@@ -112,11 +109,11 @@ public class BatteryMorphismTransaction {
 			// store in mirror table
 			dbtable.put(dbkey, mo);
 			if((System.currentTimeMillis()-timx) > 1000) {
-				System.out.println("DBKey stored "+recs+" "+identity);
+				System.out.println("DBKey stored "+recs+" "+mo);
 				timx = System.currentTimeMillis();
 			}
 			if( DEBUG  )
-				System.out.println("Relatrix.store stored :"+identity);
+				System.out.println("Relatrix.store stored :"+mo);
 			++recs;
 		}
 		if(DEBUG) {

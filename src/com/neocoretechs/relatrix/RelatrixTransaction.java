@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
@@ -62,12 +61,11 @@ public final class RelatrixTransaction {
 	public static final String storeXTransaction = "STOREXTX";
 	public static final String storeITransaction = "STOREITX";
 	public static final String deleteXTransaction = "DELETEXTX";
-	public static final String deleteITransaction = "DELETEITX";
 	
 	static {
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
 		sftpm.init(6, 6, new String[] {storeXTransaction,deleteXTransaction});
-		sftpm.init(2, 2, new String[] {storeITransaction,deleteITransaction});
+		sftpm.init(2, 2, new String[] {storeITransaction});
 	}
 	
 	/**
@@ -507,81 +505,27 @@ public final class RelatrixTransaction {
 	public static synchronized void remove(TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
+		ArrayList<DomainMapRange> removed = new ArrayList<DomainMapRange>();
 		try {
-			removeRecursive(transactionId, c);
-			if(c instanceof DomainMapRange) {
-				((DomainMapRange)c).setTransactionId(transactionId);
-				DomainRangeMap drm = new DomainRangeMap((DomainMapRange) c);
-				drm.setTransactionId(transactionId);
-				MapDomainRange mdr = new MapDomainRange((DomainMapRange) c);
-				mdr.setTransactionId(transactionId);
-				MapRangeDomain mrd = new MapRangeDomain((DomainMapRange) c);
-				mrd.setTransactionId(transactionId);
-				RangeDomainMap rdm = new RangeDomainMap((DomainMapRange) c);
-				rdm.setTransactionId(transactionId);
-				RangeMapDomain rmd = new RangeMapDomain((DomainMapRange) c);
-				rmd.setTransactionId(transactionId);
-				
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, drm);
-				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, drm);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, mdr);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, mrd);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, rdm);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, rmd);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			} else {
-				IndexResolver.getIndexInstanceTable().deleteInstance(transactionId, c);
+			// Remove main entry, which is possibly DomainMapRange
+			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, c);
+			// remove DBKey table
+			RelatrixKVTransaction.remove(transactionId, primaryKey);
+			// Remove primary key if Morphism
+			DomainMapRange dmr = (DomainMapRange)c;
+			if(c instanceof Morphism) {
+				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
+				RelatrixKVTransaction.remove(transactionId, pks);
 			}
+			int index = -1;
+			Comparable item = c;
+			while(index < removed.size()) {
+				removeSearch(transactionId, item, removed);
+				++index;
+				if(index < removed.size())
+					item = removed.get(index);
+			}
+			removeParallel(transactionId, removed);
 		} catch (DuplicateKeyException e) {
 			throw new IOException(e);
 		}
@@ -604,24 +548,110 @@ public final class RelatrixTransaction {
 	public static synchronized void remove(Alias alias, TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
+		// Remove main entry, which is possibly DomainMapRange
+		DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, c);
+		// remove DBKey table
+		RelatrixKVTransaction.remove(alias, transactionId, primaryKey);
+		// Remove primary key if Morphism
+		DomainMapRange dmr = (DomainMapRange)c;
+		if(c instanceof Morphism) {
+			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
+			RelatrixKVTransaction.remove(alias, transactionId, pks);
+		}
+		ArrayList<DomainMapRange> removed = new ArrayList<DomainMapRange>();
 		try {
-			removeRecursive(alias, transactionId, c);
-			if(c instanceof DomainMapRange) {
-				((DomainMapRange)c).setTransactionId(transactionId);
-				((DomainMapRange)c).setAlias(alias);
-				DomainRangeMap drm = new DomainRangeMap(alias,(DomainMapRange) c);
-				drm.setTransactionId(transactionId);
-				MapDomainRange mdr = new MapDomainRange(alias,(DomainMapRange) c);
-				mdr.setTransactionId(transactionId);
-				MapRangeDomain mrd = new MapRangeDomain(alias,(DomainMapRange) c);
-				mrd.setTransactionId(transactionId);
-				RangeDomainMap rdm = new RangeDomainMap(alias,(DomainMapRange) c);
-				rdm.setTransactionId(transactionId);
-				RangeMapDomain rmd = new RangeMapDomain(alias,(DomainMapRange) c);
-				rmd.setTransactionId(transactionId);
+			int index = -1;
+			Comparable item = c;
+			while(index < removed.size()) {
+				removeSearch(alias, transactionId, item, removed);
+				++index;
+				if(index < removed.size())
+					item = removed.get(index);
+			}
+			removeParallel(alias, transactionId, removed);
+		} catch (DuplicateKeyException e) {
+			throw new IOException(e);
+		}
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("RelatrixTransaction.remove exiting remove for key:"+c);
+	}
 
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, c);
-				IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
+	/**
+	 * 
+	 * @param alias
+	 * @param transactionId
+	 * @param c
+	 * @param deleted
+	 * @param startIndex
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 * @throws DuplicateKeyException
+	 */
+	private static synchronized boolean removeSearch(Alias alias, TransactionId transactionId, Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+		boolean found = false;
+		Iterator<?> it = findSet(alias, transactionId, c,"*","*");
+		while(it.hasNext()) {
+			Result o = (Result) it.next();
+			if(!deleted.contains(o.get(0))) {
+				deleted.add((DomainMapRange) o.get(0));
+				found = true;
+			}
+		}
+		it = findSet(alias, transactionId, "*",c,"*");
+		while(it.hasNext()) {
+			Result o = (Result) it.next();
+			if(!deleted.contains(o.get(0))) {
+				deleted.add((DomainMapRange) o.get(0));
+				found = true;
+			}
+		}
+		it = findSet(alias, transactionId, "*","*",c);
+		while(it.hasNext()) {
+			Result o = (Result) it.next();
+			if(!deleted.contains(o.get(0))) {
+				deleted.add((DomainMapRange) o.get(0));
+				found = true;
+			}
+		}
+		return found;
+	}
+	/**
+	 * 
+	 * @param alias
+	 * @param transactionId
+	 * @param c
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 * @throws IOException
+	 * @throws DuplicateKeyException
+	 */
+	private static void removeParallel(Alias alias, TransactionId transactionId, ArrayList<DomainMapRange> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
+			for(DomainMapRange dmr : c) {
+				if( DEBUG || DEBUGREMOVE)
+					System.out.println("RelatrixTransaction.remove iterated perm 1 "+dmr+" of type "+dmr.getClass().getName());
+				dmr.setTransactionId(transactionId);
+				dmr.setAlias(alias);
+				DomainRangeMap drm = new DomainRangeMap(alias,dmr);
+				drm.setTransactionId(transactionId);
+				drm.setAlias(alias);
+				MapDomainRange mdr = new MapDomainRange(alias,dmr);
+				mdr.setTransactionId(transactionId);
+				mdr.setAlias(alias);
+				MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
+				mrd.setTransactionId(transactionId);
+				mrd.setAlias(alias);
+				RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
+				rdm.setTransactionId(transactionId);
+				rdm.setAlias(alias);
+				RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
+				rmd.setTransactionId(transactionId);
+				rmd.setAlias(alias);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -677,34 +707,66 @@ public final class RelatrixTransaction {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			} else {
-				IndexResolver.getIndexInstanceTable().deleteInstance(alias, transactionId, c);
 			}
-		} catch (DuplicateKeyException e) {
-			throw new IOException(e);
-		}
-		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.remove exiting remove for key:"+c);
 	}
-
 	/**
-	 * Iterate through all possible relationships the given element may participate in, then recursively process those
-	 * relationships to remove references to those.
-	 * @param transactionId 
-	 * @param c The Comparable key
+	 * 
+	 * @param transactionId
+	 * @param c
+	 * @param deleted
+	 * @param startIndex
+	 * @return
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
-	 * @throws DuplicateKeyException 
+	 * @throws NoSuchElementException
+	 * @throws DuplicateKeyException
 	 */
-	private static synchronized void removeRecursive(TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, DuplicateKeyException {
-			Iterator<?> it = findSet(transactionId, c,"*","*");
-			while(it.hasNext()) {
-				Result o = (Result) it.next();
+	private static synchronized boolean removeSearch(TransactionId transactionId, Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+		boolean found = false;
+		Iterator<?> it = findSet(transactionId, c,"*","*");
+		while(it.hasNext()) {
+			Result o = (Result) it.next();
+			if(!deleted.contains(o.get(0))) {
+				deleted.add((DomainMapRange) o.get(0));
+				found = true;
+			}
+		}
+		it = findSet(transactionId, "*",c,"*");
+		while(it.hasNext()) {
+			Result o = (Result) it.next();
+			if(!deleted.contains(o.get(0))) {
+				deleted.add((DomainMapRange) o.get(0));
+				found = true;
+			}
+		}
+		it = findSet(transactionId, "*","*",c);
+		while(it.hasNext()) {
+			Result o = (Result) it.next();
+			if(!deleted.contains(o.get(0))) {
+				deleted.add((DomainMapRange) o.get(0));
+				found = true;
+			}
+		}
+		return found;
+	}
+	/**
+	 * 
+	 * @param alias
+	 * @param transactionId
+	 * @param c
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 * @throws IOException
+	 * @throws DuplicateKeyException
+	 */
+	private static void removeParallel(TransactionId transactionId, ArrayList<DomainMapRange> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
+			for(DomainMapRange dmr : c) {
 				if( DEBUG || DEBUGREMOVE)
-					System.out.println("RelatrixTransaction.remove iterated perm 1 "+o+" of type "+o.get(0).getClass().getName());
-				DomainMapRange dmr = (DomainMapRange)o.get(0);
+					System.out.println("RelatrixTransaction.remove iterated perm 1 "+dmr+" of type "+dmr.getClass().getName());
 				dmr.setTransactionId(transactionId);
 				DomainRangeMap drm = new DomainRangeMap(dmr);
 				drm.setTransactionId(transactionId);
@@ -716,9 +778,6 @@ public final class RelatrixTransaction {
 				rdm.setTransactionId(transactionId);
 				RangeMapDomain rmd = new RangeMapDomain(dmr);
 				rmd.setTransactionId(transactionId);
-
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, dmr);
-				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey);
 				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 					@Override
 					public void run() {    
@@ -774,407 +833,7 @@ public final class RelatrixTransaction {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				removeRecursive(transactionId, o.get(0)); 
 			}
-			it = findSet(transactionId, "*",c,"*");
-			while(it.hasNext()) {
-				Result o = (Result) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
-				DomainMapRange dmr = (DomainMapRange)o.get(0);
-				dmr.setTransactionId(transactionId);
-				DomainRangeMap drm = new DomainRangeMap(dmr);
-				drm.setTransactionId(transactionId);
-				MapDomainRange mdr = new MapDomainRange(dmr);
-				mdr.setTransactionId(transactionId);
-				MapRangeDomain mrd = new MapRangeDomain(dmr);
-				mrd.setTransactionId(transactionId);
-				RangeDomainMap rdm = new RangeDomainMap(dmr);
-				rdm.setTransactionId(transactionId);
-				RangeMapDomain rmd = new RangeMapDomain(dmr);
-				rmd.setTransactionId(transactionId);
-
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, dmr); // remove primary key
-				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey); // remove DMR index table and instance table via primary key
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, drm);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, mdr);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, mrd);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, rdm);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, rmd);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				removeRecursive(transactionId, o.get(0)); 
-			}
-			it = findSet(transactionId, "*","*",c);
-			while(it.hasNext()) {
-				Result o = (Result) it.next();
-				if( DEBUG || DEBUGREMOVE )
-					System.out.println("RelatrixTransaction.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
-				DomainMapRange dmr = (DomainMapRange)o.get(0);
-				dmr.setTransactionId(transactionId);
-				DomainRangeMap drm = new DomainRangeMap(dmr);
-				drm.setTransactionId(transactionId);
-				MapDomainRange mdr = new MapDomainRange(dmr);
-				mdr.setTransactionId(transactionId);
-				MapRangeDomain mrd = new MapRangeDomain(dmr);
-				mrd.setTransactionId(transactionId);
-				RangeDomainMap rdm = new RangeDomainMap(dmr);
-				rdm.setTransactionId(transactionId);
-				RangeMapDomain rmd = new RangeMapDomain(dmr);
-				rmd.setTransactionId(transactionId);
-
-				DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, dmr);
-				IndexResolver.getIndexInstanceTable().delete(transactionId, primaryKey);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, drm);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, mdr);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, mrd);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, rdm);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-					@Override
-					public void run() {    
-						try {
-							RelatrixKVTransaction.remove(transactionId, rmd);
-						} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				},deleteXTransaction);
-				try {
-					SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				removeRecursive(transactionId, o.get(0)); 
-			}
-	}
-	/**
-	 * Iterate through all possible relationships the given element may participate in, then recursively process those
-	 * relationships to remove references to those.
-	 * @param alias the database alias
-	 * @param c The Comparable key
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws NoSuchElementException if the alias is not found
-	 * @throws DuplicateKeyException 
-	 */
-	private static synchronized void removeRecursive(Alias alias, TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		Iterator<?> it = findSet(alias, transactionId, c,"*","*");
-		while(it.hasNext()) {
-			Result o = (Result) it.next();
-			if( DEBUG || DEBUGREMOVE)
-				System.out.println("RelatrixTransaction.remove iterated perm 1 "+o.get(0)+" of type "+o.get(0).getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o.get(0);
-			dmr.setTransactionId(transactionId);
-			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
-			drm.setTransactionId(transactionId);
-			MapDomainRange mdr = new MapDomainRange(alias,dmr);
-			mdr.setTransactionId(transactionId);
-			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
-			mrd.setTransactionId(transactionId);
-			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
-			rdm.setTransactionId(transactionId);
-			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
-			rmd.setTransactionId(transactionId);
-
-			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, dmr);
-			IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, drm);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, mdr);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, mrd);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, rdm);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, rmd);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			removeRecursive(alias, transactionId, o.get(0)); 
-		}
-		it = findSet(alias, transactionId, "*",c,"*");
-		while(it.hasNext()) {
-			Result o = (Result) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove iterated perm 2 "+o.get(0)+" of type "+o.get(0).getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o.get(0);
-			dmr.setTransactionId(transactionId);
-			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
-			drm.setTransactionId(transactionId);
-			MapDomainRange mdr = new MapDomainRange(alias,dmr);
-			mdr.setTransactionId(transactionId);
-			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
-			mrd.setTransactionId(transactionId);
-			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
-			rdm.setTransactionId(transactionId);
-			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
-			rmd.setTransactionId(transactionId);
-
-			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, dmr);
-			IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, drm);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, mdr);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, mrd);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, rdm);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, rmd);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			removeRecursive(alias, transactionId, o.get(0)); 
-		}
-		it = findSet(alias, transactionId, "*","*",c);
-		while(it.hasNext()) {
-			Result o = (Result) it.next();
-			if( DEBUG || DEBUGREMOVE )
-				System.out.println("RelatrixTransaction.remove iterated perm 3 "+o.get(0)+" of type "+o.get(0).getClass().getName());
-			DomainMapRange dmr = (DomainMapRange)o.get(0);
-			dmr.setTransactionId(transactionId);
-			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
-			drm.setTransactionId(transactionId);
-			MapDomainRange mdr = new MapDomainRange(alias,dmr);
-			mdr.setTransactionId(transactionId);
-			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
-			mrd.setTransactionId(transactionId);
-			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
-			rdm.setTransactionId(transactionId);
-			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
-			rmd.setTransactionId(transactionId);
-
-			DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, dmr);
-			IndexResolver.getIndexInstanceTable().delete(alias, transactionId, primaryKey);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, drm);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, mdr);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, mrd);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, rdm);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {    
-					try {
-						RelatrixKVTransaction.remove(alias, transactionId, rmd);
-					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},deleteXTransaction);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			removeRecursive(alias, transactionId, o.get(0)); 
-		}
 	}
 	/**
 	 * Delete specific relationship and all relationships that it participates in for this transaction in the default tablespace. Some redundancy built in to

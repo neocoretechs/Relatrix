@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -288,40 +286,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			e.printStackTrace();
 		}
 	}
-	@Override
-	public void delete(DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		Comparable instance = null;
-		instance = (Comparable) get(index);
-		if(instance != null) {
-			rc.remove(instance);
-		}
-		rc.remove(index);
-	}
-
-	@Override
-	public void delete(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		Comparable instance = null;
-		instance = (Comparable) get(index);
-		if(instance != null) {
-			rcx.remove(transactionId, instance);
-		}
-		rcx.remove(transactionId, index);
-	}
-
-	@Override
-	public void commit(TransactionId transactionId) throws IOException, IllegalAccessException {
-		rcx.commit(transactionId);
-	}
-
-	@Override
-	public void rollback(TransactionId transactionId) throws IOException, IllegalAccessException {
-		rcx.rollback(transactionId);
-	}
-
-	@Override
-	public void checkpoint(TransactionId transactionId) throws IllegalAccessException, IOException {
-		rcx.checkpoint(transactionId);
-	}
 
 	public static synchronized DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		UUID uuid = UUID.randomUUID();
@@ -442,38 +406,6 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void rollbackToCheckpoint(TransactionId transactionId) throws IOException, IllegalAccessException {
-		rcx.rollbackToCheckpoint(transactionId);	
-	}
-
-
-	@Override
-	public void commit(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
-		if(DEBUG)
-			System.out.printf("IndexInstanceTable.commitAlias committing alias:"+alias+" Xid:"+transactionId);
-		rcx.commit(alias, transactionId);
-	}
-
-	@Override
-	public void rollback(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
-		if(DEBUG)
-			System.out.printf("IndexInstanceTable.rollback alias:"+alias+" Xid:"+transactionId);
-		rcx.rollback(alias, transactionId);
-	}
-
-	@Override
-	public void checkpoint(Alias alias, TransactionId transactionId) throws IllegalAccessException, IOException, NoSuchElementException {
-		rcx.checkpoint(alias, transactionId);
-	}
-
-	@Override
-	public void rollbackToCheckpoint(Alias alias, TransactionId transactionId) throws IOException, IllegalAccessException, NoSuchElementException {
-		if(DEBUG)
-			System.out.printf("IndexInstanceTable.rollbackToCheckpoint alias:"+alias+" Xid:"+transactionId);
-		rcx.rollbackToCheckpoint(alias, transactionId);
-	}
-
-	@Override
 	public DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
 		return (DBKey) rc.get(alias, (Comparable) instance);
 	}
@@ -483,81 +415,5 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		return (DBKey) rcx.get(alias, transactionId, (Comparable) instance);
 	}
 
-	@Override
-	public void deleteInstance(Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		// index is valid
-		Object index = rc.removekv(instance);
-		if(index != null) {
-			rc.remove((Comparable<?>) index);
-		}
-	}
-
-	@Override
-	public void deleteInstance(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		// index is valid
-		Object index = rcx.removekv(transactionId, instance);
-		if(index != null) {
-			rcx.remove(transactionId, (Comparable) index);
-		}	
-	}
-
-	@Override
-	public void delete(Alias alias, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		Object instance = rc.removekv(index);
-		// index is valid
-		if(instance != null) {
-			rc.remove((Comparable) instance);
-		}	
-	}
-
-	@Override
-	public void delete(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		Object instance = rcx.removekv(alias, transactionId, index);
-		// index is valid
-		if(instance != null) {
-			rcx.remove(transactionId, (Comparable) instance);
-		}
-	}
-
-	@Override
-	public void deleteInstance(Alias alias, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		// index is valid
-		Object index = rc.removekv(alias, instance);
-		if(index != null) {
-			rc.remove(alias, (Comparable<?>) index);
-		}	
-	}
-
-	@Override
-	public void deleteInstance(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		// index is valid
-		Object index = rcx.removekv(alias, transactionId, instance);
-		if(index != null) {
-			rcx.remove(alias, transactionId, (Comparable) index);
-		}
-	}
-
-	@Override
-	public void remove(DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
-		deleteInstance(skeyd);
-		delete(dKey);
-	}
-
-	@Override
-	public void remove(Alias alias, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
-		deleteInstance(alias, skeyd);
-		delete(alias, dKey);
-	}
-
-	@Override
-	public void remove(TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
-		deleteInstance(transactionId, skeyd);
-		delete(transactionId, dKey);
-	}
-
-	@Override
-	public void remove(Alias alias, TransactionId transactionId, DBKey dKey, Comparable skeyd) throws IllegalAccessException, ClassNotFoundException, IOException, DuplicateKeyException {
-		deleteInstance(alias, transactionId, skeyd);
-		delete(alias, transactionId, dKey);
-	}
+	
 }
