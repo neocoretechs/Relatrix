@@ -429,7 +429,7 @@ public final class Relatrix {
 			// Remove primary key if Morphism
 			if(c instanceof Morphism) {
 				DomainMapRange dmr = (DomainMapRange)c;
-				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
+				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
 				RelatrixKV.remove(pks);
 			}
 			int index = -1;
@@ -470,7 +470,7 @@ public final class Relatrix {
 		// Remove primary key if Morphism
 		if(c instanceof Morphism) {
 			DomainMapRange dmr = (DomainMapRange)c;
-			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
+			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
 			RelatrixKV.remove(alias, pks);
 		}
 		ArrayList<DomainMapRange> removed = new ArrayList<DomainMapRange>();

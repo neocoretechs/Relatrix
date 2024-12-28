@@ -69,7 +69,7 @@ public class BatteryRelatrixTransactionAlias {
 				System.exit(0);
 			}
 		}
-		if(Relatrix.size() == 0) {
+		if(RelatrixTransaction.size(alias1,xid) == 0 && RelatrixTransaction.size(alias2,xid) == 0 && RelatrixTransaction.size(alias3,xid) == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion test from "+min+" to "+max);
 			battery1(argv, alias1, xid);

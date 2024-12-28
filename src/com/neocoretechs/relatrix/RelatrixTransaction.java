@@ -514,7 +514,7 @@ public final class RelatrixTransaction {
 			// Remove primary key if Morphism
 			if(c instanceof Morphism) {
 				DomainMapRange dmr = (DomainMapRange)c;
-				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
+				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), transactionId);
 				RelatrixKVTransaction.remove(transactionId, pks);
 			}
 			int index = -1;
@@ -555,7 +555,7 @@ public final class RelatrixTransaction {
 		// Remove primary key if Morphism
 		if(c instanceof Morphism) {
 			DomainMapRange dmr = (DomainMapRange)c;
-			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
+			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 		}
 		ArrayList<DomainMapRange> removed = new ArrayList<DomainMapRange>();
@@ -753,7 +753,6 @@ public final class RelatrixTransaction {
 	}
 	/**
 	 * 
-	 * @param alias
 	 * @param transactionId
 	 * @param c
 	 * @throws IllegalArgumentException

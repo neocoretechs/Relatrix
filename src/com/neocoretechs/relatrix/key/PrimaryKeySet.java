@@ -34,16 +34,16 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 
     public PrimaryKeySet() {}
     
-	PrimaryKeySet(DBKey domainKey, DBKey mapKey) {
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 	}
-	PrimaryKeySet(DBKey domainKey, DBKey mapKey, TransactionId transactionId) {
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, TransactionId transactionId) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.transactionId = transactionId;
 	}
-	PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias) {
+	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias) {
 		this.domainKey = domainKey;
 		this.mapKey = mapKey;
 		this.alias = alias;
