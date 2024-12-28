@@ -395,7 +395,6 @@ public final class Relatrix {
 		return identity;
 	}
 
-	
 	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
 		RelatrixKV.store(key, value);
 	}
@@ -428,8 +427,8 @@ public final class Relatrix {
 			// remove DBKey table
 			RelatrixKV.remove(primaryKey);
 			// Remove primary key if Morphism
-			DomainMapRange dmr = (DomainMapRange)c;
 			if(c instanceof Morphism) {
+				DomainMapRange dmr = (DomainMapRange)c;
 				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
 				RelatrixKV.remove(pks);
 			}
@@ -469,8 +468,8 @@ public final class Relatrix {
 		// remove DBKey table
 		RelatrixKV.remove(alias, primaryKey);
 		// Remove primary key if Morphism
-		DomainMapRange dmr = (DomainMapRange)c;
 		if(c instanceof Morphism) {
+			DomainMapRange dmr = (DomainMapRange)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
 			RelatrixKV.remove(alias, pks);
 		}

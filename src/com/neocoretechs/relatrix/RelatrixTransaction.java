@@ -512,8 +512,8 @@ public final class RelatrixTransaction {
 			// remove DBKey table
 			RelatrixKVTransaction.remove(transactionId, primaryKey);
 			// Remove primary key if Morphism
-			DomainMapRange dmr = (DomainMapRange)c;
 			if(c instanceof Morphism) {
+				DomainMapRange dmr = (DomainMapRange)c;
 				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
 				RelatrixKVTransaction.remove(transactionId, pks);
 			}
@@ -553,8 +553,8 @@ public final class RelatrixTransaction {
 		// remove DBKey table
 		RelatrixKVTransaction.remove(alias, transactionId, primaryKey);
 		// Remove primary key if Morphism
-		DomainMapRange dmr = (DomainMapRange)c;
 		if(c instanceof Morphism) {
+			DomainMapRange dmr = (DomainMapRange)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), dmr.getAlias(), dmr.getTransactionId());
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 		}
