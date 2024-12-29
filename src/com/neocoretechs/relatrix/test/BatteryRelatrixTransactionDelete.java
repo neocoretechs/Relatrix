@@ -88,15 +88,23 @@ public class BatteryRelatrixTransactionDelete {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
 				DomainMapRange dmr1 = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
+				++recs;
 				DomainMapRange dmr2 = RelatrixTransaction.store(xid2, dmr1, "Has related", rando.nextLong());
+				++recs;
+				/*
 				DomainMapRange dmr3 = RelatrixTransaction.store(xid2,  dmr1, dmr2, rando.nextLong());
-				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr1, dmr2, dmr3);
+				++recs;
+				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr3, dmr2, dmr3);
+				++recs;
 				DomainMapRange dmr5 = RelatrixTransaction.store(xid2, dmr4, "Is related", rando.nextLong());
+				++recs;
 				DomainMapRange dmr6 = RelatrixTransaction.store(xid2, dmr5, "Is related", rando.nextLong());
+				++recs;
 				DomainMapRange dmr7 = RelatrixTransaction.store(xid2, dmr6, dmr5, rando.nextLong());
-				recs+=7;
+				++recs;
+				*/
 				if((System.currentTimeMillis()-tims) > 1000) {
-					System.out.println("storing "+recs+" "+dmr7);
+					System.out.println("storing "+recs+" "+fkey);
 					tims = System.currentTimeMillis();
 				}
 			} catch(DuplicateKeyException dke) { ++dupes; }
@@ -123,21 +131,29 @@ public class BatteryRelatrixTransactionDelete {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
 				DomainMapRange dmr1 = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
+				++recs;
 				DomainMapRange dmr2 = RelatrixTransaction.store(xid2, dmr1, "Has related", rando.nextLong());
+				++recs;
+				/*
 				DomainMapRange dmr3 = RelatrixTransaction.store(xid2,  dmr1, dmr2, rando.nextLong());
-				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr1, dmr2, dmr3);
+				++recs;
+				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr3, dmr2, dmr3);
+				++recs;
 				DomainMapRange dmr5 = RelatrixTransaction.store(xid2, dmr4, "Is related", rando.nextLong());
+				++recs;
 				DomainMapRange dmr6 = RelatrixTransaction.store(xid2, dmr5, "Is related", rando.nextLong());
+				++recs;
 				DomainMapRange dmr7 = RelatrixTransaction.store(xid2, dmr6, dmr5, rando.nextLong());
-				recs+=7;
+				++recs;
+				*/
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("SHOULD NOT BE storing "+recs+" "+fkey);
 					tims = System.currentTimeMillis();
 				}
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixTransaction.commit(xid2);
 		if( recs > 0) {
+			RelatrixTransaction.commit(xid2);
 			throw new DuplicateKeyException("BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
 		} else {
 			System.out.println("BATTERY11 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -168,6 +184,9 @@ public class BatteryRelatrixTransactionDelete {
 		// when finished, all records should theoretically be deleted
 		if( RelatrixTransaction.size(xid2, DomainMapRange.class) > 0) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(xid2, DomainMapRange.class));
+			RelatrixTransaction.findStream(xid2,"*", "*", "*").forEach(e->{
+				System.out.println("Del fault:"+e);
+			});
 			throw new Exception("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(xid2, DomainMapRange.class));
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");

@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
@@ -558,10 +562,10 @@ public final class RelatrixTransaction {
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 		}
-		ArrayList<DomainMapRange> removed = new ArrayList<DomainMapRange>();
+		List<DBKey> removed = Collections.synchronizedList(new ArrayList<DBKey>());
 		try {
 			int index = -1;
-			Comparable item = c;
+			DBKey item = primaryKey;
 			while(index < removed.size()) {
 				removeSearch(alias, transactionId, item, removed);
 				++index;
@@ -591,39 +595,71 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static synchronized boolean removeSearch(Alias alias, TransactionId transactionId, Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		boolean found = false;
-		Iterator<?> it = findSet(alias, transactionId, c,"*","*");
-		while(it.hasNext()) {
-			Result o = (Result) it.next();
-			if(!deleted.contains(o.get(0))) {
-				deleted.add((DomainMapRange) o.get(0));
-				found = true;
+	private static synchronized void removeSearch(Alias alias, TransactionId transactionId, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+		DomainMapRange dmr = new DomainMapRange(true, alias, transactionId, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null);
+		MapDomainRange mdr = new MapDomainRange(true, alias, transactionId, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey, null);
+		RangeMapDomain rmd = new RangeMapDomain(true, alias, transactionId, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c, null);
+		short dmr_return[] = new short[4];
+		dmr_return[0] = -1; // set it to identity tuple return
+		Iterator<?> itd = new RelatrixIteratorTransaction(alias, transactionId, dmr, dmr_return); //findSet(alias, transactionId, c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorTransaction(alias, transactionId, mdr, dmr_return); //findSet(alias, transactionId, "*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorTransaction(alias, transactionId, rmd, dmr_return); //findSet(alias, transactionId, "*","*",c);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					while(itd.hasNext()) {
+						Result o = (Result) itd.next();
+						if(!deleted.contains(((DomainMapRange)o.get(0)).getIdentity())) {
+							deleted.add(((DomainMapRange)o.get(0)).getIdentity());
+						}
+					}
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
 			}
-		}
-		it = findSet(alias, transactionId, "*",c,"*");
-		while(it.hasNext()) {
-			Result o = (Result) it.next();
-			if(!deleted.contains(o.get(0))) {
-				deleted.add((DomainMapRange) o.get(0));
-				found = true;
+		},deleteXTransaction);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					while(itm.hasNext()) {
+						Result o = (Result) itm.next();
+						if(!deleted.contains(((DomainMapRange)o.get(0)).getIdentity())) {
+							deleted.add(((DomainMapRange)o.get(0)).getIdentity());
+						}
+					}
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
 			}
-		}
-		it = findSet(alias, transactionId, "*","*",c);
-		while(it.hasNext()) {
-			Result o = (Result) it.next();
-			if(!deleted.contains(o.get(0))) {
-				deleted.add((DomainMapRange) o.get(0));
-				found = true;
+		},deleteXTransaction);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					while(itr.hasNext()) {
+						Result o = (Result) itr.next();
+						if(!deleted.contains(((DomainMapRange)o.get(0)).getIdentity())) {
+							deleted.add(((DomainMapRange)o.get(0)).getIdentity());
+						}
+					}
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				}
 			}
+		},deleteXTransaction);
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteXTransaction);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		return found;
 	}
 	/**
 	 * 
 	 * @param alias
 	 * @param transactionId
-	 * @param c
+	 * @param removed
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -631,10 +667,13 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws DuplicateKeyException
 	 */
-	private static void removeParallel(Alias alias, TransactionId transactionId, ArrayList<DomainMapRange> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
-			for(DomainMapRange dmr : c) {
+	private static void removeParallel(Alias alias, TransactionId transactionId, List<DBKey> removed) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
+			for(DBKey dbk : removed) {
 				if( DEBUG || DEBUGREMOVE)
-					System.out.println("RelatrixTransaction.remove iterated perm 1 "+dmr+" of type "+dmr.getClass().getName());
+					System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
+				DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(alias, transactionId, dbk);
+				PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
+				RelatrixKVTransaction.remove(alias, transactionId, pks);
 				dmr.setTransactionId(transactionId);
 				dmr.setAlias(alias);
 				DomainRangeMap drm = new DomainRangeMap(alias,dmr);
