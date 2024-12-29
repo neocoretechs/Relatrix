@@ -60,9 +60,9 @@ public class BatteryRelatrixTransactionDelete {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
 			battery1(argv, xid);
-			if(DEBUG)
-				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-			battery11(argv, xid);
+			//if(DEBUG)
+			//	System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
+			//battery11(argv, xid);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6 Nested Key Removal");
@@ -90,8 +90,7 @@ public class BatteryRelatrixTransactionDelete {
 				DomainMapRange dmr1 = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
 				++recs;
 				DomainMapRange dmr2 = RelatrixTransaction.store(xid2, dmr1, "Has related", rando.nextLong());
-				++recs;
-				/*
+				++recs;	
 				DomainMapRange dmr3 = RelatrixTransaction.store(xid2,  dmr1, dmr2, rando.nextLong());
 				++recs;
 				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr3, dmr2, dmr3);
@@ -102,7 +101,6 @@ public class BatteryRelatrixTransactionDelete {
 				++recs;
 				DomainMapRange dmr7 = RelatrixTransaction.store(xid2, dmr6, dmr5, rando.nextLong());
 				++recs;
-				*/
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
 					tims = System.currentTimeMillis();

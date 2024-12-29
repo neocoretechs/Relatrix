@@ -12,13 +12,13 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
