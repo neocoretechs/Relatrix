@@ -53,7 +53,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 			iter = RelatrixKVTransaction.findTailMapKV(xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
-		}//(TailSetIterator) bts.tailSet(template);
+		}
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
 			buffer = (Morphism) me.getKey();

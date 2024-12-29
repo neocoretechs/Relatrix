@@ -106,11 +106,11 @@ public final class Relatrix {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static synchronized void setTablespace(String path) throws IOException {
+	public static void setTablespace(String path) throws IOException {
 		RelatrixKV.setTablespace(path);
 	}
 	
-	public static synchronized String getTableSpace() {
+	public static String getTableSpace() {
 		return RelatrixKV.getTableSpace();
 	}
 
@@ -158,7 +158,7 @@ public final class Relatrix {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
@@ -282,7 +282,7 @@ public final class Relatrix {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized DomainMapRange store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
+	public static DomainMapRange store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
@@ -402,10 +402,10 @@ public final class Relatrix {
 	public static void storekv(Alias alias, Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
 		RelatrixKV.store(alias, key, value);
 	}
-	public static synchronized Object removekv(Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
+	public static Object removekv(Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
 		return RelatrixKV.remove(c);
 	}
-	public static synchronized Object removekv(Alias alias, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
+	public static Object removekv(Alias alias, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
 		return RelatrixKV.remove(alias,c);
 	}
 	/**
@@ -417,7 +417,7 @@ public final class Relatrix {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		ArrayList<DomainMapRange> removed = new ArrayList<DomainMapRange>();
@@ -460,7 +460,7 @@ public final class Relatrix {
 	 * @throws NoSuchElementException if the alias is not found
 	 * @throws DuplicateKeyException 
 	 */
-	public static synchronized void remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static void remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		// Remove main entry, which is possibly DomainMapRange
@@ -505,7 +505,7 @@ public final class Relatrix {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static synchronized boolean removeSearch(Alias alias, Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+	private static boolean removeSearch(Alias alias, Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		boolean found = false;
 		Iterator<?> it = findSet(alias, c,"*","*");
 		while(it.hasNext()) {
@@ -630,7 +630,7 @@ public final class Relatrix {
 	 * @throws NoSuchElementException
 	 * @throws DuplicateKeyException
 	 */
-	private static synchronized boolean removeSearch(Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
+	private static boolean removeSearch(Comparable<?> c, ArrayList<DomainMapRange> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
 		boolean found = false;
 		Iterator<?> it = findSet(c,"*","*");
 		while(it.hasNext()) {
@@ -744,7 +744,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
+	public static void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
 		DomainMapRange dmr = new DomainMapRange(d,m,null);
 		remove(dmr);
 	}
@@ -758,7 +758,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
+	public static void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
 		DomainMapRange dmr = new DomainMapRange(alias,d,m,null);
 		remove(alias, dmr);
 	}
@@ -784,7 +784,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static synchronized Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		return ifact.createIterator();
 	}
@@ -809,7 +809,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static synchronized Iterator<?> findSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static Iterator<?> findSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
@@ -836,13 +836,13 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The Stream pipeline with the retrieved elements
 	 */
-	public static synchronized Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
 
-	public static synchronized Stream<?> findStream(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findStream(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		IteratorFactory ifact = IteratorFactory.createFactory(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));	
@@ -862,13 +862,13 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
-	public static synchronized Iterator<?> findTailSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findTailSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
 
-	public static synchronized Iterator<?> findTailSet(Alias alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findTailSet(Alias alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
@@ -888,13 +888,13 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.Stream interface, return Stream<Result>
 	 */
-	public static synchronized Stream<?> findTailStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
 
-	public static synchronized Stream<?> findTailStream(Alias alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findTailStream(Alias alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		IteratorFactory ifact = IteratorFactory.createTailsetFactory(darg, marg, rarg, endarg);
 		return new RelatrixStream(ifact.createIterator(alias));
@@ -916,14 +916,14 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Iterator<?> findHeadSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findHeadSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference in our headset factory
 		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator();
 	}
 
-	public static synchronized Iterator<?> findHeadSet(Alias alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findHeadSet(Alias alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference in our headset factory
 		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(alias, darg, marg, rarg, endarg);
@@ -946,13 +946,13 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Stream<?> findHeadStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findHeadStream(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg, endarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
 
-	public static synchronized Stream<?> findHeadStream(Alias alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findHeadStream(Alias alias, Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		IteratorFactory ifact = IteratorFactory.createHeadsetFactory(darg, marg, rarg, endarg);
 		return new RelatrixStream(ifact.createIterator(alias));
@@ -980,7 +980,7 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Iterator<?> findSubSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findSubSet(Object darg, Object marg, Object rarg, Object ... endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator();
@@ -999,7 +999,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Iterator<?> findSubSet(Alias alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return ifact.createIterator(alias);
@@ -1027,7 +1027,7 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Stream<?> findSubStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findSubStream(Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return new RelatrixStream(ifact.createIterator());
@@ -1046,7 +1046,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Stream<?> findSubStream(Alias alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findSubStream(Alias alias, Object darg, Object marg, Object rarg, Object ...endarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		IteratorFactory ifact = IteratorFactory.createSubsetFactory(darg, marg, rarg, endarg);
 		return new RelatrixStream(ifact.createIterator(alias));	
@@ -1057,7 +1057,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object first() throws IOException
+	public static Object first() throws IOException
 	{
 		try {
 			DomainMapRange dmr = (DomainMapRange) RelatrixKV.firstKey(DomainMapRange.class);
@@ -1069,7 +1069,7 @@ public final class Relatrix {
 		}
 	}
 
-	public static synchronized Object first(Alias alias) throws IOException, NoSuchElementException
+	public static Object first(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
 			DomainMapRange dmr = (DomainMapRange) RelatrixKV.firstKey(alias,DomainMapRange.class);
@@ -1087,7 +1087,7 @@ public final class Relatrix {
 	 * @return the class having the lowest valued key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object first(Class clazz) throws IOException
+	public static Object first(Class clazz) throws IOException
 	{
 		Object o = null;
 		try {
@@ -1102,7 +1102,7 @@ public final class Relatrix {
 		return o;
 	}
 
-	public static synchronized Object first(Alias alias, Class clazz) throws IOException, NoSuchElementException
+	public static Object first(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		Object o = null;
 		try {
@@ -1123,12 +1123,12 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object firstKey() throws IOException
+	public static Object firstKey() throws IOException
 	{
 		return first();
 	}
 
-	public static synchronized Object firstKey(Alias alias) throws IOException, NoSuchElementException
+	public static Object firstKey(Alias alias) throws IOException, NoSuchElementException
 	{
 		return first(alias);
 	}
@@ -1139,12 +1139,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static synchronized Object firstKey(Class clazz) throws IOException, IllegalAccessException
+	public static Object firstKey(Class clazz) throws IOException, IllegalAccessException
 	{
 		return first(clazz);
 	}
 
-	public static synchronized Object firstKey(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object firstKey(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return first(alias, clazz);
 	}
@@ -1154,7 +1154,7 @@ public final class Relatrix {
 	 * @return the {@link DBKey} having the lowest valued key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object firstValue() throws IOException
+	public static Object firstValue() throws IOException
 	{
 		try {
 			return RelatrixKV.firstValue(DomainMapRange.class);
@@ -1169,7 +1169,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Object firstValue(Alias alias) throws IOException, NoSuchElementException
+	public static Object firstValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKV.firstValue(alias, DomainMapRange.class);
@@ -1184,7 +1184,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the last key value with resolved identity.
 	 * @throws IOException
 	 */
-	public static synchronized Object last() throws IOException
+	public static Object last() throws IOException
 	{
 		try {
 			DomainMapRange dmr = (DomainMapRange) RelatrixKV.lastKey(DomainMapRange.class);
@@ -1202,7 +1202,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Object last(Alias alias) throws IOException, NoSuchElementException
+	public static Object last(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
 			DomainMapRange dmr = (DomainMapRange) RelatrixKV.lastKey(alias,DomainMapRange.class);
@@ -1221,7 +1221,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object last(Class clazz) throws IOException
+	public static Object last(Class clazz) throws IOException
 	{
 		Object o = null;
 		try {
@@ -1243,7 +1243,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
-	public static synchronized Object last(Alias alias, Class clazz) throws IOException, NoSuchElementException
+	public static Object last(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		Object o = null;
 		try {
@@ -1264,12 +1264,12 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object lastKey() throws IOException
+	public static Object lastKey() throws IOException
 	{
 		return last();
 	}
 
-	public static synchronized Object lastKey(Alias alias) throws IOException, NoSuchElementException
+	public static Object lastKey(Alias alias) throws IOException, NoSuchElementException
 	{
 		return last(alias);
 	}
@@ -1279,7 +1279,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the value of highest key.
 	 * @throws IOException
 	 */
-	public static synchronized Object lastValue() throws IOException
+	public static Object lastValue() throws IOException
 	{
 		try {
 			return RelatrixKV.lastValue(DomainMapRange.class);
@@ -1288,7 +1288,7 @@ public final class Relatrix {
 		}
 	}
 
-	public static synchronized Object lastValue(Alias alias) throws IOException, NoSuchElementException
+	public static Object lastValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKV.lastValue(alias, DomainMapRange.class);
@@ -1303,12 +1303,12 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
-	public static synchronized Object lastKey(Class clazz) throws IOException
+	public static Object lastKey(Class clazz) throws IOException
 	{
 		return last(clazz);
 	}
 
-	public static synchronized Object lastKey(Alias alias, Class clazz) throws IOException, NoSuchElementException
+	public static Object lastKey(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		return last(alias, clazz);
 	}
@@ -1318,7 +1318,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the value of highest key.
 	 * @throws IOException
 	 */
-	public static synchronized Object lastValue(Class clazz) throws IOException
+	public static Object lastValue(Class clazz) throws IOException
 	{
 		try {
 			return RelatrixKV.lastValue(clazz);
@@ -1327,7 +1327,7 @@ public final class Relatrix {
 		}
 	}
 
-	public static synchronized Object lastValue(Alias alias, Class clazz) throws IOException, NoSuchElementException
+	public static Object lastValue(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKV.lastValue(alias, clazz);
@@ -1340,7 +1340,7 @@ public final class Relatrix {
 	 * @return the number of DomainMapRange morphisms.
 	 * @throws IOException
 	 */
-	public static synchronized long size() throws IOException
+	public static long size() throws IOException
 	{
 		try {
 			return RelatrixKV.size(DomainMapRange.class);
@@ -1349,7 +1349,7 @@ public final class Relatrix {
 		}
 	}
 
-	public static synchronized long size(Alias alias) throws IOException, NoSuchElementException
+	public static long size(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKV.size(alias, DomainMapRange.class);
@@ -1362,7 +1362,7 @@ public final class Relatrix {
 	 * @return the number of DomainMapRange morphisms.
 	 * @throws IOException
 	 */
-	public static synchronized long size(Class c) throws IOException
+	public static long size(Class c) throws IOException
 	{
 		try {
 			return RelatrixKV.size(c);
@@ -1371,7 +1371,7 @@ public final class Relatrix {
 		}
 	}
 
-	public static synchronized long size(Alias alias, Class c) throws IOException, NoSuchElementException
+	public static long size(Alias alias, Class c) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKV.size(alias, c);
@@ -1385,7 +1385,7 @@ public final class Relatrix {
 	 * @return true if the passed DomainMapRAnge exists.
 	 * @throws IOException
 	 */
-	public static synchronized boolean contains(Comparable obj) throws IOException
+	public static boolean contains(Comparable obj) throws IOException
 	{
 		try {
 			return RelatrixKV.contains(obj);
@@ -1394,7 +1394,7 @@ public final class Relatrix {
 		}
 	}
 
-	public static synchronized boolean contains(Alias alias, Comparable obj) throws IOException, NoSuchElementException
+	public static boolean contains(Alias alias, Comparable obj) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKV.contains(alias, obj);
@@ -1409,7 +1409,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+	public static DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		UUID uuid = UUID.randomUUID();
 		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 		if(DEBUG)
@@ -1424,12 +1424,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static synchronized Object firstValue(Class clazz) throws IOException, IllegalAccessException
+	public static Object firstValue(Class clazz) throws IOException, IllegalAccessException
 	{
 		return RelatrixKV.firstValue(clazz);
 	}
 
-	public static synchronized Object firstValue(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object firstValue(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.firstValue(alias, clazz);
 	}
@@ -1440,12 +1440,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
-	public static synchronized Object get(Comparable key) throws IOException, IllegalAccessException
+	public static Object get(Comparable key) throws IOException, IllegalAccessException
 	{
 		return RelatrixKV.get(key);
 	}
 
-	public static synchronized Object get(Alias alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object get(Alias alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.get(alias, key);
 	}
@@ -1457,7 +1457,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	public static Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
 		return RelatrixKV.get(key);
 	}
@@ -1470,7 +1470,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
-	public static synchronized Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	public static Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
 		return RelatrixKV.get(alias,key);
 	}
@@ -1481,21 +1481,21 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
+	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 	{
 		return RelatrixKV.keySet(clazz);
 	}
 
-	public static synchronized Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.keySet(alias, clazz);
 	}
-	public static synchronized Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
+	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixEntrysetIterator(clazz);
 	}
 
-	public static synchronized Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return new RelatrixEntrysetIterator(alias, clazz);
 	}
@@ -1506,12 +1506,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
-	public static synchronized Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
+	public static Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixStream(new RelatrixEntrysetIterator(clazz));
 	}
 
-	public static synchronized Stream<?> entrySetStream(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> entrySetStream(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return new RelatrixStream(new RelatrixEntrysetIterator(alias,clazz));
 	}
@@ -1522,7 +1522,7 @@ public final class Relatrix {
 	 * @param morphism the target for resolution
 	 * @return the recursively resolved list of relationships depth first from domain to range
 	 */
-	public static synchronized List<Comparable> resolve(Comparable morphism) {
+	public static List<Comparable> resolve(Comparable morphism) {
 		ArrayList<Comparable> res = new ArrayList<Comparable>();
 		Morphism.resolve(morphism, res);
 		return res;
@@ -1533,7 +1533,7 @@ public final class Relatrix {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static synchronized void loadClassFromPath(String pack, String path) throws IOException {
+	public static void loadClassFromPath(String pack, String path) throws IOException {
 		Path p = FileSystems.getDefault().getPath(path);
 		HandlerClassLoader.setBytesInRepository(pack,p);
 	}
@@ -1542,7 +1542,7 @@ public final class Relatrix {
 	 * @param jar
 	 * @throws IOException
 	 */
-	public static synchronized void loadClassFromJar(String jar) throws IOException {
+	public static void loadClassFromJar(String jar) throws IOException {
 		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
 	}
 	/**
@@ -1551,7 +1551,7 @@ public final class Relatrix {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static synchronized void removePackageFromRepository(String pack) throws IOException {
+	public static void removePackageFromRepository(String pack) throws IOException {
 		HandlerClassLoader.removeBytesInRepository(pack);
 	}
 
