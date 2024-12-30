@@ -655,7 +655,8 @@ public final class RelatrixTransaction {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(transactionId, dbk);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(transactionId, dbk); // dbkey
+			RelatrixKVTransaction.remove(transactionId, dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), transactionId);
 			RelatrixKVTransaction.remove(transactionId, pks);
 			dmr.setTransactionId(transactionId);
@@ -742,7 +743,8 @@ public final class RelatrixTransaction {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(alias, transactionId, dbk);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(alias, transactionId, dbk); // dbkey
+			RelatrixKVTransaction.remove(transactionId, dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 			dmr.setTransactionId(transactionId);

@@ -54,7 +54,7 @@ import com.neocoretechs.rocksack.Alias;
 */
 public final class Relatrix {
 	private static boolean DEBUG = false;
-	private static boolean DEBUGREMOVE = true;
+	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
 	public static char OPERATOR_WILDCARD_CHAR = '*';
@@ -665,9 +665,11 @@ public final class Relatrix {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove( dbk);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove(dbk); // dbkey table
+			RelatrixKV.remove(dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
 			RelatrixKV.remove( pks);
+			// indexes
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
@@ -745,7 +747,8 @@ public final class Relatrix {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove(alias, dbk);
+			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove(alias, dbk); // dbkey
+			RelatrixKV.remove(dmr); //instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
 			RelatrixKV.remove(alias, pks);
 			dmr.setAlias(alias);
