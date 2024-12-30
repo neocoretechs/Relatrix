@@ -435,7 +435,7 @@ public final class Relatrix {
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
 			RelatrixKV.remove(pks);
 		}
-		List<DBKey> removed = Collections.synchronizedList(new ArrayList<DBKey>());
+		List<DBKey> removed = new ArrayList<DBKey>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
@@ -477,7 +477,7 @@ public final class Relatrix {
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
 			RelatrixKV.remove(alias, pks);
 		}
-		List<DBKey> removed = Collections.synchronizedList(new ArrayList<DBKey>());
+		List<DBKey> removed = new ArrayList<DBKey>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
@@ -517,7 +517,7 @@ public final class Relatrix {
 		Iterator<?> itd = new RelatrixIterator(dmr, dmr_return); //findSet(c,"*","*");
 		Iterator<?> itm = new RelatrixIterator(mdr, mdr_return); //findSet("*",c,"*");
 		Iterator<?> itr = new RelatrixIterator(rmd, rmd_return); //findSet("*","*",c);
-		parallelSearch(itd, itm, itr, deleted);
+		sequentialSearch(itd, itm, itr, deleted);
 	}
 	/**
 	 * 
@@ -544,10 +544,55 @@ public final class Relatrix {
 		Iterator<?> itd = new RelatrixIterator(alias, dmr, dmr_return); //findSet(alias, transactionId, c,"*","*");
 		Iterator<?> itm = new RelatrixIterator(alias, mdr, mdr_return); //findSet(alias, transactionId, "*",c,"*");
 		Iterator<?> itr = new RelatrixIterator(alias, rmd, rmd_return); //findSet(alias, transactionId, "*","*",c);
-		parallelSearch(itd, itm, itr, deleted);
+		sequentialSearch(itd, itm, itr, deleted);
 	}
+	
 	/**
-	 * 
+	 * Search the domain, map, and range for each Morphism for relations containing iterator elements
+	 * @param itd
+	 * @param itm
+	 * @param itr
+	 * @param deleted
+	 */
+	private static void sequentialSearch(Iterator<?> itd, Iterator<?> itm, Iterator<?> itr, List<DBKey> deleted) {
+		//long tim1 = System.nanoTime();
+		try {
+			while(itd.hasNext()) {
+				Result o = (Result) itd.next();
+				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
+					deleted.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			while(itm.hasNext()) {
+				Result o = (Result) itm.next();
+				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
+					deleted.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			while(itr.hasNext()) {
+				Result o = (Result) itr.next();
+				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
+					deleted.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+		//System.out.println("sequentialSearch elapsed:"+(System.nanoTime()-tim1)+" nanos.");
+	}
+	
+	/**
+	 * Appears slower for this application
 	 * @param itd
 	 * @param itm
 	 * @param itr
@@ -619,7 +664,7 @@ public final class Relatrix {
 	private static void removeParallel(List<DBKey> removed) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, IOException, DuplicateKeyException {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
-				System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
+				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
 			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove( dbk);
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
 			RelatrixKV.remove( pks);

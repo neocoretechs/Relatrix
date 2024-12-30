@@ -11,15 +11,15 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Morphism.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
-import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * The set of tests verifies the delete functions in the {@link  RelatrixTransaction}<p/>
+ * The set of tests verifies the delete functions in the {@link  Relatrix}<p/>
  * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p/>
  * This represents sets deeply nested relations introducing a heavy demand. 
  * NOTES:
@@ -28,7 +28,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class BatteryRelatrixTransactionDelete {
+public class BatteryRelatrixDelete {
 	public static boolean DEBUG = false;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
@@ -38,14 +38,12 @@ public class BatteryRelatrixTransactionDelete {
 	static int numDelete = 100; // for delete test
 	static int i = 0;
 	private static long timx;
-	private static TransactionId xid;
 	private static Random rando = new Random();
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixTransaction.setTablespace(argv[0]);
-		xid = RelatrixTransaction.getTransactionId();
+		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
@@ -53,21 +51,21 @@ public class BatteryRelatrixTransactionDelete {
 		} else {
 			if(argv.length > 1 && argv[1].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, xid);
+				battery1AR17(argv);
 				System.exit(0);
 			}
 		}
-		if(RelatrixTransaction.size(xid) == 0) {
+		if(Relatrix.size() == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv, xid);
+			battery1(argv);
 			//if(DEBUG)
 			//	System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-			//battery11(argv, xid);
+			//battery11(argv);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6 Nested Key Removal");
-		battery1AR6(argv, xid);
+		battery1AR6(argv);
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -75,11 +73,10 @@ public class BatteryRelatrixTransactionDelete {
 	/**
 	 * Loads up on keys
 	 * @param argv
-	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, TransactionId xid2) throws Exception {
-		System.out.println(xid2+" Battery1 ");
+	public static void battery1(String[] argv) throws Exception {
+		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
@@ -88,19 +85,19 @@ public class BatteryRelatrixTransactionDelete {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr1 = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
+				DomainMapRange dmr1 = Relatrix.store(fkey, "Has unit", new Long(i));
 				++recs;
-				DomainMapRange dmr2 = RelatrixTransaction.store(xid2, dmr1, "Has related", rando.nextLong());
+				DomainMapRange dmr2 = Relatrix.store(dmr1, "Has related", rando.nextLong());
 				++recs;	
-				DomainMapRange dmr3 = RelatrixTransaction.store(xid2,  dmr1, dmr2, rando.nextLong());
+				DomainMapRange dmr3 = Relatrix.store(dmr1, dmr2, rando.nextLong());
 				++recs;
-				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr3, dmr2, dmr3);
+				DomainMapRange dmr4 = Relatrix.store(dmr3, dmr2, dmr3);
 				++recs;
-				DomainMapRange dmr5 = RelatrixTransaction.store(xid2, dmr4, "Is related", rando.nextLong());
+				DomainMapRange dmr5 = Relatrix.store(dmr4, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr6 = RelatrixTransaction.store(xid2, dmr5, "Is related", rando.nextLong());
+				DomainMapRange dmr6 = Relatrix.store(dmr5, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr7 = RelatrixTransaction.store(xid2, dmr6, dmr5, rando.nextLong());
+				DomainMapRange dmr7 = Relatrix.store(dmr6, dmr5, rando.nextLong());
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -108,7 +105,6 @@ public class BatteryRelatrixTransactionDelete {
 				}
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixTransaction.commit(xid2);
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -119,8 +115,8 @@ public class BatteryRelatrixTransactionDelete {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv, TransactionId xid2) throws Exception {
-		System.out.println(xid2+" Battery11 ");
+	public static void battery11(String[] argv) throws Exception {
+		System.out.println("Battery11 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
@@ -129,19 +125,19 @@ public class BatteryRelatrixTransactionDelete {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr1 = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
+				DomainMapRange dmr1 = Relatrix.store(fkey, "Has unit", new Long(i));
 				++recs;
-				DomainMapRange dmr2 = RelatrixTransaction.store(xid2, dmr1, "Has related", rando.nextLong());
+				DomainMapRange dmr2 = Relatrix.store(dmr1, "Has related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr3 = RelatrixTransaction.store(xid2,  dmr1, dmr2, rando.nextLong());
+				DomainMapRange dmr3 = Relatrix.store(dmr1, dmr2, rando.nextLong());
 				++recs;
-				DomainMapRange dmr4 = RelatrixTransaction.store(xid2, dmr3, dmr2, dmr3);
+				DomainMapRange dmr4 = Relatrix.store(dmr3, dmr2, dmr3);
 				++recs;
-				DomainMapRange dmr5 = RelatrixTransaction.store(xid2, dmr4, "Is related", rando.nextLong());
+				DomainMapRange dmr5 = Relatrix.store(dmr4, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr6 = RelatrixTransaction.store(xid2, dmr5, "Is related", rando.nextLong());
+				DomainMapRange dmr6 = Relatrix.store(dmr5, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr7 = RelatrixTransaction.store(xid2, dmr6, dmr5, rando.nextLong());
+				DomainMapRange dmr7 = Relatrix.store(dmr6, dmr5, rando.nextLong());
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("SHOULD NOT BE storing "+recs+" "+fkey);
@@ -150,7 +146,6 @@ public class BatteryRelatrixTransactionDelete {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
-			RelatrixTransaction.commit(xid2);
 			throw new DuplicateKeyException("BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
 		} else {
 			System.out.println("BATTERY11 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -161,36 +156,34 @@ public class BatteryRelatrixTransactionDelete {
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data
 	 * @param argv
-	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR6(String[] argv) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println(xid2+" Battery1AR6");
+		System.out.println("Battery1AR6");
 		for(int i = min; i < max; i++) {
 			Long irec = new Long(i);
-			RelatrixTransaction.remove(xid2, irec);
+			Relatrix.remove(irec);
 			if((System.currentTimeMillis()-tims) > 1000) {
 				System.out.println("deleting "+irec);
 				tims = System.currentTimeMillis();
 			}
 			/*
-			RelatrixTransaction.findStream(xid2,"*", "*", irec).forEach(e->{
+			Relatrix.findStream("*", "*", irec).forEach(e->{
 				Result nex = (Result)e;
 				System.out.println("KEY MISMATCH:"+nex);
 				throw new RuntimeException("MAP KEY MISMATCH:"+nex);
 			});
 			*/
 		}
-		RelatrixTransaction.commit(xid2);
 		// when finished, all records should theoretically be deleted
-		if( RelatrixTransaction.size(xid2, DomainMapRange.class) > 0) {
-			System.out.println("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(xid2, DomainMapRange.class));
-			RelatrixTransaction.findStream(xid2,"*", "*", "*").forEach(e->{
+		if( Relatrix.size(DomainMapRange.class) > 0) {
+			System.out.println("BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
+			Relatrix.findStream("*", "*", "*").forEach(e->{
 				System.out.println("Del fault:"+e);
 			});
-			throw new Exception("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(xid2, DomainMapRange.class));
+			throw new Exception("BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -198,24 +191,23 @@ public class BatteryRelatrixTransactionDelete {
 	/**
 	 * remove entries
 	 * @param argv
-	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(xid2+" CleanDB DMR size="+RelatrixTransaction.size(xid2,DomainMapRange.class));
-		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(xid2,DomainRangeMap.class));
-		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(xid2,MapDomainRange.class));
-		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(xid2,MapRangeDomain.class));
-		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(xid2,RangeDomainMap.class));
-		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(xid2,RangeMapDomain.class));
+		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
+		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> it = Relatrix.findSet("*","*","*");
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
 			try {
-				RelatrixTransaction.remove(xid2,dmr);
+				Relatrix.remove(dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -225,8 +217,7 @@ public class BatteryRelatrixTransactionDelete {
 				timx = System.currentTimeMillis();
 			}
 		});
-		RelatrixTransaction.commit(xid2);
-		Iterator<?> its = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> its = Relatrix.findSet("*","*","*");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);
@@ -235,7 +226,7 @@ public class BatteryRelatrixTransactionDelete {
 			else
 				throw new Exception("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 		}
-		long siz = RelatrixTransaction.size(xid2);
+		long siz = Relatrix.size();
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -243,27 +234,27 @@ public class BatteryRelatrixTransactionDelete {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,DomainMapRange.class);
+			it = Relatrix.entrySet(DomainMapRange.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("DomainMapRange:"+nex);
 			}
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,DomainRangeMap.class);
+			it = Relatrix.entrySet(DomainRangeMap.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("DomainRangeMap:"+nex);
 			}
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,MapDomainRange.class);
+			it = Relatrix.entrySet(MapDomainRange.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("MapDomainRange:"+nex);
 			}
 		}
-		siz = RelatrixTransaction.size(xid2,MapDomainRange.class);
+		siz = Relatrix.size(MapDomainRange.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -271,13 +262,13 @@ public class BatteryRelatrixTransactionDelete {
 				throw new Exception("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,MapRangeDomain.class);
+			it = Relatrix.entrySet(MapRangeDomain.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("MapRangeDomain:"+nex);
 			}
 		}
-		siz = RelatrixTransaction.size(xid2,MapRangeDomain.class);
+		siz = Relatrix.size(MapRangeDomain.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -285,13 +276,13 @@ public class BatteryRelatrixTransactionDelete {
 				throw new Exception("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,RangeDomainMap.class);
+			it = Relatrix.entrySet(RangeDomainMap.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("RangeDomainMap:"+nex);
 			}
 		}
-		siz = RelatrixTransaction.size(xid2,RangeDomainMap.class);
+		siz = Relatrix.size(RangeDomainMap.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after all deleted and committed");
@@ -299,13 +290,13 @@ public class BatteryRelatrixTransactionDelete {
 				throw new Exception("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,RangeMapDomain.class);
+			it = Relatrix.entrySet(RangeMapDomain.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
 				System.out.println("RangeMapDomain:"+nex);
 			}
 		}
-		siz = RelatrixTransaction.size(xid2,RangeMapDomain.class);
+		siz = Relatrix.size(RangeMapDomain.class);
 		if(siz > 0) {
 			if(DEBUG)
 				System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");

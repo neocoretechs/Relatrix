@@ -53,8 +53,7 @@ import com.neocoretechs.rocksack.TransactionId;
 */
 public final class RelatrixTransaction {
 	private static boolean DEBUG = false;
-	private static boolean DEBUGREMOVE = true;
-	private static boolean TRACE = true;
+	private static boolean DEBUGREMOVE = false;
 	
 	public static char OPERATOR_WILDCARD_CHAR = '*';
 	public static char OPERATOR_TUPLE_CHAR = '?';
@@ -521,14 +520,15 @@ public final class RelatrixTransaction {
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), transactionId);
 			RelatrixKVTransaction.remove(transactionId, pks);
 		}
-		List<DBKey> removed = Collections.synchronizedList(new ArrayList<DBKey>());
+		List<DBKey> removed = new ArrayList<DBKey>();//Collections.synchronizedList(new ArrayList<DBKey>()); slower parallel search
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
 			while(index < removed.size()) {
 				removeSearch(transactionId, item, removed);
 				++index;
-				System.out.println("RemoveSearch index"+index+" size:"+removed.size());
+				if( DEBUG || DEBUGREMOVE )
+					System.out.println("RemoveSearch index"+index+" size:"+removed.size());
 				if(index < removed.size())
 					item = removed.get(index);
 			}
@@ -565,14 +565,15 @@ public final class RelatrixTransaction {
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 		}
-		List<DBKey> removed = Collections.synchronizedList(new ArrayList<DBKey>());
+		List<DBKey> removed = new ArrayList<DBKey>();//Collections.synchronizedList(new ArrayList<DBKey>());
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
 			while(index < removed.size()) {
 				removeSearch(alias, transactionId, item, removed);
 				++index;
-				System.out.println("RemoveSearch index"+index+" size:"+removed.size());
+				if(DEBUG || DEBUGREMOVE)
+					System.out.println("RemoveSearch index"+index+" size:"+removed.size());
 				if(index < removed.size())
 					item = removed.get(index);
 			}
@@ -606,9 +607,9 @@ public final class RelatrixTransaction {
 		Iterator<?> itd = new RelatrixIteratorTransaction(transactionId, dmr, dmr_return); //findSet(transactionId, c,"*","*");
 		Iterator<?> itm = new RelatrixIteratorTransaction(transactionId, mdr, mdr_return); //findSet(transactionId, "*",c,"*");
 		Iterator<?> itr = new RelatrixIteratorTransaction(transactionId, rmd, rmd_return); //findSet(transactionId, "*","*",c);
-		System.out.println("RemoveSearch:"+c+" deleted size="+deleted.size());
-		parallelSearch(itd, itm, itr, deleted);
-		System.out.println("RemoveSearch Exit:"+c+" deleted size="+deleted.size());
+		sequentialSearch(itd, itm, itr, deleted);
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("RemoveSearch Exit:"+c+" deleted size="+deleted.size());
 	}
 	/**
 	 * 
@@ -636,7 +637,7 @@ public final class RelatrixTransaction {
 		Iterator<?> itd = new RelatrixIteratorTransaction(alias, transactionId, dmr, dmr_return); //findSet(alias, transactionId, c,"*","*");
 		Iterator<?> itm = new RelatrixIteratorTransaction(alias, transactionId, mdr, mdr_return); //findSet(alias, transactionId, "*",c,"*");
 		Iterator<?> itr = new RelatrixIteratorTransaction(alias, transactionId, rmd, rmd_return); //findSet(alias, transactionId, "*","*",c);
-		parallelSearch(itd, itm, itr, deleted);
+		sequentialSearch(itd, itm, itr, deleted);
 	}
 
 	/**
@@ -819,24 +820,23 @@ public final class RelatrixTransaction {
 		}
 	}
 	/**
-	 * 
+	 * This appears to run 2x slower than a sequential search for some reason
 	 * @param itd
 	 * @param itm
 	 * @param itr
 	 * @param deleted
 	 */
 	private static void parallelSearch(Iterator<?> itd, Iterator<?> itm, Iterator<?> itr, List<DBKey> deleted) {
+		long tim1 = System.nanoTime();
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {    
 				try {
 					while(itd.hasNext()) {
 						Result o = (Result) itd.next();
-						//synchronized(deleted) {
 						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
 							deleted.add(((Morphism)o.get(0)).getIdentity());
 						}
-						//}
 					}
 				} catch (IllegalArgumentException e) {
 					throw new RuntimeException(e);
@@ -849,11 +849,9 @@ public final class RelatrixTransaction {
 				try {
 					while(itm.hasNext()) {
 						Result o = (Result) itm.next();
-						//synchronized(deleted) {
 						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
 							deleted.add(((Morphism)o.get(0)).getIdentity());
 						}
-						//}
 					}
 				} catch (IllegalArgumentException e) {
 					throw new RuntimeException(e);
@@ -866,11 +864,9 @@ public final class RelatrixTransaction {
 				try {
 					while(itr.hasNext()) {
 						Result o = (Result) itr.next();
-						//synchronized(deleted) {
 						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
 							deleted.add(((Morphism)o.get(0)).getIdentity());
 						}
-						//}
 					}
 				} catch (IllegalArgumentException e) {
 					throw new RuntimeException(e);
@@ -882,6 +878,50 @@ public final class RelatrixTransaction {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.println("parallelsearch elapsed:"+(System.nanoTime()-tim1)+" nanos.");
+	}
+	/**
+	 * 
+	 * @param itd
+	 * @param itm
+	 * @param itr
+	 * @param deleted
+	 */
+	private static void sequentialSearch(Iterator<?> itd, Iterator<?> itm, Iterator<?> itr, List<DBKey> deleted) {
+		//long tim1 = System.nanoTime();
+		try {
+			while(itd.hasNext()) {
+				Result o = (Result) itd.next();
+				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
+					deleted.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			while(itm.hasNext()) {
+				Result o = (Result) itm.next();
+				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
+					deleted.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			while(itr.hasNext()) {
+				Result o = (Result) itr.next();
+				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
+					deleted.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+		//System.out.println("sequentialSearch elapsed:"+(System.nanoTime()-tim1)+" nanos.");
 	}
 	/**
 	 * Delete specific relationship and all relationships that it participates in for this transaction in the default tablespace. Some redundancy built in to
