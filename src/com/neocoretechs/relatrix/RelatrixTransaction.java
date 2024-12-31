@@ -628,12 +628,9 @@ public final class RelatrixTransaction {
 		DomainMapRange dmr = new DomainMapRange(true, alias, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, transactionId, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, transactionId, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
-		short dmr_return[] = new short[4];
-		short mdr_return[] = new short[4];
-		short rmd_return[] = new short[4];
-		dmr_return[0] = -1; // set it to identity tuple return
-		mdr_return[0] = -1;
-		rmd_return[0] = -1;
+		short dmr_return[] = new short[]{-1,0,2,2};
+		short mdr_return[] = new short[]{-1,2,0,2};
+		short rmd_return[] = new short[]{-1,2,2,0};
 		Iterator<?> itd = new RelatrixIteratorTransaction(alias, transactionId, dmr, dmr_return); //findSet(alias, transactionId, c,"*","*");
 		Iterator<?> itm = new RelatrixIteratorTransaction(alias, transactionId, mdr, mdr_return); //findSet(alias, transactionId, "*",c,"*");
 		Iterator<?> itr = new RelatrixIteratorTransaction(alias, transactionId, rmd, rmd_return); //findSet(alias, transactionId, "*","*",c);
@@ -744,26 +741,21 @@ public final class RelatrixTransaction {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
 			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(alias, transactionId, dbk); // dbkey
-			RelatrixKVTransaction.remove(transactionId, dmr); // instance
+			RelatrixKVTransaction.remove(alias, transactionId, dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 			dmr.setTransactionId(transactionId);
 			dmr.setAlias(alias);
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
 			drm.setTransactionId(transactionId);
-			drm.setAlias(alias);
 			MapDomainRange mdr = new MapDomainRange(alias,dmr);
 			mdr.setTransactionId(transactionId);
-			mdr.setAlias(alias);
 			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
 			mrd.setTransactionId(transactionId);
-			mrd.setAlias(alias);
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
 			rdm.setTransactionId(transactionId);
-			rdm.setAlias(alias);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
 			rmd.setTransactionId(transactionId);
-			rmd.setAlias(alias);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    

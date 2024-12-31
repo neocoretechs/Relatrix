@@ -535,12 +535,9 @@ public final class Relatrix {
 		DomainMapRange dmr = new DomainMapRange(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
-		short dmr_return[] = new short[4];
-		short mdr_return[] = new short[4];
-		short rmd_return[] = new short[4];
-		dmr_return[0] = -1; // set it to identity tuple return
-		mdr_return[0] = -1;
-		rmd_return[0] = -1;
+		short dmr_return[] = new short[]{-1,0,2,2};
+		short mdr_return[] = new short[]{-1,2,0,2};
+		short rmd_return[] = new short[]{-1,2,2,0};
 		Iterator<?> itd = new RelatrixIterator(alias, dmr, dmr_return); //findSet(alias, transactionId, c,"*","*");
 		Iterator<?> itm = new RelatrixIterator(alias, mdr, mdr_return); //findSet(alias, transactionId, "*",c,"*");
 		Iterator<?> itr = new RelatrixIterator(alias, rmd, rmd_return); //findSet(alias, transactionId, "*","*",c);
@@ -753,15 +750,10 @@ public final class Relatrix {
 			RelatrixKV.remove(alias, pks);
 			dmr.setAlias(alias);
 			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
-			drm.setAlias(alias);
 			MapDomainRange mdr = new MapDomainRange(alias,dmr);
-			mdr.setAlias(alias);
 			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
-			mrd.setAlias(alias);
 			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
-			rdm.setAlias(alias);
 			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
-			rmd.setAlias(alias);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {    
