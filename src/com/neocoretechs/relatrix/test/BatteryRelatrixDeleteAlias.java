@@ -205,7 +205,7 @@ public class BatteryRelatrixDeleteAlias {
 			Relatrix.findStream(alias12, "*", "*", "*").forEach(e->{
 				System.out.println("Del fault:"+e);
 			});
-			throw new Exception(alias12+" BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
+			throw new Exception(alias12+" BATTERY1AR6 unexpected number of keys "+Relatrix.size(alias12));
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

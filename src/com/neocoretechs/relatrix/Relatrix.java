@@ -748,7 +748,7 @@ public final class Relatrix {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
 			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove(alias, dbk); // dbkey
-			RelatrixKV.remove(dmr); //instance
+			RelatrixKV.remove(alias, dmr); //instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
 			RelatrixKV.remove(alias, pks);
 			dmr.setAlias(alias);
