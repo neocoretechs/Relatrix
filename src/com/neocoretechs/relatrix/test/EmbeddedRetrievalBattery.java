@@ -13,6 +13,10 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.Result2;
+import com.neocoretechs.relatrix.Result3;
 
 /**
  * This series of tests uses classes and concrete object instances in various FindSet permutations.
@@ -22,9 +26,9 @@ import com.neocoretechs.relatrix.RelatrixKV;
  *
  */
 public class EmbeddedRetrievalBattery {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	public static int min = 0;
-	public static int max = 10000;
+	public static int max = 100;
 	static String key = "This is a test"; 
 	static String uniqKeyFmt = "%0100d";
 	/**
@@ -86,8 +90,8 @@ public class EmbeddedRetrievalBattery {
 		it =  Relatrix.findSet("*", "*", "*");
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
 			//ar.add(c[0]);
 		}
 		recs = 0;
@@ -96,9 +100,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			if(ar.size() == 0 ) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			if(ar.size() == 0 ) ar.add(((Result)o).get());
 		}
 		recs = 0;
 		System.out.println("3.) Findset(*,?,*)...");		
@@ -106,9 +110,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			if(ar.size() == 1 ) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			if(ar.size() == 1 ) ar.add(((Result)o).get());
 		}
 		recs = 0;
 		System.out.println("4.) Findset(?,*,*)...");		
@@ -116,9 +120,8 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			if(ar.size() == 2) ar.add(c[0]);
+			System.out.println(++recs+"="+o);
+			if(ar.size() == 2) ar.add(((Result)o).get());
 		}
 		recs=0;
 		System.out.println("5.) Findset(*,?,?)...");		
@@ -126,8 +129,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			Comparable[] c = ((Result2)o).toArray();
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
 			if(ar2.size() == 0) ar2.add(c);
 		}
 		recs = 0;
@@ -136,8 +140,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			Comparable[] c = ((Result2)o).toArray();
+			if(DEBUG)
+				System.out.println(++recs+"="+c[0]+" --- "+c[1]);
 			if(ar2.size() == 1) ar2.add(c);
 		}
 		recs = 0;
@@ -146,8 +151,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			Comparable[] c = ((Result2)o).toArray();
+			if(DEBUG)
+				System.out.println(++recs+"="+c[0]+" --- "+c[1]);
 			if(ar2.size() == 2) ar2.add(c);
 		}
 		recs = 0;
@@ -156,8 +162,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
+			Comparable[] c = ((Result3)o).toArray();
+			if(DEBUG)
+				System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
 			if(ar3.size() == 0) ar3.add(c);
 		}
 		
@@ -168,8 +175,8 @@ public class EmbeddedRetrievalBattery {
 		it = Relatrix.findSet(ar3.get(0)[0], ar3.get(0)[1], ar3.get(0)[2]);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
 			//ar.add(c[0]);
 		}
 		recs =0;
@@ -178,9 +185,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar.size() == 0 ) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar.size() == 0 ) ar.add(((Result1)o).get());
 		}
 		recs = 0;
 		System.out.println("11.) Findset(*,<obj>,*) using map="+ar.get(1));		
@@ -188,9 +195,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar.size() == 1 ) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar.size() == 1 ) ar.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("12.) Findset(<obj>,*,*) using domain="+ar.get(2));		
@@ -198,9 +205,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar.size() == 2) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar.size() == 2) ar.add(((Result1)o).get());
 		}
 		recs = 0;
 		System.out.println("13.) Findset(*,<obj>,<obj>) using map="+ar2.get(0)[0]+" range="+ar2.get(0)[1]);		
@@ -208,9 +215,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar2.size() == 0) ar2.add(c);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar2.size() == 0) ar2.add(((Result1)o).get());
 		}
 		recs = 0;
 		System.out.println("14.) Findset(<obj>,*,<obj>) using domain="+ar2.get(1)[0]+" range="+ar2.get(1)[1]);		
@@ -218,9 +225,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar2.size() == 1) ar2.add(c);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar2.size() == 1) ar2.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("15.) Findset(<obj>,<obj>,*) using domain="+ar2.get(2)[0]+" map="+ar2.get(2)[1]);		
@@ -228,9 +235,8 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar2.size() == 2) ar2.add(c);
+			System.out.println(++recs+"="+o);
+			//if(ar2.size() == 2) ar2.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("16.) Findset(?,?,<obj>) using range="+ar.get(0));		
@@ -238,9 +244,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" -- "+c[1]);
-			//if(ar.size() == 0 ) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar.size() == 0 ) ar.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("17.) Findset(?,<obj>,?) using map="+ar.get(1));		
@@ -248,9 +254,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" -- "+c[1]);
-			//if(ar.size() == 1 ) ar.add(c[0]);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar.size() == 1 ) ar.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("18.) Findset(<obj>,?,?) using domain="+ar.get(2));		
@@ -258,9 +264,8 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]+" -- "+c[1]);
-			//if(ar.size() == 2) ar.add(c[0]);
+			System.out.println(++recs+"="+o);
+			//if(ar.size() == 2) ar.add(((Result2)o).get(0)); ar.add(((Result2)o).get(1));
 		}
 		recs =0;
 		System.out.println("19.) Findset(?,<obj>,<obj>) using map="+ar2.get(0)[0]+" range="+ar2.get(0)[1]);		
@@ -268,9 +273,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar2.size() == 0) ar2.add(c);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar2.size() == 0) ar2.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("20.) Findset(<obj>,?,<obj>) using domain="+ar2.get(1)[0]+" range="+ ar2.get(1)[1]);		
@@ -278,9 +283,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar2.size() == 1) ar2.add(c);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar2.size() == 1) ar2.add(((Result1)o).get());
 		}
 		recs =0;
 		System.out.println("21.) Findset(<obj>,<obj>,?) using domain="+ar2.get(2)[0]+" map="+ar2.get(2)[1]);		
@@ -288,9 +293,9 @@ public class EmbeddedRetrievalBattery {
 		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			Comparable[] c = (Comparable[])o;
-			System.out.println(++recs+"="+c[0]);
-			//if(ar2.size() == 2) ar2.add(c);
+			if(DEBUG)
+				System.out.println(++recs+"="+o);
+			//if(ar2.size() == 2) ar2.add(((Result1)o).get());
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
@@ -307,8 +312,8 @@ public class EmbeddedRetrievalBattery {
 		int i = 0;
 		while(it.hasNext()) {
 			Object fkey = it.next();
-			DomainMapRange dmr = (DomainMapRange)((Comparable[])fkey)[0];
-			Relatrix.remove(dmr.getDomain(), dmr.getMap());
+			DomainMapRange dmr = (DomainMapRange)((Result1)fkey).get();
+			Relatrix.remove(dmr);
 			++i;
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("deleting "+i+" "+fkey);
@@ -317,7 +322,7 @@ public class EmbeddedRetrievalBattery {
 		}
 		Iterator<?> its = Relatrix.findSet("*","*","*");
 		while(its.hasNext()) {
-			Comparable[] nex = (Comparable[]) its.next();
+			Object nex = its.next();
 			//System.out.println(i+"="+nex);
 			System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 		}
@@ -328,7 +333,7 @@ public class EmbeddedRetrievalBattery {
 		}
 		it = RelatrixKV.entrySet(DomainMapRange.class);
 		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
+			Object nex = it.next();
 			System.out.println("DomainMapRange:"+nex);
 		}
 		siz = Relatrix.size();
@@ -338,7 +343,7 @@ public class EmbeddedRetrievalBattery {
 		}
 		it = RelatrixKV.entrySet(DomainRangeMap.class);
 		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
+			Object nex = it.next();
 			System.out.println("DomainRangeMap:"+nex);
 		}
 		siz = Relatrix.size();
@@ -349,7 +354,7 @@ public class EmbeddedRetrievalBattery {
 
 		it = RelatrixKV.entrySet(MapDomainRange.class);
 		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
+			Object nex = it.next();
 			System.out.println("MapDomainRange:"+nex);
 		}
 		siz = RelatrixKV.size(MapDomainRange.class);
@@ -360,7 +365,7 @@ public class EmbeddedRetrievalBattery {
 
 		it = RelatrixKV.entrySet(MapRangeDomain.class);
 		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
+			Object nex = it.next();
 			System.out.println("MapRangeDomain:"+nex);
 		}
 		siz = RelatrixKV.size(MapRangeDomain.class);
@@ -370,7 +375,7 @@ public class EmbeddedRetrievalBattery {
 		}
 		it = RelatrixKV.entrySet(RangeDomainMap.class);
 		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
+			Object nex = it.next();
 			System.out.println("RangeDomainMap:"+nex);
 		}
 		siz = RelatrixKV.size(RangeDomainMap.class);
@@ -380,45 +385,14 @@ public class EmbeddedRetrievalBattery {
 		}
 		it = RelatrixKV.entrySet(RangeMapDomain.class);
 		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
+			Object nex = it.next();
 			System.out.println("RangeMapDomain:"+nex);
 		}
 		siz = RelatrixKV.size(RangeMapDomain.class);
 		if(siz > 0) {
 			System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after delete/commit");
-		}/*
-		it = RelatrixKV.entrySet(DBKey.class);
-		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
-			System.out.println("DBKey:"+nex);
 		}
-		siz = RelatrixKV.size(DBKey.class);
-		if(siz > 0) {
-			System.out.println("KV RANGE 1AR17 DBKEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 DBKEY MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		it = RelatrixKV.entrySet(Long.class);
-		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
-			System.out.println("Long:"+nex);
-		}
-		siz = RelatrixKV.size(Long.class);
-		if(siz > 0) {
-			System.out.println("KV RANGE 1AR17 Long MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 Long MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		it = RelatrixKV.entrySet(String.class);
-		while(it.hasNext()) {
-			Comparable nex = (Comparable) it.next();
-			System.out.println("String:"+nex);
-		}
-		siz = RelatrixKV.size(String.class);
-		if(siz > 0) {
-			System.out.println("KV RANGE 1AR17 String MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 String MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		*/
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
