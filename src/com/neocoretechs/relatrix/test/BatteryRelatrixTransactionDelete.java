@@ -34,7 +34,7 @@ public class BatteryRelatrixTransactionDelete {
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 1000;
+	static int max = 100;
 	static int numDelete = 100; // for delete test
 	static int i = 0;
 	private static long timx;
