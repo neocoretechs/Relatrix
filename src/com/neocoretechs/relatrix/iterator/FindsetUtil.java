@@ -2,16 +2,19 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.DBKey;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -25,195 +28,200 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class FindsetUtil {
+	private static boolean DEBUG = true;
 	private static boolean DEBUGITERATION = false;
+	
+	/**
+	 * populate the TreeMap with DBKeys ordered by indexes in 
+	 * three arraylists designated dkey, mkey and rkey for domain key, map key and range key, from a range of Morphisms.<p/>
+	 * The Morphisms are passed in the m0 parameter. The order is created by using the
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
+	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap. Process
+	 * the m0 Morphism to create the entry. The TreeMap then
+	 * becomes the basis for the iterator or stream that delivers the results.
+	 * @param m0 The iterated Morphism to process against the three DBKey index arrays
+	 * @param dkey The domain key array of instance ordered DBKeys
+	 * @param mkey The map key array of instance ordered DBKeys
+	 * @param rkey The range key array of instance ordered DBKeys
+	 * @param resultSet The treemap to be populated with Result3 post-ordering indexes
+	 */
+    private static void createResultSet(Morphism m0, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) {
+			Result3 r = new Result3();
+			boolean insert = false;
+			int insd = -1;
+			int insm = -1;
+			int insr = -1;
+			if(dkey.size() > 0) {
+				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
+				insd = dkey.indexOf(m0.getDomainKey());
+				// no, this Morphism is not eligible
+				if(insd != -1) {
+					insert = true;
+					// yes, set result index 0 to sort position of domain headset list key
+					r.set(0,insd);
+				}
+			}
+			if(mkey.size() > 0) { // should we check map, and is this Morphism still eligible?
+				if(insert) {
+					insm = mkey.indexOf(m0.getMapKey());
+					if(insm != -1) {
+						r.set(1,insm);
+					} else {
+						insert = false;
+					}
+				}
+			} else {
+				insert = false;
+			}
+			if(rkey.size() > 0) {
+				if(insert) {
+					insr = rkey.indexOf(m0.getRangeKey());
+					if(insr != -1) {
+						r.set(2,insr);
+					} else {
+						insert = false;
+					}
+				}
+			} else {
+				insert = false;
+			}
+			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
+			// if we skipped any indexes in result3, they should be 0
+			if(insert) {
+				synchronized(resultSet) {
+					resultSet.put(r, m0.getIdentity());
+				}
+			}
+			//if(DEBUG)
+			//	System.out.printf("FindSetUtil.createResultSet %d %d %d %s %b%n",insd,insm,insr,r,insert);
+    }
+    
     /**
-     * Populate the TreeMap param with DBKeys ordered by indexes in dkey, mkey and rkey from the range of Morphisms
-     * designated by xdmr lower bound inclusive to ydmr upper bound inclusive. The order is created by using the
-     * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
-     * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap.
-     * @param xdmr lower bound for Morphism search
-     * @param ydmr upper bound for Morphism search
-     * @param dkey ArrayList of domain keys in order based on endargs from findSet
-     * @param mkey ArrayList of map key in order based on endargs from findSet
-     * @param rkey ArrayList of range keys in order based on endargs from findSet
-     * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
+     * Populate the TreeMap with the DomainMapRange morphisms in the range of the DBKey low and hi ranges provided.
+     * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
+	 * <p/>
+	 * The low range Morphism template is formed from the 3 low keys. The order is created by using the
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
+	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
+	 * each morphism in range is streamed to the createResultSet method.
+     * @param dkeyLo
+     * @param mkeyLo
+     * @param rkeyLo
+     * @param dkeyHi
+     * @param mkeyHi
+     * @param rkeyHi
+     * @param dkey
+     * @param mkey
+     * @param rkey
+     * @param resultSet
      * @throws IOException
      */
-    public static void getMorphismRange(Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRange(DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
-    		// stream of DBKeys in Morphism relation, and primary key to said Morphism
-    		RelatrixKV.findTailMapKVStream(xdmr).forEach(e ->{
+    		if(DEBUG) {
+    			System.out.println("getMorphismRange tailMap from:"+dkeyLo+" "+mkeyLo+" "+rkeyLo+" to:"+dkeyHi+" "+mkeyHi+" "+rkeyHi);
+    			//"\r\nDomain Array:\r\n"+Arrays.toString(dkey.toArray())+"\r\nMap array\r\n"+Arrays.toString(mkey.toArray())+"\r\nRange array\r\n"+Arrays.toString(rkey.toArray()));
+    			/*
+    			System.out.println("Domain array:");
+    			for(DBKey d: dkey) {
+    				System.out.println(RelatrixKV.get(d));
+    			}
+    			System.out.println("Map array:");
+    			for(DBKey m: mkey) {
+    				System.out.println(RelatrixKV.get(m));
+    			}
+    			System.out.println("Range array:");
+    			for(DBKey r: rkey) {
+    				System.out.println(RelatrixKV.get(r));
+    			}
+    			*/
+    		}
+    		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
+    		// stream of DBKeys in Morphism relation
+    		RelatrixKV.findTailMapKVStream(xdmr)/*RelatrixKV.entrySetStream(xdmr.getClass())*/.forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
     			Morphism m0 = m.getKey();
     			m0.setIdentity(m.getValue());
-    			if(m0.compareTo(ydmr) > 0)
+    			if(m0.getDomainKey().compareTo(dkeyHi) > 0 && m0.getMapKey().compareTo(mkeyHi) > 0 && m0.getRangeKey().compareTo(rkeyHi) > 0)
     				return;
-    			Result3 r = new Result3();
-    			boolean insert = true;
-    			r.set(0,0);
-    			if(dkey.size() > 0) {
-    				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m0.getDomainKey());
-    				// no, this Morphism is not eligible
-    				if(insd == -1)
-    					insert = false;
-    				else
-    					// yes, set result index 0 to sort position of domain headset list key
-    					r.set(0,insd);
-    			}
-    			r.set(1,0);
-    			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m0.getMapKey());
-    				if(insm == -1)
-    					insert = false;
-    				else
-    					r.set(1,insm);
-    			}
-    			r.set(2,0);
-    			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m0.getRangeKey());
-    				if(insr == -1)
-    					insert = false;
-    				else
-    					r.set(2,insr);
-    			}
-    			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
-    			// if we skipped any indexes in result3, they should be 0
-    			if(insert) {
-    				synchronized(resultSet) {
-    					resultSet.put(r, m.getValue());
-    				}
-    			}
+    			createResultSet(m0, dkey, mkey, rkey, resultSet);
     		});
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException | ClassNotFoundException e) {
 			throw new IOException(e);
 		}
     }
+     
     /**
-     * Populate the TreeMap param with DBKeys ordered by indexes in dkey, mkey and rkey from the range of Morphisms
-     * designated by xdmr lower bound inclusive to ydmr upper bound inclusive. The order is created by using the
-     * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
-     * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap.
-     * @param alias the database alias
-     * @param xdmr lower bound for Morphism search
-     * @param ydmr upper bound for Morphism search
-     * @param dkey ArrayList of domain keys in order based on endargs from findSet
-     * @param mkey ArrayList of map key in order based on endargs from findSet
-     * @param rkey ArrayList of range keys in order based on endargs from findSet
-     * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
+     * Populate the TreeMap with the DomainMapRange morphisms in the range of the DBKey low and hi ranges provided.
+     * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
+	 * <p/>
+	 * The low range Morphism template is formed from the 3 low keys. The order is created by using the
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
+	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
+	 * each morphism in range is streamed to the createResultSet method.
+     * @param alias
+     * @param dkeyLo
+     * @param mkeyLo
+     * @param rkeyLo
+     * @param dkeyHi
+     * @param mkeyHi
+     * @param rkeyHi
+     * @param dkey
+     * @param mkey
+     * @param rkey
+     * @param resultSet
      * @throws IOException
      */
-    public static void getMorphismRange(Alias alias, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRange(Alias alias, DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
-    		// stream of DBKeys in Morphism relation, and primary key to said Morphism
+    		// stream of DBKeys in Morphism relation
+       		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
     		RelatrixKV.findTailMapKVStream(alias,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
      			Morphism m0 = m.getKey();
     			m0.setIdentity(m.getValue());
     			m0.setAlias(alias);
-    			if(m0.compareTo(ydmr) > 0)
+       			if(m0.getDomainKey().compareTo(dkeyHi) > 0 && m0.getMapKey().compareTo(mkeyHi) > 0 && m0.getRangeKey().compareTo(rkeyHi) > 0)
     				return;
-    			Result3 r = new Result3();
-    			boolean insert = true;
-    			r.set(0,0);
-    			if(dkey.size() > 0) {
-    				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m0.getDomainKey());
-    				// no, this Morphism is not eligible
-    				if(insd == -1)
-    					insert = false;
-    				else
-    					// yes, set result index 0 to sort position of domain headset list key
-    					r.set(0,insd);
-    			}
-    			r.set(1,0);
-    			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m0.getMapKey());
-    				if(insm == -1)
-    					insert = false;
-    				else
-    					r.set(1,insm);
-    			}
-    			r.set(2,0);
-    			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m0.getRangeKey());
-    				if(insr == -1)
-    					insert = false;
-    				else
-    					r.set(2,insr);
-    			}
-    			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
-    			// if we skipped any indexes in result3, they should be 0
-    			if(insert) {
-    				synchronized(resultSet) {
-    					resultSet.put(r, m.getValue());
-    				}
-    			}
+      			createResultSet(m0, dkey, mkey, rkey, resultSet);
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | NoSuchElementException e) {
 			throw new IOException(e);
 		}
     }
     /**
-     * Populate the TreeMap param with DBKeys ordered by indexes in dkey, mkey and rkey from the range of Morphisms
-     * designated by xdmr lower bound inclusive to ydmr upper bound inclusive. The order is created by using the
-     * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
-     * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap.
-     * @param xid the transaction id
-     * @param xdmr lower bound for Morphism search
-     * @param ydmr upper bound for Morphism search
-     * @param dkey ArrayList of domain keys in order based on endargs from findSet
-     * @param mkey ArrayList of map key in order based on endargs from findSet
-     * @param rkey ArrayList of range keys in order based on endargs from findSet
-     * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
+     * Populate the TreeMap with the DomainMapRange morphisms in the range of the DBKey low and hi ranges provided.
+     * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
+	 * <p/>
+	 * The low range Morphism template is formed from the 3 low keys. The order is created by using the
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
+	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
+	 * each morphism in range is streamed to the createResultSet method.
+     * @param xid
+     * @param dkeyLo
+     * @param mkeyLo
+     * @param rkeyLo
+     * @param dkeyHi
+     * @param mkeyHi
+     * @param rkeyHi
+     * @param dkey
+     * @param mkey
+     * @param rkey
+     * @param resultSet
      * @throws IOException
      */
-    public static void getMorphismRangeTransaction(TransactionId xid, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRangeTransaction(TransactionId xid, DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
-    		// stream of DBKeys in Morphism relation, and primary key to said Morphism
+    		// stream of DBKeys in Morphism relation
+       		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
     		RelatrixKVTransaction.findTailMapKVStream(xid,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
       			Morphism m0 = m.getKey();
     			m0.setIdentity(m.getValue());
     			m0.setTransactionId(xid);
-    			if(m0.compareTo(ydmr) > 0)
+       			if(m0.getDomainKey().compareTo(dkeyHi) > 0 && m0.getMapKey().compareTo(mkeyHi) > 0 && m0.getRangeKey().compareTo(rkeyHi) > 0)
     				return;
-    			Result3 r = new Result3();
-    			boolean insert = true;
-    			r.set(0,0);
-    			if(dkey.size() > 0) {
-    				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m0.getDomainKey());
-    				// no, this Morphism is not eligible
-    				if(insd == -1)
-    					insert = false;
-    				else
-    					// yes, set result index 0 to sort position of domain headset list key
-    					r.set(0,insd);
-    			}
-    			r.set(1,0);
-    			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m0.getMapKey());
-    				if(insm == -1)
-    					insert = false;
-    				else
-    					r.set(1,insm);
-    			}
-    			r.set(2,0);
-    			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m0.getRangeKey());
-    				if(insr == -1)
-    					insert = false;
-    				else
-    					r.set(2,insr);
-    			}
-    			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
-    			// if we skipped any indexes in result3, they should be 0
-    			if(insert) {
-    				synchronized(resultSet) {
-    					resultSet.put(r, m.getValue());
-    				}
-    			}
+     			createResultSet(m0, dkey, mkey, rkey, resultSet);
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
 			throw new IOException(e);
@@ -221,66 +229,31 @@ public class FindsetUtil {
     }
     /**
      * Populate the TreeMap param with DBKeys ordered by indexes in dkey, mkey and rkey from the range of Morphisms
-     * designated by xdmr lower bound inclusive to ydmr upper bound inclusive. The order is created by using the
+     * designated by xdmr bound . The order is created by using the
      * ordered positions in the 3 domain, map and range key arrays based on indexOf each Morphism component
      * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap.
      * @param alias the database alias
      * @param xid the transaction id
-     * @param xdmr lower bound for Morphism search
-     * @param ydmr upper bound for Morphism search
+     * @param xdmr bound for Morphism search
      * @param dkey ArrayList of domain keys in order based on endargs from findSet
      * @param mkey ArrayList of map key in order based on endargs from findSet
      * @param rkey ArrayList of range keys in order based on endargs from findSet
      * @param resultSet TreeMap to be populated with Morphism primary key DBKeys ordered by Result3 of indexOf in dkey, mkey, and rkey arrays
      * @throws IOException
      */
-    public static void getMorphismRangeTransaction(Alias alias, TransactionId xid, Morphism xdmr, Morphism ydmr, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
+    public static void getMorphismRangeTransaction(Alias alias, TransactionId xid, DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
-    		// stream of DBKeys in Morphism relation, and primary key to said Morphism
+    		// stream of DBKeys in Morphism relation
+       		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
     		RelatrixKVTransaction.findTailMapKVStream(alias,xid,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
       			Morphism m0 = m.getKey();
     			m0.setIdentity(m.getValue());
     			m0.setAlias(alias);
     			m0.setTransactionId(xid);
-    			if(m0.compareTo(ydmr) > 0)
+       			if(m0.getDomainKey().compareTo(dkeyHi) > 0 && m0.getMapKey().compareTo(mkeyHi) > 0 && m0.getRangeKey().compareTo(rkeyHi) > 0)
     				return;
-    			Result3 r = new Result3();
-    			boolean insert = true;
-    			r.set(0,0);
-    			if(dkey.size() > 0) {
-    				// does our Morphism domain key exist in headSet of designated headset domain objects, if any?
-    				int insd = dkey.indexOf(m0.getDomainKey());
-    				// no, this Morphism is not eligible
-    				if(insd == -1)
-    					insert = false;
-    				else
-    					// yes, set result index 0 to sort position of domain headset list key
-    					r.set(0,insd);
-    			}
-    			r.set(1,0);
-    			if(mkey.size() > 0 && insert) { // should we check map, and is this Morphism still eligible?
-    				int insm = mkey.indexOf(m0.getMapKey());
-    				if(insm == -1)
-    					insert = false;
-    				else
-    					r.set(1,insm);
-    			}
-    			r.set(2,0);
-    			if(rkey.size() > 0 && insert) {
-    				int insr = rkey.indexOf(m0.getRangeKey());
-    				if(insr == -1)
-    					insert = false;
-    				else
-    					r.set(2,insr);
-    			}
-    			// now we have whether we should insert the primary key DBKey for this Morphism and a Result3 with ordering indexes
-    			// if we skipped any indexes in result3, they should be 0
-    			if(insert) {
-    				synchronized(resultSet) {
-    					resultSet.put(r, m.getValue());
-    				}
-    			}
+     			createResultSet(m0, dkey, mkey, rkey, resultSet);
     		});
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | NoSuchElementException e) {
 			throw new IOException(e);

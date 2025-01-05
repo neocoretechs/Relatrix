@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -16,9 +15,7 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.relatrix.stream.StreamHelper;
 
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
@@ -26,7 +23,7 @@ import com.neocoretechs.relatrix.stream.StreamHelper;
 * The transaction id is returned through a method call to the RockSackAdapter that returns a standard UUID.
 * The compareTo and fullCompareTo provide the comparison methods to drive the processes.
 * The retrieval operators allow us to form the partially ordered result sets that are returned.<br/>
-* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2022,2023
+* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2022,2023,2024
 */
 public final class RelatrixKVTransaction {
 	private static boolean DEBUG = false;
@@ -60,7 +57,10 @@ public final class RelatrixKVTransaction {
 				throw new IOException(rdbe);
 			}
 			mapCache.put(type.getName(), t);
+			return t;
 		}
+		if(!DatabaseManager.isSessionAssociated(xid, t))
+			DatabaseManager.associateSession(xid, t);
 		return t;
 	}
 	public static TransactionalMap getMap(Alias alias, Class type, TransactionId xid) throws IllegalAccessException, IOException {
@@ -70,7 +70,10 @@ public final class RelatrixKVTransaction {
 		if(t == null) {
 			t = DatabaseManager.getTransactionalMap(alias, type, xid);
 			mapCache.put(type.getName()+alias.getAlias(), t);
+			return t;
 		}
+		if(!DatabaseManager.isSessionAssociated(xid, t))
+			DatabaseManager.associateSession(xid, t);
 		return t;
 	}
 
@@ -395,7 +398,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = getMap(darg.getClass(), xid);
-		return new StreamHelper(ttm.tailMap(xid, darg));
+		return ttm.tailMapStream(xid, darg);
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -412,7 +415,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
-		return new StreamHelper(ttm.tailMap(xid, darg));
+		return ttm.tailMapStream(xid, darg);
 	}
 
 	/**
@@ -461,7 +464,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapKVStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = getMap(darg.getClass(), xid);
-		return new StreamHelper(ttm.tailMapKV(xid, darg));
+		return ttm.tailMapKVStream(xid, darg);
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
@@ -478,7 +481,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findTailMapKVStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
-		return new StreamHelper(ttm.tailMapKV(xid, darg));
+		return ttm.tailMapKVStream(xid, darg);
 	}
 
 	/**
@@ -521,7 +524,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = getMap(darg.getClass(), xid);
-		return new StreamHelper(ttm.headMap(xid, darg));
+		return ttm.headMapStream(xid, darg);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key as a stream.
@@ -536,7 +539,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
-		return new StreamHelper(ttm.headMap(xid, darg));
+		return ttm.headMapStream(xid, darg);
 	}
 
 	/**
@@ -580,7 +583,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapKVStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = getMap(darg.getClass(), xid);
-		return new StreamHelper(ttm.headMapKV(xid, darg));
+		return ttm.headMapKVStream(xid, darg);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -595,7 +598,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findHeadMapKVStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
-		return new StreamHelper(ttm.headMapKV(xid, darg));
+		return ttm.headMapKVStream(xid, darg);
 	}
 
 	/**
@@ -647,7 +650,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findSubMapStream(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = getMap(darg.getClass(), xid);
-		return new StreamHelper(ttm.subMap(xid, darg, marg));
+		return ttm.subMapStream(xid, darg, marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first.
@@ -665,7 +668,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findSubMapStream(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
-		return new StreamHelper(ttm.subMap(xid, darg, marg));
+		return ttm.subMapStream(xid, darg, marg);
 	}
 
 	/**
@@ -719,7 +722,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> findSubMapKVStream(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		TransactionalMap ttm = getMap(darg.getClass(), xid);
-		return new StreamHelper(ttm.subMapKV(xid, darg, marg));
+		return ttm.subMapKVStream(xid, darg, marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
@@ -738,7 +741,7 @@ public final class RelatrixKVTransaction {
 	public static Stream<?> findSubMapKVStream(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// check for at least one object reference
 		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
-		return new StreamHelper(ttm.subMapKV(xid, darg, marg));
+		return ttm.subMapKVStream(xid, darg, marg);
 	}
 
 	/**
@@ -777,7 +780,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = getMap(clazz, xid);
-		return new StreamHelper(ttm.entrySet(xid));
+		return ttm.entrySetStream(xid);
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -791,7 +794,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> entrySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, clazz, xid);
-		return new StreamHelper(ttm.entrySet(xid));
+		return ttm.entrySetStream(xid);
 	}
 	/**
 	 * Return the keyset for the given class
@@ -829,7 +832,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> keySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException {
 		TransactionalMap ttm = getMap(clazz, xid);
-		return new StreamHelper(ttm.keySet(xid));
+		return ttm.keySetStream(xid);
 	}
 	/**
 	 * Return the keyset for the given class
@@ -843,7 +846,7 @@ public final class RelatrixKVTransaction {
 	 */
 	public static Stream<?> keySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException {
 		TransactionalMap ttm = getMap(alias, clazz, xid);
-		return new StreamHelper(ttm.keySet(xid));
+		return ttm.keySetStream(xid);
 	}
 	/**
 	 * return lowest valued key.

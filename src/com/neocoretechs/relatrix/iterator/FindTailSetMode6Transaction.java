@@ -9,7 +9,8 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
-/** 
+/**
+* Find elements greater or equal to 'from' element. 
 * Mode 6 = findTailSet(object,object,"*|?",[class | object]) return identity or 1 element tuple.
 * Legal permutations are:<br/>
 * [object],[object],*,... <br/>

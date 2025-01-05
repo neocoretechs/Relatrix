@@ -10,6 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
+* Find elements greater or equal to 'from' element.
 * Mode 5. Permutation with 2 objects.
 * Legal permutations are:<br/>
 * [object],*,[object],... <br/>

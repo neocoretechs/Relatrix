@@ -42,7 +42,7 @@ public class DomainMapRange extends Morphism implements Comparable, Serializable
 		super(flag, alias, d, m, r);
 	}
 	
-    DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+    public DomainMapRange(boolean flag, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(flag, d, domainkey, m, mapKey, r, rangeKey);
 	}
 

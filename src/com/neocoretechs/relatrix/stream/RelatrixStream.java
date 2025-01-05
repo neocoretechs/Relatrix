@@ -1,13 +1,11 @@
 package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -24,7 +22,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;

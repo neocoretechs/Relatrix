@@ -10,6 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
+ * Find elements greater or equal to 'from' element.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */

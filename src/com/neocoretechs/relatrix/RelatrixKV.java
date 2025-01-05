@@ -1,27 +1,19 @@
 package com.neocoretechs.relatrix;
-import java.io.File;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.rocksdb.RocksDBException;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
-import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.relatrix.stream.StreamHelper;
 
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
@@ -255,7 +247,7 @@ public final class RelatrixKV {
 	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
-		return new StreamHelper(ttm.tailMap(darg));
+		return ttm.tailMapStream(darg);
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -271,7 +263,7 @@ public final class RelatrixKV {
 	public static Stream<?> findTailMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(alias, darg);
-		return new StreamHelper(ttm.tailMap(darg));
+		return ttm.tailMapStream(darg);
 	}
 
 	/**
@@ -319,7 +311,7 @@ public final class RelatrixKV {
 	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
-		return new StreamHelper(ttm.tailMapKV(darg));
+		return ttm.tailMapKVStream(darg);
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
@@ -335,7 +327,7 @@ public final class RelatrixKV {
 	public static Stream<?> findTailMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
-		return new StreamHelper(ttm.tailMapKV(darg));
+		return ttm.tailMapKVStream(darg);
 	}
 
 	/**
@@ -380,7 +372,7 @@ public final class RelatrixKV {
 	public static Stream<?> findHeadMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
-		return new StreamHelper(ttm.headMap(darg));
+		return ttm.headMapStream(darg);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
@@ -395,7 +387,7 @@ public final class RelatrixKV {
 	public static Stream<?> findHeadMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
-		return new StreamHelper(ttm.headMap(darg));
+		return ttm.headMapStream(darg);
 	}
 
 	/**
@@ -440,7 +432,7 @@ public final class RelatrixKV {
 	public static Stream<?> findHeadMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
-		return new StreamHelper(ttm.headMapKV(darg));
+		return ttm.headMapKVStream(darg);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -456,7 +448,7 @@ public final class RelatrixKV {
 	{
 		BufferedMap ttm = getMap(alias, darg);
 		// check for at least one object reference in our headset factory
-		return new StreamHelper(ttm.headMapKV(darg));
+		return ttm.headMapKVStream(darg);
 	}
 
 	/**
@@ -508,7 +500,7 @@ public final class RelatrixKV {
 	public static Stream<?> findSubMapStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
-		return new StreamHelper(ttm.subMap(darg, marg));
+		return ttm.subMapStream(darg, marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first.
@@ -526,7 +518,7 @@ public final class RelatrixKV {
 	public static Stream<?> findSubMapStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
-		return new StreamHelper(ttm.subMap(darg, marg));
+		return ttm.subMapStream(darg, marg);
 	}
 
 	/**
@@ -581,7 +573,7 @@ public final class RelatrixKV {
 	{
 		// check for at least one object reference
 		BufferedMap ttm = getMap(darg);
-		return new StreamHelper(ttm.subMapKV(darg, marg));
+		return ttm.subMapKVStream(darg, marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
@@ -600,7 +592,7 @@ public final class RelatrixKV {
 	{
 		// check for at least one object reference
 		BufferedMap ttm = getMap(alias, darg);
-		return new StreamHelper(ttm.subMapKV(darg, marg));
+		return ttm.subMapKVStream(darg, marg);
 	}
 
 	/**
@@ -639,7 +631,7 @@ public final class RelatrixKV {
 	public static Stream<?> entrySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return new StreamHelper(ttm.entrySet());
+		return ttm.entrySetStream();
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -653,7 +645,7 @@ public final class RelatrixKV {
 	public static Stream<?> entrySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return new StreamHelper(ttm.entrySet());
+		return ttm.entrySetStream();
 	}
 	/**
 	 * Return the keyset for the given class
@@ -691,7 +683,7 @@ public final class RelatrixKV {
 	public static Stream<?> keySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return new StreamHelper(ttm.keySet());
+		return ttm.keySetStream();
 	}
 	/**
 	 * Return the keyset for the given class
@@ -705,7 +697,7 @@ public final class RelatrixKV {
 	public static Stream<?> keySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return new StreamHelper(ttm.keySet());
+		return ttm.keySetStream();
 	}
 	/**
 	 * return lowest valued key.

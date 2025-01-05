@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.rocksack.Alias;
 /**
+ * Find elements greater or equal to 'from' element.
  * Concrete object instance in range component = mode 1
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *

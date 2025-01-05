@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.client;
 
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;

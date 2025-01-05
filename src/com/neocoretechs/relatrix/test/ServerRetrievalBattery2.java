@@ -56,8 +56,10 @@ public class ServerRetrievalBattery2 {
 		}
 		
 		public static void displayCtrl() {
-			if(displayLine == 0)
+			if(displayLine == 0) {
 				displayLineCtr = 0;
+				DISPLAY = true;
+			}
 			if(displayLine >= displayLinesOn[displayLineCtr] && displayLine <= displayLinesOff[displayLineCtr]) {
 				if(!DISPLAY)
 					displayTimer = System.currentTimeMillis();

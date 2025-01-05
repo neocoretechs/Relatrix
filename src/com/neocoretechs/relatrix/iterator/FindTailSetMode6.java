@@ -9,6 +9,7 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
 /**
+* Find elements greater or equal to 'from' element.
 * Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
 * Legal permutations are:<br/>
 * [object],[object],*,... <br/>

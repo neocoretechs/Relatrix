@@ -9,6 +9,7 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
 /**
+* Find elements greater or equal to 'from' element.
 * Legal permutations are:<br/>
 * [object],*,*,... <br/>
 * [object],*,?,...  <br/>

@@ -52,7 +52,7 @@ public class FindHeadSetMode0Transaction extends FindSetMode0Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
-		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 
 	@Override

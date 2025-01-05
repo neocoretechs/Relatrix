@@ -13,7 +13,8 @@ import com.neocoretechs.rocksack.TransactionId;
  * We have an instance of 3 objects, we return the identity relationship objects from the beginning to this identity.
  * the argument acts as a wildcard (*) or a tuple (?) for instances of that
  * class. The objects returned will be of type {@link DomainMapRange} subclass of {@link Morphism}. 
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015.2021 
+ * Find elements strictly less than 'to' target.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
  */
 public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	Object[] endarg;

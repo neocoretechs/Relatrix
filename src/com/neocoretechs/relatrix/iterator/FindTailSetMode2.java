@@ -11,7 +11,7 @@ import com.neocoretechs.rocksack.Alias;
 /**
 * Mode 2 find returns a tailSet in map, domain, range order. The map value is matched against the constructor
 * value. Map must contain concrete instance.
-* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
+* Find the set of objects in the relation via the specified predicate greater or equal to 'from' element. 
 * * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
 * *,[object],*,... <br/>
 * *,[object],?,... <br/>

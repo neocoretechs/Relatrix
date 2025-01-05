@@ -8,7 +8,7 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 /**
- * Find elements strictly less than 'to' target.
+ * Find elements greater or equal to 'from' element
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */

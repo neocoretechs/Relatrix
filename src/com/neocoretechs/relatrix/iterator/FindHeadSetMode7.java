@@ -11,7 +11,7 @@ import com.neocoretechs.rocksack.Alias;
 * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
 * We have an instance of 3 objects, we return the identities from the beginning to this identity.
 * the argument acts as a wildcard (*) or a tuple (?) for instances of that
-* class. 
+* class. Find elements strictly less than 'to' target.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015.2021 
 */
 public class FindHeadSetMode7 extends FindSetMode7 {

@@ -10,7 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
-* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br/>
+* Find the set of objects in the relation via the specified predicate greater or equal to 'from' element. Legal permutations are:<br/>
 * [object],*,*,... <br/>
 * [object],*,?,...  <br/>
 * [object],?,?,...  <br/>

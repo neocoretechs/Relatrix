@@ -12,7 +12,8 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
 * value. 
-* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
+* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
+* Legal permutations are:<br/>
 * *,[object],* <br/>
 * *,[object],? <br/>
 * ?,[object],? <br/>

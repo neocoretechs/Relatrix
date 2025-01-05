@@ -7,7 +7,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
@@ -16,15 +18,22 @@ import com.neocoretechs.rocksack.Alias;
 
 /**
  *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
- * Mathematically, based on Category Theory: deliver sets of compositions of {@link Morphism}s 
- * representing new group homomorphisms as functors.<p/>
- * More plainly, programmatically, populate a series of arrays with the partial ordered sets of classes
- * designated in the suffix of the 'findSet' predicate then use the min and max range of those to build a range query into
+ * Post order the morphisms, which are stored in key order instead of the order of its instances. Find elements strictly less than 'to' target.
+ * Populate a series of arrays with the partial ordered sets of classes
+ * designated in the suffix of the 'findSet' predicate, then use the min and max range of those to build a range query into
  * the proper table of Morphisms. Extract the domain, map and range components from each retrieved Morphism
  * and determine their index into each domain, map and range arraylist. Use those indexes to form a key using
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
  * retrieved Morphism. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
- * Morphism with all its actual payload objects. Ultimately return Result instance elements in next(), 
+ * Morphism with all its actual payload objects. Ultimately return Result instance elements in next().<p/>
+ * Start by retrieving the instances in their natural order based on the suffix of the findSet predicate and build 3 tables of keys
+ * that we can relate back to the morphisms. While we do this, gather the low and high key ranges of the potential eligible morphisms.
+ * At conclusion, we have a low and high range of potential morphism keys formed from the keys of the instance ordering that we relate back to the morphisms.<p/>
+ * These 2 tables and key ranges represent the independent headset orders, but we need the composite headset order, so we do
+ * additional calculations to account for possible missed map and range elements. If we have domain elements, but no map or range,
+ * check for exact match of given elements that might form the composite headset morphism. At the conclusion of all this, call the 
+ * FindSetUtil.getMorphismRange to attempt to match the actual morphisms to the acquired keys using the ranges we obtained and indexing into the
+ * 3 tables we formed. In this way, storing only the keys as intermediate elements, we can post-order the morphisms as desired.
  * <p/>
  * For tuples the Result is relative to the '?' query predicates. <br/>
  * Here, the headset is retrieved.<p/>
@@ -34,7 +43,7 @@ import com.neocoretechs.rocksack.Alias;
  * For findHeadSet("?",object,"?",[object | Class],[object | Class]) we
  * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
  * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the headset objects returned. If a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * for the headset objects returned. AS mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.
  * 
@@ -42,10 +51,10 @@ import com.neocoretechs.rocksack.Alias;
  *
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	public static boolean DEBUGITERATION = false;
 	protected Alias alias = null;
-	protected Iterator iter;
+	protected Iterator<?> iter;
     protected Morphism buffer = null;
     protected Morphism nextit = null;
     protected Morphism base;
@@ -82,9 +91,18 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     	this.dmr_return = dmr_return;
        	this.base = template;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	// if template domain, map, range was null, templateo was set with endarg last key for class,
+    	// concrete type otherwise. template domain, map, range null means we are returning values for that element
+    	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
-    		if(templateo.getDomain() != null)
-    			RelatrixKV.findHeadMapKVStream(templateo.getDomain()).forEach(e -> {
+    		Stream<?> dstream = null;
+    		if(template.getDomain() != null)
+    			dstream = RelatrixKV.findHeadMapKVStream(template.getDomain());
+    		else
+    			if(templateo.getDomain() != null)
+    				dstream = RelatrixKV.findHeadMapKVStream(templateo.getDomain());
+    		if(dstream != null)
+    			dstream.forEach(e -> {
     				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(dkeys.compareTo(dkeyLo) < 0)
     					dkeyLo = dkeys;	
@@ -92,17 +110,29 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					dkeyHi = dkeys;
     				dkey.add(dkeys);
     			});
-    		if(templateo.getMap() != null)
-    			RelatrixKV.findHeadMapKVStream(templateo.getMap()).forEach(e -> {
+    		Stream<?> mstream = null;
+    		if(template.getMap() != null)
+    			mstream = RelatrixKV.findHeadMapKVStream(template.getMap());
+    		else
+    			if(templateo.getMap() != null)
+    				mstream = RelatrixKV.findHeadMapKVStream(templateo.getMap());
+    		if(mstream != null)
+    			mstream.forEach(e -> {
     				DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-       				if(mkeys.compareTo(mkeyLo) < 0)
+    				if(mkeys.compareTo(mkeyLo) < 0)
     					mkeyLo = mkeys;	
     				if(mkeys.compareTo(mkeyHi) > 0)
     					mkeyHi = mkeys;
     				mkey.add(mkeys);
     			});
-    		if(templateo.getRange() != null)
-    			RelatrixKV.findHeadMapKVStream(templateo.getRange()).forEach(e -> {
+    		Stream<?> rstream = null;
+    		if(template.getRange() != null)
+    			rstream = RelatrixKV.findHeadMapKVStream(template.getRange());
+    		else
+    			if(templateo.getRange() != null)
+    				rstream = RelatrixKV.findHeadMapKVStream(templateo.getRange());
+    		if(rstream != null)
+    			rstream.forEach(e -> {
     				DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(rkeys.compareTo(rkeyLo) < 0)
     					rkeyLo = rkeys;	
@@ -110,35 +140,47 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					rkeyHi = rkeys;  				
     				rkey.add(rkeys);
     			});
-    		
-    		if(DEBUG)
-    			System.out.printf("Keys: %d,%d,%d, ranges: lod:%s, hid:%s, lom:%s, him:%s, lor:%s, hir:%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,dkeyHi,mkeyLo,mkeyHi,rkeyLo,rkeyHi);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
-			throw new IOException(e);
+    		// Since we are taking the morphism as a composite of the 3 elements in forming a set
+    		// instead of 3 independent elements as retrieved above, we have to consider elements
+    		// not included in headset independent range of strictly less than 'to' element,
+    		// but still in range of the composite of the 3 elements. For instance findHeadset(b,b,c)
+    		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
+    		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
+    		// consequently, the lo and hi key range wont be affected
+    		if(dkey.size() > 0 && mkey.size() == 0) {
+    			DBKey mk = (DBKey) RelatrixKV.get(templateo.getMap());
+    			if(mk != null) {
+    				mkey.add(mk);
+    				mkeyLo = mk;
+    				mkeyHi = mk;
+    			}
+    		}
+    		if(dkey.size() > 0 && mkey.size() > 0 && rkey.size() == 0) {
+    			DBKey rk = (DBKey) RelatrixKV.get(templateo.getRange());
+    			if(rk != null) {
+    				rkey.add(rk);
+    				rkeyLo = rk;
+    				rkeyHi = rk;
+    			}
+    		}
+    	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+    		throw new IOException(e);
+    	}
+
+ 		if(DEBUG)
+			System.out.printf("Keys: %d,%d,%d, ranges: lo:%s%s%s, hi:%s%s%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,mkeyLo,rkeyLo,dkeyHi,mkeyHi,rkeyHi);
+		
+ 		FindsetUtil.getMorphismRange(dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
+		
+ 		if(DEBUG) {
+			System.out.println(">>Result set size:"+resultSet.size());
+    		resultSet.values().iterator().forEachRemaining(e->{
+    			try {
+					System.out.println(">>"+RelatrixKV.get(e));
+				} catch (IllegalAccessException | IOException e1) {}
+    		});
 		}
-    	// clone original template and fill in lo and hi values to select Morphism subset
-		Morphism xdmr = null;
-		Morphism ydmr = null;
-		try {
-			xdmr = (Morphism) template.clone(); // concrete instance in range
-			ydmr = (Morphism) template.clone();
-		} catch (CloneNotSupportedException e) {}
-		if(xdmr.getDomain() == null) {
-			xdmr.setDomainKey(dkeyLo);
-			ydmr.setDomainKey(dkeyHi);
-		}
-		if(xdmr.getMap() == null) {
-			xdmr.setMapKey(mkeyLo);
-			ydmr.setMapKey(mkeyHi);
-		}
-		if(xdmr.getRange() == null) {
-			xdmr.setRangeKey(rkeyLo);
-			ydmr.setRangeKey(rkeyHi);
-		}
-		FindsetUtil.getMorphismRange(xdmr, ydmr, dkey, mkey, rkey, resultSet);
-		if(DEBUG)
-			System.out.println("Result set size:"+resultSet.size());
-    	iter = resultSet.values().iterator();
+       	iter = resultSet.values().iterator();
     	if( iter.hasNext() ) {
     		try {
        			DBKey dbkey = (DBKey) iter.next();
@@ -147,10 +189,10 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-				buffer = null;
-				needsIter = false;
-			}
+			//if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
+			//	buffer = null;
+			//	needsIter = false;
+			//}
     	} else {
     		buffer = null;
     		needsIter = false;
@@ -175,9 +217,15 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     	this.base = template;
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
-      	try {
-    		if(templateo.getDomain() != null)
-    			RelatrixKV.findHeadMapKVStream(alias,templateo.getDomain()).forEach(e -> {
+    	try {
+    		Stream<?> dstream = null;
+    		if(template.getDomain() != null)
+    			dstream = RelatrixKV.findHeadMapKVStream(alias,template.getDomain());
+    		else
+    			if(templateo.getDomain() != null)
+    				dstream = RelatrixKV.findHeadMapKVStream(alias,templateo.getDomain());
+    		if(dstream != null)
+    			dstream.forEach(e -> {
     				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(dkeys.compareTo(dkeyLo) < 0)
     					dkeyLo = dkeys;	
@@ -185,17 +233,29 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					dkeyHi = dkeys;
     				dkey.add(dkeys);
     			});
-    		if(templateo.getMap() != null)
-    			RelatrixKV.findHeadMapKVStream(alias,templateo.getMap()).forEach(e -> {
+    		Stream<?> mstream = null;
+    		if(template.getMap() != null)
+    			mstream = RelatrixKV.findHeadMapKVStream(alias,template.getMap());
+    		else
+    			if(templateo.getMap() != null)
+    				mstream = RelatrixKV.findHeadMapKVStream(alias,templateo.getMap());
+    		if(mstream != null)
+    			mstream.forEach(e -> {
     				DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-       				if(mkeys.compareTo(mkeyLo) < 0)
+    				if(mkeys.compareTo(mkeyLo) < 0)
     					mkeyLo = mkeys;	
     				if(mkeys.compareTo(mkeyHi) > 0)
     					mkeyHi = mkeys;
     				mkey.add(mkeys);
     			});
-    		if(templateo.getRange() != null)
-    			RelatrixKV.findHeadMapKVStream(alias,templateo.getRange()).forEach(e -> {
+    		Stream<?> rstream = null;
+    		if(template.getRange() != null)
+    			rstream = RelatrixKV.findHeadMapKVStream(alias,template.getRange());
+    		else
+    			if(templateo.getRange() != null)
+    				rstream = RelatrixKV.findHeadMapKVStream(alias,templateo.getRange());
+    		if(rstream != null)
+    			rstream.forEach(e -> {
     				DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(rkeys.compareTo(rkeyLo) < 0)
     					rkeyLo = rkeys;	
@@ -203,33 +263,47 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					rkeyHi = rkeys;  				
     				rkey.add(rkeys);
     			});
-    		
-    		if(DEBUG)
-    			System.out.printf("Keys: %d,%d,%d, ranges: lod:%s, hid:%s, lom:%s, him:%s, lor:%s, hir:%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,dkeyHi,mkeyLo,mkeyHi,rkeyLo,rkeyHi);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
-			throw new IOException(e);
-		}
-    	// clone original template and fill in lo and hi values to select Morphism subset
-		Morphism xdmr = null;
-		Morphism ydmr = null;
-		try {
-			xdmr = (Morphism) template.clone(); // concrete instance in range
-			ydmr = (Morphism) template.clone();
-		} catch (CloneNotSupportedException e) {}
-		if(xdmr.getDomain() == null) {
-			xdmr.setDomainKey(dkeyLo);
-			ydmr.setDomainKey(dkeyHi);
-		}
-		if(xdmr.getMap() == null) {
-			xdmr.setMapKey(mkeyLo);
-			ydmr.setMapKey(mkeyHi);
-		}
-		if(xdmr.getRange() == null) {
-			xdmr.setRangeKey(rkeyLo);
-			ydmr.setRangeKey(rkeyHi);
-		}
-		FindsetUtil.getMorphismRange(alias, xdmr, ydmr, dkey, mkey, rkey, resultSet);
-		if(DEBUG)
+    		// Since we are taking the morphism as a composite of the 3 elements in forming a set
+    		// instead of 3 independent elements as retrieved above, we have to consider elements
+    		// not included in headset independent range of strictly less than 'to' element,
+    		// but still in range of the composite of the 3 elements. For instance findHeadset(b,b,c)
+    		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
+    		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
+    		// consequently, the lo and hi key range wont be affected
+    		if(dkey.size() > 0 && mkey.size() == 0) {
+    			DBKey mk = (DBKey) RelatrixKV.get(alias,templateo.getMap());
+    			if(mk != null) {
+    				mkey.add(mk);
+    				mkeyLo = mk;
+    				mkeyHi = mk;
+    			}
+    		}
+    		if(dkey.size() > 0 && mkey.size() > 0 && rkey.size() == 0) {
+    			DBKey rk = (DBKey) RelatrixKV.get(alias,templateo.getRange());
+    			if(rk != null) {
+    				rkey.add(rk);
+    				rkeyLo = rk;
+    				rkeyHi = rk;
+    			}
+    		}
+    	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+    		throw new IOException(e);
+    	}
+    	if(DEBUG)
+    		System.out.printf("Keys: %d,%d,%d, ranges: lo:%s%s%s, hi:%s%s%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,mkeyLo,rkeyLo,dkeyHi,mkeyHi,rkeyHi);
+
+    	FindsetUtil.getMorphismRange(dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
+
+    	if(DEBUG) {
+    		System.out.println(">>Result set size:"+resultSet.size());
+    		resultSet.values().iterator().forEachRemaining(e->{
+    			try {
+    				System.out.println(">>"+RelatrixKV.get(alias,e));
+    			} catch (IllegalAccessException | IOException e1) {}
+    		});
+    	}
+		
+   		if(DEBUG)
 			System.out.println("Result set size:"+resultSet.size());
     	iter = resultSet.values().iterator();
     	if( iter.hasNext() ) {
@@ -241,10 +315,10 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-				buffer = null;
-				needsIter = false;
-			}
+			//if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
+				//buffer = null;
+				//needsIter = false;
+			//}
     	} else {
     		buffer = null;
     		needsIter = false;
@@ -283,10 +357,10 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
-				if( !RelatrixIterator.templateMatches(base, nextit, dmr_return) ) {
-					nextit = null;
-					needsIter = false;
-				}
+				//if( !RelatrixIterator.templateMatches(base, nextit, dmr_return) ) {
+				//	nextit = null;
+				//	needsIter = false;
+				//}
 			} else {
 				nextit = null;
 				needsIter = false;

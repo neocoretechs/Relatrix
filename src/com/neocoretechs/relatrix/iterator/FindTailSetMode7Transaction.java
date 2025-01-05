@@ -9,6 +9,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
+ * Find elements greater or equal to 'from' element.
  * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
  * We have an instance of 3 objects, we return the identity relationship objects from the beginning to this identity.
  * the argument acts as a wildcard (*) or a tuple (?) for instances of that

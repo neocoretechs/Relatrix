@@ -1,12 +1,20 @@
 package com.neocoretechs.relatrix.test;
 
+import java.io.IOException;
 import java.util.Iterator;
 
+import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.MapDomainRange;
+import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RangeDomainMap;
+import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Morphism.displayLevels;
 
 
 /**
@@ -28,6 +36,8 @@ public class BatteryRelatrix2 {
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
+	static long timx;
+	static long i;
 	static int min = 0;
 	static int max = 1000;
 
@@ -36,7 +46,22 @@ public class BatteryRelatrix2 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		DatabaseManager.setTableSpaceDir(argv[0]);
-		battery1(argv);
+		//Morphism.displayLevel = displayLevels.VERBOSE;
+		if(argv.length > 2 && argv[1].equals("max")) {
+			System.out.println("Setting max items to "+argv[2]);
+			max = Integer.parseInt(argv[2]);
+		} else {
+			if(argv.length > 1 && argv[1].equals("init")) {
+				System.out.println("Initialize database to zero items, then terminate...");
+				battery1AR17(argv);
+				System.exit(0);
+			}
+		}
+		if(Relatrix.size() == 0) {
+			if(DEBUG)
+				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+			battery1(argv);
+		}
 		battery1A(argv);
 		battery1A1(argv);
 		battery1B(argv);
@@ -285,5 +310,35 @@ public class BatteryRelatrix2 {
 		if( j != range)
 		 throw new Exception("BATTERY1F number of keys mismatched:"+j+" should be "+range);
 		 System.out.println("BATTERY1F SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	/**
+	 * remove entries
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR17(String[] argv) throws Exception {
+		long tims = System.currentTimeMillis();
+		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
+		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
+		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		Iterator<?> it = Relatrix.findSet("*","*","*");
+		timx = System.currentTimeMillis();
+		it.forEachRemaining(fkey-> {
+			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			try {
+				Relatrix.remove(dmr);
+			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			}
+			++i;
+			if((System.currentTimeMillis()-timx) > 1000) {
+				System.out.println("deleting "+i+" total, current="+fkey);
+				timx = System.currentTimeMillis();
+			}
+		});
 	}
 }

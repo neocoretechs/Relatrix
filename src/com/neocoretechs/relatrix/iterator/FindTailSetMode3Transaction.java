@@ -10,7 +10,8 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
-  Legal permutations are:<br/>
+ * Find elements greater or equal to 'from' element
+ * Legal permutations are:<br/>
  * *,[object],[object],[class] <br/>
  * ?,[object],[object],[object] <br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
