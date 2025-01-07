@@ -28,7 +28,7 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class FindsetUtil {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGITERATION = false;
 	
 	/**

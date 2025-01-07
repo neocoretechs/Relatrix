@@ -51,7 +51,7 @@ import com.neocoretechs.rocksack.Alias;
  *
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	public static boolean DEBUGITERATION = false;
 	protected Alias alias = null;
 	protected Iterator<?> iter;
@@ -147,7 +147,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
     		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
     		// consequently, the lo and hi key range wont be affected
-    		if(dkey.size() > 0 && mkey.size() == 0) {
+    		/*if(dkey.size() > 0 && mkey.size() == 0) {
     			DBKey mk = (DBKey) RelatrixKV.get(templateo.getMap());
     			if(mk != null) {
     				mkey.add(mk);
@@ -162,7 +162,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     				rkeyLo = rk;
     				rkeyHi = rk;
     			}
-    		}
+    		}*/
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
