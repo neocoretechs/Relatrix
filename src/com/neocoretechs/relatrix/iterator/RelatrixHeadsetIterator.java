@@ -9,7 +9,6 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
@@ -270,6 +269,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
     		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
     		// consequently, the lo and hi key range wont be affected
+    		/*
     		if(dkey.size() > 0 && mkey.size() == 0) {
     			DBKey mk = (DBKey) RelatrixKV.get(alias,templateo.getMap());
     			if(mk != null) {
@@ -286,6 +286,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     				rkeyHi = rk;
     			}
     		}
+    		*/
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
