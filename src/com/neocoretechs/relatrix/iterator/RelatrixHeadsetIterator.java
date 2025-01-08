@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -28,9 +27,7 @@ import com.neocoretechs.rocksack.Alias;
  * Start by retrieving the instances in their natural order based on the suffix of the findSet predicate and build 3 tables of keys
  * that we can relate back to the morphisms. While we do this, gather the low and high key ranges of the potential eligible morphisms.
  * At conclusion, we have a low and high range of potential morphism keys formed from the keys of the instance ordering that we relate back to the morphisms.<p/>
- * These 2 tables and key ranges represent the independent headset orders, but we need the composite headset order, so we do
- * additional calculations to account for possible missed map and range elements. If we have domain elements, but no map or range,
- * check for exact match of given elements that might form the composite headset morphism. At the conclusion of all this, call the 
+ * These 2 tables and key ranges represent the independent headset orders. At the conclusion of all this, call the 
  * FindSetUtil.getMorphismRange to attempt to match the actual morphisms to the acquired keys using the ranges we obtained and indexing into the
  * 3 tables we formed. In this way, storing only the keys as intermediate elements, we can post-order the morphisms as desired.
  * <p/>
@@ -42,12 +39,12 @@ import com.neocoretechs.rocksack.Alias;
  * For findHeadSet("?",object,"?",[object | Class],[object | Class]) we
  * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
  * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the headset objects returned. AS mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
- * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.
+ * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.<p/>
+ * When replacing one of the first 3 selectors with a concrete instance, we perform an exact match on that field. 
  * 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024
- *
  */
 public class RelatrixHeadsetIterator implements Iterator<Result> {
 	public static boolean DEBUG = false;
@@ -94,14 +91,17 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
-    		Stream<?> dstream = null;
-    		if(template.getDomain() != null)
-    			dstream = RelatrixKV.findHeadMapKVStream(template.getDomain());
-    		else
+    		if(template.getDomain() != null) {
+    			// exact match instance
+       			DBKey dk = (DBKey) RelatrixKV.get(template.getDomain());
+    			if(dk != null) {
+    				dkey.add(dk);
+    				dkeyLo = dk;
+    				dkeyHi = dk;
+    			}
+    		} else
     			if(templateo.getDomain() != null)
-    				dstream = RelatrixKV.findHeadMapKVStream(templateo.getDomain());
-    		if(dstream != null)
-    			dstream.forEach(e -> {
+    				RelatrixKV.findHeadMapKVStream(templateo.getDomain()).forEach(e -> {
     				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(dkeys.compareTo(dkeyLo) < 0)
     					dkeyLo = dkeys;	
@@ -109,14 +109,16 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					dkeyHi = dkeys;
     				dkey.add(dkeys);
     			});
-    		Stream<?> mstream = null;
-    		if(template.getMap() != null)
-    			mstream = RelatrixKV.findHeadMapKVStream(template.getMap());
-    		else
+    		if(template.getMap() != null) {
+    			DBKey mk = (DBKey) RelatrixKV.get(template.getMap());
+    			if(mk != null) {
+    				mkey.add(mk);
+    				mkeyLo = mk;
+    				mkeyHi = mk;
+    			}
+    		} else
     			if(templateo.getMap() != null)
-    				mstream = RelatrixKV.findHeadMapKVStream(templateo.getMap());
-    		if(mstream != null)
-    			mstream.forEach(e -> {
+    				RelatrixKV.findHeadMapKVStream(templateo.getMap()).forEach(e -> {
     				DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(mkeys.compareTo(mkeyLo) < 0)
     					mkeyLo = mkeys;	
@@ -124,14 +126,16 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					mkeyHi = mkeys;
     				mkey.add(mkeys);
     			});
-    		Stream<?> rstream = null;
-    		if(template.getRange() != null)
-    			rstream = RelatrixKV.findHeadMapKVStream(template.getRange());
-    		else
+    		if(template.getRange() != null) {
+    			DBKey rk = (DBKey) RelatrixKV.get(template.getRange());
+    			if(rk != null) {
+    				rkey.add(rk);
+    				rkeyLo = rk;
+    				rkeyHi = rk;
+    			}
+			} else
     			if(templateo.getRange() != null)
-    				rstream = RelatrixKV.findHeadMapKVStream(templateo.getRange());
-    		if(rstream != null)
-    			rstream.forEach(e -> {
+    				RelatrixKV.findHeadMapKVStream(templateo.getRange()).forEach(e -> {
     				DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     				if(rkeys.compareTo(rkeyLo) < 0)
     					rkeyLo = rkeys;	
@@ -139,29 +143,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     					rkeyHi = rkeys;  				
     				rkey.add(rkeys);
     			});
-    		// Since we are taking the morphism as a composite of the 3 elements in forming a set
-    		// instead of 3 independent elements as retrieved above, we have to consider elements
-    		// not included in headset independent range of strictly less than 'to' element,
-    		// but still in range of the composite of the 3 elements. For instance findHeadset(b,b,c)
-    		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
-    		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
-    		// consequently, the lo and hi key range wont be affected
-    		/*if(dkey.size() > 0 && mkey.size() == 0) {
-    			DBKey mk = (DBKey) RelatrixKV.get(templateo.getMap());
-    			if(mk != null) {
-    				mkey.add(mk);
-    				mkeyLo = mk;
-    				mkeyHi = mk;
-    			}
-    		}
-    		if(dkey.size() > 0 && mkey.size() > 0 && rkey.size() == 0) {
-    			DBKey rk = (DBKey) RelatrixKV.get(templateo.getRange());
-    			if(rk != null) {
-    				rkey.add(rk);
-    				rkeyLo = rk;
-    				rkeyHi = rk;
-    			}
-    		}*/
+   
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -188,10 +170,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			//if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-			//	buffer = null;
-			//	needsIter = false;
-			//}
+	
     	} else {
     		buffer = null;
     		needsIter = false;
@@ -217,76 +196,57 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
-    		Stream<?> dstream = null;
-    		if(template.getDomain() != null)
-    			dstream = RelatrixKV.findHeadMapKVStream(alias,template.getDomain());
-    		else
+    		if(template.getDomain() != null) {
+    			DBKey dk = (DBKey) RelatrixKV.get(alias,template.getDomain());
+    			if(dk != null) {
+    				dkey.add(dk);
+    				dkeyLo = dk;
+    				dkeyHi = dk;
+    			}
+    		} else
     			if(templateo.getDomain() != null)
-    				dstream = RelatrixKV.findHeadMapKVStream(alias,templateo.getDomain());
-    		if(dstream != null)
-    			dstream.forEach(e -> {
-    				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(dkeys.compareTo(dkeyLo) < 0)
-    					dkeyLo = dkeys;	
-    				if(dkeys.compareTo(dkeyHi) > 0)
-    					dkeyHi = dkeys;
-    				dkey.add(dkeys);
-    			});
-    		Stream<?> mstream = null;
-    		if(template.getMap() != null)
-    			mstream = RelatrixKV.findHeadMapKVStream(alias,template.getMap());
-    		else
-    			if(templateo.getMap() != null)
-    				mstream = RelatrixKV.findHeadMapKVStream(alias,templateo.getMap());
-    		if(mstream != null)
-    			mstream.forEach(e -> {
-    				DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(mkeys.compareTo(mkeyLo) < 0)
-    					mkeyLo = mkeys;	
-    				if(mkeys.compareTo(mkeyHi) > 0)
-    					mkeyHi = mkeys;
-    				mkey.add(mkeys);
-    			});
-    		Stream<?> rstream = null;
-    		if(template.getRange() != null)
-    			rstream = RelatrixKV.findHeadMapKVStream(alias,template.getRange());
-    		else
-    			if(templateo.getRange() != null)
-    				rstream = RelatrixKV.findHeadMapKVStream(alias,templateo.getRange());
-    		if(rstream != null)
-    			rstream.forEach(e -> {
-    				DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(rkeys.compareTo(rkeyLo) < 0)
-    					rkeyLo = rkeys;	
-    				if(rkeys.compareTo(rkeyHi) > 0)
-    					rkeyHi = rkeys;  				
-    				rkey.add(rkeys);
-    			});
-    		// Since we are taking the morphism as a composite of the 3 elements in forming a set
-    		// instead of 3 independent elements as retrieved above, we have to consider elements
-    		// not included in headset independent range of strictly less than 'to' element,
-    		// but still in range of the composite of the 3 elements. For instance findHeadset(b,b,c)
-    		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
-    		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
-    		// consequently, the lo and hi key range wont be affected
-    		/*
-    		if(dkey.size() > 0 && mkey.size() == 0) {
-    			DBKey mk = (DBKey) RelatrixKV.get(alias,templateo.getMap());
+    				RelatrixKV.findHeadMapKVStream(alias,templateo.getDomain()).forEach(e -> {
+    					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(dkeys.compareTo(dkeyLo) < 0)
+    						dkeyLo = dkeys;	
+    					if(dkeys.compareTo(dkeyHi) > 0)
+    						dkeyHi = dkeys;
+    					dkey.add(dkeys);
+    				});
+    		if(template.getMap() != null) {
+    			DBKey mk = (DBKey) RelatrixKV.get(alias,template.getMap());
     			if(mk != null) {
     				mkey.add(mk);
     				mkeyLo = mk;
     				mkeyHi = mk;
     			}
-    		}
-    		if(dkey.size() > 0 && mkey.size() > 0 && rkey.size() == 0) {
-    			DBKey rk = (DBKey) RelatrixKV.get(alias,templateo.getRange());
+    		} else
+    			if(templateo.getMap() != null)
+    				RelatrixKV.findHeadMapKVStream(alias,templateo.getMap()).forEach(e -> {
+    					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(mkeys.compareTo(mkeyLo) < 0)
+    						mkeyLo = mkeys;	
+    					if(mkeys.compareTo(mkeyHi) > 0)
+    						mkeyHi = mkeys;
+    					mkey.add(mkeys);
+    				});
+    		if(template.getRange() != null) {
+    			DBKey rk = (DBKey) RelatrixKV.get(alias,template.getRange());
     			if(rk != null) {
     				rkey.add(rk);
     				rkeyLo = rk;
     				rkeyHi = rk;
     			}
-    		}
-    		*/
+    		} else
+    			if(templateo.getRange() != null)
+    				RelatrixKV.findHeadMapKVStream(alias,templateo.getRange()).forEach(e -> {
+    					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(rkeys.compareTo(rkeyLo) < 0)
+    						rkeyLo = rkeys;	
+    					if(rkeys.compareTo(rkeyHi) > 0)
+    						rkeyHi = rkeys;  				
+    					rkey.add(rkeys);
+    				});
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -304,9 +264,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     		});
     	}
 		
-   		if(DEBUG)
-			System.out.println("Result set size:"+resultSet.size());
     	iter = resultSet.values().iterator();
+    	
     	if( iter.hasNext() ) {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
@@ -316,10 +275,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			//if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-				//buffer = null;
-				//needsIter = false;
-			//}
+
     	} else {
     		buffer = null;
     		needsIter = false;
@@ -358,10 +314,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
-				//if( !RelatrixIterator.templateMatches(base, nextit, dmr_return) ) {
-				//	nextit = null;
-				//	needsIter = false;
-				//}
+
 			} else {
 				nextit = null;
 				needsIter = false;

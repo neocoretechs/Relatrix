@@ -14,10 +14,9 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 /**
- * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>                                                                                                                                                                                                                                                                                                                                                                      * Instances of this class deliver the set of identity {@link Morphism}s, or
- * Mathematically, based on Category Theory: deliver sets of compositions of {@link Morphism}s 
- * representing new group homomorphisms as functors.<p/>
- * More plainly, programmatically, populate a series of arrays with the partial ordered sets of classes
+ * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>                                                                                                                                                                                                                                                                                                                                                                      
+ *
+ * Populate a series of arrays with the partial ordered sets of classes
  * designated in the suffix of the 'findSet' predicate then use the min and max range of those to build a range query into
  * the proper table of Morphisms. Extract the domain, map and range components from each retrieved Morphism
  * and determine their index into each domain, map and range arraylist. Use those indexes to form a key using
@@ -38,6 +37,7 @@ import com.neocoretechs.rocksack.Alias;
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.<p/>
  * The subset requires an additional concrete instance when an object is specified to designate the ending range of the subset operation.
  * When a Class is specified the range is implied to be the beginning object of the poset (partially ordered set) to the end object instance (exclusive).
+ * A concrete instance in one of the first 3 selectors indicates an exact match is desired.
  * 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024
  *
@@ -88,76 +88,58 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
-    		Stream<?> dstream = null;
-    		if(template.getDomain() != null)
-    			dstream = RelatrixKV.findSubMapKVStream(template.getDomain(), templatep.getDomain());
-    		else
+    		if(template.getDomain() != null) {
+    			DBKey dk = (DBKey) RelatrixKV.get(template.getDomain());
+    			if(dk != null) {
+    				dkey.add(dk);
+    				dkeyLo = dk;
+    				dkeyHi = dk;
+    			}
+    		} else
     			if(templateo.getDomain() != null)
-    				dstream = RelatrixKV.findSubMapKVStream(templateo.getDomain(), templatep.getDomain());
-    		if(dstream != null)
-    			dstream.forEach(e -> {
-    				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(dkeys.compareTo(dkeyLo) < 0)
-    					dkeyLo = dkeys;	
-    				if(dkeys.compareTo(dkeyHi) > 0)
-    					dkeyHi = dkeys;
-    				dkey.add(dkeys);
-    			});
-    		Stream<?> mstream = null;
-    		if(template.getMap() != null)
-    			mstream = RelatrixKV.findSubMapKVStream(template.getMap(), templatep.getMap());
-    		else
-    			if(templateo.getMap() != null)
-    				mstream = RelatrixKV.findSubMapKVStream(templateo.getMap(), templatep.getMap());
-    		if(mstream != null)
-    			mstream.forEach(e -> {
-    				DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(mkeys.compareTo(mkeyLo) < 0)
-    					mkeyLo = mkeys;	
-    				if(mkeys.compareTo(mkeyHi) > 0)
-    					mkeyHi = mkeys;
-    				mkey.add(mkeys);
-    			});
-    		Stream<?> rstream = null;
-    		if(template.getRange() != null)
-    			rstream = RelatrixKV.findSubMapKVStream(template.getRange(), templatep.getRange());
-    		else
-    			if(templateo.getRange() != null)
-    				rstream = RelatrixKV.findSubMapKVStream(templateo.getRange(), templatep.getRange());
-    		if(rstream != null)
-    			rstream.forEach(e -> {
-    				DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(rkeys.compareTo(rkeyLo) < 0)
-    					rkeyLo = rkeys;	
-    				if(rkeys.compareTo(rkeyHi) > 0)
-    					rkeyHi = rkeys;  				
-    				rkey.add(rkeys);
-    			});
-    		// Since we are taking the morphism as a composite of the 3 elements in forming a set
-    		// instead of 3 independent elements as retrieved above, we have to consider elements
-    		// not included in headset independent range of strictly less than 'to' element,
-    		// but still in range of the composite of the 3 elements. For instance findHeadset(b,b,c)
-    		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
-    		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
-    		// consequently, the lo and hi key range wont be affected
-    		/*
-    		if(dkey.size() > 0 && mkey.size() == 0) {
-    			DBKey mk = (DBKey) RelatrixKV.get(templateo.getMap());
+    				RelatrixKV.findSubMapKVStream(templateo.getDomain(), templatep.getDomain()).forEach(e -> {
+    					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(dkeys.compareTo(dkeyLo) < 0)
+    						dkeyLo = dkeys;	
+    					if(dkeys.compareTo(dkeyHi) > 0)
+    						dkeyHi = dkeys;
+    					dkey.add(dkeys);
+    				});
+    		if(template.getMap() != null) {
+    			DBKey mk = (DBKey) RelatrixKV.get(template.getMap());
     			if(mk != null) {
     				mkey.add(mk);
     				mkeyLo = mk;
     				mkeyHi = mk;
     			}
-    		}
-    		if(dkey.size() > 0 && mkey.size() > 0 && rkey.size() == 0) {
-    			DBKey rk = (DBKey) RelatrixKV.get(templateo.getRange());
+    		} else
+    			if(templateo.getMap() != null)
+    				RelatrixKV.findSubMapKVStream(templateo.getMap(), templatep.getMap()).forEach(e -> {
+    					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(mkeys.compareTo(mkeyLo) < 0)
+    						mkeyLo = mkeys;	
+    					if(mkeys.compareTo(mkeyHi) > 0)
+    						mkeyHi = mkeys;
+    					mkey.add(mkeys);
+    				});
+    		if(template.getRange() != null) {
+    			DBKey rk = (DBKey) RelatrixKV.get(template.getRange());
     			if(rk != null) {
     				rkey.add(rk);
     				rkeyLo = rk;
     				rkeyHi = rk;
     			}
-    		}
-    		*/
+    		} else
+    			if(templateo.getRange() != null)
+    				RelatrixKV.findSubMapKVStream(templateo.getRange(), templatep.getRange()).forEach(e -> {
+    					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(rkeys.compareTo(rkeyLo) < 0)
+    						rkeyLo = rkeys;	
+    					if(rkeys.compareTo(rkeyHi) > 0)
+    						rkeyHi = rkeys;  				
+    					rkey.add(rkeys);
+    				});
+ 
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -186,10 +168,7 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			//if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-			//	buffer = null;
-			//	needsIter = false;
-			//}
+	
     	} else {
     		buffer = null;
     		needsIter = false;
@@ -216,76 +195,59 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
-    		Stream<?> dstream = null;
-    		if(template.getDomain() != null)
-    			dstream = RelatrixKV.findSubMapKVStream(alias, template.getDomain(), templatep.getDomain());
-    		else
+    		if(template.getDomain() != null) {
+    			DBKey dk = (DBKey) RelatrixKV.get(alias, template.getDomain());
+    			if(dk != null) {
+    				dkey.add(dk);
+    				dkeyLo = dk;
+    				dkeyHi = dk;
+    			}
+    		} else
     			if(templateo.getDomain() != null)
-    				dstream = RelatrixKV.findSubMapKVStream(alias, templateo.getDomain(), templatep.getDomain());
-    		if(dstream != null)
-    			dstream.forEach(e -> {
-    				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(dkeys.compareTo(dkeyLo) < 0)
-    					dkeyLo = dkeys;	
-    				if(dkeys.compareTo(dkeyHi) > 0)
-    					dkeyHi = dkeys;
-    				dkey.add(dkeys);
-    			});
-    		Stream<?> mstream = null;
-    		if(template.getMap() != null)
-    			mstream = RelatrixKV.findSubMapKVStream(alias, template.getMap(), templatep.getMap());
-    		else
-    			if(templateo.getMap() != null)
-    				mstream = RelatrixKV.findSubMapKVStream(alias, templateo.getMap(), templatep.getMap());
-    		if(mstream != null)
-    			mstream.forEach(e -> {
-    				DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(mkeys.compareTo(mkeyLo) < 0)
-    					mkeyLo = mkeys;	
-    				if(mkeys.compareTo(mkeyHi) > 0)
-    					mkeyHi = mkeys;
-    				mkey.add(mkeys);
-    			});
-    		Stream<?> rstream = null;
-    		if(template.getRange() != null)
-    			rstream = RelatrixKV.findSubMapKVStream(alias, template.getRange(), templatep.getRange());
-    		else
-    			if(templateo.getRange() != null)
-    				rstream = RelatrixKV.findSubMapKVStream(alias, templateo.getRange(), templatep.getRange());
-    		if(rstream != null)
-    			rstream.forEach(e -> {
-    				DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
-    				if(rkeys.compareTo(rkeyLo) < 0)
-    					rkeyLo = rkeys;	
-    				if(rkeys.compareTo(rkeyHi) > 0)
-    					rkeyHi = rkeys;  				
-    				rkey.add(rkeys);
-    			});
-    		// Since we are taking the morphism as a composite of the 3 elements in forming a set
-    		// instead of 3 independent elements as retrieved above, we have to consider elements
-    		// not included in headset independent range of strictly less than 'to' element,
-    		// but still in range of the composite of the 3 elements. For instance findHeadset(b,b,c)
-    		// has to include (a,a,a) (a,a,b) (a,b,b) and (a,b,c). This applies to concrete instances vs strictly wildcard
-    		// and wont be dealt with above since he templateo.getDomain, map ,or range wont be null, and
-    		// consequently, the lo and hi key range wont be affected
-    		/*
-    		if(dkey.size() > 0 && mkey.size() == 0) {
-    			DBKey mk = (DBKey) RelatrixKV.get(alias, templateo.getMap());
+    				RelatrixKV.findSubMapKVStream(alias, templateo.getDomain(), templatep.getDomain()).forEach(e -> {
+    					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(dkeys.compareTo(dkeyLo) < 0)
+    						dkeyLo = dkeys;	
+    					if(dkeys.compareTo(dkeyHi) > 0)
+    						dkeyHi = dkeys;
+    					dkey.add(dkeys);
+    				});
+    		if(template.getMap() != null) {
+    			DBKey mk = (DBKey) RelatrixKV.get(alias, template.getMap());
     			if(mk != null) {
     				mkey.add(mk);
     				mkeyLo = mk;
     				mkeyHi = mk;
     			}
-    		}
-    		if(dkey.size() > 0 && mkey.size() > 0 && rkey.size() == 0) {
-    			DBKey rk = (DBKey) RelatrixKV.get(alias, templateo.getRange());
+    		} else
+    			if(templateo.getMap() != null)
+    				RelatrixKV.findSubMapKVStream(alias, templateo.getMap(), templatep.getMap()).forEach(e -> {
+    					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(mkeys.compareTo(mkeyLo) < 0)
+    						mkeyLo = mkeys;	
+    					if(mkeys.compareTo(mkeyHi) > 0)
+    						mkeyHi = mkeys;
+    					mkey.add(mkeys);
+    				});
+
+    		if(template.getRange() != null) {
+    			DBKey rk = (DBKey) RelatrixKV.get(alias, template.getRange());
     			if(rk != null) {
     				rkey.add(rk);
     				rkeyLo = rk;
     				rkeyHi = rk;
     			}
-    		}
-    		*/
+    		} else
+    			if(templateo.getRange() != null)
+    				RelatrixKV.findSubMapKVStream(alias, templateo.getRange(), templatep.getRange()).forEach(e -> {
+    					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
+    					if(rkeys.compareTo(rkeyLo) < 0)
+    						rkeyLo = rkeys;	
+    					if(rkeys.compareTo(rkeyHi) > 0)
+    						rkeyHi = rkeys;  				
+    					rkey.add(rkeys);
+    				});
+
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -305,10 +267,7 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     		} catch (IllegalAccessException | IOException e) {
     			throw new RuntimeException(e);
     		}
-    		//if( !RelatrixIterator.templateMatches(base, buffer, dmr_return) ) {
-    		//	buffer = null;
-    		//	needsIter = false;
-    		//}
+   
     	} else {
     		buffer = null;
     		needsIter = false;
@@ -347,10 +306,6 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
-				//if( !RelatrixIterator.templateMatches(base, nextit, dmr_return) ) {
-				//	nextit = null;
-				//	needsIter = false;
-				//}
 			} else {
 				nextit = null;
 				needsIter = false;
