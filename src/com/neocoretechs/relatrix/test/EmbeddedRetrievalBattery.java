@@ -31,6 +31,7 @@ public class EmbeddedRetrievalBattery {
 	public static int max = 100;
 	static String key = "This is a test"; 
 	static String uniqKeyFmt = "%0100d";
+	static int SAMPLESIZE = 5;
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
@@ -81,58 +82,57 @@ public class EmbeddedRetrievalBattery {
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
 		ArrayList<Comparable> ar = new ArrayList<Comparable>();
-		ArrayList<Comparable[]> ar2 = new ArrayList<Comparable[]>(); // will store 2 element result sets
+		ArrayList<Comparable> am = new ArrayList<Comparable>();
+		ArrayList<Comparable> ad = new ArrayList<Comparable>();
+		ArrayList<Comparable[]> ar2 = new ArrayList<Comparable[]>(); // will store 2 element result sets map range
+		ArrayList<Comparable[]> ar2dr = new ArrayList<Comparable[]>(); // will store 2 element result sets domain range
+		ArrayList<Comparable[]> ar2dm = new ArrayList<Comparable[]>(); // will store 2 element result sets domain map
 		ArrayList<Comparable[]> ar3 = new ArrayList<Comparable[]>(); // will store 3 element result sets
 		Iterator<?> it = null;
-		System.out.println("Wildcard queries:");
+		System.out.println("Wildcard queries. Will store samplesize of "+SAMPLESIZE+" for subsequent tests.");
 		recs = 0;
 		System.out.println("1.) Findset(*,*,*)...");
 		it =  Relatrix.findSet("*", "*", "*");
 		while(it.hasNext()) {
 			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			//ar.add(c[0]);
+			System.out.println(++recs+"="+o);
 		}
 		recs = 0;
 		System.out.println("2.) Findset(*,*,?)...");		
 		it = Relatrix.findSet("*", "*", "?");
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			if(ar.size() == 0 ) ar.add(((Result)o).get());
+			System.out.println(++recs+"="+o);
+			if(ar.size() < SAMPLESIZE ) 
+				ar.add(((Result)o).get());
 		}
 		recs = 0;
 		System.out.println("3.) Findset(*,?,*)...");		
 		it = Relatrix.findSet("*", "?", "*");
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			if(ar.size() == 1 ) ar.add(((Result)o).get());
+			System.out.println(++recs+"="+o);
+			if(am.size() < SAMPLESIZE ) 
+				am.add(((Result)o).get());
 		}
 		recs = 0;
 		System.out.println("4.) Findset(?,*,*)...");		
 		it = Relatrix.findSet("?", "*", "*");
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			System.out.println(++recs+"="+o);
-			if(ar.size() == 2) ar.add(((Result)o).get());
+			if(ad.size() < SAMPLESIZE) 
+				ad.add(((Result)o).get());
 		}
 		recs=0;
 		System.out.println("5.) Findset(*,?,?)...");		
 		it = Relatrix.findSet("*", "?", "?");
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Comparable[] c = ((Result2)o).toArray();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			if(ar2.size() == 0) ar2.add(c);
+			System.out.println(++recs+"="+o);
+			if(ar2.size() < SAMPLESIZE) 
+				ar2.add(c);
 		}
 		recs = 0;
 		System.out.println("6.) Findset(?,*,?)...");		
@@ -141,161 +141,141 @@ public class EmbeddedRetrievalBattery {
 		while(it.hasNext()) {
 			Object o = it.next();
 			Comparable[] c = ((Result2)o).toArray();
-			if(DEBUG)
-				System.out.println(++recs+"="+c[0]+" --- "+c[1]);
-			if(ar2.size() == 1) ar2.add(c);
+			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			if(ar2dr.size() < SAMPLESIZE) 
+				ar2dr.add(c);
 		}
 		recs = 0;
 		System.out.println("7.) Findset(?,?,*)...");		
 		it = Relatrix.findSet("?", "?", "*");
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Comparable[] c = ((Result2)o).toArray();
-			if(DEBUG)
-				System.out.println(++recs+"="+c[0]+" --- "+c[1]);
-			if(ar2.size() == 2) ar2.add(c);
+			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
+			if(ar2dm.size() < SAMPLESIZE) 
+				ar2dm.add(c);
 		}
 		recs = 0;
 		System.out.println("8.) Findset(?,?,?)...");		
 		it = Relatrix.findSet("?", "?", "?");
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Comparable[] c = ((Result3)o).toArray();
-			if(DEBUG)
-				System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
-			if(ar3.size() == 0) ar3.add(c);
+			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
+			if(ar3.size() < SAMPLESIZE) 
+				ar3.add(c);
 		}
 		
-		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
-		System.out.println("wildcard results. They should produce relationships with these elements");
+		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the results");
+		System.out.println("3 object instances:");
+		for(int j = 0; j < ar3.size(); j++) {
+			recs = 0;
+			System.out.println("9."+j+") Findset(<obj>,<obj>,<obj>) using domain="+ar3.get(j)[0]+" map="+ar3.get(j)[1]+" range="+ar3.get(j)[2]);
+			it = Relatrix.findSet(ar3.get(j)[0], ar3.get(j)[1], ar3.get(j)[2]);
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+		}
+		System.out.println("----------");
+		System.out.println("1 object instance with wildcards:");
+		for(int j = 0; j < ar.size(); j++) {
+			recs = 0;
+			System.out.println("10."+j+") Findset(*,*,<obj>) using range="+ar.get(j));		
+			it = Relatrix.findSet("*", "*", ar.get(j));
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+			recs = 0;
+			System.out.println("11."+j+") Findset(*,<obj>,*) using map="+am.get(j));		
+			it = Relatrix.findSet("*", am.get(j), "*");
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+			recs = 0;
+			System.out.println("12."+j+") Findset(<obj>,*,*) using domain="+ad.get(j));		
+			it = Relatrix.findSet(ad.get(j), "*", "*");
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+		}
+		System.out.println("----------");
+		System.out.println("2 object instances with wildcards:");
+		for(int j = 0; j < ar2.size(); j++) {
+			recs = 0;
+			System.out.println("13."+j+") Findset(*,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
+			it = Relatrix.findSet("*", ar2.get(j)[0], ar2.get(j)[1]);
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+			recs = 0;
+			System.out.println("14."+j+") Findset(<obj>,*,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ar2dr.get(j)[1]);		
+			it = Relatrix.findSet(ar2dr.get(j)[0], "*", ar2dr.get(j)[1]);
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+			recs = 0;
+			System.out.println("15."+j+") Findset(<obj>,<obj>,*) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
+			it = Relatrix.findSet(ar2dm.get(j)[0], ar2dm.get(j)[1], "*");
+			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(++recs+"="+o);
+			}
+		}
 		recs = 0;
-		System.out.println("9.) Findset(<obj>,<obj>,<obj>) using domain="+ar3.get(0)[0]+" map="+ar3.get(0)[1]+" range="+ar3.get(0)[2]);
-		it = Relatrix.findSet(ar3.get(0)[0], ar3.get(0)[1], ar3.get(0)[2]);
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
+		System.out.println("----------");
+		System.out.println("1 object instance with 2 returns:");
+		for(int j = 0; j < ar.size(); j++) {
+			System.out.println("16."+j+") Findset(?,?,<obj>) using range="+ar.get(j));		
+			it = Relatrix.findSet("?", "?", ar.get(j));
+			while(it.hasNext()) {
+				Object o = it.next();
 				System.out.println(++recs+"="+o);
-			//ar.add(c[0]);
-		}
-		recs =0;
-		System.out.println("10.) Findset(*,*,<obj>) using range="+ar.get(0));		
-		it = Relatrix.findSet("*", "*", ar.get(0));
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
+			}
+			recs =0;
+			System.out.println("17."+j+") Findset(?,<obj>,?) using map="+am.get(j));		
+			it = Relatrix.findSet("?", am.get(j), "?");
+			while(it.hasNext()) {
+				Object o = it.next();
 				System.out.println(++recs+"="+o);
-			//if(ar.size() == 0 ) ar.add(((Result1)o).get());
-		}
-		recs = 0;
-		System.out.println("11.) Findset(*,<obj>,*) using map="+ar.get(1));		
-		it = Relatrix.findSet("*", ar.get(1), "*");
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
+			}
+			recs =0;
+			System.out.println("18."+j+") Findset(<obj>,?,?) using domain="+ad.get(j));		
+			it = Relatrix.findSet(ad.get(j), "?", "?");
+			while(it.hasNext()) {
+				Object o = it.next();
 				System.out.println(++recs+"="+o);
-			//if(ar.size() == 1 ) ar.add(((Result1)o).get());
+			}
 		}
-		recs =0;
-		System.out.println("12.) Findset(<obj>,*,*) using domain="+ar.get(2));		
-		it = Relatrix.findSet(ar.get(2), "*", "*");
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
+		System.out.println("----------");
+		System.out.println("2 object instances with 1 return:");
+		for(int j = 0; j < ar2.size(); j++) {
+			recs = 0;
+			System.out.println("19."+j+") Findset(?,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
+			it = Relatrix.findSet("?", ar2.get(j)[0], ar2.get(j)[1]);
+			while(it.hasNext()) {
+				Object o = it.next();
 				System.out.println(++recs+"="+o);
-			//if(ar.size() == 2) ar.add(((Result1)o).get());
-		}
-		recs = 0;
-		System.out.println("13.) Findset(*,<obj>,<obj>) using map="+ar2.get(0)[0]+" range="+ar2.get(0)[1]);		
-		it = Relatrix.findSet("*", ar2.get(0)[0], ar2.get(0)[1]);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
+			}
+			recs = 0;
+			System.out.println("20."+j+") Findset(<obj>,?,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ ar2dr.get(j)[1]);		
+			it = Relatrix.findSet(ar2dr.get(j)[0], "?", ar2dr.get(j)[1]);
+			while(it.hasNext()) {
+				Object o = it.next();
 				System.out.println(++recs+"="+o);
-			//if(ar2.size() == 0) ar2.add(((Result1)o).get());
-		}
-		recs = 0;
-		System.out.println("14.) Findset(<obj>,*,<obj>) using domain="+ar2.get(1)[0]+" range="+ar2.get(1)[1]);		
-		it = Relatrix.findSet(ar2.get(1)[0], "*", ar2.get(1)[1]);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
+			}
+			recs = 0;
+			System.out.println("21."+j+") Findset(<obj>,<obj>,?) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
+			it = Relatrix.findSet(ar2dm.get(j)[0], ar2dm.get(j)[1], "?");
+			while(it.hasNext()) {
+				Object o = it.next();
 				System.out.println(++recs+"="+o);
-			//if(ar2.size() == 1) ar2.add(((Result1)o).get());
-		}
-		recs =0;
-		System.out.println("15.) Findset(<obj>,<obj>,*) using domain="+ar2.get(2)[0]+" map="+ar2.get(2)[1]);		
-		it = Relatrix.findSet(ar2.get(2)[0], ar2.get(2)[1], "*");
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			System.out.println(++recs+"="+o);
-			//if(ar2.size() == 2) ar2.add(((Result1)o).get());
-		}
-		recs =0;
-		System.out.println("16.) Findset(?,?,<obj>) using range="+ar.get(0));		
-		it = Relatrix.findSet("?", "?", ar.get(0));
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			//if(ar.size() == 0 ) ar.add(((Result1)o).get());
-		}
-		recs =0;
-		System.out.println("17.) Findset(?,<obj>,?) using map="+ar.get(1));		
-		it = Relatrix.findSet("?", ar.get(1), "?");
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			//if(ar.size() == 1 ) ar.add(((Result1)o).get());
-		}
-		recs =0;
-		System.out.println("18.) Findset(<obj>,?,?) using domain="+ar.get(2));		
-		it = Relatrix.findSet(ar.get(2), "?", "?");
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			System.out.println(++recs+"="+o);
-			//if(ar.size() == 2) ar.add(((Result2)o).get(0)); ar.add(((Result2)o).get(1));
-		}
-		recs =0;
-		System.out.println("19.) Findset(?,<obj>,<obj>) using map="+ar2.get(0)[0]+" range="+ar2.get(0)[1]);		
-		it = Relatrix.findSet("?", ar2.get(0)[0], ar2.get(0)[1]);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			//if(ar2.size() == 0) ar2.add(((Result1)o).get());
-		}
-		recs =0;
-		System.out.println("20.) Findset(<obj>,?,<obj>) using domain="+ar2.get(1)[0]+" range="+ ar2.get(1)[1]);		
-		it = Relatrix.findSet(ar2.get(1)[0], "?", ar2.get(1)[1]);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			//if(ar2.size() == 1) ar2.add(((Result1)o).get());
-		}
-		recs =0;
-		System.out.println("21.) Findset(<obj>,<obj>,?) using domain="+ar2.get(2)[0]+" map="+ar2.get(2)[1]);		
-		it = Relatrix.findSet(ar2.get(2)[0], ar2.get(2)[1], "?");
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			if(DEBUG)
-				System.out.println(++recs+"="+o);
-			//if(ar2.size() == 2) ar2.add(((Result1)o).get());
+			}
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
