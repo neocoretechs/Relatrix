@@ -37,10 +37,10 @@ public class EmbeddedRetrievalBattery4 {
 	public static long displayTimer = 0;
 	public static int min = 0;
 	public static int max = 100;
-	static long lorange = 0L;
-	static long hirange = 0L;
-	static Long lo = (max/20L);
-	static Long hi = (max/10L);
+	static long lorange = (max/20L);
+	static long hirange = (max/10L);
+	static Long lo = (long) min;
+	static Long hi = (long) max/10;
 	static Long increment = 10L;
 	static String key = "This is a test"; 
 	static String uniqKeyFmt = "%0100d";
@@ -245,6 +245,8 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+c);
 			}
 		}
+		System.out.println("----------");
+		System.out.println("Begin 1 instance match 2 wildcard testing");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
@@ -269,6 +271,8 @@ public class EmbeddedRetrievalBattery4 {
 				//if(ar.size() == 2) ar.add(c[0]);
 			}
 		}
+		System.out.println("----------");
+		System.out.println("Begin 2 instance match 1 wildcard testing");
 		for(int j = 0; j < ar2.size(); j++) {
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
@@ -304,6 +308,8 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+c);
 			}
 		}
+		System.out.println("----------");
+		System.out.println("Begin 1 instance match 2 element return testing");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
 			System.out.println("16."+j+") findSubSet(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
@@ -336,6 +342,8 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+c);
 			}
 		}
+		System.out.println("----------");
+		System.out.println("Begin 2 instance match 1 element return testing");
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
 			System.out.println("19."+j+") findSubSet(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
@@ -371,6 +379,8 @@ public class EmbeddedRetrievalBattery4 {
 		//
 		// proceed with hi/lo range tests
 		//
+		System.out.println("----------");
+		System.out.println("Begin hi/lo range testing");
 		for(int j = 0; j < ar2.size(); j++) {
 			lo = lorange;
 			hi = hirange;
@@ -386,29 +396,25 @@ public class EmbeddedRetrievalBattery4 {
 			}
 			lo+=increment;
 			hi+=increment;
-			System.out.println("23."+j+") findSubSet(?,?,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2.get(j)).get(0).getClass()+" map="+((Result)ar2.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet("?","?","?",((Result)ar2.get(j)).get(0).getClass(), ((Result)ar2.get(j)).get(1).getClass(),lo,hi);
-			//ar = new ArrayList<Comparable>();
+			System.out.println("23."+j+") findSubSet(?,?,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			it = Relatrix.findSubSet("?","?","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
 			}
 			lo+=increment;
 			hi+=increment;
-			System.out.println("24."+j+") findSubSet(?,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2.get(j)).get(0).getClass()+" map="+((Result)ar2.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet("?","*","?",((Result)ar2.get(j)).get(0).getClass(), ((Result)ar2.get(j)).get(1).getClass(),lo,hi);
-			//ar = new ArrayList<Comparable>();
+			System.out.println("24."+j+") findSubSet(?,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			it = Relatrix.findSubSet("?","*","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
 			}
 		}
 		System.out.println("BATTERY4 SUCCESS in "+(System.currentTimeMillis()-tims));
