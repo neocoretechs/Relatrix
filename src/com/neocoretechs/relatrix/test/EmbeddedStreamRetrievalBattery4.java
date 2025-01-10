@@ -20,13 +20,13 @@ import com.neocoretechs.relatrix.Result3;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findSubSet retrieval. We will let our samplesize be dictated by hi and low range values
+ * and verifying findSubStream retrieval. We will let our samplesize be dictated by hi and low range values
  * NOTES:
  * program arguments are _database
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2024
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2024,2025
  *
  */
-public class EmbeddedRetrievalBattery4 {
+public class EmbeddedStreamRetrievalBattery4 {
 	public static boolean DEBUG = false;
 	public static boolean DISPLAY = false;
 	private static boolean DISPLAYALL = true;
@@ -120,259 +120,208 @@ public class EmbeddedRetrievalBattery4 {
 		System.out.println("Wildcard queries:");
 		displayLine = 0;
 
-		System.out.println("1.) findSubSet(*,*,*,String.class, String.class,"+lo+","+hi+");");
-		it =  Relatrix.findSubSet("*", "*", "*",String.class, String.class, lo,hi);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("1.) findSubStream(*,*,*,String.class, String.class,"+lo+","+hi+");");
+		Relatrix.findSubStream("*", "*", "*",String.class, String.class, lo,hi).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
-			//ar.add(c[0]);
-		}
+		});
 		displayLine = 0;
-		System.out.println("2.) findSubSet(*,*,?,String.class, String.class, "+lo+","+hi+");");	
-		it = Relatrix.findSubSet("*", "*", "?",String.class, String.class, lo, hi);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("2.) findSubStream(*,*,?,String.class, String.class, "+lo+","+hi+");");	
+		Relatrix.findSubStream("*", "*", "?",String.class, String.class, lo, hi).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ar.add(c);
-		}
+		});
 		displayLine = 0;
 		String slo = key + String.format(uniqKeyFmt, lo);
 		String shi = key  + String.format(uniqKeyFmt, hi);
-		System.out.println("3.) findSubset(*,?,*,"+slo+","+shi+", String.class, Long.class);");		
-		it = Relatrix.findSubSet("*", "?", "*",slo,shi, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("3.) findSubStream(*,?,*,"+slo+","+shi+", String.class, Long.class);");		
+		Relatrix.findSubStream("*", "?", "*",slo,shi, String.class, Long.class).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			am.add(c);
-		}
+		});
 		displayLine = 0;
-		System.out.println("4.) findSubSet(?,*,*.String.class, String.class, "+lo+","+hi+");");			
-		it = Relatrix.findSubSet("?", "*", "*",String.class, String.class, lo, hi);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("4.) findSubStream(?,*,*.String.class, String.class, "+lo+","+hi+");");			
+		Relatrix.findSubStream("?", "*", "*",String.class, String.class, lo, hi).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			ad.add(c);
-		}
+		});
 		displayLine=0;
-		System.out.println("5.) findSubSet(*,?,?,String.class, String.class, "+lo+","+hi+")...");		
-		it = Relatrix.findSubSet("*", "?", "?",String.class, String.class, lo, hi);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("5.) findSubStream(*,?,?,String.class, String.class, "+lo+","+hi+")...");		
+		Relatrix.findSubStream("*", "?", "?",String.class, String.class, lo, hi).forEach(o->{
 			Result2 c = (Result2)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			ar2.add(c);
-		}
+		});
 		displayLine = 0;
-		System.out.println("6.) findSubSet(?,*,?,"+slo+","+shi+",String.class, "+lo+","+hi+")...");		
-		it = Relatrix.findSubSet("?", "*", "?",slo,shi, String.class, lo,hi);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("6.) findSubStream(?,*,?,"+slo+","+shi+",String.class, "+lo+","+hi+")...");		
+		Relatrix.findSubStream("?", "*", "?",slo,shi, String.class, lo,hi).forEach(o->{
 			Result2 c = (Result2)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			ar2dr.add(c);
-		}
+		});
 		displayLine = 0;
-		System.out.println("7.) findSubSet(?,?,*,"+slo+","+shi+", String.class, Long.class)...");		
-		it = Relatrix.findSubSet("?", "?", "*",slo,shi, String.class, Long.class);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("7.) findSubStream(?,?,*,"+slo+","+shi+", String.class, Long.class)...");		
+		Relatrix.findSubStream("?", "?", "*",slo,shi, String.class, Long.class).forEach(o->{
 			Result2 c = (Result2)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			ar2dm.add(c);
-		}
+		});
 		displayLine = 0;
-		System.out.println("8.) FindSubset(?,?,?,"+slo+","+shi+", String.class, Long.class)...");		
-		it = Relatrix.findSubSet("?", "?", "?",slo,shi, String.class, Long.class);
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("8.) findSubStream(?,?,?,"+slo+","+shi+", String.class, Long.class)...");		
+		Relatrix.findSubStream("?", "?", "?",slo,shi, String.class, Long.class).forEach(o->{
 			Result3 c = (Result3)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
 			ar3.add(c);
-		}
+		});
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. They should produce relationships with these elements");
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("9."+j+") findSubSet(<obj>,<obj>,<obj>) using ="+
+			System.out.println("9."+j+") findSubStream(<obj>,<obj>,<obj>) using ="+
 					((Result)ar3.get(j)).get(0)+",("+((Result)ar3.get(j)).get(0).getClass().getName()+"),"+
 					((Result)ar3.get(j)).get(1)+",("+((Result)ar3.get(j)).get(1).getClass().getName()+"),"+
 					((Result)ar3.get(j)).get(2)+",("+((Result)ar3.get(j)).get(2).getClass().getName());
-			it = Relatrix.findSubSet(((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
-			while(it.hasNext()) {
-				Object o = it.next();
+			Relatrix.findSubStream(((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2)).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10."+j+") findSubSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(j)).get(3));		
-			it = Relatrix.findSubSet("*", "*", ((Result)ar3.get(j)).get(3), String.class, String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("10."+j+") findSubStream(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(j)).get(3));		
+			Relatrix.findSubStream("*", "*", ((Result)ar3.get(j)).get(3), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		System.out.println("----------");
 		System.out.println("Begin 1 instance match 2 wildcard testing");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11."+j+") findSubSet(*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = Relatrix.findSubSet("*", ((Result)am.get(j)).get(0), "*",String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("11."+j+") findSubStream(*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+			Relatrix.findSubStream("*", ((Result)am.get(j)).get(0), "*",String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine =0;
-			System.out.println("12."+j+") FindSubset(<obj>,*,*,String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = Relatrix.findSubSet(((Result)ad.get(j)).get(0), "*", "*", String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("12."+j+") findSubStream(<obj>,*,*,String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+			Relatrix.findSubStream(((Result)ad.get(j)).get(0), "*", "*", String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-				//if(ar.size() == 2) ar.add(c[0]);
-			}
+			});
 		}
 		System.out.println("----------");
 		System.out.println("Begin 2 instance match 1 wildcard testing");
 		for(int j = 0; j < ar2.size(); j++) {
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
-			System.out.println("13."+j+") findSubSet(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
-			it = Relatrix.findSubSet("*", ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1], String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("13."+j+") findSubStream(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
+			Relatrix.findSubStream("*", ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1], String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine = 0;
-			System.out.println("14."+j+") findSubSet(<obj>,*,<obj>,String.class) using ="+((Result)ar2dr.get(j)).toArray()[0]+", "+((Result)ar2dr.get(j)).toArray()[1]);		
-			it = Relatrix.findSubSet(((Result)ar2dr.get(j)).toArray()[0], "*", ((Result)ar2dr.get(j)).toArray()[1], String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("14."+j+") findSubStream(<obj>,*,<obj>,String.class) using ="+((Result)ar2dr.get(j)).toArray()[0]+", "+((Result)ar2dr.get(j)).toArray()[1]);		
+			Relatrix.findSubStream(((Result)ar2dr.get(j)).toArray()[0], "*", ((Result)ar2dr.get(j)).toArray()[1], String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 1) ar2.add(c);
-			}
+			});
 			displayLine =0;
-			System.out.println("15."+j+") findSubSet(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
-			it = Relatrix.findSubSet(((Result)ar2dm.get(j)).toArray()[0], ((Result)ar2dm.get(j)).toArray()[1], "*",Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("15."+j+") findSubStream(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
+			Relatrix.findSubStream(((Result)ar2dm.get(j)).toArray()[0], ((Result)ar2dm.get(j)).toArray()[1], "*",Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		System.out.println("----------");
 		System.out.println("Begin 1 instance match 2 element return testing");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
-			System.out.println("16."+j+") findSubSet(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = Relatrix.findSubSet("?", "?", ((Result)ar.get(j)).get(0), String.class, String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("16."+j+") findSubStream(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
+			Relatrix.findSubStream("?", "?", ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine =0;
-			System.out.println("17."+j+") findSubSet(?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = Relatrix.findSubSet("?", ((Result)am.get(j)).get(0), "?", String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("17."+j+") findSubStream(?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+			Relatrix.findSubStream("?", ((Result)am.get(j)).get(0), "?", String.class, Long.class).forEach(o->{
 				Result2 c = (Result2)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine =0;
-			System.out.println("18."+j+") findSubSet(<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = Relatrix.findSubSet(((Result)ad.get(j)).get(0), "?", "?", String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("18."+j+") findSubStream(<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+			Relatrix.findSubStream(((Result)ad.get(j)).get(0), "?", "?", String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		System.out.println("----------");
 		System.out.println("Begin 2 instance match 1 element return testing");
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findSubSet(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-			it = Relatrix.findSubSet("?", ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("19."+j+") findSubStream(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
+			Relatrix.findSubStream("?", ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
-			System.out.println("20."+j+") findSubSet(<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-			it = Relatrix.findSubSet(((Result)ar2dr.get(j)).get(0), "?", ((Result)ar2dr.get(j)).get(1), String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("20."+j+") findSubStream(<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
+			Relatrix.findSubStream(((Result)ar2dr.get(j)).get(0), "?", ((Result)ar2dr.get(j)).get(1), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
-			System.out.println("21."+j+") findSubSet(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-			it = Relatrix.findSubSet(((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), "?",Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("21."+j+") findSubStream(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
+			Relatrix.findSubStream(((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), "?",Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		//
 		// proceed with hi/lo range tests
@@ -383,37 +332,31 @@ public class EmbeddedRetrievalBattery4 {
 			lo = lorange;
 			hi = hirange;
 			displayLine =0;
-			System.out.println("22."+j+") findSubSet(*,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet("*","*","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("22."+j+") findSubStream(*,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			Relatrix.findSubStream("*","*","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			lo+=increment;
 			hi+=increment;
-			System.out.println("23."+j+") findSubSet(?,?,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet("?","?","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("23."+j+") findSubStream(?,?,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			Relatrix.findSubStream("?","?","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			lo+=increment;
 			hi+=increment;
-			System.out.println("24."+j+") findSubSet(?,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet("?","*","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("24."+j+") findSubStream(?,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			Relatrix.findSubStream("?","*","?",((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		System.out.println("BATTERY4 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
@@ -425,7 +368,7 @@ public class EmbeddedRetrievalBattery4 {
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB");
-		Iterator<?> it = Relatrix.findSet("*","*","*");
+		Iterator it = Relatrix.findSet("*","*","*");
 		long timx = System.currentTimeMillis();
 		int i = 0;
 		while(it.hasNext()) {
