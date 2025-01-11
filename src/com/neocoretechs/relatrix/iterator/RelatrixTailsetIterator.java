@@ -255,7 +255,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     	if(DEBUG)
     		System.out.printf("Keys: %d,%d,%d, ranges: lo:%s%s%s, hi:%s%s%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,mkeyLo,rkeyLo,dkeyHi,mkeyHi,rkeyHi);
 
-    	FindsetUtil.getMorphismRange(dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
+    	FindsetUtil.getMorphismRange(alias, dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
 
     	if(DEBUG) {
     		System.out.println(">>Result set size:"+resultSet.size());

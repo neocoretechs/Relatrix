@@ -121,7 +121,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
  		if(DEBUG)
 			System.out.printf("Keys: %d,%d,%d, ranges: lo:%s%s%s, hi:%s%s%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,mkeyLo,rkeyLo,dkeyHi,mkeyHi,rkeyHi);
 		
- 		FindsetUtil.getMorphismRange(dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
+ 		FindsetUtil.getMorphismRangeTransaction(xid, dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
 		
  		if(DEBUG) {
 			System.out.println(">>Result set size:"+resultSet.size());
@@ -225,7 +225,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
  		if(DEBUG)
 			System.out.printf("Keys: %d,%d,%d, ranges: lo:%s%s%s, hi:%s%s%s%n",dkey.size(),mkey.size(),rkey.size(),dkeyLo,mkeyLo,rkeyLo,dkeyHi,mkeyHi,rkeyHi);
 		
- 		FindsetUtil.getMorphismRange(dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
+ 		FindsetUtil.getMorphismRangeTransaction(alias, xid, dkeyLo, mkeyLo, rkeyLo, dkeyHi, mkeyHi, rkeyHi, dkey, mkey, rkey, resultSet);
 		
  		if(DEBUG) {
 			System.out.println(">>Result set size:"+resultSet.size());

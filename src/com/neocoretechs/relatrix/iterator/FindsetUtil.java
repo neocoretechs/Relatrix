@@ -175,7 +175,7 @@ public class FindsetUtil {
     public static void getMorphismRange(Alias alias, DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation
-       		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
+       		Morphism xdmr = (Morphism) new DomainMapRange(true, alias, null, dkeyLo, null, mkeyLo, null, rkeyLo);
     		RelatrixKV.findTailMapKVStream(alias,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
      			Morphism m0 = m.getKey();
@@ -213,7 +213,7 @@ public class FindsetUtil {
     public static void getMorphismRangeTransaction(TransactionId xid, DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation
-       		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
+       		Morphism xdmr = (Morphism) new DomainMapRange(true, xid, null, dkeyLo, null, mkeyLo, null, rkeyLo);
     		RelatrixKVTransaction.findTailMapKVStream(xid,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
       			Morphism m0 = m.getKey();
@@ -244,7 +244,7 @@ public class FindsetUtil {
     public static void getMorphismRangeTransaction(Alias alias, TransactionId xid, DBKey dkeyLo, DBKey mkeyLo, DBKey rkeyLo, DBKey dkeyHi, DBKey mkeyHi, DBKey rkeyHi, ArrayList<DBKey> dkey, ArrayList<DBKey> mkey, ArrayList<DBKey> rkey, TreeMap<Result,DBKey> resultSet) throws IOException {
     	try {
     		// stream of DBKeys in Morphism relation
-       		Morphism xdmr = (Morphism) new DomainMapRange(true, null, dkeyLo, null, mkeyLo, null, rkeyLo);
+       		Morphism xdmr = (Morphism) new DomainMapRange(true, alias, xid, null, dkeyLo, null, mkeyLo, null, rkeyLo);
     		RelatrixKVTransaction.findTailMapKVStream(alias,xid,xdmr).forEach(e ->{
     			Map.Entry<Morphism,DBKey> m = (Map.Entry<Morphism,DBKey>)e;
       			Morphism m0 = m.getKey();
