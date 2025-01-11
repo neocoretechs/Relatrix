@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -56,7 +55,6 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	buffer.setTransactionId(xid);
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
@@ -158,7 +156,6 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	buffer.setTransactionId(xid);
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
        	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
