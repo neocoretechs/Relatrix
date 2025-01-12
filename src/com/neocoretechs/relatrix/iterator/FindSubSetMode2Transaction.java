@@ -88,22 +88,7 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
-		if(tdmr.getMap() == null) {
-			if(endarg[argCtr] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[argCtr]));
-				if(argCtr >= endarg.length)
-					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				ydmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[argCtr++]));
-			} else {
-				if(argCtr >= endarg.length)
-					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				xdmr.setMap(alias,(Comparable)endarg[argCtr++]);
-				if(argCtr >= endarg.length)
-					throw new IllegalAccessException("Wrong number of arguments to findSubSet");
-				ydmr.setMap(alias,(Comparable)endarg[argCtr++]);
-			}
-		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+	
 		if(tdmr.getRange() == null) {
 			if(endarg[argCtr] instanceof Class) {
 				if(argCtr >= endarg.length)
