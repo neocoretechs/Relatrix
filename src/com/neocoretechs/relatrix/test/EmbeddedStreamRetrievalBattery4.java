@@ -21,6 +21,7 @@ import com.neocoretechs.relatrix.Result3;
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findSubStream retrieval. We will let our samplesize be dictated by hi and low range values
+ * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified
  * NOTES:
  * program arguments are _database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2024,2025
@@ -48,7 +49,7 @@ public class EmbeddedStreamRetrievalBattery4 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		 //System.out.println("Analysis of all");
+		System.out.println("Substream Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
 		if(argv.length == 2 && argv[1].equals("init")) {
@@ -105,7 +106,7 @@ public class EmbeddedStreamRetrievalBattery4 {
 	 * @throws Exception
 	 */
 	public static void battery1(String[] argv) throws Exception {
-		System.out.println("Iterator Battery1 ");
+		System.out.println("Stream Battery1 ");
 		long tims = System.currentTimeMillis();
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries

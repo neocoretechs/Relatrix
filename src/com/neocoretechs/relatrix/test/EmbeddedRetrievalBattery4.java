@@ -17,10 +17,10 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 
-
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findSubSet retrieval. We will let our samplesize be dictated by hi and low range values
+ * and verifying findSubSet retrieval. We will let our samplesize be dictated by hi and low range values.
+ * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.
  * NOTES:
  * program arguments are _database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2024
@@ -48,7 +48,7 @@ public class EmbeddedRetrievalBattery4 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		 //System.out.println("Analysis of all");
+		System.out.println("Subset Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
 		Relatrix.setTablespace(argv[0]);
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
 		if(argv.length == 2 && argv[1].equals("init")) {

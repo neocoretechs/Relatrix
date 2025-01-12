@@ -23,7 +23,7 @@ public class FindSubSetMode7 extends FindSetMode7 {
     		System.out.printf("%s darg:%s marg:%s rarg:%s endarg:%s%n", this.getClass().getName(), darg, marg, rarg, Arrays.toString(endarg));
        	this.endarg = endarg;
     	if(endarg.length != 0) 
-    		throw new RuntimeException("Must not supply any qualifying arguments for Subset.");
+    		throw new RuntimeException("Must not supply any qualifying arguments for this Subset permutation.");
     }
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {

@@ -77,7 +77,7 @@ public class EmbeddedStreamRetrievalBattery {
 	 * @throws Exception
 	 */
 	public static void battery1(String[] argv) throws Exception {
-		System.out.println("Iterator Battery1 ");
+		System.out.println("Stream Battery1 ");
 		long tims = System.currentTimeMillis();
 		recs = 0;
 		// this list will store an object used to test subsequent queries where a named object is needed
