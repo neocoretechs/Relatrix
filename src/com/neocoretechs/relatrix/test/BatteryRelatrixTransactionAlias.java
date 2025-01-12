@@ -25,7 +25,6 @@ import com.neocoretechs.rocksack.TransactionId;
  * TEsts show examples of RelatrixTransaction processing. In general the tests compare the number of items retrieved 
  * against expected value since findSet retrieves items in no particular order.
  * NOTES:
- * A database unique to this test module should be used.
  * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
  * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2024

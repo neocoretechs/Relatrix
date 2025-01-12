@@ -24,7 +24,8 @@ import com.neocoretechs.rocksack.TransactionId;
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findHeadSet retrieval for alias functionality in a transaction context.
  * NOTES:
- * program arguments are _database
+ * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
+ * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2025
  *
  */
@@ -123,7 +124,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+		RelatrixTransaction.commit(xid2);
+		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 
 	/**

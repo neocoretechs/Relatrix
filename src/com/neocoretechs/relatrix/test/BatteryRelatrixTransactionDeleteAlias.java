@@ -24,8 +24,8 @@ import com.neocoretechs.rocksack.TransactionId;
  * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p/>
  * This represents sets deeply nested relations introducing a heavy demand on a series of aliased databases. 
  * NOTES:
- * A tablespace unique to this test module should be used.
- * program argument is tablespace directory i.e. C:/users/you/Relatrix/ [ [init] [max nnn] ]
+ * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
+ * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */

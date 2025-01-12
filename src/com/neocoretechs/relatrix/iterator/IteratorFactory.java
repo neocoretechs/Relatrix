@@ -331,7 +331,7 @@ import com.neocoretechs.rocksack.TransactionId;
 	               case 6:
 	                   return new FindSubSetMode6(darg, marg, rop, endarg);
 	               case 7:
-	            	   return new FindSubSetMode7(darg, marg, marg, endarg);
+	            	   return new FindSubSetMode7(darg, marg, rarg, endarg);
 	        	    default:
 	                    throw new IllegalArgumentException("The findSubset factory mode is not supported.");
 			}	
@@ -368,7 +368,7 @@ import com.neocoretechs.rocksack.TransactionId;
 	               case 6:
 	                   return new FindSubSetMode6Transaction(xid, darg, marg, rop, endarg);
 	               case 7:
-	            	   return new FindSubSetMode7Transaction(xid, darg, marg, marg, endarg);
+	            	   return new FindSubSetMode7Transaction(xid, darg, marg, rarg, endarg);
 	        	    default:
 	                   throw new IllegalArgumentException("The findSubset factory mode is not supported.");
 			}	

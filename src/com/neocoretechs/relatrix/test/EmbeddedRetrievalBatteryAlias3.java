@@ -13,7 +13,6 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
@@ -25,7 +24,8 @@ import com.neocoretechs.rocksack.Alias;
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findTailSet retrieval for alias functionality.
  * NOTES:
- * program arguments are _database
+ * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
+ * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2025
  *
  */

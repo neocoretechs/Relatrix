@@ -1,13 +1,8 @@
 package com.neocoretechs.relatrix;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 

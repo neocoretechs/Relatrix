@@ -158,7 +158,6 @@ public class EmbeddedRetrievalBattery4 {
 		displayLine = 0;
 		System.out.println("4.) findSubSet(?,*,*.String.class, String.class, "+lo+","+hi+");");			
 		it = Relatrix.findSubSet("?", "*", "*",String.class, String.class, lo, hi);
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result  c = (Result )o;
@@ -170,7 +169,6 @@ public class EmbeddedRetrievalBattery4 {
 		displayLine=0;
 		System.out.println("5.) findSubSet(*,?,?,String.class, String.class, "+lo+","+hi+")...");		
 		it = Relatrix.findSubSet("*", "?", "?",String.class, String.class, lo, hi);
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result2 c = (Result2)o; // result2
@@ -182,7 +180,6 @@ public class EmbeddedRetrievalBattery4 {
 		displayLine = 0;
 		System.out.println("6.) findSubSet(?,*,?,"+slo+","+shi+",String.class, "+lo+","+hi+")...");		
 		it = Relatrix.findSubSet("?", "*", "?",slo,shi, String.class, lo,hi);
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result2 c = (Result2)o;
@@ -194,7 +191,6 @@ public class EmbeddedRetrievalBattery4 {
 		displayLine = 0;
 		System.out.println("7.) findSubSet(?,?,*,"+slo+","+shi+", String.class, Long.class)...");		
 		it = Relatrix.findSubSet("?", "?", "*",slo,shi, String.class, Long.class);
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result2 c = (Result2)o;
@@ -206,7 +202,6 @@ public class EmbeddedRetrievalBattery4 {
 		displayLine = 0;
 		System.out.println("8.) FindSubset(?,?,?,"+slo+","+shi+", String.class, Long.class)...");		
 		it = Relatrix.findSubSet("?", "?", "?",slo,shi, String.class, Long.class);
-		//ar = new ArrayList<Comparable>();
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result3 c = (Result3)o;
@@ -215,8 +210,8 @@ public class EmbeddedRetrievalBattery4 {
 				System.out.println(displayLine+"="+c);
 			ar3.add(c);
 		}
-		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
-		System.out.println("wildcard results. They should produce relationships with these elements");
+		System.out.println("----------");
+		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the wildcard results.");
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
 			System.out.println("9."+j+") findSubSet(<obj>,<obj>,<obj>) using ="+
@@ -266,7 +261,6 @@ public class EmbeddedRetrievalBattery4 {
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-				//if(ar.size() == 2) ar.add(c[0]);
 			}
 		}
 		System.out.println("----------");
@@ -286,14 +280,12 @@ public class EmbeddedRetrievalBattery4 {
 			displayLine = 0;
 			System.out.println("14."+j+") findSubSet(<obj>,*,<obj>,String.class) using ="+((Result)ar2dr.get(j)).toArray()[0]+", "+((Result)ar2dr.get(j)).toArray()[1]);		
 			it = Relatrix.findSubSet(((Result)ar2dr.get(j)).toArray()[0], "*", ((Result)ar2dr.get(j)).toArray()[1], String.class);
-			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 1) ar2.add(c);
 			}
 			displayLine =0;
 			System.out.println("15."+j+") findSubSet(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
@@ -415,7 +407,7 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+c);
 			}
 		}
-		System.out.println("BATTERY4 SUCCESS in "+(System.currentTimeMillis()-tims));
+		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
 	/**
 	 * remove entries
