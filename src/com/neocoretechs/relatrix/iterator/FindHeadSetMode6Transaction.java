@@ -54,7 +54,7 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg[0] instanceof Class) {
-				tdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg[0]);
 			}
