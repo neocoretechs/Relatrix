@@ -124,7 +124,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias3 {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixTransaction.commit(xid2);
+		RelatrixTransaction.commit(alias12,xid2);
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 

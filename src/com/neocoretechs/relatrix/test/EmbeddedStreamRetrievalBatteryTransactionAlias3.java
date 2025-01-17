@@ -22,14 +22,14 @@ import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findHeadSet retrieval for alias functionality in a transaction context.
+ * and verifying findTailStream retrieval for alias functionality in a transaction context.
  * NOTES:
  * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
  * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2025
  *
  */
-public class EmbeddedRetrievalBatteryTransactionAlias2 {
+public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 	public static boolean DEBUG = false;
 	public static boolean DISPLAY = false;
 	public static boolean DISPLAYALL = true;
@@ -124,7 +124,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixTransaction.commit(alias12, xid2);
+		RelatrixTransaction.commit(alias12,xid2);
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 
@@ -135,7 +135,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 	 * @throws Exception
 	 */
 	public static void battery1(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
-		System.out.println(xid2+" Iterator Battery1 "+alias12);
+		System.out.println(xid2+" Stream Battery1 "+alias12);
 		long tims = System.currentTimeMillis();
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
@@ -149,20 +149,16 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries:");
 		displayLine = 0;
-		System.out.println("1.) FindHeadset("+alias12+",xid,*,*,*,String.class, String.class, Long.class)...");
-		it =  RelatrixTransaction.findHeadSet(alias12,xid2, "*", "*", "*",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("1.) findTailStream("+alias12+",xid,*,*,*,String.class, String.class, Long.class)...");
+		RelatrixTransaction.findTailStream(alias12,xid2, "*", "*", "*",String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
-		}
+		});
 		displayLine = 0;
-		System.out.println("2.) FindHeadset("+alias12+",xid,*,*,?,String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "*", "*", "?",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("2.) findTailStream("+alias12+",xid,*,*,?,String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "*", "*", "?",String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -170,12 +166,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 			if(ar.size() < SAMPLESIZE ) {
 				ar.add(c);
 			}
-		}
+		});
 		displayLine = 0;
-		System.out.println("3.) FindHeadSet("+alias12+",xid,*,?,*,String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "*", "?", "*",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("3.) findTailStream("+alias12+",xid,*,?,*,String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "*", "?", "*",String.class, String.class, Long.class).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -183,12 +177,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 			if(am.size() < SAMPLESIZE ) {
 				am.add(c);
 			}
-		}
+		});
 		displayLine = 0;
-		System.out.println("4.) FindHeadSet("+alias12+",xid,?,*,*.String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", "*", "*",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("4.) findTailStream("+alias12+",xid,?,*,*.String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "?", "*", "*",String.class, String.class, Long.class).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -196,12 +188,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 			if(ad.size() < SAMPLESIZE) {
 				ad.add(c);
 			}
-		}
+		});
 		displayLine=0;
-		System.out.println("5.) FindHeadSet("+alias12+",xid,*,?,?,String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "*", "?", "?",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("5.) findTailStream("+alias12+",xid,*,?,?,String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "*", "?", "?",String.class, String.class, Long.class).forEach(o->{
 			Result2 c = (Result2)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -209,12 +199,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 			if(ar2.size() < SAMPLESIZE) {
 				ar2.add(c);
 			}
-		}
+		});
 		displayLine = 0;
-		System.out.println("6.) FindHeadSet("+alias12+",xid,?,*,?,String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", "*", "?",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("6.) findTailStream("+alias12+",xid,?,*,?,String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "?", "*", "?",String.class, String.class, Long.class).forEach(o->{
 			Result2 c = (Result2)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -222,12 +210,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 			if(ar2dr.size() < SAMPLESIZE) {
 				ar2dr.add(c);
 			}
-		}
+		});
 		displayLine = 0;
-		System.out.println("7.) FindHeadSet("+alias12+",xid,?,?,*,String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", "?", "*",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("7.) findTailStream("+alias12+",xid,?,?,*,String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "?", "?", "*",String.class, String.class, Long.class).forEach(o->{
 			Result2 c = (Result2)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -236,12 +222,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 				ar2dm.add(c);
 			}
 
-		}
+		});
 		displayLine = 0;
-		System.out.println("8.) FindHeadSet("+alias12+",xid,?,?,?,String.class, String.class, Long.class)...");		
-		it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", "?", "?",String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
+		System.out.println("8.) findTailStream("+alias12+",xid,?,?,?,String.class, String.class, Long.class)...");		
+		RelatrixTransaction.findTailStream(alias12,xid2, "?", "?", "?",String.class, String.class, Long.class).forEach(o->{
 			Result3 c = (Result3)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -249,178 +233,147 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 			if(ar3.size() < SAMPLESIZE) {
 				ar3.add(c);
 			}
-		}
+		});
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("8."+j+") FindHeadSet("+alias12+",xid,?,?,?,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
-			it = RelatrixTransaction.findHeadSet(alias12,xid2,"?","?","?",((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("8."+j+") findTailStream("+alias12+",xid,?,?,?,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
+			RelatrixTransaction.findTailStream(alias12,xid2,"?","?","?",((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2)).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
 			System.out.println("Should retrieve none, since range is specified as String and we only stored Long...");
-			System.out.println("8A."+j+") FindHeadSet("+alias12+",xid,?,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "?","*", "*", ((Result)ar3.get(j)).get(0), String.class, String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("8A."+j+") findTailStream("+alias12+",xid,?,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, "?","*", "*", ((Result)ar3.get(j)).get(0), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		System.out.println("----------\r\nAbove are wildcard permutations. Now retrieve those with object references using the");
-		System.out.println("wildcard results. Recall headset is strictly less than 'to' element...");
+		System.out.println("wildcard results. Recall tailset is greater or equal to 'from' element...");
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("9."+j+") FindHeadSet("+alias12+",xid2,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("9."+j+") findTailStream("+alias12+",xid2,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2)).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10."+j+") FindHeadSet("+alias12+",xid,*,*,<obj>,String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "*", "*", ((Result)ar.get(j)).get(0), String.class, String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("10."+j+") findTailStream("+alias12+",xid,*,*,<obj>,String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, "*", "*", ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11."+j+") FindHeadSet("+alias12+",xid,*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "*", ((Result)am.get(j)).get(0), "*",String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("11."+j+") findTailStream("+alias12+",xid,*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, "*", ((Result)am.get(j)).get(0), "*",String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine =0;
-			System.out.println("12."+j+") FindHeadSet("+alias12+",xid,<obj>,*,*,String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ad.get(j)).get(0), "*", "*",String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("12."+j+") findTailStream("+alias12+",xid,<obj>,*,*,String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ad.get(j)).get(0), "*", "*",String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		for(int j = 0; j < ar2.size(); j++) {
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
-			System.out.println("13."+j+") FindHeadSet("+alias12+",xid,*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "*", ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1], String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("13."+j+") findTailStream("+alias12+",xid,*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
+			RelatrixTransaction.findTailStream(alias12,xid2, "*", ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1], String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine = 0;
-			System.out.println("14."+j+") FindHeadSet("+alias12+",xid,<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).toArray()[0]+", range="+((Result)ar2dr.get(j)).toArray()[1]);		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ar2dr.get(j)).toArray()[0], "*", ((Result)ar2dr.get(j)).toArray()[1], String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("14."+j+") findTailStream("+alias12+",xid,<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).toArray()[0]+", range="+((Result)ar2dr.get(j)).toArray()[1]);		
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ar2dr.get(j)).toArray()[0], "*", ((Result)ar2dr.get(j)).toArray()[1], String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
-			System.out.println("15."+j+") FindHeadSet("+alias12+",xid,<obj>,<obj>,*, Long.class) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ar2dm.get(j)).toArray()[0], ((Result)ar2dm.get(j)).toArray()[1], "*", Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("15."+j+") findTailStream("+alias12+",xid,<obj>,<obj>,*, Long.class) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ar2dm.get(j)).toArray()[0], ((Result)ar2dm.get(j)).toArray()[1], "*", Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") FindHeadSet("+alias12+",xid2,?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", "?", ((Result)ar.get(j)).get(0), String.class, String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("16."+j+") findTailStream("+alias12+",xid2,?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, "?", "?", ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
-			System.out.println("17."+j+") FindHeadSet("+alias12+",xid,?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", ((Result)am.get(j)).get(0), "?", String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("17."+j+") findTailStream("+alias12+",xid,?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, "?", ((Result)am.get(j)).get(0), "?", String.class, Long.class).forEach(o->{
 				Result2 c = (Result2)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine=0;
-			System.out.println("18."+j+") FindHeadSet("+alias12+",xid,<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ad.get(j)).get(0), "?", "?", String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("18."+j+") findTailStream("+alias12+",xid,<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ad.get(j)).get(0), "?", "?", String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") FindHeadSet("+alias12+",xid,?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, "?", ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("19."+j+") findTailStream("+alias12+",xid,?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
+			RelatrixTransaction.findTailStream(alias12,xid2, "?", ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine =0;
-			System.out.println("20."+j+") FindHeadSet("+alias12+",xid,<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ar2dr.get(j)).get(0), "?", ((Result)ar2dr.get(j)).get(1), String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("20."+j+") findTailStream("+alias12+",xid,<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ar2dr.get(j)).get(0), "?", ((Result)ar2dr.get(j)).get(1), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 			displayLine =0;
-			System.out.println("21."+j+") FindHeadSet("+alias12+",xid,<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-			it = RelatrixTransaction.findHeadSet(alias12,xid2, ((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), "?",Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
+			System.out.println("21."+j+") findTailStream("+alias12+",xid,<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
+			RelatrixTransaction.findTailStream(alias12,xid2, ((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), "?",Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
-			}
+			});
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}
