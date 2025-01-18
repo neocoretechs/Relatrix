@@ -31,7 +31,6 @@ public class FindSubSetMode1 extends FindSetMode1 {
 		int argCtr = 0;
 	   public FindSubSetMode1(char dop, char mop, Object rarg, Object ... endarg) { 
 		   super(dop,mop,rarg);
-		   dmr_return[3] = 1;
 		   this.endarg = endarg;
 		   if(endarg.length < 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
 	   }
@@ -45,7 +44,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 				ydmr = (Morphism) tdmr.clone();
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
-				if(endarg[0] instanceof Class) {
+				if(endarg[argCtr] instanceof Class) {
 					xdmr.setDomain((Comparable) Relatrix.firstKey((Class)endarg[argCtr]));
 					ydmr.setDomain((Comparable) Relatrix.lastKey((Class)endarg[argCtr++]));
 				} else {
@@ -55,7 +54,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 			} else
 				throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 			if(tdmr.getMap() == null) {
-				if(endarg[1] instanceof Class) {
+				if(endarg[argCtr] instanceof Class) {
 					xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg[argCtr]));
 					if(argCtr >= endarg.length)
 						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
@@ -82,7 +81,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 				ydmr = (Morphism) tdmr.clone();
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
-				if(endarg[0] instanceof Class) {
+				if(endarg[argCtr] instanceof Class) {
 					xdmr.setDomain(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
 					ydmr.setDomain(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[argCtr++]));
 				} else {
@@ -92,7 +91,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 			} else
 				throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 			if(tdmr.getMap() == null) {
-				if(endarg[1] instanceof Class) {
+				if(endarg[argCtr] instanceof Class) {
 					xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
 					if(argCtr >= endarg.length)
 						throw new IllegalAccessException("Wrong number of arguments to findSubSet");
