@@ -309,7 +309,7 @@ public final class Relatrix {
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
-			identity.setIdentity(identity.newKey(identity));
+			identity.setIdentity(identity.newKey(alias,identity));
 		} else
 			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
@@ -952,7 +952,12 @@ public final class Relatrix {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			Morphism.resolve((Comparable) get(alias, dbks), located);
+			Object cx = get(alias, dbks);
+			if(cx instanceof Morphism) {
+				((Morphism)cx).setIdentity(dbk);
+				((Morphism)cx).setAlias(alias);
+			}
+			Morphism.resolve((Comparable) cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet exiting");

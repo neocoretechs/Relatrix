@@ -991,7 +991,12 @@ public final class RelatrixTransaction {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			Morphism.resolve((Comparable) get(xid, dbks), located);
+			Object cx = get(xid, dbks);
+			if(cx instanceof Morphism) {
+				((Morphism)cx).setIdentity(dbk);
+				((Morphism)cx).setTransactionId(xid);
+			}
+			Morphism.resolve((Comparable)cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet exiting");
@@ -1063,7 +1068,13 @@ public final class RelatrixTransaction {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			Morphism.resolve((Comparable) get(alias, xid, dbks), located);
+			Object cx = get(alias, xid, dbks);
+			if(cx instanceof Morphism) {
+				((Morphism)cx).setIdentity(dbk);
+				((Morphism)cx).setAlias(alias);
+				((Morphism)cx).setTransactionId(xid);
+			}
+			Morphism.resolve((Comparable) cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet exiting");

@@ -69,8 +69,6 @@ public class BatteryRelatrixFindRelatedAlias {
 			battery1(argv, alias1);
 			battery1(argv, alias2);
 			battery1(argv, alias3);
-			if(DEBUG)
-				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");

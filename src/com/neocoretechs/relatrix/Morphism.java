@@ -782,7 +782,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		 * @throws ClassNotFoundException
 		 * @throws IOException
 		 */
-		private DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
+		DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(transactionId == null) {
 				return DBKey.newKey(aliasOther, IndexResolver.getIndexInstanceTable(), instance);
 			} 
