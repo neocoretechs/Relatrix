@@ -1086,9 +1086,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	}
          	Comparable tdomain, tmap, trange;
           	tdomain = (Comparable) ((Morphism)target).getDomain();
-        	//((DBKey)map).getInstance();
         	tmap = (Comparable) ((Morphism)target).getMap();
-        	//((DBKey)range).getInstance();
         	trange = (Comparable) ((Morphism)target).getRange();
         	resolve(tdomain, res);
         	resolve(tmap, res);
@@ -1111,9 +1109,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	morphisms.add(((Morphism)target).getIdentity());
          	Comparable tdomain, tmap, trange;
           	tdomain = (Comparable) ((Morphism)target).getDomain();
-        	//((DBKey)map).getInstance();
         	tmap = (Comparable) ((Morphism)target).getMap();
-        	//((DBKey)range).getInstance();
         	trange = (Comparable) ((Morphism)target).getRange();
         	resolveMorphisms(tdomain, morphisms);
         	resolveMorphisms(tmap, morphisms);

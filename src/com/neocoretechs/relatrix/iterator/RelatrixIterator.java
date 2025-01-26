@@ -178,7 +178,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
 	* @throws IOException 
 	* @throws IllegalAccessException 
-	 * @throws ClassNotFoundException 
+	* @throws ClassNotFoundException 
 	*/
 	private Result iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
 	    Result tuples = getReturnTuples(dmr_return);

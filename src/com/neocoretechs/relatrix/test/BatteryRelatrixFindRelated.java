@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +119,13 @@ public class BatteryRelatrixFindRelated {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
 			Morphism m = (Morphism) ((Result)(Relatrix.findStream("*", "*", irec).findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(m);
-			System.out.println(i+".)"+Arrays.toString(lm.toArray()));
+			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
+			for(Comparable co: lm) {
+				Morphism mo = (Morphism) co;
+				ArrayList<Comparable> ma = new ArrayList<Comparable>();
+				Morphism.resolve(mo, ma);
+				System.out.println(Arrays.toString(ma.toArray()));
+			}
 			System.out.println("----------");
 		}
 		System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");

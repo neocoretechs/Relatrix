@@ -881,7 +881,12 @@ public final class Relatrix {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			Morphism.resolve((Comparable) get(dbks), located);
+			//Morphism.resolve((Comparable) get(dbks), located);
+			Object cx = get(dbks);
+			if(cx instanceof Morphism) {
+				((Morphism)cx).setIdentity(dbk);
+			}
+			located.add((Comparable) cx);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet exiting");
@@ -957,7 +962,8 @@ public final class Relatrix {
 				((Morphism)cx).setIdentity(dbk);
 				((Morphism)cx).setAlias(alias);
 			}
-			Morphism.resolve((Comparable) cx, located);
+			//Morphism.resolve((Comparable) cx, located);
+			located.add((Comparable) cx);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet exiting");

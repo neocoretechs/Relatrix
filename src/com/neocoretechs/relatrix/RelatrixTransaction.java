@@ -955,7 +955,7 @@ public final class RelatrixTransaction {
 	 * @param xid
 	 * @param c The Comparable key to locate for initial retrieval
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IOException low-level access or problems resolving schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
@@ -996,7 +996,8 @@ public final class RelatrixTransaction {
 				((Morphism)cx).setIdentity(dbk);
 				((Morphism)cx).setTransactionId(xid);
 			}
-			Morphism.resolve((Comparable)cx, located);
+			located.add((Comparable) cx);
+			//Morphism.resolve((Comparable)cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet exiting");
@@ -1032,7 +1033,7 @@ public final class RelatrixTransaction {
 	 * @param c The Comparable key to locate for initial retrieval
 	 * @param xid
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IOException low-level access or problems resolving schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
@@ -1074,7 +1075,8 @@ public final class RelatrixTransaction {
 				((Morphism)cx).setAlias(alias);
 				((Morphism)cx).setTransactionId(xid);
 			}
-			Morphism.resolve((Comparable) cx, located);
+			located.add((Comparable) cx);
+			//Morphism.resolve((Comparable) cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet exiting");
