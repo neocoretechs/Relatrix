@@ -11,6 +11,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.rocksdb.ByteBufferGetStatus;
+
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
@@ -839,6 +841,193 @@ public final class Relatrix {
 		remove(alias, dmr);
 	}
 
+	/**
+	 * Return a resolved list of all components of relationships that this object participates in
+	 * @param c The Comparable key to locate for initial retrieval
+	 * @return The list of elements related to c
+	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalArgumentException 
+	 * @throws DuplicateKeyException 
+	 */
+	public static List<Comparable> findSet(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.findSet prepping to find:"+c);
+		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
+		List<DBKey> dbkeys = new ArrayList<DBKey>();
+		DBKey dbk = null;
+		if(!(c instanceof Morphism)) {
+			dbk = (DBKey) get(c);
+			if(dbk == null)
+				return located;
+		} else {
+			dbk = ((Morphism)c).getIdentity();
+			dbkeys.add(dbk);
+		}
+		relatedSearch(dbk, dbkeys);
+		int index = 0;
+		while(index < dbkeys.size()) {
+			relatedSearch(dbkeys.get(index), dbkeys);
+			++index;
+		}
+		// should have unique list of dbkeys
+		if(DEBUG) {
+			System.out.println("Size:"+dbkeys.size());
+			int i = 1;
+			for(DBKey dbks : dbkeys) {
+				System.out.println((i++)+".)"+get(dbks));
+			}
+			System.out.println("==========");
+		}
+		for(DBKey dbks : dbkeys) {
+			Morphism.resolve((Comparable) get(dbks), located);
+		}
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.findSet exiting");
+		return located;
+	}
+	/**
+	 * Find the related elements
+	 * @param transactionId
+	 * @param c
+	 * @param dbkeys 
+	 * @param deleted
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 * @throws DuplicateKeyException
+	 */
+	private static void relatedSearch(DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		DomainMapRange dmr = new DomainMapRange(true, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		MapDomainRange mdr = new MapDomainRange(true, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
+		RangeMapDomain rmd = new RangeMapDomain(true, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
+		short dmr_return[] = new short[]{-1,0,2,2};
+		short mdr_return[] = new short[]{-1,2,0,2};
+		short rmd_return[] = new short[]{-1,2,2,0};
+		Iterator<?> itd = new RelatrixIterator(dmr, dmr_return); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIterator(mdr, mdr_return); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIterator(rmd, rmd_return); //findSet("*","*",c);
+		sequentialMorphismSearch(itd, itm, itr, dbkeys);
+	}
+	/**
+	 * Return a resolved list of all components of relationships that this object participates in
+	 * @param c The Comparable key to locate for initial retrieval
+	 * @return The list of elements related to c
+	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalArgumentException 
+	 * @throws DuplicateKeyException 
+	 */
+	public static List<Comparable> findSet(Alias alias, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.findSet prepping to find:"+c);
+		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
+		List<DBKey> dbkeys = new ArrayList<DBKey>();
+		DBKey dbk = null;
+		if(!(c instanceof Morphism)) {
+			dbk = (DBKey) get(alias, c);
+			if(dbk == null)
+				return located;
+		} else {
+			dbk = ((Morphism)c).getIdentity();
+			dbkeys.add(dbk);
+		}
+		relatedSearch(alias, dbk, dbkeys);
+		int index = 0;
+		while(index < dbkeys.size()) {
+			relatedSearch(alias, dbkeys.get(index), dbkeys);
+			++index;
+		}
+		// should have unique list of dbkeys
+		if(DEBUG) {
+			System.out.println("Size:"+dbkeys.size());
+			int i = 1;
+			for(DBKey dbks : dbkeys) {
+				System.out.println((i++)+".)"+get(alias, dbks));
+			}
+			System.out.println("==========");
+		}
+		for(DBKey dbks : dbkeys) {
+			Morphism.resolve((Comparable) get(alias, dbks), located);
+		}
+		if( DEBUG || DEBUGREMOVE )
+			System.out.println("Relatrix.findSet exiting");
+		return located;
+	}
+	/**
+	 * Find the related elements
+	 * @param transactionId
+	 * @param c
+	 * @param dbkeys 
+	 * @param deleted
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws NoSuchElementException
+	 * @throws DuplicateKeyException
+	 */
+	private static void relatedSearch(Alias alias, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		DomainMapRange dmr = new DomainMapRange(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		MapDomainRange mdr = new MapDomainRange(true, alias, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
+		RangeMapDomain rmd = new RangeMapDomain(true, alias, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
+		short dmr_return[] = new short[]{-1,0,2,2};
+		short mdr_return[] = new short[]{-1,2,0,2};
+		short rmd_return[] = new short[]{-1,2,2,0};
+		Iterator<?> itd = new RelatrixIterator(alias, dmr, dmr_return); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIterator(alias, mdr, mdr_return); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIterator(alias, rmd, rmd_return); //findSet("*","*",c);
+		sequentialMorphismSearch(itd, itm, itr, dbkeys);
+	}
+	/**
+	 * Search the domain, map, and range for each Morphism for relations containing iterator elements
+	 * @param itd
+	 * @param itm
+	 * @param itr
+	 * @param dbkeys 
+	 * @param deleted
+	 */
+	protected static void sequentialMorphismSearch(Iterator<?> itd, Iterator<?> itm, Iterator<?> itr, List<DBKey> dbkeys) {
+		//long tim1 = System.nanoTime();
+		try {
+			while(itd.hasNext()) {
+				Result o = (Result) itd.next();
+				if(!dbkeys.contains(((Morphism)o.get(0)).getIdentity())) {
+					dbkeys.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			while(itm.hasNext()) {
+				Result o = (Result) itm.next();
+				if(!dbkeys.contains(((Morphism)o.get(0)).getIdentity())) {
+					dbkeys.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			while(itr.hasNext()) {
+				Result o = (Result) itr.next();
+				if(!dbkeys.contains(((Morphism)o.get(0)).getIdentity())) {
+					dbkeys.add(((Morphism)o.get(0)).getIdentity());
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+		
+		//System.out.println("sequentialSearch elapsed:"+(System.nanoTime()-tim1)+" nanos.");
+	}
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which

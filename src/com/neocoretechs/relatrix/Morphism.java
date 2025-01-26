@@ -1073,12 +1073,11 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         }
         
         /**
-         * Assume instance is instanceof Morphism from a previous test. Resolve dbkeys into instances to use downstream
-         * @param instance
-         * @param func
-         * @throws IllegalAccessException
-         * @throws ClassNotFoundException
-         * @throws IOException
+  		 * Beginning at target, recursively resolve all relationships related to target.
+  		 * If target is not Morphism, add it to res result List and return, if it is Morphism, recursively call
+  		 * this method on the domain, map, and range.
+         * @param target Comparable to begin resolution
+         * @param res list to populate with resolved relationships
          */
         public static void resolve(Comparable target, List<Comparable> res) {
         	if(!(target instanceof Morphism)) {
@@ -1096,9 +1095,33 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         	resolve(trange, res);
         	if(DEBUG)
         		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
-   
         }
         
+        /**
+         * Beginning from target, recursively resolve the Morphisms directly contained in target.
+         * If target is Morphism, add the key to morphisms result List and recursively call
+  		 * this method on the domain, map, and range, else return.
+         * @param target the initial instance of any Comparable
+         * @param morphisms List to be populated with resolved Morphisms
+         */
+        public static void resolveMorphisms(Comparable target, List<DBKey> morphisms) {
+        	if(!(target instanceof Morphism)) {
+        		return;
+        	}
+        	morphisms.add(((Morphism)target).getIdentity());
+         	Comparable tdomain, tmap, trange;
+          	tdomain = (Comparable) ((Morphism)target).getDomain();
+        	//((DBKey)map).getInstance();
+        	tmap = (Comparable) ((Morphism)target).getMap();
+        	//((DBKey)range).getInstance();
+        	trange = (Comparable) ((Morphism)target).getRange();
+        	resolveMorphisms(tdomain, morphisms);
+        	resolveMorphisms(tmap, morphisms);
+        	resolveMorphisms(trange, morphisms);
+        	if(DEBUG)
+        		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
+        }
+             
         @Override
         public String toString() {
      		String s = String.format("Class:%s Key:%s%n",this.getClass().getName(),this.getIdentity());

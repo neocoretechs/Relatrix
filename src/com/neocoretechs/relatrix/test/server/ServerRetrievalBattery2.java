@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test;
+package com.neocoretechs.relatrix.test.server;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,13 +17,12 @@ import com.neocoretechs.relatrix.client.RelatrixClient;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findSubSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
+ * and verifying findHeadSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * NOTES:
  * program arguments are local_node remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
- *
  */
-public class ServerRetrievalBattery1 {
+public class ServerRetrievalBattery2 {
 	public static boolean DEBUG = false;
 	private static RelatrixClient rkvc ;
 		public static int displayLinesOn[]= {0,1000,5000,9990,15000,20000,30000,40000,50000,60000,70000,80000,90000,99000};
@@ -57,8 +56,10 @@ public class ServerRetrievalBattery1 {
 		}
 		
 		public static void displayCtrl() {
-			if(displayLine == 0)
+			if(displayLine == 0) {
 				displayLineCtr = 0;
+				DISPLAY = true;
+			}
 			if(displayLine >= displayLinesOn[displayLineCtr] && displayLine <= displayLinesOff[displayLineCtr]) {
 				if(!DISPLAY)
 					displayTimer = System.currentTimeMillis();
@@ -108,8 +109,8 @@ public class ServerRetrievalBattery1 {
 			Iterator<?> it = null;
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
-			System.out.println("1.) findSubSet(*,*,*,String.class, String.class, Long.class)...");
-			it =  rkvc.findSubSet("*", "*", "*",String.class, String.class, Long.class);
+			System.out.println("1.) findHeadSet(*,*,*,String.class, String.class, Long.class)...");
+			it =  rkvc.findHeadSet("*", "*", "*",String.class, String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -119,8 +120,8 @@ public class ServerRetrievalBattery1 {
 				//ar.add(c[0]);
 			}
 			displayLine = 0;
-			System.out.println("2.) findSubSet(*,*,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("*", "*", "?",String.class, String.class, Long.class);
+			System.out.println("2.) findHeadSet(*,*,?,String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("*", "*", "?",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -133,8 +134,8 @@ public class ServerRetrievalBattery1 {
 				}
 			}
 			displayLine = 0;
-			System.out.println("3.) findSubset(*,?,*,String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("*", "?", "*",String.class, String.class, Long.class);
+			System.out.println("3.) findHeadset(*,?,*,String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("*", "?", "*",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -147,8 +148,8 @@ public class ServerRetrievalBattery1 {
 				}
 			}
 			displayLine = 0;
-			System.out.println("4.) findSubSet(?,*,*.String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("?", "*", "*",String.class, String.class, Long.class);
+			System.out.println("4.) findHeadSet(?,*,*.String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("?", "*", "*",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -161,8 +162,8 @@ public class ServerRetrievalBattery1 {
 				}
 			}
 			displayLine=0;
-			System.out.println("5.) findSubSet(*,?,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("*", "?", "?",String.class, String.class, Long.class);
+			System.out.println("5.) findHeadSet(*,?,?,String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("*", "?", "?",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -175,8 +176,8 @@ public class ServerRetrievalBattery1 {
 				}
 			}
 			displayLine = 0;
-			System.out.println("6.) findSubSet(?,*,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("?", "*", "?",String.class, String.class, Long.class);
+			System.out.println("6.) findHeadSet(?,*,?,String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("?", "*", "?",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -189,8 +190,8 @@ public class ServerRetrievalBattery1 {
 				}
 			}
 			displayLine = 0;
-			System.out.println("7.) findSubSet(?,?,*,String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("?", "?", "*",String.class, String.class, Long.class);
+			System.out.println("7.) findHeadSet(?,?,*,String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("?", "?", "*",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -204,8 +205,8 @@ public class ServerRetrievalBattery1 {
 
 			}
 			displayLine = 0;
-			System.out.println("8.) FindSubset(?,?,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findSubSet("?", "?", "?",String.class, String.class, Long.class);
+			System.out.println("8.) FindHeadset(?,?,?,String.class, String.class, Long.class)...");		
+			it = rkvc.findHeadSet("?", "?", "?",String.class, String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -221,11 +222,11 @@ public class ServerRetrievalBattery1 {
 			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 			System.out.println("wildcard results. They should produce relationships with these elements");
 			displayLine = 0;
-			System.out.println("9.) findSubSet(<obj>,<obj>,<obj>) using ="+
+			System.out.println("9.) findHeadSet(<obj>,<obj>,<obj>) using ="+
 			((Result)ar3.get(0)).get(0)+",("+((Result)ar3.get(0)).get(0).getClass().getName()+"),"+
 			((Result)ar3.get(0)).get(1)+",("+((Result)ar3.get(0)).get(1).getClass().getName()+"),"+
 			((Result)ar3.get(0)).get(2)+",("+((Result)ar3.get(0)).get(2).getClass().getName());
-			it = rkvc.findSubSet(((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2));
+			it = rkvc.findHeadSet(((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -236,8 +237,8 @@ public class ServerRetrievalBattery1 {
 			}
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10.) findSubSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(0)).get(3));		
-			it = rkvc.findSubSet("*", "*", ((Result)ar3.get(0)).get(3), String.class, String.class);
+			System.out.println("10.) findHeadSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(0)).get(3));		
+			it = rkvc.findHeadSet("*", "*", ((Result)ar3.get(0)).get(3), String.class, String.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -248,8 +249,8 @@ public class ServerRetrievalBattery1 {
 			}
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11.) findSubSet(*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
-			it = rkvc.findSubSet("*", ((Result)ar.get(1)).get(0), "*",String.class, Long.class);
+			System.out.println("11.) findHeadSet(*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
+			it = rkvc.findHeadSet("*", ((Result)ar.get(1)).get(0), "*",String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -259,7 +260,7 @@ public class ServerRetrievalBattery1 {
 			}
 			displayLine =0;
 			System.out.println("12.) FindSubset(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
-			it = rkvc.findSubSet(((Result)ar.get(2)).get(0), "*", "*", String.class, Long.class);
+			it = rkvc.findHeadSet(((Result)ar.get(2)).get(0), "*", "*", String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -271,8 +272,8 @@ public class ServerRetrievalBattery1 {
 			}
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
-			System.out.println("13.) findSubSet(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(0)).toArray()[0]+" range="+((Result)ar2.get(0)).toArray()[1]);		
-			it = rkvc.findSubSet("*", ((Result)ar2.get(0)).toArray()[0], ((Result)ar2.get(0)).toArray()[1], String.class);
+			System.out.println("13.) findHeadSet(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(0)).toArray()[0]+" range="+((Result)ar2.get(0)).toArray()[1]);		
+			it = rkvc.findHeadSet("*", ((Result)ar2.get(0)).toArray()[0], ((Result)ar2.get(0)).toArray()[1], String.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -283,8 +284,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar2.size() == 0) ar2.add(c);
 			}
 			displayLine = 0;
-			System.out.println("14.) findSubSet(<obj>,*,<obj>,String.class) using ="+((Result)ar2.get(1)).toArray()[0]+", "+((Result)ar2.get(1)).toArray()[1]);		
-			it = rkvc.findSubSet(((Result)ar2.get(1)).toArray()[0], "*", ((Result)ar2.get(1)).toArray()[1], String.class);
+			System.out.println("14.) findHeadSet(<obj>,*,<obj>,String.class) using ="+((Result)ar2.get(1)).toArray()[0]+", "+((Result)ar2.get(1)).toArray()[1]);		
+			it = rkvc.findHeadSet(((Result)ar2.get(1)).toArray()[0], "*", ((Result)ar2.get(1)).toArray()[1], String.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -295,8 +296,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar2.size() == 1) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("15.) findSubSet(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2.get(2)).toArray()[0]+", map="+((Result)ar2.get(2)).toArray()[1]);		
-			it = rkvc.findSubSet(((Result)ar2.get(2)).toArray()[0], ((Result)ar2.get(2)).toArray()[1], "*",Long.class);
+			System.out.println("15.) findHeadSet(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2.get(2)).toArray()[0]+", map="+((Result)ar2.get(2)).toArray()[1]);		
+			it = rkvc.findHeadSet(((Result)ar2.get(2)).toArray()[0], ((Result)ar2.get(2)).toArray()[1], "*",Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -307,8 +308,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar2.size() == 2) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("16.) findSubSet(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(0)).get(0));		
-			it = rkvc.findSubSet("?", "?", ((Result)ar.get(0)).get(0), String.class, String.class);
+			System.out.println("16.) findHeadSet(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(0)).get(0));		
+			it = rkvc.findHeadSet("?", "?", ((Result)ar.get(0)).get(0), String.class, String.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -319,8 +320,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar.size() == 0 ) ar.add(c[0]);
 			}
 			displayLine =0;
-			System.out.println("17.) findSubSet(?,<obj>,?, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
-			it = rkvc.findSubSet("?", ((Result)ar.get(1)).get(0), "?", String.class, Long.class);
+			System.out.println("17.) findHeadSet(?,<obj>,?, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
+			it = rkvc.findHeadSet("?", ((Result)ar.get(1)).get(0), "?", String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -331,8 +332,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar.size() == 1 ) ar.add(c[0]);
 			}
 			displayLine =0;
-			System.out.println("18.) findSubSet(<obj>,?,?, String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
-			it = rkvc.findSubSet(((Result)ar.get(2)).get(0), "?", "?", String.class, Long.class);
+			System.out.println("18.) findHeadSet(<obj>,?,?, String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
+			it = rkvc.findHeadSet(((Result)ar.get(2)).get(0), "?", "?", String.class, Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -343,8 +344,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar.size() == 2) ar.add(c[0]);
 			}
 			displayLine =0;
-			System.out.println("19.) findSubSet(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
-			it = rkvc.findSubSet("?", ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1), String.class);
+			System.out.println("19.) findHeadSet(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
+			it = rkvc.findHeadSet("?", ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1), String.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -355,8 +356,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar2.size() == 0) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("20.) findSubSet(<obj>,?,<obj>,String.class) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
-			it = rkvc.findSubSet(((Result)ar2.get(1)).get(0), "?", ((Result)ar2.get(1)).get(1), String.class);
+			System.out.println("20.) findHeadSet(<obj>,?,<obj>,String.class) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
+			it = rkvc.findHeadSet(((Result)ar2.get(1)).get(0), "?", ((Result)ar2.get(1)).get(1), String.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -367,8 +368,8 @@ public class ServerRetrievalBattery1 {
 				//if(ar2.size() == 1) ar2.add(c);
 			}
 			displayLine =0;
-			System.out.println("21.) findSubSet(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
-			it = rkvc.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",Long.class);
+			System.out.println("21.) findHeadSet(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
+			it = rkvc.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -378,11 +379,11 @@ public class ServerRetrievalBattery1 {
 					System.out.println(displayLine+"="+c);
 				//if(ar2.size() == 2) ar2.add(c);
 			}
-			Long lo = (max/2000L);
+
 			Long hi = (max/1000L);
 			displayLine =0;
-			System.out.println("22.) findSubSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range="+lo+" to "+hi);		
-			it = rkvc.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",lo,hi);
+			System.out.println("22.) findHeadSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range= to "+hi);		
+			it = rkvc.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",hi);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -392,10 +393,10 @@ public class ServerRetrievalBattery1 {
 					System.out.println(displayLine+"="+c);
 				//if(ar2.size() == 2) ar2.add(c);
 			}
-			lo+=1000L;
+		
 			hi+=1000L;
-			System.out.println("23.) findSubSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range="+lo+" to "+hi);		
-			it = rkvc.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",lo,hi);
+			System.out.println("23.) findHeadSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range= to "+hi);		
+			it = rkvc.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",hi);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -405,10 +406,10 @@ public class ServerRetrievalBattery1 {
 					System.out.println(displayLine+"="+c);
 				//if(ar2.size() == 2) ar2.add(c);
 			}
-			lo+=1000L;
+	
 			hi+=1000L;
-			System.out.println("23.) findSubSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range="+lo+" to "+hi);		
-			it = rkvc.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",lo,hi);
+			System.out.println("23.) findHeadSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range= to "+hi);		
+			it = rkvc.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), "?",hi);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();

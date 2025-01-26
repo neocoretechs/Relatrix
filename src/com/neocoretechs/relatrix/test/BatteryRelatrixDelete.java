@@ -21,7 +21,7 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
  * The set of tests verifies the delete functions in the {@link  Relatrix}<p/>
  * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p/>
- * This represents sets deeply nested relations introducing a heavy demand. 
+ * This represents sets of deeply nested relations introducing a heavy demand. 
  * NOTES:
  * A database unique to this test module should be used.
  * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
@@ -305,27 +305,5 @@ public class BatteryRelatrixDelete {
 		}
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	public static void displayMorphism(Object fkey, TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		System.out.println(" class:"+fkey.getClass()+" value:"+fkey);
-		if(fkey.getClass().isArray()) {
-			for(int j = 0; j < ((Comparable[])fkey).length; j++) {
-				System.out.println(j+"="+((Comparable[])fkey)[j].getClass()+" "+((Comparable[])fkey)[j]);
-				Morphism dmr = (Morphism) ((Comparable[])fkey)[j];
-				System.out.println("Keys:"+dmr.getDomainKey()+", "+dmr.getMapKey()+", "+dmr.getRangeKey());
-				if(dmr.isDomainKeyValid())
-					System.out.println("Domain:"+dmr.getDomain());
-				if(dmr.getDomain() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().get(xid,dmr.getDomainKey()));
-				if(dmr.isMapKeyValid())
-					System.out.println("Map:"+dmr.getMap());
-				if(dmr.getMap() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().get(xid,dmr.getMapKey()));
-				if(dmr.isRangeKeyValid())
-					System.out.println("Range:"+dmr.getRange());
-				if(dmr.getRange() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().get(xid,dmr.getRangeKey()));
-			}
-		}
-	}
-	
+
 }

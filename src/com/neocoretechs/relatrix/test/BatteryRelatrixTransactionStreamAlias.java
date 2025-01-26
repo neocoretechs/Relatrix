@@ -556,27 +556,4 @@ public class BatteryRelatrixTransactionStreamAlias {
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
-	public static void displayMorphism(Object fkey, TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		System.out.println(" class:"+fkey.getClass()+" value:"+fkey);
-		if(fkey.getClass().isArray()) {
-			for(int j = 0; j < ((Comparable[])fkey).length; j++) {
-				System.out.println(j+"="+((Comparable[])fkey)[j].getClass()+" "+((Comparable[])fkey)[j]);
-				Morphism dmr = (Morphism) ((Comparable[])fkey)[j];
-				System.out.println("Keys:"+dmr.getDomainKey()+", "+dmr.getMapKey()+", "+dmr.getRangeKey());
-				if(dmr.isDomainKeyValid())
-					System.out.println("Domain:"+dmr.getDomain());
-				if(dmr.getDomain() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().get(xid,dmr.getDomainKey()));
-				if(dmr.isMapKeyValid())
-					System.out.println("Map:"+dmr.getMap());
-				if(dmr.getMap() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().get(xid,dmr.getMapKey()));
-				if(dmr.isRangeKeyValid())
-					System.out.println("Range:"+dmr.getRange());
-				if(dmr.getRange() == null)
-					System.out.println(IndexResolver.getIndexInstanceTable().get(xid,dmr.getRangeKey()));
-			}
-		}
-	}
-	
 }
