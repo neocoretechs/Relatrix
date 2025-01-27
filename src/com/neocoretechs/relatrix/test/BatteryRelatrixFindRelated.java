@@ -18,8 +18,6 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * The set of tests verifies the findSet relation function in the {@link  Relatrix}<p/>
@@ -63,6 +61,7 @@ public class BatteryRelatrixFindRelated {
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6 Nested Key");
 		battery1AR6(argv);
+		battery1AR67(argv);
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -130,7 +129,31 @@ public class BatteryRelatrixFindRelated {
 		}
 		System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-
+	/**
+	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
+	 * verify the previously inserted data. Start from the relationship "dog "+sequence
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR67(String[] argv) throws Exception {
+		i = min;
+		long tims = System.currentTimeMillis();
+		System.out.println("Battery1AR67");
+		for(int i = min; i < max; i++) {
+			String irec = "dog "+String.format(uniqKeyFmt, i);
+			Morphism m = (Morphism) ((Result)(Relatrix.findStream(irec, "*", "*").findFirst().get())).get();
+			List<Comparable> lm = Relatrix.findSet(m);
+			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
+			for(Comparable co: lm) {
+				Morphism mo = (Morphism) co;
+				ArrayList<Comparable> ma = new ArrayList<Comparable>();
+				Morphism.resolve(mo, ma);
+				System.out.println(Arrays.toString(ma.toArray()));
+			}
+			System.out.println("----------");
+		}
+		System.out.println("BATTERY1AR67 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
 	/**
 	 * remove entries
 	 * @param argv

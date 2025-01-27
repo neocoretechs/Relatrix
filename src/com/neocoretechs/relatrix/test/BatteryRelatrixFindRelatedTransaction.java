@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -14,12 +13,10 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Morphism.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**

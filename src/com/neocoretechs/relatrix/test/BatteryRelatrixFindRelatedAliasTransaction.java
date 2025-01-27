@@ -15,7 +15,6 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -185,6 +184,5 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		});
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	
-	
+
 }
