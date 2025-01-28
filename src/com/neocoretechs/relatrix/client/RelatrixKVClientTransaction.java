@@ -239,7 +239,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * @return 
 	 */
 	@Override
-	public Object sendCommand(RelatrixKVTransactionStatement rs) throws Exception {
+	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);
