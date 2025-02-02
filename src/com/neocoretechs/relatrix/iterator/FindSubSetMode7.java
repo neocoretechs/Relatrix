@@ -15,15 +15,11 @@ import com.neocoretechs.rocksack.Alias;
 */
 public class FindSubSetMode7 extends FindSetMode7 {
 	public static boolean DEBUG = false;
-	Object[] endarg;
 	// mode 7
-    public FindSubSetMode7(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
+    public FindSubSetMode7(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException { 	
     	super(darg, marg, rarg);
     	if(DEBUG)
-    		System.out.printf("%s darg:%s marg:%s rarg:%s endarg:%s%n", this.getClass().getName(), darg, marg, rarg, Arrays.toString(endarg));
-       	this.endarg = endarg;
-    	if(endarg.length != 0) 
-    		throw new RuntimeException("Must not supply any qualifying arguments for this Subset permutation.");
+    		System.out.printf("%s darg:%s marg:%s rarg:%s%n", this.getClass().getName(), darg, marg, rarg);
     }
 	@Override
 	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {

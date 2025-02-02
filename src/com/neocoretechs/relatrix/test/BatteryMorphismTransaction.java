@@ -461,7 +461,7 @@ public class BatteryMorphismTransaction {
 		long s = RelatrixTransaction.size(xid);
 		System.out.println(" Cleaning DB of "+s+" elements. for xid:"+xid);
 		long timx = System.currentTimeMillis();
-		Iterator<?> it = RelatrixTransaction.findSet(xid, "*", "*", "*");
+		Iterator<?> it = RelatrixTransaction.findSet(xid, '*', '*', '*');
 		while(it.hasNext()){
 			Result fkey = (Result) it.next();
 			RelatrixTransaction.remove(xid,(Comparable) fkey.get(0));

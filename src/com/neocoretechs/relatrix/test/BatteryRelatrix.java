@@ -155,7 +155,7 @@ public class BatteryRelatrix {
 	public static void battery1AR6(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet("?", "?", "?");
+		Iterator<?> its = Relatrix.findSet('?', '?', '?');
 		System.out.println("Battery1AR6");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -180,14 +180,14 @@ public class BatteryRelatrix {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet('?', '*', '*');
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet("?", "*", "*");
+		Iterator<?> its = Relatrix.findSet('?', '*', '*');
 		System.out.println("Battery1AR7");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -209,14 +209,14 @@ public class BatteryRelatrix {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "?", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet('?', '?', '*');
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR8(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet("?", "?", "*");
+		Iterator<?> its = Relatrix.findSet('?', '?', '*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// two '?' in findset gives use 2 element array, the domain and map
@@ -238,14 +238,14 @@ public class BatteryRelatrix {
 	}
 	/**
 	 * 
-	 * Testing of Iterator<?> its = Relatrix.findSet("*", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet('*', '*', '*');
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet("*", "*", "*");
+		Iterator<?> its = Relatrix.findSet('*', '*', '*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// the returned array has 1 element, the identity Morphism DomainMapRange
@@ -268,7 +268,7 @@ public class BatteryRelatrix {
 	}
 
 	/**
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", "*");
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", '*');
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param argv
 	 * @throws Exception
@@ -277,7 +277,7 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", "*");
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", '*');
 		// return all identities with the given key for all ranges, should be 1
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
@@ -339,7 +339,7 @@ public class BatteryRelatrix {
 	}
 	/**
 	 * negative assertion of above
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has time", "*");
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has time", '*');
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
 	 * @param argv
@@ -350,7 +350,7 @@ public class BatteryRelatrix {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(fkey, "Has time", "*");
+		Iterator<?> its = Relatrix.findSet(fkey, "Has time", '*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
@@ -371,17 +371,17 @@ public class BatteryRelatrix {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		Relatrix.remove(fkey);
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
-		Iterator<?> its = Relatrix.findSet(fkey, "*", "*");
+		Iterator<?> its = Relatrix.findSet(fkey, '*', '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
 		Relatrix.store(fkey, "Has unit", new Long(min));
-		its = Relatrix.findSet("*", fkey, "*");
+		its = Relatrix.findSet('*', fkey, '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
 		}
-		its = Relatrix.findSet("*", "*", fkey);
+		its = Relatrix.findSet('*', '*', fkey);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
 		}
@@ -402,7 +402,7 @@ public class BatteryRelatrix {
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet("*","*","*");
+		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
@@ -417,7 +417,7 @@ public class BatteryRelatrix {
 				timx = System.currentTimeMillis();
 			}
 		});
-		Iterator<?> its = Relatrix.findSet("*","*","*");
+		Iterator<?> its = Relatrix.findSet('*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

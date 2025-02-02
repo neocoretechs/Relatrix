@@ -157,42 +157,7 @@ import com.neocoretechs.rocksack.TransactionId;
 		    								throw new RuntimeException("Malformed triplet for :"+darg+"->"+marg+"->"+rarg);
 		    return mode;
 		}
-		/**
-		 * Factory method, create the abstract factory which will manufacture our specific iterator instances.
-		 * @param darg The domain argument from the driving findSet method being invoked. 
-		 * @param marg The map argument from the driving findSet method being invoked. 
-		 * @param rarg The range (codomain) argument from the driving findSet method being invoked. 
-		 * @return The abstract factory that will manufacture the specific instance of our Iterator
-		 * @throws IllegalArgumentException
-		 * @throws IOException
-		 */
-		public static IteratorFactory createFactory(Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException  {
-		    
-		    if( DEBUG )
-		        System.out.println("Relatrix IteratorFactory findSet setting mode for "+darg+" "+marg+" "+rarg);
-			
-		    switch(processTripletParams(darg, marg, rarg)) {
-               case 0:
-                   return new FindSetMode0(dop, mop, rop);
-               case 1:
-                   return new FindSetMode1(dop, mop, rarg);
-               case 2:
-                   return new FindSetMode2(dop, marg, rop);
-               case 3:
-                   return new FindSetMode3(dop, marg, rarg);
-               case 4:
-                   return new FindSetMode4(darg, mop, rop);
-               case 5:
-                   return new FindSetMode5(darg, mop, rarg);
-               case 6:
-                   return new FindSetMode6(darg, marg, rop);
-               case 7:
-                   return new FindSetMode7(darg, marg, rarg);
-        	    default:
-                    throw new IllegalArgumentException("The findSet factory mode is not supported.");
-		    }
-		}
-		
+	
 		/**
 		 * Factory method, create the abstract factory which will manufacture our specific transactional iterator instances.
 		 * @param transactionId Transaction Id
@@ -230,40 +195,7 @@ import com.neocoretechs.rocksack.TransactionId;
 		    }
 		}
 	
-		/**
-		 * Create a factory generating headSet sets for the specified objects
-		 * @param darg
-		 * @param marg
-		 * @param rarg
-		 * @return
-		 * @throws IOException 
-		 * @throws IllegalArgumentException 
-		 */
-		public static IteratorFactory createHeadsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
-			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory createHeadsetFactory setting mode for "+darg+" "+marg+" "+rarg);
-				
-			switch(processTripletParams(darg, marg, rarg)) {
-				case 0:
-					return new FindHeadSetMode0(dop, mop, rop, endarg);
-				case 1:
-					return new FindHeadSetMode1(dop, mop, rarg, endarg);
-				case 2:
-					return new FindHeadSetMode2(dop, marg, rop, endarg);
-				case 3:
-					return new FindHeadSetMode3(dop, marg, rarg, endarg);
-				case 4:
-					return new FindHeadSetMode4(darg, mop, rop, endarg);
-				case 5:
-					return new FindHeadSetMode5(darg, mop, rarg, endarg);
-				case 6:
-					return new FindHeadSetMode6(darg, marg, rop, endarg);
-				case 7:
-					return new FindHeadSetMode7(darg, marg, rarg, endarg);
-				default:
-					throw new IllegalArgumentException("The findHeadset factory mode is not supported.");
-			}
-		}
+	
 		/**
 		 * Create a factory generating transactional headSet sets for the specified objects
 		 * @param xid Transaction Id
@@ -302,40 +234,7 @@ import com.neocoretechs.rocksack.TransactionId;
 		}
 
 		/**
-		 * Create subset iterator factory in preparation for creating a subset iterator for a findSet operation.
-		 * @param darg
-		 * @param marg
-		 * @param rarg
-		 * @param endarg
-		 * @return The IteratorFactory by which we may facilitate the creation of our RelatrixIterator
-		 * @throws IllegalArgumentException
-		 * @throws IOException
-		 */
-		public static IteratorFactory createSubsetFactory(Object darg, Object marg, Object rarg, Object... endarg) throws IllegalArgumentException, IOException {
-			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory createSubsetFactory setting mode for "+darg+" "+marg+" "+rarg);
-				
-			switch(processTripletParams(darg, marg, rarg)) {
-	               case 0:
-	           			return new FindSubSetMode0(dop, mop, rop, endarg);
-	               case 1:
-	                   return new FindSubSetMode1(dop, mop, rarg, endarg);
-	               case 2:
-	                   return new FindSubSetMode2(dop, marg, rop, endarg);
-	               case 3:
-	                   return new FindSubSetMode3(dop, marg, rarg, endarg);
-	               case 4:
-	                   return new FindSubSetMode4(darg, mop, rop, endarg);
-	               case 5:
-	                   return new FindSubSetMode5(darg, mop, rarg, endarg);
-	               case 6:
-	                   return new FindSubSetMode6(darg, marg, rop, endarg);
-	               case 7:
-	            	   return new FindSubSetMode7(darg, marg, rarg, endarg);
-	        	    default:
-	                    throw new IllegalArgumentException("The findSubset factory mode is not supported.");
-			}	
-		}
+
 		/**
 		 * Create subset iterator factory in preparation for creating a subset iterator for a transactional findSet operation.
 		 * @param xid Transaction Id
@@ -374,40 +273,7 @@ import com.neocoretechs.rocksack.TransactionId;
 			}	
 		}
 		
-		/**
-		 * Create a factory generating tailSet sets for the specified objects
-		 * @param darg
-		 * @param marg
-		 * @param rarg
-		 * @return
-		 * @throws IOException 
-		 * @throws IllegalArgumentException 
-		 */
-		public static IteratorFactory createTailsetFactory(Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException {
-			if( DEBUG )
-			        System.out.println("Relatrix IteratorFactory createTailsetFactory setting mode for "+darg+" "+marg+" "+rarg);
-				
-			switch(processTripletParams(darg, marg, rarg)) {
-				case 0:
-					return new FindTailSetMode0(dop, mop, rop, endarg);
-				case 1:
-					return new FindTailSetMode1(dop, mop, rarg, endarg);
-				case 2:
-					return new FindTailSetMode2(dop, marg, rop, endarg);
-				case 3:
-					return new FindTailSetMode3(dop, marg, rarg, endarg);
-				case 4:
-					return new FindTailSetMode4(darg, mop, rop, endarg);
-				case 5:
-					return new FindTailSetMode5(darg, mop, rarg, endarg);
-				case 6:
-					return new FindTailSetMode6(darg, marg, rop, endarg);
-				case 7:
-					return new FindTailSetMode7(darg, marg, rarg, endarg);
-				default:
-					throw new IllegalArgumentException("The findTailset factory mode is not supported.");
-			}
-		}
+
 		/**
 		 * Create a factory generating transactional tailSet sets for the specified objects
 		 * @param xid Transaction Id

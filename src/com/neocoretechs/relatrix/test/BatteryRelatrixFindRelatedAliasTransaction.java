@@ -167,7 +167,7 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(alias12,xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(alias12,xid2,RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(alias12,xid2,"*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(alias12,xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);

@@ -116,7 +116,7 @@ public class BatteryRelatrixFindRelated {
 		System.out.println("Battery1AR6");
 		for(int i = min; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			Morphism m = (Morphism) ((Result)(Relatrix.findStream("*", "*", irec).findFirst().get())).get();
+			Morphism m = (Morphism) ((Result)(Relatrix.findStream('*', '*', irec).findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(m);
 			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
@@ -141,7 +141,7 @@ public class BatteryRelatrixFindRelated {
 		System.out.println("Battery1AR67");
 		for(int i = min; i < max; i++) {
 			String irec = "dog "+String.format(uniqKeyFmt, i);
-			Morphism m = (Morphism) ((Result)(Relatrix.findStream(irec, "*", "*").findFirst().get())).get();
+			Morphism m = (Morphism) ((Result)(Relatrix.findStream(irec, '*', '*').findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(m);
 			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
@@ -168,7 +168,7 @@ public class BatteryRelatrixFindRelated {
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet("*","*","*");
+		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);

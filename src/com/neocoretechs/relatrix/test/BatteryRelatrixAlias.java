@@ -185,7 +185,7 @@ public class BatteryRelatrixAlias {
 	public static void battery1AR6(String[] argv, Alias alias12) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "?", "?", "?");
+		Iterator<?> its = Relatrix.findSet(alias12, '?', '?', '?');
 		System.out.println(alias12+" Battery1AR6 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -211,7 +211,7 @@ public class BatteryRelatrixAlias {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, "?", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet(alias, '?', '*', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @throws Exception
@@ -219,7 +219,7 @@ public class BatteryRelatrixAlias {
 	public static void battery1AR7(String[] argv, Alias alias12) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "?", "*", "*");
+		Iterator<?> its = Relatrix.findSet(alias12, '?', '*', '*');
 		System.out.println(alias12+" Battery1AR7 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -241,7 +241,7 @@ public class BatteryRelatrixAlias {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, "?", "?", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet(alias, '?', '?', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @throws Exception
@@ -249,7 +249,7 @@ public class BatteryRelatrixAlias {
 	public static void battery1AR8(String[] argv, Alias alias12) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "?", "?", "*");
+		Iterator<?> its = Relatrix.findSet(alias12, '?', '?', '*');
 		System.out.println(alias12+" Battery1AR8 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -272,7 +272,7 @@ public class BatteryRelatrixAlias {
 	}
 	/**
 	 * 
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, "*", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet(alias, '*', '*', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @throws Exception
@@ -280,7 +280,7 @@ public class BatteryRelatrixAlias {
 	public static void battery1AR9(String[] argv, Alias alias12) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, "*", "*", "*");
+		Iterator<?> its = Relatrix.findSet(alias12, '*', '*', '*');
 		System.out.println(alias12+" Batter1AR9 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -304,7 +304,7 @@ public class BatteryRelatrixAlias {
 	}
 
 	/**
-	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has unit", "*");
+	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has unit", '*');
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param argv
 	 * @param alias12 
@@ -314,7 +314,7 @@ public class BatteryRelatrixAlias {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has unit "+alias12, "*");
+		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has unit "+alias12, '*');
 		System.out.println(alias12+" Battery1AR10 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		// return all identities with the given key for all ranges, should be 1
 		while(its.hasNext()) {
@@ -379,7 +379,7 @@ public class BatteryRelatrixAlias {
 	}
 	/**
 	 * negative assertion of above
-	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has time", "*");
+	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has time", '*');
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
 	 * @param argv
@@ -391,7 +391,7 @@ public class BatteryRelatrixAlias {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has time", "*");
+		Iterator<?> its = Relatrix.findSet(alias12, fkey, "Has time", '*');
 		System.out.println(alias12+" Battery1AR11 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -413,18 +413,18 @@ public class BatteryRelatrixAlias {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		Relatrix.remove(alias12,fkey);
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
-		Iterator<?> its = Relatrix.findSet(alias12, fkey, "*", "*");
+		Iterator<?> its = Relatrix.findSet(alias12, fkey, '*', '*');
 		System.out.println(alias12+" Battery1AR12 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
 		Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(min));
-		its = Relatrix.findSet(alias12, "*", fkey, "*");
+		its = Relatrix.findSet(alias12, '*', fkey, '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
 		}
-		its = Relatrix.findSet(alias12, "*", "*", fkey);
+		its = Relatrix.findSet(alias12, '*', '*', fkey);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
 		}
@@ -446,7 +446,7 @@ public class BatteryRelatrixAlias {
 		System.out.println("CleanDB RDM size="+Relatrix.size(alias12, RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(alias12, RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet(alias12, "*","*","*");
+		Iterator<?> it = Relatrix.findSet(alias12, '*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
@@ -461,7 +461,7 @@ public class BatteryRelatrixAlias {
 				timx = System.currentTimeMillis();
 			}
 		});
-		Iterator<?> its = Relatrix.findSet(alias12, "*","*","*");
+		Iterator<?> its = Relatrix.findSet(alias12, '*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

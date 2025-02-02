@@ -132,7 +132,7 @@ public class BatteryRelatrixFindRelatedAlias {
 		System.out.println("Battery1AR6 "+alias12);
 		for(int i = min; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			Morphism m = (Morphism) ((Result)(Relatrix.findStream(alias12, "*", "*", irec).findFirst().get())).get();
+			Morphism m = (Morphism) ((Result)(Relatrix.findStream(alias12, '*', '*', irec).findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(alias12, m);
 			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
@@ -161,7 +161,7 @@ public class BatteryRelatrixFindRelatedAlias {
 		System.out.println("CleanDB RDM size="+Relatrix.size(alias12,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(alias12,RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet(alias12,"*","*","*");
+		Iterator<?> it = Relatrix.findSet(alias12,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);

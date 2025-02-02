@@ -62,7 +62,7 @@ public class BatteryRelatrix2 {
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
 			battery1(argv);
 		}
-		battery1A(argv);
+
 		battery1A1(argv);
 		battery1B(argv);
 		battery1C(argv);
@@ -95,39 +95,6 @@ public class BatteryRelatrix2 {
 		 System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
-
-	/**
-	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
-	 * verify the previously inserted data. This case tests that a check is performed for a concrete object for each
-	 * retrieval type; findTailSet, findHeadSet, findSubSet
-	 * These retrievals must be qualified with ranges or classes for each wildcard specified.
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1A(String[] argv) throws Exception {
-		long tims = System.currentTimeMillis();
-		try {
-			Iterator<?> its = Relatrix.findHeadSet("?", "?", "?");
-			System.out.println("Battery1A FAIL on findHeadSet, should throw Exception");
-			throw new Exception("Battery1A FAIL on findHeadSet, should throw Exception");
-		} catch(Exception e) {
-			
-		}
-		try {
-			Iterator<?> its = Relatrix.findTailSet("?", "?", "?");
-			System.out.println("Battery1A FAIL on findTailSet, should throw Exception");
-			throw new Exception("Battery1A FAIL on findTailSet, should throw Exception");
-		} catch(Exception e) {
-		}
-		try {
-			String skey = key + String.format(uniqKeyFmt, 0);
-			Iterator<?> its = Relatrix.findSubSet("?", "?", "?", skey);
-			System.out.println("Battery1A FAIL on findSubSet, should throw Exception");
-			throw new Exception("Battery1A FAIL on findsubSet, should throw Exception");
-		} catch(Exception e) {
-		}
-		 System.out.println("BATTERY1A SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
 	
 	/**
 	 * Test the findTailSet
@@ -140,7 +107,7 @@ public class BatteryRelatrix2 {
 		int i = max/2;
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
-		Iterator<?> its = Relatrix.findTailSet("*", "*", "*",skey, String.class, Long.class);
+		Iterator<?> its = Relatrix.findTailSet('*', '*', '*',skey, String.class, Long.class);
 		System.out.println("Battery1A1");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -168,7 +135,7 @@ public class BatteryRelatrix2 {
 		int j = 0;
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
-		Iterator<?> its = Relatrix.findHeadSet("*", "*", "*", skey, String.class, Long.class);
+		Iterator<?> its = Relatrix.findHeadSet('*', '*', '*', skey, String.class, Long.class);
 		System.out.println("Battery1B");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -198,7 +165,7 @@ public class BatteryRelatrix2 {
 		int j = 0;
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
-		Iterator<?> its = Relatrix.findHeadSet("*", "*", "?", skey, String.class, Long.class);
+		Iterator<?> its = Relatrix.findHeadSet('*', '*','?' , skey, String.class, Long.class);
 		System.out.println("Battery1C");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -230,7 +197,7 @@ public class BatteryRelatrix2 {
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
 		String skey2 = key + String.format(uniqKeyFmt, i+range); // if 500 and 510 we should get 500 to 509
-		Iterator<?> its = Relatrix.findSubSet("?", "*", "*", skey, skey2, String.class, Long.class);
+		Iterator<?> its = Relatrix.findSubSet('?', '*', '*', skey, skey2, String.class, Long.class);
 		System.out.println("Battery1D");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -262,7 +229,7 @@ public class BatteryRelatrix2 {
 		int j = 0;
 		int range = 10;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSubSet("*", "*", "?", String.class, String.class, new Long(i), new Long(i+range));
+		Iterator<?> its = Relatrix.findSubSet('*', '*', '?', String.class, String.class, new Long(i), new Long(i+range));
 		System.out.println("Battery1E");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -294,7 +261,7 @@ public class BatteryRelatrix2 {
 		String skey = key + String.format(uniqKeyFmt, i);
 		String skey2 = key + String.format(uniqKeyFmt, i+range); // if 500 and 510 we should get 500 to 509
 		// Notice how we qualify the ranges here for subset. Should we have one range lesser, that range would supersede the greater.
-		Iterator<?> its = Relatrix.findSubSet("*", "Has unit", "?",skey, skey2, new Long(i), new Long(i+range));
+		Iterator<?> its = Relatrix.findSubSet('*', "Has unit", '?',skey, skey2, new Long(i), new Long(i+range));
 		System.out.println("Battery1F");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -325,7 +292,7 @@ public class BatteryRelatrix2 {
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet("*","*","*");
+		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);

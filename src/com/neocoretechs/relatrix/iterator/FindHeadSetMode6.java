@@ -19,12 +19,10 @@ import com.neocoretechs.rocksack.Alias;
 *
 */
 public class FindHeadSetMode6 extends FindSetMode6 {
-	Object[] endarg;
-    public FindHeadSetMode6(Object darg, Object marg, char rop, Object ... endarg) { 	
+	Object endarg0;
+    public FindHeadSetMode6(Object darg, Object marg, char rop, Object arg1) { 	
     	super(darg,marg, rop);
-		if(endarg.length != 1)
-			throw new RuntimeException("Must supply 1 qualifying argument for Headset range.");
-		this.endarg = endarg;
+		endarg0 = arg1;
     }
 
 	@Override
@@ -34,10 +32,10 @@ public class FindHeadSetMode6 extends FindSetMode6 {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setRange((Comparable) Relatrix.lastKey((Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setRange((Comparable) Relatrix.lastKey((Class)endarg0));
 			} else {
-				xdmr.setRange((Comparable)endarg[0]);
+				xdmr.setRange((Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -51,10 +49,10 @@ public class FindHeadSetMode6 extends FindSetMode6 {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setRange(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg0));
 			} else {
-				xdmr.setRange(alias,(Comparable)endarg[0]);
+				xdmr.setRange(alias,(Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

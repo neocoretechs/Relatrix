@@ -170,7 +170,7 @@ public class BatteryRelatrixDelete {
 				tims = System.currentTimeMillis();
 			}
 			/*
-			Relatrix.findStream("*", "*", irec).forEach(e->{
+			Relatrix.findStream('*', '*', irec).forEach(e->{
 				Result nex = (Result)e;
 				System.out.println("KEY MISMATCH:"+nex);
 				throw new RuntimeException("MAP KEY MISMATCH:"+nex);
@@ -180,7 +180,7 @@ public class BatteryRelatrixDelete {
 		// when finished, all records should theoretically be deleted
 		if( Relatrix.size(DomainMapRange.class) > 0) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
-			Relatrix.findStream("*", "*", "*").forEach(e->{
+			Relatrix.findStream('*', '*', '*').forEach(e->{
 				System.out.println("Del fault:"+e);
 			});
 			throw new Exception("BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
@@ -202,7 +202,7 @@ public class BatteryRelatrixDelete {
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
 		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
-		Iterator<?> it = Relatrix.findSet("*","*","*");
+		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
@@ -217,7 +217,7 @@ public class BatteryRelatrixDelete {
 				timx = System.currentTimeMillis();
 			}
 		});
-		Iterator<?> its = Relatrix.findSet("*","*","*");
+		Iterator<?> its = Relatrix.findSet('*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

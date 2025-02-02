@@ -43,11 +43,11 @@ import com.neocoretechs.relatrix.Result;
  * Relatrix.store(rel, "OS",Os);<br/>
  * Relatrix.store(rel,"OS Ver.",OsVer);<br/>
  * You could then use something like :<dd/>
- * Iterator it = Relatrix.findSet("*","accessed by","*");<br>
+ * Iterator it = Relatrix.findSet('*',"accessed by",'*');<br>
  * it.forEachRemaining(e->{<br/>
  *			Iterator it2 = null;<br/>
  *			try {<br/>
- *				it2 = Relatrix.findSet(((Result)e).get(),"?","?");<br/>
+ *				it2 = Relatrix.findSet(((Result)e).get(),'?','?');<br/>
  *			} catch (Exception e1) {<br/>
  *				e1.printStackTrace();<br/>
  *			} <br/>
@@ -518,7 +518,7 @@ public class ApacheLog {
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
 		// retrieve all identity relationships that contain the concrete object specified
-		Iterator<?> it = Relatrix.findTailSet("*","accessed by","*", new Long(0),"");
+		Iterator<?> it = Relatrix.findTailSet('*',"accessed by",'*', new Long(0),"");
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Iterate all the retrieved identity relationships
@@ -529,7 +529,7 @@ public class ApacheLog {
 			result = (Result) e;
 			// use the identity as the first element to retrieve related elements
 			try {
-				it2 = Relatrix.findSet(result.get(),"?","?");
+				it2 = Relatrix.findSet(result.get(),'?','?');
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} 

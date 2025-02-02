@@ -503,7 +503,7 @@ public class BatteryMorphismTransactionAlias2 {
 		long s = RelatrixTransaction.size(alias1,xid);
 		System.out.println(alias1+" Cleaning DB of "+s+" elements. for xid:"+xid);
 		long timx = System.currentTimeMillis();
-		Iterator<?> it = RelatrixTransaction.findSet(alias1, xid, "*", "*", "*");
+		Iterator<?> it = RelatrixTransaction.findSet(alias1, xid, '*', '*', '*');
 		while(it.hasNext()){
 			Result fkey = (Result) it.next();
 			if(fkey.get(0) == null)

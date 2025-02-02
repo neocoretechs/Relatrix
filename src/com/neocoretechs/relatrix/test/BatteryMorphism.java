@@ -453,7 +453,7 @@ public class BatteryMorphism {
 		long s = Relatrix.size();
 		System.out.println(" Cleaning DB of "+s+" elements.");
 		long timx = System.currentTimeMillis();
-		Iterator<?> it = Relatrix.findSet( "*", "*", "*");
+		Iterator<?> it = Relatrix.findSet( '*', '*', '*');
 		while(it.hasNext()){
 			Result fkey = (Result) it.next();
 			Relatrix.remove((Comparable) fkey.get(0));

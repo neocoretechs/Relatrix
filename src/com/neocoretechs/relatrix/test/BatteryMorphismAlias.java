@@ -530,7 +530,7 @@ public class BatteryMorphismAlias {
 		long s = Relatrix.size(alias12);
 		System.out.println(alias12+" Cleaning DB of "+s+" elements.");
 		long timx = System.currentTimeMillis();
-		Iterator<?> it = Relatrix.findSet(alias12, "*", "*", "*");
+		Iterator<?> it = Relatrix.findSet(alias12, '*', '*', '*');
 		while(it.hasNext()){
 			Result fkey = (Result) it.next();
 			if(fkey.get(0) == null)

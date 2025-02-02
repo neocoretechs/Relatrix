@@ -19,12 +19,10 @@ import com.neocoretechs.rocksack.Alias;
 * 
 */
 public class FindTailSetMode5 extends FindSetMode5 {
-	Object[] endarg;
-    public FindTailSetMode5(Object darg, char mop, Object rarg, Object ... endarg) { 	
+	Object endarg0;
+    public FindTailSetMode5(Object darg, char mop, Object rarg, Object arg1) { 	
     	super(darg, mop, rarg);
-		if(endarg.length != 1)
-			throw new RuntimeException("Must supply 1 qualifying argument for Tailset map.");
-		this.endarg = endarg;
+		endarg0 = arg1;
     }
 	
 	@Override
@@ -34,10 +32,10 @@ public class FindTailSetMode5 extends FindSetMode5 {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg0));
 			} else {
-				xdmr.setMap((Comparable)endarg[0]);
+				xdmr.setMap((Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -51,10 +49,10 @@ public class FindTailSetMode5 extends FindSetMode5 {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg0));
 			} else {
-				xdmr.setMap(alias,(Comparable)endarg[0]);
+				xdmr.setMap(alias,(Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
