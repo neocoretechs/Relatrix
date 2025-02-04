@@ -17,13 +17,8 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
  */
 public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
-	Object[] endarg;
-	// mode 7
-	public FindHeadSetMode7Transaction(TransactionId xid, Object darg, Object marg, Object rarg, Object ... endarg) throws IllegalArgumentException, IOException { 	
+	public FindHeadSetMode7Transaction(TransactionId xid, Object darg, Object marg, Object rarg) throws IllegalArgumentException, IOException { 	
 		super(xid, darg, marg, rarg);
-		if(endarg.length != 0)
-			throw new RuntimeException("Must not supply any qualifying arguments for Headset.");
-		this.endarg = endarg;
 	}
 
 	@Override

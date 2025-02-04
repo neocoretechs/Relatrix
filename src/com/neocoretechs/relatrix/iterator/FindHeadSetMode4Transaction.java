@@ -22,12 +22,11 @@ import com.neocoretechs.rocksack.TransactionId;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
-	Object[] endarg;
-    public FindHeadSetMode4Transaction(TransactionId xid, Object darg, char mop, char rop, Object ... endarg) { 	
+	Object endarg0,endarg1;
+	public FindHeadSetMode4Transaction(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) { 	
     	super(xid, darg, mop, rop);
-       	if(endarg.length != 2)
-    			throw new RuntimeException("Must supply 2 qualifying arguments for Headset map and range.");
-    	this.endarg = endarg;
+		endarg0 = arg1;
+		endarg1 = arg2;
     }
     /**
      *  @return The iterator for the returned set, each iterator return is a Comparable array of tuples of arity n=?'s
@@ -39,18 +38,18 @@ public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setMap((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg0));
 			} else {
-				xdmr.setMap((Comparable)endarg[0]);
+				xdmr.setMap((Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
-			if(endarg[1] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[1]));
+			if(endarg1 instanceof Class) {
+				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg1));
 			} else {
-				xdmr.setRange((Comparable)endarg[1]);
+				xdmr.setRange((Comparable)endarg1);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -64,18 +63,18 @@ public class FindHeadSetMode4Transaction extends FindSetMode4Transaction {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg0));
 			} else {
-				xdmr.setMap(alias,(Comparable)endarg[0]);
+				xdmr.setMap(alias,(Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
-			if(endarg[1] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[1]));
+			if(endarg1 instanceof Class) {
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg1));
 			} else {
-				xdmr.setRange(alias,(Comparable)endarg[1]);
+				xdmr.setRange(alias,(Comparable)endarg1);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

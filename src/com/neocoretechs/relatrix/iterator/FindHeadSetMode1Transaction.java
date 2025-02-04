@@ -14,12 +14,11 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class FindHeadSetMode1Transaction extends FindSetMode1Transaction {
-		Object[] endarg;
-	   public FindHeadSetMode1Transaction(TransactionId xid, char dop, char mop, Object rarg, Object ... endarg ) { 	
+	 Object endarg0,endarg1;
+	   public FindHeadSetMode1Transaction(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) { 
 		   super(xid,dop,mop,rarg);
-			if(endarg.length != 2)
-				throw new RuntimeException("Must supply 2 qualifying arguments for Headset domain and map.");
-			this.endarg = endarg;
+		   endarg0 = arg1;
+		   endarg1 = arg2;
 	   }
 	   
 	   @Override
@@ -29,18 +28,18 @@ public class FindHeadSetMode1Transaction extends FindSetMode1Transaction {
 				xdmr = (Morphism) tdmr.clone(); // concrete instance in range
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
-				if(endarg[0] instanceof Class) {
-					xdmr.setDomain((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[0]));
+				if(endarg0 instanceof Class) {
+					xdmr.setDomain((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg0));
 				} else {
-					xdmr.setDomain((Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
+					xdmr.setDomain((Comparable)endarg0); // same as concrete instance in domain, but we are returning, so for ranging no diff
 				}
 			} else
 				throw new IllegalAccessException("Improper Morphism template.");
 			if(tdmr.getMap() == null) {
-				if(endarg[1] instanceof Class) {
-					xdmr.setMap((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg[1]));
+				if(endarg1 instanceof Class) {
+					xdmr.setMap((Comparable) RelatrixTransaction.lastKey(xid,(Class)endarg1));
 				} else {
-					xdmr.setMap((Comparable)endarg[1]);
+					xdmr.setMap((Comparable)endarg1);
 				}
 			} else
 				throw new IllegalAccessException("Improper Morphism template.");
@@ -54,18 +53,18 @@ public class FindHeadSetMode1Transaction extends FindSetMode1Transaction {
 				xdmr = (Morphism) tdmr.clone(); // concrete instance in range
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
-				if(endarg[0] instanceof Class) {
-					xdmr.setDomain(alias, (Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[0]));
+				if(endarg0 instanceof Class) {
+					xdmr.setDomain(alias, (Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg0));
 				} else {
-					xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete instance in domain, but we are returning, so for ranging no diff
+					xdmr.setDomain(alias,(Comparable)endarg0); // same as concrete instance in domain, but we are returning, so for ranging no diff
 				}
 			} else
 				throw new IllegalAccessException("Improper Morphism template.");
 			if(tdmr.getMap() == null) {
-				if(endarg[1] instanceof Class) {
-					xdmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg[1]));
+				if(endarg1 instanceof Class) {
+					xdmr.setMap(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg1));
 				} else {
-					xdmr.setMap(alias,(Comparable)endarg[1]);
+					xdmr.setMap(alias,(Comparable)endarg1);
 				}
 			} else
 				throw new IllegalAccessException("Improper Morphism template.");

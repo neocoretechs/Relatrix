@@ -18,12 +18,10 @@ import com.neocoretechs.rocksack.Alias;
 * 
 */
 public class FindTailSetMode3 extends FindSetMode3 {
-	Object[] endarg;
-    public FindTailSetMode3(char dop, Object marg, Object rarg, Object ... endarg) { 	
+	Object endarg0;
+    public FindTailSetMode3(char dop, Object marg, Object rarg, Object arg1) { 	
     	super(dop, marg, rarg);
-       	if(endarg.length != 1)
-    		throw new RuntimeException("Must supply 1 qualifying argument for Tailset domain.");
-     	this.endarg = endarg;
+     	endarg0 = arg1;
     }
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
@@ -39,10 +37,10 @@ public class FindTailSetMode3 extends FindSetMode3 {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
     	if(tdmr.getDomain() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) Relatrix.firstKey((Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setDomain((Comparable) Relatrix.firstKey((Class)endarg0));
 			} else {
-				xdmr.setDomain((Comparable)endarg[0]);
+				xdmr.setDomain((Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -56,10 +54,10 @@ public class FindTailSetMode3 extends FindSetMode3 {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
     	if(tdmr.getDomain() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setDomain(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg0));
 			} else {
-				xdmr.setDomain(alias,(Comparable)endarg[0]);
+				xdmr.setDomain(alias,(Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");

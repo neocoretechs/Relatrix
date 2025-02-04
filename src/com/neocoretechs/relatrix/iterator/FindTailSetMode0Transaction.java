@@ -14,12 +14,12 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
-	Object[] endarg;
-	public FindTailSetMode0Transaction(TransactionId xid, char dop, char mop, char rop, Object ... endarg) { 	
+	Object endarg0,endarg1,endarg2;
+	public FindTailSetMode0Transaction(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) { 	
 		super(xid,dop,mop,rop);
-		if(endarg.length != 3)
-			throw new RuntimeException("Must supply 3 qualifying arguments for Headset domain and map and range.");
-		this.endarg = endarg;
+		endarg0 = arg1;
+		endarg1 = arg2;
+		endarg2 = arg3; 	
 	}
 
 	@Override
@@ -29,26 +29,26 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setDomain((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg0));
 			} else {
-				xdmr.setDomain((Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
+				xdmr.setDomain((Comparable)endarg0); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
-			if(endarg[1] instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[1]));
+			if(endarg1 instanceof Class) {
+				xdmr.setMap((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg1));
 			} else {
-				xdmr.setMap((Comparable)endarg[1]);
+				xdmr.setMap((Comparable)endarg1);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
-			if(endarg[2] instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg[2]));
+			if(endarg2 instanceof Class) {
+				xdmr.setRange((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg2));
 			} else {
-				xdmr.setRange((Comparable)endarg[2]);
+				xdmr.setRange((Comparable)endarg2);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
@@ -62,26 +62,26 @@ public class FindTailSetMode0Transaction extends FindSetMode0Transaction {
 			xdmr = (Morphism) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
-			if(endarg[0] instanceof Class) {
-				xdmr.setDomain(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[0]));
+			if(endarg0 instanceof Class) {
+				xdmr.setDomain(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg0));
 			} else {
-				xdmr.setDomain(alias,(Comparable)endarg[0]); // same as concrete type in d,m,r field, but we are returning relations with that value
+				xdmr.setDomain(alias,(Comparable)endarg0); // same as concrete type in d,m,r field, but we are returning relations with that value
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
-			if(endarg[1] instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[1]));
+			if(endarg1 instanceof Class) {
+				xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg1));
 			} else {
-				xdmr.setMap(alias,(Comparable)endarg[1]);
+				xdmr.setMap(alias,(Comparable)endarg1);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
 		if(tdmr.getRange() == null) {
-			if(endarg[2] instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg[2]));
+			if(endarg2 instanceof Class) {
+				xdmr.setRange(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg2));
 			} else {
-				xdmr.setRange(alias,(Comparable)endarg[2]);
+				xdmr.setRange(alias,(Comparable)endarg2);
 			}
 		} else
 			throw new IllegalAccessException("Improper Morphism template.");
