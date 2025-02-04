@@ -13,91 +13,401 @@ import com.neocoretechs.relatrix.Relatrix;
 
 public interface RelatrixClientInterface{
 
-	public void removePackageFromRepository(String arg1) throws java.io.IOException;
+	public void removeAlias(Alias arg1) throws java.io.IOException;
 
-	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException;
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
 
-	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
 
-	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
+	public Stream findSubStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
 
-	public Stream findSubStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException;
+	public Stream findSubStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findSubStream(char arg1,Object arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findSubStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
 
 	public DBKey getNewKey() throws java.io.IOException;
 
-	public Iterator findSubSet(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException;
-
-	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
+	public Object getByIndex(DBKey arg1) throws java.io.IOException;
 
 	public Object getByIndex(Alias arg1,DBKey arg2) throws java.io.IOException;
 
-	public Object getByIndex(DBKey arg1) throws java.io.IOException;
+	public Iterator findSubSet(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
 
-	public Object lastKey() throws java.io.IOException;
+	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
 
-	public Object lastKey(Class arg1) throws java.io.IOException;
+	public Iterator findSubSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
 
-	public Object lastKey(Alias arg1,Class arg2) throws java.io.IOException;
+	public Iterator findSubSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
 
-	public Object lastKey(Alias arg1) throws java.io.IOException;
+	public Iterator findSubSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
 
-	public void loadClassFromJar(String arg1) throws java.io.IOException;
+	public Iterator findSubSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
 
-	public Object lastValue(Alias arg1) throws java.io.IOException;
+	public Iterator findSubSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,Object arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSubSet(Object arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSubSet(Object arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findSubSet(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findSubSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
+
+	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findTailSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findTailSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findTailSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findTailSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findTailSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
+
+	public Iterator findTailSet(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findTailSet(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findTailSet(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findTailSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findTailStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findTailStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
+
+	public Stream findTailStream(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findTailStream(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findTailStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findTailStream(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
 
 	public Object lastValue(Alias arg1,Class arg2) throws java.io.IOException;
+
+	public Object lastValue(Alias arg1) throws java.io.IOException;
 
 	public Object lastValue() throws java.io.IOException;
 
 	public Object lastValue(Class arg1) throws java.io.IOException;
 
-	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
-
-	public Stream findHeadStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException;
-
-	public Stream findTailStream(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException;
-
-	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
-
 	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException;
 
-	public void removeAlias(Alias arg1) throws java.io.IOException;
+	public Object removekv(Alias arg1,Comparable arg2) throws java.io.IOException;
 
-	public void setTuple(char arg1);
+	public Object removekv(Comparable arg1) throws java.io.IOException;
+
+	public Object lastKey(Alias arg1,Class arg2) throws java.io.IOException;
+
+	public Object lastKey() throws java.io.IOException;
+
+	public Object lastKey(Class arg1) throws java.io.IOException;
+
+	public Object lastKey(Alias arg1) throws java.io.IOException;
+
+	public void loadClassFromJar(String arg1) throws java.io.IOException;
+
+	public Stream findHeadStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findHeadStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findHeadStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Stream findHeadStream(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findHeadStream(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
 
 	public void storekv(Comparable arg1,Object arg2) throws java.io.IOException;
 
 	public void storekv(Alias arg1,Comparable arg2,Object arg3) throws java.io.IOException;
 
-	public String[][] getAliases();
+	public Iterator findHeadSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
 
-	public void setTablespace(String arg1) throws java.io.IOException;
+	public Iterator findHeadSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
 
-	public String getAlias(Alias arg1);
+	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
 
-	public String getTableSpace();
+	public Iterator findHeadSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException;
+
+	public Iterator findHeadSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findHeadSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findHeadSet(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findHeadSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException;
+
+	public Iterator findHeadSet(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findHeadSet(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,char arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSet(Object arg1,Object arg2,char arg3) throws java.io.IOException;
+
+	public Iterator findSet(char arg1,Object arg2,Object arg3) throws java.io.IOException;
+
+	public Iterator findSet(char arg1,char arg2,Object arg3) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,Object arg2,Object arg3,char arg4) throws java.io.IOException;
+
+	public Iterator findSet(char arg1,char arg2,char arg3) throws java.io.IOException;
+
+	public Iterator findSet(Object arg1,char arg2,Object arg3) throws java.io.IOException;
+
+	public Iterator findSet(char arg1,Object arg2,char arg3) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,char arg2,Object arg3,char arg4) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,char arg2,char arg3,char arg4) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Iterator findSet(Object arg1,char arg2,char arg3) throws java.io.IOException;
+
+	public Iterator findSet(Alias arg1,Object arg2,char arg3,char arg4) throws java.io.IOException;
 
 	public Iterator findSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
 
-	public Iterator findSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
-
 	public List findSet(Comparable arg1) throws java.io.IOException;
+
+	public Iterator findSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
 
 	public List findSet(Alias arg1,Comparable arg2) throws java.io.IOException;
 
-	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,Object arg4,Object... arg5) throws java.io.IOException;
+	public Stream findStream(Object arg1,char arg2,Object arg3) throws java.io.IOException;
 
-	public Iterator findTailSet(Object arg1,Object arg2,Object arg3,Object... arg4) throws java.io.IOException;
+	public Stream findStream(Object arg1,char arg2,char arg3) throws java.io.IOException;
 
-	public Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
+	public Stream findStream(char arg1,Object arg2,char arg3) throws java.io.IOException;
 
 	public Stream findStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
 
-	public Object removekv(Comparable arg1) throws java.io.IOException;
+	public Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException;
 
-	public Object removekv(Alias arg1,Comparable arg2) throws java.io.IOException;
+	public Stream findStream(Object arg1,Object arg2,char arg3) throws java.io.IOException;
 
-	public void setAlias(Alias arg1,String arg2) throws java.io.IOException;
+	public Stream findStream(char arg1,Object arg2,Object arg3) throws java.io.IOException;
+
+	public Stream findStream(char arg1,char arg2,Object arg3) throws java.io.IOException;
+
+	public Stream findStream(char arg1,char arg2,char arg3) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,char arg2,Object arg3,char arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,Object arg2,char arg3,char arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,Object arg2,Object arg3,char arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,char arg2,char arg3,Object arg4) throws java.io.IOException;
+
+	public Stream findStream(Alias arg1,char arg2,char arg3,char arg4) throws java.io.IOException;
+
+	public void removePackageFromRepository(String arg1) throws java.io.IOException;
+
+	public void setTuple(char arg1);
 
 	public void setWildcard(char arg1);
 
@@ -105,7 +415,15 @@ public interface RelatrixClientInterface{
 
 	public Stream entrySetStream(Alias arg1,Class arg2) throws java.io.IOException;
 
-	public Object firstKey() throws java.io.IOException;
+	public String getAlias(Alias arg1);
+
+	public void setAlias(Alias arg1,String arg2) throws java.io.IOException;
+
+	public String getTableSpace();
+
+	public void setTablespace(String arg1) throws java.io.IOException;
+
+	public String[][] getAliases();
 
 	public Object firstKey(Alias arg1) throws java.io.IOException;
 
@@ -113,17 +431,19 @@ public interface RelatrixClientInterface{
 
 	public Object firstKey(Alias arg1,Class arg2) throws java.io.IOException;
 
-	public Object firstValue(Alias arg1,Class arg2) throws java.io.IOException;
+	public Object firstKey() throws java.io.IOException;
 
 	public Object firstValue(Alias arg1) throws java.io.IOException;
 
 	public Object firstValue() throws java.io.IOException;
 
+	public Object firstValue(Alias arg1,Class arg2) throws java.io.IOException;
+
 	public Object firstValue(Class arg1) throws java.io.IOException;
 
-	public Iterator keySet(Class arg1) throws java.io.IOException;
-
 	public Iterator keySet(Alias arg1,Class arg2) throws java.io.IOException;
+
+	public Iterator keySet(Class arg1) throws java.io.IOException;
 
 	public DomainMapRange store(Alias arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
 
@@ -135,9 +455,9 @@ public interface RelatrixClientInterface{
 
 	public Object first() throws java.io.IOException;
 
-	public Object first(Alias arg1,Class arg2) throws java.io.IOException;
-
 	public Object first(Class arg1) throws java.io.IOException;
+
+	public Object first(Alias arg1,Class arg2) throws java.io.IOException;
 
 	public Relatrix getInstance();
 
@@ -145,13 +465,13 @@ public interface RelatrixClientInterface{
 
 	public Iterator entrySet(Alias arg1,Class arg2) throws java.io.IOException;
 
-	public long size(Alias arg1,Class arg2) throws java.io.IOException;
-
 	public long size() throws java.io.IOException;
 
 	public long size(Alias arg1) throws java.io.IOException;
 
 	public long size(Class arg1) throws java.io.IOException;
+
+	public long size(Alias arg1,Class arg2) throws java.io.IOException;
 
 	public Object last() throws java.io.IOException;
 
@@ -165,17 +485,17 @@ public interface RelatrixClientInterface{
 
 	public boolean contains(Alias arg1,Comparable arg2) throws java.io.IOException;
 
-	public Object get(Comparable arg1) throws java.io.IOException;
-
 	public Object get(Alias arg1,Comparable arg2) throws java.io.IOException;
+
+	public Object get(Comparable arg1) throws java.io.IOException;
 
 	public void remove(Alias arg1,Comparable arg2,Comparable arg3) throws java.io.IOException;
 
-	public void remove(Alias arg1,Comparable arg2) throws java.io.IOException;
+	public void remove(Comparable arg1,Comparable arg2) throws java.io.IOException;
 
 	public void remove(Comparable arg1) throws java.io.IOException;
 
-	public void remove(Comparable arg1,Comparable arg2) throws java.io.IOException;
+	public void remove(Alias arg1,Comparable arg2) throws java.io.IOException;
 
 }
 
