@@ -2,7 +2,8 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Serializable;
 import java.util.Vector;
-import com.neocoretechs.relatrix.tooling.GenerateClientBindings;
+
+import com.neocoretechs.relatrix.server.GenerateClientBindings;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 /**
 * A basic Serializable helper class used with {@link ServerInvokeMethod} with arrays of Method names and 

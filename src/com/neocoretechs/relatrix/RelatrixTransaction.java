@@ -48,6 +48,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 
 import com.neocoretechs.rocksack.Alias;
@@ -109,12 +110,13 @@ public final class RelatrixTransaction {
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
 	* need to store values confusing to the standard findset *,? semantics.
-	* */
+	*/
+	@ServerMethod
 	public static void setWildcard(char wc) {
 		OPERATOR_WILDCARD_CHAR = wc;
 		OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	}
-	
+	@ServerMethod	
 	public static void setTuple(char tp) {
 		OPERATOR_TUPLE_CHAR = tp;
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
@@ -133,8 +135,22 @@ public final class RelatrixTransaction {
 	 * Get the default tablespace directory
 	 * @return the path/dbname of current default tablespace
 	 */
+	@ServerMethod	
 	public static String getTableSpace() {
 		return RelatrixKVTransaction.getTableSpace();
+	}
+	
+	/**
+	 * Set an alias relative to the current tablespace
+	 * @param alias
+	 * @param path
+	 * @throws IOException
+	 */
+	@ServerMethod
+	public static void setRelativeAlias(Alias alias) throws IOException {
+		if(alias.getAlias().contains("/") || alias.getAlias().contains("\\") || alias.getAlias().contains("..") || alias.getAlias().contains("~"))
+			throw new IOException("No path allowed");
+		RelatrixKV.setAlias(alias, RelatrixKV.getTableSpace()+alias.getAlias());
 	}
 	
 	/**
@@ -152,6 +168,7 @@ public final class RelatrixTransaction {
 	 * @param alias
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
+	@ServerMethod
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		RelatrixKVTransaction.removeAlias(alias);
 	}
@@ -161,6 +178,7 @@ public final class RelatrixTransaction {
 	 * @param alias
 	 * @return The tablespace path of this alias as a String
 	 */
+	@ServerMethod
 	public static String getAlias(Alias alias) {
 		return RelatrixKVTransaction.getAlias(alias);
 	}
@@ -168,6 +186,7 @@ public final class RelatrixTransaction {
 	 * 
 	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
 	 */
+	@ServerMethod
 	public static String[][] getAliases() {
 		return RelatrixKVTransaction.getAliases();
 	}
@@ -179,6 +198,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static TransactionId getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
 		TransactionId xid =  RelatrixKVTransaction.getTransactionId();
 		return xid;
@@ -191,6 +211,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static void endTransaction(TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
 		RelatrixKVTransaction.endTransaction(xid);
 	}
@@ -208,6 +229,7 @@ public final class RelatrixTransaction {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static DomainMapRange store(TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
@@ -329,6 +351,7 @@ public final class RelatrixTransaction {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static DomainMapRange store(Alias alias, TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
@@ -443,6 +466,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static void commit(TransactionId xid) throws IOException, IllegalAccessException {
 		RelatrixKVTransaction.commit(xid);
 	}
@@ -454,6 +478,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the database alias doesnt exist.
 	 */
+	@ServerMethod
 	public static void commit(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		RelatrixKVTransaction.commit(alias, xid);
 	}
@@ -463,6 +488,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static void rollback(TransactionId xid) throws IOException, IllegalAccessException {
 		RelatrixKVTransaction.rollback(xid);
 	}
@@ -475,6 +501,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias doesnt exist 
 	 */
+	@ServerMethod
 	public static void rollback(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		RelatrixKVTransaction.rollback(alias, xid);
 	}
@@ -484,6 +511,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static void rollbackToCheckpoint(TransactionId xid) throws IOException, IllegalAccessException {
 		RelatrixKVTransaction.rollbackToCheckpoint(xid);
 	}
@@ -496,6 +524,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias doesnt exist 
 	 */
+	@ServerMethod
 	public static void rollbackToCheckpoint(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		RelatrixKVTransaction.rollbackToCheckpoint(alias, xid);
 	}
@@ -506,6 +535,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static void checkpoint(TransactionId xid) throws IOException, IllegalAccessException {
 		RelatrixKVTransaction.checkpoint(xid);
 	}
@@ -519,13 +549,15 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias doesnt exist.
 	 */
+	@ServerMethod
 	public static void checkpoint(Alias alias, TransactionId xid) throws IOException, IllegalAccessException, NoSuchElementException {
 		RelatrixKVTransaction.checkpoint(alias, xid);
 	}
-	
+	@ServerMethod
 	public static Object removekv(TransactionId xid, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
 		return RelatrixKVTransaction.remove(xid,c);
 	}
+	@ServerMethod
 	public static Object removekv(Alias alias, TransactionId xid, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
 		return RelatrixKVTransaction.remove(alias,xid, c);
 	}
@@ -539,6 +571,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static void remove(TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);		// Remove main entry, which is possibly DomainMapRange
@@ -583,6 +616,7 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias is not found
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static void remove(Alias alias, TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
@@ -959,6 +993,7 @@ public final class RelatrixTransaction {
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static void remove(TransactionId xid, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException {
 		remove(xid, new DomainMapRange(null, xid, d, m, null));
 	}
@@ -977,6 +1012,7 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
+	@ServerMethod
 	public static void remove(Alias alias, TransactionId xid, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, IllegalArgumentException, ClassNotFoundException, DuplicateKeyException {
 		remove(alias, xid, d, m);
 	}
@@ -991,6 +1027,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static List<Comparable> findSet(TransactionId xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet prepping to find:"+c);
@@ -1069,6 +1106,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static List<Comparable> findSet(Alias alias, TransactionId xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet prepping to find:"+c);
@@ -1160,69 +1198,82 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator of {@link Result}
 	 */
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
-
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6Transaction(xid, darg, marg, rop);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3Transaction(xid, dop, marg, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1Transaction(xid, dop, mop, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0Transaction(xid, dop, mop, rop);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5Transaction(xid, darg, mop, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4Transaction(xid, darg, mop, rop);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(TransactionId xid, char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2Transaction(xid, dop, marg, rop);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
-
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6Transaction(xid, darg, marg, rop);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3Transaction(xid, dop, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1Transaction(xid, dop, mop, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0Transaction(xid, dop, mop, rop);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5Transaction(xid, darg, mop, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4Transaction(xid, darg, mop, rop);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, TransactionId xid, char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2Transaction(xid, dop, marg, rop);
 		return ifact.createIterator(alias);
@@ -1249,68 +1300,82 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator of {@link Result}
 	 */
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
-
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6Transaction(xid, darg, marg, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3Transaction(xid, dop, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1Transaction(xid, dop, mop, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0Transaction(xid, dop, mop, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5Transaction(xid, darg, mop, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4Transaction(xid, darg, mop, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(TransactionId xid, char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2Transaction(xid, dop, marg, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6Transaction(xid, darg, marg, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3Transaction(xid, dop, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1Transaction(xid, dop, mop, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0Transaction(xid, dop, mop, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5Transaction(xid, darg, mop, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4Transaction(xid, darg, mop, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, TransactionId xid, char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2Transaction(xid, dop, marg, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
@@ -1331,88 +1396,103 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
-
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return ifact.createIterator(alias);
 	}
+
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects.
@@ -1428,82 +1508,111 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	/**
+	 * Return the stream of Results strictly less than arg1 and arg2 matching range
+	 * @param xid Transaction Id
+	 * @param dop Domain wildcard or return tuple
+	 * @param mop Map wildcard or return tuple
+	 * @param rarg Range object to match
+	 * @param arg1 Qualifier for domain wildcard or return tuple Class or instance greater than result
+	 * @param arg2 Qualifier for map wildcard or return tuple Class or instance greater than result
+	 * @return The Stream of retrieved Result items
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias,TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6Transaction(xid, darg, marg, rop, arg1);
@@ -1528,82 +1637,97 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6Transaction(xid, darg, marg, rop, arg1);
@@ -1627,82 +1751,97 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6Transaction(xid, darg, marg, rop, arg1);
@@ -1719,432 +1858,483 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(TransactionId xid, Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7Transaction(xid, darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
-	
 
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(TransactionId xid, Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
 	
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7Transaction(xid, darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Transaction(xid, dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Transaction(xid, dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Transaction(xid, dop, marg, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Transaction(xid, dop, marg, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Transaction(xid, darg, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Transaction(xid, darg, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, TransactionId xid, Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Transaction(xid, darg, marg, rop, arg1, arg2);
@@ -2158,6 +2348,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object firstKey(TransactionId xid) throws IOException
 	{
 		return first(xid);
@@ -2171,6 +2362,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism first key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object firstKey(TransactionId xid, Class clazz) throws IOException
 	{
 		return first(xid, clazz);
@@ -2180,6 +2372,7 @@ public final class RelatrixTransaction {
 	 * instance having the lowest valued key value of the index classes
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
+	@ServerMethod
 	public static Object firstKey(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
 		return first(alias, xid, clazz);
@@ -2190,6 +2383,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object first(TransactionId xid) throws IOException
 	{
 		try {
@@ -2212,6 +2406,7 @@ public final class RelatrixTransaction {
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object first(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2233,6 +2428,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the lowest valued key value.	
 	 * @throws IOException																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						* @throws IOException
 	 */
+	@ServerMethod
 	public static Object firstValue(TransactionId xid) throws IOException
 	{
 		try {
@@ -2250,6 +2446,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the lowest valued key.	
 	 * @throws IOException																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					* @throws IOException
 	 */
+	@ServerMethod
 	public static Object firstValue(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2267,6 +2464,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism first key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object first(TransactionId xid, Class clazz) throws IOException
 	{
 		Object o = null;
@@ -2293,6 +2491,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
+	@ServerMethod
 	public static Object first(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
 		Object o = null;
@@ -2320,6 +2519,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias is not found
 	 */
+	@ServerMethod
 	public static Object firstValue(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKVTransaction.firstValue(alias, xid, clazz);
@@ -2332,6 +2532,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object firstValue(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
 		return RelatrixKVTransaction.firstValue(xid, clazz);
@@ -2344,6 +2545,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object last(TransactionId xid) throws IOException
 	{
 		try {
@@ -2366,6 +2568,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
+	@ServerMethod
 	public static  Object last(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2388,6 +2591,7 @@ public final class RelatrixTransaction {
 	 * @return the target class having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object last(TransactionId xid, Class clazz) throws IOException
 	{
 		Object o = null;
@@ -2413,6 +2617,7 @@ public final class RelatrixTransaction {
 	 * @return the class instance having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object last(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
 		Object o = null;
@@ -2437,6 +2642,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastKey(TransactionId xid) throws IOException
 	{
 		return last(xid);
@@ -2451,6 +2657,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
+	@ServerMethod
 	public static Object lastKey(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		return last(alias, xid);
@@ -2464,6 +2671,7 @@ public final class RelatrixTransaction {
 	 * @return the target class having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastKey(TransactionId xid, Class clazz) throws IOException
 	{
 		return last(xid,clazz);
@@ -2478,6 +2686,7 @@ public final class RelatrixTransaction {
 	 * @return the class instance having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastKey(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
 		return last(alias, xid, clazz);
@@ -2490,6 +2699,7 @@ public final class RelatrixTransaction {
 	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastValue(TransactionId xid) throws IOException
 	{
 		try {
@@ -2508,6 +2718,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
+	@ServerMethod
 	public static Object lastValue(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2523,6 +2734,7 @@ public final class RelatrixTransaction {
 	 * @return the DomainMapRange morphism having the value of highest key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastValue(TransactionId xid, Class clazz) throws IOException
 	{
 		try {
@@ -2541,6 +2753,7 @@ public final class RelatrixTransaction {
 	 * @return the instance having the value of highest key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastValue(Alias alias, TransactionId xid, Class clazz) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2556,6 +2769,7 @@ public final class RelatrixTransaction {
 	 * @return the number of DomainMapRange morphisms.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static long size(TransactionId xid) throws IOException
 	{
 		try {
@@ -2572,6 +2786,7 @@ public final class RelatrixTransaction {
 	 * @return the number of DomainMapRange relationships.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static long size(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2580,7 +2795,7 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
-	
+	@ServerMethod
 	public static long size(TransactionId xid, Class c) throws IOException
 	{
 		try {
@@ -2589,6 +2804,7 @@ public final class RelatrixTransaction {
 			throw new IOException(e);
 		}
 	}
+	@ServerMethod
 	public static long size(Alias alias, TransactionId xid, Class c) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2605,6 +2821,7 @@ public final class RelatrixTransaction {
 	 * @return true if the instance exists.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static boolean contains(TransactionId xid, Comparable obj) throws IOException
 	{
 		try {
@@ -2622,6 +2839,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws NoSuchElementException of the alias doesnt exist
 	 */
+	@ServerMethod
 	public static boolean contains(Alias alias, TransactionId xid, Comparable obj) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2641,6 +2859,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void storekv(Alias alias, TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVTransaction.store(alias, xid, key, value);
 	}
@@ -2655,6 +2874,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void storekv(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		RelatrixKVTransaction.store(xid, key, value);
 	}
@@ -2667,6 +2887,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object get(TransactionId xid, Comparable key) throws IOException, IllegalAccessException
 	{
 		return RelatrixKVTransaction.get(xid, key);
@@ -2682,6 +2903,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias isnt found 
 	 */
+	@ServerMethod
 	public static Object get(Alias alias, TransactionId xid, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKVTransaction.get(alias, xid, key);
@@ -2695,6 +2917,7 @@ public final class RelatrixTransaction {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static Object getByIndex(TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
 		return RelatrixKVTransaction.get(xid, (DBKey) key);
@@ -2710,6 +2933,7 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchElementException if alias is not found 
 	 */
+	@ServerMethod
 	public static Object getByIndex(Alias alias, TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
 	{
 		return RelatrixKVTransaction.get(xid, (DBKey) key);
@@ -2722,6 +2946,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> keySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
 		return RelatrixKVTransaction.keySet(xid, clazz);
@@ -2736,11 +2961,12 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKVTransaction.keySet(alias, xid, clazz);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixEntrysetIteratorTransaction(xid, clazz);
@@ -2755,6 +2981,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> entrySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return new RelatrixEntrysetIteratorTransaction(alias, xid, clazz);
@@ -2767,6 +2994,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(xid, clazz));
@@ -2781,6 +3009,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> entrySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(alias, xid, clazz));

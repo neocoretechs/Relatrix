@@ -8,13 +8,13 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 /**
 * The remote call mechanism depends on Java reflection to provide access to methods that can be
 * remotely invoked via serializable arguments and method name. By designating the reflected classes at startup
-* in the server module, remote calls have access to reflected methods. 
+* in the server module, remote calls have access to reflected methods designated with the {@link ServerMethod} annotation.
 * This class handles reflection of the user requests to call designated methods in the server side classes.<p/>
 * It utilizes helper class {@link MethodNamesAndParams}.
 * It starts by populating a table of those methods, and at runtime, creates a method call transport for client,
 * and provides for server-side invocation of those methods.
-* Option to skip leading arguments for  whatever reason is provided.
-* @author Groff Copyright (C) NeoCoreTechs 1998-2000, 2015
+* Option to skip leading arguments for whatever reason is provided.
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 1998-2000, 2015, 2025
 */
 public final class ServerInvokeMethod {
 	private static final boolean DEBUG = false;
@@ -50,10 +50,10 @@ public final class ServerInvokeMethod {
     	Method m[];
     	m = pkmnap.classClass.getMethods();
     	for(int i = m.length-1; i >= 0 ; i--) {
-    		//if( m[i].getName().startsWith("Relatrix_") ) {
-    		pkmnap.methodNames.add(m[i].getName()/*.substring(9)*/);
-    		System.out.println("Method :"+m[i].getName()/*.substring(9)*/);
-    		//}
+    		if( m[i].isAnnotationPresent(ServerMethod.class) ) {
+    			pkmnap.methodNames.add(m[i].getName()/*.substring(9)*/);
+    			System.out.println("Method :"+m[i].getName()/*.substring(9)*/);
+    		}
     	}
     	// create arrays
     	methods = new Method[pkmnap.methodNames.size()];
@@ -63,27 +63,27 @@ public final class ServerInvokeMethod {
     	int methCnt = 0;
     	//
     	for(int i = m.length-1; i >= 0 ; i--) {
-    		//if( m[i].getName().startsWith("Relatrix_") ) {
-    		pkmnap.methodParams[methCnt] = m[i].getParameterTypes();
-    		pkmnap.methodSigs[methCnt] = m[i].toString();
-    		pkmnap.returnTypes[methCnt] = m[i].getReturnType();
-    		if( pkmnap.returnTypes[methCnt] == void.class ) 
-    			pkmnap.returnTypes[methCnt] = Void.class;
-    		//int ind1 = pkmnap.methodSigs[methCnt].indexOf("Relatrix_");
-    		//pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+9);
-    		if( skipArgs > 0) {
-    			try {
-    				int ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
-    				int ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind1);
-    				ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
-    				ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
-    				pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1+1)+pkmnap.methodSigs[methCnt].substring(ind2+1);
-    			} catch(StringIndexOutOfBoundsException sioobe) {
-    				System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped)");
+    		if(m[i].isAnnotationPresent(ServerMethod.class)) {
+    			pkmnap.methodParams[methCnt] = m[i].getParameterTypes();
+    			pkmnap.methodSigs[methCnt] = m[i].toString();
+    			pkmnap.returnTypes[methCnt] = m[i].getReturnType();
+    			if( pkmnap.returnTypes[methCnt] == void.class ) 
+    				pkmnap.returnTypes[methCnt] = Void.class;
+    			//int ind1 = pkmnap.methodSigs[methCnt].indexOf("Relatrix_");
+    			//pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+9);
+    			if( skipArgs > 0) {
+    				try {
+    					int ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
+    					int ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind1);
+    					ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
+    					ind2 = pkmnap.methodSigs[methCnt].indexOf(",",ind2+1);
+    					pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1+1)+pkmnap.methodSigs[methCnt].substring(ind2+1);
+    				} catch(StringIndexOutOfBoundsException sioobe) {
+    					System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped)");
+    				}
     			}
+    			methods[methCnt++] = m[i];
     		}
-    		methods[methCnt++] = m[i];
-    		// }
     	}
     }
        /**

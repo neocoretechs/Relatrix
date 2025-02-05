@@ -1,5 +1,5 @@
 package com.neocoretechs.relatrix.client;
-import com.neocoretechs.relatrix.tooling.GenerateClientBindings;
+import com.neocoretechs.relatrix.server.GenerateClientBindings;
 /**
  * Part of the toolset including {@link ServerInvokeMethod}, {@link RemoteResponseInterface}, {@link GenerateClientBindings}
  * to affect the creation of maintenance of 2 tier client/server models using established infrastructure.<p/>

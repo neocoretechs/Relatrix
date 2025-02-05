@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.tooling;
+package com.neocoretechs.relatrix.server;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.rocksack.TransactionId;

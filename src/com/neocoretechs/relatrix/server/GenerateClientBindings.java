@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.tooling;
+package com.neocoretechs.relatrix.server;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
-import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
@@ -25,6 +24,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * Call with args: classname, output interface name, statement and transport method names,and desired package declaration.<p/>
  * This is an adjunct to the {@link ServerInvokeMethod} class that generates the server side callable method bindings
  * for a given class, such that a remote client side transport can invoke those methods and receive returned responses.<p/>
+ * The methods will specified via the {@link ServerMethod} annotation in the server-side source class.<p/>
  * Combinations of these tools simplifies the process of building and maintaining 2 tier client/server models from existing
  * class files.<p/>
  * The invokeMethod of ServerInvokeMethod can be used to call methods reflected from a supplied class on a supplied local Object. If that

@@ -11,8 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.rocksdb.ByteBufferGetStatus;
-
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode0;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode1;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode2;
@@ -51,6 +49,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
@@ -110,7 +109,6 @@ public final class Relatrix {
 		sftpm.init(3, 3, new String[] {searchX});
 	}
 	
-	
 	// Multithreaded double check Singleton setups:
 	// 1.) privatized constructor; no other class can call
 	private Relatrix() {
@@ -127,16 +125,17 @@ public final class Relatrix {
 		return instance;
 	}	
 	
-
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
 	* need to store values confusing to the standard findset *,? semantics.
-	* */
+	*/
+	@ServerMethod
 	public static void setWildcard(char wc) {
 		OPERATOR_WILDCARD_CHAR = wc;
 		OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	}
+	@ServerMethod
 	public static void setTuple(char tp) {
 		OPERATOR_TUPLE_CHAR = tp;
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
@@ -150,10 +149,24 @@ public final class Relatrix {
 		RelatrixKV.setTablespace(path);
 	}
 	
+	@ServerMethod
 	public static String getTableSpace() {
 		return RelatrixKV.getTableSpace();
 	}
 
+	/**
+	 * Set an alias relative to the current tablespace
+	 * @param alias
+	 * @param path
+	 * @throws IOException
+	 */
+	@ServerMethod
+	public static void setRelativeAlias(Alias alias) throws IOException {
+		if(alias.getAlias().contains("/") || alias.getAlias().contains("\\") || alias.getAlias().contains("..") || alias.getAlias().contains("~"))
+			throw new IOException("No path allowed");
+		RelatrixKV.setAlias(alias, RelatrixKV.getTableSpace()+alias.getAlias());
+	}
+	
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
 	 * @param alias
@@ -163,12 +176,12 @@ public final class Relatrix {
 	public static void setAlias(Alias alias, String path) throws IOException {
 		RelatrixKV.setAlias(alias, path);
 	}
-	
 	/**
 	 * Get the tablespace path for this alias. Will return null if alias does not exist
 	 * @param alias
 	 * @return The tablespace path for the given alias returned as a String.
 	 */
+	@ServerMethod
 	public static String getAlias(Alias alias) {
 		return RelatrixKV.getAlias(alias);
 	}
@@ -177,6 +190,7 @@ public final class Relatrix {
 	 * 
 	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
 	 */
+	@ServerMethod
 	public static String[][] getAliases() {
 		return RelatrixKV.getAliases();
 	}
@@ -185,6 +199,7 @@ public final class Relatrix {
 	 * @param alias
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
+	@ServerMethod
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		RelatrixKV.removeAlias(alias);
 	}
@@ -198,6 +213,7 @@ public final class Relatrix {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
@@ -2084,12 +2100,12 @@ public final class Relatrix {
 	}
 	
 
-
 	/**
 	 * This method returns the first DomainMapRange instance having the lowest valued key value of the index classes.
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object first() throws IOException
 	{
 		try {
