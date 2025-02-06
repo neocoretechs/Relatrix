@@ -14,6 +14,7 @@ import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 /**
  * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.Morphism}s formed into a template
@@ -118,6 +119,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	}
 	
 	@Override
+	@ServerMethod
 	public boolean hasNext() {
 		if( DEBUG )
 			System.out.println(this.toString());
@@ -125,6 +127,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	}
 	
 	@Override
+	@ServerMethod
 	public Result next() {
 		try {
 		if( buffer == null || needsIter) {
@@ -162,6 +165,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	}
 
 	@Override
+	@ServerMethod
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");
 		

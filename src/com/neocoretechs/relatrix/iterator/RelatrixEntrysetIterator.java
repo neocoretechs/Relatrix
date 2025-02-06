@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 
 
@@ -79,6 +80,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
     }
     
 	@Override
+	@ServerMethod
 	public boolean hasNext() {
 		if( DEBUG )
 			System.out.printf("%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
@@ -86,6 +88,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 	}
 
 	@Override
+	@ServerMethod
 	public Comparable next() {
 		if(buffer == null || needsIter) {
 			if( DEBUG ) {
@@ -113,6 +116,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 	}
 
 	@Override
+	@ServerMethod
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
 	}

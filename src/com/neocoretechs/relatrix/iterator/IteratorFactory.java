@@ -6,7 +6,6 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
 
 	/**
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors

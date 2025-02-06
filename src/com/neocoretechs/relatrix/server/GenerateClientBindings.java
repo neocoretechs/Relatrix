@@ -214,7 +214,7 @@ public class GenerateClientBindings {
 						outStream.writeBytes(command);
 						outStream.writeBytes("(s);\r\n");
 					} else {
-						outStream.writeBytes("\t\treturn new RemoteStream((RemoteIterator)"); // cast return to remote stream
+						outStream.writeBytes("\t\treturn new RemoteStream((Iterator)"); // cast return to remote stream
 						outStream.writeBytes(command);
 						outStream.writeBytes("(s));\r\n");
 					}

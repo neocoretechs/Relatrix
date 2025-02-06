@@ -13,6 +13,7 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 /**
  *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
@@ -286,6 +287,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     }
     
 	@Override
+	@ServerMethod
 	public boolean hasNext() {
 		if( DEBUGITERATION )
 			System.out.println(this.toString());
@@ -293,6 +295,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
 	}
 
 	@Override
+	@ServerMethod
 	public Result next() {
 		try {
 		if( buffer == null || needsIter) {
@@ -334,6 +337,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
 	}
 
 	@Override
+	@ServerMethod
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
 	}

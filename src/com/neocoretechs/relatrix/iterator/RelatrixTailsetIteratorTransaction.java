@@ -9,7 +9,7 @@ import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
-
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -255,6 +255,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     }
     
 	@Override
+	@ServerMethod
 	public boolean hasNext() {
 		if( DEBUGITERATION )
 			System.out.println("RelatrixTailsetIteratorTransaction.hasNext() xid:"+xid+" "+super.toString());
@@ -262,6 +263,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 	}
 
 	@Override
+	@ServerMethod
 	public Result next() {
 		try {
 		if( buffer == null || needsIter) {
@@ -304,6 +306,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 	}
 
 	@Override
+	@ServerMethod
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
 	}

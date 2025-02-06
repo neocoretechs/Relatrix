@@ -3,19 +3,15 @@ package com.neocoretechs.relatrix.client;
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadSetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubSetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
-import com.neocoretechs.rocksack.Alias;
+
 import com.neocoretechs.rocksack.TransactionId;
 
 /**

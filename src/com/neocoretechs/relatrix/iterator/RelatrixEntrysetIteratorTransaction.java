@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -63,6 +64,7 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     }
     
 	@Override
+	@ServerMethod
 	public Comparable next() {
 		if( buffer == null || needsIter) {
 			if( DEBUG ) {
