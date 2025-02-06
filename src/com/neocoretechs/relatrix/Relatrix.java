@@ -47,6 +47,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -120,6 +121,7 @@ public final class Relatrix {
 		synchronized(Relatrix.class) {
 			if(instance == null) {
 				instance = new Relatrix();
+				IndexResolver.setLocal();
 			}
 		}
 		return instance;
@@ -146,6 +148,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 */
 	public static void setTablespace(String path) throws IOException {
+		getInstance();
 		RelatrixKV.setTablespace(path);
 	}
 	
