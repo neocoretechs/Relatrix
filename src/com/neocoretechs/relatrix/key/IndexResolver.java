@@ -3,7 +3,10 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 
 /**
@@ -16,23 +19,12 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
  *
  */
 public class IndexResolver {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	static IndexInstanceTableInterface instanceTable = null;
-	static boolean local = true;
-	static RelatrixClientInterface remoteIndexInstanceTable = null;
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
-		if(instanceTable == null) {
-			if(local) {
-					try {
-						instanceTable = new IndexInstanceTable();
-					} catch (NoSuchElementException e) {
-						throw new IOException(e);
-					}
-			} else {
-					instanceTable = new RemoteIndexInstanceTable(remoteIndexInstanceTable);
-			}
-		}
+		if(DEBUG)
+			System.out.println("Returning instance table:"+instanceTable);
 		return instanceTable;
 	}
 	
@@ -41,18 +33,26 @@ public class IndexResolver {
 	 * By calling this, local is set to true, by default, it is also true.
 	 */
 	public static void setLocal() {
-		local = true;
+		instanceTable = new IndexInstanceTable();
+		if(DEBUG)
+			System.out.println("IndexResolver setLocal instance table:"+instanceTable);
 	}
 
 	/**
 	 * Set the remote client to resolve the remote indexes. If transaction is true, instance of {@link RelatrixClientInterface}
 	 * must be transactional.
 	 * @param remoteClient Implementations of RelatrixClientInterface may include transaction context information.
+	 * @throws IOException 
 	 */
-	public static void setRemote(RelatrixClientInterface remoteClient) {
-		local = false;
-		remoteIndexInstanceTable = remoteClient;
+	public static void setRemote(RelatrixClientInterface remoteClient) throws IOException {
+		instanceTable = new RemoteIndexInstanceTable(remoteClient);
+		if(DEBUG)
+			System.out.println("IndexResolver setRemote instance table:"+instanceTable);
 	}
-	
+	public static void setRemoteTransaction(RelatrixClientTransactionInterface remoteClient) throws IOException {
+		instanceTable = new RemoteIndexInstanceTable(remoteClient);
+		if(DEBUG)
+			System.out.println("IndexResolver setRemoteTransaction instance table:"+instanceTable);
+	}
 
 }

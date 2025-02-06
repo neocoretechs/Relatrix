@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
@@ -76,8 +77,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		// We have to set remote key resolver when we get a transaction Id
-		//IndexResolver.setRemote(this);
+		IndexResolver.setRemoteTransaction((RelatrixClientTransactionInterface) this);
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {

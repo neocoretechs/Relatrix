@@ -6,8 +6,11 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -23,16 +26,15 @@ import com.neocoretechs.rocksack.TransactionId;
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
-	private RelatrixClientInterface rc = null;
-	private RelatrixClientTransactionInterface rcx = null;
+	private ClientInterface rc = null;
 	private Object mutex = new Object();
 
-	public RemoteIndexInstanceTable(RelatrixClientInterface rc) throws IOException {
-		this.rc = rc;
+	public RemoteIndexInstanceTable(RelatrixClientInterface remoteIndexInstanceTable) throws IOException {
+		this.rc = (ClientInterface) remoteIndexInstanceTable;
 	}	
 
 	public RemoteIndexInstanceTable(RelatrixClientTransactionInterface rc) throws IOException {
-		this.rcx = rc;
+		this.rc = (ClientInterface) rc;
 	}	
 	/**
 	 * Put the key to the proper tables
@@ -50,8 +52,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			try {
-				rc.storekv(index, instance);
-				rc.storekv(instance, index);
+				((RelatrixClient)rc).storekv(index, instance);
+				((RelatrixClient)rc).storekv(instance, index);
 			} catch (IOException e) {
 				throw new IOException(e);
 			}
@@ -75,8 +77,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		DBKey retKey = getKey(transactionId, instance);
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
-			rcx.storekv(transactionId, index, instance);
-			rcx.storekv(transactionId,  instance, index);
+			((RelatrixClientTransaction)rc).storekv(transactionId, index, instance);
+			((RelatrixClientTransaction)rc).storekv(transactionId,  instance, index);
 			return index;
 		}
 		return retKey;
@@ -94,7 +96,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rc.storekv(alias, index, instance);
+						((RelatrixClient)rc).storekv(alias, index, instance);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -104,7 +106,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rc.storekv(alias, instance, index);
+						((RelatrixClient)rc).storekv(alias, instance, index);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -132,7 +134,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rcx.storekv(alias, transactionId, index, instance);
+						((RelatrixClientTransaction)rc).storekv(alias, transactionId, index, instance);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -142,7 +144,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						rcx.storekv(alias, transactionId, instance, index);
+						((RelatrixClientTransaction)rc).storekv(alias, transactionId, instance, index);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -167,7 +169,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rc.storekv(dbKey, instance);
+					((RelatrixClient)rc).storekv(dbKey, instance);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -177,7 +179,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rc.storekv(instance, dbKey);
+					((RelatrixClient)rc).storekv(instance, dbKey);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -199,7 +201,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rc.storekv(alias, index, instance);
+					((RelatrixClient)rc).storekv(alias, index, instance);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -209,7 +211,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rc.storekv(alias, instance, index);
+					((RelatrixClient)rc).storekv(alias, instance, index);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -232,7 +234,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rcx.storekv(transactionId, index, instance);
+					((RelatrixClientTransaction)rc).storekv(transactionId, index, instance);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -242,7 +244,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rcx.storekv(transactionId, instance, index);
+					((RelatrixClientTransaction)rc).storekv(transactionId, instance, index);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -264,7 +266,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rcx.storekv(alias, transactionId, index, instance);
+					((RelatrixClientTransaction)rc).storekv(alias, transactionId, index, instance);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -274,7 +276,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					rcx.storekv(alias, transactionId, instance, index);
+					((RelatrixClientTransaction)rc).storekv(alias, transactionId, instance, index);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -304,7 +306,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		Object o = rc.getByIndex(index);
+		Object o = ((RelatrixClient)rc).getByIndex(index);
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
 		if(o == null)
@@ -324,7 +326,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		Object o = rc.getByIndex(alias,index);
+		Object o = ((RelatrixClient)rc).getByIndex(alias,index);
 		if(o == null)
 			return null;
 		if(o instanceof PrimaryKeySet) {
@@ -345,7 +347,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		Object o = rcx.getByIndex(alias, transactionId, index);
+		Object o = ((RelatrixClientTransaction)rc).getByIndex(alias, transactionId, index);
 		if(o == null)
 			return null;
 		if(o instanceof PrimaryKeySet) {
@@ -365,7 +367,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		Object o = rcx.getByIndex(transactionId, index);
+		Object o = ((RelatrixClientTransaction)rc).getByIndex(transactionId, index);
 		if(o == null)
 			return null;
 		if(o instanceof PrimaryKeySet) {
@@ -384,7 +386,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public DBKey getKey(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return (DBKey)rc.get((Comparable) instance);
+		return (DBKey)((RelatrixClient)rc).get((Comparable) instance);
 	}
 
 	/**
@@ -397,7 +399,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public DBKey getKey(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return (DBKey)rcx.get(transactionId, (Comparable) instance);
+		return (DBKey)((RelatrixClientTransaction)rc).get(transactionId, (Comparable) instance);
 	}
 
 	@Override
@@ -407,12 +409,12 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 
 	@Override
 	public DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
-		return (DBKey) rc.get(alias, (Comparable) instance);
+		return (DBKey) ((RelatrixClient)rc).get(alias, (Comparable) instance);
 	}
 
 	@Override
 	public DBKey getKey(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		return (DBKey) rcx.get(alias, transactionId, (Comparable) instance);
+		return (DBKey) ((RelatrixClientTransaction)rc).get(alias, transactionId, (Comparable) instance);
 	}
 
 	

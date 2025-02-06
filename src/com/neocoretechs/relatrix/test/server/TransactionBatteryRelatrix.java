@@ -69,8 +69,10 @@ public class TransactionBatteryRelatrix {
 		int recs = 0;
 		for(int i = min; i < max; i++) {
 			String fkey = key + String.format(uniqKeyFmt, i);
-			Comparable m = ((Result)rct.findStream(xid, fkey, "Has unit", new Long(i)).findFirst().get()).get();
-			System.out.println(m);
+			rct.findStream(xid, fkey, "Has unit", new Long(i)).forEach(e->{
+				System.out.println(e);
+			});
+			
 			//rct.store(xid, m ,"has identity",new Long(i));
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);

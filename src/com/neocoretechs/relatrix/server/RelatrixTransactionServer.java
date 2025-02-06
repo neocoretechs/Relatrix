@@ -131,7 +131,7 @@ public final class RelatrixTransactionServer extends TCPServer {
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		new RelatrixTransaction();
+		RelatrixTransaction.getInstance();
 		if(args.length == 3) {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());

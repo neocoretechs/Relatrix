@@ -45,6 +45,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
@@ -105,7 +106,22 @@ public final class RelatrixTransaction {
 		sftpm.init(2, 2, new String[] {storeITransaction});
 		sftpm.init(3, 3, new String[] {searchXTransaction});
 	}
-	
+	// Multithreaded double check Singleton setups:
+	// 1.) privatized constructor; no other class can call
+	private RelatrixTransaction() {
+	}
+	// 2.) volatile instance
+	private static volatile RelatrixTransaction instance = null;
+	// 3.) lock class, assign instance if null
+	public static RelatrixTransaction getInstance() {
+		synchronized(RelatrixTransaction.class) {
+			if(instance == null) {
+				instance = new RelatrixTransaction();
+				IndexResolver.setLocal();
+			}
+		}
+		return instance;
+	}	
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
