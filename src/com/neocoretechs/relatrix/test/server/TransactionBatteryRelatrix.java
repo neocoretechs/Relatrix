@@ -34,7 +34,7 @@ public class TransactionBatteryRelatrix {
 		session = new RelatrixClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]) );
 		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
-		battery0(session, xid);
+		//battery0(session, xid);
 		battery1(session, xid);
 		session.commit(xid);
 		battery2(session, xid);
@@ -54,7 +54,8 @@ public class TransactionBatteryRelatrix {
 		int i = min;
 		for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			rct.store(xid, fkey, "Has unit", new Long(i));
+			DomainMapRange dmr = rct.store(xid, fkey, "Has unit", new Long(i));
+			System.out.println(i+".)"+dmr);
 			++recs;
 		}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");

@@ -184,7 +184,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	* @throws IllegalAccessException 
 	* @throws ClassNotFoundException 
 	*/
-	private Result iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
+	protected Result iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
 	    Result tuples = getReturnTuples(dmr_return);
 		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 	    // no return vals? send back Relate location

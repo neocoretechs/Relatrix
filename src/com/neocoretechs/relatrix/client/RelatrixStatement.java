@@ -8,6 +8,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadSetIterator;
@@ -24,7 +26,7 @@ import com.neocoretechs.rocksack.iterator.EntrySetIterator;
  *
  */
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
     protected Alias alias = null;
@@ -114,7 +116,12 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	}
 	@Override
 	public synchronized void setObjectReturn(Object o) {
-		retObj = o;		
+		if(o instanceof Morphism)
+			retObj = new TransportMorphism((Morphism) o);
+		else
+			retObj = o;
+		if(DEBUG)
+			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), retObj);
 	}
 
 	@Override
@@ -124,6 +131,10 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 
 	@Override
 	public synchronized Object getObjectReturn() {
+		if(retObj.getClass() == TransportMorphism.class)
+			retObj = ((TransportMorphism)retObj).getMorphism();
+		if(DEBUG)
+			System.out.printf("%s.getObjectReturn returning %s%n", this.getClass().getName(), retObj);
 		return retObj;
 	}
 	/**

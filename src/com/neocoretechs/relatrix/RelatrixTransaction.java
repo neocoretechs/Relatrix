@@ -144,6 +144,7 @@ public final class RelatrixTransaction {
 	 * @throws IOException
 	 */
 	public static void setTablespace(String path) throws IOException {
+		getInstance();
 		RelatrixKVTransaction.setTablespace(path);
 	}
 	

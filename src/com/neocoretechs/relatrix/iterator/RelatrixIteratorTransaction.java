@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -37,7 +39,8 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class RelatrixIteratorTransaction extends RelatrixIterator {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
+	private TransactionId xid = null;
 	/**
 	 * Pass the array we use to indicate which values to return and element 0 counter
 	 * @param xid the transaction id
@@ -46,6 +49,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	 * @throws IOException
 	 */
     public RelatrixIteratorTransaction(TransactionId xid, Morphism template, short[] dmr_return) throws IOException {
+    	this.xid = xid;
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
@@ -79,9 +83,10 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	 * @throws IOException
 	 */
     public RelatrixIteratorTransaction(Alias alias, TransactionId xid, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+      	this.alias = alias;
+    	this.xid = xid;
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	this.alias = alias;
     	identity = isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKVTransaction.findTailMapKV(alias, xid, template);
@@ -105,7 +110,45 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	if( DEBUG )
 			System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
     }
-	
+    
+	@Override
+	@ServerMethod
+	public Result next() {
+		try {
+		if( buffer == null || needsIter) {
+			if( DEBUG ) {
+	    			System.out.println(this.toString());
+			}
+			if( nextit != null )
+				buffer = nextit;
+			
+			if( iter.hasNext()) {
+				Map.Entry me = (Entry) iter.next();
+				nextit = (Morphism)me.getKey();
+				nextit.setIdentity((DBKey) me.getValue());
+				nextit.setTransactionId(xid);
+				if(alias != null)
+					nextit.setAlias(alias);
+				if( !templateMatches(base, nextit, dmr_return) ) {
+					nextit = null;
+					needsIter = false;
+				}
+			} else {
+				nextit = null;
+				needsIter = false;
+			}
+		}
+		// always return using this with non null buffer
+		if( DEBUG ) {
+			System.out.println("RelatrixIteratorTransaction.next() template match after iteration "+this.toString());
+		}
+		return iterateDmr();
+		
+		} catch (IllegalAccessException | IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
     @Override
     public String toString() {
     	return this.getClass().getName()+":"+super.toString();

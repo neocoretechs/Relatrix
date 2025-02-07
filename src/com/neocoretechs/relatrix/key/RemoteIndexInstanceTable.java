@@ -25,7 +25,7 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private ClientInterface rc = null;
 	private Object mutex = new Object();
 
@@ -306,9 +306,11 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+		if(DEBUG)
+			System.out.printf("%s get for key:%s%n", this.getClass().getName(), index);
 		Object o = ((RelatrixClient)rc).getByIndex(index);
 		if(DEBUG)
-			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
+			System.out.printf("%s get for key:%s returning:%s%n", this.getClass().getName(), index, o);
 		if(o == null)
 			return null;
 		if(o instanceof PrimaryKeySet)
@@ -327,6 +329,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	@Override
 	public Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		Object o = ((RelatrixClient)rc).getByIndex(alias,index);
+		if(DEBUG)
+			System.out.printf("%s get for alias:%s key:%s returning:%s%n", this.getClass().getName(), alias, index, o);
 		if(o == null)
 			return null;
 		if(o instanceof PrimaryKeySet) {
@@ -367,6 +371,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
+		if(DEBUG)
+			System.out.printf("%s get for xid:%s key:%s%n", this.getClass().getName(), transactionId, index);
 		Object o = ((RelatrixClientTransaction)rc).getByIndex(transactionId, index);
 		if(o == null)
 			return null;

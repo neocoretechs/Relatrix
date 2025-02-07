@@ -60,7 +60,7 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
 		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator", 0);
 		RelatrixServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
-		RelatrixServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.EntrySetIterator", 0);
+		RelatrixServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 	}
@@ -78,7 +78,7 @@ public final class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
 		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator", 0);
 		RelatrixServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
-		RelatrixServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.rocksack.iterator.EntrySetIterator", 0);
+		RelatrixServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT,InetAddress.getByName(address));
 	}
