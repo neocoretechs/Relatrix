@@ -36,6 +36,9 @@ import com.neocoretechs.rocksack.TransactionId;
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
+ * The special case is the {@link RemoteIteratorTransaction}, which is a proxy to the 'next' and 'hasNext' methods here,
+ * such that we can deliver the RemoteIterator and treat it as an abstract Iterator to simply call next and hasNext on the
+ * Iterator interface. 
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
@@ -254,11 +257,12 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	}
 
 	/**
-	 * Call the remote iterator from the various 'findSet' methods and return the result.
+	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param rii
-	 * @return
+	 * @param xid Transaction Id
+	 * @param rii RelatrixTransactionStatement
+	 * @return The next iterated object or null
 	 */
 	public Object next(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
 		rii.xid = xid;
@@ -266,7 +270,14 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
 	}
-	
+	/**
+	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param xid Transaction Id
+	 * @param rii RelatrixTransactionStatement
+	 * @return The boolean result of hasNext on server
+	 */	
 	public boolean hasNext(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
 		rii.xid = xid;
 		rii.methodName = "hasNext";

@@ -14,13 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
-import com.neocoretechs.rocksack.Alias;
+
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
  * On the client and server the following are present as conventions:<br/>
@@ -34,7 +32,10 @@ import com.neocoretechs.rocksack.Alias;
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.
+ * The client thread initiates with a CommandPacketInterface.<p/>
+ * The special case is the {@link RemoteIterator}, which is a proxy to the 'next' and 'hasNext' methods here,
+ * such that we can deliver the RemoteIterator and treat it as an abstract Iterator to simply call next and hasNext on the
+ * Iterator interface. 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixClient extends RelatrixClientInterfaceImpl implements ClientInterface, Runnable {
@@ -185,18 +186,24 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		return o;
 	}
 	/**
-	 * Call the remote iterator from the various 'findSet' methods and return the result.
+	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param rii
-	 * @return
+	 * @param rii RelatrixStatement
+	 * @return The next iterated object or null
 	 */
 	public Object next(RelatrixStatement rii) throws Exception {
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
 	}
-	
+	/**
+	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param rii RelatrixStatement
+	 * @return The boolean result of hasNext on server
+	 */	
 	public boolean hasNext(RelatrixStatement rii) throws Exception {
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];

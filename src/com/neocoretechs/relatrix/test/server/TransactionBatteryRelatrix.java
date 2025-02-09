@@ -1,11 +1,13 @@
 package com.neocoretechs.relatrix.test.server;
 
 
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.rocksack.TransactionId;
@@ -34,9 +36,11 @@ public class TransactionBatteryRelatrix {
 		session = new RelatrixClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]) );
 		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
-		//battery0(session, xid);
+		if(session.size(xid) == 0) {
+			battery0(session, xid);
+			session.commit(xid);
+		}
 		battery1(session, xid);
-		session.commit(xid);
 		battery2(session, xid);
 		session.endTransaction(xid);
 		System.out.println("TEST BATTERY COMPLETE.");	
@@ -70,10 +74,15 @@ public class TransactionBatteryRelatrix {
 		int recs = 0;
 		for(int i = min; i < max; i++) {
 			String fkey = key + String.format(uniqKeyFmt, i);
-			rct.findStream(xid, fkey, "Has unit", new Long(i)).forEach(e->{
+			Iterator it = rct.findSet(xid, fkey, "Has unit", new Long(i));
+			while(it.hasNext()) {
+				System.out.println(it.next());
+			}
+			/*
+			rct.findStream().forEach(e->{
 				System.out.println(e);
 			});
-			
+			*/
 			//rct.store(xid, m ,"has identity",new Long(i));
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);

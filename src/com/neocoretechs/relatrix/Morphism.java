@@ -35,7 +35,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
 public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = false;
+		private static boolean DEBUG = true;
 
         static final long serialVersionUID = -9129948317265641091L;
         public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
@@ -798,6 +798,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		 */
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(DEBUG) {
+				System.out.printf("%s.resolveKey for id=%s xid=%s%n",this.getClass().getName(),this.getIdentity(),transactionId);
 				if(alias != null)
 					return resolveKey(alias, key);
 				if(transactionId == null) {

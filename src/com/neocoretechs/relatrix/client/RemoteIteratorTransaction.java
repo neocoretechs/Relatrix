@@ -2,17 +2,17 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
+
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+
 /**
- * This has to get called from the client to invoke the proper server side iterator
- * then get the result of the call from the server and return it to the client side call.
- * On the server we will be working with an actual iterator or {@link RelatrixIterator}.
- * One of the ServerInvokeMethods statically declared on the {@link RelatrixServer} or {@link  RelatrixKVServer} <p/>
+ * Fulfills the Iterator interface contract and acts as a proxy to the client.
+ * This calls the {@link RelatrixClientTransaction} next or hasNext to invoke the proper server side iterator
+ * then get the result of the call on the server and return it to the client side.<p/>
+ * On the server we will be working with an actual iterator or {@link RelatrixIteratorTransaction}.
+ * One of the ServerInvokeMethods statically declared on the {@link RelatrixTransactionServer} or {@link  RelatrixKVTransactionServer} <p/>
  * On the server side this gets created then linked to a session object via the String constructor then returned
- * to the client where the RelatrixKVStatement contains the linked session ID.
+ * to the client where the {@link RelatrixTransactionStatement} contains the linked session ID.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -39,6 +39,11 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 		this.relatrixClient = (RelatrixClientTransaction) client;
 	}
 	
+	/**
+	 * Fulfills the Iterator interface contract and acts as a proxy to call the {@link RelatrixClientTransaction} hasNext method
+	 * with transaction Id and 'this' instance.
+	 * @return the boolean result of server side call
+	 */
 	@Override
 	public boolean hasNext() {
 		try {
@@ -47,7 +52,11 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 			throw new RuntimeException(e);
 		}
 	}
-
+	/**
+	 * Fulfills the Iterator interface contract and acts as a proxy to call the {@link RelatrixClientTransaction} next method
+	 * with transaction Id and 'this' instance.
+	 * @return the next iterated object or null
+	 */
 	@Override
 	public Object next() {
 		try {

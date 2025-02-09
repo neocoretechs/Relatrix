@@ -7,12 +7,13 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * This has to get called from the client to invoke the proper server side iterator
- * then get the result of the call from the server and return it to the client side call.
+ * Fulfills the Iterator interface contract and acts as a proxy to the client.
+ * This calls the {@link RelatrixClient} next or hasNext to invoke the proper server side iterator
+ * then get the result of the call on the server and return it to the client side.<p/>
  * On the server we will be working with an actual iterator or {@link RelatrixIterator}.
  * One of the ServerInvokeMethods statically declared on the {@link RelatrixServer} or {@link  RelatrixKVServer} <p/>
  * On the server side this gets created then linked to a session object via the String constructor then returned
- * to the client where the RelatrixStatement contains the linked session ID.
+ * to the client where the {@link RelatrixStatement} contains the linked session ID.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -38,7 +39,11 @@ public class RemoteIterator extends RelatrixStatement implements RemoteObjectInt
 	public void setClient(ClientInterface client) {
 		this.relatrixClient = (RelatrixClient) client;
 	}
-	
+	/**
+	 * Fulfills the Iterator interface contract and acts as a proxy to call the {@link RelatrixClient} hasNext method
+	 * with 'this' instance.
+	 * @return the boolean result of server side call
+	 */	
 	@Override
 	public boolean hasNext() {
 		try {
@@ -47,7 +52,11 @@ public class RemoteIterator extends RelatrixStatement implements RemoteObjectInt
 			throw new RuntimeException(e);
 		}
 	}
-
+	/**
+	 * Fulfills the Iterator interface contract and acts as a proxy to call the {@link RelatrixClient} next method
+	 * with 'this' instance.
+	 * @return the next iterated object or null
+	 */
 	@Override
 	public Object next() {
 		try {

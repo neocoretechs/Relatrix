@@ -26,7 +26,7 @@ import com.neocoretechs.rocksack.iterator.EntrySetIterator;
  *
  */
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
     protected Alias alias = null;

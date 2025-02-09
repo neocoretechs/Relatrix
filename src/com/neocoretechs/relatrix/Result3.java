@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
 * The query that can produce a Result3 instance:<br/>
 * (Keep in mind that any object participating in a relationship can itself be a relationship.)<p/>
-* findSet("?","?","?") - iterator or stream of all domain, map, and range components of all relationships (instances of DomainMapRange relationship objects) <br/>
+* findSet('?','?','?') - iterator or stream of all domain, map, and range components of all relationships (instances of DomainMapRange relationship objects, AKA Identity objects) <br/>
 * Thats it! See these other results for further options for set retrieval: {@link Result1} {@link Result2}
 * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
 *

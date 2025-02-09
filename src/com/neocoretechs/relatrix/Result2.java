@@ -5,13 +5,13 @@ import java.util.Objects;
 /**
 * Some of the queries that can produce a Result2 instance include:<br/>
 * (Keep in mind that any object participating in a relationship can itself be a relationship.)<p/>
-* findSet("?","?","*") - iterator or stream of all domain and map components of all relationships (instances of DomainMapRange relationship objects) <br/>
-* findSet(object,"?","?") - iterator or stream of all map and range components of all relationship objects with given domain object <br/>
-* findSet("?","?",object)- iterator or stream of all domain and map objects of relationships with range of the indicated objects <br/>
-* findSet("?","?","*")- iterator or stream of all domain and map objects of all relationships<br/>
-* findSet("*","?","?")- iterator or stream of all map and range objects of all relationships <br/>
-* findSet("?",object,"?")- iterator or stream of all domain and range objects of relationships containing given map object<br/>
-* findSet("?","*","?")- iterator or stream of all domain and range objects of all relationships<br/>
+* findSet('?','?','*') - iterator or stream of all domain and map components of all relationships (instances of DomainMapRange relationship objects) <br/>
+* findSet(object,'?','?') - iterator or stream of all map and range components of all relationship objects with given domain object <br/>
+* findSet('?','?',object)- iterator or stream of all domain and map objects of relationships with range of the indicated objects <br/>
+* findSet('?','?','*')- iterator or stream of all domain and map objects of all relationships<br/>
+* findSet('*','?','?')- iterator or stream of all map and range objects of all relationships <br/>
+* findSet('?',object,'?')- iterator or stream of all domain and range objects of relationships containing given map object<br/>
+* findSet('?','*','?')- iterator or stream of all domain and range objects of all relationships<br/>
 * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
 *
 */

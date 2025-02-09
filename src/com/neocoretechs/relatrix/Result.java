@@ -6,11 +6,11 @@ import java.util.Objects;
  * Top level abstract class of hierarchy returned by iterators or streams of retrieval of Morphisms from the Relatrix.<p/>
  * Depending on the type of set retrieval, a class hierarchy consisting of Result can consist of {@link Result1}, {@link Result2} or {@link Result3}.
  * Variations of 'get' methods can be used retrieve the elements from the hierarchy. A total order is imposed consisting of
- * Result1, Result2, and Result3. For instance, if we call findSet("?","*","?") we would receive iterators or streams of Result2 since
- * we have specified 2 return elements from the retrieval as denoted by the ? directive. For retrievals of identity elements such as
- * findSet("*","*","*") or findSet(object, object, object) or findSet ("*",object, object) we get an instance of Result1 with the
- * identity element. Should we request findSet("?",object,"?") or findSet ("?","?","*") we would get an instance of Result2.
- * A Result3 is returned when we ask for findSet("?","?","?") exclusively. Keep in mind that any object participating in a relationship
+ * Result1, Result2, and Result3. For instance, if we call<br/> findSet('?','*','?') we would receive iterators or streams of Result2 since
+ * we have specified 2 return elements from the retrieval as denoted by the ? directive.<br/> For retrievals of identity elements such as
+ * <br/>findSet('*','*','*') or <br/>findSet(object, object, object) or <br/>findSet('*',object, object) we get an instance of Result1 with the
+ * identity element. Should we request <br/>findSet('?',object,'?') or <br/>findSet('?','?','*')<br/> we would get an instance of Result2.
+ * A Result3 is returned when we ask for <br/>findSet('?','?','?') exclusively.<br/> Keep in mind that any object participating in a relationship
  * can itself be a relationship.
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
  *
