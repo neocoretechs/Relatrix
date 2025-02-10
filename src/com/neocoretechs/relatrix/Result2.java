@@ -80,7 +80,23 @@ public class Result2 extends Result1 implements Comparable, Serializable, Clonea
 	public Object clone() {
 		return new Result2(this);
 	}
+	
+	@Override
+	public void rigForTransport() {
+		if(one instanceof Morphism)
+			one = new TransportMorphism((Morphism) one);
+		if(two instanceof Morphism)
+			two = new TransportMorphism((Morphism) two);	
+	}
 
+	@Override
+	public void unpackFromTransport() {
+		if(one != null && one.getClass() == TransportMorphism.class)
+			one = ((TransportMorphism)one).getMorphism();
+		if(two != null && two.getClass() == TransportMorphism.class)
+			two = ((TransportMorphism)two).getMorphism();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

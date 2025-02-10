@@ -5,6 +5,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used by RelatrixTransactionServer to produce tailsets for remote delivery in a transaction context.
+ * Created from the {@link RelatrixTransactionStatement} process method and setObjectReturn is then called to place it in the return.
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
  */

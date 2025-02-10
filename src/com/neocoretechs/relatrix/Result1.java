@@ -95,7 +95,19 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	//public int compareTo(Object o) {
 	//	return super.compareTo(o);
 	//}
-
+	
+	@Override
+	public void rigForTransport() {
+		if(one instanceof Morphism)
+			one = new TransportMorphism((Morphism) one);	
+	}
+	
+	@Override
+	public void unpackFromTransport() {
+		if(one != null && one.getClass() == TransportMorphism.class)
+			one = ((TransportMorphism)one).getMorphism();	
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

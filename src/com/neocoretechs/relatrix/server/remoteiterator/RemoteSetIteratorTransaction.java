@@ -4,7 +4,8 @@ import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- * Used to produce RelatrixTransactionServer triplesets for remote delivery.
+ * Used to produce {@link RelatrixTransactionServer} triplesets for remote delivery.
+ * Created from the {@link com.neocoretechs.relatrix.client.RelatrixTransactionStatement} process method and setObjectReturn is then called to place it in the return.
  * @author Jonathan Groff (C) NeoCoreTechs 2024
  *
  */

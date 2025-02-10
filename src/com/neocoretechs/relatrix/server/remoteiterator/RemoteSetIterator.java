@@ -4,6 +4,7 @@ import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
  * Used to produce RelatrixServer triplesets for remote delivery.
+ * Created from the {@link RelatrixStatement} process method and setObjectReturn is then called to place it in the return.
  * @author Jonathan Groff (C) NeoCoreTechs 2024
  *
  */

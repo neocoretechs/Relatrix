@@ -9,6 +9,7 @@ import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -76,6 +77,8 @@ public class TransactionBatteryRelatrix {
 			String fkey = key + String.format(uniqKeyFmt, i);
 			Iterator it = rct.findSet(xid, fkey, "Has unit", new Long(i));
 			while(it.hasNext()) {
+				Object o = it.next();
+				System.out.println(((Result1)o).get().getClass());
 				System.out.println(it.next());
 			}
 			/*
@@ -99,6 +102,7 @@ public class TransactionBatteryRelatrix {
 					System.out.println("Stream mismatch, should be 1 but is:"+rs.count());
 				Optional<?> o = rs.findFirst();
 				if(o.isPresent()) {
+					System.out.println(o.get()+" present");
 					rs = rct.findStream(xid,  o.get(), '*', o.get());
 					Optional<?> p = rs.findFirst();
 					if(p.isPresent()) {

@@ -86,6 +86,8 @@ public abstract class Result implements Comparable, Serializable, Cloneable {
 	public abstract void set(Comparable elem);
 	public abstract Comparable[] toArray();
 	public abstract int length();
+	public abstract void rigForTransport();
+	public abstract void unpackFromTransport();
 	
     /**
      * Failsafe compareTo.

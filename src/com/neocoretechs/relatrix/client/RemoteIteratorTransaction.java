@@ -10,7 +10,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * This calls the {@link RelatrixClientTransaction} next or hasNext to invoke the proper server side iterator
  * then get the result of the call on the server and return it to the client side.<p/>
  * On the server we will be working with an actual iterator or {@link RelatrixIteratorTransaction}.
- * One of the ServerInvokeMethods statically declared on the {@link RelatrixTransactionServer} or {@link  RelatrixKVTransactionServer} <p/>
+ * One of the ServerInvokeMethods statically declared on the {@link RelatrixTransactionServer} or {@link RelatrixKVTransactionServer} <p/>
  * On the server side this gets created then linked to a session object via the String constructor then returned
  * to the client where the {@link RelatrixTransactionStatement} contains the linked session ID.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024

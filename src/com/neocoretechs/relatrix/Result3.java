@@ -111,7 +111,27 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 	public Object clone() {
 		return new Result3(this);
 	}
-
+	
+	@Override
+	public void rigForTransport() {
+		if(one instanceof Morphism)
+			one = new TransportMorphism((Morphism) one);
+		if(two instanceof Morphism)
+			two = new TransportMorphism((Morphism) two);
+		if(three instanceof Morphism)
+			three = new TransportMorphism((Morphism) three);	
+	}
+	
+	@Override
+	public void unpackFromTransport() {
+		if(one != null && one.getClass() == TransportMorphism.class)
+			one = ((TransportMorphism)one).getMorphism();
+		if(two != null && two.getClass() == TransportMorphism.class)
+			two = ((TransportMorphism)two).getMorphism();
+		if(three != null && three.getClass() == TransportMorphism.class)
+			three = ((TransportMorphism)three).getMorphism();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

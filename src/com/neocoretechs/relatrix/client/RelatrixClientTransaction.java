@@ -31,13 +31,13 @@ import com.neocoretechs.rocksack.TransactionId;
  * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the RelatrixServer. The client contacts the boot time server port, the desired database
+ * which is the {@link RelatrixTransactionServer}. The client contacts the boot time server port, the desired database
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
  * The special case is the {@link RemoteIteratorTransaction}, which is a proxy to the 'next' and 'hasNext' methods here,
- * such that we can deliver the RemoteIterator and treat it as an abstract Iterator to simply call next and hasNext on the
+ * such that we can deliver the {@link RemoteIterator} and treat it as an abstract Iterator to simply call next and hasNext on the
  * Iterator interface. 
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.

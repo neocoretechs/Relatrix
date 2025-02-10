@@ -9,6 +9,8 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIterator;
@@ -18,10 +20,12 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubSetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIterator;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.iterator.EntrySetIterator;
 
 /**
- * The following class allows the transport of Relatrix method calls to the server.
+ * The following class allows the transport of Relatrix method calls to the server, and on the server
+ * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
+ * The process method calls setObjectReturn with the result of the invoked method, and in the case of an Iterator, sets
+ * up the proper instance of {@link RemoteIterator} to install a persistent Iterator to receive calls to deliver iterated objects.
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
@@ -116,10 +120,16 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	}
 	@Override
 	public synchronized void setObjectReturn(Object o) {
-		if(o instanceof Morphism)
+		if(o instanceof Morphism) {
 			retObj = new TransportMorphism((Morphism) o);
-		else
-			retObj = o;
+		} else {
+			if(o instanceof Result) {
+				((Result)o).rigForTransport();
+				retObj = o;
+			} else {
+				retObj = o;
+			}
+		}
 		if(DEBUG)
 			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), retObj);
 	}
@@ -131,8 +141,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 
 	@Override
 	public synchronized Object getObjectReturn() {
-		if(retObj.getClass() == TransportMorphism.class)
-			retObj = ((TransportMorphism)retObj).getMorphism();
+		if(retObj instanceof Result)
+			((Result)retObj).unpackFromTransport();
+		else
+			if(retObj != null && retObj.getClass() == TransportMorphism.class)
+				retObj = ((TransportMorphism)retObj).getMorphism();
 		if(DEBUG)
 			System.out.printf("%s.getObjectReturn returning %s%n", this.getClass().getName(), retObj);
 		return retObj;

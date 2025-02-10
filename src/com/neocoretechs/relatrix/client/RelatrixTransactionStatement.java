@@ -15,7 +15,10 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * The following class allows the transport of transaction method calls to the server {@link RelatrixTransactionServer}.
+ * The following class extends {@link RelatrixStatement} and allows the transport of transaction method calls to the server {@link RelatrixTransactionServer} and
+ * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
+ * The process method calls setObjectReturn with the result of the invoked method, and in the case of an Iterator, sets
+ * up the proper instance of {@link RemoteIteratorTransaction} to install a persistent Iterator to receive calls to deliver iterated objects.
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
  */

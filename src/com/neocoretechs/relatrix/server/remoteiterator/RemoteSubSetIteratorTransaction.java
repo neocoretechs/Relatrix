@@ -5,6 +5,7 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used by RelatrixTransactionServer to produce subsets for remote delivery.
+ * Created from the {@link RelatrixTransactionStatement} process method and setObjectReturn is then called to place it in the return.
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *

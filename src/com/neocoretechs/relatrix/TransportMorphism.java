@@ -11,7 +11,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class TransportMorphism implements Serializable {
+public class TransportMorphism implements Serializable, Comparable {
 	private static final long serialVersionUID = 654432956755099495L;
 	private Morphism morphism;
 	private DBKey identity;
@@ -30,6 +30,10 @@ public class TransportMorphism implements Serializable {
 			morphism.setAlias(alias);
 		morphism.setTransactionId(transactionId);
 		return morphism;
+	}
+	@Override
+	public int compareTo(Object o) {
+		return identity.compareTo(((TransportMorphism)o).identity);
 	}
 
 }

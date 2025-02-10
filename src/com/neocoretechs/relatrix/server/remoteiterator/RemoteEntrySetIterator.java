@@ -3,6 +3,7 @@ import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
  * Used by the RelatrixServer to produce entry sets for remote delivery.
+ * Created from the {@link RelatrixStatement} process method and setObjectReturn is then called to place it in the return.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */

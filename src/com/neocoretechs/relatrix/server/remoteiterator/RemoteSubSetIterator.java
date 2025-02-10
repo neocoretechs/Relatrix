@@ -4,6 +4,7 @@ import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
  * Used by RelatrixServer to produce subsets for remote delivery.
+ * Created from the {@link RelatrixStatement} process method and setObjectReturn is then called to place it in the return.
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
