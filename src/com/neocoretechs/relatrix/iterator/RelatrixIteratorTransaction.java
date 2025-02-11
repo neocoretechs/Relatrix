@@ -39,7 +39,7 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class RelatrixIteratorTransaction extends RelatrixIterator {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private TransactionId xid = null;
 	/**
 	 * Pass the array we use to indicate which values to return and element 0 counter

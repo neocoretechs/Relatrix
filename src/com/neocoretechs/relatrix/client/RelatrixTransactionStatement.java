@@ -70,6 +70,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
+		unpackParamArray();
 		Object result = RelatrixTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it

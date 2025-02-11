@@ -99,13 +99,13 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	@Override
 	public void rigForTransport() {
 		if(one instanceof Morphism)
-			one = new TransportMorphism((Morphism) one);	
+			one = TransportMorphism.createTransport((Morphism) one);	
 	}
 	
 	@Override
 	public void unpackFromTransport() {
 		if(one != null && one.getClass() == TransportMorphism.class)
-			one = ((TransportMorphism)one).getMorphism();	
+			one = TransportMorphism.createMorphism((TransportMorphism)one);	
 	}
 	
 	@Override

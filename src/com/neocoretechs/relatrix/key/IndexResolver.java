@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
  *
  */
 public class IndexResolver {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static IndexInstanceTableInterface instanceTable = null;
 	
 	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {

@@ -57,6 +57,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	this.methodName = tmeth;
     	this.paramArray = o1;
     	this.session = UUID.randomUUID().toString();
+    	packParamArray();
     }
    
     /* (non-Javadoc)
@@ -121,14 +122,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof Morphism) {
-			retObj = new TransportMorphism((Morphism) o);
+			retObj = TransportMorphism.createTransport((Morphism) o);
 		} else {
-			if(o instanceof Result) {
+			if(o instanceof Result)
 				((Result)o).rigForTransport();
-				retObj = o;
-			} else {
-				retObj = o;
-			}
+			retObj = o;
 		}
 		if(DEBUG)
 			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), retObj);
@@ -145,17 +143,33 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			((Result)retObj).unpackFromTransport();
 		else
 			if(retObj != null && retObj.getClass() == TransportMorphism.class)
-				retObj = ((TransportMorphism)retObj).getMorphism();
+				retObj = TransportMorphism.createMorphism((TransportMorphism)retObj);
 		if(DEBUG)
 			System.out.printf("%s.getObjectReturn returning %s%n", this.getClass().getName(), retObj);
 		return retObj;
 	}
+	
+	protected void packParamArray() {
+    	for(int i = 0; i < paramArray.length; i++) {
+    		if(paramArray[i] instanceof Morphism) {
+    			paramArray[i] = TransportMorphism.createTransport((Morphism) paramArray[i]);
+    		}
+    	}
+	}
+	
+	protected void unpackParamArray() {
+		for(int i = 0; i < paramArray.length; i++)
+			if(paramArray[i].getClass() == TransportMorphism.class)
+				paramArray[i] = TransportMorphism.createMorphism((TransportMorphism)paramArray[i]);
+	}
+	
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
 	 * in which case we save it server side and link it to the session for later retrieval
 	 */
 	@Override
 	public synchronized void process() throws Exception {
+		unpackParamArray();
 		Object result = RelatrixServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -199,7 +213,5 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		}
 		getCountDownLatch().countDown();
 	}
-
-
 
 }

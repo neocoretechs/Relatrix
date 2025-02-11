@@ -38,10 +38,9 @@ public class TransactionBatteryRelatrix {
 		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
 		if(session.size(xid) == 0) {
-			battery0(session, xid);
+			battery1(session, xid);
 			session.commit(xid);
 		}
-		battery1(session, xid);
 		battery2(session, xid);
 		session.endTransaction(xid);
 		System.out.println("TEST BATTERY COMPLETE.");	
@@ -50,7 +49,7 @@ public class TransactionBatteryRelatrix {
 	/**
 	 * Loads up on keys
 	 */
-	public static void battery0(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
+	public static void battery1(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
 		System.out.println("Battery0 "+xid);
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -61,35 +60,13 @@ public class TransactionBatteryRelatrix {
 			fkey = key + String.format(uniqKeyFmt, i);
 			DomainMapRange dmr = rct.store(xid, fkey, "Has unit", new Long(i));
 			System.out.println(i+".)"+dmr);
+			DomainMapRange dmr2 = rct.store(xid, dmr ,"has identity",new Long(i));
+			System.out.println(i+".)"+dmr2);
 			++recs;
 		}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	/**
-	 * Retrieve the previous relation, store new functor with relation as domain
-	 * @throws Exception
-	 */
-	public static void battery1(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
-		System.out.println("Battery1 "+xid);
-		long tims = System.currentTimeMillis();
-		int recs = 0;
-		for(int i = min; i < max; i++) {
-			String fkey = key + String.format(uniqKeyFmt, i);
-			Iterator it = rct.findSet(xid, fkey, "Has unit", new Long(i));
-			while(it.hasNext()) {
-				Object o = it.next();
-				System.out.println(((Result1)o).get().getClass());
-				System.out.println(it.next());
-			}
-			/*
-			rct.findStream().forEach(e->{
-				System.out.println(e);
-			});
-			*/
-			//rct.store(xid, m ,"has identity",new Long(i));
-		}
-		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
-	}
+	
 	public static void battery2(RelatrixClientTransaction rct, TransactionId xid) throws Exception {
 		System.out.println("Battery2 "+xid);
 		long tims = System.currentTimeMillis();
@@ -97,14 +74,9 @@ public class TransactionBatteryRelatrix {
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-				Stream<?> rs =  rct.findStream(xid, fkey, "Has unit", new Long(i));
-				if(rs.count() != 1)
-					System.out.println("Stream mismatch, should be 1 but is:"+rs.count());
-				Optional<?> o = rs.findFirst();
+				Optional<?> o =  rct.findStream(xid, fkey, "Has unit", new Long(i)).findFirst();
 				if(o.isPresent()) {
-					System.out.println(o.get()+" present");
-					rs = rct.findStream(xid,  o.get(), '*', o.get());
-					Optional<?> p = rs.findFirst();
+					Optional<?> p = rct.findStream(xid,  o.get(), '*', '*').findFirst();
 					if(p.isPresent()) {
 						Result c = (Result) p.get();
 						DomainMapRange d = (DomainMapRange) c.get();
@@ -112,7 +84,7 @@ public class TransactionBatteryRelatrix {
 							System.out.println("Domain identity doesnt match "+fkey);
 						if(!d.getMap().equals("has identity"))
 							System.out.println("Map identity doesnt match 'has identity'");
-						if(!d.getRange().equals(i))
+						if(!d.getRange().equals(new Long(i)))
 							System.out.println("Range identity doesnt match "+i);
 					} else
 						System.out.println("Failed to find identity for "+o.get());	

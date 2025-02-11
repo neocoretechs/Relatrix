@@ -35,7 +35,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
 public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = true;
+		private static boolean DEBUG = false;
 
         static final long serialVersionUID = -9129948317265641091L;
         public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
