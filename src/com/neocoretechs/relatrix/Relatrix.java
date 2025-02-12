@@ -347,6 +347,7 @@ public final class Relatrix {
 	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static DomainMapRange store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
@@ -465,17 +466,19 @@ public final class Relatrix {
 		}
 		return identity;
 	}
-
+	@ServerMethod
 	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
 		RelatrixKV.store(key, value);
 	}
-
+	@ServerMethod
 	public static void storekv(Alias alias, Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
 		RelatrixKV.store(alias, key, value);
 	}
+	@ServerMethod
 	public static Object removekv(Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
 		return RelatrixKV.remove(c);
 	}
+	@ServerMethod
 	public static Object removekv(Alias alias, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
 		return RelatrixKV.remove(alias,c);
 	}
@@ -488,6 +491,7 @@ public final class Relatrix {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);// Remove main entry, which is possibly DomainMapRange
@@ -529,6 +533,7 @@ public final class Relatrix {
 	 * @throws NoSuchElementException if the alias is not found
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static void remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
@@ -885,6 +890,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
 		DomainMapRange dmr = new DomainMapRange(d,m,null);
 		remove(dmr);
@@ -899,6 +905,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
 		DomainMapRange dmr = new DomainMapRange(alias,d,m,null);
 		remove(alias, dmr);
@@ -914,6 +921,7 @@ public final class Relatrix {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static List<Comparable> findSet(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
@@ -990,6 +998,7 @@ public final class Relatrix {
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
+	@ServerMethod
 	public static List<Comparable> findSet(Alias alias, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
@@ -1123,69 +1132,82 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator of {@link Result}
 	 */
+	@ServerMethod
 	public static Iterator<?> findSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7(darg, marg, rarg);
 		return ifact.createIterator();
 	}
-
+	@ServerMethod
 	public static Iterator<?> findSet(Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6(darg, marg, rop);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3(dop, marg, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1(dop, mop, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0(dop, mop, rop);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5(darg, mop, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4(darg, mop, rop);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2(dop, marg, rop);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7(darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
-
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6(darg, marg, rop);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3(dop, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1(dop, mop, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0(dop, mop, rop);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5(darg, mop, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias, Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4(darg, mop, rop);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSet(Alias alias,char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2(dop, marg, rop);
 		return ifact.createIterator(alias);
@@ -1212,68 +1234,82 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator of {@link Result}
 	 */
+	@ServerMethod
 	public static Stream<?> findStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
-
+	@ServerMethod
 	public static Stream<?> findStream(Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6(darg, marg, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3(dop, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1(dop, mop, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0(dop, mop, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5(darg, mop, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4(darg, mop, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findStream(char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2(dop, marg, rop);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, Object darg, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode6(darg, marg, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, char dop, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode3(dop, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, char dop, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode1(dop, mop, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, char dop, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode0(dop, mop, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, Object darg, char mop, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode5(darg, mop, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias, Object darg, char mop, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode4(darg, mop, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findStream(Alias alias,char dop, Object marg, char rop) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		IteratorFactory ifact = new FindSetMode2(dop, marg, rop);
 		return new RelatrixStream(ifact.createIterator(alias));
@@ -1294,83 +1330,97 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findTailSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7(darg, marg, rarg);
 		return ifact.createIterator();
 	}
-
+	@ServerMethod
 	public static Iterator<?> findTailSet(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1(dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2(dop, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3(dop, marg, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4(darg, mop, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5(darg, mop, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6(darg, marg, rop, arg1);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7(darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1(dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2(dop, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3(dop, marg, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4(darg, mop, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5(darg, mop, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findTailSet(Alias alias, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6(darg, marg, rop, arg1);
@@ -1391,82 +1441,97 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findTailStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1(dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2(dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3(dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4(darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5(darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6(darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode1(dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode2(dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindTailSetMode3(dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode4(darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode5(darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findTailStream(Alias alias, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact =  new FindTailSetMode6(darg, marg, rop, arg1);
@@ -1491,82 +1556,111 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7(darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	/**
+	 * 
+	 * @param dop
+	 * @param mop
+	 * @param rop
+	 * @param arg1
+	 * @param arg2
+	 * @param arg3
+	 * @return
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
+	@ServerMethod
 	public static Iterator<?> findHeadSet(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1(dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2(dop, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3(dop, marg, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4(darg, mop, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5(darg, mop, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6(darg, marg, rop, arg1);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7(darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1(dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2(dop, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3(dop, marg, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4(darg, mop, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5(darg, mop, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findHeadSet(Alias alias, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6(darg, marg, rop, arg1);
@@ -1590,82 +1684,97 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> findHeadStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1(dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2(dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3(dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4(darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5(darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6(darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode1(dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode2(dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode3(dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode4(darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode5(darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findHeadStream(Alias alias, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindHeadSetMode6(darg, marg, rop, arg1);
@@ -1682,215 +1791,241 @@ public final class Relatrix {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7(darg, marg, rarg);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1, arg2);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1);
 		return ifact.createIterator();
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1, arg2);
 		return ifact.createIterator();
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7(darg, marg, rarg);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3, arg4);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1, arg2);
 		return ifact.createIterator(alias);
 	}
-	
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1);
 		return ifact.createIterator(alias);
 	}
+	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1, arg2);
@@ -1898,216 +2033,242 @@ public final class Relatrix {
 	}
 	
 
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator());
 	}
 	
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0(dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, char mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1(dop, mop, rarg, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, Object marg, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2(dop, marg, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, char dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3(dop, marg, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, char mop, char rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4(darg, mop, rop, arg1, arg2, arg3, arg4);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, char mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, char mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5(darg, mop, rarg, arg1, arg2);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
-	
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, Object marg, char rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1);
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
+	@ServerMethod
 	public static Stream<?> findSubStream(Alias alias, Object darg, Object marg, char rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1, arg2);
@@ -2132,7 +2293,7 @@ public final class Relatrix {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
 	public static Object first(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2151,6 +2312,7 @@ public final class Relatrix {
 	 * @return the class having the lowest valued key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object first(Class clazz) throws IOException
 	{
 		Object o = null;
@@ -2165,7 +2327,7 @@ public final class Relatrix {
 		}
 		return o;
 	}
-
+	@ServerMethod
 	public static Object first(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		Object o = null;
@@ -2187,11 +2349,12 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object firstKey() throws IOException
 	{
 		return first();
 	}
-
+	@ServerMethod
 	public static Object firstKey(Alias alias) throws IOException, NoSuchElementException
 	{
 		return first(alias);
@@ -2203,11 +2366,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object firstKey(Class clazz) throws IOException, IllegalAccessException
 	{
 		return first(clazz);
 	}
-
+	@ServerMethod
 	public static Object firstKey(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return first(alias, clazz);
@@ -2218,6 +2382,7 @@ public final class Relatrix {
 	 * @return the {@link DBKey} having the lowest valued key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object firstValue() throws IOException
 	{
 		try {
@@ -2233,6 +2398,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
+	@ServerMethod
 	public static Object firstValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2248,6 +2414,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the last key value with resolved identity.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object last() throws IOException
 	{
 		try {
@@ -2266,6 +2433,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
+	@ServerMethod
 	public static Object last(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2285,6 +2453,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object last(Class clazz) throws IOException
 	{
 		Object o = null;
@@ -2307,6 +2476,7 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
+	@ServerMethod
 	public static Object last(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		Object o = null;
@@ -2328,11 +2498,12 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastKey() throws IOException
 	{
 		return last();
 	}
-
+	@ServerMethod
 	public static Object lastKey(Alias alias) throws IOException, NoSuchElementException
 	{
 		return last(alias);
@@ -2343,6 +2514,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the value of highest key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastValue() throws IOException
 	{
 		try {
@@ -2351,7 +2523,7 @@ public final class Relatrix {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
 	public static Object lastValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2367,11 +2539,12 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the highest key value.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastKey(Class clazz) throws IOException
 	{
 		return last(clazz);
 	}
-
+	@ServerMethod
 	public static Object lastKey(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		return last(alias, clazz);
@@ -2382,6 +2555,7 @@ public final class Relatrix {
 	 * @return the DomainMapRange morphism having the value of highest key.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object lastValue(Class clazz) throws IOException
 	{
 		try {
@@ -2390,7 +2564,7 @@ public final class Relatrix {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
 	public static Object lastValue(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2404,6 +2578,7 @@ public final class Relatrix {
 	 * @return the number of DomainMapRange morphisms.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static long size() throws IOException
 	{
 		try {
@@ -2412,7 +2587,7 @@ public final class Relatrix {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
 	public static long size(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2426,6 +2601,7 @@ public final class Relatrix {
 	 * @return the number of DomainMapRange morphisms.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static long size(Class c) throws IOException
 	{
 		try {
@@ -2434,7 +2610,7 @@ public final class Relatrix {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
 	public static long size(Alias alias, Class c) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2449,6 +2625,7 @@ public final class Relatrix {
 	 * @return true if the passed DomainMapRAnge exists.
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static boolean contains(Comparable obj) throws IOException
 	{
 		try {
@@ -2457,7 +2634,7 @@ public final class Relatrix {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
 	public static boolean contains(Alias alias, Comparable obj) throws IOException, NoSuchElementException
 	{
 		try {
@@ -2473,6 +2650,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		UUID uuid = UUID.randomUUID();
 		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
@@ -2488,11 +2666,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object firstValue(Class clazz) throws IOException, IllegalAccessException
 	{
 		return RelatrixKV.firstValue(clazz);
 	}
-
+	@ServerMethod
 	public static Object firstValue(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.firstValue(alias, clazz);
@@ -2504,11 +2683,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object get(Comparable key) throws IOException, IllegalAccessException
 	{
 		return RelatrixKV.get(key);
 	}
-
+	@ServerMethod
 	public static Object get(Alias alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.get(alias, key);
@@ -2521,6 +2701,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
 		return RelatrixKV.get(key);
@@ -2534,6 +2715,7 @@ public final class Relatrix {
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 */
+	@ServerMethod
 	public static Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
 		return RelatrixKV.get(alias,key);
@@ -2545,20 +2727,22 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 	{
 		return RelatrixKV.keySet(clazz);
 	}
-
+	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKV.keySet(alias, clazz);
 	}
+	@ServerMethod
 	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixEntrysetIterator(clazz);
 	}
-
+	@ServerMethod
 	public static Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return new RelatrixEntrysetIterator(alias, clazz);
@@ -2570,11 +2754,12 @@ public final class Relatrix {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixStream(new RelatrixEntrysetIterator(clazz));
 	}
-
+	@ServerMethod
 	public static Stream<?> entrySetStream(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return new RelatrixStream(new RelatrixEntrysetIterator(alias,clazz));
@@ -2586,6 +2771,7 @@ public final class Relatrix {
 	 * @param morphism the target for resolution
 	 * @return the recursively resolved list of relationships depth first from domain to range
 	 */
+	@ServerMethod
 	public static List<Comparable> resolve(Comparable morphism) {
 		ArrayList<Comparable> res = new ArrayList<Comparable>();
 		Morphism.resolve(morphism, res);
