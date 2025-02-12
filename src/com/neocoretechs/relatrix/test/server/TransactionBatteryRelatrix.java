@@ -76,7 +76,7 @@ public class TransactionBatteryRelatrix {
 			fkey = key + String.format(uniqKeyFmt, i);
 				Optional<?> o =  rct.findStream(xid, fkey, "Has unit", new Long(i)).findFirst();
 				if(o.isPresent()) {
-					Optional<?> p = rct.findStream(xid,  o.get(), '*', '*').findFirst();
+					Optional<?> p = rct.findStream(xid, ((Result)o.get()).get(), '*', '*').findFirst();
 					if(p.isPresent()) {
 						Result c = (Result) p.get();
 						DomainMapRange d = (DomainMapRange) c.get();

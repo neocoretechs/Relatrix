@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import com.neocoretechs.relatrix.Morphism;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -132,20 +133,21 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		Object d = IndexResolver.getIndexInstanceTable().getKey(skeyd);
-		if( d == null ) {
-			pk.setDomainKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
-		} else {
-			pk.setDomainKey((DBKey) d);
+		DBKey dKey = Morphism.checkMorphism(skeyd);
+		if(dKey == null) {
+			dKey = IndexResolver.getIndexInstanceTable().getKey(skeyd);
+			if( dKey == null )
+				dKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
-		Object m = IndexResolver.getIndexInstanceTable().getKey(skeym);
-		if( m == null ) {
-			pk.setMapKey(DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
-		} else {
-			pk.setMapKey((DBKey) m);
+		pk.setDomainKey(dKey);
+		DBKey mKey = Morphism.checkMorphism(skeym);
+		if(mKey == null)
+			mKey = IndexResolver.getIndexInstanceTable().getKey(skeym);
+			if(mKey == null) {
+				mKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
-		// do we have a relation already?
-		Object dKey = IndexResolver.getIndexInstanceTable().getKey(pk);
+		pk.setMapKey(mKey);
+		dKey = IndexResolver.getIndexInstanceTable().getKey(pk);
 		// is it found, hence not unique?
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
@@ -169,19 +171,21 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		//
 		pk.setAlias(alias);
-		Object d = IndexResolver.getIndexInstanceTable().getKey(alias,skeyd);
-		if( d == null ) {
-			pk.setDomainKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
-		} else {
-			pk.setDomainKey((DBKey) d);
+		DBKey dKey = Morphism.checkMorphism(skeyd);
+		if(dKey == null) {
+			dKey = IndexResolver.getIndexInstanceTable().getKey(alias, skeyd);
+			if( dKey == null )
+				dKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
-		Object m = IndexResolver.getIndexInstanceTable().getKey(alias,skeym);
-		if( m == null ) {
-			pk.setMapKey(DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
-		} else {
-			pk.setMapKey((DBKey) m);
+		pk.setDomainKey(dKey);
+		DBKey mKey = Morphism.checkMorphism(skeym);
+		if(mKey == null)
+			mKey = IndexResolver.getIndexInstanceTable().getKey(alias, skeym);
+			if(mKey == null) {
+				mKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
-		Object dKey = IndexResolver.getIndexInstanceTable().getKey(alias, pk);
+		pk.setMapKey(mKey);
+		dKey = IndexResolver.getIndexInstanceTable().getKey(alias, pk);
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
 			pk.isIdentityImmutable = true;
@@ -203,19 +207,21 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	public static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		pk.transactionId = transactionId;
-		Object d = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeyd);
-		if( d == null ) {
-			pk.setDomainKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
-		} else {
-			pk.setDomainKey((DBKey) d);
+		DBKey dKey = Morphism.checkMorphism(skeyd);
+		if(dKey == null) {
+			dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeyd);
+			if( dKey == null )
+				dKey = DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
-		Object m = IndexResolver.getIndexInstanceTable().getKey(transactionId,skeym);
-		if( m == null ) {
-			pk.setMapKey(DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
-		} else {
-			pk.setMapKey((DBKey) m);
+		pk.setDomainKey(dKey);
+		DBKey mKey = Morphism.checkMorphism(skeym);
+		if(mKey == null)
+			mKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeym);
+			if(mKey == null) {
+				mKey = DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
-		Object dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, pk);
+		pk.setMapKey(mKey);
+		dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, pk);
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
 			pk.isIdentityImmutable = true;
@@ -240,21 +246,23 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		pk.setAlias(alias);
 		pk.transactionId = transactionId;
 		// transaction id and alias not null
-		Object d = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeyd);
-		if( d == null ) {
-			pk.setDomainKey(DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeyd)); // puts to index and instance
-		} else {
-			pk.setDomainKey((DBKey)d);
+		DBKey dKey = Morphism.checkMorphism(skeyd);
+		if(dKey == null) {
+			dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeyd);
+			if( dKey == null )
+				dKey = DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
-		Object m = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeym);
-		if(m == null) {
-			pk.setMapKey(DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeym)); // puts to index and instance
-		} else {
-			pk.setMapKey((DBKey)m);
+		pk.setDomainKey(dKey);
+		DBKey mKey = Morphism.checkMorphism(skeym);
+		if(mKey == null)
+			mKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeym);
+			if(mKey == null) {
+				mKey = DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
-		Object dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, pk);
+		pk.setMapKey(mKey);
+		dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, pk);
 		if(dKey != null) {
-			pk.identity = (DBKey) dKey;
+			pk.identity = dKey;
 			pk.isIdentityImmutable = true;
 		}
 		return pk;	

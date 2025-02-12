@@ -754,6 +754,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         public void setRangeResolved(Comparable<?> range) {
         	this.range = range;
         }
+        
         /**
          * Using the passed instance and this Morphism, check the alias and transactionId for non null
          * and then call proper {@link DBKey}.newKey with the indexResolver {@link com.neocoretechs.relatrix.key.IndexInstanceTable}
@@ -898,6 +899,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 				return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, instance);
 			return (DBKey)IndexResolver.getIndexInstanceTable().getKey(alias2, transactionId, instance);
 		}
+		
 		/**
 		 * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias
 		 * as the instance it is being assigned to such that the keys are of the same database.
@@ -911,6 +913,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 					throw new IllegalAccessException("Alias "+alias+" is not the same database and therefore cannot assign Morphism "+this);		
 			}	
 		}
+        
         /**
          * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias
 		 * as the instance it is being assigned to such that the keys are of the same database.
@@ -928,7 +931,22 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 						throw new IllegalAccessException("Alias of this Morphism "+this+" is not the default database and therefore cannot assign Morphism:"+m);
 				}
     		}
- 		}		
+ 		}
+        
+    	/**
+    	 * Check the given target for a valid {@link Morphism} and that it has a valid {@link DBKey} identity
+    	 * @param target the potential Morphism
+    	 * @return the identity DBKey or null if not Morphism or identity isnt established or valid
+    	 */
+    	public static DBKey checkMorphism(Comparable<?> target) {
+    		if(target instanceof Morphism) {
+    			if(DBKey.isValid(((Morphism)target).identity)) {
+    				return ((Morphism)target).identity;
+    			}
+    		}
+    		return null;
+    	}
+    	
         /**
         * for relate cmpr, we return a value in the range 0-63
         * in which the values for domain,map range : >,<,=,dont care = 0-3
@@ -967,6 +985,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         				cmpres ^= 2;
         	return cmpres;
         }
+        
         /**
         * iterate_dmr - return proper domain, map, or range
         * based on dmr_return values.  In dmr_return, value 0
@@ -989,6 +1008,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
                 } while( dmr_return[0] < 3 );
                 return null;
         }
+        
         /**
         * form_template_keyop - Passed Comparable array is functioning as template for search
         * depending on the values in domain,map,range (object=0, ?=1 or *=2, !0 or object)
@@ -1051,6 +1071,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
             // this method is internal and this should not happen
             throw new RuntimeException("Invalid keyop in form_keyop ");
         }
+        
         /**
          * When participating in a retrieval we want to return the proper part of the tuple
          * depending on the operation so 'n' equates to the position in the findset semantics (?,*,<object>)

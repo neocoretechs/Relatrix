@@ -231,7 +231,13 @@ public final class Relatrix {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(d);
 			identity.setMapResolved(m);
-			identity.setRange(r);
+			DBKey rKey = Morphism.checkMorphism(r);
+			if(rKey == null)
+				identity.setRange(r);
+			else {
+				identity.setRangeKey(rKey);
+				identity.setRangeResolved(r);
+			}
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
@@ -356,7 +362,13 @@ public final class Relatrix {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(d);
 			identity.setMapResolved(m);
-			identity.setRange(alias, r);
+			DBKey rKey = Morphism.checkMorphism(r);
+			if(rKey == null)
+				identity.setRange(alias, r);
+			else {
+				identity.setRangeKey(rKey);
+				identity.setRangeResolved(r);
+			}
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference

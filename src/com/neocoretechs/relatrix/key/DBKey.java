@@ -48,11 +48,17 @@ public final class DBKey implements Comparable, Externalizable {
 		lsb = 0L;
 	}
 	
+	/**
+	 * Checks the validity of a given {@link DBKey} for not null and not equal nullDBKey
+	 * @param key the DBKey in question
+	 * @return true if key is valid, i.e, is not null and does not equal nullDBKey
+	 */
 	public static boolean isValid(DBKey key) {
 		if(key == null)
 			return false;
 		return !key.equals(nullDBKey);
 	}
+	
 	/**
 	 * Returns an expanded diagnostic reason for DBKey being invalid.
 	 * Recall the DBKey is composed of a database index and an instance index. 
