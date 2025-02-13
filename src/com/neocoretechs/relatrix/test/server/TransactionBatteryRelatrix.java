@@ -79,20 +79,50 @@ public class TransactionBatteryRelatrix {
 					Optional<?> p = rct.findStream(xid, ((Result)o.get()).get(), '*', '*').findFirst();
 					if(p.isPresent()) {
 						Result c = (Result) p.get();
-						DomainMapRange d = (DomainMapRange) c.get();
-						if(!d.getDomain().equals(fkey))
-							System.out.println("Domain identity doesnt match "+fkey);
-						if(!d.getMap().equals("has identity"))
-							System.out.println("Map identity doesnt match 'has identity'");
-						if(!d.getRange().equals(new Long(i)))
-							System.out.println("Range identity doesnt match "+i);
+						if(!(c.get() instanceof Morphism))
+							System.out.println(c.get().getClass()+" isnt Morphism; value:"+c.get());
+						else {
+							// main morphism
+							DomainMapRange m = (DomainMapRange) c.get();
+							if(!(m.getDomain() instanceof Morphism)) 
+								System.out.println(m.getDomain().getClass()+" isnt Morphism; value:"+m);
+							else {
+								// morphism in domain "has unit"
+								DomainMapRange d = (DomainMapRange) m.getDomain();
+								if(!(d.getDomain() instanceof String))
+									System.out.println(d.getDomain().getClass()+" domain isnt String; value:"+d);
+								else {
+									if(!d.getDomain().equals(fkey))
+										System.out.println("Domain doesnt match "+fkey);
+								}
+								if(!(d.getMap() instanceof String))
+									System.out.println(d.getMap().getClass()+" map isnt String; value:"+d);
+								else {
+									if(!d.getMap().equals("Has unit"))
+										System.out.println("Map doesnt match 'Has unit'"+d);
+								}
+								if(!(d.getRange() instanceof Long))
+									System.out.println(d.getRange().getClass()+" range isnt Long; value:"+d);
+								else {
+									if(!d.getRange().equals(new Long(i)))
+										System.out.println("Range doesnt match "+i);
+								}
+								// that takes care of morphism within morphism, now check remainder of composite morphism
+								if(!(m.getMap() instanceof String))
+									System.out.println(m.getMap().getClass()+" map isnt String; value:"+m);
+								else {
+									if(!m.getMap().equals("has identity"))
+										System.out.println("Map doesnt match 'has identity'"+m);
+								}
+							}
+						}
 					} else
-						System.out.println("Failed to find identity for "+o.get());	
+						System.out.println("Failed to find any result set for "+o.get());	
 				} else
-					System.out.println("Failed to find identity for "+fkey);
+					System.out.println("Failed to find and result set for domain:"+fkey);
 				++recs;
 		}
-		System.out.println("BATTERY2 verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
+		System.out.println("BATTERY2 verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. retrieved "+recs);
 	}
 
 }

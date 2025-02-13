@@ -332,6 +332,7 @@ public final class Relatrix {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.println(identity);
 		return identity;
 	}
 	
@@ -2805,8 +2806,5 @@ public final class Relatrix {
 		HandlerClassLoader.removeBytesInRepository(pack);
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-	}
 
 }

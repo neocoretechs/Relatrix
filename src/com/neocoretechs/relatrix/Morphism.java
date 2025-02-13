@@ -941,6 +941,8 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	public static DBKey checkMorphism(Comparable<?> target) {
     		if(target instanceof Morphism) {
     			if(DBKey.isValid(((Morphism)target).identity)) {
+    				if(DEBUG)
+    					System.out.println("checkMorphism valid:"+((Morphism)target).identity);
     				return ((Morphism)target).identity;
     			}
     		}

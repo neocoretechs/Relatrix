@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.client.RelatrixClient;
@@ -14,6 +15,7 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
+ * To test with the embedded database change the session to Relatrix.getInstance() and call session.setTablespace(DATABASE).
  * NOTES:
  * program arguments are local_node remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
@@ -25,25 +27,27 @@ public class BatteryRelatrix {
 	static int min = 0;
 	static int max = 2000;
 	public static String DATABASE;
+	//static Relatrix session = Relatrix.getInstance();
+	static RelatrixClient session = null;
 
 	/**
 	* Analysis test fixture
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixClient session = null;
-		DATABASE = argv[0];		
-		session = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
+		DATABASE = argv[0];
+		//session.setTablespace(DATABASE);
+		session = new RelatrixClient(DATABASE, argv[1], Integer.parseInt(argv[2]) );
 		if(session.size() == 0) {
-			battery1(session);
+			battery1();
 		}
-		battery2(session);
+		battery2();
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
 	}
 	/**
 	 * Loads up on keys
 	 */
-	public static void battery1(RelatrixClient rct) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("Battery0 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -52,41 +56,71 @@ public class BatteryRelatrix {
 		int i = min;
 		for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			DomainMapRange dmr = rct.store(fkey, "Has unit", new Long(i));
+			DomainMapRange dmr = session.store(fkey, "Has unit", new Long(i));
 			System.out.println(i+".)"+dmr);
-			DomainMapRange dmr2 = rct.store(dmr ,"has identity",new Long(i));
+			DomainMapRange dmr2 = session.store(dmr ,"has identity",new Long(i));
 			System.out.println(i+".)"+dmr2);
 			++recs;
 		}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
-	public static void battery2(RelatrixClient rct) throws Exception {
+	public static void battery2() throws Exception {
 		System.out.println("Battery2 ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-				Optional<?> o =  rct.findStream(fkey, "Has unit", new Long(i)).findFirst();
-				if(o.isPresent()) {
-					Optional<?> p = rct.findStream(((Result)o.get()).get(), '*', '*').findFirst();
-					if(p.isPresent()) {
-						Result c = (Result) p.get();
-						DomainMapRange d = (DomainMapRange) c.get();
-						if(!d.getDomain().equals(fkey))
-							System.out.println("Domain identity doesnt match "+fkey);
-						if(!d.getMap().equals("has identity"))
-							System.out.println("Map identity doesnt match 'has identity'");
-						if(!d.getRange().equals(new Long(i)))
-							System.out.println("Range identity doesnt match "+i);
-					} else
-						System.out.println("Failed to find identity for "+o.get());	
+			Optional<?> o =  session.findStream(fkey, "Has unit", new Long(i)).findFirst();
+			if(o.isPresent()) {
+				Optional<?> p = session.findStream(((Result)o.get()).get(), '*', '*').findFirst();
+				if(p.isPresent()) {
+					Result c = (Result) p.get();
+					if(!(c.get() instanceof Morphism))
+						System.out.println(c.get().getClass()+" isnt Morphism; value:"+c.get());
+					else {
+						// main morphism
+						DomainMapRange m = (DomainMapRange) c.get();
+						if(!(m.getDomain() instanceof Morphism)) 
+							System.out.println(m.getDomain().getClass()+" isnt Morphism; value:"+m);
+						else {
+							// morphism in domain "has unit"
+							DomainMapRange d = (DomainMapRange) m.getDomain();
+							if(!(d.getDomain() instanceof String))
+								System.out.println(d.getDomain().getClass()+" domain isnt String; value:"+d);
+							else {
+								if(!d.getDomain().equals(fkey))
+									System.out.println("Domain doesnt match "+fkey);
+							}
+							if(!(d.getMap() instanceof String))
+								System.out.println(d.getMap().getClass()+" map isnt String; value:"+d);
+							else {
+								if(!d.getMap().equals("Has unit"))
+									System.out.println("Map doesnt match 'Has unit'"+d);
+							}
+							if(!(d.getRange() instanceof Long))
+								System.out.println(d.getRange().getClass()+" range isnt Long; value:"+d);
+							else {
+								if(!d.getRange().equals(new Long(i)))
+									System.out.println("Range doesnt match "+i);
+							}
+							// that takes care of morphism within morphism, now check remainder of composite morphism
+							if(!(m.getMap() instanceof String))
+								System.out.println(m.getMap().getClass()+" map isnt String; value:"+m);
+							else {
+								if(!m.getMap().equals("has identity"))
+									System.out.println("Map doesnt match 'has identity'"+m);
+							}
+						}
+					}
 				} else
-					System.out.println("Failed to find identity for "+fkey);
-				++recs;
+					System.out.println("Failed to find any result set for "+o.get());	
+			} else
+				System.out.println("Failed to find and result set for domain:"+fkey);
+			++recs;
 		}
-		System.out.println("BATTERY2 verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs);
+		System.out.println("BATTERY2 verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Retrieved "+recs);
 	}
 
 }
