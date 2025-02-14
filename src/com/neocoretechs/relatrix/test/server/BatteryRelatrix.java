@@ -27,16 +27,16 @@ public class BatteryRelatrix {
 	static int min = 0;
 	static int max = 2000;
 	public static String DATABASE;
-	//static Relatrix session = Relatrix.getInstance();
-	static RelatrixClient session = null;
+	static Relatrix session = Relatrix.getInstance();
+	//static RelatrixClient session = null;
 
 	/**
 	* Analysis test fixture
 	*/
 	public static void main(String[] argv) throws Exception {
 		DATABASE = argv[0];
-		//session.setTablespace(DATABASE);
-		session = new RelatrixClient(DATABASE, argv[1], Integer.parseInt(argv[2]) );
+		session.setTablespace(DATABASE);
+		//session = new RelatrixClient(DATABASE, argv[1], Integer.parseInt(argv[2]) );
 		if(session.size() == 0) {
 			battery1();
 		}
