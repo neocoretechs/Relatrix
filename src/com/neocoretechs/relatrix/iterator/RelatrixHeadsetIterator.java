@@ -15,8 +15,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 
-/**
- *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
+/**                                                                                                                                                                                                                                                                                                                                                                       * Instances of this class deliver the set of identity {@link Morphism}s, or
  * Post order the morphisms, which are stored in key order instead of the order of its instances. Find elements strictly less than 'to' target.
  * Populate a series of arrays with the partial ordered sets of classes
  * designated in the suffix of the 'findSet' predicate, then use the min and max range of those to build a range query into
@@ -35,9 +34,9 @@ import com.neocoretechs.rocksack.Alias;
  * For tuples the Result is relative to the '?' query predicates. <br/>
  * Here, the headset is retrieved.<p/>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a {@link RelatrixIterator} is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*",[object | Class]) we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
- * For findHeadSet("?",object,"?",[object | Class],[object | Class]) we
+ * iteration of a {@link RelatrixIterator} is dependent on the number of '?' operators in a 'findSet'. For example,
+ * if we declare<br/> findHeadSet('*','?','*',[object | Class])<br/> we get back a {@link com.neocoretechs.relatrix.Result1} of one element. <br/>
+ * For findHeadSet('?',object,'?',[object | Class],[object | Class])<br/> we
  * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
  * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
  * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the

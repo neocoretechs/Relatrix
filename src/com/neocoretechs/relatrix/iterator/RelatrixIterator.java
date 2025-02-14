@@ -24,16 +24,16 @@ import com.neocoretechs.rocksack.Alias;
  * that being the identity morphism.<p/>
  * For tuples the array size is relative to the '?' query predicates. <br/>
  * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a RelatrixIterator is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSet("*","?","*") we get back a  of one element. For findSet("?",object,"?") we
+ * iteration of a RelatrixIterator is dependent on the number of '?' operators in a 'findSet'. For example,
+ * if we declare findHeadSet('*','?','*') we get back a  of one element. For findSet('?',object,'?') we
  * would get back a Result2, with each object of the Result hierarchy containing the relationship returned.<br/>
- * findSet("*","*","*") = {@link Result1} containing identity of instance DomainMapRange <br/>
- * findSet("*","*",object) =  {@link Result1} identity of RangeDomainMap where 'object' is range <br/>
- * findSet("*",object,object) = {@link Result1} identity of MapRangeDomain matching the 2 concrete objects <br/>
+ * findSet('*','*','*') = {@link Result1} containing identity of instance DomainMapRange <br/>
+ * findSet('*','*',object) =  {@link Result1} identity of RangeDomainMap where 'object' is range <br/>
+ * findSet('*',object,object) = {@link Result1} identity of MapRangeDomain matching the 2 concrete objects <br/>
  * findSet(object,object,object) = {@link Result1} identity of DomainMapRange matching 3 objects <br/>
- * findSet("?","?","?") = {@link Result3} return all, for each element in the database.<br/>
- * findSet("?","?",object) = {@link Result2} return all domain and map objects for a given range object <br/>
- * findSet("?","*","?") = {@link Result2} return all elements of domain and range <br/>
+ * findSet('?','?','?') = {@link Result3} return all, for each element in the database.<br/>
+ * findSet('?','?',object) = {@link Result2} return all domain and map objects for a given range object <br/>
+ * findSet('?','*','?') = {@link Result2} return all elements of domain and range <br/>
  * etc.
  * <p/>
  * findHeadSet works in the same fashion but returns elements strictly less than the target element. <p/>

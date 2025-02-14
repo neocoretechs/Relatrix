@@ -117,7 +117,7 @@ public class BatteryRelatrix {
 				} else
 					System.out.println("Failed to find any result set for "+o.get());	
 			} else
-				System.out.println("Failed to find and result set for domain:"+fkey);
+				System.out.println("Failed to find any result set for domain:"+fkey);
 			++recs;
 		}
 		System.out.println("BATTERY2 verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Retrieved "+recs);
