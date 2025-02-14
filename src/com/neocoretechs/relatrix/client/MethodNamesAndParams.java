@@ -1,7 +1,9 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 
 import com.neocoretechs.relatrix.server.GenerateClientBindings;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
@@ -20,7 +22,7 @@ public final class MethodNamesAndParams implements Serializable {
        static final long serialVersionUID = 8837760295724028863L;
        public transient Class<?> classClass;
        public String className;
-       public transient Vector<String> methodNames = new Vector<String>();
+       public transient ArrayList<String> methodNames = new ArrayList<String>();
        public transient Class<?>[][] methodParams;
        public String[] methodSigs;
        public transient Class<?>[] returnTypes;
@@ -34,24 +36,7 @@ public final class MethodNamesAndParams implements Serializable {
 
        public Class<?>[] getReturnTypes() { return returnTypes; }
 
-       public Vector<String> getMethodNames() { return methodNames; }
-       /**
-        * Search for the method name combined with as much of the fully qualified param signature as is required to
-        * uniquely identify the method, such that if overloaded methods exist, they can be uniquely identified. SO,
-        * last(java.lang.String) and last() would require name=last, methodSig="" or methodSig="java.lang.String" or just
-        * methodSig="j" to locate overloaded method.
-        * @param name method name full
-        * @param methodSig parameter list partial with fully qualified class names
-        * @return index of method in corresponding methodSigs and returnTypes arrays or -1 if name/sig cannot be found
-        */
-       public int getMethodIndex(String name, String methodSig) {
-    	  int iname = methodNames.indexOf(name);
-    	  while(iname != -1) {
-    	 	  if(methodSigs[iname].contains(name+"("+methodSig))
-        		  break;
-    		  iname = methodNames.indexOf(name,iname);
-    	  }
-    	  return iname;
-       }
+       public List<String> getMethodNames() { return methodNames; }
+ 
 
 }

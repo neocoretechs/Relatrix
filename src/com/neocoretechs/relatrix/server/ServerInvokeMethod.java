@@ -1,7 +1,9 @@
 package com.neocoretechs.relatrix.server;
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.TreeMap;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
@@ -17,12 +19,14 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 1998-2000, 2015, 2025
 */
 public final class ServerInvokeMethod {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
     protected int skipArgs;
     int skipArgIndex;
     private Method[] methods;
     private MethodNamesAndParams pkmnap = new MethodNamesAndParams();
     HandlerClassLoader hcl;
+    // TreeMap of method name mapping to list of indexes to arrays of name and params
+    private TreeMap<String, ArrayList<Integer>> methodLookup = new TreeMap<String, ArrayList<Integer>>();
 
     public MethodNamesAndParams getMethodNamesAndParams() { return pkmnap; }
     
@@ -41,7 +45,16 @@ public final class ServerInvokeMethod {
     	hcl = new HandlerClassLoader(cl, hasRemote);
     	init(tclass,skipArgs);
     }
-
+    /**
+     * Build arrays and lists of method names and parameters to facilitate method lookup and invocation.
+     * Methods are looked up by name, then parameters are compared such that overloaded methods can be invoked properly.
+     * The {@link MethodNamesAndParams} class is used to build the arrays and lists. In this class, the methods array holds reflected
+     * methods and a TreeMap of method name mapped to a list of indexes into the methods array allows us to look up candidate
+     * overloaded methods.
+     * @param tclass The class to reflect
+     * @param tskipArgs The number of arguments to skip in each method for invocation, this allows us to keep reserved arguments for special cases. 0 for none.
+     * @throws ClassNotFoundException
+     */
     private void init(String tclass, int tskipArgs) throws ClassNotFoundException {
     	pkmnap.classClass = hcl.loadClass(tclass, true);
     	pkmnap.className = pkmnap.classClass.getName();
@@ -51,8 +64,8 @@ public final class ServerInvokeMethod {
     	m = pkmnap.classClass.getMethods();
     	for(int i = m.length-1; i >= 0 ; i--) {
     		if( m[i].isAnnotationPresent(ServerMethod.class) ) {
-    			pkmnap.methodNames.add(m[i].getName()/*.substring(9)*/);
-    			System.out.println("Method :"+m[i].getName()/*.substring(9)*/);
+    			pkmnap.methodNames.add(m[i].getName());
+    			System.out.println("Method "+m[i].toString());
     		}
     	}
     	// create arrays
@@ -69,8 +82,6 @@ public final class ServerInvokeMethod {
     			pkmnap.returnTypes[methCnt] = m[i].getReturnType();
     			if( pkmnap.returnTypes[methCnt] == void.class ) 
     				pkmnap.returnTypes[methCnt] = Void.class;
-    			//int ind1 = pkmnap.methodSigs[methCnt].indexOf("Relatrix_");
-    			//pkmnap.methodSigs[methCnt] = pkmnap.methodSigs[methCnt].substring(0,ind1)+pkmnap.methodSigs[methCnt].substring(ind1+9);
     			if( skipArgs > 0) {
     				try {
     					int ind1 = pkmnap.methodSigs[methCnt].indexOf("(");
@@ -82,92 +93,102 @@ public final class ServerInvokeMethod {
     					System.out.println("<<Relatrix: The method "+pkmnap.methodSigs[methCnt]+" contains too few arguments (first "+skipArgIndex+" skipped)");
     				}
     			}
+    			ArrayList<Integer> mPos = methodLookup.get(m[i].getName());
+    			if(mPos == null) {
+    				mPos = new ArrayList<Integer>();
+    				methodLookup.put(m[i].getName(), mPos);
+    			}
+    			mPos.add(methCnt);
     			methods[methCnt++] = m[i];
     		}
     	}
     }
-       /**
-    	 * Call invocation for static methods in target class
-    	 * @param tmc
-    	 * @return
-    	 * @throws Exception
-       */
-       public synchronized Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
-    	   if(DEBUG) {
-    		   System.out.println("ServerInvoke Invoking method:"+tmc);
-    		   Object oret = invokeMethod(tmc, null);
-    		   System.out.println("ServerInvoke return from invocation:"+oret);
-    		   return oret;
-    	   }
-    	   return invokeMethod(tmc, null);
-       }
-       /**
-       * For an incoming RelatrixStatement, verify and invoke the proper
-       * method.  We assume there is a table of class names and this and
-       * it has been used to locate this object. 
-       * @return Object of result of method invocation
-       */
-       public synchronized Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
-                //NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
-                String targetMethod = tmc.getMethodName();
-                if(DEBUG) {
-                	System.out.println("ServerInvoke Target method:"+targetMethod+" remote request:"+tmc+" localObject:"+localObject);
-                }
-                int methodIndex = pkmnap.methodNames.indexOf(targetMethod);
-                String whyNotFound = "No such method";
-                while( methodIndex != -1 && methodIndex < pkmnap.methodNames.size()) {
-                //        System.out.println(jj);
-                        Class[] params = tmc.getParams();
-                        //
-                        //
-                        if (DEBUG) {
-                        	for(int iparm1 = 0; iparm1 < params.length ; iparm1++) {        
-                                System.out.println("ServerInvoke Target method:"+targetMethod+" Calling param: "+params[iparm1]);
-                        	}
-                        	for(int iparm2 = skipArgIndex ; iparm2 < pkmnap.methodParams[methodIndex].length; iparm2++) {
-                                System.out.println("ServerInvoke Target method:"+targetMethod+" Method param: "+pkmnap.methodParams[methodIndex][iparm2]);
-                        	}
-                        }
-                        //
-                        //
-                        if( params.length == pkmnap.methodParams[methodIndex].length-skipArgIndex ) {
-                                boolean found = true;
-                                // if skipArgs, don't compare first 2
-                                for(int paramIndex = 0 ; paramIndex < params.length; paramIndex++) {
-                                        // can we cast it?
-                                        if( params[paramIndex] != null && !pkmnap.methodParams[methodIndex][paramIndex+skipArgIndex].isAssignableFrom(params[paramIndex]) ) {
-                                                found = false;
-                                                whyNotFound = "Parameters do not match";
-                                                break;
-                                        }
-                                }
-                                if( found ) {
-                                        if( skipArgs > 0) {
-                                        	Object o1[] = tmc.getParamArray();
-                                        	if(DEBUG) {
-                                        		   System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
-                                        		   Object oret = methods[methodIndex].invoke( localObject, o1 );
-                                        		   System.out.println("ServerInvoke return from invocation:"+oret);
-                                        		   return oret;
-                                        	}
-                                        	return methods[methodIndex].invoke( localObject, o1 );
-                                        } 
-                                        // invoke it for return
-                                    	if(DEBUG) {
-                                 		   System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
-                                 		   Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
-                                 		   System.out.println("ServerInvoke return from invocation:"+oret);
-                                 		   return oret;
-                                    	}
-                                        return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
-                               }
-                        } else
-                               // tag for later if we find nothing matching
-                               whyNotFound = "Wrong number of parameters";
-                        methodIndex = pkmnap.methodNames.indexOf(targetMethod,methodIndex+1);
-                }
-                throw new NoSuchMethodException("Method "+targetMethod+" not found in "+pkmnap.className+" "+whyNotFound);
-        }
+    /**
+     * Call invocation for static methods in target class
+     * @param tmc
+     * @return
+     * @throws Exception
+     */
+    public synchronized Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
+    	if(DEBUG) {
+    		System.out.println("ServerInvoke Invoking method:"+tmc);
+    		Object oret = invokeMethod(tmc, null);
+    		System.out.println("ServerInvoke return from invocation:"+oret);
+    		return oret;
+    	}
+    	return invokeMethod(tmc, null);
+    }
+    /**
+     * For an incoming RelatrixStatement, verify and invoke the proper
+     * method.  We assume there is a table of class names and this and
+     * it has been used to locate this object. 
+     * @return Object of result of method invocation
+     */
+    public synchronized Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
+    	//NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
+    	String targetMethod = tmc.getMethodName();
+    	if(DEBUG) {
+    		System.out.println("ServerInvoke Target method:"+targetMethod+" remote request:"+tmc+" localObject:"+localObject);
+    	}
+    	//int methodIndex = pkmnap.methodNames.indexOf(targetMethod);
+    	ArrayList<Integer> methodIndexList = methodLookup.get(targetMethod);
+    	String whyNotFound = "No such method";
+    	if(methodIndexList != null ) {
+    		for(int methodIndexCtr = 0; methodIndexCtr < methodIndexList.size(); methodIndexCtr++) {
+    			int methodIndex = methodIndexList.get(methodIndexCtr);
+    			//        System.out.println(jj);
+    			Class[] params = tmc.getParams();
+    			//
+    			//
+    			if (DEBUG) {
+    				for(int iparm1 = 0; iparm1 < params.length ; iparm1++) {        
+    					System.out.println("ServerInvoke Target method:"+targetMethod+" Calling param: "+params[iparm1]);
+    				}
+    				for(int iparm2 = skipArgIndex ; iparm2 < pkmnap.methodParams[methodIndex].length; iparm2++) {
+    					System.out.println("ServerInvoke Target method:"+targetMethod+" Method param: "+pkmnap.methodParams[methodIndex][iparm2]);
+    				}
+    			}
+    			//
+    			//
+    			if( params.length == pkmnap.methodParams[methodIndex].length-skipArgIndex ) {
+    				boolean found = true;
+    				// if skipArgs, don't compare first 2
+    				for(int paramIndex = 0 ; paramIndex < params.length; paramIndex++) {
+    					// can we cast it?
+    					if( params[paramIndex] != null && !pkmnap.methodParams[methodIndex][paramIndex+skipArgIndex].isAssignableFrom(params[paramIndex]) ) {
+    						found = false;
+    						whyNotFound = "Parameters do not match";
+    						break;
+    					}
+    				}
+    				if( found ) {
+    					if( skipArgs > 0) {
+    						Object o1[] = tmc.getParamArray();
+    						if(DEBUG) {
+    							System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
+    							Object oret = methods[methodIndex].invoke( localObject, o1 );
+    							System.out.println("ServerInvoke return from invocation:"+oret);
+    							return oret;
+    						}
+    						return methods[methodIndex].invoke( localObject, o1 );
+    					} 
+    					// invoke it for return
+    					if(DEBUG) {
+    						System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
+    						Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
+    						System.out.println("ServerInvoke return from invocation:"+oret);
+    						return oret;
+    					}
+    					return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
+    				}
+    			} else
+    				// tag for later if we find nothing matching
+    				whyNotFound = "Wrong number of parameters";
+    			//methodIndex = pkmnap.methodNames.indexOf(targetMethod,methodIndex+1);
+    		}
+    	}
+    	throw new NoSuchMethodException("Method "+targetMethod+" not found in "+pkmnap.className+" "+whyNotFound);
+    }
 
 }
 

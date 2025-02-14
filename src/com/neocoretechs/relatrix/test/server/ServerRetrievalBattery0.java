@@ -32,11 +32,11 @@ public class ServerRetrievalBattery0 {
 		public static int displayLineCtr = 0;
 		public static long displayTimer = 0;
 		public static int min = 0;
-		public static int max = 100000;
+		public static int max = 100;
 		static String key = "This is a test"; 
 		static String uniqKeyFmt = "%0100d";
 		private static boolean DISPLAY = false;
-		private static boolean DISPLAYALL = false;
+		private static boolean DISPLAYALL = true;
 		/**
 		*/
 		public static void main(String[] argv) throws Exception {
