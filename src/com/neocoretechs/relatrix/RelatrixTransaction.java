@@ -167,7 +167,7 @@ public final class RelatrixTransaction {
 	public static void setRelativeAlias(Alias alias) throws IOException {
 		if(alias.getAlias().contains("/") || alias.getAlias().contains("\\") || alias.getAlias().contains("..") || alias.getAlias().contains("~"))
 			throw new IOException("No path allowed");
-		RelatrixKV.setAlias(alias, RelatrixKV.getTableSpace()+alias.getAlias());
+		RelatrixKV.setAlias(alias, getTableSpace()+alias.getAlias());
 	}
 	
 	/**

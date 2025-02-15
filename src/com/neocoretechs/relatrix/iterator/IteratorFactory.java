@@ -11,7 +11,7 @@ import com.neocoretechs.rocksack.Alias;
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors
 	 * of findSet: HeadSet from selected result set,SubSet from result set, or tailSet from findSet return ordered set.
 	 * The iterator will, in general, return an array of Comparable corresponding to the number of elements specified 
-	 * in the findSet retrieval indicated by the "?" parameter. 
+	 * in the findSet retrieval indicated by the '?' parameter. 
 	 * {@link Relatrix.OPERATOR_TUPLE_CHAR} {@link Relatrix.OPERATOR_WILDCARD_CHAR} <br/>
 	 * This factory generates the proper iterator based on our findSet semantics.<p/>
 	 * Overloaded methods support transaction context.
@@ -20,7 +20,6 @@ import com.neocoretechs.rocksack.Alias;
 	 */
 	public abstract class IteratorFactory {
 		private static boolean DEBUG = false; 
-	    protected static char dop, mop, rop;
 		
 		/**
 		 * Create the iterator. Factory method, abstract.

@@ -14,6 +14,7 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
@@ -87,12 +88,25 @@ public final class RelatrixKV {
 	public static void setAlias(Alias alias, String path) throws IOException {
 		DatabaseManager.setTableSpaceDir(alias, path);
 	}
-	
+	/**
+	 * Set an alias relative to the current tablespace
+	 * @param alias
+	 * @param path
+	 * @throws IOException
+	 */
+	@ServerMethod
+	public static void setRelativeAlias(Alias alias) throws IOException {
+		if(alias.getAlias().contains("/") || alias.getAlias().contains("\\") || alias.getAlias().contains("..") || alias.getAlias().contains("~"))
+			throw new IOException("No path allowed");
+		setAlias(alias, getTableSpace()+alias.getAlias());
+	}
+		
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
 	 * @param alias
 	 * @throws NoSuchElementException if the alias was not ofund
 	 */
+	@ServerMethod	
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
 		DatabaseManager.removeAlias(alias);
 	}
@@ -102,6 +116,7 @@ public final class RelatrixKV {
 	 * @param alias
 	 * @return
 	 */
+	@ServerMethod
 	public static String getAlias(Alias alias) {
 		return DatabaseManager.getTableSpaceDir(alias);
 	}
@@ -109,6 +124,7 @@ public final class RelatrixKV {
 	 * 
 	 * @return 2d array of aliases to paths. If none 1st dimension is 0.
 	 */
+	@ServerMethod
 	public static String[][] getAliases() {
 		return DatabaseManager.getAliases();
 	}
@@ -119,6 +135,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void store(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		BufferedMap ttm = getMap(key);
 		if( DEBUG  )
@@ -134,6 +151,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void store(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		BufferedMap ttm = getMap(alias, key);
 		if( DEBUG  )
@@ -177,6 +195,7 @@ public final class RelatrixKV {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
+	@ServerMethod
 	public static Object remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(c);
@@ -193,6 +212,7 @@ public final class RelatrixKV {
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
+	@ServerMethod
 	public static Object remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, c);
@@ -211,6 +231,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findTailMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -228,6 +249,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findTailMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -244,6 +266,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -260,6 +283,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findTailMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -276,6 +300,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findTailMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -293,6 +318,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findTailMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -308,6 +334,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -324,6 +351,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException if the alias is not found 
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findTailMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -338,6 +366,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
+	@ServerMethod
 	public static Iterator<?> findHeadMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -354,6 +383,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
+	@ServerMethod
 	public static Iterator<?> findHeadMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -369,6 +399,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
+	@ServerMethod
 	public static Stream<?> findHeadMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -384,6 +415,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not found
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
+	@ServerMethod
 	public static Stream<?> findHeadMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -398,6 +430,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
+	@ServerMethod
 	public static Iterator<?> findHeadMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -414,6 +447,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not ofund
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
+	@ServerMethod
 	public static Iterator<?> findHeadMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -429,6 +463,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
+	@ServerMethod
 	public static Stream<?> findHeadMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -444,6 +479,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not found
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
+	@ServerMethod
 	public static Stream<?> findHeadMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -462,6 +498,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
+	@ServerMethod
 	public static Iterator<?> findSubMap(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -480,6 +517,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias is not ofund
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
+	@ServerMethod
 	public static Iterator<?> findSubMap(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -497,6 +535,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
+	@ServerMethod
 	public static Stream<?> findSubMapStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg);
@@ -515,6 +554,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias was not found
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
+	@ServerMethod
 	public static Stream<?> findSubMapStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg);
@@ -532,6 +572,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findSubMapKV(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
@@ -551,6 +592,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias was not ofund
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Iterator<?> findSubMapKV(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
@@ -569,6 +611,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Stream<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findSubMapKVStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		// check for at least one object reference
@@ -588,6 +631,7 @@ public final class RelatrixKV {
 	 * @throws NoSuchElementException If the alias was not found
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Iterator<Result>
 	 */
+	@ServerMethod
 	public static Stream<?> findSubMapKVStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		// check for at least one object reference
@@ -602,6 +646,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> entrySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -616,6 +661,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias is nout found
 	 */
+	@ServerMethod
 	public static Iterator<?> entrySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -628,6 +674,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> entrySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -642,6 +689,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException if the alias was not found
 	 */
+	@ServerMethod
 	public static Stream<?> entrySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -654,6 +702,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Iterator<?> keySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -668,6 +717,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not found
 	 */
+	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -680,6 +730,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 */
+	@ServerMethod
 	public static Stream<?> keySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -694,6 +745,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not ofund
 	 */
+	@ServerMethod
 	public static Stream<?> keySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -706,6 +758,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object firstKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -720,6 +773,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
+	@ServerMethod
 	public static Object firstKey(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -732,6 +786,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object get(Comparable<?> key) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(key);
@@ -749,6 +804,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
+	@ServerMethod
 	public static Object get(Alias alias, Comparable<?> key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, key);
@@ -765,6 +821,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object firstValue(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -779,6 +836,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
+	@ServerMethod
 	public static Object firstValue(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -791,6 +849,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object lastKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -805,6 +864,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
+	@ServerMethod
 	public static Object lastKey(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -817,6 +877,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static Object lastValue(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -831,6 +892,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
+	@ServerMethod
 	public static Object lastValue(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -843,6 +905,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static long size(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -857,6 +920,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException If the alias was not found 
 	 */
+	@ServerMethod
 	public static long size(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -869,6 +933,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static boolean contains(Comparable<?> obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(obj);
@@ -883,6 +948,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
+	@ServerMethod
 	public static boolean contains(Alias alias, Comparable<?> obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(alias, obj);
@@ -896,6 +962,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
+	@ServerMethod
 	public static boolean containsValue(Class<?> clazz, Comparable obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
@@ -912,6 +979,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias was not found
 	 */
+	@ServerMethod
 	public static boolean containsValue(Alias alias, Class<?> clazz, Comparable obj) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -925,6 +993,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object nearest(Comparable<?> key) throws IllegalAccessException, IOException {
 		BufferedMap ttm = getMap(key);
 		return ttm.nearest(key);
@@ -938,6 +1007,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static Object nearest(Alias alias, Comparable<?> key) throws IllegalAccessException, IOException, NoSuchElementException {
 		BufferedMap ttm = getMap(alias,key);
 		return ttm.nearest(key);
@@ -951,6 +1021,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
+	@ServerMethod
 	public static void close(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
@@ -963,6 +1034,7 @@ public final class RelatrixKV {
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException
 	 */
+	@ServerMethod
 	public static void close(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
