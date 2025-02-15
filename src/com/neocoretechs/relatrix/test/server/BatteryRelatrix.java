@@ -17,7 +17,8 @@ import com.neocoretechs.rocksack.TransactionId;
  * and verifying findStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * To test with the embedded database change the session to Relatrix.getInstance() and call session.setTablespace(DATABASE).
  * NOTES:
- * program arguments are local_node remote_node remote_port_for_database
+ * program arguments are local_node remote_node remote_port_for_database <p/>
+ * or database_tablespace for embedded test.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
 public class BatteryRelatrix {
@@ -27,16 +28,16 @@ public class BatteryRelatrix {
 	static int min = 0;
 	static int max = 2000;
 	public static String DATABASE;
-	static Relatrix session = Relatrix.getInstance();
-	//static RelatrixClient session = null;
+	//static Relatrix session = Relatrix.getInstance();
+	static RelatrixClient session = null;
 
 	/**
 	* Analysis test fixture
 	*/
 	public static void main(String[] argv) throws Exception {
 		DATABASE = argv[0];
-		session.setTablespace(DATABASE);
-		//session = new RelatrixClient(DATABASE, argv[1], Integer.parseInt(argv[2]) );
+		//session.setTablespace(DATABASE);
+		session = new RelatrixClient(DATABASE, argv[1], Integer.parseInt(argv[2]) );
 		if(session.size() == 0) {
 			battery1();
 		}
@@ -64,7 +65,10 @@ public class BatteryRelatrix {
 		}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	
+	/**
+	 * This test battery should print nothing if successful.
+	 * @throws Exception
+	 */
 	public static void battery2() throws Exception {
 		System.out.println("Battery2 ");
 		long tims = System.currentTimeMillis();

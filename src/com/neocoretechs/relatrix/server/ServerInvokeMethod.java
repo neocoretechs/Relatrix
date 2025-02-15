@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 1998-2000, 2015, 2025
 */
 public final class ServerInvokeMethod {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
     protected int skipArgs;
     int skipArgIndex;
     private Method[] methods;
@@ -109,7 +109,7 @@ public final class ServerInvokeMethod {
      * @return
      * @throws Exception
      */
-    public synchronized Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
+    public Object invokeMethod(RemoteRequestInterface tmc) throws Exception {
     	if(DEBUG) {
     		System.out.println("ServerInvoke Invoking method:"+tmc);
     		Object oret = invokeMethod(tmc, null);
@@ -124,7 +124,7 @@ public final class ServerInvokeMethod {
      * it has been used to locate this object. 
      * @return Object of result of method invocation
      */
-    public synchronized Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
+    public Object invokeMethod(RemoteRequestInterface tmc, Object localObject) throws Exception {
     	//NoSuchMethodException, InvocationTargetException, IllegalAccessException, PowerSpaceException  {               
     	String targetMethod = tmc.getMethodName();
     	if(DEBUG) {
