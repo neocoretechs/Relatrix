@@ -1,0 +1,1 @@
+generateclientbindings java.io.IOException com.neocoretechs.relatrix.RelatrixKV RelatrixKVClientInterface RelatrixKVStatement 

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 
 import com.neocoretechs.rocksack.Alias;
@@ -23,6 +24,7 @@ import com.neocoretechs.rocksack.Alias;
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
  * NOTES:
+ * Uncomment RelatrixKV session and session.setTablespace, comment client calls to test with embedded database<p/>
  * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer DBMACHINE 9010 <p/>
  * would start the server on the node called DBMACHINE using port 9010. Note that no
  * tablespace path is specified since we are going to specify the aliases via the client, hence when starting the
@@ -33,7 +35,7 @@ import com.neocoretechs.rocksack.Alias;
 public class BatteryRelatrixKVClientStreamAlias {
 	public static boolean DEBUG = false;
 	public static RelatrixKVClient rkvc;
-
+	//public static RelatrixKV rkvc = RelatrixKV.getInstance();
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
 	static int max = 100000;
@@ -51,21 +53,20 @@ public class BatteryRelatrixKVClientStreamAlias {
 	* for each given alias.
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 4) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStreamAlias <DB local client NODE> <DB remote server node> <DB PORT> <server_directory_path_to_tablespace_alias");
+		if(argv.length < 3) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientStreamAlias <DB local client NODE> <DB remote server node> <DB PORT> ");
 			System.exit(1);
 		}
 		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
-		String tablespace = argv[3];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
+		//rkvc.setTablespace(argv[0]);
+		//
 		if(rkvc.getAlias(alias1) == null)
-			rkvc.setAlias(alias1,tablespace+alias1);
+			rkvc.setRelativeAlias(alias1);
 		if(rkvc.getAlias(alias2) == null)
-			rkvc.setAlias(alias2,tablespace+alias2);
+			rkvc.setRelativeAlias(alias2);
 		if(rkvc.getAlias(alias3) == null)
-			rkvc.setAlias(alias3,tablespace+alias3);
+			rkvc.setRelativeAlias(alias3);
 		battery1(alias1);	// build and store
 		battery1(alias2);	// build and store
 		battery1(alias3);	// build and store

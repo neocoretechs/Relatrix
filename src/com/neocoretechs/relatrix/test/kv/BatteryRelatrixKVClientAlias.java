@@ -49,15 +49,12 @@ public class BatteryRelatrixKVClientAlias {
 			System.exit(1);
 		}
 		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
-		String tablespace = argv[3];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
 		if(rkvc.getAlias(alias1) == null)
-			rkvc.setAlias(alias1,tablespace+alias1);
+			rkvc.setRelativeAlias(alias1);
 		if(rkvc.getAlias(alias2) == null)
-			rkvc.setAlias(alias2,tablespace+alias2);
+			rkvc.setRelativeAlias(alias2);
 		if(rkvc.getAlias(alias3) == null)
-			rkvc.setAlias(alias3,tablespace+alias3);
+			rkvc.setRelativeAlias(alias3);
 		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);

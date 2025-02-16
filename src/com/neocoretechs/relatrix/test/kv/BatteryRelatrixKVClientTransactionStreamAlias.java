@@ -16,8 +16,9 @@ import com.neocoretechs.rocksack.TransactionId;
  * start server: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer DBMACHINE 9010 <p/>
  * would start the server on the node called DBMACHINE using port 9010. Note that no
  * tablespace path is specified since we are going to specify the aliases via the client, hence when starting the
- * client you would specify java com.neocoretechs.relatrix.text.kv.BatteryRelatrixKVClientTransactionStreamAlias LOCALMACHINE DBMACHINE 9010 D:/etc/Relatrix/db
- * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc. using local node LOCALMACHINE remote node DBMACHINE port 9010<p/>
+ * client you would specify java com.neocoretechs.relatrix.text.kv.BatteryRelatrixKVClientTransactionStreamAlias DBMACHINE DBMACHINE 9010 
+ * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc. using local node DBMACHINE port 9010
+ * start the server with java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer D:/etc/Relatrix/db/test DBMACHINE 9010<p/>
  * @author Jonathan Groff (C) NeoCoreTechs 2022,2023,2024
  *
  */
@@ -40,21 +41,18 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 4) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransactionStreamAlias <DB local client NODE> <DB remote server node> <DB PORT> <server_directory_path_to_tablespace_alias");
+		if(argv.length < 3) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransactionStreamAlias <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
 		System.out.println("local="+argv[0]+" remote="+argv[0]+" port="+argv[1]);
 		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
-		String tablespace = argv[3];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
 		if(rkvc.getAlias(alias1) == null)
-			rkvc.setAlias(alias1,tablespace+alias1);
+			rkvc.setRelativeAlias(alias1);
 		if(rkvc.getAlias(alias2) == null)
-			rkvc.setAlias(alias2,tablespace+alias2);
+			rkvc.setRelativeAlias(alias2);
 		if(rkvc.getAlias(alias3) == null)
-			rkvc.setAlias(alias3,tablespace+alias3);
+			rkvc.setRelativeAlias(alias3);
 		TransactionId xid = rkvc.getTransactionId();
 		battery1(alias1, xid);
 		battery1(alias2, xid);	

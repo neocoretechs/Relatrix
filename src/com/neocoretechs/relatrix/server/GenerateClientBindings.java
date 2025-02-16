@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -107,7 +108,9 @@ public class GenerateClientBindings {
 		// statement and command are passed from command line
 		FileOutputStream fos = new FileOutputStream(outputClass+"Impl.java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings\r\n");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings ");
+		outStream.writeBytes((new Date()).toString());
+		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");
 		//outStream.writeBytes(inputClass.substring(0,inputClass.lastIndexOf(".")));
 		outStream.writeBytes(packageDecl);
@@ -310,7 +313,9 @@ public class GenerateClientBindings {
 		//}
 		FileOutputStream fos = new FileOutputStream(outputClass+".java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings\r\n");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings ");
+		outStream.writeBytes((new Date()).toString());
+		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");
 		//outStream.writeBytes(inputClass.substring(0,inputClass.lastIndexOf(".")));
 		outStream.writeBytes(packageDecl);
