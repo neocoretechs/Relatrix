@@ -357,7 +357,8 @@ public final class RelatrixTransaction {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println(identity);
+		if(DEBUG)
+			System.out.println(identity);
 		return identity;
 	}
 	/**
