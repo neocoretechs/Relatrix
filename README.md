@@ -27,7 +27,7 @@ stream.forEach(e -> Stream.of(e).forEach(g -> System.out.println("Element A:"+g)
 </code>
 Or using the old Iterator model:<br/>
 <code>
-Iterator iterator = Relatrix.findSet("?",[mapObject],'?'); // This retrieves all domain objects and range objects mapped through [mapObject]<p/>
+Iterator iterator = Relatrix.findSet('?',[mapObject],'?'); // This retrieves all domain objects and range objects mapped through [mapObject]<p/>
 </code>
 <i>To compose two relationships to an association:</i><br/>
 <code>
