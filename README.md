@@ -22,25 +22,25 @@ Relatrix.store([fromObject],[mapObject],[toObject]); // This stores a functional
 </code>
 <i>and a query for that set is as simple as:</i><p/>
 <code>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream("?", "?", "?");<br/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream('?', '?', '?');<br/>
 stream.forEach(e -> Stream.of(e).forEach(g -> System.out.println("Element A:"+g)));<p/>
 </code>
 Or using the old Iterator model:<br/>
 <code>
-Iterator iterator = Relatrix.findSet("?",[mapObject],"?"); // This retrieves all domain objects and range objects mapped through [mapObject]<p/>
+Iterator iterator = Relatrix.findSet("?",[mapObject],'?'); // This retrieves all domain objects and range objects mapped through [mapObject]<p/>
 </code>
 <i>To compose two relationships to an association:</i><br/>
 <code>
 Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObject2].[toObject2])); // This composes relationships<p/>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],"*","?", true); // This returns all range objects mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream(("*","*","*"); // This makes ready for consumption by stream all relationships as identity objects<br/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],'*','?', true); // This returns all range objects mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream(('*','*','*'); // This makes ready for consumption by stream all relationships as identity objects<br/>
 </code>
 
 ```
 public class VisualCortex {
 	public static void main(String[] args) throws Exception {
 		Relatrix.setTablespaceDirectory(args[0]);
-		Stream<Result> stream = (Stream<Result>) Relatrix.findStream("?", "?", "?", true);
+		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('?', '?', '?', true);
 		Map<Object, Map<Object, Map<Object, Long>>> nameCount = stream.collect(Collectors.groupingBy(b -> b[0].toString(),
 		Collectors.groupingBy(d -> d[1].toString(),
 		Collectors.groupingBy(e -> e[2].toString(), Collectors.counting()))));
