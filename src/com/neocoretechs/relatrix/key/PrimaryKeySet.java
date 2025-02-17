@@ -82,7 +82,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 */
 	public void setIdentity(DBKey identity) {
 		if(this.isIdentityImmutable)
-			throw new RuntimeException("Identity is immutable for Morphism instance "+this);
+			throw new RuntimeException("Identity is immutable for Morphism instance "+identity);
 		this.identity = identity;
 		this.isIdentityImmutable = true;
 	}
@@ -91,7 +91,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	}
 	public void setAlias(Alias alias) {
 		if(this.isAliasImmutable)
-			throw new RuntimeException("Alias is immutable for Morphism instance "+this);
+			throw new RuntimeException("Alias is immutable for Morphism instance "+identity);
 		this.alias = alias;
 		this.isAliasImmutable = true;
 	}

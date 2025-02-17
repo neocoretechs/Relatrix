@@ -1,4 +1,4 @@
-// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings
+// auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings Sun Feb 16 15:40:55 PST 2025
 package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
@@ -8,12 +8,515 @@ import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.Relatrix;
 
 
 public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInterface{
 
 	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Object arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Character arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Object arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Object arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findHeadStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
 	@Override
 	public void removeAlias(Alias arg1) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("removeAlias", arg1);
@@ -24,361 +527,369 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public String getAlias(Alias arg1) {
+		RelatrixStatement s = new RelatrixStatement("getAlias", arg1);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (String)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	@Override
+	public void setWildcard(Character arg1) {
+		RelatrixStatement s = new RelatrixStatement("setWildcard", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+		}
+	}
+	@Override
+	public void setRelativeAlias(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("setRelativeAlias", arg1);
+		try {
+			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+	public Iterator findHeadSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findHeadSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Iterator findHeadSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+	public Iterator findHeadSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+	public Iterator findHeadSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findHeadSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+	public Iterator findHeadSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findHeadSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findHeadSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findHeadSet(Object arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+	public Iterator findHeadSet(Object arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Iterator findHeadSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Iterator findHeadSet(Character arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public void storekv(Alias arg1,Comparable arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("storekv", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public void storekv(Comparable arg1,Object arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("storekv", arg1, arg2);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findStream(Alias arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Stream findStream(Alias arg1,Object arg2,Object arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findStream(Alias arg1,Character arg2,Character arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findStream(Alias arg1,Object arg2,Character arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Stream findStream(Alias arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findStream(Alias arg1,Character arg2,Object arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Stream findStream(Alias arg1,Character arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+	public Stream findStream(Object arg1,Character arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+	public Stream findStream(Character arg1,Character arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findStream(Character arg1,Character arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+	public Stream findStream(Character arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findStream(Object arg1,Object arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+	public Stream findStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findStream(Character arg1,Object arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+	public Stream findStream(Object arg1,Character arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+	public Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(char arg1,Object arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream entrySetStream(Class arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream entrySetStream(Alias arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1, arg2);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Object removekv(Alias arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findSubStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Object removekv(Comparable arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removekv", arg1);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findSubStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -388,6 +899,321 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		RelatrixStatement s = new RelatrixStatement("getNewKey",new Object[]{});
 		try {
 			return (DBKey)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Character arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Object arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Stream findTailStream(Object arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		try {
+			return new RemoteStream((Iterator)sendCommand(s));
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public String[][] getAliases() {
+		RelatrixStatement s = new RelatrixStatement("getAliases",new Object[]{});
+		try {
+			return (String[][])sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	@Override
+	public Iterator findSet(Character arg1,Character arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Character arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Character arg1,Character arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Object arg1,Character arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public List findSet(Comparable arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public List findSet(Alias arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Object arg2,Character arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Object arg1,Object arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Character arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Character arg2,Character arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Character arg2,Object arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Character arg1,Object arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Object arg1,Character arg2,Character arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator findSet(Alias arg1,Object arg2,Object arg3,Character arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		try {
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -406,654 +1232,6 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		RelatrixStatement s = new RelatrixStatement("getByIndex", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,Object arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSubSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findTailSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findTailStream(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -1095,377 +1273,368 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public void loadClassFromPath(String arg1,String arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("loadClassFromPath", arg1, arg2);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object removekv(Alias arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return (Object)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object removekv(Comparable arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("removekv", arg1);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
-			return (Object)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object lastKey(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("lastKey", arg1, arg2);
+	public Stream findSubStream(Object arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Object)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object lastKey() throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("lastKey",new Object[]{});
+	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Object)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object lastKey(Class arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return (Object)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object lastKey(Alias arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+	public Stream findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return (Object)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void loadClassFromJar(String arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("loadClassFromJar", arg1);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
-			sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3);
+	public Stream findSubStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+	public Stream findSubStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+	public Stream findSubStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Stream findSubStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+	public Stream findSubStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Stream findHeadStream(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+	public Stream findSubStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void storekv(Comparable arg1,Object arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("storekv", arg1, arg2);
+	public Stream findSubStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public void storekv(Alias arg1,Comparable arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("storekv", arg1, arg2, arg3);
+	public Stream findSubStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(char arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(char arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Character arg1,Object arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3);
+	public Stream findSubStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,char arg2,Object arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,char arg2,char arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Object arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,char arg2,char arg3,char arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	public Stream findSubStream(Object arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+	public Stream findSubStream(Object arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,Object arg2,Object arg3,char arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,Object arg2,char arg3,char arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+	public Stream findSubStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Alias arg1,char arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(char arg1,Object arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(char arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+	public Stream findSubStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Object arg1,char arg2,char arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+	public Stream findSubStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
-			return (Iterator)sendCommand(s);
+			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Iterator findHeadSet(Object arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findHeadSet(Object arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1473,8 +1642,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1482,8 +1651,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,char arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1491,8 +1660,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Object arg1,Object arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1500,8 +1669,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(char arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1509,8 +1678,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(char arg1,char arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1518,8 +1687,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,Object arg2,Object arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1527,8 +1696,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(char arg1,char arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Object arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1536,8 +1705,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Object arg1,char arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Object arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1545,8 +1714,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(char arg1,Object arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Character arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1554,8 +1723,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,char arg2,Object arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1563,8 +1732,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,char arg2,char arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1572,8 +1741,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1581,8 +1750,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Object arg1,char arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+	public Iterator findTailSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1590,8 +1759,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,Object arg2,char arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1599,242 +1768,10 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator findSet(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+	public Iterator findTailSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public List findSet(Comparable arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1);
-		try {
-			return (List)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Iterator findSet(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
-		try {
-			return (Iterator)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public List findSet(Alias arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2);
-		try {
-			return (List)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Object arg1,char arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Object arg1,char arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(char arg1,Object arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Object arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Object arg1,Object arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(char arg1,Object arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(char arg1,char arg2,Object arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(char arg1,char arg2,char arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,char arg2,Object arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,Object arg2,char arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,Object arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,Object arg2,Object arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,char arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,char arg2,char arg3,Object arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream findStream(Alias arg1,char arg2,char arg3,char arg4) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void removePackageFromRepository(String arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("removePackageFromRepository", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void setTuple(char arg1) {
-		RelatrixStatement s = new RelatrixStatement("setTuple", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-		}
-	}
-	@Override
-	public void setWildcard(char arg1) {
-		RelatrixStatement s = new RelatrixStatement("setWildcard", arg1);
-		try {
-			sendCommand(s);
-		} catch(Exception e) {
-		}
-	}
-	@Override
-	public Stream entrySetStream(Class arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Stream entrySetStream(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1, arg2);
-		try {
-			return new RemoteStream((RemoteIterator)sendCommand(s));
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public String getAlias(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("getAlias", arg1);
-		try {
-			return (String)sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	@Override
-	public void setAlias(Alias arg1,String arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("setAlias", arg1, arg2);
-		try {
-			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -1849,30 +1786,11 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public void setTablespace(String arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("setTablespace", arg1);
+	public void setTuple(Character arg1) {
+		RelatrixStatement s = new RelatrixStatement("setTuple", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public String[][] getAliases() {
-		RelatrixStatement s = new RelatrixStatement("getAliases",new Object[]{});
-		try {
-			return (String[][])sendCommand(s);
-		} catch(Exception e) {
-			return null;
-		}
-	}
-	@Override
-	public Object firstKey(Alias arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("firstKey", arg1);
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
 		}
 	}
 	@Override
@@ -1903,8 +1821,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object firstValue(Alias arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("firstValue", arg1);
+	public Object firstKey(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstKey", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1912,8 +1830,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object firstValue() throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("firstValue",new Object[]{});
+	public Object lastKey(Alias arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1921,8 +1839,26 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object firstValue(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("firstValue", arg1, arg2);
+	public Object lastKey(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastKey(Class arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object lastKey() throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("lastKey",new Object[]{});
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1939,10 +1875,28 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator keySet(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("keySet", arg1, arg2);
+	public Object firstValue(Alias arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue", arg1, arg2);
 		try {
-			return (Iterator)sendCommand(s);
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object firstValue() throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue",new Object[]{});
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object firstValue(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("firstValue", arg1);
+		try {
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -1950,6 +1904,15 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 	@Override
 	public Iterator keySet(Class arg1) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("keySet", arg1);
+		try {
+			return (Iterator)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Iterator keySet(Alias arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("keySet", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1984,8 +1947,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object first(Alias arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("first", arg1);
+	public Object first() throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("first",new Object[]{});
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1993,8 +1956,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object first() throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("first",new Object[]{});
+	public Object first(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("first", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2020,12 +1983,12 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Relatrix getInstance() {
-		RelatrixStatement s = new RelatrixStatement("getInstance",new Object[]{});
+	public Iterator entrySet(Alias arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("entrySet", arg1, arg2);
 		try {
-			return (Relatrix)sendCommand(s);
+			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
-			return null;
+			throw new java.io.IOException(e);
 		}
 	}
 	@Override
@@ -2038,10 +2001,10 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Iterator entrySet(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("entrySet", arg1, arg2);
+	public long size(Class arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("size", arg1);
 		try {
-			return (Iterator)sendCommand(s);
+			return (long)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -2065,15 +2028,6 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public long size(Class arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("size", arg1);
-		try {
-			return (long)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
 	public long size(Alias arg1,Class arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("size", arg1, arg2);
 		try {
@@ -2083,17 +2037,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object last() throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("last",new Object[]{});
-		try {
-			return (Object)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public Object last(Alias arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("last", arg1);
+	public Object last(Alias arg1,Class arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2110,8 +2055,8 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object last(Alias arg1,Class arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("last", arg1, arg2);
+	public Object last(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2119,10 +2064,10 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public boolean contains(Comparable arg1) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("contains", arg1);
+	public Object last() throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("last",new Object[]{});
 		try {
-			return (boolean)sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -2137,10 +2082,10 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object get(Alias arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2);
+	public boolean contains(Comparable arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("contains", arg1);
 		try {
-			return (Object)sendCommand(s);
+			return (boolean)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -2155,19 +2100,10 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public void remove(Alias arg1,Comparable arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2, arg3);
+	public Object get(Alias arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2);
 		try {
-			sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
-	public void remove(Comparable arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
-		try {
-			sendCommand(s);
+			return (Object)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
@@ -2182,7 +2118,25 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
+	public void remove(Alias arg1,Comparable arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2, arg3);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public void remove(Alias arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void remove(Comparable arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
 		try {
 			sendCommand(s);

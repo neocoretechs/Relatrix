@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.server;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
@@ -134,12 +135,11 @@ public final class ServerInvokeMethod {
     	ArrayList<Integer> methodIndexList = methodLookup.get(targetMethod);
     	String whyNotFound = "No such method";
     	if(methodIndexList != null ) {
+    		TreeMap<Integer,Integer> methodRank = new TreeMap<Integer,Integer>();
+    		boolean found = false;
     		for(int methodIndexCtr = 0; methodIndexCtr < methodIndexList.size(); methodIndexCtr++) {
     			int methodIndex = methodIndexList.get(methodIndexCtr);
-    			//        System.out.println(jj);
     			Class[] params = tmc.getParams();
-    			//
-    			//
     			if (DEBUG) {
     				for(int iparm1 = 0; iparm1 < params.length ; iparm1++) {        
     					System.out.println("ServerInvoke Target method:"+targetMethod+" Calling param: "+params[iparm1]);
@@ -148,43 +148,57 @@ public final class ServerInvokeMethod {
     					System.out.println("ServerInvoke Target method:"+targetMethod+" Method param: "+pkmnap.methodParams[methodIndex][iparm2]);
     				}
     			}
-    			//
-    			//
+    			int sumParamRank = 0;
     			if( params.length == pkmnap.methodParams[methodIndex].length-skipArgIndex ) {
-    				boolean found = true;
-    				// if skipArgs, don't compare first 2
+    				found = true; // we found a method with required number of params
+    				// if skipArgs, don't compare first skipArgs params
     				for(int paramIndex = 0 ; paramIndex < params.length; paramIndex++) {
-    					// can we cast it?
-    					if( params[paramIndex] != null && !pkmnap.methodParams[methodIndex][paramIndex+skipArgIndex].isAssignableFrom(params[paramIndex]) ) {
-    						found = false;
-    						whyNotFound = "Parameters do not match";
-    						break;
+    					// exact match? If passed param is null, count as 0 rank, below assignable or exact
+    					if( params[paramIndex] != null ) {
+    						if(pkmnap.methodParams[methodIndex][paramIndex+skipArgIndex] == params[paramIndex]) {
+    							sumParamRank+=2;
+    						} else {
+    							// can we cast it?	
+    							if(pkmnap.methodParams[methodIndex][paramIndex+skipArgIndex].isAssignableFrom(params[paramIndex])) {
+    								sumParamRank+=1;
+    							} else {
+    								// parameter doesnt match, reduce to ineligible
+    								sumParamRank = -1;
+    								break;
+    							}
+    						}
     					}
     				}
-    				if( found ) {
-    					if( skipArgs > 0) {
-    						Object o1[] = tmc.getParamArray();
-    						if(DEBUG) {
-    							System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
-    							Object oret = methods[methodIndex].invoke( localObject, o1 );
-    							System.out.println("ServerInvoke return from invocation:"+oret);
-    							return oret;
-    						}
-    						return methods[methodIndex].invoke( localObject, o1 );
-    					} 
-    					// invoke it for return
+    				methodRank.put(sumParamRank, methodIndex);
+    			}
+    		}
+    		//
+    		if(found) {
+    			int methodIndex = methodRank.get(methodRank.lastKey());
+    			if(methodIndex < 0) {
+    				whyNotFound = "parameters do not match";
+    			} else {
+    				if( skipArgs > 0) {
+    					Object o1[] = tmc.getParamArray();
     					if(DEBUG) {
-    						System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
-    						Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
+    						System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
+    						Object oret = methods[methodIndex].invoke( localObject, o1 );
     						System.out.println("ServerInvoke return from invocation:"+oret);
     						return oret;
     					}
-    					return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
+    					return methods[methodIndex].invoke( localObject, o1 );
+    				} 
+    				// invoke it for return
+    				if(DEBUG) {
+    					System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
+    					Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
+    					System.out.println("ServerInvoke return from invocation:"+oret);
+    					return oret;
     				}
-    			} else
-    				// tag for later if we find nothing matching
-    				whyNotFound = "Wrong number of parameters";
-    			//methodIndex = pkmnap.methodNames.indexOf(targetMethod,methodIndex+1);
+    				return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
+    			}
+    		} else {
+    			whyNotFound = "wrong number of parameters";
     		}
     	}
     	throw new NoSuchMethodException("Method "+targetMethod+" not found in "+pkmnap.className+" "+whyNotFound);

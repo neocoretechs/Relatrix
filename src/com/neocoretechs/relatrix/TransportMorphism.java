@@ -46,7 +46,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	}
 	
 	public Morphism getMorphism() {
-		if(morphism.getIdentity() == null)
+		if(morphism.getIdentity() == null && identity != null)
 			morphism.setIdentity(identity);
 		if(morphism.getAlias() == null && alias != null)
 			morphism.setAlias(alias);
