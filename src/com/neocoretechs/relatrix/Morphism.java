@@ -45,8 +45,6 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         protected transient Comparable  map;          // map object
         protected transient Comparable  range;        // range
         
-        //protected transient boolean keyCompare = false;
-        
         protected transient boolean templateFlag = false;
         
         public Morphism() {}
@@ -67,6 +65,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         /**
          * Resolving constructor 2 <p/>
          * Construct and establish key position for the elements of a morphism.
+         * @param alias
          * @param d
          * @param m
          * @param r
@@ -77,8 +76,21 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
             setMap(alias, m);
             setRange(alias, r);
         }
+        /**
+         * Resolving constructor 3
+         * @param transactionId
+         * @param d
+         * @param m
+         * @param r
+         */
+        public Morphism(TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
+      		this.transactionId = transactionId;
+        	setDomain(d);
+            setMap(m);
+            setRange(r);
+        }
     	/**
-    	 * Resolving constructor 3 <p/>
+    	 * Resolving constructor 4 <p/>
     	 * We need transaction id first, so we cant call superclass constructor. When we dont yet have keys, we must resolve.
     	 * @param alias
     	 * @param transactionId

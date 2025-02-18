@@ -24,6 +24,7 @@ import java.util.zip.ZipInputStream;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
+import com.neocoretechs.relatrix.DomainMapRange;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
@@ -439,7 +440,10 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		Comparable<?> rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
+		DomainMapRange dmr = new DomainMapRange(xid,accessLogEntryEpoch,"accessed by",remoteHost);
+		Comparable<?> rel = (Comparable<?>) session.get(xid, dmr);
+		if(rel == null)
+			rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
 		session.store(xid, rel, "remote user", remoteUser);
 		// unreliable info field remoteUser
 		session.store(xid, rel, "access time",accessLogEntryEpoch);
@@ -462,7 +466,10 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix2(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		Comparable<?> rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
+		DomainMapRange dmr = new DomainMapRange(xid,accessLogEntryEpoch,"accessed by",remoteHost);
+		Comparable<?> rel = (Comparable<?>) session.get(xid, dmr);
+		if(rel == null)
+			rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
 		session.store(xid, rel, "access time",accessLogEntryEpoch);
 		session.store(xid, rel, "client request",clientRequest);
 		session.store(xid, rel, "http status",httpStatusCode);
@@ -505,9 +512,9 @@ public class ApacheLog {
 			session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
 			xid = session.getTransactionId();
 			if(args.length == 4)
-				alfoo.getFiles(args[1], false, xid);
+				alfoo.getFiles(args[3], false, xid);
 			else
-				alfoo.getFiles(args[1], true, xid);
+				alfoo.getFiles(args[3], true, xid);
 		} else {
 			if(args.length == 3) {
 				session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
@@ -519,7 +526,7 @@ public class ApacheLog {
 				alfoo.readAndProcess(lin3);
 				storeRelatrix(xid);
 			} else {
-				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remove node> <port> [log file dir] [true or false simplified log format]");
+				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remote node> <port> [log file dir] [true or false simplified log format]");
 			}	
 		}
 		System.out.println("Stored..now retrieving stored data as a series of relations:");
