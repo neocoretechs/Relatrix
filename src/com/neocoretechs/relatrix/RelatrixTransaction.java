@@ -1207,7 +1207,18 @@ public final class RelatrixTransaction {
 		Iterator<?> itr = new RelatrixIteratorTransaction(alias, xid, rmd, rmd_return); //findSet('*','*',c);
 		Relatrix.sequentialMorphismSearch(itd, itm, itr, dbkeys);
 	}
-	
+	/**
+	 * Generate the recursively resolved list of relationships in the given Morphism. If none of the components
+	 * of the relationship are themselves relationships, the original set of related objects in the tuple is returned as a list.
+	 * @param morphism the target for resolution
+	 * @return the recursively resolved list of relationships depth first from domain to range
+	 */
+	@ServerMethod
+	public static List<Comparable> resolve(Comparable morphism) {
+		ArrayList<Comparable> res = new ArrayList<Comparable>();
+		Morphism.resolve(morphism, res);
+		return res;
+	}
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
 	 * matching the given set of operators and/or objects. Essentially this is the default permutation which
