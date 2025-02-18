@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -440,9 +441,11 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		DomainMapRange dmr = new DomainMapRange(xid,accessLogEntryEpoch,"accessed by",remoteHost);
-		Comparable<?> rel = (Comparable<?>) session.get(xid, dmr);
-		if(rel == null)
+		Optional<?> p = session.findStream(xid,accessLogEntryEpoch,"accessed by",remoteHost).findFirst();
+		DomainMapRange rel;
+		if(p.isPresent()) 
+			rel = (DomainMapRange) ((Result)p.get()).get();
+		else
 			rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
 		session.store(xid, rel, "remote user", remoteUser);
 		// unreliable info field remoteUser
@@ -466,9 +469,11 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix2(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		DomainMapRange dmr = new DomainMapRange(xid,accessLogEntryEpoch,"accessed by",remoteHost);
-		Comparable<?> rel = (Comparable<?>) session.get(xid, dmr);
-		if(rel == null)
+		Optional<?> p = session.findStream(xid,accessLogEntryEpoch,"accessed by",remoteHost).findFirst();
+		DomainMapRange rel;
+		if(p.isPresent()) 
+			rel = (DomainMapRange) ((Result)p.get()).get();
+		else
 			rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
 		session.store(xid, rel, "access time",accessLogEntryEpoch);
 		session.store(xid, rel, "client request",clientRequest);
