@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -40,8 +40,8 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
-			if(((Map.Entry)buffer).getKey() instanceof Morphism) {
-				((Morphism)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 			}
     	if( DEBUG )
 			System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
@@ -62,9 +62,9 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
-			if(((Map.Entry)buffer).getKey() instanceof Morphism) {
-				((Morphism)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
-				((Morphism)((Map.Entry)buffer).getKey()).setAlias(alias);
+			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
 			}
     	if( DEBUG )
     		System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
@@ -99,9 +99,9 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 			
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
-				if(((Map.Entry)nextit).getKey() instanceof Morphism) {
-					((Morphism)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
-					((Morphism)((Map.Entry)nextit).getKey()).setAlias(alias);
+				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
 				}
 			} else {
 				nextit = null;

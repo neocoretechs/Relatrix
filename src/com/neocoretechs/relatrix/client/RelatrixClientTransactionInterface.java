@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 
 
 public interface RelatrixClientTransactionInterface{
@@ -452,9 +452,9 @@ public interface RelatrixClientTransactionInterface{
 
 	public Iterator keySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public DomainMapRange store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException;
+	public Relation store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException;
 
-	public DomainMapRange store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
+	public Relation store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
 
 	public List resolve(Comparable arg1);
 

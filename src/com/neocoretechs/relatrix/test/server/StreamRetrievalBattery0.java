@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.test.server;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 
@@ -28,7 +28,7 @@ public class StreamRetrievalBattery0 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		battery1(argv);
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);

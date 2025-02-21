@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result3;
@@ -49,10 +49,10 @@ public class FindSetMode0Transaction extends FindSetMode0 {
      */
  	@Override
  	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
- 		Morphism dmr = null;
- 		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+ 		AbstractRelation dmr = null;
+ 		switch(AbstractRelation.form_template_keyop(new Result3(null,null,null), dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRange(true, null, xid, null, null, null);
+ 				dmr = new Relation(true, null, xid, null, null, null);
  				break;
  			case 1: // drm
  				dmr = new DomainRangeMap(true, null, xid, null, null, null);
@@ -80,10 +80,10 @@ public class FindSetMode0Transaction extends FindSetMode0 {
      */
  	@Override
  	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
- 		Morphism dmr = null;
- 		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+ 		AbstractRelation dmr = null;
+ 		switch(AbstractRelation.form_template_keyop(new Result3(null,null,null), dmr_return)) {
  			case 0: // dmr
- 				dmr = new DomainMapRange(true, alias, xid, null, null, null);
+ 				dmr = new Relation(true, alias, xid, null, null, null);
  				break;
  			case 1: // drm
  				dmr = new DomainRangeMap(true, alias, xid, null, null, null);
@@ -107,12 +107,12 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  	}
  	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

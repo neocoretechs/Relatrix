@@ -7,7 +7,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- * For Morphisms {@link com.neocoretechs.relatrix.Morphism} in the Relatrix, we store Key/Value tables of 
+ * For Morphisms {@link com.neocoretechs.relatrix.AbstractRelation} in the Relatrix, we store Key/Value tables of 
  * instance/DBKey DBKey/Instance {@link DBKey} {@link KeySet} to reference
  * instances of classes by an integer index to reduce redundancy in indexing. Since the 6 permutations of the
  * morphism are stored in various orders (dmr, rmd, mdr, rdm, drm, mrd) to facilitate set retrieval in the proper order, 
@@ -55,7 +55,7 @@ public interface IndexInstanceTableInterface {
 	DBKey put(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param dbKey the DBKey of the previously stored primary key 
@@ -67,7 +67,7 @@ public interface IndexInstanceTableInterface {
 	void put(DBKey dbKey, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param alias the db alias
@@ -81,7 +81,7 @@ public interface IndexInstanceTableInterface {
 	void put(Alias alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param transactionId the transaction id
@@ -95,7 +95,7 @@ public interface IndexInstanceTableInterface {
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param alias the database alias

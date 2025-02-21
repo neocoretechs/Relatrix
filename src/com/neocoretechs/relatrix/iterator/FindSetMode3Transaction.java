@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.MapRangeDomain;
@@ -35,7 +35,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    Morphism dmr = new MapRangeDomain(true, null, xid, null, (Comparable)marg, (Comparable)rarg);
+	    AbstractRelation dmr = new MapRangeDomain(true, null, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(dmr);
 	}
 	
@@ -47,7 +47,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
 	}
     
@@ -56,7 +56,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
      */
 	@Override
 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
-	    Morphism dmr = new MapRangeDomain(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
+	    AbstractRelation dmr = new MapRangeDomain(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	
@@ -68,7 +68,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

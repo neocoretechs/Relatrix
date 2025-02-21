@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -34,9 +34,9 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
 		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
-			if(((Map.Entry)buffer).getKey() instanceof Morphism) {
-				((Morphism)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
-				((Morphism)((Map.Entry)buffer).getKey()).setTransactionId(xid);
+			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
     	if( DEBUG )
 			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
@@ -53,10 +53,10 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
 		}
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
-			if(((Map.Entry)buffer).getKey() instanceof Morphism) {
-				((Morphism)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
-				((Morphism)((Map.Entry)buffer).getKey()).setAlias(alias);
-				((Morphism)((Map.Entry)buffer).getKey()).setTransactionId(xid);
+			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
     	if( DEBUG )
 			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
@@ -75,10 +75,10 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
 			
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
-				if(((Map.Entry)nextit).getKey() instanceof Morphism) {
-					((Morphism)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
-					((Morphism)((Map.Entry)nextit).getKey()).setAlias(alias);
-					((Morphism)((Map.Entry)nextit).getKey()).setTransactionId(xid);
+				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setTransactionId(xid);
 				}
 			} else {
 				nextit = null;

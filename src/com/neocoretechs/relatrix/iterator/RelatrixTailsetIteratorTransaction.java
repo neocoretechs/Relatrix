@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -13,14 +13,14 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
- *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link Morphism}s, or
+ *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link AbstractRelation}s, or
  * Populate a series of arrays with the partial ordered sets of classes. Find elements greater or equal to 'from' element.
  * designated in the suffix of the 'findSet' predicate then use the min and max range of those to build a range query into
- * the proper table of Morphisms. Extract the domain, map and range components from each retrieved Morphism
+ * the proper table of Morphisms. Extract the domain, map and range components from each retrieved AbstractRelation
  * and determine their index into each domain, map and range arraylist. Use those indexes to form a key using
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
- * retrieved Morphism. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
- * Morphism with all its actual payload objects. Ultimately return Result instance elements in next(), 
+ * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
+ * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p/>
  * For tuples the Result is relative to the '?' query predicates. <br/>
  * Here, the tailset is retrieved.<p/>
@@ -49,7 +49,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixTailsetIteratorTransaction(TransactionId xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
        	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
@@ -136,7 +136,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     	if( iter.hasNext() ) {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
-				buffer = (Morphism) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for Morphism
+				buffer = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setTransactionId(xid);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
@@ -151,7 +151,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 			System.out.println("RelatrixTailsetIteratorTransaction xid:"+xid+" "+super.toString());
     }
     
-    public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException, NoSuchElementException {
       	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)
@@ -238,7 +238,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     	if( iter.hasNext() ) {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
-				buffer = (Morphism) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for Morphism
+				buffer = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setTransactionId(xid);
 				buffer.setAlias(alias);
 				buffer.setIdentity(dbkey);
@@ -277,9 +277,9 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 	    		try {
 	    			DBKey dbkey = (DBKey) iter.next();
 	    			if(alias == null) {
-	    				nextit = (Morphism) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for Morphism
+	    				nextit = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
 	    			} else {
-	    				nextit = (Morphism) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for Morphism
+	    				nextit = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setTransactionId(xid);

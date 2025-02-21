@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 
 /**
 * Identity morphism retrieval.
@@ -31,11 +31,11 @@ public class FindSetMode7 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    Morphism dmr = new DomainMapRange((Comparable)darg, (Comparable)marg, (Comparable)rarg);
+	    AbstractRelation dmr = new Relation((Comparable)darg, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(dmr);
 	}
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIterator( tdmr, dmr_return);
 	}
 	
@@ -44,11 +44,11 @@ public class FindSetMode7 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
-	    Morphism dmr = new DomainMapRange(alias, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
+	    AbstractRelation dmr = new Relation(alias, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIterator(alias, tdmr, dmr_return);
 	}
 }

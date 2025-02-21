@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
@@ -61,7 +61,7 @@ public class EmbeddedStreamRetrievalBatteryAlias4 {
 		Relatrix.setAlias(alias1,tablespace+alias1);
 		Relatrix.setAlias(alias2,tablespace+alias2);
 		Relatrix.setAlias(alias3,tablespace+alias3);
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
@@ -116,7 +116,7 @@ public class EmbeddedStreamRetrievalBatteryAlias4 {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		DomainMapRange dmr = null;
+		Relation dmr = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
@@ -396,17 +396,17 @@ public class EmbeddedStreamRetrievalBatteryAlias4 {
 	 */
 	public static void battery1AR17(String[] argv, Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(alias12+" CleanDB DMR size="+Relatrix.size(alias12,DomainMapRange.class));
+		System.out.println(alias12+" CleanDB DMR size="+Relatrix.size(alias12,Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(alias12,DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(alias12,MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(alias12,MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+Relatrix.size(alias12,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(alias12,RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = Relatrix.findSet(alias12,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				Relatrix.remove(alias12,dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {

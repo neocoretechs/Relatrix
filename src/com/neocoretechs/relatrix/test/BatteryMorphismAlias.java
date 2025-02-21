@@ -15,15 +15,15 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
 
 /**
  * The set of tests verifies the Alias, and {@link KeySet} and {@link PrimaryKeySet} functions in the {@link Relatrix} <p/>
- * Verifies the {@link IndexResolver} and storage of the main {@link DBKey} identity and {@link DomainMapRange} tables,
- * which also partially tests the abstract {@link Morphism} class.<p/>
- * We are going to load up a table of DomainMapRange instances and a map of [DBKey,DomainMapRange] that mirrors the
+ * Verifies the {@link IndexResolver} and storage of the main {@link DBKey} identity and {@link Relation} tables,
+ * which also partially tests the abstract {@link AbstractRelation} class.<p/>
+ * We are going to load up a table of Relation instances and a map of [DBKey,Relation] that mirrors the
  * DBKey identity class table that we prepare as we store the initial dataset, and use these to compare the stored data
  * throughout the balance of testing using several database alias.
  * NOTES:
@@ -38,9 +38,9 @@ public class BatteryMorphismAlias {
 	static int min = 0;
 	static int max = 10000;
 	static int numDelete = 100; // for delete test
-	static ArrayList<DomainMapRange> keys = new ArrayList<DomainMapRange>();
-	static ArrayList<DomainMapRange> keys2 = new ArrayList<DomainMapRange>();
-	static ArrayList<DomainMapRange> keys3 = new ArrayList<DomainMapRange>();
+	static ArrayList<Relation> keys = new ArrayList<Relation>();
+	static ArrayList<Relation> keys2 = new ArrayList<Relation>();
+	static ArrayList<Relation> keys3 = new ArrayList<Relation>();
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
@@ -70,7 +70,7 @@ public class BatteryMorphismAlias {
 		battery1(alias2, keys2, dbtable2);
 		battery1(alias3, keys3, dbtable3);
 		
-		// load keys table from DomainMapRange class instance, which is the concrete subclass of PrimaryKeySet
+		// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
 		battery1AR4(alias1, keys, dbtable);
 		battery1AR4(alias2, keys2, dbtable2);
 		battery1AR4(alias3, keys3, dbtable3);
@@ -125,7 +125,7 @@ public class BatteryMorphismAlias {
 	 * Ensure that we start with known baseline number of keys
 	 * @throws Exception
 	 */
-	public static void battery1(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		System.out.println(alias12+" Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timx = System.currentTimeMillis();
@@ -140,12 +140,12 @@ public class BatteryMorphismAlias {
 			r = String.format(alias12+uniqKeyFmt, i+1);
 			
 			// mirrors partial Relatrix store
-			// DomainMapRange is annotated to DomainMapRange
+			// Relation is annotated to Relation
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			DomainMapRange identity = Relatrix.store(alias12,d,m,r);
+			Relation identity = Relatrix.store(alias12,d,m,r);
 			DBKey dbkey = identity.getIdentity();
 			if(!DBKey.isValid(dbkey)) {
 				System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
@@ -154,7 +154,7 @@ public class BatteryMorphismAlias {
 			// store in mirror table
 			dbtable.put(dbkey, identity);
 			// now store relationship as domain and create a new entry
-			DomainMapRange identity2 = Relatrix.store(alias12, identity, m, r);
+			Relation identity2 = Relatrix.store(alias12, identity, m, r);
 			// store in mirror table
 			dbtable.put(identity2.getIdentity(), identity2);
 			++recs;
@@ -177,15 +177,15 @@ public class BatteryMorphismAlias {
 	 * check order of DBKey
 	 * @throws Exception
 	 */
-	public static void battery1AR4(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR4(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		DomainMapRange prev = (DomainMapRange) Relatrix.firstKey(alias12,DomainMapRange.class);
+		Relation prev = (Relation) Relatrix.firstKey(alias12,Relation.class);
 		System.out.println(alias12+" firstKey="+prev);
 		Iterator<?> its = RelatrixKV.findTailMapKV(alias12,(Comparable) prev);
 		System.out.println(alias12+" Battery1AR4 ");
 		while(its.hasNext()) {
-			Map.Entry<DomainMapRange, DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)its.next();
+			Map.Entry<Relation, DBKey> nexe = (Map.Entry<Relation,DBKey>)its.next();
 			if(cnt > 0 && nexe.getKey().compareTo(prev) <= 0) { // should always be >
 				System.out.println("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
 				throw new Exception("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
@@ -217,11 +217,11 @@ public class BatteryMorphismAlias {
 	 * Alternate test to load keys table from DBKey
 	 * @throws Exception
 	 */
-	public static void battery1AR4A(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR4A(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		DBKey prev = (DBKey) Relatrix.firstKey(alias12,DBKey.class);
-		DomainMapRange pk = null;
+		Relation pk = null;
 		System.out.println(alias12+" firstKey="+prev);
 		Iterator<?> its = RelatrixKV.findTailMapKV(alias12,(Comparable) prev);
 		System.out.println(alias12+" Battery1AR4A ");
@@ -238,8 +238,8 @@ public class BatteryMorphismAlias {
 				throw new Exception("Keys table element from tailMap iterator "+prev+" not valid due to:"+DBKey.whyInvalid(prev));
 			}
 			// since we are doing a KV tailmap, we have to set up the morphism attributes
-			if(o instanceof DomainMapRange) {
-				pk = (DomainMapRange) o;
+			if(o instanceof Relation) {
+				pk = (Relation) o;
 				pk.setIdentity(prev);
 				pk.setAlias(alias12);
 				keys.add(pk);
@@ -263,19 +263,19 @@ public class BatteryMorphismAlias {
 	 * and the identity DBKey is valid, the next iteration uses the resolver from the identity key
 	 * and compares the instance data to the mirror table.
 	 * Make sure we can resolve the stored keys via IndexResolver. Iterates the keys table we built earlier,
-	 * uses the resolver to get the DomainMapRange pointed to by iterated DBKey.
+	 * uses the resolver to get the Relation pointed to by iterated DBKey.
 	 * @throws Exception
 	 */
-	public static void battery1AR44(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR44(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		System.out.println(alias12+" Battery1AR44 ");
-		DomainMapRange pk;
+		Relation pk;
 		// first make sure our tables coincide
 		Iterator<?> its = keys.iterator();
 		if(its != null) {
 			while(its.hasNext()) {
-				DomainMapRange nex = (DomainMapRange) its.next();
+				Relation nex = (Relation) its.next();
 				if(nex.getIdentity() == null) {
 					System.out.println("KEY ERROR, DBKey null in mirror: "+nex+" at "+cnt);
 					throw new Exception("KEY ERROR DBKey null in mirror: "+nex+" at "+cnt);
@@ -295,8 +295,8 @@ public class BatteryMorphismAlias {
 			cnt = 0;
 			its = keys.iterator();
 			while(its.hasNext()) {
-				DomainMapRange nex = (DomainMapRange) its.next();
-				pk = (DomainMapRange) IndexResolver.getIndexInstanceTable().get(alias12,nex.getIdentity()); 
+				Relation nex = (Relation) its.next();
+				pk = (Relation) IndexResolver.getIndexInstanceTable().get(alias12,nex.getIdentity()); 
 				// if we didnt resolve it, see if its in the table we built that mirrors what should be in db
 				if( pk == null ) {
 					if(dbtable.get(nex.getIdentity()) != null)
@@ -331,9 +331,9 @@ public class BatteryMorphismAlias {
 		cnt = 0;
 		its = keys.iterator();
 		while(its.hasNext()) {
-			DomainMapRange nex = (DomainMapRange) its.next();
-			if(nex.getDomain() instanceof Morphism) {
-				pk = (DomainMapRange)nex.getDomain();
+			Relation nex = (Relation) its.next();
+			if(nex.getDomain() instanceof AbstractRelation) {
+				pk = (Relation)nex.getDomain();
 				if(!DBKey.isValid(pk.getIdentity())) {
 					System.out.println(DBKey.whyInvalid(pk.getIdentity()));
 					throw new Exception(DBKey.whyInvalid(pk.getIdentity()));
@@ -357,16 +357,16 @@ public class BatteryMorphismAlias {
 		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixKV.entrySet on DomainMapRange
+	 * Testing of Iterator<?> its = RelatrixKV.entrySet on Relation
 	 * we then get by index from IndexInstanceTable, giving us an instance, then compare it to iterated element.
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR5(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR5(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.entrySet(alias12,DomainMapRange.class);
+		Iterator<?> its = Relatrix.entrySet(alias12,Relation.class);
 		System.out.println(alias12+" Battery1AR5 ");
 		if(its != null) {
 			while(its.hasNext()) {
@@ -394,17 +394,17 @@ public class BatteryMorphismAlias {
 		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.entrySet on DomainMapRange
+	 * Testing of Iterator<?> its = Relatrix.entrySet on Relation
 	 * Should produce a set of morphisms with resolved identities etc.
 	 * we then get by index from IndexInstanceTable, giving us an instance, then compare it to iterated element.
 	 * Compare resolved identity to tables to verify those as well
 	 * @throws Exception
 	 */
-	public static void battery1AR55(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR55(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.entrySet(alias12, DomainMapRange.class);
+		Iterator<?> its = Relatrix.entrySet(alias12, Relation.class);
 		System.out.println(alias12+" Battery1AR55 ");
 		if(its != null) {
 			while(its.hasNext()) {
@@ -422,11 +422,11 @@ public class BatteryMorphismAlias {
 					throw new Exception("RANGE KEY MISMATCH: "+nex+" for "+i+" at "+cnt);
 				}
 				// make sure identity is valid
-				if(((DomainMapRange)nex.getKey()).getIdentity() == null) {
-					System.out.println("DomainMapRange identity is null for "+nex.getKey()+" at "+cnt);
-					throw new Exception("DomainMapRange identity is null for "+nex.getKey()+" at "+cnt);
+				if(((Relation)nex.getKey()).getIdentity() == null) {
+					System.out.println("Relation identity is null for "+nex.getKey()+" at "+cnt);
+					throw new Exception("Relation identity is null for "+nex.getKey()+" at "+cnt);
 				}
-				DomainMapRange dmr = ((DomainMapRange)nex.getKey());
+				Relation dmr = ((Relation)nex.getKey());
 				if(dbtable.get(dmr.getIdentity()).compareTo(dmr) != 0) {
 					System.out.println("Table instance does not match retrieved instance:"+dmr+" -- "+dbtable.get(dmr.getIdentity())+" at "+cnt);
 					throw new Exception("Table instance does not match retrieved instance:"+dmr+" -- "+dbtable.get(dmr.getIdentity())+" at "+cnt);
@@ -446,10 +446,10 @@ public class BatteryMorphismAlias {
 	* test size
 	* @throws Exception
 	*/
-	public static void battery1AR101(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR101(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = Relatrix.size(alias12,DomainMapRange.class);
+		long bits = Relatrix.size(alias12,Relation.class);
 		System.out.println(alias12+" Battery1AR101 Size="+bits);
 		if( bits != keys.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
@@ -462,18 +462,18 @@ public class BatteryMorphismAlias {
 	 * findMapKV tailmapKV
 	 * @throws Exception
 	 */
-	public static void battery1AR12(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR12(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) Relatrix.firstKey(alias12,DomainMapRange.class);
+		Comparable c = (Comparable) Relatrix.firstKey(alias12,Relation.class);
 		if( c != null ) {
 			Iterator<?> its = RelatrixKV.findTailMapKV(alias12,c);
 			System.out.println(alias12+" Battery1AR12 ");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
-				Map.Entry<DomainMapRange, DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
+				Map.Entry<Relation, DBKey> nexe = (Map.Entry<Relation,DBKey>)nex;
 				DBKey db = IndexResolver.getIndexInstanceTable().getKey(alias12,nexe.getKey()); // get the DBKey for this instance integer
-				DomainMapRange keyset = (DomainMapRange) IndexResolver.getIndexInstanceTable().get(alias12,nexe.getValue());
+				Relation keyset = (Relation) IndexResolver.getIndexInstanceTable().get(alias12,nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("COMPARISON KEY MISMATCH:"+nex+" ["+db+","+keyset+"]");
@@ -483,27 +483,27 @@ public class BatteryMorphismAlias {
 					System.out.println("1AR12 "+(cnt++)+"="+nexe);
 			}
 		} else {
-			System.out.println("firstKey on DomainMapRange came back null");
-			throw new Exception("firstKey on DomainMapRange came back null");
+			System.out.println("firstKey on Relation came back null");
+			throw new Exception("firstKey on Relation came back null");
 		}
 		System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
 	/**
-	 * findHeadMapKV for DomainMapRange instances, perform getByInstance on key of each iterated entry
+	 * findHeadMapKV for Relation instances, perform getByInstance on key of each iterated entry
 	 * and compare the DBKey of iterated entry to resolved key
 	 * @throws Exception
 	 */
-	public static void battery1AR14(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR14(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) Relatrix.lastKey(alias12,DomainMapRange.class);
+		Comparable c = (Comparable) Relatrix.lastKey(alias12,Relation.class);
 		if(c != null) {
 			Iterator<?> its = RelatrixKV.findHeadMapKV(alias12,c);
 			System.out.println(alias12+" Battery1AR14 ");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
-				Map.Entry<DomainMapRange,DBKey> nexe = (Map.Entry<DomainMapRange,DBKey>)nex;
+				Map.Entry<Relation,DBKey> nexe = (Map.Entry<Relation,DBKey>)nex;
 				DBKey db = IndexResolver.getIndexInstanceTable().getKey(alias12,nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
@@ -514,8 +514,8 @@ public class BatteryMorphismAlias {
 					System.out.println("1AR14 "+(cnt++)+"="+nexe);
 			}
 		} else {
-			System.out.println("lastKey on DomainMapRange came back null");
-			throw new Exception("lastKey on DomainMapRange came back null");
+			System.out.println("lastKey on Relation came back null");
+			throw new Exception("lastKey on Relation came back null");
 		}
 		System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -524,7 +524,7 @@ public class BatteryMorphismAlias {
 	 * remove entries
 	 * @throws Exception
 	 */
-	public static void battery1AR17(Alias alias12, ArrayList<DomainMapRange> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
+	public static void battery1AR17(Alias alias12, ArrayList<Relation> keys, ConcurrentHashMap<DBKey, Comparable> dbtable) throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = 0;
 		long s = Relatrix.size(alias12);

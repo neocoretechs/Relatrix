@@ -6,11 +6,11 @@ import java.util.Iterator;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
@@ -51,7 +51,7 @@ public class BatteryRelatrixAlias {
 		Relatrix.setAlias(alias1,tablespace+alias1);
 		Relatrix.setAlias(alias2,tablespace+alias2);
 		Relatrix.setAlias(alias3,tablespace+alias3);
-		Morphism.displayLevel = displayLevels.VERBOSE;
+		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
@@ -131,7 +131,7 @@ public class BatteryRelatrixAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
+				Relation dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println(alias12+" storing "+recs+" "+dmr);
@@ -158,7 +158,7 @@ public class BatteryRelatrixAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(99999));
+				Relation dmr = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -284,15 +284,15 @@ public class BatteryRelatrixAlias {
 		System.out.println(alias12+" Batter1AR9 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// the returned array has 1 element, the identity Morphism DomainMapRange
+			// the returned array has 1 element, the identity AbstractRelation Relation
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit "+alias12))
+			if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
 				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
 			//Long unit = new Long(i);
-			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
+			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
@@ -325,12 +325,12 @@ public class BatteryRelatrixAlias {
 				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
 			if(DEBUG) System.out.println("1AR10:"+i+" "+nex.get(0));
 			String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(skey) )
+			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(skey) )
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit "+alias12))
+			if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
 				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
 			//Long unit = new Long(i);
-			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
+			//if(!((Relation)nex[0]).getRange().equals(unit))
 			//	System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
@@ -362,12 +362,12 @@ public class BatteryRelatrixAlias {
 				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
 			if(DEBUG) System.out.println("1AR101:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!( (String)((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!( (String)((Relation)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit "+alias12))
+			if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
 				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
 			//Long unit = new Long(i);
-			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
+			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		}
@@ -439,17 +439,17 @@ public class BatteryRelatrixAlias {
 	 */
 	public static void battery1AR17(String[] argv, Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB DMR size="+Relatrix.size(alias12, DomainMapRange.class));
+		System.out.println("CleanDB DMR size="+Relatrix.size(alias12, Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(alias12, DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(alias12, MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(alias12, MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+Relatrix.size(alias12, RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(alias12, RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = Relatrix.findSet(alias12, '*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				Relatrix.remove(alias12, dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
@@ -478,10 +478,10 @@ public class BatteryRelatrixAlias {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(alias12, DomainMapRange.class);
+			it = Relatrix.entrySet(alias12, Relation.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("DomainMapRange:"+nex);
+				System.out.println("Relation:"+nex);
 			}
 		}
 		if(DEBUG) {

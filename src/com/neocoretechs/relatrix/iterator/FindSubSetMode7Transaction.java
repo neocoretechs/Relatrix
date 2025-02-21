@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -24,23 +24,23 @@ public class FindSubSetMode7Transaction extends FindSetMode7Transaction {
     		throw new RuntimeException("Must not supply any qualifying arguments for this Subset permutation.");
     }
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-		Morphism xdmr = null;
-		Morphism ydmr = null;
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+		AbstractRelation xdmr = null;
+		AbstractRelation ydmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
+			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism xdmr = null;
-		Morphism ydmr = null;
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		AbstractRelation xdmr = null;
+		AbstractRelation ydmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
-			ydmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
+			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
 	}

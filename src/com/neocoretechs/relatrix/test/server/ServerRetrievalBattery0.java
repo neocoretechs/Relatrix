@@ -3,11 +3,11 @@ package com.neocoretechs.relatrix.test.server;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result;
@@ -45,7 +45,7 @@ public class ServerRetrievalBattery0 {
 				System.out.println("Usage: <bootNode> <remoteNode> <remotePort> [init]");
 			}
 			rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
-			Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 			if(argv.length == 4 && argv[3].equals("init")) {
 					battery1AR17(argv);
 			}
@@ -84,7 +84,7 @@ public class ServerRetrievalBattery0 {
 
 			int recs = 0;
 			String fkey = null;
-			DomainMapRange dmr = null;
+			Relation dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
 				dmr = rkvc.store(fkey, "Has unit", new Long(i));
@@ -383,7 +383,7 @@ public class ServerRetrievalBattery0 {
 			int i = 0;
 			while(it.hasNext()) {
 				Object fkey = it.next();
-				DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+				Relation dmr = (Relation)((Result)fkey).get(0);
 				rkvc.remove(dmr.getDomain(), dmr.getMap());
 				++i;
 				if((System.currentTimeMillis()-timx) > 1000) {

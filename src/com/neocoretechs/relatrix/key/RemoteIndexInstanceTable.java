@@ -18,7 +18,7 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
  * The RemoteIndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
- * lookup of the Integer index. We use the DBKey wrapper class to carry the integer index inside the Morphism.
+ * lookup of the Integer index. We use the DBKey wrapper class to carry the integer index inside the AbstractRelation.
  * which also adds validation. This class carries the client interface instances that allow over the wire
  * communication to remote tables.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021

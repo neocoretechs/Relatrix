@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
@@ -16,12 +16,12 @@ import com.neocoretechs.rocksack.TransactionId;
  * through a particular mapping function. Consider as an extremely simplified example the domain integer object 1 
  * using the mapping function addOne results in a range object of 2, and only 2, and naturally composes with the
  * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.<p/>
- * As is stated by the annotation, this class functions as DomainMapRange in the database, and that class
+ * As is stated by the annotation, this class functions as Relation in the database, and that class
  * is a subclass of this. 
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023,2024
  *
  */
-//@DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
+//@DatabaseClass(tablespace="com.neocoretechs.relatrix.Relation")
 public class PrimaryKeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
 	private static boolean DEBUG = false;
@@ -82,7 +82,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 */
 	public void setIdentity(DBKey identity) {
 		if(this.isIdentityImmutable)
-			throw new RuntimeException("Identity is immutable for Morphism instance "+identity);
+			throw new RuntimeException("Identity is immutable for AbstractRelation instance "+identity);
 		this.identity = identity;
 		this.isIdentityImmutable = true;
 	}
@@ -91,7 +91,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	}
 	public void setAlias(Alias alias) {
 		if(this.isAliasImmutable)
-			throw new RuntimeException("Alias is immutable for Morphism instance "+identity);
+			throw new RuntimeException("Alias is immutable for AbstractRelation instance "+identity);
 		this.alias = alias;
 		this.isAliasImmutable = true;
 	}
@@ -122,7 +122,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
 	 * @param skeyd domain instance
 	 * @param skeym instance for map
-	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -133,14 +133,14 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		DBKey dKey = Morphism.checkMorphism(skeyd);
+		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
 			dKey = IndexResolver.getIndexInstanceTable().getKey(skeyd);
 			if( dKey == null )
 				dKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
-		DBKey mKey = Morphism.checkMorphism(skeym);
+		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
 			mKey = IndexResolver.getIndexInstanceTable().getKey(skeym);
 			if(mKey == null) {
@@ -162,7 +162,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param alias
 	 * @param skeyd
 	 * @param skeym
-	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -171,14 +171,14 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		//
 		pk.setAlias(alias);
-		DBKey dKey = Morphism.checkMorphism(skeyd);
+		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
 			dKey = IndexResolver.getIndexInstanceTable().getKey(alias, skeyd);
 			if( dKey == null )
 				dKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
-		DBKey mKey = Morphism.checkMorphism(skeym);
+		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
 			mKey = IndexResolver.getIndexInstanceTable().getKey(alias, skeym);
 			if(mKey == null) {
@@ -199,7 +199,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param transactionId
 	 * @param skeyd
 	 * @param skeym
-	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -207,14 +207,14 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	public static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
 		pk.transactionId = transactionId;
-		DBKey dKey = Morphism.checkMorphism(skeyd);
+		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
 			dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeyd);
 			if( dKey == null )
 				dKey = DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
-		DBKey mKey = Morphism.checkMorphism(skeym);
+		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
 			mKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeym);
 			if(mKey == null) {
@@ -236,7 +236,7 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param transactionId
 	 * @param skeyd
 	 * @param skeym
-	 * @return The PrimaryKeySet instance with either null or resolved identity of the DomainMapRange instance
+	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
@@ -246,14 +246,14 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		pk.setAlias(alias);
 		pk.transactionId = transactionId;
 		// transaction id and alias not null
-		DBKey dKey = Morphism.checkMorphism(skeyd);
+		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
 			dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeyd);
 			if( dKey == null )
 				dKey = DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
-		DBKey mKey = Morphism.checkMorphism(skeym);
+		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
 			mKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeym);
 			if(mKey == null) {

@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 
 
 public interface RelatrixClientInterface{
@@ -436,9 +436,9 @@ public interface RelatrixClientInterface{
 
 	public Iterator keySet(Alias arg1,Class arg2) throws java.io.IOException;
 
-	public DomainMapRange store(Alias arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
+	public Relation store(Alias arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
 
-	public DomainMapRange store(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException;
+	public Relation store(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException;
 
 	public List resolve(Comparable arg1);
 

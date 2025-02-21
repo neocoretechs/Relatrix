@@ -3,9 +3,10 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -19,7 +20,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
- * lookup of the  index. We use the DBKey wrapper class to carry the index inside the Morphism.
+ * lookup of the  index. We use the DBKey wrapper class to carry the index inside the AbstractRelation.
  * which also adds validation. A constructor carrying a transaction Id sets up methods for calls to the
  * transaction oriented classes.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022
@@ -31,7 +32,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store 
 	 * @param instance the object instance
@@ -84,7 +85,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param dbKey the DBKey of the previously stored primary key 
@@ -128,7 +129,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	/**
 	 * Put the key to the proper tables using the database alias.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param alias the database alias
@@ -184,7 +185,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param alias the db alias
@@ -229,8 +230,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	/**
 	 * Put the key to the proper tables in the scope of this transaction.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
-	 * the proper instances are placed intheir rightful databases at that time. Here we are just storing the
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
+	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param transactionId the transaction identifier
 	 * @param instance the object instance
@@ -245,15 +246,20 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		DBKey retKey = getKey(transactionId, instance);
 		// did the instance exist?
 		if(retKey == null) {
+			AtomicInteger semaphore = new AtomicInteger();
+			final IOException writeException = new IOException();
 			DBKey index = getNewDBKey();
 			// no new instance exists. store both new entries
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						RelatrixKVTransaction.store(transactionId, index, instance);
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(transactionId, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.addSuppressed(e);
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
@@ -261,9 +267,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				@Override
 				public void run() {
 					try {
-						RelatrixKVTransaction.store(transactionId, instance, index);
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(transactionId, instance, index);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.addSuppressed(e);
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
@@ -272,6 +281,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			if(semaphore.get() > 0)
+				throw writeException;
 			return index;
 		} 
 		if(DEBUG)
@@ -280,7 +291,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
 	 * @param transactionId the transaction id
@@ -295,13 +306,18 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.put DBKey=%s class=%s instance=%s%n", this.getClass().getName(),index.toString(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					RelatrixKVTransaction.store(transactionId, index, instance);
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(transactionId, index, instance);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			}
 		},RelatrixTransaction.storeITransaction);
@@ -309,9 +325,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			@Override
 			public void run() {
 				try {
-					RelatrixKVTransaction.store(transactionId, instance, index);
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(transactionId, instance, index);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			}
 		},RelatrixTransaction.storeITransaction);
@@ -320,11 +339,13 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		if(semaphore.get() > 0)
+			throw writeException;
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param alias the database alias
@@ -375,7 +396,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
 	 * The operation is a simple K/V put using {@link RelatrixKV} since we
-	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link Morphism}, and
+	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
 	 * @param alias the database alias

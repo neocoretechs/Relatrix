@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix.test.server;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
@@ -57,9 +57,9 @@ public class BatteryRelatrix {
 		int i = min;
 		for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			DomainMapRange dmr = session.store(fkey, "Has unit", new Long(i));
+			Relation dmr = session.store(fkey, "Has unit", new Long(i));
 			System.out.println(i+".)"+dmr);
-			DomainMapRange dmr2 = session.store(dmr ,"has identity",new Long(i));
+			Relation dmr2 = session.store(dmr ,"has identity",new Long(i));
 			System.out.println(i+".)"+dmr2);
 			++recs;
 		}
@@ -81,16 +81,16 @@ public class BatteryRelatrix {
 				Optional<?> p = session.findStream(((Result)o.get()).get(), '*', '*').findFirst();
 				if(p.isPresent()) {
 					Result c = (Result) p.get();
-					if(!(c.get() instanceof Morphism))
-						System.out.println(c.get().getClass()+" isnt Morphism; value:"+c.get());
+					if(!(c.get() instanceof AbstractRelation))
+						System.out.println(c.get().getClass()+" isnt AbstractRelation; value:"+c.get());
 					else {
 						// main morphism
-						DomainMapRange m = (DomainMapRange) c.get();
-						if(!(m.getDomain() instanceof Morphism)) 
-							System.out.println(m.getDomain().getClass()+" isnt Morphism; value:"+m);
+						Relation m = (Relation) c.get();
+						if(!(m.getDomain() instanceof AbstractRelation)) 
+							System.out.println(m.getDomain().getClass()+" isnt AbstractRelation; value:"+m);
 						else {
 							// morphism in domain "has unit"
-							DomainMapRange d = (DomainMapRange) m.getDomain();
+							Relation d = (Relation) m.getDomain();
 							if(!(d.getDomain() instanceof String))
 								System.out.println(d.getDomain().getClass()+" domain isnt String; value:"+d);
 							else {

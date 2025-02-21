@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -18,11 +18,11 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  * Populate a series of arrays with the partial ordered sets of classes
  * designated in the suffix of the 'findSet' predicate then use the min and max range of those to build a range query into
- * the proper table of Morphisms. Extract the domain, map and range components from each retrieved Morphism
+ * the proper table of Morphisms. Extract the domain, map and range components from each retrieved AbstractRelation
  * and determine their index into each domain, map and range arraylist. Use those indexes to form a key using
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
- * retrieved Morphism. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
- * Morphism with all its actual payload objects. Ultimately return Result instance elements in next(), 
+ * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
+ * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p/>
  * For tuples the Result is relative to the '?' query predicates. <br/>
  * Here, the subset is retrieved.<p/>
@@ -48,13 +48,13 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     public RelatrixSubsetIteratorTransaction() {}
     /**
      * 
-     * @param template The template from the original findSubSet containing the proper Morphism instance depending on operator components
+     * @param template The template from the original findSubSet containing the proper AbstractRelation instance depending on operator components
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
      * @throws IOException
      */
-    public RelatrixSubsetIteratorTransaction(TransactionId xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
       	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
       	this.xid = xid;
@@ -141,7 +141,7 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     	if( iter.hasNext() ) {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
-				buffer = (Morphism) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for Morphism
+				buffer = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setTransactionId(xid);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
@@ -158,14 +158,14 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     /**
      * 
      * @param alias
-     * @param template The template from the original findSubSet containing the proper Morphism instance depending on operator components
+     * @param template The template from the original findSubSet containing the proper AbstractRelation instance depending on operator components
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
      * @throws IOException
      * @throws NoSuchElementException
      */
-    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, Morphism template, Morphism templateo, Morphism templatep, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException, NoSuchElementException {
     	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.alias = alias;
@@ -254,7 +254,7 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
     	if( iter.hasNext() ) {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
-				buffer = (Morphism) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for Morphism
+				buffer = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 				buffer.setAlias(alias);
 				buffer.setTransactionId(xid);
 				buffer.setIdentity(dbkey);
@@ -293,9 +293,9 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
 	    		try {
 	    			DBKey dbkey = (DBKey) iter.next();
 	    			if(alias == null) {
-	    				nextit = (Morphism) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for Morphism
+	    				nextit = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
 	    			} else {
-	    				nextit = (Morphism) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for Morphism
+	    				nextit = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setTransactionId(xid);

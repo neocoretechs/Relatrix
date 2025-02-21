@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
@@ -17,9 +17,9 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 /**
- * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.Morphism}s formed into a template
- * to set the lower bound of the correct range search for the properly ordered set of Morphism subclasses;
- * The N return tuple '?' elements of the query. If its an identity morphism (instance of Morphism) of three keys (as in the *,*,* query)
+ * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.AbstractRelation}s formed into a template
+ * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;
+ * The N return tuple '?' elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} in next(), since 1 full tuple element at an iteration is returned, 
  * that being the identity morphism.<p/>
  * For tuples the array size is relative to the '?' query predicates. <br/>
@@ -27,10 +27,10 @@ import com.neocoretechs.rocksack.Alias;
  * iteration of a RelatrixIterator is dependent on the number of '?' operators in a 'findSet'. For example,
  * if we declare findHeadSet('*','?','*') we get back a  of one element. For findSet('?',object,'?') we
  * would get back a Result2, with each object of the Result hierarchy containing the relationship returned.<br/>
- * findSet('*','*','*') = {@link Result1} containing identity of instance DomainMapRange <br/>
+ * findSet('*','*','*') = {@link Result1} containing identity of instance Relation <br/>
  * findSet('*','*',object) =  {@link Result1} identity of RangeDomainMap where 'object' is range <br/>
  * findSet('*',object,object) = {@link Result1} identity of MapRangeDomain matching the 2 concrete objects <br/>
- * findSet(object,object,object) = {@link Result1} identity of DomainMapRange matching 3 objects <br/>
+ * findSet(object,object,object) = {@link Result1} identity of Relation matching 3 objects <br/>
  * findSet('?','?','?') = {@link Result3} return all, for each element in the database.<br/>
  * findSet('?','?',object) = {@link Result2} return all domain and map objects for a given range object <br/>
  * findSet('?','*','?') = {@link Result2} return all elements of domain and range <br/>
@@ -44,9 +44,9 @@ import com.neocoretechs.rocksack.Alias;
 public class RelatrixIterator implements Iterator<Result> {
 	private static boolean DEBUG = false;
 	protected Iterator<?> iter;
-    protected Morphism buffer = null;
-    protected Morphism nextit = null;
-    protected Morphism base;
+    protected AbstractRelation buffer = null;
+    protected AbstractRelation nextit = null;
+    protected AbstractRelation base;
     protected short dmr_return[] = new short[4];
     protected Alias alias = null;
 
@@ -60,7 +60,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-    public RelatrixIterator(Morphism template, short[] dmr_return) throws IOException {
+    public RelatrixIterator(AbstractRelation template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
@@ -71,7 +71,7 @@ public class RelatrixIterator implements Iterator<Result> {
 		}
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
-			buffer = (Morphism)me.getKey();
+			buffer = (AbstractRelation)me.getKey();
 			buffer.setIdentity((DBKey) me.getValue());
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
@@ -91,7 +91,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-	public RelatrixIterator(Alias alias, Morphism template, short[] dmr_return) throws IOException, NoSuchElementException {
+	public RelatrixIterator(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException, NoSuchElementException {
 	   	this.dmr_return = dmr_return;
     	this.base = template;
     	this.alias = alias;
@@ -103,7 +103,7 @@ public class RelatrixIterator implements Iterator<Result> {
 		}
     	if( iter.hasNext() ) {
       		Map.Entry me = (Entry) iter.next();
-			buffer = (Morphism)me.getKey();
+			buffer = (AbstractRelation)me.getKey();
 			buffer.setIdentity((DBKey)me.getValue());
 			buffer.setAlias(alias);
 			if( !templateMatches(base, buffer, dmr_return) ) {
@@ -139,7 +139,7 @@ public class RelatrixIterator implements Iterator<Result> {
 			
 			if( iter.hasNext()) {
 				Map.Entry me = (Entry) iter.next();
-				nextit = (Morphism)me.getKey();
+				nextit = (AbstractRelation)me.getKey();
 				nextit.setIdentity((DBKey) me.getValue());
 				if(alias != null)
 					nextit.setAlias(alias);
@@ -207,7 +207,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	/**
 	 * Return the number of tuple elements to be returned from specified query in each iteration
 	 * @param dmr_return For each element of the dmr_return array, element 0 is counter, for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
-	 * @return The {@link Result} object based on number of ? return tuples in dmr_return array and whether its considered an identity {@link Morphism}
+	 * @return The {@link Result} object based on number of ? return tuples in dmr_return array and whether its considered an identity {@link AbstractRelation}
 	 */
 	protected static Result getReturnTuples(short[] dmr_return) {
 		short cnt = 0;
@@ -231,9 +231,9 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p/>
 	 * For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
 	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 (object), or 2 (wildcard)
-	 * then we say its an identity, and we will return a {@link Result1} on each iteration with a {@link com.neocoretechs.relatrix.DomainMapRange} relationship object.
+	 * then we say its an identity, and we will return a {@link Result1} on each iteration with a {@link com.neocoretechs.relatrix.Relation} relationship object.
 	 * @param dmr_return our 4 element array of element 0 counter, and element 1-3 of 0 (object), 1 (? return tuple) or 2 (wildcard)
-	 * @return true if element 0 is -1, or any element 1-3 is 1. We then consider it an identity {@link com.neocoretechs.relatrix.Morphism}
+	 * @return true if element 0 is -1, or any element 1-3 is 1. We then consider it an identity {@link com.neocoretechs.relatrix.AbstractRelation}
 	 */
 	protected static boolean isIdentity(short[] dmr_return) {
 		if( dmr_return[0] == (-1) ) return true;
@@ -245,12 +245,12 @@ public class RelatrixIterator implements Iterator<Result> {
 	/**
 	 * Determine if a range search has produced an element in range, since we deal with headSet, tailSets and subSets we have
 	 * to check our iterator to keep it in range for concrete object keys.
-	 * @param template The template {@link com.neocoretechs.relatrix.Morphism} to match with the record
-	 * @param record The record Morphism matched against the template
+	 * @param template The template {@link com.neocoretechs.relatrix.AbstractRelation} to match with the record
+	 * @param record The record AbstractRelation matched against the template
 	 * @param dmr_return For each element of the array, 0 is counter,for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
 	 * @return true if for each template domain, map, range key that is not null, dmr_return 1-3 is 0 for domain, map, range, and template key matches record key
 	 */
-	protected static boolean templateMatches(Morphism template, Morphism record, short[] dmr_return) {
+	protected static boolean templateMatches(AbstractRelation template, AbstractRelation record, short[] dmr_return) {
 		if( DEBUG )
 			System.out.println("RelatrixIterator.templateMatches template:"+template+" record:"+record+" dmr_return:"+Arrays.toString(dmr_return));
 		if(template.getDomainKey() != null)

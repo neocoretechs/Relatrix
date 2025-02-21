@@ -2,15 +2,15 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 
 /**
  * The attempt here is to provide a more customizable retrieval filter.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2105
  */
 public abstract class FilteringIterator extends RelatrixIterator implements FilterInterface {
-	private Morphism template;
-	public FilteringIterator(/*TransactionalTreeSet bts,*/ Morphism template, short[] dmr_return) throws IOException {
+	private AbstractRelation template;
+	public FilteringIterator(/*TransactionalTreeSet bts,*/ AbstractRelation template, short[] dmr_return) throws IOException {
 		super(/*bts,*/ template, dmr_return);
 		this.template = template;
 	}
@@ -21,7 +21,7 @@ public abstract class FilteringIterator extends RelatrixIterator implements Filt
 		if( buffer == null || needsIter) {
 			needsIter = false;
 			while(iter.hasNext()) {
-				buffer = (Morphism)iter.next();
+				buffer = (AbstractRelation)iter.next();
 				if( !isFilter(template.getDomain(), buffer.getDomain()) &&
 					!isFilter(template.getMap(), buffer.getMap()) &&
 					!isFilter(template.getRange(), buffer.getRange()) ) {

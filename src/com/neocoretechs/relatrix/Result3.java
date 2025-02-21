@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
 * The query that can produce a Result3 instance:<br/>
 * (Keep in mind that any object participating in a relationship can itself be a relationship.)<p/>
-* findSet('?','?','?') - iterator or stream of all domain, map, and range components of all relationships (instances of DomainMapRange relationship objects, AKA Identity objects) <br/>
+* findSet('?','?','?') - iterator or stream of all domain, map, and range components of all relationships (instances of Relation relationship objects, AKA Identity objects) <br/>
 * Thats it! See these other results for further options for set retrieval: {@link Result1} {@link Result2}
 * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
 *
@@ -114,12 +114,12 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 	
 	@Override
 	public void rigForTransport() {
-		if(one instanceof Morphism)
-			one = TransportMorphism.createTransport((Morphism) one);
-		if(two instanceof Morphism)
-			two = TransportMorphism.createTransport((Morphism) two);
-		if(three instanceof Morphism)
-			three = TransportMorphism.createTransport((Morphism) three);
+		if(one instanceof AbstractRelation)
+			one = TransportMorphism.createTransport((AbstractRelation) one);
+		if(two instanceof AbstractRelation)
+			two = TransportMorphism.createTransport((AbstractRelation) two);
+		if(three instanceof AbstractRelation)
+			three = TransportMorphism.createTransport((AbstractRelation) three);
 	}
 	
 	@Override

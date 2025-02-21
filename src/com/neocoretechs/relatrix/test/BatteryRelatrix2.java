@@ -3,18 +3,18 @@ package com.neocoretechs.relatrix.test;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 
 
 /**
@@ -46,7 +46,7 @@ public class BatteryRelatrix2 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		DatabaseManager.setTableSpaceDir(argv[0]);
-		//Morphism.displayLevel = displayLevels.VERBOSE;
+		//AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
@@ -113,7 +113,7 @@ public class BatteryRelatrix2 {
 			Result nex = (Result) its.next();
 			if(DEBUG)
 				System.out.println("1A1:"+i+" "+nex);
-			if(skey.compareTo((String)((Morphism)nex.get()).getDomain()) != 0 ) {
+			if(skey.compareTo((String)((AbstractRelation)nex.get()).getDomain()) != 0 ) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex);
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex);
 			}
@@ -142,7 +142,7 @@ public class BatteryRelatrix2 {
 			if(DEBUG) 
 				System.out.println("1B:"+j+" "+nex);
 			skey = key + String.format(uniqKeyFmt, j);
-			if(skey.compareTo((String)(((Morphism)nex.get()).getDomain())) != 0 ) {
+			if(skey.compareTo((String)(((AbstractRelation)nex.get()).getDomain())) != 0 ) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex);
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex);
 			}
@@ -285,17 +285,17 @@ public class BatteryRelatrix2 {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
+		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				Relatrix.remove(dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {

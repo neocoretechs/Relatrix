@@ -12,8 +12,8 @@ import java.io.Serializable;
 * A Result3 is returned when we ask for findSet('?','?','?') exclusively.<p/>
 * Keep in mind that any object participating in a relationship can itself be a relationship.<p/>
 * Some of the queries that can produce a Result1 instance include:<br/>
-* findSet('*','*','*') - iterator or stream of all identities (instances of DomainMapRange relationship objects) <br/>
-* findSet(object,object,object) - iterator or stream of a single identity DomainMapRange object composed of the 3 object instances<br/>
+* findSet('*','*','*') - iterator or stream of all identities (instances of Relation relationship objects) <br/>
+* findSet(object,object,object) - iterator or stream of a single identity Relation object composed of the 3 object instances<br/>
 * findSet('*',object,object)- iterator or stream of all identities (relationship objects) containing map and range of the indicated objects <br/>
 * findSet('*','*',object)- iterator or stream of all identities (relationship objects) containing range of the indicated object <br/>
 * findSet('*',object,'*')- iterator or stream of all identities (relationship objects) containing map of the indicated object <br/>
@@ -98,8 +98,8 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	
 	@Override
 	public void rigForTransport() {
-		if(one instanceof Morphism)
-			one = TransportMorphism.createTransport((Morphism) one);	
+		if(one instanceof AbstractRelation)
+			one = TransportMorphism.createTransport((AbstractRelation) one);	
 	}
 	
 	@Override

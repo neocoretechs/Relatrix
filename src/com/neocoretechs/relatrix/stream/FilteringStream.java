@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 
 /**
  * The attempt here is to provide a more customizable retrieval filter.
@@ -10,8 +10,8 @@ import com.neocoretechs.relatrix.Morphism;
  * @param <T>
  */
 public abstract class FilteringStream<T> extends RelatrixStream<T> implements FilterInterface {
-	private Morphism template;
-	public FilteringStream(Morphism template, short[] dmr_return) throws IOException {
+	private AbstractRelation template;
+	public FilteringStream(AbstractRelation template, short[] dmr_return) throws IOException {
 		super(template, dmr_return);
 		this.template = template;
 	}

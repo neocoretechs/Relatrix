@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -37,10 +37,10 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-		Morphism xdmr = null;
+	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
@@ -49,7 +49,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 				xdmr.setDomain((Comparable)endarg0);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
 			if(endarg1 instanceof Class) {
 				xdmr.setRange((Comparable) RelatrixTransaction.lastKey(xid, (Class)endarg1));
@@ -57,15 +57,15 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 				xdmr.setRange((Comparable)endarg1);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
-	public Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism xdmr = null;
+	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
@@ -74,7 +74,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 				xdmr.setDomain(alias,(Comparable)endarg0);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
 			if(endarg1 instanceof Class) {
 				xdmr.setRange(alias,(Comparable) RelatrixTransaction.lastKey(alias,xid,(Class)endarg1));
@@ -82,7 +82,7 @@ public class FindHeadSetMode2Transaction extends FindSetMode2Transaction {
 				xdmr.setRange(alias,(Comparable)endarg1);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}
 }

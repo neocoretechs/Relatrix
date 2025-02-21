@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode0Transaction;
@@ -56,13 +57,13 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
-* Top-level class that imparts behavior to the Morphism subclasses which contain references for domain, map, range.<p/>
-* The lynch pin is the Morphism and its subclasses indexed
+* Top-level class that imparts behavior to the AbstractRelation subclasses which contain references for domain, map, range.<p/>
+* The lynch pin is the AbstractRelation and its subclasses indexed
 * in the 6 permutations of the domain,map,and range so we can retrieve instances in all
 * the potential sort orders.<b/>
-* The compareTo and fullCompareTo of Morphism provide the comparison methods to drive the processes.
-* For retrieval, a partial template is constructed of the proper Morphism subclass which puts the three elements
-* in the proper sort order. To retrieve the proper Morphism subclass, partially construct a morphism template to
+* The compareTo and fullCompareTo of AbstractRelation provide the comparison methods to drive the processes.
+* For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
+* in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
 * order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p/>
 * The critical concept about retrieving relationships is to remember that the number of elements from each passed
 * stream element or iteration of a Stream or Iterator is dependent on the number of '?' operators in a 'findSet'. For example,
@@ -75,7 +76,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * the requirement to be 'categorical'.<p/>
 * In general, all Streams or '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
-* since conceptually a Morphism is a domain acted upon by the map function yielding the range.<p/>
+* since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p/>
 * A given domain run through a 'map function' always yields the same range, 
 * as any function that processes an element yields one consistent result.<p/>
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
@@ -243,14 +244,14 @@ public final class RelatrixTransaction {
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
-	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static DomainMapRange store(TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static Relation store(TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setTransactionId(xid);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
@@ -261,7 +262,7 @@ public final class RelatrixTransaction {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(d);
 			identity.setMapResolved(m);
-			DBKey rKey = Morphism.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(r);
 			if(rKey == null)
 				identity.setRange(r);
 			else {
@@ -273,92 +274,8 @@ public final class RelatrixTransaction {
 			// and return the new DBKey reference
 			identity.setIdentity(identity.newKey(identity));
 		} else
-			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					RelatrixKVTransaction.store(xid, pk, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored primary:"+pk);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			} // run
-		},storeXTransaction); // spin 
-		// Start threads to store remaining indexes now that we have our primary set up
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Morphism dmr = new MapDomainRange(identity);
-					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			} // run
-		},storeXTransaction); // spin 
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Morphism dmr = new DomainRangeMap(identity);
-					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Morphism dmr = new MapRangeDomain(identity);
-					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {  
-				try {
-					Morphism dmr = new RangeDomainMap(identity);
-					RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {    
-				try {
-					Morphism dmr = new RangeMapDomain(identity);
-					RelatrixKVTransaction.store(xid, dmr,identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},storeXTransaction);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(DEBUG)
-			System.out.println(identity);
+			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
+		storeParallel(xid, identity, pk);
 		return identity;
 	}
 	/**
@@ -373,14 +290,14 @@ public final class RelatrixTransaction {
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
-	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static DomainMapRange store(Alias alias, TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static Relation store(Alias alias, TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
 		identity.setTransactionId(xid);
 		// check for domain/map match
@@ -393,7 +310,7 @@ public final class RelatrixTransaction {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(d);
 			identity.setMapResolved(m);
-			DBKey rKey = Morphism.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(r);
 			if(rKey == null)
 				identity.setRange(alias, r);
 			else {
@@ -405,30 +322,44 @@ public final class RelatrixTransaction {
 			// and return the new DBKey reference
 			identity.setIdentity(identity.newKey(identity));
 		} else
-			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
+			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
+		storeParallel(alias, xid, identity, pk);
+		return identity;
+	}
+	
+	public static void storeParallel(TransactionId xid, Relation identity, PrimaryKeySet pk) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					RelatrixKVTransaction.store(alias, xid, pk, identity.getIdentity());
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(xid, pk, identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("RelatrixTransaction.store stored primary:"+pk);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			} // run
-		},storeXTransaction); // spin 	
+		},storeXTransaction); // spin 
 		// Start threads to store remaining indexes now that we have our primary set up
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new MapDomainRange(alias,identity);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new MapDomainRange(identity);
+						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());	
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+					//throw new RuntimeException(e);
 				}
 			} // run
 		},storeXTransaction); // spin 
@@ -436,12 +367,16 @@ public final class RelatrixTransaction {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new DomainRangeMap(alias,identity);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new DomainRangeMap(identity);
+						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			}
 		},storeXTransaction);
@@ -449,12 +384,16 @@ public final class RelatrixTransaction {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new MapRangeDomain(alias,identity);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new MapRangeDomain(identity);
+						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			}
 		},storeXTransaction);
@@ -462,12 +401,16 @@ public final class RelatrixTransaction {
 			@Override
 			public void run() {  
 				try {
-					Morphism dmr = new RangeDomainMap(alias, identity);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new RangeDomainMap(identity);
+						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			}
 		},storeXTransaction);
@@ -475,12 +418,16 @@ public final class RelatrixTransaction {
 			@Override
 			public void run() {    
 				try {
-					Morphism dmr = new RangeMapDomain(alias, identity);
-					RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored :"+dmr);
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new RangeMapDomain(identity);
+						RelatrixKVTransaction.store(xid, dmr,identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
 				}
 			}
 		},storeXTransaction);
@@ -489,7 +436,125 @@ public final class RelatrixTransaction {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return identity;
+		if(DEBUG)
+			System.out.println(identity);
+		if(semaphore.get() > 0)
+			throw writeException;
+	}
+	
+	public static void storeParallel(Alias alias, TransactionId xid, Relation identity, PrimaryKeySet pk) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(alias, xid, pk, identity.getIdentity());
+					if( DEBUG  )
+						System.out.println("RelatrixTransaction.store stored primary:"+pk);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+				}
+			} // run
+		},storeXTransaction); // spin 
+		// Start threads to store remaining indexes now that we have our primary set up
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new MapDomainRange(alias, identity);
+						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());	
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+					//throw new RuntimeException(e);
+				}
+			} // run
+		},storeXTransaction); // spin 
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new DomainRangeMap(alias, identity);
+						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+				}
+			}
+		},storeXTransaction);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new MapRangeDomain(alias, identity);
+						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+				}
+			}
+		},storeXTransaction);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {  
+				try {
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new RangeDomainMap(alias, identity);
+						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+				}
+			}
+		},storeXTransaction);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {    
+				try {
+					if(semaphore.get() == 0) {
+						AbstractRelation dmr = new RangeMapDomain(alias, identity);
+						RelatrixKVTransaction.store(alias, xid, dmr,identity.getIdentity());
+						if( DEBUG  )
+							System.out.println("RelatrixTransaction.store stored :"+dmr);
+					}
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.addSuppressed(e);
+				}
+			}
+		},storeXTransaction);
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if(DEBUG)
+			System.out.println(identity);
+		if(semaphore.get() > 0)
+			throw writeException;
 	}
 	/**
 	 * Commit the outstanding transaction data in the transaction context.
@@ -605,13 +670,13 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static void remove(TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);		// Remove main entry, which is possibly DomainMapRange
+			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);		// Remove main entry, which is possibly Relation
 		DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(transactionId, c);
 		// remove DBKey table
 		RelatrixKVTransaction.remove(transactionId, primaryKey);
-		// Remove primary key if Morphism
-		if(c instanceof Morphism) {
-			DomainMapRange dmr = (DomainMapRange)c;
+		// Remove primary key if AbstractRelation
+		if(c instanceof AbstractRelation) {
+			Relation dmr = (Relation)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), transactionId);
 			RelatrixKVTransaction.remove(transactionId, pks);
 		}
@@ -651,13 +716,13 @@ public final class RelatrixTransaction {
 	public static void remove(Alias alias, TransactionId transactionId, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.remove prepping to remove:"+c);
-		// Remove main entry, which is possibly DomainMapRange
+		// Remove main entry, which is possibly Relation
 		DBKey primaryKey = (DBKey) RelatrixKVTransaction.remove(alias, transactionId, c);
 		// remove DBKey table
 		RelatrixKVTransaction.remove(alias, transactionId, primaryKey);
-		// Remove primary key if Morphism
-		if(c instanceof Morphism) {
-			DomainMapRange dmr = (DomainMapRange)c;
+		// Remove primary key if AbstractRelation
+		if(c instanceof AbstractRelation) {
+			Relation dmr = (Relation)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 		}
@@ -694,7 +759,7 @@ public final class RelatrixTransaction {
 	 * @throws DuplicateKeyException
 	 */
 	private static void removeSearch(TransactionId transactionId, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		DomainMapRange dmr = new DomainMapRange(true, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, transactionId, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, transactionId, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -721,7 +786,7 @@ public final class RelatrixTransaction {
 	 * @throws DuplicateKeyException
 	 */
 	private static void removeSearch(Alias alias, TransactionId transactionId, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		DomainMapRange dmr = new DomainMapRange(true, alias, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, alias, transactionId, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, transactionId, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, transactionId, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -748,7 +813,7 @@ public final class RelatrixTransaction {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(transactionId, dbk); // dbkey
+			Relation dmr = (Relation) RelatrixKVTransaction.remove(transactionId, dbk); // dbkey
 			RelatrixKVTransaction.remove(transactionId, dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), transactionId);
 			RelatrixKVTransaction.remove(transactionId, pks);
@@ -836,7 +901,7 @@ public final class RelatrixTransaction {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("RelatrixTransaction.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.remove(alias, transactionId, dbk); // dbkey
+			Relation dmr = (Relation) RelatrixKVTransaction.remove(alias, transactionId, dbk); // dbkey
 			RelatrixKVTransaction.remove(alias, transactionId, dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias, transactionId);
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
@@ -924,8 +989,8 @@ public final class RelatrixTransaction {
 				try {
 					while(itd.hasNext()) {
 						Result o = (Result) itd.next();
-						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-							deleted.add(((Morphism)o.get(0)).getIdentity());
+						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -939,8 +1004,8 @@ public final class RelatrixTransaction {
 				try {
 					while(itm.hasNext()) {
 						Result o = (Result) itm.next();
-						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-							deleted.add(((Morphism)o.get(0)).getIdentity());
+						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -954,8 +1019,8 @@ public final class RelatrixTransaction {
 				try {
 					while(itr.hasNext()) {
 						Result o = (Result) itr.next();
-						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-							deleted.add(((Morphism)o.get(0)).getIdentity());
+						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -982,8 +1047,8 @@ public final class RelatrixTransaction {
 		try {
 			while(itd.hasNext()) {
 				Result o = (Result) itd.next();
-				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-					deleted.add(((Morphism)o.get(0)).getIdentity());
+				if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -993,8 +1058,8 @@ public final class RelatrixTransaction {
 		try {
 			while(itm.hasNext()) {
 				Result o = (Result) itm.next();
-				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-					deleted.add(((Morphism)o.get(0)).getIdentity());
+				if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -1004,8 +1069,8 @@ public final class RelatrixTransaction {
 		try {
 			while(itr.hasNext()) {
 				Result o = (Result) itr.next();
-				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-					deleted.add(((Morphism)o.get(0)).getIdentity());
+				if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -1026,7 +1091,7 @@ public final class RelatrixTransaction {
 	 */
 	@ServerMethod
 	public static void remove(TransactionId xid, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException {
-		remove(xid, new DomainMapRange(null, xid, d, m, null));
+		remove(xid, new Relation(null, xid, d, m, null));
 	}
 	
 	/**
@@ -1065,12 +1130,12 @@ public final class RelatrixTransaction {
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
-		if(!(c instanceof Morphism)) {
+		if(!(c instanceof AbstractRelation)) {
 			dbk = (DBKey) get(xid,c);
 			if(dbk == null)
 				return located;
 		} else {
-			dbk = ((Morphism)c).getIdentity();
+			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
 		}
 		relatedSearch(xid, dbk, dbkeys);
@@ -1090,12 +1155,12 @@ public final class RelatrixTransaction {
 		}
 		for(DBKey dbks : dbkeys) {
 			Object cx = get(xid, dbks);
-			if(cx instanceof Morphism) {
-				((Morphism)cx).setIdentity(dbk);
-				((Morphism)cx).setTransactionId(xid);
+			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setIdentity(dbk);
+				((AbstractRelation)cx).setTransactionId(xid);
 			}
 			located.add((Comparable) cx);
-			//Morphism.resolve((Comparable)cx, located);
+			//AbstractRelation.resolve((Comparable)cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet exiting");
@@ -1115,7 +1180,7 @@ public final class RelatrixTransaction {
 	 * @throws DuplicateKeyException
 	 */
 	private static void relatedSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		DomainMapRange dmr = new DomainMapRange(true, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, xid, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, xid, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -1144,12 +1209,12 @@ public final class RelatrixTransaction {
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
-		if(!(c instanceof Morphism)) {
+		if(!(c instanceof AbstractRelation)) {
 			dbk = (DBKey) get(alias, xid, c);
 			if(dbk == null)
 				return located;
 		} else {
-			dbk = ((Morphism)c).getIdentity();
+			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
 		}
 		relatedSearch(alias, xid, dbk, dbkeys);
@@ -1169,13 +1234,13 @@ public final class RelatrixTransaction {
 		}
 		for(DBKey dbks : dbkeys) {
 			Object cx = get(alias, xid, dbks);
-			if(cx instanceof Morphism) {
-				((Morphism)cx).setIdentity(dbk);
-				((Morphism)cx).setAlias(alias);
-				((Morphism)cx).setTransactionId(xid);
+			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setIdentity(dbk);
+				((AbstractRelation)cx).setAlias(alias);
+				((AbstractRelation)cx).setTransactionId(xid);
 			}
 			located.add((Comparable) cx);
-			//Morphism.resolve((Comparable) cx, located);
+			//AbstractRelation.resolve((Comparable) cx, located);
 		}
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixTransaction.findSet exiting");
@@ -1196,7 +1261,7 @@ public final class RelatrixTransaction {
 	 * @throws DuplicateKeyException
 	 */
 	private static void relatedSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		DomainMapRange dmr = new DomainMapRange(true, alias, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, alias, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, xid, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, xid, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -1208,7 +1273,7 @@ public final class RelatrixTransaction {
 		Relatrix.sequentialMorphismSearch(itd, itm, itr, dbkeys);
 	}
 	/**
-	 * Generate the recursively resolved list of relationships in the given Morphism. If none of the components
+	 * Generate the recursively resolved list of relationships in the given AbstractRelation. If none of the components
 	 * of the relationship are themselves relationships, the original set of related objects in the tuple is returned as a list.
 	 * @param morphism the target for resolution
 	 * @return the recursively resolved list of relationships depth first from domain to range
@@ -1216,7 +1281,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static List<Comparable> resolve(Comparable morphism) {
 		ArrayList<Comparable> res = new ArrayList<Comparable>();
-		Morphism.resolve(morphism, res);
+		AbstractRelation.resolve(morphism, res);
 		return res;
 	}
 	/**
@@ -1227,7 +1292,7 @@ public final class RelatrixTransaction {
 	 * The returned {@link Result} is always of depth n=1 identity relationship.
 	 * In the special case of the all wildcard specification: findSet('*','*','*'), which will return all elements of the
 	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	 * relationships of the 3 objects, of the type DomainMapRange. 
+	 * relationships of the 3 objects, of the type Relation. 
 	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
 	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
 	 * the mathematical identity, or constitute the unique key in database terms.
@@ -1329,7 +1394,7 @@ public final class RelatrixTransaction {
 	 * The returned {@link Result} is always of depth n=1 identity relationship.
 	 * In the special case of the all wildcard specification: findSet('*','*','*'), which will return all elements of the
 	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	 * relationships of the 3 objects, of the type DomainMapRange. 
+	 * relationships of the 3 objects, of the type Relation. 
 	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
 	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
 	 * the mathematical identity, or constitute the unique key in database terms.
@@ -2385,9 +2450,9 @@ public final class RelatrixTransaction {
 	
 
 	/**
-	 * this method returns the first DomainMapRange
+	 * this method returns the first Relation
 	 * instance having the lowest valued key value of the index classes.
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @return the Relation morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2397,11 +2462,11 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * This method returns the first DomainMapRange
+	 * This method returns the first Relation
 	 * instance having the lowest valued key.
 	 * @param xid the transaction id
 	 * @param clazz the class of the the target instances
-	 * @return the DomainMapRange morphism first key.
+	 * @return the Relation morphism first key.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2410,7 +2475,7 @@ public final class RelatrixTransaction {
 		return first(xid, clazz);
 	}
 	/**
-	 * this method returns the first DomainMapRange
+	 * this method returns the first Relation
 	 * instance having the lowest valued key value of the index classes
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
@@ -2420,17 +2485,17 @@ public final class RelatrixTransaction {
 		return first(alias, xid, clazz);
 	}
 	/**
-	 * this method returns the first DomainMapRange
+	 * this method returns the first Relation
 	 * instance having the lowest valued key value of the index classes.
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @return the Relation morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static Object first(TransactionId xid) throws IOException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.firstKey(xid,DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(xid,DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKVTransaction.firstKey(xid,Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(xid,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setTransactionId(xid);
 			return dmr;
@@ -2440,11 +2505,11 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * this method returns the first DomainMapRange
+	 * this method returns the first Relation
 	 * instance having the lowest valued key value of the index classes.
 	 * @param alias the database alias
 	 * @param xid transaction id
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @return the Relation morphism having the lowest valued key value.
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 * @throws IOException
 	 */
@@ -2452,8 +2517,8 @@ public final class RelatrixTransaction {
 	public static Object first(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.firstKey(alias,xid, DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(alias,xid,DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKVTransaction.firstKey(alias,xid, Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(alias,xid,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setAlias(alias);
 			dmr.setTransactionId(xid);
@@ -2464,46 +2529,46 @@ public final class RelatrixTransaction {
 	}
 
 	/**
-	 * This method returns the first DBKey of DomainMapRange
+	 * This method returns the first DBKey of Relation
 	 * instance having the lowest valued key value of the index classes.
 	 * @param xid transaction id
-	 * @return the DomainMapRange morphism having the lowest valued key value.	
+	 * @return the Relation morphism having the lowest valued key value.	
 	 * @throws IOException																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																						* @throws IOException
 	 */
 	@ServerMethod
 	public static Object firstValue(TransactionId xid) throws IOException
 	{
 		try {
-			return RelatrixKVTransaction.firstValue(xid, DomainMapRange.class);
+			return RelatrixKVTransaction.firstValue(xid, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 	
 	/**
-	 * This method returns the first DBKey DomainMapRange
+	 * This method returns the first DBKey Relation
 	 * instance having the lowest valued key value of the index classes.
 	 * @param alias the database alias
 	 * @param xid transaction id
-	 * @return the DomainMapRange morphism having the lowest valued key.	
+	 * @return the Relation morphism having the lowest valued key.	
 	 * @throws IOException																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					* @throws IOException
 	 */
 	@ServerMethod
 	public static Object firstValue(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKVTransaction.firstValue(alias, xid, DomainMapRange.class);
+			return RelatrixKVTransaction.firstValue(alias, xid, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 	
 	/**
-	 * This method returns the first DomainMapRange
+	 * This method returns the first Relation
 	 * instance having the lowest valued key.
 	 * @param xid the transaction id
 	 * @param clazz the class of the the target instances
-	 * @return the DomainMapRange morphism first key.
+	 * @return the Relation morphism first key.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2512,10 +2577,10 @@ public final class RelatrixTransaction {
 		Object o = null;
 		try {
 			o = RelatrixKVTransaction.firstKey(xid,clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(xid,clazz);
-				((Morphism)o).setIdentity(dbkey);
-				((Morphism)o).setTransactionId(xid);
+				((AbstractRelation)o).setIdentity(dbkey);
+				((AbstractRelation)o).setTransactionId(xid);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2539,11 +2604,11 @@ public final class RelatrixTransaction {
 		Object o = null;
 		try {
 			o = RelatrixKVTransaction.firstKey(alias,xid,clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKVTransaction.firstValue(alias,xid,clazz);
-				((Morphism)o).setIdentity(dbkey);
-				((Morphism)o).setAlias(alias);
-				((Morphism)o).setTransactionId(xid);
+				((AbstractRelation)o).setIdentity(dbkey);
+				((AbstractRelation)o).setAlias(alias);
+				((AbstractRelation)o).setTransactionId(xid);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2581,18 +2646,18 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * This method returns the last DomainMapRange
+	 * This method returns the last Relation
 	 * instance having the highest valued key.
 	 * @param xid the transaction id
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static Object last(TransactionId xid) throws IOException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.lastKey(xid,DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(xid,DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKVTransaction.lastKey(xid,Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(xid,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setTransactionId(xid);
 			return dmr;
@@ -2602,11 +2667,11 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * This method returns the last DomainMapRange
+	 * This method returns the last Relation
 	 * instance having the highest valued key.
 	 * @param alias the database alias
 	 * @param xid the transaction id
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
@@ -2614,8 +2679,8 @@ public final class RelatrixTransaction {
 	public static  Object last(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKVTransaction.lastKey(alias,xid, DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(alias,xid,DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKVTransaction.lastKey(alias,xid, Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(alias,xid,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setAlias(alias);
 			dmr.setTransactionId(xid);
@@ -2639,10 +2704,10 @@ public final class RelatrixTransaction {
 		Object o = null;
 		try {
 			o = RelatrixKVTransaction.lastKey(xid,clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(xid,clazz);
-				((Morphism)o).setIdentity(dbkey);
-				((Morphism)o).setTransactionId(xid);
+				((AbstractRelation)o).setIdentity(dbkey);
+				((AbstractRelation)o).setTransactionId(xid);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2665,11 +2730,11 @@ public final class RelatrixTransaction {
 		Object o = null;
 		try {
 			o = RelatrixKVTransaction.lastKey(alias,xid,clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKVTransaction.lastValue(alias,xid,clazz);
-				((Morphism)o).setIdentity(dbkey);
-				((Morphism)o).setAlias(alias);
-				((Morphism)o).setTransactionId(xid);
+				((AbstractRelation)o).setIdentity(dbkey);
+				((AbstractRelation)o).setAlias(alias);
+				((AbstractRelation)o).setTransactionId(xid);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2678,10 +2743,10 @@ public final class RelatrixTransaction {
 	}
 
 	/**
-	 * This method returns the last DomainMapRange
+	 * This method returns the last Relation
 	 * instance having the highest valued key.
 	 * @param xid the transaction id
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2691,11 +2756,11 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * This method returns the last DomainMapRange
+	 * This method returns the last Relation
 	 * instance having the highest valued key.
 	 * @param alias the database alias
 	 * @param xid the transaction id
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
@@ -2735,28 +2800,28 @@ public final class RelatrixTransaction {
 	}
 	
 	/**
-	 * This method returns the last DBKey of DomainMapRange
+	 * This method returns the last DBKey of Relation
 	 * instance having the value of the highest valued key.
 	 * @param xid the transaction id
-	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
+	 * @return the DBKey of the Relation morphism having the value of highest key.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static Object lastValue(TransactionId xid) throws IOException
 	{
 		try {
-			return RelatrixKVTransaction.lastValue(xid, DomainMapRange.class);
+			return RelatrixKVTransaction.lastValue(xid, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 	
 	/**
-	 * This method returns the last DBKey of DomainMapRange
+	 * This method returns the last DBKey of Relation
 	 * instance having the value of the highest valued key.
 	 * @param alias the database alias
 	 * @param xid the transaction id
-	 * @return the DBKey of the DomainMapRange morphism having the value of highest key.
+	 * @return the DBKey of the Relation morphism having the value of highest key.
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias doesnt exist
 	 */
@@ -2764,7 +2829,7 @@ public final class RelatrixTransaction {
 	public static Object lastValue(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKVTransaction.lastValue(alias, xid, DomainMapRange.class);
+			return RelatrixKVTransaction.lastValue(alias, xid, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -2773,7 +2838,7 @@ public final class RelatrixTransaction {
 	/**
 	 * This method returns the last value for the given class
 	 * instance having the value of the highest valued key.
-	 * @return the DomainMapRange morphism having the value of highest key.
+	 * @return the Relation morphism having the value of highest key.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2808,14 +2873,14 @@ public final class RelatrixTransaction {
 	 * This method returns the number of relationship
 	 * instances in the scope of this transaction.
 	 * @param xid the transaction id
-	 * @return the number of DomainMapRange morphisms.
+	 * @return the number of Relation morphisms.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static long size(TransactionId xid) throws IOException
 	{
 		try {
-			return RelatrixKVTransaction.size(xid, DomainMapRange.class);
+			return RelatrixKVTransaction.size(xid, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -2825,14 +2890,14 @@ public final class RelatrixTransaction {
 	 * @param alias the database alias
 	 * @param xid the transaction id
 	 * @throws NoSuchElementException if the alias is not found
-	 * @return the number of DomainMapRange relationships.
+	 * @return the number of Relation relationships.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static long size(Alias alias, TransactionId xid) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKVTransaction.size(alias, xid, DomainMapRange.class);
+			return RelatrixKVTransaction.size(alias, xid, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}

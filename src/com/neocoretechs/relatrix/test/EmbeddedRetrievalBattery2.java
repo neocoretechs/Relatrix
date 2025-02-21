@@ -3,12 +3,12 @@ package com.neocoretechs.relatrix.test;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
@@ -45,7 +45,7 @@ public class EmbeddedRetrievalBattery2 {
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
 		Relatrix.setTablespace(argv[0]);
-		Morphism.displayLevel = Morphism.displayLevels.VERBOSE;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
 		if(argv.length == 2 && argv[1].equals("init")) {
 				battery1AR17(argv);
 		}
@@ -84,7 +84,7 @@ public class EmbeddedRetrievalBattery2 {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		DomainMapRange dmr = null;
+		Relation dmr = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
@@ -404,7 +404,7 @@ public class EmbeddedRetrievalBattery2 {
 		int i = 0;
 		while(it.hasNext()) {
 			Object fkey = it.next();
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			Relatrix.remove(dmr.getDomain(), dmr.getMap());
 			++i;
 			if((System.currentTimeMillis()-timx) > 1000) {
@@ -423,15 +423,15 @@ public class EmbeddedRetrievalBattery2 {
 			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
-		it = RelatrixKV.entrySet(DomainMapRange.class);
+		it = RelatrixKV.entrySet(Relation.class);
 		while(it.hasNext()) {
 			Comparable nex = (Comparable) it.next();
-			System.out.println("DomainMapRange:"+nex);
+			System.out.println("Relation:"+nex);
 		}
 		siz = Relatrix.size();
 		if(siz > 0) {
-			System.out.println("KV RANGE 1AR17 DomainMapRange MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 DomainMapRange MISMATCH:"+siz+" > 0 after delete/commit");
+			System.out.println("KV RANGE 1AR17 Relation MISMATCH:"+siz+" > 0 after all deleted and committed");
+			throw new Exception("KV RANGE 1AR17 Relation MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		it = RelatrixKV.entrySet(DomainRangeMap.class);
 		while(it.hasNext()) {

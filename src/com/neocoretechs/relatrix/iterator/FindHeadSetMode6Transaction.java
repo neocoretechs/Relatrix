@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -28,10 +28,10 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
     }
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
-		Morphism xdmr = null;
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr)throws IllegalAccessException, IOException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg0 instanceof Class) {
@@ -40,15 +40,15 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 				xdmr.setRange((Comparable)endarg0);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 	    return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism xdmr = null;
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg0 instanceof Class) {
@@ -57,7 +57,7 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 				xdmr.setRange(alias,(Comparable)endarg0);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 	    return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}
 }

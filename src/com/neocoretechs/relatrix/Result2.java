@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
 * Some of the queries that can produce a Result2 instance include:<br/>
 * (Keep in mind that any object participating in a relationship can itself be a relationship.)<p/>
-* findSet('?','?','*') - iterator or stream of all domain and map components of all relationships (instances of DomainMapRange relationship objects) <br/>
+* findSet('?','?','*') - iterator or stream of all domain and map components of all relationships (instances of Relation relationship objects) <br/>
 * findSet(object,'?','?') - iterator or stream of all map and range components of all relationship objects with given domain object <br/>
 * findSet('?','?',object)- iterator or stream of all domain and map objects of relationships with range of the indicated objects <br/>
 * findSet('?','?','*')- iterator or stream of all domain and map objects of all relationships<br/>
@@ -83,10 +83,10 @@ public class Result2 extends Result1 implements Comparable, Serializable, Clonea
 	
 	@Override
 	public void rigForTransport() {
-		if(one instanceof Morphism)
-			one = TransportMorphism.createTransport((Morphism) one);
-		if(two instanceof Morphism)
-			two = TransportMorphism.createTransport((Morphism) two);	
+		if(one instanceof AbstractRelation)
+			one = TransportMorphism.createTransport((AbstractRelation) one);
+		if(two instanceof AbstractRelation)
+			two = TransportMorphism.createTransport((AbstractRelation) two);	
 	}
 
 	@Override

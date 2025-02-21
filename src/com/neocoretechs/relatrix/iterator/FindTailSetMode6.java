@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
@@ -26,10 +26,10 @@ public class FindTailSetMode6 extends FindSetMode6 {
     }
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
-		Morphism xdmr = null;
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr)throws IllegalAccessException, IOException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg0 instanceof Class) {
@@ -38,15 +38,15 @@ public class FindTailSetMode6 extends FindSetMode6 {
 				xdmr.setRange((Comparable)endarg0);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 	    return new RelatrixTailsetIterator(tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism xdmr = null;
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone();
+			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg0 instanceof Class) {
@@ -55,7 +55,7 @@ public class FindTailSetMode6 extends FindSetMode6 {
 				xdmr.setRange(alias,(Comparable)endarg0);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 	    return new RelatrixTailsetIterator(alias, tdmr, xdmr, dmr_return);
 	}
 }

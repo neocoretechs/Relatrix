@@ -25,7 +25,7 @@ import java.util.zip.ZipInputStream;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
@@ -441,22 +441,20 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		Optional<?> p = session.findStream(xid,accessLogEntryEpoch,"accessed by",remoteHost).findFirst();
-		DomainMapRange rel;
-		if(p.isPresent()) 
-			rel = (DomainMapRange) ((Result)p.get()).get();
-		else
-			rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
-		session.store(xid, rel, "remote user", remoteUser);
-		// unreliable info field remoteUser
-		session.store(xid, rel, "access time",accessLogEntryEpoch);
-		session.store(xid, rel, "client request",clientRequest);
-		session.store(xid, rel, "http status",httpStatusCode);
-		session.store(xid, rel, "bytes returned",numBytes);
-		session.store(xid, rel, "referer",referer);
-		session.store(xid, rel, "user agent",userAgent);
-		session.store(xid, rel, "OS",Os);
-		session.store(xid, rel,"OS Ver.",OsVer);
+		Optional<?> p = session.findStream(xid,accessLogEntryEpoch, remoteHost, '*').findFirst();
+		Relation rel;
+		if(!p.isPresent()) {
+			//rel = (Relation) ((Result)p.get()).get();
+			//else
+			rel = session.store(xid, accessLogEntryEpoch, remoteHost, clientRequest);
+			session.store(xid, rel, "remote user", remoteUser);
+			session.store(xid, rel, "http status",httpStatusCode);
+			session.store(xid, rel, "bytes returned",numBytes);
+			session.store(xid, rel, "referer",referer);
+			session.store(xid, rel, "user agent",userAgent);
+			session.store(xid, rel, "OS",Os);
+			session.store(xid, rel,"OS Ver.",OsVer);
+		}
 	}
 	
 	/**
@@ -469,16 +467,20 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix2(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		Optional<?> p = session.findStream(xid,accessLogEntryEpoch,"accessed by",remoteHost).findFirst();
-		DomainMapRange rel;
-		if(p.isPresent()) 
-			rel = (DomainMapRange) ((Result)p.get()).get();
-		else
-			rel = session.store(xid, accessLogEntryEpoch,"accessed by",remoteHost);
-		session.store(xid, rel, "access time",accessLogEntryEpoch);
-		session.store(xid, rel, "client request",clientRequest);
-		session.store(xid, rel, "http status",httpStatusCode);
-		session.store(xid, rel, "bytes returned",numBytes);
+		Optional<?> p = session.findStream(xid,accessLogEntryEpoch, remoteHost, '*').findFirst();
+		Relation rel;
+		if(!p.isPresent()) {
+			//rel = (Relation) ((Result)p.get()).get();
+			//if(DEBUG)
+			//	System.out.println("Found relation:"+rel);
+			//} else {
+			rel = session.store(xid, accessLogEntryEpoch, remoteHost, clientRequest);
+			if(DEBUG)
+				System.out.println("Stored relation:"+rel);
+			//}
+			session.store(xid, rel, "http status",httpStatusCode);
+			session.store(xid, rel, "bytes returned",numBytes);
+		}
 	}
 
 	public String toString() {
@@ -540,7 +542,7 @@ public class ApacheLog {
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
 		// retrieve all identity relationships that contain the concrete object specified
-		Iterator<?> it = session.findTailSet(xid, '*',"accessed by",'*', new Long(0),"");
+		Iterator<?> it = session.findTailSet(xid, '?','*','*',Long.class, String.class, String.class);
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Iterate all the retrieved identity relationships

@@ -7,12 +7,12 @@ import java.util.Random;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -44,7 +44,7 @@ public class BatteryRelatrixDelete {
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
-		Morphism.displayLevel = displayLevels.VERBOSE;
+		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
@@ -85,19 +85,19 @@ public class BatteryRelatrixDelete {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr1 = Relatrix.store(fkey, "Has unit", new Long(i));
+				Relation dmr1 = Relatrix.store(fkey, "Has unit", new Long(i));
 				++recs;
-				DomainMapRange dmr2 = Relatrix.store(dmr1, "Has related", rando.nextLong());
+				Relation dmr2 = Relatrix.store(dmr1, "Has related", rando.nextLong());
 				++recs;	
-				DomainMapRange dmr3 = Relatrix.store(dmr1, dmr2, rando.nextLong());
+				Relation dmr3 = Relatrix.store(dmr1, dmr2, rando.nextLong());
 				++recs;
-				DomainMapRange dmr4 = Relatrix.store(dmr3, dmr2, dmr3);
+				Relation dmr4 = Relatrix.store(dmr3, dmr2, dmr3);
 				++recs;
-				DomainMapRange dmr5 = Relatrix.store(dmr4, "Is related", rando.nextLong());
+				Relation dmr5 = Relatrix.store(dmr4, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr6 = Relatrix.store(dmr5, "Is related", rando.nextLong());
+				Relation dmr6 = Relatrix.store(dmr5, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr7 = Relatrix.store(dmr6, dmr5, rando.nextLong());
+				Relation dmr7 = Relatrix.store(dmr6, dmr5, rando.nextLong());
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -125,19 +125,19 @@ public class BatteryRelatrixDelete {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr1 = Relatrix.store(fkey, "Has unit", new Long(i));
+				Relation dmr1 = Relatrix.store(fkey, "Has unit", new Long(i));
 				++recs;
-				DomainMapRange dmr2 = Relatrix.store(dmr1, "Has related", rando.nextLong());
+				Relation dmr2 = Relatrix.store(dmr1, "Has related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr3 = Relatrix.store(dmr1, dmr2, rando.nextLong());
+				Relation dmr3 = Relatrix.store(dmr1, dmr2, rando.nextLong());
 				++recs;
-				DomainMapRange dmr4 = Relatrix.store(dmr3, dmr2, dmr3);
+				Relation dmr4 = Relatrix.store(dmr3, dmr2, dmr3);
 				++recs;
-				DomainMapRange dmr5 = Relatrix.store(dmr4, "Is related", rando.nextLong());
+				Relation dmr5 = Relatrix.store(dmr4, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr6 = Relatrix.store(dmr5, "Is related", rando.nextLong());
+				Relation dmr6 = Relatrix.store(dmr5, "Is related", rando.nextLong());
 				++recs;
-				DomainMapRange dmr7 = Relatrix.store(dmr6, dmr5, rando.nextLong());
+				Relation dmr7 = Relatrix.store(dmr6, dmr5, rando.nextLong());
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("SHOULD NOT BE storing "+recs+" "+fkey);
@@ -178,12 +178,12 @@ public class BatteryRelatrixDelete {
 			*/
 		}
 		// when finished, all records should theoretically be deleted
-		if( Relatrix.size(DomainMapRange.class) > 0) {
-			System.out.println("BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
+		if( Relatrix.size(Relation.class) > 0) {
+			System.out.println("BATTERY1AR6 unexpected number of keys "+Relatrix.size(Relation.class));
 			Relatrix.findStream('*', '*', '*').forEach(e->{
 				System.out.println("Del fault:"+e);
 			});
-			throw new Exception("BATTERY1AR6 unexpected number of keys "+Relatrix.size(DomainMapRange.class));
+			throw new Exception("BATTERY1AR6 unexpected number of keys "+Relatrix.size(Relation.class));
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -195,17 +195,17 @@ public class BatteryRelatrixDelete {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
+		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				Relatrix.remove(dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
@@ -234,10 +234,10 @@ public class BatteryRelatrixDelete {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = Relatrix.entrySet(DomainMapRange.class);
+			it = Relatrix.entrySet(Relation.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("DomainMapRange:"+nex);
+				System.out.println("Relation:"+nex);
 			}
 		}
 		if(DEBUG) {

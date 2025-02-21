@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relatrix;
 
 import com.neocoretechs.rocksack.Alias;
@@ -36,12 +36,12 @@ public class FindSubSetMode1 extends FindSetMode1 {
 	   }
 	   
 		@Override
-		protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-			Morphism xdmr = null;
-			Morphism ydmr = null;
+		protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+			AbstractRelation xdmr = null;
+			AbstractRelation ydmr = null;
 			try {
-				xdmr = (Morphism) tdmr.clone();
-				ydmr = (Morphism) tdmr.clone();
+				xdmr = (AbstractRelation) tdmr.clone();
+				ydmr = (AbstractRelation) tdmr.clone();
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
 				if(endarg[argCtr] instanceof Class) {
@@ -52,7 +52,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 					ydmr.setDomain((Comparable)endarg[argCtr++]);
 				}
 			} else
-				throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
+				throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
 			if(tdmr.getMap() == null) {
 				if(endarg[argCtr] instanceof Class) {
 					xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg[argCtr]));
@@ -68,17 +68,17 @@ public class FindSubSetMode1 extends FindSetMode1 {
 					ydmr.setMap((Comparable)endarg[argCtr++]);
 				}
 			} else
-				throw new IllegalAccessException("Improper Morphism template.");
+				throw new IllegalAccessException("Improper AbstractRelation template.");
 			return new RelatrixSubsetIterator(tdmr, xdmr, ydmr, dmr_return);
 		}
 
 		@Override
-		protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-			Morphism xdmr = null;
-			Morphism ydmr = null;
+		protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+			AbstractRelation xdmr = null;
+			AbstractRelation ydmr = null;
 			try {
-				xdmr = (Morphism) tdmr.clone();
-				ydmr = (Morphism) tdmr.clone();
+				xdmr = (AbstractRelation) tdmr.clone();
+				ydmr = (AbstractRelation) tdmr.clone();
 			} catch (CloneNotSupportedException e) {}
 			if(tdmr.getDomain() == null) {
 				if(endarg[argCtr] instanceof Class) {
@@ -89,7 +89,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 					ydmr.setDomain(alias,(Comparable)endarg[argCtr++]);
 				}
 			} else
-				throw new IllegalAccessException("Improper Morphism template."); // all wildcard or return tuple, should all be null
+				throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
 			if(tdmr.getMap() == null) {
 				if(endarg[argCtr] instanceof Class) {
 					xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg[argCtr]));
@@ -105,7 +105,7 @@ public class FindSubSetMode1 extends FindSetMode1 {
 					ydmr.setMap(alias,(Comparable)endarg[argCtr++]);
 				}
 			} else
-				throw new IllegalAccessException("Improper Morphism template.");
+				throw new IllegalAccessException("Improper AbstractRelation template.");
 			return new RelatrixSubsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
 		}
 

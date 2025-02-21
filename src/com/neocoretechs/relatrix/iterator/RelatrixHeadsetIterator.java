@@ -8,22 +8,22 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
 
-/**                                                                                                                                                                                                                                                                                                                                                                       * Instances of this class deliver the set of identity {@link Morphism}s, or
+/**                                                                                                                                                                                                                                                                                                                                                                       * Instances of this class deliver the set of identity {@link AbstractRelation}s, or
  * Post order the morphisms, which are stored in key order instead of the order of its instances. Find elements strictly less than 'to' target.
  * Populate a series of arrays with the partial ordered sets of classes
  * designated in the suffix of the 'findSet' predicate, then use the min and max range of those to build a range query into
- * the proper table of Morphisms. Extract the domain, map and range components from each retrieved Morphism
+ * the proper table of Morphisms. Extract the domain, map and range components from each retrieved AbstractRelation
  * and determine their index into each domain, map and range arraylist. Use those indexes to form a key using
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
- * retrieved Morphism. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
- * Morphism with all its actual payload objects. Ultimately return Result instance elements in next().<p/>
+ * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
+ * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next().<p/>
  * Start by retrieving the instances in their natural order based on the suffix of the findSet predicate and build 3 tables of keys
  * that we can relate back to the morphisms. While we do this, gather the low and high key ranges of the potential eligible morphisms.
  * At conclusion, we have a low and high range of potential morphism keys formed from the keys of the instance ordering that we relate back to the morphisms.<p/>
@@ -51,13 +51,13 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	public static boolean DEBUGITERATION = false;
 	protected Alias alias = null;
 	protected Iterator<?> iter;
-    protected Morphism buffer = null;
-    protected Morphism nextit = null;
-    protected Morphism base;
+    protected AbstractRelation buffer = null;
+    protected AbstractRelation nextit = null;
+    protected AbstractRelation base;
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = true;
-	protected Morphism template;
+	protected AbstractRelation template;
     protected boolean identity = false;
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
@@ -81,7 +81,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
      * @param dmr_return findSet operator order and tuple return control
      * @throws IOException 
      */
-    public RelatrixHeadsetIterator(Morphism template, Morphism templateo, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIterator(AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
     	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
@@ -165,7 +165,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     	if( iter.hasNext() ) {
     		try {
        			DBKey dbkey = (DBKey) iter.next();
-				buffer = (Morphism) RelatrixKV.get(dbkey); // primary DBKey for Morphism
+				buffer = (AbstractRelation) RelatrixKV.get(dbkey); // primary DBKey for AbstractRelation
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
@@ -188,7 +188,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
      * @throws IOException
      * @throws NoSuchElementException
      */
-    public RelatrixHeadsetIterator(Alias alias, Morphism template, Morphism templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.alias = alias;
       	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));
@@ -269,7 +269,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
     	if( iter.hasNext() ) {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
-				buffer = (Morphism) RelatrixKV.get(alias, dbkey); // primary DBKey for Morphism
+				buffer = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
 				buffer.setAlias(alias);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
@@ -307,9 +307,9 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	    		try {
 	    			DBKey dbkey = (DBKey) iter.next();
 	    			if(alias == null) {
-	    				nextit = (Morphism) RelatrixKV.get(dbkey); // primary DBKey for Morphism
+	    				nextit = (AbstractRelation) RelatrixKV.get(dbkey); // primary DBKey for AbstractRelation
 	    			} else {
-	    				nextit = (Morphism) RelatrixKV.get(alias, dbkey); // primary DBKey for Morphism
+	    				nextit = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setIdentity(dbkey);

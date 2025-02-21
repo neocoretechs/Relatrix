@@ -4,19 +4,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -52,14 +52,14 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		Morphism.displayLevel = Morphism.displayLevels.VERBOSE;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
 		String tablespace = argv[0];
 		if(!tablespace.endsWith("/"))
 			tablespace += "/";
 		RelatrixTransaction.setAlias(alias1,tablespace+alias1);
 		RelatrixTransaction.setAlias(alias2,tablespace+alias2);
 		RelatrixTransaction.setAlias(alias3,tablespace+alias3);
-		Morphism.displayLevel = displayLevels.VERBOSE;
+		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		xid = RelatrixTransaction.getTransactionId();
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
@@ -116,7 +116,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		DomainMapRange dmr = null;
+		Relation dmr = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
@@ -433,17 +433,17 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 	 */
 	public static void battery1AR17(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(alias12+" CleanDB DMR size="+RelatrixTransaction.size(alias12,xid2,DomainMapRange.class)+" xid:"+xid2);
+		System.out.println(alias12+" CleanDB DMR size="+RelatrixTransaction.size(alias12,xid2,Relation.class)+" xid:"+xid2);
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(alias12,xid2,DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12,xid2,MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12,xid2,MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(alias12,xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(alias12,xid2,RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = RelatrixTransaction.findSet(alias12,xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				RelatrixTransaction.remove(alias12,xid2,dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {

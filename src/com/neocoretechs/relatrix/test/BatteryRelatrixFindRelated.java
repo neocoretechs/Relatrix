@@ -10,12 +10,12 @@ import java.util.Random;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
 
@@ -42,7 +42,7 @@ public class BatteryRelatrixFindRelated {
 	*/
 	public static void main(String[] argv) throws Exception {
 		Relatrix.setTablespace(argv[0]);
-		Morphism.displayLevel = displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
@@ -81,19 +81,19 @@ public class BatteryRelatrixFindRelated {
 		for(int i = min; i < max; i++) {
 			fkey = "Bone " + String.format(uniqKeyFmt, i);	
 			try {
-				DomainMapRange dmr1 = Relatrix.store(fkey, "part", "leg "+String.format(uniqKeyFmt, i));
+				Relation dmr1 = Relatrix.store(fkey, "part", "leg "+String.format(uniqKeyFmt, i));
 				++recs;
-				DomainMapRange dmr2 = Relatrix.store(dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
+				Relation dmr2 = Relatrix.store(dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
 				++recs;	
-				DomainMapRange dmr3 = Relatrix.store(dmr2, "part", "body "+String.format(uniqKeyFmt, i));
+				Relation dmr3 = Relatrix.store(dmr2, "part", "body "+String.format(uniqKeyFmt, i));
 				++recs;
-				DomainMapRange dmr4 = Relatrix.store("dog "+String.format(uniqKeyFmt, i), "has", dmr3);
+				Relation dmr4 = Relatrix.store("dog "+String.format(uniqKeyFmt, i), "has", dmr3);
 				++recs;
-				DomainMapRange dmr5 = Relatrix.store(dmr4, "eats", "food");
+				Relation dmr5 = Relatrix.store(dmr4, "eats", "food");
 				++recs;
-				DomainMapRange dmr6 = Relatrix.store(dmr5, "but not", dmr4);
+				Relation dmr6 = Relatrix.store(dmr5, "but not", dmr4);
 				++recs;
-				DomainMapRange dmr7 = Relatrix.store(fkey, dmr6, "food");
+				Relation dmr7 = Relatrix.store(fkey, dmr6, "food");
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -116,13 +116,13 @@ public class BatteryRelatrixFindRelated {
 		System.out.println("Battery1AR6");
 		for(int i = min; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			Morphism m = (Morphism) ((Result)(Relatrix.findStream('*', '*', irec).findFirst().get())).get();
+			AbstractRelation m = (AbstractRelation) ((Result)(Relatrix.findStream('*', '*', irec).findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(m);
-			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
+			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
-				Morphism mo = (Morphism) co;
+				AbstractRelation mo = (AbstractRelation) co;
 				ArrayList<Comparable> ma = new ArrayList<Comparable>();
-				Morphism.resolve(mo, ma);
+				AbstractRelation.resolve(mo, ma);
 				System.out.println(Arrays.toString(ma.toArray()));
 			}
 			System.out.println("----------");
@@ -141,13 +141,13 @@ public class BatteryRelatrixFindRelated {
 		System.out.println("Battery1AR67");
 		for(int i = min; i < max; i++) {
 			String irec = "dog "+String.format(uniqKeyFmt, i);
-			Morphism m = (Morphism) ((Result)(Relatrix.findStream(irec, '*', '*').findFirst().get())).get();
+			AbstractRelation m = (AbstractRelation) ((Result)(Relatrix.findStream(irec, '*', '*').findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(m);
-			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
+			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
-				Morphism mo = (Morphism) co;
+				AbstractRelation mo = (AbstractRelation) co;
 				ArrayList<Comparable> ma = new ArrayList<Comparable>();
-				Morphism.resolve(mo, ma);
+				AbstractRelation.resolve(mo, ma);
 				System.out.println(Arrays.toString(ma.toArray()));
 			}
 			System.out.println("----------");
@@ -161,17 +161,17 @@ public class BatteryRelatrixFindRelated {
 	 */
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB DMR size="+Relatrix.size(DomainMapRange.class));
+		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+Relatrix.size(MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+Relatrix.size(RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = Relatrix.findSet('*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				Relatrix.remove(dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {

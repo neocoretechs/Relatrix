@@ -8,68 +8,68 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * Set a transport object for Morphisms, which contain transient objects.
- * At the destination, recover the transient instances and set them in the morphism.
+ * At the destination, recover the transient instances and set them in the abstractRelation.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
 public class TransportMorphism implements Serializable, Comparable {
 	private static final long serialVersionUID = 654432956755099495L;
-	// Morphism will store the keys to original Morphism, domain, map, range instances are transient
-	private Morphism morphism;
+	// AbstractRelation will store the keys to original AbstractRelation, domain, map, range instances are transient
+	private AbstractRelation abstractRelation;
 	private DBKey identity;
 	private Alias alias;
 	private TransactionId transactionId;
-	// Comparables are transient in Morphism, so we need to store them here
+	// Comparables are transient in AbstractRelation, so we need to store them here
 	protected Comparable domain;
 	protected Comparable map;
 	protected Comparable range;
-	public TransportMorphism(Morphism morphism) {
-		this.morphism = morphism;
-		this.identity = morphism.getIdentity();
-		this.alias = morphism.getAlias();
-		this.transactionId = morphism.getTransactionId();
-		this.domain = morphism.domain;
-		this.map = morphism.map;
-		this.range = morphism.range;
+	public TransportMorphism(AbstractRelation abstractRelation) {
+		this.abstractRelation = abstractRelation;
+		this.identity = abstractRelation.getIdentity();
+		this.alias = abstractRelation.getAlias();
+		this.transactionId = abstractRelation.getTransactionId();
+		this.domain = abstractRelation.domain;
+		this.map = abstractRelation.map;
+		this.range = abstractRelation.range;
 	}
 	
-	public static TransportMorphism createTransport(Morphism m) {
+	public static TransportMorphism createTransport(AbstractRelation m) {
 		TransportMorphism t = new TransportMorphism(m);
 		resolve(m,t);
 		return t;
 	}
 	
-	public static Morphism createMorphism(TransportMorphism t) {
-		Morphism m = t.getMorphism();
+	public static AbstractRelation createMorphism(TransportMorphism t) {
+		AbstractRelation m = t.getMorphism();
 		resolve(t,m);
 		return m;
 	}
 	
-	public Morphism getMorphism() {
-		if(morphism.getIdentity() == null && identity != null)
-			morphism.setIdentity(identity);
-		if(morphism.getAlias() == null && alias != null)
-			morphism.setAlias(alias);
-		morphism.setTransactionId(transactionId);
-		return morphism;
+	public AbstractRelation getMorphism() {
+		if(abstractRelation.getIdentity() == null && identity != null)
+			abstractRelation.setIdentity(identity);
+		if(abstractRelation.getAlias() == null && alias != null)
+			abstractRelation.setAlias(alias);
+		abstractRelation.setTransactionId(transactionId);
+		return abstractRelation;
 	}
 	/**
 	 * Enter with target being the instance contained in newTransport
 	 * @param target
 	 * @param newTransport
 	 */
-	public static void resolve(Morphism target, TransportMorphism newTransport) {
-		if(target.domain instanceof Morphism) {
-			newTransport.setDomain(new TransportMorphism((Morphism) target.domain));
-			resolve((Morphism) target.domain, newTransport);
+	public static void resolve(AbstractRelation target, TransportMorphism newTransport) {
+		if(target.domain instanceof AbstractRelation) {
+			newTransport.setDomain(new TransportMorphism((AbstractRelation) target.domain));
+			resolve((AbstractRelation) target.domain, newTransport);
 		}	
-		if(target.map instanceof Morphism) {
-			newTransport.setMap(new TransportMorphism((Morphism) target.map));
-			resolve((Morphism) target.map, newTransport);
+		if(target.map instanceof AbstractRelation) {
+			newTransport.setMap(new TransportMorphism((AbstractRelation) target.map));
+			resolve((AbstractRelation) target.map, newTransport);
 		}
-		if(target.range instanceof Morphism) {
-			newTransport.setRange(new TransportMorphism((Morphism) target.range));
-			resolve((Morphism) target.range, newTransport);
+		if(target.range instanceof AbstractRelation) {
+			newTransport.setRange(new TransportMorphism((AbstractRelation) target.range));
+			resolve((AbstractRelation) target.range, newTransport);
 		}
 	}
 	/**
@@ -77,16 +77,16 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @param target
 	 * @param newTransport
 	 */
-	public static void resolve(TransportMorphism target, Morphism newTransport) {
+	public static void resolve(TransportMorphism target, AbstractRelation newTransport) {
 		if(target.domain instanceof TransportMorphism) {
 			newTransport.setDomainResolved( ((TransportMorphism)target.domain).getMorphism());
 			resolve((TransportMorphism) target.domain, newTransport);
 		}	
-		if(target.map instanceof Morphism) {
+		if(target.map instanceof AbstractRelation) {
 			newTransport.setMapResolved( ((TransportMorphism)target.map).getMap());
 			resolve((TransportMorphism) target.map, newTransport);
 		}
-		if(target.range instanceof Morphism) {
+		if(target.range instanceof AbstractRelation) {
 			newTransport.setRangeResolved( ((TransportMorphism)target.range).getRange());
 			resolve((TransportMorphism) target.range, newTransport);
 		}

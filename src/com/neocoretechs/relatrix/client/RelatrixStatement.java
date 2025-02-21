@@ -8,7 +8,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.TransportMorphism;
@@ -121,8 +121,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	}
 	@Override
 	public synchronized void setObjectReturn(Object o) {
-		if(o instanceof Morphism) {
-			retObj = TransportMorphism.createTransport((Morphism) o);
+		if(o instanceof AbstractRelation) {
+			retObj = TransportMorphism.createTransport((AbstractRelation) o);
 		} else {
 			if(o instanceof Result)
 				((Result)o).rigForTransport();
@@ -151,8 +151,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	
 	protected void packParamArray() {
     	for(int i = 0; i < paramArray.length; i++) {
-    		if(paramArray[i] instanceof Morphism) {
-    			paramArray[i] = TransportMorphism.createTransport((Morphism) paramArray[i]);
+    		if(paramArray[i] instanceof AbstractRelation) {
+    			paramArray[i] = TransportMorphism.createTransport((AbstractRelation) paramArray[i]);
     		}
     	}
 	}

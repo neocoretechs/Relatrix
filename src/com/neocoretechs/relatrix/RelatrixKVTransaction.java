@@ -1070,7 +1070,7 @@ public final class RelatrixKVTransaction {
 	 * Return the instance having the value for the greatest key.
 	 * @param xid the transaction id
 	 * @param clazz the class to retrieve
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
@@ -1084,7 +1084,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias the database alias
 	 * @param xid the transaction id
 	 * @param clazz the class to retrieve
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException if the alias was not found
@@ -1098,7 +1098,7 @@ public final class RelatrixKVTransaction {
 	 * Size of all elements
 	 * @param xid the transaction id
 	 * @param clazz the class to retrieve
-	 * @return the number of DomainMapRange morphisms.
+	 * @return the number of Relation morphisms.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
@@ -1112,7 +1112,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias the database alias
 	 * @param xid the transaction id
 	 * @param clazz the class to retrieve
-	 * @return the number of DomainMapRange morphisms.
+	 * @return the number of Relation morphisms.
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 * @throws NoSuchElementException

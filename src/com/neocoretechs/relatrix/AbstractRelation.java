@@ -14,7 +14,7 @@ import com.neocoretechs.rocksack.NotifyDBCompareTo;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
-* Morphism - domain, map, range structure
+* AbstractRelation - domain, map, range structure
 * ref's for relation datatype
 *
 * The permutations for our tuple are as follows
@@ -34,7 +34,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * sets from categories. The template class can be used to retrieve sets based on their class type.
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
-public abstract class Morphism extends KeySet implements Comparable, Externalizable, Cloneable {
+public abstract class AbstractRelation extends KeySet implements Comparable, Externalizable, Cloneable {
 		private static boolean DEBUG = false;
 
         static final long serialVersionUID = -9129948317265641091L;
@@ -47,7 +47,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         
         protected transient boolean templateFlag = false;
         
-        public Morphism() {}
+        public AbstractRelation() {}
         
         /**
          * Resolving constructor 1 <p/>
@@ -56,7 +56,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m map instance object
          * @param r range instance object
          */
-        public Morphism(Comparable d, Comparable m, Comparable r) {
+        public AbstractRelation(Comparable d, Comparable m, Comparable r) {
         	setDomain(d);
             setMap(m);
             setRange(r);
@@ -70,7 +70,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        public Morphism(Alias alias, Comparable d, Comparable m, Comparable r) {
+        public AbstractRelation(Alias alias, Comparable d, Comparable m, Comparable r) {
         	this.alias = alias;
         	setDomain(alias, d);
             setMap(alias, m);
@@ -83,7 +83,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        public Morphism(TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
+        public AbstractRelation(TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
       		this.transactionId = transactionId;
         	setDomain(d);
             setMap(m);
@@ -98,7 +98,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	 * @param m
     	 * @param r
     	 */
-    	public Morphism(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
+    	public AbstractRelation(Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
     		this.transactionId = transactionId;
     		this.alias = alias;
     		if(alias != null) {
@@ -121,7 +121,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        Morphism(boolean flag, Comparable d, Comparable m, Comparable r) {
+        AbstractRelation(boolean flag, Comparable d, Comparable m, Comparable r) {
         	this.templateFlag = flag;
         	setDomainTemplate(d);
             setMapTemplate(m);
@@ -137,7 +137,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param m
          * @param r
          */
-        Morphism(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
+        AbstractRelation(boolean flag, Alias alias, Comparable d, Comparable m, Comparable r) {
         	this.templateFlag = flag;
         	this.alias = alias;
         	setDomainTemplate(alias, d);
@@ -152,7 +152,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
     	 * @param m
     	 * @param r
     	 */
-    	Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
+    	AbstractRelation(boolean flag, Alias alias, TransactionId transactionId, Comparable d, Comparable m, Comparable r) {
     		this.templateFlag = flag;
     		this.transactionId = transactionId;
     		this.alias = alias;
@@ -176,7 +176,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
         	super(domainKey, mapKey, rangeKey);
         	this.templateFlag = false;
         	domain = d;
@@ -194,7 +194,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias);
         	this.templateFlag = false;
         	domain = d;
@@ -212,7 +212,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-      	Morphism(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+      	AbstractRelation(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, transactionId);
          	domain = d;
             map = m;
@@ -229,7 +229,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias, transactionId);
         	this.templateFlag = false;
         	domain = d;
@@ -247,7 +247,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(boolean flag, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(boolean flag, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey);
         	this.templateFlag = flag;
         	domain = d;
@@ -266,7 +266,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(boolean flag, Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(boolean flag, Alias alias, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias);
         	this.templateFlag = flag;
          	domain = d;
@@ -285,7 +285,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(boolean flag, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
           	super(domainKey, mapKey, rangeKey, transactionId);
         	this.templateFlag = flag;
          	domain = d;
@@ -304,7 +304,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
          * @param r
          * @param rangeKey
          */
-        Morphism(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+        AbstractRelation(boolean flag, Alias alias, TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
            	super(domainKey, mapKey, rangeKey, alias, transactionId);
         	this.templateFlag = flag;
          	domain = d;
@@ -768,7 +768,7 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         }
         
         /**
-         * Using the passed instance and this Morphism, check the alias and transactionId for non null
+         * Using the passed instance and this AbstractRelation, check the alias and transactionId for non null
          * and then call proper {@link DBKey}.newKey with the indexResolver {@link com.neocoretechs.relatrix.key.IndexInstanceTable}
          * and instance. The process will store the instance in the proper class table as key, and the DBKey table as value,
          * and return the DBKey that links both together.
@@ -913,49 +913,49 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
 		}
 		
 		/**
-		 * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias
+		 * Check that the potential AbstractRelation that is being assigned as part of a relationship is of the same alias
 		 * as the instance it is being assigned to such that the keys are of the same database.
 		 * @param alias The alias from which the element will be retrieved
-		 * @param m The possible Morphism we will check or compatibility
-		 * @throws IllegalAccessException If the param is a Morphism and the alias is not the alias of this instance
+		 * @param m The possible AbstractRelation we will check or compatibility
+		 * @throws IllegalAccessException If the param is a AbstractRelation and the alias is not the alias of this instance
 		 */
         private void checkKeyComaptibility(Alias alias, Comparable<?> m) throws IllegalAccessException {
-			if(m instanceof Morphism) {
+			if(m instanceof AbstractRelation) {
 				if(this.alias == null || (this.alias != null && !alias.equals(this.alias)))
-					throw new IllegalAccessException("Alias "+alias+" is not the same database and therefore cannot assign Morphism "+this);		
+					throw new IllegalAccessException("Alias "+alias+" is not the same database and therefore cannot assign AbstractRelation "+this);		
 			}	
 		}
         
         /**
-         * Check that the potential Morphism that is being assigned as part of a relationship is of the same alias
+         * Check that the potential AbstractRelation that is being assigned as part of a relationship is of the same alias
 		 * as the instance it is being assigned to such that the keys are of the same database.
-         * @param m The possible Morphism we will check for compatibility if it has an alias and its a Morphism
+         * @param m The possible AbstractRelation we will check for compatibility if it has an alias and its a AbstractRelation
          * @throws IllegalAccessException
          */
         private void checkKeyComaptibility(Comparable<?> m) throws IllegalAccessException {
-    		if(m instanceof Morphism) {
-				if(((Morphism)m).alias != null) {
-					if(this.alias == null || (this.alias != null && !((Morphism)m).alias.equals(this.alias)))
-						throw new IllegalAccessException("Alias of Morphism "+((Morphism)m)+" is not the same database and therefore cannot assign Morphism:"+m);
+    		if(m instanceof AbstractRelation) {
+				if(((AbstractRelation)m).alias != null) {
+					if(this.alias == null || (this.alias != null && !((AbstractRelation)m).alias.equals(this.alias)))
+						throw new IllegalAccessException("Alias of AbstractRelation "+((AbstractRelation)m)+" is not the same database and therefore cannot assign AbstractRelation:"+m);
 				} else {
-					// Morphism alias is null
+					// AbstractRelation alias is null
 					if(this.alias != null)
-						throw new IllegalAccessException("Alias of this Morphism "+this+" is not the default database and therefore cannot assign Morphism:"+m);
+						throw new IllegalAccessException("Alias of this AbstractRelation "+this+" is not the default database and therefore cannot assign AbstractRelation:"+m);
 				}
     		}
  		}
         
     	/**
-    	 * Check the given target for a valid {@link Morphism} and that it has a valid {@link DBKey} identity
-    	 * @param target the potential Morphism
-    	 * @return the identity DBKey or null if not Morphism or identity isnt established or valid
+    	 * Check the given target for a valid {@link AbstractRelation} and that it has a valid {@link DBKey} identity
+    	 * @param target the potential AbstractRelation
+    	 * @return the identity DBKey or null if not AbstractRelation or identity isnt established or valid
     	 */
     	public static DBKey checkMorphism(Comparable<?> target) {
-    		if(target instanceof Morphism) {
-    			if(DBKey.isValid(((Morphism)target).identity)) {
+    		if(target instanceof AbstractRelation) {
+    			if(DBKey.isValid(((AbstractRelation)target).identity)) {
     				if(DEBUG)
-    					System.out.println("checkMorphism valid:"+((Morphism)target).identity);
-    				return ((Morphism)target).identity;
+    					System.out.println("checkMorphism valid:"+((AbstractRelation)target).identity);
+    				return ((AbstractRelation)target).identity;
     			}
     		}
     		return null;
@@ -966,10 +966,10 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         * in which the values for domain,map range : >,<,=,dont care = 0-3
         * are encoded as three 0-3 values in the first six bit positions.
         * a dont care is coded when a dmr value is zero.
-        * @param cmpdmr the Morphism to compare to
+        * @param cmpdmr the AbstractRelation to compare to
         * @return the 0-63 compare value
         */
-        protected short cmpr(Morphism cmpdmr) {
+        protected short cmpr(AbstractRelation cmpdmr) {
         	short cmpres = 0;
             if(getDomain() == null)
         		cmpres = 48;
@@ -1110,48 +1110,48 @@ public abstract class Morphism extends KeySet implements Comparable, Externaliza
         
         /**
   		 * Beginning at target, recursively resolve all relationships related to target.
-  		 * If target is not Morphism, add it to res result List and return, if it is Morphism, recursively call
+  		 * If target is not AbstractRelation, add it to res result List and return, if it is AbstractRelation, recursively call
   		 * this method on the domain, map, and range.
          * @param target Comparable to begin resolution
          * @param res list to populate with resolved relationships
          */
         public static void resolve(Comparable target, List<Comparable> res) {
-        	if(!(target instanceof Morphism)) {
+        	if(!(target instanceof AbstractRelation)) {
         		res.add(target);
         		return;
         	}
          	Comparable tdomain, tmap, trange;
-          	tdomain = (Comparable) ((Morphism)target).getDomain();
-        	tmap = (Comparable) ((Morphism)target).getMap();
-        	trange = (Comparable) ((Morphism)target).getRange();
+          	tdomain = (Comparable) ((AbstractRelation)target).getDomain();
+        	tmap = (Comparable) ((AbstractRelation)target).getMap();
+        	trange = (Comparable) ((AbstractRelation)target).getRange();
         	resolve(tdomain, res);
         	resolve(tmap, res);
         	resolve(trange, res);
         	if(DEBUG)
-        		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
+        		System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
         }
         
         /**
          * Beginning from target, recursively resolve the Morphisms directly contained in target.
-         * If target is Morphism, add the key to morphisms result List and recursively call
+         * If target is AbstractRelation, add the key to morphisms result List and recursively call
   		 * this method on the domain, map, and range, else return.
          * @param target the initial instance of any Comparable
          * @param morphisms List to be populated with resolved Morphisms
          */
         public static void resolveMorphisms(Comparable target, List<DBKey> morphisms) {
-        	if(!(target instanceof Morphism)) {
+        	if(!(target instanceof AbstractRelation)) {
         		return;
         	}
-        	morphisms.add(((Morphism)target).getIdentity());
+        	morphisms.add(((AbstractRelation)target).getIdentity());
          	Comparable tdomain, tmap, trange;
-          	tdomain = (Comparable) ((Morphism)target).getDomain();
-        	tmap = (Comparable) ((Morphism)target).getMap();
-        	trange = (Comparable) ((Morphism)target).getRange();
+          	tdomain = (Comparable) ((AbstractRelation)target).getDomain();
+        	tmap = (Comparable) ((AbstractRelation)target).getMap();
+        	trange = (Comparable) ((AbstractRelation)target).getRange();
         	resolveMorphisms(tdomain, morphisms);
         	resolveMorphisms(tmap, morphisms);
         	resolveMorphisms(trange, morphisms);
         	if(DEBUG)
-        		System.out.printf("Morphism.resolve %s %s %s%n", tdomain, tmap, trange);
+        		System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
         }
              
         @Override

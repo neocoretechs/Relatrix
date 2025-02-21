@@ -56,13 +56,13 @@ import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
 
 /**
-* Top-level class that imparts behavior to the {@link Morphism} subclasses which contain references for domain, map, range.<p/>
-* The lynch pin is the Morphism and its subclasses indexed
+* Top-level class that imparts behavior to the {@link AbstractRelation} subclasses which contain references for domain, map, range.<p/>
+* The lynch pin is the AbstractRelation and its subclasses indexed
 * by the 6 permutations of the domain,map,and range so we can retrieve instances in all
 * the potential sort orders.
-* The compareTo and fullCompareTo of Morphism provide the comparison methods to drive the processes.
-* For retrieval, a partial template is constructed of the proper Morphism subclass which puts the three elements
-* in the proper sort order. To retrieve the proper Morphism subclass, partially construct a morphism template to
+* The compareTo and fullCompareTo of AbstractRelation provide the comparison methods to drive the processes.
+* For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
+* in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
 * order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p/>
 * The critical concept about retrieving relationships is to remember that the number of elements from each passed
 * stream element or iteration of a Stream or Iterator is dependent on the number of "?" operators in a 'findSet'. For example,
@@ -75,7 +75,7 @@ import com.neocoretechs.rocksack.Alias;
 * the requirement to be 'categorical'.<p/>
 * In general, all Streams or '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
-* since conceptually a Morphism is a domain acted upon by the map function yielding the range.<p/>
+* since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p/>
 * A given domain run through a 'map function' always yields the same range, 
 * as any function that processes an element yields one consistent result.<p/>
 * The morphism components are indexed by a {@link com.neocoretechs.relatrix.key.DBKey} that contains a reference to the instance
@@ -213,14 +213,14 @@ public final class Relatrix {
 	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
-	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static DomainMapRange store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static Relation store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		Relation identity = new Relation(); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -231,7 +231,7 @@ public final class Relatrix {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(d);
 			identity.setMapResolved(m);
-			DBKey rKey = Morphism.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(r);
 			if(rKey == null)
 				identity.setRange(r);
 			else {
@@ -243,7 +243,7 @@ public final class Relatrix {
 			// and return the new DBKey reference
 			identity.setIdentity(identity.newKey(identity));
 		} else
-			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
+			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		if( DEBUG  )
@@ -266,7 +266,7 @@ public final class Relatrix {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new MapDomainRange(identity);
+					AbstractRelation dmr = new MapDomainRange(identity);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -279,7 +279,7 @@ public final class Relatrix {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new DomainRangeMap(identity);
+					AbstractRelation dmr = new DomainRangeMap(identity);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -292,7 +292,7 @@ public final class Relatrix {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new MapRangeDomain(identity);
+					AbstractRelation dmr = new MapRangeDomain(identity);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -305,7 +305,7 @@ public final class Relatrix {
 			@Override
 			public void run() {  
 				try {
-					Morphism dmr = new RangeDomainMap(identity);
+					AbstractRelation dmr = new RangeDomainMap(identity);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -318,7 +318,7 @@ public final class Relatrix {
 			@Override
 			public void run() {    
 				try {
-					Morphism dmr = new RangeMapDomain(identity);
+					AbstractRelation dmr = new RangeMapDomain(identity);
 					RelatrixKV.store(dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -346,14 +346,14 @@ public final class Relatrix {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias does not exist
-	 * @return The identity element of the set - The DomainMapRange of stored object composed of d,m,r
+	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static DomainMapRange store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
+	public static Relation store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		DomainMapRange identity = new DomainMapRange(); // form it as template for duplicate key search
+		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
@@ -365,7 +365,7 @@ public final class Relatrix {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(d);
 			identity.setMapResolved(m);
-			DBKey rKey = Morphism.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(r);
 			if(rKey == null)
 				identity.setRange(alias, r);
 			else {
@@ -377,7 +377,7 @@ public final class Relatrix {
 			// and return the new DBKey reference
 			identity.setIdentity(identity.newKey(alias,identity));
 		} else
-			throw new DuplicateKeyException("Relationship ["+d+"->"+r+"] already exists.");
+			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		if( DEBUG  )
@@ -400,7 +400,7 @@ public final class Relatrix {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new MapDomainRange(alias,identity);
+					AbstractRelation dmr = new MapDomainRange(alias,identity);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -413,7 +413,7 @@ public final class Relatrix {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new DomainRangeMap(alias,identity);
+					AbstractRelation dmr = new DomainRangeMap(alias,identity);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -426,7 +426,7 @@ public final class Relatrix {
 			@Override
 			public void run() {
 				try {
-					Morphism dmr = new MapRangeDomain(alias,identity);
+					AbstractRelation dmr = new MapRangeDomain(alias,identity);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -439,7 +439,7 @@ public final class Relatrix {
 			@Override
 			public void run() {  
 				try {
-					Morphism dmr = new RangeDomainMap(alias,identity);
+					AbstractRelation dmr = new RangeDomainMap(alias,identity);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -452,7 +452,7 @@ public final class Relatrix {
 			@Override
 			public void run() {    
 				try {
-					Morphism dmr = new RangeMapDomain(alias,identity);
+					AbstractRelation dmr = new RangeMapDomain(alias,identity);
 					RelatrixKV.store(alias,dmr,identity.getIdentity());
 					if( DEBUG  )
 						System.out.println("Relatrix.store stored :"+dmr);
@@ -496,13 +496,13 @@ public final class Relatrix {
 	@ServerMethod
 	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.remove prepping to remove:"+c);// Remove main entry, which is possibly DomainMapRange
+			System.out.println("Relatrix.remove prepping to remove:"+c);// Remove main entry, which is possibly Relation
 		DBKey primaryKey = (DBKey) RelatrixKV.remove(c);
 		// remove DBKey table
 		RelatrixKV.remove(primaryKey);
-		// Remove primary key if Morphism
-		if(c instanceof Morphism) {
-			DomainMapRange dmr = (DomainMapRange)c;
+		// Remove primary key if AbstractRelation
+		if(c instanceof AbstractRelation) {
+			Relation dmr = (Relation)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
 			RelatrixKV.remove(pks);
 		}
@@ -539,13 +539,13 @@ public final class Relatrix {
 	public static void remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
-		// Remove main entry, which is possibly DomainMapRange
+		// Remove main entry, which is possibly Relation
 		DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, c);
 		// remove DBKey table
 		RelatrixKV.remove(alias, primaryKey);
-		// Remove primary key if Morphism
-		if(c instanceof Morphism) {
-			DomainMapRange dmr = (DomainMapRange)c;
+		// Remove primary key if AbstractRelation
+		if(c instanceof AbstractRelation) {
+			Relation dmr = (Relation)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
 			RelatrixKV.remove(alias, pks);
 		}
@@ -580,7 +580,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException
 	 */
 	private static void removeSearch(DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		DomainMapRange dmr = new DomainMapRange(true, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -604,7 +604,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException
 	 */
 	private static void removeSearch(Alias alias, DBKey c, List<DBKey> deleted) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException, DuplicateKeyException {
-		DomainMapRange dmr = new DomainMapRange(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -617,7 +617,7 @@ public final class Relatrix {
 	}
 	
 	/**
-	 * Search the domain, map, and range for each Morphism for relations containing iterator elements
+	 * Search the domain, map, and range for each AbstractRelation for relations containing iterator elements
 	 * @param itd
 	 * @param itm
 	 * @param itr
@@ -628,8 +628,8 @@ public final class Relatrix {
 		try {
 			while(itd.hasNext()) {
 				Result o = (Result) itd.next();
-				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-					deleted.add(((Morphism)o.get(0)).getIdentity());
+				if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -639,8 +639,8 @@ public final class Relatrix {
 		try {
 			while(itm.hasNext()) {
 				Result o = (Result) itm.next();
-				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-					deleted.add(((Morphism)o.get(0)).getIdentity());
+				if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -650,8 +650,8 @@ public final class Relatrix {
 		try {
 			while(itr.hasNext()) {
 				Result o = (Result) itr.next();
-				if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-					deleted.add(((Morphism)o.get(0)).getIdentity());
+				if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -674,8 +674,8 @@ public final class Relatrix {
 				try {
 					while(itd.hasNext()) {
 						Result o = (Result) itd.next();
-						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-							deleted.add(((Morphism)o.get(0)).getIdentity());
+						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -689,8 +689,8 @@ public final class Relatrix {
 				try {
 					while(itm.hasNext()) {
 						Result o = (Result) itm.next();
-						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-							deleted.add(((Morphism)o.get(0)).getIdentity());
+						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -704,8 +704,8 @@ public final class Relatrix {
 				try {
 					while(itr.hasNext()) {
 						Result o = (Result) itr.next();
-						if(!deleted.contains(((Morphism)o.get(0)).getIdentity())) {
-							deleted.add(((Morphism)o.get(0)).getIdentity());
+						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
 						}
 					}
 				} catch (IllegalArgumentException e) {
@@ -734,7 +734,7 @@ public final class Relatrix {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove(dbk); // dbkey table
+			Relation dmr = (Relation) RelatrixKV.remove(dbk); // dbkey table
 			RelatrixKV.remove(dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
 			RelatrixKV.remove( pks);
@@ -816,7 +816,7 @@ public final class Relatrix {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.remove(alias, dbk); // dbkey
+			Relation dmr = (Relation) RelatrixKV.remove(alias, dbk); // dbkey
 			RelatrixKV.remove(alias, dmr); //instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
 			RelatrixKV.remove(alias, pks);
@@ -894,7 +894,7 @@ public final class Relatrix {
 	 */
 	@ServerMethod
 	public static void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
-		DomainMapRange dmr = new DomainMapRange(d,m,null);
+		Relation dmr = new Relation(d,m,null);
 		remove(dmr);
 	}
 
@@ -909,7 +909,7 @@ public final class Relatrix {
 	 */
 	@ServerMethod
 	public static void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
-		DomainMapRange dmr = new DomainMapRange(alias,d,m,null);
+		Relation dmr = new Relation(alias,d,m,null);
 		remove(alias, dmr);
 	}
 
@@ -930,12 +930,12 @@ public final class Relatrix {
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
-		if(!(c instanceof Morphism)) {
+		if(!(c instanceof AbstractRelation)) {
 			dbk = (DBKey) get(c);
 			if(dbk == null)
 				return located;
 		} else {
-			dbk = ((Morphism)c).getIdentity();
+			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
 		}
 		relatedSearch(dbk, dbkeys);
@@ -954,10 +954,10 @@ public final class Relatrix {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			//Morphism.resolve((Comparable) get(dbks), located);
+			//AbstractRelation.resolve((Comparable) get(dbks), located);
 			Object cx = get(dbks);
-			if(cx instanceof Morphism) {
-				((Morphism)cx).setIdentity(dbk);
+			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setIdentity(dbk);
 			}
 			located.add((Comparable) cx);
 		}
@@ -979,7 +979,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException
 	 */
 	private static void relatedSearch(DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		DomainMapRange dmr = new DomainMapRange(true, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -1007,12 +1007,12 @@ public final class Relatrix {
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
-		if(!(c instanceof Morphism)) {
+		if(!(c instanceof AbstractRelation)) {
 			dbk = (DBKey) get(alias, c);
 			if(dbk == null)
 				return located;
 		} else {
-			dbk = ((Morphism)c).getIdentity();
+			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
 		}
 		relatedSearch(alias, dbk, dbkeys);
@@ -1032,11 +1032,11 @@ public final class Relatrix {
 		}
 		for(DBKey dbks : dbkeys) {
 			Object cx = get(alias, dbks);
-			if(cx instanceof Morphism) {
-				((Morphism)cx).setIdentity(dbk);
-				((Morphism)cx).setAlias(alias);
+			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setIdentity(dbk);
+				((AbstractRelation)cx).setAlias(alias);
 			}
-			//Morphism.resolve((Comparable) cx, located);
+			//AbstractRelation.resolve((Comparable) cx, located);
 			located.add((Comparable) cx);
 		}
 		if( DEBUG || DEBUGREMOVE )
@@ -1057,7 +1057,7 @@ public final class Relatrix {
 	 * @throws DuplicateKeyException
 	 */
 	private static void relatedSearch(Alias alias, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		DomainMapRange dmr = new DomainMapRange(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		Relation dmr = new Relation(true, alias, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
 		MapDomainRange mdr = new MapDomainRange(true, alias, null, DBKey.nullDBKey, null, c, null, DBKey.nullDBKey);
 		RangeMapDomain rmd = new RangeMapDomain(true, alias, null, DBKey.nullDBKey, null, DBKey.nullDBKey, null, c);
 		short dmr_return[] = new short[]{-1,0,2,2};
@@ -1069,7 +1069,7 @@ public final class Relatrix {
 		sequentialMorphismSearch(itd, itm, itr, dbkeys);
 	}
 	/**
-	 * Search the domain, map, and range for each Morphism for relations containing iterator elements
+	 * Search the domain, map, and range for each AbstractRelation for relations containing iterator elements
 	 * @param itd
 	 * @param itm
 	 * @param itr
@@ -1081,8 +1081,8 @@ public final class Relatrix {
 		try {
 			while(itd.hasNext()) {
 				Result o = (Result) itd.next();
-				if(!dbkeys.contains(((Morphism)o.get(0)).getIdentity())) {
-					dbkeys.add(((Morphism)o.get(0)).getIdentity());
+				if(!dbkeys.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					dbkeys.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -1092,8 +1092,8 @@ public final class Relatrix {
 		try {
 			while(itm.hasNext()) {
 				Result o = (Result) itm.next();
-				if(!dbkeys.contains(((Morphism)o.get(0)).getIdentity())) {
-					dbkeys.add(((Morphism)o.get(0)).getIdentity());
+				if(!dbkeys.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					dbkeys.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -1103,8 +1103,8 @@ public final class Relatrix {
 		try {
 			while(itr.hasNext()) {
 				Result o = (Result) itr.next();
-				if(!dbkeys.contains(((Morphism)o.get(0)).getIdentity())) {
-					dbkeys.add(((Morphism)o.get(0)).getIdentity());
+				if(!dbkeys.contains(((AbstractRelation)o.get(0)).getIdentity())) {
+					dbkeys.add(((AbstractRelation)o.get(0)).getIdentity());
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -1121,7 +1121,7 @@ public final class Relatrix {
 	 * The returned {@link Result} is always of depth n=1 identity relationship.
 	 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	 * relationships of the 3 objects, of the type DomainMapRange. 
+	 * relationships of the 3 objects, of the type Relation. 
 	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
 	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
 	 * the mathematical identity, or constitute the unique key in database terms.
@@ -1223,7 +1223,7 @@ public final class Relatrix {
 	 * The returned {@link Result} is always of depth n=1 identity relationship.
 	 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 	 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-	 * relationships of the 3 objects, of the type DomainMapRange. 
+	 * relationships of the 3 objects, of the type Relation. 
 	 * The returned elements(s) constitute identities in the sense of these morphisms satisfying
 	 * the requirement to be 'categorical'. In general, all '3 element' arrays returned by the operators are
 	 * the mathematical identity, or constitute the unique key in database terms.
@@ -2279,16 +2279,16 @@ public final class Relatrix {
 	
 
 	/**
-	 * This method returns the first DomainMapRange instance having the lowest valued key value of the index classes.
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * This method returns the first Relation instance having the lowest valued key value of the index classes.
+	 * @return the Relation morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static Object first() throws IOException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.firstKey(DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKV.firstValue(DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKV.firstKey(Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKV.firstValue(Relation.class);
 			dmr.setIdentity(dbkey);
 			return dmr;
 		} catch (IllegalAccessException e) {
@@ -2299,8 +2299,8 @@ public final class Relatrix {
 	public static Object first(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.firstKey(alias,DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKV.firstKey(alias,Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setAlias(alias);
 			return dmr;
@@ -2309,7 +2309,7 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first Relation
 	 * instance having the lowest valued key value.
 	 * @return the class having the lowest valued key value.
 	 * @throws IOException
@@ -2320,9 +2320,9 @@ public final class Relatrix {
 		Object o = null;
 		try {
 			o = RelatrixKV.firstKey(clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKV.firstValue(clazz);
-				((Morphism)o).setIdentity(dbkey);
+				((AbstractRelation)o).setIdentity(dbkey);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2335,10 +2335,10 @@ public final class Relatrix {
 		Object o = null;
 		try {
 			o = RelatrixKV.firstKey(alias,clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,clazz);
-				((Morphism)o).setIdentity(dbkey);
-				((Morphism)o).setAlias(alias);
+				((AbstractRelation)o).setIdentity(dbkey);
+				((AbstractRelation)o).setAlias(alias);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2346,9 +2346,9 @@ public final class Relatrix {
 		return o;
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the first Relation
 	 * instance having the lowest valued key value of the index classes.
-	 * @return the DomainMapRange morphism having the lowest valued key value.
+	 * @return the Relation morphism having the lowest valued key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2379,7 +2379,7 @@ public final class Relatrix {
 		return first(alias, clazz);
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the lowest valued key value of the index classes.
 	 * @return the {@link DBKey} having the lowest valued key value.
 	 * @throws IOException
@@ -2388,13 +2388,13 @@ public final class Relatrix {
 	public static Object firstValue() throws IOException
 	{
 		try {
-			return RelatrixKV.firstValue(DomainMapRange.class);
+			return RelatrixKV.firstValue(Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 	/**
-	 * Get the value of the first instance of {@link Morphism} {@link DomainMapRange} which will be a {@link DBKey}
+	 * Get the value of the first instance of {@link AbstractRelation} {@link Relation} which will be a {@link DBKey}
 	 * @param alias the database alias to retrieve the instance value
 	 * @return the first value
 	 * @throws IOException
@@ -2404,24 +2404,24 @@ public final class Relatrix {
 	public static Object firstValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.firstValue(alias, DomainMapRange.class);
+			return RelatrixKV.firstValue(alias, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the last valued key.
-	 * @return the DomainMapRange morphism having the last key value with resolved identity.
+	 * @return the Relation morphism having the last key value with resolved identity.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static Object last() throws IOException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.lastKey(DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKV.lastValue(DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKV.lastKey(Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKV.lastValue(Relation.class);
 			dmr.setIdentity(dbkey);
 			return dmr;
 		} catch (IllegalAccessException e) {
@@ -2429,9 +2429,9 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * Get the last instance of {@link Morphism} {@link DomainMapRange}
+	 * Get the last instance of {@link AbstractRelation} {@link Relation}
 	 * @param alias
-	 * @return the last DomainMapRange instance, with identity and alias resolved
+	 * @return the last Relation instance, with identity and alias resolved
 	 * @throws IOException
 	 * @throws NoSuchElementException
 	 */
@@ -2439,8 +2439,8 @@ public final class Relatrix {
 	public static Object last(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			DomainMapRange dmr = (DomainMapRange) RelatrixKV.lastKey(alias,DomainMapRange.class);
-			DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,DomainMapRange.class);
+			Relation dmr = (Relation) RelatrixKV.lastKey(alias,Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setAlias(alias);
 			return dmr;
@@ -2449,10 +2449,10 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the highest valued key.
 	 * @param clazz the class target
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2461,9 +2461,9 @@ public final class Relatrix {
 		Object o = null;
 		try {
 			o = RelatrixKV.lastKey(clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKV.lastValue(clazz);
-				((Morphism)o).setIdentity(dbkey);
+				((AbstractRelation)o).setIdentity(dbkey);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2484,10 +2484,10 @@ public final class Relatrix {
 		Object o = null;
 		try {
 			o = RelatrixKV.lastKey(alias,clazz);
-			if(o instanceof Morphism) {
+			if(o instanceof AbstractRelation) {
 				DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,clazz);
-				((Morphism)o).setIdentity(dbkey);
-				((Morphism)o).setAlias(alias);
+				((AbstractRelation)o).setIdentity(dbkey);
+				((AbstractRelation)o).setAlias(alias);
 			}
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
@@ -2495,9 +2495,9 @@ public final class Relatrix {
 		return o;
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the highest valued key.
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2511,16 +2511,16 @@ public final class Relatrix {
 		return last(alias);
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the value of the highest valued key.
-	 * @return the DomainMapRange morphism having the value of highest key.
+	 * @return the Relation morphism having the value of highest key.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static Object lastValue() throws IOException
 	{
 		try {
-			return RelatrixKV.lastValue(DomainMapRange.class);
+			return RelatrixKV.lastValue(Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -2529,16 +2529,16 @@ public final class Relatrix {
 	public static Object lastValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.lastValue(alias, DomainMapRange.class);
+			return RelatrixKV.lastValue(alias, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the highest valued key.
-	 * @return the DomainMapRange morphism having the highest key value.
+	 * @return the Relation morphism having the highest key value.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2552,9 +2552,9 @@ public final class Relatrix {
 		return last(alias, clazz);
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns the last Relation
 	 * instance having the value of the highest valued key.
-	 * @return the DomainMapRange morphism having the value of highest key.
+	 * @return the Relation morphism having the value of highest key.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2576,15 +2576,15 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * This method returns the number of relationships, Which are occurrences {@link DomainMapRange} instances.
-	 * @return the number of DomainMapRange morphisms.
+	 * This method returns the number of relationships, Which are occurrences {@link Relation} instances.
+	 * @return the number of Relation morphisms.
 	 * @throws IOException
 	 */
 	@ServerMethod
 	public static long size() throws IOException
 	{
 		try {
-			return RelatrixKV.size(DomainMapRange.class);
+			return RelatrixKV.size(Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -2593,14 +2593,14 @@ public final class Relatrix {
 	public static long size(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.size(alias, DomainMapRange.class);
+			return RelatrixKV.size(alias, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
 	}
 	/**
-	 * This method returns the number of relationships, Which are occurrences {@link DomainMapRange} instances.
-	 * @return the number of DomainMapRange morphisms.
+	 * This method returns the number of relationships, Which are occurrences {@link Relation} instances.
+	 * @return the number of Relation morphisms.
 	 * @throws IOException
 	 */
 	@ServerMethod
@@ -2622,7 +2622,7 @@ public final class Relatrix {
 		}
 	}
 	/**
-	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns whether the passed DomainMapRange
+	 * If the desire is to step outside the database and category theoretic realm and use the instances more as a basic Set, this method returns whether the passed Relation
 	 * instance exists in the data.
 	 * @return true if the passed DomainMapRAnge exists.
 	 * @throws IOException
@@ -2768,7 +2768,7 @@ public final class Relatrix {
 	}
 
 	/**
-	 * Generate the recursively resolved list of relationships in the given Morphism. If none of the components
+	 * Generate the recursively resolved list of relationships in the given AbstractRelation. If none of the components
 	 * of the relationship are themselves relationships, the original set of related objects in the tuple is returned as a list.
 	 * @param morphism the target for resolution
 	 * @return the recursively resolved list of relationships depth first from domain to range
@@ -2776,7 +2776,7 @@ public final class Relatrix {
 	@ServerMethod
 	public static List<Comparable> resolve(Comparable morphism) {
 		ArrayList<Comparable> res = new ArrayList<Comparable>();
-		Morphism.resolve(morphism, res);
+		AbstractRelation.resolve(morphism, res);
 		return res;
 	}
 	/**

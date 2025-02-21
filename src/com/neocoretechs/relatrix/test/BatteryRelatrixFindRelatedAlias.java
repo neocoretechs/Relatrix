@@ -9,13 +9,13 @@ import java.util.List;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
 
@@ -43,7 +43,7 @@ public class BatteryRelatrixFindRelatedAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Morphism.displayLevel = displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		String tablespace = argv[0];
 		if(!tablespace.endsWith("/"))
 			tablespace += "/";
@@ -96,19 +96,19 @@ public class BatteryRelatrixFindRelatedAlias {
 		for(int i = min; i < max; i++) {
 			fkey = alias12+" Bone " + String.format(uniqKeyFmt, i);	
 			try {
-				DomainMapRange dmr1 = Relatrix.store(alias12, fkey, "part", "leg "+String.format(uniqKeyFmt, i));
+				Relation dmr1 = Relatrix.store(alias12, fkey, "part", "leg "+String.format(uniqKeyFmt, i));
 				++recs;
-				DomainMapRange dmr2 = Relatrix.store(alias12, dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
+				Relation dmr2 = Relatrix.store(alias12, dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
 				++recs;	
-				DomainMapRange dmr3 = Relatrix.store(alias12, dmr2, "part", "body "+String.format(uniqKeyFmt, i));
+				Relation dmr3 = Relatrix.store(alias12, dmr2, "part", "body "+String.format(uniqKeyFmt, i));
 				++recs;
-				DomainMapRange dmr4 = Relatrix.store(alias12, "dog "+String.format(uniqKeyFmt, i), "has", dmr3);
+				Relation dmr4 = Relatrix.store(alias12, "dog "+String.format(uniqKeyFmt, i), "has", dmr3);
 				++recs;
-				DomainMapRange dmr5 = Relatrix.store(alias12, dmr4, "eats", "food");
+				Relation dmr5 = Relatrix.store(alias12, dmr4, "eats", "food");
 				++recs;
-				DomainMapRange dmr6 = Relatrix.store(alias12, dmr5, "but not", dmr4);
+				Relation dmr6 = Relatrix.store(alias12, dmr5, "but not", dmr4);
 				++recs;
-				DomainMapRange dmr7 = Relatrix.store(alias12, fkey, dmr6, "food");
+				Relation dmr7 = Relatrix.store(alias12, fkey, dmr6, "food");
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -132,13 +132,13 @@ public class BatteryRelatrixFindRelatedAlias {
 		System.out.println("Battery1AR6 "+alias12);
 		for(int i = min; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			Morphism m = (Morphism) ((Result)(Relatrix.findStream(alias12, '*', '*', irec).findFirst().get())).get();
+			AbstractRelation m = (AbstractRelation) ((Result)(Relatrix.findStream(alias12, '*', '*', irec).findFirst().get())).get();
 			List<Comparable> lm = Relatrix.findSet(alias12, m);
-			// For each Morphism that comprises all the related elements, resolve it and its embedded relationship morphisms
+			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
-				Morphism mo = (Morphism) co;
+				AbstractRelation mo = (AbstractRelation) co;
 				ArrayList<Comparable> ma = new ArrayList<Comparable>();
-				Morphism.resolve(mo, ma);
+				AbstractRelation.resolve(mo, ma);
 				System.out.println(Arrays.toString(ma.toArray()));
 			}
 			System.out.println("----------");
@@ -160,11 +160,11 @@ public class BatteryRelatrixFindRelatedAlias {
 		System.out.println("CleanDB MDR size="+Relatrix.size(alias12,MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+Relatrix.size(alias12,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+Relatrix.size(alias12,RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = Relatrix.findSet(alias12,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				Relatrix.remove(alias12,dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {

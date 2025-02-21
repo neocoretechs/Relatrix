@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
@@ -21,7 +21,7 @@ import com.neocoretechs.rocksack.Alias;
 * depending on the configuration of the findSet. The number of "?" elements determines the size of the returned Comparable array.
 * This mode represents the equivalent of 'SELECT ALL' for identities or morphisms where identities return 1 array element of the
 * morphism object itself, and the ("?","?","?") returns 3 elements of each of the independent objects that comprise the morphism relationship.
-* {@link Morphism}
+* {@link AbstractRelation}
 * <p/>
 * Examples:<br/>
 * ?,*,* domain,map,range order return domain in {@link com.neocoretechs.relatrix.Result1} <br/>
@@ -57,10 +57,10 @@ public class FindSetMode0 extends IteratorFactory {
     */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		Morphism dmr = null;
-		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+		AbstractRelation dmr = null;
+		switch(AbstractRelation.form_template_keyop(new Result3(null,null,null), dmr_return)) {
 			case 0: // dmr
-				dmr = new DomainMapRange(true, null, null, null);
+				dmr = new Relation(true, null, null, null);
 				break;
 			case 1: // drm
 				dmr = new DomainRangeMap(true, null, null, null);
@@ -84,7 +84,7 @@ public class FindSetMode0 extends IteratorFactory {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
 	    return new RelatrixIterator(tdmr, dmr_return);
 	}
 	
@@ -93,10 +93,10 @@ public class FindSetMode0 extends IteratorFactory {
     */
 	@Override
 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism dmr = null;
-		switch(Morphism.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+		AbstractRelation dmr = null;
+		switch(AbstractRelation.form_template_keyop(new Result3(null,null,null), dmr_return)) {
 			case 0: // dmr
-				dmr = new DomainMapRange(true, alias, null, null, null);
+				dmr = new Relation(true, alias, null, null, null);
 				break;
 			case 1: // drm
 				dmr = new DomainRangeMap(true, alias, null, null, null);
@@ -120,7 +120,7 @@ public class FindSetMode0 extends IteratorFactory {
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIterator(alias, tdmr, dmr_return);
 	}
 }

@@ -6,11 +6,11 @@ import java.util.Iterator;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
-import com.neocoretechs.relatrix.Morphism.displayLevels;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
@@ -47,7 +47,7 @@ public class BatteryRelatrixTransactionStream {
 	public static void main(String[] argv) throws Exception {
 		RelatrixTransaction.setTablespace(argv[0]);
 		xid = RelatrixTransaction.getTransactionId();
-		Morphism.displayLevel = displayLevels.VERBOSE;
+		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);
 			max = Integer.parseInt(argv[2]);
@@ -139,7 +139,7 @@ public class BatteryRelatrixTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				DomainMapRange dmr = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(99999));
+				Relation dmr = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -253,13 +253,13 @@ public class BatteryRelatrixTransactionStream {
 		System.out.println(xid2+" Battery1AR9");
 		RelatrixTransaction.findStream(xid2, "*", "*", "*").forEach(e->{
 			Result nex = (Result)e;
-			// the returned array has 1 element, the identity Morphism DomainMapRange
+			// the returned array has 1 element, the identity AbstractRelation Relation
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
+			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			++i;
 		});
@@ -293,9 +293,9 @@ public class BatteryRelatrixTransactionStream {
 				if(DEBUG) System.out.println("1AR10:"+i+" "+nex.get(0));
 				//String skey = key + String.format(uniqKeyFmt, i);
 				// no guarantee of ordering with unqualified findSet/findStream
-				if(!((String) ((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+				if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
 					throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-				if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
+				if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 					throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 				++i;
 		});
@@ -328,12 +328,12 @@ public class BatteryRelatrixTransactionStream {
 			if(DEBUG) System.out.println("1AR101:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!( (String)((DomainMapRange)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!( (String)((Relation)nex.get(0)).getDomain() ).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((DomainMapRange)nex.get(0)).getMap().equals("Has unit"))
+			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			//Long unit = new Long(i);
-			//if(!((DomainMapRange)nex[0]).getRange().equals(unit))
+			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
 		});
@@ -403,17 +403,17 @@ public class BatteryRelatrixTransactionStream {
 	 */
 	public static void battery1AR17(String[] argv, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(xid2+" CleanDB DMR size="+RelatrixTransaction.size(xid2,DomainMapRange.class));
+		System.out.println(xid2+" CleanDB DMR size="+RelatrixTransaction.size(xid2,Relation.class));
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(xid2,DomainRangeMap.class));
 		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(xid2,MapDomainRange.class));
 		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(xid2,MapRangeDomain.class));
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(xid2,RangeMapDomain.class));
-		Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		Iterator<?> it = RelatrixTransaction.findSet(xid2,"*","*","*");
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
 				RelatrixTransaction.remove(xid2,dmr);
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
@@ -443,10 +443,10 @@ public class BatteryRelatrixTransactionStream {
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(xid2,DomainMapRange.class);
+			it = RelatrixTransaction.entrySet(xid2,Relation.class);
 			while(it.hasNext()) {
 				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("DomainMapRange:"+nex);
+				System.out.println("Relation:"+nex);
 			}
 		}
 		if(DEBUG) {

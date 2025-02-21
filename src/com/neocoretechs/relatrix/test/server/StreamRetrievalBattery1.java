@@ -3,12 +3,12 @@ package com.neocoretechs.relatrix.test.server;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result;
@@ -45,7 +45,7 @@ public class StreamRetrievalBattery1 {
 				System.out.println("Usage: <bootNode> <remoteNode> <remotePort> [init]");
 			}
 			rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
-			Morphism.displayLevel = Morphism.displayLevels.MINIMAL;
+			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 			if(argv.length == 4 && argv[3].equals("init")) {
 					battery1AR17(argv);
 			}
@@ -83,7 +83,7 @@ public class StreamRetrievalBattery1 {
 			long tims = System.currentTimeMillis();
 			int recs = 0;
 			String fkey = null;
-			DomainMapRange dmr = null;
+			Relation dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
 				dmr = rkvc.store(fkey, "Has unit", new Long(i));
@@ -325,7 +325,7 @@ public class StreamRetrievalBattery1 {
 			int i = 0;
 			while(it.hasNext()) {
 				Object fkey = it.next();
-				DomainMapRange dmr = (DomainMapRange)((Result)fkey).get(0);
+				Relation dmr = (Relation)((Result)fkey).get(0);
 				rkvc.remove(dmr.getDomain(), dmr.getMap());
 				++i;
 				if((System.currentTimeMillis()-timx) > 1000) {
@@ -344,15 +344,15 @@ public class StreamRetrievalBattery1 {
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = rkvc.entrySet(DomainMapRange.class);
+			it = rkvc.entrySet(Relation.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
-				System.out.println("DomainMapRange:"+nex);
+				System.out.println("Relation:"+nex);
 			}
 			siz = rkvc.size();
 			if(siz > 0) {
-				System.out.println("KV RANGE 1AR17 DomainMapRange MISMATCH:"+siz+" > 0 after all deleted and committed");
-				throw new Exception("KV RANGE 1AR17 DomainMapRange MISMATCH:"+siz+" > 0 after delete/commit");
+				System.out.println("KV RANGE 1AR17 Relation MISMATCH:"+siz+" > 0 after all deleted and committed");
+				throw new Exception("KV RANGE 1AR17 Relation MISMATCH:"+siz+" > 0 after delete/commit");
 			}
 			it = rkvc.entrySet(DomainRangeMap.class);
 			while(it.hasNext()) {

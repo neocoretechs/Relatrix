@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.Alias;
 
@@ -23,7 +23,7 @@ import com.neocoretechs.rocksack.Alias;
 		
 		/**
 		 * Create the iterator. Factory method, abstract.
-		 * Instantiates the proper subclass of {@link Morphism}
+		 * Instantiates the proper subclass of {@link AbstractRelation}
 		 * to pass to the createRelatrixIterator method to act as a retrieval template for the proper sequence
 		 * of 'findSet' operators for each permutation.
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
@@ -33,7 +33,7 @@ import com.neocoretechs.rocksack.Alias;
 		public abstract Iterator<?> createIterator() throws IllegalAccessException, IOException;
 		
 		/**
-		* Create the iterator. Factory method, abstract. Instantiates the proper subclass of {@link Morphism}
+		* Create the iterator. Factory method, abstract. Instantiates the proper subclass of {@link AbstractRelation}
 		* to pass to the createRelatrixIterator method to act as a retrieval template for the proper sequence
 		* of 'findSet' operators for each permutation.
 		* @param alias the database alias
@@ -46,22 +46,22 @@ import com.neocoretechs.rocksack.Alias;
 		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
-		 * @param tdmr the Morphism template that defines the selection parameters for the iterator, created by createIterator
+		 * @param tdmr the AbstractRelation template that defines the selection parameters for the iterator, created by createIterator
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		protected abstract Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException;
+		protected abstract Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException;
 		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
 		 * @param alias the database alias
-		 * @param tdmr the Morphism template that defines the selection parameters for the iterator
+		 * @param tdmr the AbstractRelation template that defines the selection parameters for the iterator
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		protected abstract Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
+		protected abstract Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
 		
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
@@ -79,7 +79,7 @@ import com.neocoretechs.rocksack.Alias;
 		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
 		}
 		/**
-		 * Determine if we are returning identity relationship {@link Morphism}s. {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
+		 * Determine if we are returning identity relationship {@link AbstractRelation}s. {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
 		 * @param dop The domain predicate from retrieval operation, either wildcard or tuple return
 		 * @param mop Map predicate, wildcard or tuple return
 		 * @param rop Range predicate, wildcard or tuple return
@@ -94,7 +94,7 @@ import com.neocoretechs.rocksack.Alias;
 		 * Determine if we are returning singleton relationship; i.e. if we have specified all object operators in our
 		 * parameters. (<object>,<object>,<object>)
 		 * @param dmr_return  For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
-		 * @return true if all 1-3 values of dmr_return are 0 indicating all instances of objects specified for elements of a relationship, resulting in identity {@link Morphism}
+		 * @return true if all 1-3 values of dmr_return are 0 indicating all instances of objects specified for elements of a relationship, resulting in identity {@link AbstractRelation}
 		 */
 		protected static boolean isReturnRelationships(short[] dmr_return) {
 			return( dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0 );

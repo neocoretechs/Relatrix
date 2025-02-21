@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 6 is for findSet(object,object,"?|*")
@@ -43,11 +43,11 @@ public class FindSetMode6 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-	    Morphism dmr = new DomainMapRange(true, (Comparable)darg, (Comparable)marg, null);
+	    AbstractRelation dmr = new Relation(true, (Comparable)darg, (Comparable)marg, null);
 	    return createRelatrixIterator(dmr);
 	}
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr)throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr)throws IllegalAccessException, IOException {
 	    return new RelatrixIterator( tdmr, dmr_return);
 	}
 	
@@ -56,11 +56,11 @@ public class FindSetMode6 extends IteratorFactory {
      */
 	@Override
 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
-	    Morphism dmr = new DomainMapRange(true, alias, (Comparable)darg, (Comparable)marg, null);
+	    AbstractRelation dmr = new Relation(true, alias, (Comparable)darg, (Comparable)marg, null);
 	    return createRelatrixIterator(alias, dmr);
 	}
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
 	    return new RelatrixIterator(alias, tdmr, dmr_return);
 	}
 }

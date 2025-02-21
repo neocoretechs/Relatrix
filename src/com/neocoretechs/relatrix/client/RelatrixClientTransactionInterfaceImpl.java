@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.DomainMapRange;
+import com.neocoretechs.relatrix.Relation;
 
 
 public abstract class RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface{
@@ -1992,19 +1992,19 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public DomainMapRange store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException {
+	public Relation store(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4,Comparable arg5) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2, arg3, arg4, arg5);
 		try {
-			return (DomainMapRange)sendCommand(s);
+			return (Relation)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public DomainMapRange store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException {
+	public Relation store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2, arg3, arg4);
 		try {
-			return (DomainMapRange)sendCommand(s);
+			return (Relation)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

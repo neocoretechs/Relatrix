@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -23,10 +23,10 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
-		Morphism xdmr = null;
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone(); // concrete instance in range
+			xdmr = (AbstractRelation) tdmr.clone(); // concrete instance in range
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
@@ -35,7 +35,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 				xdmr.setDomain((Comparable)endarg0); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getMap() == null) {
 			if(endarg1 instanceof Class) {
 				xdmr.setMap((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg1));
@@ -43,15 +43,15 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 				xdmr.setMap((Comparable)endarg1);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism xdmr = null;
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		AbstractRelation xdmr = null;
 		try {
-			xdmr = (Morphism) tdmr.clone(); // concrete instance in range
+			xdmr = (AbstractRelation) tdmr.clone(); // concrete instance in range
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
@@ -60,7 +60,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 				xdmr.setDomain(alias,(Comparable)endarg0); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getMap() == null) {
 			if(endarg1 instanceof Class) {
 				xdmr.setMap(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg1));
@@ -68,7 +68,7 @@ public class FindTailSetMode1Transaction extends FindSetMode1Transaction {
 				xdmr.setMap(alias,(Comparable)endarg1);
 			}
 		} else
-			throw new IllegalAccessException("Improper Morphism template.");
+			throw new IllegalAccessException("Improper AbstractRelation template.");
 		return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}
 }

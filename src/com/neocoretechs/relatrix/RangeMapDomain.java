@@ -19,8 +19,8 @@ import com.neocoretechs.rocksack.TransactionId;
 * based on any number of possible operators and objects passed to the various 'findSet' permutations.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
-@DatabaseClass(tablespace="com.neocoretechs.relatrix.DomainMapRange")
-public class RangeMapDomain extends Morphism {
+@DatabaseClass(tablespace="com.neocoretechs.relatrix.Relation")
+public class RangeMapDomain extends AbstractRelation {
 	private static final long serialVersionUID = -2797189836505364776L;
     public RangeMapDomain() {}
     
@@ -32,7 +32,7 @@ public class RangeMapDomain extends Morphism {
        	super(alias,d,m,r);
     }
 
-    RangeMapDomain(DomainMapRange identity) throws IOException {
+    RangeMapDomain(Relation identity) throws IOException {
 	   	this.templateFlag = identity.templateFlag;
     	this.alias = identity.getAlias();
     	this.transactionId = identity.getTransactionId();
@@ -51,7 +51,7 @@ public class RangeMapDomain extends Morphism {
     	range = identity.range;
     }
     
-    RangeMapDomain(Alias alias, DomainMapRange identity) throws IOException {
+    RangeMapDomain(Alias alias, Relation identity) throws IOException {
     	this(identity);
     	this.alias = alias;
     }

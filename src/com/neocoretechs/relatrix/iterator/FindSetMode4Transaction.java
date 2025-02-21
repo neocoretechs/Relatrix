@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.DomainMapRange;
-import com.neocoretechs.relatrix.Morphism;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -38,12 +38,12 @@ public class FindSetMode4Transaction extends FindSetMode4 {
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		Morphism dmr = new DomainMapRange(true, null, xid, (Comparable)darg, null, null);
+		AbstractRelation dmr = new Relation(true, null, xid, (Comparable)darg, null, null);
 		return createRelatrixIterator(dmr);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Morphism tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
 		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
 	}
 	
@@ -52,12 +52,12 @@ public class FindSetMode4Transaction extends FindSetMode4 {
      */
 	@Override
 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
-		Morphism dmr = new DomainMapRange(true, alias, xid, (Comparable)darg, null, null);
+		AbstractRelation dmr = new Relation(true, alias, xid, (Comparable)darg, null, null);
 		return createRelatrixIterator(alias, dmr);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, Morphism tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
 		return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
 	}
 }
