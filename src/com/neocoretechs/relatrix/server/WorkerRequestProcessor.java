@@ -100,40 +100,11 @@ public final class WorkerRequestProcessor implements Runnable {
 			}
 		} catch (Exception e1) {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
-			if(e1 instanceof NoSuchMethodException || e1.getCause() == null) {
-				Exception e = new Exception();
-				e.initCause(e1);
-				iori.setObjectReturn(e);
-				// clear the request queue
-				requestQueue.clear();	
-				// And finally, send the package back up the line
-				responseQueue.queueResponse(iori);
-				continue;
-			}
 			// RocksDBException contains Status, which does not serialize, so trap and resend all possible permutations
 			// Initial exception will always be InvocationTargetException from ServerInvokeMethod reflection call
 			// depending on exception hierarchy, db exception may be wrapped one or 2 layers down
-			if(e1.getCause().getCause() instanceof RocksDBException) {
-				StringBuilder sb = new StringBuilder(" RocksDBException Status:");
-				sb.append(((RocksDBException)e1.getCause().getCause()).getStatus().getCodeString());
-				Exception e = new Exception();
-				e.initCause(new Exception(sb.toString()));
-				iori.setObjectReturn(e);
-				System.out.println("Queuing RocksDBException:"+sb.toString());
-			} else {
-				if(e1.getCause() instanceof RuntimeException && e1.getCause().getCause() instanceof IOException ) {		
-					if(e1.getCause().getCause().getCause() instanceof RocksDBException) {
-						StringBuilder sb = new StringBuilder(" RocksDBException Status:");
-						sb.append(((RocksDBException)e1.getCause().getCause().getCause()).getStatus().getCodeString());
-						Exception e = new Exception();
-						e.initCause(new Exception(sb.toString()));
-						iori.setObjectReturn(e);
-						System.out.println("Queuing RocksDBException:"+sb.toString());
-					} else {
-						iori.setObjectReturn(e1);
-					}
-				}
-			}
+			e1 = unpackRocksDbException(e1);
+			iori.setObjectReturn(e1);
 			// clear the request queue
 			requestQueue.clear();	
 			// And finally, send the package back up the line
@@ -142,8 +113,27 @@ public final class WorkerRequestProcessor implements Runnable {
 	  } //shouldRun
 	  synchronized(waitHalt) {
 		  waitHalt.notify();
-	  }
-	  
+	  }  
+	}
+	/**
+	 * RocksDBException contains Status, which does not serialize, so trap and resend all possible permutations.
+	 * Initial exception will always be InvocationTargetException from ServerInvokeMethod reflection call
+	 * depending on exception hierarchy, db exception may be wrapped one or 2 layers down
+	 * @param e1
+	 * @return
+	 */
+	private Exception unpackRocksDbException(Exception e) {
+		Throwable e1 = e;
+		StringBuilder sb = new StringBuilder(" RocksDBException Status:");
+		while(e1 != null) {
+			if(e1 instanceof RocksDBException) {
+				sb.append(((RocksDBException)e1).getStatus().getCodeString());
+				Exception e2 = new Exception(sb.toString());
+				return e2;
+			}
+			e1 = e1.getCause();
+		}
+		return (Exception) e1;
 	}
 
 }
