@@ -133,7 +133,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			}
 			e1 = e1.getCause();
 		}
-		return (Exception) e1;
+		return e;
 	}
 
 }
