@@ -1138,7 +1138,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
          * @param target the initial instance of any Comparable
          * @param morphisms List to be populated with resolved Morphisms
          */
-        public static void resolveMorphisms(Comparable target, List<DBKey> morphisms) {
+        public static void resolveRelations(Comparable target, List<DBKey> morphisms) {
         	if(!(target instanceof AbstractRelation)) {
         		return;
         	}
@@ -1147,9 +1147,9 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
           	tdomain = (Comparable) ((AbstractRelation)target).getDomain();
         	tmap = (Comparable) ((AbstractRelation)target).getMap();
         	trange = (Comparable) ((AbstractRelation)target).getRange();
-        	resolveMorphisms(tdomain, morphisms);
-        	resolveMorphisms(tmap, morphisms);
-        	resolveMorphisms(trange, morphisms);
+        	resolveRelations(tdomain, morphisms);
+        	resolveRelations(tmap, morphisms);
+        	resolveRelations(trange, morphisms);
         	if(DEBUG)
         		System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
         }

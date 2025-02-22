@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix;
 
 import java.io.Serializable;
 /**
-* Top level abstract class of hierarchy returned by iterators or streams of retrieval of Morphisms from the Relatrix.<p/>
+* Top level abstract class of hierarchy returned by iterators or streams of retrieval of relationships from the Relatrix.<p/>
 * Depending on the type of set retrieval, a class hierarchy consisting of Result can consist of {@link Result1}, {@link Result2} or {@link Result3}.
 * Variations of 'get' methods can be used retrieve the elements from the hierarchy. A total order is imposed consisting of
 * Result1, Result2, and Result3. For instance, if we call findSet('?','*','?')<br/> we would receive iterators or streams of Result2 since

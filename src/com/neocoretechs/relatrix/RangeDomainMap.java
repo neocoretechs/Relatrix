@@ -50,10 +50,6 @@ public class RangeDomainMap extends AbstractRelation {
     	range = identity.range;
     }
     
-    RangeDomainMap(Alias alias, Relation identity) throws IOException {
-    	this(identity);
-    	this.alias = alias;
-    }
 
 	public RangeDomainMap(boolean b, Comparable d, Comparable m, Comparable r) {
 		super(b, d, m, r);

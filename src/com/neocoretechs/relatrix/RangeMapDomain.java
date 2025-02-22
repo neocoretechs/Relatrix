@@ -50,11 +50,6 @@ public class RangeMapDomain extends AbstractRelation {
     	setRangeKey(identity.getRangeKey());
     	range = identity.range;
     }
-    
-    RangeMapDomain(Alias alias, Relation identity) throws IOException {
-    	this(identity);
-    	this.alias = alias;
-    }
 
 	public RangeMapDomain(boolean b, Comparable d, Comparable m, Comparable r) {
 		super(b, d, m, r);

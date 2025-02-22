@@ -466,7 +466,7 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new MapDomainRange(alias, identity);
+						AbstractRelation dmr = new MapDomainRange(identity);
 						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());	
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored :"+dmr);
@@ -483,7 +483,7 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new DomainRangeMap(alias, identity);
+						AbstractRelation dmr = new DomainRangeMap(identity);
 						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored :"+dmr);
@@ -500,7 +500,7 @@ public final class RelatrixTransaction {
 			public void run() {
 				try {
 					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new MapRangeDomain(alias, identity);
+						AbstractRelation dmr = new MapRangeDomain(identity);
 						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored :"+dmr);
@@ -517,7 +517,7 @@ public final class RelatrixTransaction {
 			public void run() {  
 				try {
 					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new RangeDomainMap(alias, identity);
+						AbstractRelation dmr = new RangeDomainMap(identity);
 						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored :"+dmr);
@@ -534,7 +534,7 @@ public final class RelatrixTransaction {
 			public void run() {    
 				try {
 					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new RangeMapDomain(alias, identity);
+						AbstractRelation dmr = new RangeMapDomain(identity);
 						RelatrixKVTransaction.store(alias, xid, dmr,identity.getIdentity());
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored :"+dmr);
@@ -907,15 +907,15 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 			dmr.setTransactionId(transactionId);
 			dmr.setAlias(alias);
-			DomainRangeMap drm = new DomainRangeMap(alias,dmr);
+			DomainRangeMap drm = new DomainRangeMap(dmr);
 			drm.setTransactionId(transactionId);
-			MapDomainRange mdr = new MapDomainRange(alias,dmr);
+			MapDomainRange mdr = new MapDomainRange(dmr);
 			mdr.setTransactionId(transactionId);
-			MapRangeDomain mrd = new MapRangeDomain(alias,dmr);
+			MapRangeDomain mrd = new MapRangeDomain(dmr);
 			mrd.setTransactionId(transactionId);
-			RangeDomainMap rdm = new RangeDomainMap(alias,dmr);
+			RangeDomainMap rdm = new RangeDomainMap(dmr);
 			rdm.setTransactionId(transactionId);
-			RangeMapDomain rmd = new RangeMapDomain(alias,dmr);
+			RangeMapDomain rmd = new RangeMapDomain(dmr);
 			rmd.setTransactionId(transactionId);
 			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 				@Override

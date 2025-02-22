@@ -185,6 +185,8 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
+		if(o instanceof Exception)
+			throw (Exception)o;
 		return o;
 	}
 	/**

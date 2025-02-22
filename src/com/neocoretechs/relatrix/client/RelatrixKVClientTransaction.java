@@ -246,6 +246,8 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
+		if(o instanceof Exception)
+			throw (Exception)o;
 		return o;
 	}
 	

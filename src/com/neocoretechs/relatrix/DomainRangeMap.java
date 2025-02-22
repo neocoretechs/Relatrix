@@ -42,10 +42,7 @@ public class DomainRangeMap extends AbstractRelation {
     	setRangeKey(identity.getRangeKey());
     	range = identity.range;
     }
-    DomainRangeMap(Alias alias, Relation identity) throws IOException {
-       	this(identity);
-    	this.alias = alias;
-    }
+
     DomainRangeMap(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }

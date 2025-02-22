@@ -82,11 +82,6 @@ public class MapDomainRange extends AbstractRelation {
     	setRangeKey(identity.getRangeKey());
     	range = identity.range;
     }
-	
-    MapDomainRange(Alias alias, Relation identity) throws IOException {
-    	this(identity);
-    	this.alias = alias;
-    }
 
 	public MapDomainRange(boolean b, Comparable d, Comparable m, Comparable r) {
 		super(b, d, m, r);

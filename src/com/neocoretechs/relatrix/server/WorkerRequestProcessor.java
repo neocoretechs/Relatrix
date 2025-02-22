@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -54,9 +55,9 @@ public final class WorkerRequestProcessor implements Runnable {
 	@Override
 	public void run() {
 	  while(shouldRun || !requestQueue.isEmpty()) {
-		RemoteCompletionInterface iori = null;
+		RemoteResponseInterface iori = null;
 		try {
-			iori = requestQueue.take();
+			iori = (RemoteResponseInterface) requestQueue.take();
 		} catch (InterruptedException e1) {
 			// Executor has requested shutdown during take
 		    // quit the processing thread
@@ -87,23 +88,18 @@ public final class WorkerRequestProcessor implements Runnable {
 			    // quit the processing thread
 			    break;	
 			}
-
 			// we have flipped the latch from the request to the thread waiting here, so send an outbound response
 			// with the result of our work if a response is required
 			if( DEBUG ) {
 				System.out.println("WorkerRequestProcessor processing complete, queuing response:"+iori);
 			}
-
 			// And finally, send the package back up the line
-			queueResponse((RemoteResponseInterface) iori);
+			responseQueue.queueResponse(iori);
 			if( DEBUG ) {
 				System.out.println("Response queued:"+iori);
 			}
 		} catch (Exception e1) {
-			//if( !((e1.getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION ) {
-				System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
-				e1.printStackTrace();
-			//}
+			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 			if(e1 instanceof NoSuchMethodException || e1.getCause() == null) {
 				Exception e = new Exception();
 				e.initCause(e1);
@@ -111,7 +107,7 @@ public final class WorkerRequestProcessor implements Runnable {
 				// clear the request queue
 				requestQueue.clear();	
 				// And finally, send the package back up the line
-				queueResponse((RemoteResponseInterface) iori);
+				responseQueue.queueResponse(iori);
 				continue;
 			}
 			// RocksDBException contains Status, which does not serialize, so trap and resend all possible permutations
@@ -126,16 +122,30 @@ public final class WorkerRequestProcessor implements Runnable {
 				iori.setObjectReturn(e);
 				System.out.println("Queuing RocksDBException:"+sb.toString());
 			} else {
-				if(e1.getCause() instanceof RuntimeException && 
-						e1.getCause().getCause() instanceof IOException &&
-						e1.getCause().getCause().getCause() instanceof RocksDBException) {
-					StringBuilder sb = new StringBuilder(e1.getCause().getCause().getCause().getMessage());
-					sb.append(" RocksDBException Status:");
-					sb.append(((RocksDBException)e1.getCause().getCause().getCause()).getStatus().getCodeString());
-					Exception e = new Exception();
-					e.initCause(new Exception(sb.toString()));
-					iori.setObjectReturn(e);
-					System.out.println("Queuing RocksDBException:"+sb.toString());
+				if(e1.getCause() instanceof RuntimeException && e1.getCause().getCause() instanceof IOException ) {		
+					if(e1.getCause().getCause().getCause() instanceof RocksDBException) {
+						StringBuilder sb = new StringBuilder(e1.getCause().getCause().getCause().getMessage());
+						sb.append(" RocksDBException Status:");
+						sb.append(((RocksDBException)e1.getCause().getCause().getCause()).getStatus().getCodeString());
+						Exception e = new Exception();
+						e.initCause(new Exception(sb.toString()));
+						iori.setObjectReturn(e);
+						System.out.println("Queuing RocksDBException:"+sb.toString());
+					} else {
+						Throwable[] tossed = e1.getCause().getCause().getSuppressed();
+						StringBuilder sb = new StringBuilder(e1.getCause().getCause().getMessage());
+						for(Throwable toss: tossed) {
+							System.out.println("Tossed:"+toss);
+							if(toss instanceof RocksDBException) {
+								sb.append(" RocksDBException Status:");
+								sb.append(((RocksDBException)toss).getStatus().getCodeString());
+							}
+						}
+						Exception e = new Exception();
+						e.initCause(new Exception(sb.toString()));
+						iori.setObjectReturn(e);
+						System.out.println("Queuing RocksDBException:"+e);
+					} 
 				} else {
 					iori.setObjectReturn(e1);
 				}
@@ -143,7 +153,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			// clear the request queue
 			requestQueue.clear();	
 			// And finally, send the package back up the line
-			queueResponse((RemoteResponseInterface) iori);
+			responseQueue.queueResponse(iori);
 		}
 	  } //shouldRun
 	  synchronized(waitHalt) {
@@ -152,7 +162,4 @@ public final class WorkerRequestProcessor implements Runnable {
 	  
 	}
 
-	public void queueResponse(RemoteResponseInterface iori) {
-		responseQueue.queueResponse(iori);		
-	}
 }

@@ -257,6 +257,8 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		cdl.await();
 		Object o = rs.getObjectReturn();
 		outstandingRequests.remove(rs.getSession());
+		if(o instanceof Exception)
+			throw (Exception)o;
 		return o;
 	}
 	
