@@ -114,8 +114,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			// Initial exception will always be InvocationTargetException from ServerInvokeMethod reflection call
 			// depending on exception hierarchy, db exception may be wrapped one or 2 layers down
 			if(e1.getCause().getCause() instanceof RocksDBException) {
-				StringBuilder sb = new StringBuilder(e1.getCause().getCause().getMessage());
-				sb.append(" RocksDBException Status:");
+				StringBuilder sb = new StringBuilder(" RocksDBException Status:");
 				sb.append(((RocksDBException)e1.getCause().getCause()).getStatus().getCodeString());
 				Exception e = new Exception();
 				e.initCause(new Exception(sb.toString()));
@@ -124,30 +123,15 @@ public final class WorkerRequestProcessor implements Runnable {
 			} else {
 				if(e1.getCause() instanceof RuntimeException && e1.getCause().getCause() instanceof IOException ) {		
 					if(e1.getCause().getCause().getCause() instanceof RocksDBException) {
-						StringBuilder sb = new StringBuilder(e1.getCause().getCause().getCause().getMessage());
-						sb.append(" RocksDBException Status:");
+						StringBuilder sb = new StringBuilder(" RocksDBException Status:");
 						sb.append(((RocksDBException)e1.getCause().getCause().getCause()).getStatus().getCodeString());
 						Exception e = new Exception();
 						e.initCause(new Exception(sb.toString()));
 						iori.setObjectReturn(e);
 						System.out.println("Queuing RocksDBException:"+sb.toString());
 					} else {
-						Throwable[] tossed = e1.getCause().getCause().getSuppressed();
-						StringBuilder sb = new StringBuilder(e1.getCause().getCause().getMessage());
-						for(Throwable toss: tossed) {
-							System.out.println("Tossed:"+toss);
-							if(toss instanceof RocksDBException) {
-								sb.append(" RocksDBException Status:");
-								sb.append(((RocksDBException)toss).getStatus().getCodeString());
-							}
-						}
-						Exception e = new Exception();
-						e.initCause(new Exception(sb.toString()));
-						iori.setObjectReturn(e);
-						System.out.println("Queuing RocksDBException:"+e);
-					} 
-				} else {
-					iori.setObjectReturn(e1);
+						iori.setObjectReturn(e1);
+					}
 				}
 			}
 			// clear the request queue

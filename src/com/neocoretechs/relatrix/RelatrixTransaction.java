@@ -341,7 +341,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			} // run
 		},storeXTransaction); // spin 
@@ -358,7 +358,7 @@ public final class RelatrixTransaction {
 					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 					//throw new RuntimeException(e);
 				}
 			} // run
@@ -376,7 +376,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -393,7 +393,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -410,7 +410,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -427,7 +427,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -456,7 +456,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			} // run
 		},storeXTransaction); // spin 
@@ -473,7 +473,7 @@ public final class RelatrixTransaction {
 					}
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 					//throw new RuntimeException(e);
 				}
 			} // run
@@ -491,7 +491,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -508,7 +508,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -525,7 +525,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
@@ -542,7 +542,7 @@ public final class RelatrixTransaction {
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 					//throw new RuntimeException(e);
 					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
+					writeException.initCause(e);
 				}
 			}
 		},storeXTransaction);
