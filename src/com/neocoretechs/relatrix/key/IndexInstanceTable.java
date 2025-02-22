@@ -20,10 +20,10 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
  * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
- * lookup of the  index. We use the DBKey wrapper class to carry the index inside the AbstractRelation.
+ * lookup of the  index. We use the {@link DBKey} wrapper class to carry the index inside the {@link AbstractRelation}.
  * which also adds validation. A constructor carrying a transaction Id sets up methods for calls to the
  * transaction oriented classes.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022,2025
  *
  */
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
@@ -48,36 +48,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		DBKey retKey = getKey(instance);
 		// did the instance exist?
 		if(retKey == null) {
-			DBKey index = getNewDBKey();
+			retKey = getNewDBKey();
 			if(DEBUG)
-				System.out.printf("%s.put new instance key=%s%n", this.getClass().getName(), index);
+				System.out.printf("%s.put new instance key=%s%n", this.getClass().getName(), retKey);
 			// no new instance exists. store both new entries
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						RelatrixKV.store(index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},Relatrix.storeI);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						RelatrixKV.store(instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},Relatrix.storeI);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}	
-			return index;
+			storeParallel(retKey, instance);
 		}
 		if(DEBUG)
 			System.out.printf("%s.put existing instance key=%s%n", this.getClass().getName(), retKey);
@@ -99,32 +74,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.put Index=%s class=%s instance=%s%n", this.getClass().getName(), index, instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		// no new instance exists. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					RelatrixKV.store(index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					RelatrixKV.store(instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},Relatrix.storeI);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		storeParallel(index, instance);
 	}
 	/**
 	 * Put the key to the proper tables using the database alias.
@@ -149,37 +99,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			System.out.printf("%s.putAlias alias=%s class=%s instance=%s getByInstance result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, retKey.toString());
 		// did the instance exist?
 		if(retKey == null) {
-			DBKey index = getNewDBKey();
+			retKey = getNewDBKey();
 			if(DEBUG)
-				System.out.printf("%s.putAlias alias=%s class=%s instance=%s getNewDBKey result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, index.toString());			
+				System.out.printf("%s.putAlias alias=%s class=%s instance=%s getNewDBKey result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, retKey.toString());
 			// no new instance exists. store both new entries
-			// no new instance exists. store both new entries
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						RelatrixKV.store(alias, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},Relatrix.storeI);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						RelatrixKV.store(alias, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},Relatrix.storeI);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			return index;
+			storeParallel(alias, retKey, instance);
 		}
 		return retKey;
 	}
@@ -201,31 +125,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.putAlias alias=%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias.getAlias(), index.toString(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					RelatrixKV.store(alias, index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					RelatrixKV.store(alias, instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},Relatrix.storeI);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}	
+		storeParallel(alias, index, instance);
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction.
@@ -246,47 +146,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		DBKey retKey = getKey(transactionId, instance);
 		// did the instance exist?
 		if(retKey == null) {
-			AtomicInteger semaphore = new AtomicInteger();
-			final IOException writeException = new IOException();
-			DBKey index = getNewDBKey();
-			// no new instance exists. store both new entries
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if(semaphore.get() == 0)
-							RelatrixKVTransaction.store(transactionId, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						//throw new RuntimeException(e);
-						semaphore.getAndIncrement();
-						writeException.addSuppressed(e);
-					}
-				}
-			},RelatrixTransaction.storeITransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						if(semaphore.get() == 0)
-							RelatrixKVTransaction.store(transactionId, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						//throw new RuntimeException(e);
-						semaphore.getAndIncrement();
-						writeException.addSuppressed(e);
-					}
-				}
-			},RelatrixTransaction.storeITransaction);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			if(semaphore.get() > 0)
-				throw writeException;
-			return index;
+			retKey = getNewDBKey();
+			storeParallel(transactionId, retKey, instance);
 		} 
 		if(DEBUG)
-			System.out.printf("%s.put returning existing key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, retKey, instance.getClass().getName(), instance);
+			System.out.printf("%s.put returning key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, retKey, instance.getClass().getName(), instance);
 		return retKey;
 	}
 	/**
@@ -306,41 +170,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.put DBKey=%s class=%s instance=%s%n", this.getClass().getName(),index.toString(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		AtomicInteger semaphore = new AtomicInteger();
-		final IOException writeException = new IOException();
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(transactionId, index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
-				}
-			}
-		},RelatrixTransaction.storeITransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(transactionId, instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.addSuppressed(e);
-				}
-			}
-		},RelatrixTransaction.storeITransaction);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(semaphore.get() > 0)
-			throw writeException;
+		storeParallel(transactionId, index, instance);
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
@@ -363,33 +193,8 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		DBKey retKey = getKey(alias, transactionId, instance);
 		// did the instance exist?
 		if(retKey == null) {
-			DBKey index = getNewDBKey();
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						RelatrixKVTransaction.store(alias, transactionId, index, instance);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},RelatrixTransaction.storeITransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						RelatrixKVTransaction.store(alias, transactionId, instance, index);
-					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			},RelatrixTransaction.storeITransaction);
-			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			return index;
+			retKey = getNewDBKey();
+			storeParallel(alias, transactionId, retKey, instance);
 		}
 		return retKey;
 	}
@@ -412,13 +217,23 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(Alias alias, TransactionId transactionId, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.putAlias Alias:%s Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId,index.toString(), instance.getClass().getName(), instance);
+		storeParallel(alias, transactionId, index, instance);
+	}
+
+	public static void storeParallel(TransactionId transactionId, DBKey index, Comparable instance) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		// no new instance exists. store both new entries
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					RelatrixKVTransaction.store(alias, transactionId, index, instance);
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(transactionId, index, instance);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
 				}
 			}
 		},RelatrixTransaction.storeITransaction);
@@ -426,9 +241,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			@Override
 			public void run() {
 				try {
-					RelatrixKVTransaction.store(alias, transactionId, instance, index);
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(transactionId, instance, index);
 				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					throw new RuntimeException(e);
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
 				}
 			}
 		},RelatrixTransaction.storeITransaction);
@@ -437,9 +255,126 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		if(semaphore.get() > 0)
+			throw writeException;
 	}
-
-
+	
+	public static void storeParallel(Alias alias, TransactionId transactionId, DBKey index, Comparable instance) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		// no new instance exists. store both new entries
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(alias, transactionId, index, instance);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
+				}
+			}
+		},RelatrixTransaction.storeITransaction);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKVTransaction.store(alias, transactionId, instance, index);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
+				}
+			}
+		},RelatrixTransaction.storeITransaction);
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if(semaphore.get() > 0)
+			throw writeException;
+	}
+	
+	public static void storeParallel(DBKey index, Comparable instance) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		// no new instance exists. store both new entries
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKV.store(index, instance);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
+				}
+			}
+		},Relatrix.storeI);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKV.store(instance, index);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
+				}
+			}
+		},Relatrix.storeI);
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if(semaphore.get() > 0)
+			throw writeException;
+	}
+	
+	public static void storeParallel(Alias alias, DBKey index, Comparable instance) throws IOException {
+		AtomicInteger semaphore = new AtomicInteger();
+		final IOException writeException = new IOException();
+		// no new instance exists. store both new entries
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKV.store(alias, index, instance);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
+				}
+			}
+		},Relatrix.storeI);
+		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(semaphore.get() == 0)
+						RelatrixKV.store(alias, instance, index);
+				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+					//throw new RuntimeException(e);
+					semaphore.getAndIncrement();
+					writeException.initCause(e);
+				}
+			}
+		},Relatrix.storeI);
+		try {
+			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if(semaphore.get() > 0)
+			throw writeException;
+	}
 	/**
 	 * Get the instance contained in the passed DBKey
 	 * @param index the DBKey from which we extract the database index, and hence the proper path from catalog
