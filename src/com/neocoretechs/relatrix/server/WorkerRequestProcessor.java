@@ -103,7 +103,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			// RocksDBException contains Status, which does not serialize, so trap and resend all possible permutations
 			// Initial exception will always be InvocationTargetException from ServerInvokeMethod reflection call
 			// depending on exception hierarchy, db exception may be wrapped one or 2 layers down
-			e1 = unpackRocksDbException(e1);
+			//e1 = unpackRocksDbException(e1);
 			iori.setObjectReturn(e1);
 			// clear the request queue
 			requestQueue.clear();	
