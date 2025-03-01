@@ -392,7 +392,7 @@ public class ApacheLog {
 			try {
 				readAndProcess(line);
 				storeRelatrix(xid);
-				session.commit(xid);
+				//session.commit(xid);
 				if((System.currentTimeMillis()-tims) > 5000) {
 					System.out.println("Processed "+totalRecords+" current:"+toString());
 					tims = System.currentTimeMillis();
@@ -402,7 +402,7 @@ public class ApacheLog {
 			}
 		}
 		br.close();
-		//session.commit(xid);
+		session.commit(xid);
 	}
 	/**
 	 * Parse and store a line of simplified log data
@@ -421,7 +421,7 @@ public class ApacheLog {
 			try {
 				readAndProcess2(line);
 				storeRelatrix2(xid);
-				session.commit(xid);
+				//session.commit(xid);
 				if((System.currentTimeMillis()-tims) > 5000) {
 					System.out.println("Processed "+totalRecords+" current:"+toString());
 					tims = System.currentTimeMillis();
@@ -431,7 +431,7 @@ public class ApacheLog {
 			}
 		}
 		br.close();
-		//session.commit(xid);
+		session.commit(xid);
 	}
 	/**
 	 * Store the parsed data as a relationship, then as a series of relationships that contain
@@ -519,7 +519,7 @@ public class ApacheLog {
 		ApacheLog alfoo = new ApacheLog();
 		if(args.length == 4 || args.length == 5) {
 			session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
-			xid = session.getTransactionId();
+			xid = session.getTransactionId(20000);
 			if(args.length == 4)
 				alfoo.getFiles(args[3], false, xid);
 			else

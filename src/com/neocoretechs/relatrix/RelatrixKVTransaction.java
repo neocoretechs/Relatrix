@@ -54,6 +54,7 @@ public final class RelatrixKVTransaction {
 		if(t == null) {
 			try {
 				t = DatabaseManager.getTransactionalMap(type, xid);
+				//t = DatabaseManager.getOptimisticTransactionalMap(type, xid);
 			} catch(RocksDBException rdbe) {
 				throw new IOException(rdbe);
 			}
@@ -70,6 +71,7 @@ public final class RelatrixKVTransaction {
 		TransactionalMap t = mapCache.get(type.getName()+alias.getAlias());
 		if(t == null) {
 			t = DatabaseManager.getTransactionalMap(alias, type, xid);
+			//t = DatabaseManager.getOptimisticTransactionalMap(alias, type, xid);
 			mapCache.put(type.getName()+alias.getAlias(), t);
 			return t;
 		}
@@ -145,14 +147,25 @@ public final class RelatrixKVTransaction {
 	 * @return the transaction id
 	 * @throws IllegalAccessException
 	 * @throws IOException
-	 * @throws ClassNotFoundException 
+	 * @throws ClassNotFoundException
 	 */
 	@ServerMethod
 	public static TransactionId getTransactionId() throws IllegalAccessException, IOException, ClassNotFoundException {
 		TransactionId xid = DatabaseManager.getTransactionId();
 		return xid;
 	}
-	
+	/**
+	 * @param the lock timeout in milliseconds
+	 * @return the transaction id as a LockingTransactionId subclass of TransactionId
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@ServerMethod
+	public static TransactionId getTransactionId(long timeout) throws IllegalAccessException, IOException, ClassNotFoundException {
+		TransactionId xid = DatabaseManager.getTransactionId(timeout);
+		return xid;
+	}
 	/**
 	 * @param xid the transaction id
 	 * @throws IllegalAccessException

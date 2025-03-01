@@ -33,6 +33,7 @@ public final class WorkerRequestProcessor implements Runnable {
 
 	private volatile boolean shouldRun = true;
 	private Object waitHalt = new Object();
+	private Object mutex = new Object();
 	
 	public WorkerRequestProcessor(TCPWorker tcpworker) {
 		this.responseQueue = tcpworker;
@@ -77,7 +78,9 @@ public final class WorkerRequestProcessor implements Runnable {
 			// invoke the designated method on the server, wait for countdown latch to signal finish
 			// The result is placed in the return object or other property of the request/response/completion object
 			//
-			((RemoteCompletionInterface)iori).process();
+			synchronized(mutex) {
+				((RemoteCompletionInterface)iori).process();
+			}
 			
 			try {
 				if( DEBUG )
@@ -101,8 +104,6 @@ public final class WorkerRequestProcessor implements Runnable {
 		} catch (Exception e1) {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 			iori.setObjectReturn(e1);
-			// clear the request queue
-			requestQueue.clear();	
 			// And finally, send the package back up the line
 			responseQueue.queueResponse(iori);
 		}

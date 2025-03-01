@@ -211,7 +211,7 @@ public final class RelatrixTransaction {
 	
 	/**
 	 * Get a new transaction ID
-	 * @return
+	 * @return the TransactionId instance
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
@@ -221,7 +221,19 @@ public final class RelatrixTransaction {
 		TransactionId xid =  RelatrixKVTransaction.getTransactionId();
 		return xid;
 	}
-	
+	/**
+	 * Get a new transaction ID
+	 * @param the lock timeout
+	 * @return the TransactionId instance as LockingTransactionId
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static TransactionId getTransactionId(long timeout) throws IllegalAccessException, IOException, ClassNotFoundException {
+		TransactionId xid =  RelatrixKVTransaction.getTransactionId(timeout);
+		return xid;
+	}
 	/**
 	 * @param xid
 	 * @return
