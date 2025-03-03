@@ -78,9 +78,9 @@ public final class WorkerRequestProcessor implements Runnable {
 			// invoke the designated method on the server, wait for countdown latch to signal finish
 			// The result is placed in the return object or other property of the request/response/completion object
 			//
-			synchronized(mutex) {
+			//synchronized(mutex) {
 				((RemoteCompletionInterface)iori).process();
-			}
+			//}
 			
 			try {
 				if( DEBUG )

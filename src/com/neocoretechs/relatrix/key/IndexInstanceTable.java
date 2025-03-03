@@ -29,6 +29,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
 	public static boolean ASSERTKEY = true; // on get resolving getKey verify DBKey instance
+	private static Object mutex = new Object();
 
 	/**
 	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
@@ -224,6 +225,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
+		synchronized(mutex) {
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -254,6 +256,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
 		}
 		if(semaphore.get() > 0)
 			throw writeException;

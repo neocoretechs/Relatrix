@@ -107,6 +107,9 @@ public final class RelatrixTransaction {
 		sftpm.init(2, 2, new String[] {storeITransaction});
 		sftpm.init(3, 3, new String[] {searchXTransaction});
 	}
+	
+	private static Object mutex = new Object();
+	
 	// Multithreaded double check Singleton setups:
 	// 1.) privatized constructor; no other class can call
 	private RelatrixTransaction() {
@@ -342,6 +345,7 @@ public final class RelatrixTransaction {
 	public static void storeParallel(TransactionId xid, Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
+		synchronized(mutex) {
 		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
 			@Override
 			public void run() {
@@ -447,6 +451,7 @@ public final class RelatrixTransaction {
 			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
 		}
 		if(DEBUG)
 			System.out.println(identity);

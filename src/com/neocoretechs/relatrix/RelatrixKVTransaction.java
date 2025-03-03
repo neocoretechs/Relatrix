@@ -53,8 +53,8 @@ public final class RelatrixKVTransaction {
 			System.out.println("RelatrixKVTransaction getMap "+type+" "+xid);
 		if(t == null) {
 			try {
-				t = DatabaseManager.getTransactionalMap(type, xid);
-				//t = DatabaseManager.getOptimisticTransactionalMap(type, xid);
+				//t = DatabaseManager.getTransactionalMap(type, xid);
+				t = DatabaseManager.getOptimisticTransactionalMap(type, xid);
 			} catch(RocksDBException rdbe) {
 				throw new IOException(rdbe);
 			}
