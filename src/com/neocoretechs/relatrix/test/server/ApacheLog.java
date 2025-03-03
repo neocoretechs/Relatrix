@@ -18,10 +18,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.rocksdb.RocksDBException;
+import org.rocksdb.Status;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -30,6 +34,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.relatrix.server.ErrorUtil;
 
 /**
  * Process the apache log files and place in a Relatrix database.<p/>
@@ -92,6 +97,8 @@ public class ApacheLog {
 	Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(),Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	Pattern accessLogPattern2 = Pattern.compile(getAccessLogRegex2(),Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	Matcher accessLogEntryMatcher;
+	
+
 	/**
 	* 203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] 
 	* "GET /favicon.ico HTTP/1.1" 
@@ -311,8 +318,9 @@ public class ApacheLog {
 	 * @throws ParseException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
+	 * @throws InterruptedException 
 	 */
-	public void getFiles(String dir, boolean simplified, TransactionId xid) throws IOException, ParseException, IllegalAccessException, ClassNotFoundException {
+	public void getFiles(String dir, boolean simplified, TransactionId xid) throws IOException, ParseException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		Path path = FileSystems.getDefault().getPath(dir);
 		DirectoryStream<Path> files = Files.newDirectoryStream(path); 
 		Iterator<Path> it = files.iterator();
@@ -383,8 +391,9 @@ public class ApacheLog {
 	 * @throws ParseException
 	 * @throws DuplicateKeyException
 	 * @throws ClassNotFoundException
+	 * @throws InterruptedException 
 	 */
-	public void processPayload(byte[] pl, TransactionId xid) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException {
+	public void processPayload(byte[] pl, TransactionId xid) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException, InterruptedException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		tims = System.currentTimeMillis();
@@ -402,7 +411,7 @@ public class ApacheLog {
 			}
 		}
 		br.close();
-		session.commit(xid);
+		ErrorUtil.handleCommitBusyRetry(session, xid);
 	}
 	/**
 	 * Parse and store a line of simplified log data
@@ -412,8 +421,9 @@ public class ApacheLog {
 	 * @throws ParseException
 	 * @throws DuplicateKeyException
 	 * @throws ClassNotFoundException
+	 * @throws InterruptedException 
 	 */
-	public void processPayload2(byte[] pl, TransactionId xid) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException {
+	public void processPayload2(byte[] pl, TransactionId xid) throws IOException, ParseException, DuplicateKeyException, ClassNotFoundException, InterruptedException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		tims = System.currentTimeMillis();
@@ -431,7 +441,7 @@ public class ApacheLog {
 			}
 		}
 		br.close();
-		session.commit(xid);
+		ErrorUtil.handleCommitBusyRetry(session, xid);
 	}
 	/**
 	 * Store the parsed data as a relationship, then as a series of relationships that contain
@@ -499,9 +509,10 @@ public class ApacheLog {
 	 * @throws IOException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
+	 * @throws InterruptedException 
 	 * @throws DuplicateKeyException 
 	 */
-	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException, ClassNotFoundException {
+	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
 		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
 		lin += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
