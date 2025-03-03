@@ -346,112 +346,112 @@ public final class RelatrixTransaction {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		synchronized(mutex) {
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(xid, pk, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored primary:"+pk);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			} // run
-		},storeXTransaction); // spin 
-		// Start threads to store remaining indexes now that we have our primary set up
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new MapDomainRange(identity);
-						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());	
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(xid, pk, identity.getIdentity());
 						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
+							System.out.println("RelatrixTransaction.store stored primary:"+pk);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
 					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-					//throw new RuntimeException(e);
-				}
-			} // run
-		},storeXTransaction); // spin 
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new DomainRangeMap(identity);
-						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
+				} // run
+			},storeXTransaction); // spin 
+			// Start threads to store remaining indexes now that we have our primary set up
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new MapDomainRange(identity);
+							RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());	
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+						//throw new RuntimeException(e);
 					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+				} // run
+			},storeXTransaction); // spin 
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new DomainRangeMap(identity);
+							RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
+			},storeXTransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new MapRangeDomain(identity);
+							RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
+				}
+			},storeXTransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {  
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new RangeDomainMap(identity);
+							RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
+				}
+			},storeXTransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new RangeMapDomain(identity);
+							RelatrixKVTransaction.store(xid, dmr,identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
+				}
+			},storeXTransaction);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new MapRangeDomain(identity);
-						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
-					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {  
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new RangeDomainMap(identity);
-						RelatrixKVTransaction.store(xid, dmr, identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
-					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {    
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new RangeMapDomain(identity);
-						RelatrixKVTransaction.store(xid, dmr,identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
-					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			}
-		},storeXTransaction);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		}
 		if(DEBUG)
 			System.out.println(identity);
@@ -462,111 +462,113 @@ public final class RelatrixTransaction {
 	public static void storeParallel(Alias alias, TransactionId xid, Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(alias, xid, pk, identity.getIdentity());
-					if( DEBUG  )
-						System.out.println("RelatrixTransaction.store stored primary:"+pk);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			} // run
-		},storeXTransaction); // spin 
-		// Start threads to store remaining indexes now that we have our primary set up
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new MapDomainRange(identity);
-						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());	
+		synchronized(mutex) {
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(alias, xid, pk, identity.getIdentity());
 						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
+							System.out.println("RelatrixTransaction.store stored primary:"+pk);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
 					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-					//throw new RuntimeException(e);
-				}
-			} // run
-		},storeXTransaction); // spin 
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new DomainRangeMap(identity);
-						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
+				} // run
+			},storeXTransaction); // spin 
+			// Start threads to store remaining indexes now that we have our primary set up
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new MapDomainRange(identity);
+							RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());	
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+						//throw new RuntimeException(e);
 					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+				} // run
+			},storeXTransaction); // spin 
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new DomainRangeMap(identity);
+							RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
+			},storeXTransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new MapRangeDomain(identity);
+							RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
+				}
+			},storeXTransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {  
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new RangeDomainMap(identity);
+							RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
+				}
+			},storeXTransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {    
+					try {
+						if(semaphore.get() == 0) {
+							AbstractRelation dmr = new RangeMapDomain(identity);
+							RelatrixKVTransaction.store(alias, xid, dmr,identity.getIdentity());
+							if( DEBUG  )
+								System.out.println("RelatrixTransaction.store stored :"+dmr);
+						}
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
+				}
+			},storeXTransaction);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new MapRangeDomain(identity);
-						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
-					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {  
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new RangeDomainMap(identity);
-						RelatrixKVTransaction.store(alias, xid, dmr, identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
-					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			}
-		},storeXTransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {    
-				try {
-					if(semaphore.get() == 0) {
-						AbstractRelation dmr = new RangeMapDomain(identity);
-						RelatrixKVTransaction.store(alias, xid, dmr,identity.getIdentity());
-						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored :"+dmr);
-					}
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
-				}
-			}
-		},storeXTransaction);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeXTransaction);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 		if(DEBUG)
 			System.out.println(identity);

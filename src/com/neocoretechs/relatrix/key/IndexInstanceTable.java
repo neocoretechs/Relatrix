@@ -226,37 +226,37 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(transactionId, index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(transactionId, index, instance);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
-			}
-		},RelatrixTransaction.storeITransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(transactionId, instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+			},RelatrixTransaction.storeITransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(transactionId, instance, index);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
+			},RelatrixTransaction.storeITransaction);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		},RelatrixTransaction.storeITransaction);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
@@ -266,36 +266,38 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(alias, transactionId, index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+		synchronized(mutex) {
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(alias, transactionId, index, instance);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
-			}
-		},RelatrixTransaction.storeITransaction);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKVTransaction.store(alias, transactionId, instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+			},RelatrixTransaction.storeITransaction);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKVTransaction.store(alias, transactionId, instance, index);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
+			},RelatrixTransaction.storeITransaction);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		},RelatrixTransaction.storeITransaction);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
@@ -305,36 +307,38 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKV.store(index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+		synchronized(mutex) {
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKV.store(index, instance);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
-			}
-		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKV.store(instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+			},Relatrix.storeI);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKV.store(instance, index);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
+			},Relatrix.storeI);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		},Relatrix.storeI);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
@@ -344,36 +348,38 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKV.store(alias, index, instance);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+		synchronized(mutex) {
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKV.store(alias, index, instance);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
-			}
-		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(semaphore.get() == 0)
-						RelatrixKV.store(alias, instance, index);
-				} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
-					//throw new RuntimeException(e);
-					semaphore.getAndIncrement();
-					writeException.initCause(e);
+			},Relatrix.storeI);
+			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if(semaphore.get() == 0)
+							RelatrixKV.store(alias, instance, index);
+					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+						//throw new RuntimeException(e);
+						semaphore.getAndIncrement();
+						writeException.initCause(e);
+					}
 				}
+			},Relatrix.storeI);
+			try {
+				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		},Relatrix.storeI);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
