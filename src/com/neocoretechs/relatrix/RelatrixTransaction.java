@@ -342,6 +342,130 @@ public final class RelatrixTransaction {
 		return identity;
 	}
 	
+	/**
+	 * Prepare the initial primary relation for subsequent set of tuples
+	 * @param d domain
+	 * @param m map
+	 * @param r range
+	 * @return The list of tuples to populate with first element set to d,m,r
+	 */
+	@ServerMethod
+	public static ArrayList<Comparable[]> prepareTuple(Comparable d, Comparable m, Comparable r) {
+		Comparable[] tuple = new Comparable[] {d,m,r};
+		ArrayList<Comparable[]> tuples = new ArrayList<Comparable[]>();
+		tuples.add(tuple);
+		return tuples;
+	}
+	/**
+	 * Add the subsequent tuples to be related to tuple at element 0 of list
+	 * @param m map
+	 * @param r range
+	 * @param tuples the list of tuples from primary prepareTuple call
+	 */
+	@ServerMethod
+	public static void prepareTuple(Comparable m, Comparable r, ArrayList<Comparable[]> tuples) {
+		Comparable[] tuple = new Comparable[] {m,r};
+		tuples.add(tuple);
+	}
+	
+	/**
+	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
+	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
+	 * returned in the array position of the returned tuple.
+	 * @param xid the transaction Id 
+	 * @param tuples the set of prepared tuples, domain, map, range, for first tuple, map range for remaining
+	 * @return the set of stored tuples with identity key set and null for duplicates
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	@ServerMethod
+	public static Relation[] store(TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
+		Relation[] identities = new Relation[tuples.size()];
+		Comparable[] tuple = tuples.get(0);
+		identities[0] = new Relation();
+		identities[0].setTransactionId(xid);
+		PrimaryKeySet pk = PrimaryKeySet.locate(xid, tuple[0], tuple[1]);
+		identities[0].setDomainKey(pk.getDomainKey());
+		identities[0].setMapKey(pk.getMapKey());
+		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
+		if(rKey == null)
+			identities[0].setRange(tuple[2]);
+		else {
+			identities[0].setRangeKey(rKey);
+			identities[0].setRangeResolved(tuple[2]);
+		}
+		if(pk.getIdentity() == null) {
+			identities[0].setDomainResolved(tuple[0]);
+			identities[0].setMapResolved(tuple[1]);
+			// newKey will call into DBKey.newKey with proper transactionId and alias
+			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+			// and return the new DBKey reference
+			identities[0].setIdentity(identities[0].newKey(identities[0]));
+			storeParallel(xid, identities[0], pk);
+		} else {
+			rKey = (DBKey) RelatrixKVTransaction.get(xid,identities[0]);
+			identities[0].setIdentity(rKey);
+			identities[0].setTransactionId(xid);
+		}
+		for(int i = 1; i < tuples.size(); i++) {
+			tuple = tuples.get(i);
+			try {
+				identities[i] = store(xid, identities[0], tuple[0], tuple[1]);
+			} catch(DuplicateKeyException dke) {}
+		}
+		return identities;
+	}
+	/**
+	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
+	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
+	 * returned in the array position of the returned tuple.
+	 * @param alias database alias
+	 * @param xid the transaction Id 
+	 * @param tuples the set of prepared tuples, domain, map, range, for first tuple, map range for remaining
+	 * @return the set of stored tuples with identity key set and null for duplicates
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	@ServerMethod
+	public static Relation[] store(Alias alias, TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
+		Relation[] identities = new Relation[tuples.size()];
+		Comparable[] tuple = tuples.get(0);
+		identities[0] = new Relation();
+		identities[0].setAlias(alias);
+		identities[0].setTransactionId(xid);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, tuple[0], tuple[1]);
+		identities[0].setDomainKey(pk.getDomainKey());
+		identities[0].setMapKey(pk.getMapKey());
+		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
+		if(rKey == null)
+			identities[0].setRange(alias, tuple[2]);
+		else {
+			identities[0].setRangeKey(rKey);
+			identities[0].setRangeResolved(tuple[2]);
+		}
+		if(pk.getIdentity() == null) {
+			identities[0].setDomainResolved(tuple[0]);
+			identities[0].setMapResolved(tuple[1]);
+			// newKey will call into DBKey.newKey with proper transactionId and alias
+			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
+			// and return the new DBKey reference
+			identities[0].setIdentity(identities[0].newKey(alias, identities[0]));
+			storeParallel(alias, xid, identities[0], pk);
+		} else {
+			rKey = (DBKey) RelatrixKVTransaction.get(alias, xid, identities[0]);
+			identities[0].setIdentity(rKey);
+		}
+		for(int i = 1; i < tuples.size(); i++) {
+			tuple = tuples.get(i);
+			try {
+				identities[i] = store(alias, xid, identities[0], tuple[0], tuple[1]);
+			} catch(DuplicateKeyException dke) {}
+		}
+		return identities;
+	}
+	
 	public static void storeParallel(TransactionId xid, Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();

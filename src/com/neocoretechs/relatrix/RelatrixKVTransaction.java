@@ -70,8 +70,8 @@ public final class RelatrixKVTransaction {
 			System.out.println("RelatrixKVTransaction getMap "+type+" "+xid+" alias:"+alias);
 		TransactionalMap t = mapCache.get(type.getName()+alias.getAlias());
 		if(t == null) {
-			t = DatabaseManager.getTransactionalMap(alias, type, xid);
-			//t = DatabaseManager.getOptimisticTransactionalMap(alias, type, xid);
+			//t = DatabaseManager.getTransactionalMap(alias, type, xid);
+			t = DatabaseManager.getOptimisticTransactionalMap(alias, type, xid);
 			mapCache.put(type.getName()+alias.getAlias(), t);
 			return t;
 		}

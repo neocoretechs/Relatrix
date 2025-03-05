@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -453,20 +454,17 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		Optional<?> p = session.findStream(xid,accessLogEntryEpoch, remoteHost, '*').findFirst();
-		Relation rel;
-		if(!p.isPresent()) {
-			//rel = (Relation) ((Result)p.get()).get();
-			//else
-			rel = session.store(xid, accessLogEntryEpoch, remoteHost, clientRequest);
-			session.store(xid, rel, "remote user", remoteUser);
-			session.store(xid, rel, "http status",httpStatusCode);
-			session.store(xid, rel, "bytes returned",numBytes);
-			session.store(xid, rel, "referer",referer);
-			session.store(xid, rel, "user agent",userAgent);
-			session.store(xid, rel, "OS",Os);
-			session.store(xid, rel,"OS Ver.",OsVer);
-		}
+		ArrayList<Comparable[]> tuples = session.prepareTuple(accessLogEntryEpoch, remoteHost, clientRequest);
+		session.prepareTuple("http status", httpStatusCode, tuples);
+		session.prepareTuple("bytes returned", numBytes, tuples);
+		session.prepareTuple("remote user", remoteUser, tuples);
+		session.prepareTuple("http status", httpStatusCode, tuples);
+		session.prepareTuple("bytes returned", numBytes, tuples);
+		session.prepareTuple("referer", referer, tuples);
+		session.prepareTuple("user agent",userAgent, tuples);
+		session.prepareTuple("OS",Os, tuples);
+		session.prepareTuple("OS Ver.", OsVer, tuples);
+		session.store(xid, tuples);
 	}
 	
 	/**
@@ -479,20 +477,10 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix2(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		Optional<?> p = session.findStream(xid,accessLogEntryEpoch, remoteHost, '*').findFirst();
-		Relation rel;
-		if(!p.isPresent()) {
-			//rel = (Relation) ((Result)p.get()).get();
-			//if(DEBUG)
-			//	System.out.println("Found relation:"+rel);
-			//} else {
-			rel = session.store(xid, accessLogEntryEpoch, remoteHost, clientRequest);
-			if(DEBUG)
-				System.out.println("Stored relation:"+rel);
-			//}
-			session.store(xid, rel, "http status",httpStatusCode);
-			session.store(xid, rel, "bytes returned",numBytes);
-		}
+		ArrayList<Comparable[]> tuples = session.prepareTuple(accessLogEntryEpoch, remoteHost, clientRequest);
+		session.prepareTuple("http status", httpStatusCode, tuples);
+		session.prepareTuple("bytes returned", numBytes, tuples);
+		session.store(xid, tuples);
 	}
 
 	public String toString() {
