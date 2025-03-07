@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -342,34 +343,11 @@ public final class RelatrixTransaction {
 		return identity;
 	}
 	
-	/**
-	 * Prepare the initial primary relation for subsequent set of tuples
-	 * @param d domain
-	 * @param m map
-	 * @param r range
-	 * @return The list of tuples to populate with first element set to d,m,r
-	 */
-	@ServerMethod
-	public static ArrayList<Comparable[]> prepareTuple(Comparable d, Comparable m, Comparable r) {
-		Comparable[] tuple = new Comparable[] {d,m,r};
-		ArrayList<Comparable[]> tuples = new ArrayList<Comparable[]>();
-		tuples.add(tuple);
-		return tuples;
-	}
-	/**
-	 * Add the subsequent tuples to be related to tuple at element 0 of list
-	 * @param m map
-	 * @param r range
-	 * @param tuples the list of tuples from primary prepareTuple call
-	 */
-	@ServerMethod
-	public static void prepareTuple(Comparable m, Comparable r, ArrayList<Comparable[]> tuples) {
-		Comparable[] tuple = new Comparable[] {m,r};
-		tuples.add(tuple);
-	}
+
 	
 	/**
-	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
+	 * Designed to interoperate with {@link Tuple}<p>
+	 * Store the set of prepared tuples. Expects the first tuple to have d, m, r. The remaining tuples
 	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
 	 * returned in the array position of the returned tuple.
 	 * @param xid the transaction Id 
@@ -404,19 +382,31 @@ public final class RelatrixTransaction {
 			identities[0].setIdentity(identities[0].newKey(identities[0]));
 			storeParallel(xid, identities[0], pk);
 		} else {
-			rKey = (DBKey) RelatrixKVTransaction.get(xid,identities[0]);
-			identities[0].setIdentity(rKey);
-			identities[0].setTransactionId(xid);
+			identities[0].setIdentity(pk.getIdentity());
 		}
+		if(DEBUG)
+			System.out.println("Tuple size:"+tuples.size());
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);
+			if(DEBUG)
+				System.out.println(Arrays.toString(tuple));
 			try {
 				identities[i] = store(xid, identities[0], tuple[0], tuple[1]);
-			} catch(DuplicateKeyException dke) {}
+			} catch(DuplicateKeyException dke) {
+				if(DEBUG)
+					System.out.println("Duplicate key returned for tuple store:"+dke);
+			}
+		}
+		if(DEBUG) {
+			for(Relation r: identities) {
+				System.out.println(r);
+			}
+			System.out.println("-----");
 		}
 		return identities;
 	}
 	/**
+	 * Designed to interoperate with {@link Tuple}<p>
 	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
 	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
 	 * returned in the array position of the returned tuple.
@@ -454,8 +444,7 @@ public final class RelatrixTransaction {
 			identities[0].setIdentity(identities[0].newKey(alias, identities[0]));
 			storeParallel(alias, xid, identities[0], pk);
 		} else {
-			rKey = (DBKey) RelatrixKVTransaction.get(alias, xid, identities[0]);
-			identities[0].setIdentity(rKey);
+			identities[0].setIdentity(pk.getIdentity());
 		}
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);

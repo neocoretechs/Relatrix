@@ -18,7 +18,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class ErrorUtil {
-	static int maxRetries = 5;
+	static int maxRetries = 10;
 	static int initialDelay = 100; // 100 ms
 	static int maxDelay = 30000; // 30 seconds
 	static double backoffFactor = 2.0;

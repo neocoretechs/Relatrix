@@ -34,6 +34,7 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Tuple;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.server.ErrorUtil;
 
@@ -71,6 +72,7 @@ import com.neocoretechs.relatrix.server.ErrorUtil;
 public class ApacheLog {
 	private static final String dateForm = "dd/MMM/yyyy:HH:mm:ss Z";
 	static boolean DEBUG = false;
+	private static boolean DEBUGRETURN = false; // display return values from remote store
 	/*Log file fields*/
 	static String remoteHost = null;
 	String shouldBDash = null;
@@ -93,6 +95,7 @@ public class ApacheLog {
 	
 	static RelatrixClientTransaction session;
 	static TransactionId xid = null;
+
 
 	SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateForm);
 	Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(),Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -398,15 +401,23 @@ public class ApacheLog {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		tims = System.currentTimeMillis();
+		int approxLines = pl.length/80; // approximate number of lines
+		int commitRate = approxLines/10;
+		int lineCnt = 0;
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess(line);
 				storeRelatrix(xid);
-				//session.commit(xid);
+				if(lineCnt == commitRate) {
+					System.out.println("Commit at "+totalRecords);
+					ErrorUtil.handleCommitBusyRetry(session, xid);
+					lineCnt = 0;
+				}
 				if((System.currentTimeMillis()-tims) > 5000) {
 					System.out.println("Processed "+totalRecords+" current:"+toString());
 					tims = System.currentTimeMillis();
 				}
+				++lineCnt;
 			} catch(ParseException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
@@ -428,15 +439,23 @@ public class ApacheLog {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		tims = System.currentTimeMillis();
+		int approxLines = pl.length/80; // approximate number of lines
+		int commitRate = approxLines/10;
+		int lineCnt = 0;
 		while((line = br.readLine()) != null) {
 			try {
 				readAndProcess2(line);
 				storeRelatrix2(xid);
-				//session.commit(xid);
+				if(lineCnt == commitRate) {
+					System.out.println("Commit at "+totalRecords);
+					ErrorUtil.handleCommitBusyRetry(session, xid);
+					lineCnt = 0;
+				}
 				if((System.currentTimeMillis()-tims) > 5000) {
 					System.out.println("Processed "+totalRecords+" current:"+toString());
 					tims = System.currentTimeMillis();
 				}
+				++lineCnt;
 			} catch(ParseException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
@@ -454,17 +473,18 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		ArrayList<Comparable[]> tuples = session.prepareTuple(accessLogEntryEpoch, remoteHost, clientRequest);
-		session.prepareTuple("http status", httpStatusCode, tuples);
-		session.prepareTuple("bytes returned", numBytes, tuples);
-		session.prepareTuple("remote user", remoteUser, tuples);
-		session.prepareTuple("http status", httpStatusCode, tuples);
-		session.prepareTuple("bytes returned", numBytes, tuples);
-		session.prepareTuple("referer", referer, tuples);
-		session.prepareTuple("user agent",userAgent, tuples);
-		session.prepareTuple("OS",Os, tuples);
-		session.prepareTuple("OS Ver.", OsVer, tuples);
-		session.store(xid, tuples);
+		Tuple tuple = new Tuple(accessLogEntryEpoch, remoteHost+clientRequest, remoteHost);
+		tuple.prepareTuple("client request", clientRequest);
+		tuple.prepareTuple("http status", httpStatusCode);
+		tuple.prepareTuple("bytes returned", numBytes);
+		tuple.prepareTuple("remote user", remoteUser);
+		tuple.prepareTuple("http status", httpStatusCode);
+		tuple.prepareTuple("bytes returned", numBytes);
+		tuple.prepareTuple("referer", referer);
+		tuple.prepareTuple("user agent",userAgent);
+		tuple.prepareTuple("OS",Os);
+		tuple.prepareTuple("OS Ver.", OsVer);
+		session.store(xid, tuple.getTuples());
 	}
 	
 	/**
@@ -477,10 +497,20 @@ public class ApacheLog {
 	 * @throws IOException
 	 */
 	private static void storeRelatrix2(TransactionId xid) throws IllegalAccessException, ClassNotFoundException, IOException {
-		ArrayList<Comparable[]> tuples = session.prepareTuple(accessLogEntryEpoch, remoteHost, clientRequest);
-		session.prepareTuple("http status", httpStatusCode, tuples);
-		session.prepareTuple("bytes returned", numBytes, tuples);
-		session.store(xid, tuples);
+		@SuppressWarnings("unchecked")
+		Tuple tuple = new Tuple(accessLogEntryEpoch, remoteHost+clientRequest, remoteHost);
+		tuple.prepareTuple("client request", clientRequest);
+		tuple.prepareTuple("http status", httpStatusCode);
+		tuple.prepareTuple("bytes returned", numBytes);
+		if(DEBUG || DEBUGRETURN)
+			System.out.println("tuple size:"+tuple.getTuples().size());
+		Relation res[] = session.store(xid, tuple.getTuples());
+		if(DEBUG || DEBUGRETURN) {
+			for(Relation r: res) {
+				System.out.println(r);
+			}
+			System.out.println("-----");
+		}
 	}
 
 	public String toString() {
@@ -548,32 +578,54 @@ public class ApacheLog {
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Iterate all the retrieved identity relationships
+		cnt2 = 0;
 		it.forEachRemaining(e->{
 			//System.out.println(++cnt+".) Primary relation:"+e);
 			Iterator<?> it2 = null;
 			// findSet returns Result as the lambda, which contains components of the relationships
 			result = (Result) e;
 			// use the identity as the first element to retrieve related elements
+			/*
+			try {
+				@SuppressWarnings("unchecked")
+				List<Comparable> tuples = session.findSet(xid, result.get());
+				for(Comparable c: tuples) {
+					if(DEBUG)
+						System.out.println("Processed "+(++cnt2)+".) "+c);
+					else {
+						if((System.currentTimeMillis()-tims) > 5000) {
+							System.out.println("Processed "+(++cnt2)+".) "+c);
+							tims = System.currentTimeMillis();
+						}
+					}
+				}
+			} catch (IOException e3) {
+				e3.printStackTrace();
+			}
+			***************************************************
+			 * alternate method without findSet(comparable)
+			 */
 			try {
 				it2 = session.findSet(xid, result.get(),'?','?');
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} 
 			// If there are any elements related to the identity, display them
-			cnt2 = 0;
 			// break the identity relationship object out into a list of its components
 			List<?> l = session.resolve(result.get());
 			// display the primary relationship and each element it is related to
-			it2.forEachRemaining(/*System.out::println*/ e2->{
+			//it2.forEachRemaining(System.out::println)
+			it2.forEachRemaining( e2->{
 				++cnt2;
 				if(DEBUG)
 					System.out.println(cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
 				else
 					if((System.currentTimeMillis()-tims) > 5000) {
-						System.out.println("Processed "+cnt2+" current:"+cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
+						System.out.println("Processed "+cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
 						tims = System.currentTimeMillis();
 					}
 			});
+			 //*****************/
 			if(DEBUG)
 				System.out.println("-----------------");
 		});

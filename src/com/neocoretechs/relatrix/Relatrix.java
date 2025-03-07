@@ -306,32 +306,9 @@ public final class Relatrix {
 		storeParallel(alias, identity, pk);
 		return identity;
 	}
+
 	/**
-	 * Prepare the initial primary relation for subsequent set of tuples
-	 * @param d domain
-	 * @param m map
-	 * @param r range
-	 * @return The list of tuples to populate with first element set to d,m,r
-	 */
-	@ServerMethod
-	public static ArrayList<Comparable[]> prepareTuple(Comparable d, Comparable m, Comparable r) {
-		Comparable[] tuple = new Comparable[] {d,m,r};
-		ArrayList<Comparable[]> tuples = new ArrayList<Comparable[]>();
-		tuples.add(tuple);
-		return tuples;
-	}
-	/**
-	 * Add the subsequent tuples to be related to tuple at element 0 of list
-	 * @param m map
-	 * @param r range
-	 * @param tuples the list of tuples from primary prepareTuple call
-	 */
-	@ServerMethod
-	public static void prepareTuple(Comparable m, Comparable r, ArrayList<Comparable[]> tuples) {
-		Comparable[] tuple = new Comparable[] {m,r};
-		tuples.add(tuple);
-	}
-	/**
+	 * Designed to interoperate with {@link Tuple}<p>
 	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
 	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
 	 * returned in the array position of the returned tuple. 
@@ -365,8 +342,7 @@ public final class Relatrix {
 			identities[0].setIdentity(identities[0].newKey(identities[0]));
 			storeParallel(identities[0], pk);
 		} else {
-			rKey = (DBKey) RelatrixKV.get(identities[0]);
-			identities[0].setIdentity(rKey);
+			identities[0].setIdentity(pk.getIdentity());
 		}
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);
@@ -377,6 +353,7 @@ public final class Relatrix {
 		return identities;
 	}
 	/**
+	 * Designed to interoperate with {@link Tuple}<p>
 	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
 	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
 	 * returned in the array position of the returned tuple. 
@@ -412,8 +389,7 @@ public final class Relatrix {
 			identities[0].setIdentity(identities[0].newKey(alias, identities[0]));
 			storeParallel(alias, identities[0], pk);
 		} else {
-			rKey = (DBKey) RelatrixKV.get(alias, identities[0]);
-			identities[0].setIdentity(rKey);
+			identities[0].setIdentity(pk.getIdentity());
 		}
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);
