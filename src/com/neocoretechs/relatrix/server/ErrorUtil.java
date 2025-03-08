@@ -18,7 +18,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class ErrorUtil {
-	static int maxRetries = 30;
+	static int maxRetries = 60;
 	static int initialDelay = 1000; // 1000 ms
 	static int maxDelay = 60000; // 60 seconds
 	static double backoffFactor = 2.0;
@@ -38,7 +38,7 @@ public class ErrorUtil {
 			try {
 				// Perform transactional operations
 				session.commit(xid);
-				break; // Commit successful, exit loop
+				return; // Commit successful, exit
 			} catch (IOException e) {
 				Throwable c = e.getCause();
 				if(c instanceof IOException) {
@@ -79,7 +79,7 @@ public class ErrorUtil {
 			try {
 				// Perform transactional operations
 				session.commit(xid);
-				break; // Commit successful, exit loop
+				return; // Commit successful, exit
 			} catch (IOException e) {
 				Throwable c = e.getCause();
 				if(c instanceof IOException) {
@@ -120,7 +120,7 @@ public class ErrorUtil {
 			try {
 				// Perform transactional operations
 				session.commit(xid);
-				break; // Commit successful, exit loop
+				return; // Commit successful, exit
 			} catch (IOException e) {
 				Throwable c = e.getCause();
 				if(c instanceof IOException) {
@@ -161,7 +161,7 @@ public class ErrorUtil {
 			try {
 				// Perform transactional operations
 				session.commit(xid);
-				break; // Commit successful, exit loop
+				return; // Commit successful, exit
 			} catch (IOException e) {
 				Throwable c = e.getCause();
 				if(c instanceof IOException) {
