@@ -402,7 +402,9 @@ public class ApacheLog {
 		String line = "";
 		tims = System.currentTimeMillis();
 		int approxLines = pl.length/80; // approximate number of lines
-		int commitRate = approxLines/10;
+		int commitRate = approxLines/100;
+		if(commitRate < 100)
+			commitRate = 100;
 		int lineCnt = 0;
 		while((line = br.readLine()) != null) {
 			try {
@@ -440,7 +442,9 @@ public class ApacheLog {
 		String line = "";
 		tims = System.currentTimeMillis();
 		int approxLines = pl.length/80; // approximate number of lines
-		int commitRate = approxLines/10;
+		int commitRate = approxLines/100;
+		if(commitRate < 100)
+			commitRate = 100;
 		int lineCnt = 0;
 		while((line = br.readLine()) != null) {
 			try {

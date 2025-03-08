@@ -18,12 +18,20 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class ErrorUtil {
-	static int maxRetries = 10;
-	static int initialDelay = 100; // 100 ms
-	static int maxDelay = 30000; // 30 seconds
+	static int maxRetries = 30;
+	static int initialDelay = 1000; // 1000 ms
+	static int maxDelay = 60000; // 60 seconds
 	static double backoffFactor = 2.0;
 	static Random random = new Random();
-	
+	/**
+	 * Handle the response from the transaction server while attempting to commit. Use exponential backoff to wait
+	 * successively increasing times, up to maximum for the given maximum for responses of Status.Code.Busy or
+	 * Status.Code.TryAgain in a RocksDBException on commit
+	 * @param session The client transaction session
+	 * @param xid The transaction id
+	 * @throws IOException If any exception other than those described above occurs, or if max retries is exceeded.
+	 * @throws InterruptedException If interrupted during thread sleep
+	 */
 	public static void handleCommitBusyRetry(RelatrixClientTransaction session, TransactionId xid) throws IOException, InterruptedException {
 		Status s = null;
 		for (int retry = 0; retry < maxRetries; retry++) {
@@ -54,7 +62,17 @@ public class ErrorUtil {
 				}
 			}
 		}
+		throw new IOException("Commit failed after "+maxRetries+" giving up.");
 	}
+	/**
+	 * Handle the response from the transaction server while attempting to commit. Use exponential backoff to wait
+	 * successively increasing times, up to maximum for the given maximum for responses of Status.Code.Busy or
+	 * Status.Code.TryAgain in a RocksDBException on commit
+	 * @param session The KV client transaction session
+	 * @param xid The transaction id
+	 * @throws IOException If any exception other than those described above occurs, or if max retries is exceeded.
+	 * @throws InterruptedException If interrupted during thread sleep
+	 */
 	public static void handleCommitBusyRetry(RelatrixKVClientTransaction session, TransactionId xid) throws IOException, InterruptedException {
 		Status s = null;
 		for (int retry = 0; retry < maxRetries; retry++) {
@@ -85,7 +103,17 @@ public class ErrorUtil {
 				}
 			}
 		}
+		throw new IOException("Commit failed after "+maxRetries+" giving up.");
 	}
+	/**
+	 * Handle the response from the transaction server while attempting to commit. Use exponential backoff to wait
+	 * successively increasing times, up to maximum for the given maximum for responses of Status.Code.Busy or
+	 * Status.Code.TryAgain in a RocksDBException on commit
+	 * @param session The embedded KV transaction session
+	 * @param xid The transaction id
+	 * @throws IOException If any exception other than those described above occurs, or if max retries is exceeded.
+	 * @throws InterruptedException If interrupted during thread sleep
+	 */
 	public static void handleCommitBusyRetry(RelatrixKVTransaction session, TransactionId xid) throws IOException, InterruptedException, IllegalAccessException {
 		Status s = null;
 		for (int retry = 0; retry < maxRetries; retry++) {
@@ -116,7 +144,17 @@ public class ErrorUtil {
 				}
 			}
 		}
+		throw new IOException("Commit failed after "+maxRetries+" giving up.");
 	}
+	/**
+	 * Handle the response from the transaction server while attempting to commit. Use exponential backoff to wait
+	 * successively increasing times, up to maximum for the given maximum for responses of Status.Code.Busy or
+	 * Status.Code.TryAgain in a RocksDBException on commit
+	 * @param session The embedded transaction session
+	 * @param xid The transaction id
+	 * @throws IOException If any exception other than those described above occurs, or if max retries is exceeded.
+	 * @throws InterruptedException If interrupted during thread sleep
+	 */
 	public static void handleCommitBusyRetry(RelatrixTransaction session, TransactionId xid) throws IOException, InterruptedException, IllegalAccessException {
 		Status s = null;
 		for (int retry = 0; retry < maxRetries; retry++) {
@@ -147,5 +185,6 @@ public class ErrorUtil {
 				}
 			}
 		}
+		throw new IOException("Commit failed after "+maxRetries+" giving up.");
 	}
 }
