@@ -143,6 +143,10 @@ public final class RelatrixTransaction {
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	}
 	
+	public static void setOptimisticConcurrency(boolean optimistic) {
+		RelatrixKVTransaction.setOptimisticConcurrency(optimistic);
+	}
+	
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
 	 * @param path

@@ -31,6 +31,8 @@ public final class RelatrixKVTransaction {
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	private static ConcurrentHashMap<String, TransactionalMap> mapCache = new ConcurrentHashMap<String, TransactionalMap>();
+	public static boolean optimisticConcurrency = true;
+	
 	// Multithreaded double check Singleton setups:
 	// 1.) privatized constructor; no other class can call
 	private RelatrixKVTransaction() {
@@ -52,9 +54,11 @@ public final class RelatrixKVTransaction {
 		if(DEBUG)
 			System.out.println("RelatrixKVTransaction getMap "+type+" "+xid);
 		if(t == null) {
-			try {
-				//t = DatabaseManager.getTransactionalMap(type, xid);
-				t = DatabaseManager.getOptimisticTransactionalMap(type, xid);
+			try {			
+				if(optimisticConcurrency)
+					t = DatabaseManager.getOptimisticTransactionalMap(type, xid);
+				else
+					t = DatabaseManager.getTransactionalMap(type, xid);
 			} catch(RocksDBException rdbe) {
 				throw new IOException(rdbe);
 			}
@@ -65,13 +69,16 @@ public final class RelatrixKVTransaction {
 			DatabaseManager.associateSession(xid, t);
 		return t;
 	}
+	
 	public static TransactionalMap getMap(Alias alias, Class type, TransactionId xid) throws IllegalAccessException, IOException {
 		if(DEBUG)
 			System.out.println("RelatrixKVTransaction getMap "+type+" "+xid+" alias:"+alias);
 		TransactionalMap t = mapCache.get(type.getName()+alias.getAlias());
 		if(t == null) {
-			//t = DatabaseManager.getTransactionalMap(alias, type, xid);
-			t = DatabaseManager.getOptimisticTransactionalMap(alias, type, xid);
+			if(optimisticConcurrency)
+				t = DatabaseManager.getOptimisticTransactionalMap(alias, type, xid);
+			else
+				t = DatabaseManager.getTransactionalMap(alias, type, xid);
 			mapCache.put(type.getName()+alias.getAlias(), t);
 			return t;
 		}
@@ -80,6 +87,10 @@ public final class RelatrixKVTransaction {
 		return t;
 	}
 
+	public static void setOptimisticConcurrency(boolean optimistic) {
+		optimisticConcurrency = optimistic;
+	}
+	
 	/**
 	 * Verify that we are specifying a directory, then set that as top level file structure and database name
 	 * @param path

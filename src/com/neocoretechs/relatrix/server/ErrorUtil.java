@@ -19,7 +19,7 @@ import com.neocoretechs.rocksack.TransactionId;
  */
 public class ErrorUtil {
 	static int maxRetries = 60;
-	static int initialDelay = 1000; // 1000 ms
+	static int initialDelay = 10; // 10 ms
 	static int maxDelay = 60000; // 60 seconds
 	static double backoffFactor = 2.0;
 	static Random random = new Random();

@@ -401,8 +401,8 @@ public class ApacheLog {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		tims = System.currentTimeMillis();
-		int approxLines = pl.length/80; // approximate number of lines
-		int commitRate = approxLines/100;
+		//int approxLines = pl.length/80; // approximate number of lines
+		int commitRate = 100;//approxLines/100;
 		if(commitRate < 100)
 			commitRate = 100;
 		int lineCnt = 0;
@@ -441,8 +441,8 @@ public class ApacheLog {
 		BufferedReader br = new BufferedReader(new InputStreamReader(new DataInputStream(new ByteArrayInputStream(pl))));
 		String line = "";
 		tims = System.currentTimeMillis();
-		int approxLines = pl.length/80; // approximate number of lines
-		int commitRate = approxLines/100;
+		//int approxLines = pl.length/80; // approximate number of lines
+		int commitRate = 100;//approxLines/100;
 		if(commitRate < 100)
 			commitRate = 100;
 		int lineCnt = 0;
@@ -552,8 +552,8 @@ public class ApacheLog {
 		ApacheLog alfoo = new ApacheLog();
 		if(args.length == 4 || args.length == 5) {
 			session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
-			//xid = session.getTransactionId(20000);
-			xid = session.getTransactionId();
+			xid = session.getTransactionId(300000);
+			//xid = session.getTransactionId();
 			if(args.length == 4)
 				alfoo.getFiles(args[3], false, xid);
 			else
