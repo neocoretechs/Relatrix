@@ -2,23 +2,18 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadMapKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKeySetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubMapKVIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailMapKVIterator;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -181,55 +176,29 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 			// preserve the underlying iterator, sending back the corresponding remote iterator.
 			// The client, being engaged in a steam operation, will create the local RemoteStream with returned
 			// remote iterator
-			if( result instanceof BaseIteratorAccessInterface) {
-				result = ((BaseIteratorAccessInterface)result).getBaseIterator();
+			if( result instanceof Stream) {
+				result = new IteratorWrapper(((SackStream)result).iterator());
+				setObjectReturn(new RemoteKVIterator(getSession()));
+			} else {
+				if( result instanceof Iterator ) {
+					result = new IteratorWrapper((Iterator<?>) result);
+					setObjectReturn(new RemoteKVIterator(getSession()));
+				}
 			}
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			// put it in the array and send our intermediary back
 			RelatrixKVServer.sessionToObject.put(getSession(), result);
-			if( result.getClass() == com.neocoretechs.rocksack.iterator.TailSetKVIterator.class) {
-				setObjectReturn( new RemoteTailMapKVIterator(getSession()) );
+			// following is processing objects the dont require intermediary
+			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
+				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
 			} else {
-				if(result.getClass() == com.neocoretechs.rocksack.iterator.SubSetKVIterator.class ) {
-					setObjectReturn( new RemoteSubMapKVIterator(getSession()) );
-				} else {
-					if(result.getClass() == com.neocoretechs.rocksack.iterator.HeadSetKVIterator.class ) {
-						setObjectReturn( new RemoteHeadMapKVIterator(getSession()) );
-					} else {
-						if( result.getClass() == com.neocoretechs.rocksack.iterator.TailSetIterator.class) {
-							setObjectReturn( new RemoteTailMapIterator(getSession()) );
-						} else {
-							if( result.getClass() == com.neocoretechs.rocksack.iterator.SubSetIterator.class) {
-								setObjectReturn( new RemoteSubMapIterator(getSession()) );
-							} else {
-								if( result.getClass() == com.neocoretechs.rocksack.iterator.HeadSetIterator.class) {
-									setObjectReturn( new RemoteHeadMapIterator(getSession()) );
-								} else {
-									if( result.getClass() == com.neocoretechs.rocksack.iterator.EntrySetIterator.class) {
-										setObjectReturn( new RemoteEntrySetKVIterator(getSession()) );
-									} else {
-										if( result.getClass() == com.neocoretechs.rocksack.iterator.KeySetIterator.class) {
-											setObjectReturn( new RemoteKeySetIterator(getSession()) );
-										} else {
-											if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
-												setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
-											} else {
-												throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
 		} else {
 			setObjectReturn(result);
 		}
-		getCountDownLatch().countDown();
-	}	
-
+		getCountDownLatch().countDown();		
+	}
 }

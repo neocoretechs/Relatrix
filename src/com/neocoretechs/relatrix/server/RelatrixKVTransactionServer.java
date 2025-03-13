@@ -57,7 +57,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
-		RelatrixKVTransactionServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.kv.IteratorWrapper", 0);
+		RelatrixKVTransactionServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
 	
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
@@ -80,7 +80,7 @@ public final class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
-		RelatrixKVTransactionServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.kv.IteratorWrapper", 0);
+		RelatrixKVTransactionServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
 	
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT,InetAddress.getByName(address));

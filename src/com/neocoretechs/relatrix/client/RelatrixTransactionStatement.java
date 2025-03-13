@@ -5,11 +5,11 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteEntrySetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteHeadSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteSubSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteTailSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 import com.neocoretechs.rocksack.TransactionId;
@@ -89,19 +89,19 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 			// put it in the array and send our intermediary back
 			RelatrixTransactionServer.sessionToObject.put(getSession(), result);
 			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction.class) {
-				setObjectReturn( new RemoteSetIteratorTransaction(xid, getSession()) );
+				setObjectReturn( new ServerSideRemoteSetIteratorTransaction(xid, getSession()) );
 			} else {
 				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction.class ) {
-					setObjectReturn( new RemoteSubSetIteratorTransaction(xid, getSession()) );
+					setObjectReturn( new ServerSideRemoteSubSetIteratorTransaction(xid, getSession()) );
 				} else {
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction.class ) {
-						setObjectReturn( new RemoteHeadSetIteratorTransaction(xid, getSession()) );
+						setObjectReturn( new ServerSideRemoteHeadSetIteratorTransaction(xid, getSession()) );
 					} else {
 						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
-							setObjectReturn( new RemoteEntrySetIteratorTransaction(xid, getSession()) );
+							setObjectReturn( new ServerSideRemoteEntrySetIteratorTransaction(xid, getSession()) );
 						} else {
 							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
-								setObjectReturn( new RemoteTailSetIteratorTransaction(xid, getSession()) );
+								setObjectReturn( new ServerSideRemoteTailSetIteratorTransaction(xid, getSession()) );
 							} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 							}

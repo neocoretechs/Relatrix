@@ -57,7 +57,7 @@ public final class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.kv.IteratorWrapper", 0);
+		RelatrixKVServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
 		WORKBOOTPORT = port;
 		startServer(WORKBOOTPORT);
 		if(port == 9999) {
