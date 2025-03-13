@@ -14,6 +14,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterator;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -178,21 +179,23 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 			// remote iterator
 			if( result instanceof Stream) {
 				result = new IteratorWrapper(((SackStream)result).iterator());
-				setObjectReturn(new RemoteKVIterator(getSession()));
 			} else {
 				if( result instanceof Iterator ) {
 					result = new IteratorWrapper((Iterator<?>) result);
-					setObjectReturn(new RemoteKVIterator(getSession()));
 				}
 			}
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			// put it in the array and send our intermediary back
-			RelatrixKVServer.sessionToObject.put(getSession(), result);
-			// following is processing objects the dont require intermediary
 			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
 				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
+				getCountDownLatch().countDown();
+				return;
+			}
+			RelatrixKVServer.sessionToObject.put(getSession(), result);
+			if( result.getClass() == IteratorWrapper.class) {
+				setObjectReturn(new ServerSideRemoteKVIterator(getSession()));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
