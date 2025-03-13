@@ -3,17 +3,17 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
- * Used to produce RelatrixServer triplesets for remote delivery.
+ * Used by the Relatrix server to produce headsets for remote delivery.
  * Created from the {@link RelatrixStatement} process method and setObjectReturn is then called to place it in the return.
- * @author Jonathan Groff (C) NeoCoreTechs 2024
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2022
  *
  */
-public class RemoteSetIterator extends RemoteIterator {
+public class ServerSideRemoteHeadSetIterator extends RemoteIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteSetIterator(String session) {
+	public ServerSideRemoteHeadSetIterator(String session) {
 		super(session);
 	}
-
+	
 	@Override
 	public void process() throws Exception {
 		if( this.methodName.equals("close") ) {
@@ -24,7 +24,7 @@ public class RemoteSetIterator extends RemoteIterator {
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixServer.relatrixSetMethods.invokeMethod(this, itInst);
+			Object result = RelatrixServer.relatrixHeadsetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters

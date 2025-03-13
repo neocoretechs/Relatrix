@@ -9,9 +9,9 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
  *
  */
-public class RemoteSubSetIterator extends RemoteIterator {
+public class ServerSideRemoteSubSetIterator extends RemoteIterator {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public RemoteSubSetIterator(String session) {
+	public ServerSideRemoteSubSetIterator(String session) {
 		super(session);
 	}
 

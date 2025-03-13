@@ -9,9 +9,9 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
  */
-public class RemoteTailSetIteratorTransaction extends RemoteIteratorTransaction {
+public class ServerSideRemoteTailSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120088L;
-	public RemoteTailSetIteratorTransaction(TransactionId xid, String session) {
+	public ServerSideRemoteTailSetIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 	}
 	

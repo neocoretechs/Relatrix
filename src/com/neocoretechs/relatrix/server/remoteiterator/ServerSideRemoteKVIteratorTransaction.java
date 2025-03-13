@@ -3,16 +3,11 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.rocksack.TransactionId;
-/**
- * Used by RelatrixTransactionServer for remote iterator delivery
- * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
- * Used by the Key/Value subsystem to produce submaps for remote delivery.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2020,2022
- *
- */
-public class RemoteSubMapIteratorTransaction extends RemoteKVIteratorTransaction {
-	private static final long serialVersionUID = -112309448424952343L;
-	public RemoteSubMapIteratorTransaction(TransactionId xid, String session) {
+
+public class ServerSideRemoteKVIteratorTransaction extends RemoteKVIteratorTransaction {
+	private static final long serialVersionUID = -1003043201216184312L;
+
+	public ServerSideRemoteKVIteratorTransaction(TransactionId xid, String session) {
 		super(xid, session);
 	}
 	
@@ -26,12 +21,12 @@ public class RemoteSubMapIteratorTransaction extends RemoteKVIteratorTransaction
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixKVTransactionServer.relatrixSubmapMethods.invokeMethod(this, itInst);
+			//System.out.println(itInst+" class:"+itInst.getClass());
+			Object result = RelatrixKVTransactionServer.relatrixIteratorMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
 	}
 
-	
 }
