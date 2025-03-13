@@ -45,6 +45,7 @@ import com.neocoretechs.relatrix.iterator.FindTailSetMode6Transaction;
 import com.neocoretechs.relatrix.iterator.FindTailSetMode7Transaction;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -1249,11 +1250,11 @@ public final class RelatrixTransaction {
 		remove(alias, xid, d, m);
 	}
 	/**
-	 * Return a resolved list of all components of relationships that this object participates in
-	 * @param xid
+	 * Return a resolved list of all components of relationships that this object participates in.
+	 * If we supply a tuple, resolves the tuple from the 2 element array in the tuple element 0
 	 * @param c The Comparable key to locate for initial retrieval
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems resolving schema
+	 * @throws IOException low-level access or problems modifiying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
@@ -1262,14 +1263,29 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static List<Comparable> findSet(TransactionId xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.findSet prepping to find:"+c);
+			System.out.println("Relatrix.findSet prepping to find:"+c);
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
-			dbk = (DBKey) get(xid,c);
-			if(dbk == null)
-				return located;
+			if(c instanceof Tuple) {
+				ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
+				Comparable[] tuple = tuples.get(0);
+				PrimaryKeySet pk = PrimaryKeySet.locate(xid, tuple[0], tuple[1]);
+				if(pk.getIdentity() != null) {
+					Object cx = get(xid, pk.getIdentity());
+					if(cx != null) {
+						located.add((Comparable) cx);
+					}
+					relatedTupleSearch(xid, pk.getIdentity(), dbkeys);
+					keysToInstances(xid, dbkeys, located);
+					return located;
+				}
+			} else {
+				dbk = (DBKey) get(xid, c);
+				if(dbk == null)
+					return located;
+			}
 		} else {
 			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
@@ -1280,31 +1296,14 @@ public final class RelatrixTransaction {
 			relatedSearch(xid, dbkeys.get(index), dbkeys);
 			++index;
 		}
-		// should have unique list of dbkeys
-		if(DEBUG) {
-			System.out.println("Size:"+dbkeys.size());
-			int i = 1;
-			for(DBKey dbks : dbkeys) {
-				System.out.println((i++)+".)"+get(xid, dbks));
-			}
-			System.out.println("==========");
-		}
-		for(DBKey dbks : dbkeys) {
-			Object cx = get(xid, dbks);
-			if(cx instanceof AbstractRelation) {
-				((AbstractRelation)cx).setIdentity(dbk);
-				((AbstractRelation)cx).setTransactionId(xid);
-			}
-			located.add((Comparable) cx);
-			//AbstractRelation.resolve((Comparable)cx, located);
-		}
+		keysToInstances(xid, dbkeys, located);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.findSet exiting");
+			System.out.println("Relatrix.findSet exiting");
 		return located;
 	}
 	/**
 	 * Find the related elements
-	 * @param xid
+	 * @param transactionId
 	 * @param c
 	 * @param dbkeys 
 	 * @param deleted
@@ -1322,17 +1321,46 @@ public final class RelatrixTransaction {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorTransaction(xid, dmr, dmr_return); //findSet(c,'*','*');
-		Iterator<?> itm = new RelatrixIteratorTransaction(xid, mdr, mdr_return); //findSet('*',c,'*');
-		Iterator<?> itr = new RelatrixIteratorTransaction(xid, rmd, rmd_return); //findSet('*','*',c);
-		Relatrix.sequentialMorphismSearch(itd, itm, itr, dbkeys);
+		Iterator<?> itd = new RelatrixIteratorTransaction(xid, dmr, dmr_return); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorTransaction(xid, mdr, mdr_return); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorTransaction(xid, rmd, rmd_return); //findSet("*","*",c);
+		Relatrix.sequentialMorphismSearch(itd, dbkeys);
+		Relatrix.sequentialMorphismSearch(itm, dbkeys);
+		Relatrix.sequentialMorphismSearch(itr, dbkeys);
+	}
+	
+	private static void relatedTupleSearch(TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		Relation dmr = new Relation(true, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		short dmr_return[] = new short[]{-1,0,2,2};
+		Iterator<?> itd = new RelatrixIteratorTransaction(xid, dmr, dmr_return); //findSet(c,"*","*");
+		Relatrix.sequentialMorphismSearch(itd, dbkeys);
+	}
+	
+	private static void keysToInstances(TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
+		// should have unique list of dbkeys
+		if(DEBUG) {
+			System.out.println("Keys to Instances Size:"+dbkeys.size());
+			int i = 1;
+			for(DBKey dbks : dbkeys) {
+				System.out.println((i++)+".)"+get(xid, dbks));
+			}
+			System.out.println("==========");
+		}
+		for(DBKey dbks : dbkeys) {
+			//AbstractRelation.resolve((Comparable) get(xid, dbks), located);
+			Object cx = get(xid, dbks);
+			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setIdentity(dbks);
+				((AbstractRelation)cx).setTransactionId(xid);
+			}
+			instances.add((Comparable) cx);
+		}
 	}
 	/**
 	 * Return a resolved list of all components of relationships that this object participates in
 	 * @param c The Comparable key to locate for initial retrieval
-	 * @param xid
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems resolving schema
+	 * @throws IOException low-level access or problems modifiying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
@@ -1341,14 +1369,29 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static List<Comparable> findSet(Alias alias, TransactionId xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.findSet prepping to find:"+c);
+			System.out.println("Relatrix.findSet prepping to find:"+c);
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
-			dbk = (DBKey) get(alias, xid, c);
-			if(dbk == null)
-				return located;
+			if(c instanceof Tuple) {
+				ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
+				Comparable[] tuple = tuples.get(0);
+				PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, tuple[0], tuple[1]);
+				if(pk.getIdentity() != null) {
+					Object cx = get(alias, xid, pk.getIdentity());
+					if(cx != null) {
+						located.add((Comparable) cx);
+					}
+					relatedTupleSearch(alias, xid, pk.getIdentity(), dbkeys);
+					keysToInstances(alias, xid, dbkeys, located);
+					return located;
+				}
+			} else {
+				dbk = (DBKey) get(alias, xid, c);
+				if(dbk == null)
+					return located;
+			}
 		} else {
 			dbk = ((AbstractRelation)c).getIdentity();
 			dbkeys.add(dbk);
@@ -1360,31 +1403,13 @@ public final class RelatrixTransaction {
 			++index;
 		}
 		// should have unique list of dbkeys
-		if(DEBUG) {
-			System.out.println("Size:"+dbkeys.size());
-			int i = 1;
-			for(DBKey dbks : dbkeys) {
-				System.out.println((i++)+".)"+get(alias, xid, dbks));
-			}
-			System.out.println("==========");
-		}
-		for(DBKey dbks : dbkeys) {
-			Object cx = get(alias, xid, dbks);
-			if(cx instanceof AbstractRelation) {
-				((AbstractRelation)cx).setIdentity(dbk);
-				((AbstractRelation)cx).setAlias(alias);
-				((AbstractRelation)cx).setTransactionId(xid);
-			}
-			located.add((Comparable) cx);
-			//AbstractRelation.resolve((Comparable) cx, located);
-		}
+		keysToInstances(alias, xid, dbkeys, located);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixTransaction.findSet exiting");
+			System.out.println("Relatrix.findSet exiting");
 		return located;
 	}
 	/**
 	 * Find the related elements
-	 * @param alias
 	 * @param transactionId
 	 * @param c
 	 * @param dbkeys 
@@ -1403,11 +1428,43 @@ public final class RelatrixTransaction {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIteratorTransaction(alias, xid, dmr, dmr_return); //findSet(c,'*','*');
-		Iterator<?> itm = new RelatrixIteratorTransaction(alias, xid, mdr, mdr_return); //findSet('*',c,'*');
-		Iterator<?> itr = new RelatrixIteratorTransaction(alias, xid, rmd, rmd_return); //findSet('*','*',c);
-		Relatrix.sequentialMorphismSearch(itd, itm, itr, dbkeys);
+		Iterator<?> itd = new RelatrixIteratorTransaction(alias, xid, dmr, dmr_return); //findSet(c,"*","*");
+		Iterator<?> itm = new RelatrixIteratorTransaction(alias, xid, mdr, mdr_return); //findSet("*",c,"*");
+		Iterator<?> itr = new RelatrixIteratorTransaction(alias, xid, rmd, rmd_return); //findSet("*","*",c);
+		Relatrix.sequentialMorphismSearch(itd, dbkeys);
+		Relatrix.sequentialMorphismSearch(itm, dbkeys);
+		Relatrix.sequentialMorphismSearch(itr, dbkeys);
 	}
+	
+	private static void relatedTupleSearch(Alias alias, TransactionId xid, DBKey c, List<DBKey> dbkeys) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+		Relation dmr = new Relation(true, alias, xid, null, c, null, DBKey.nullDBKey, null, DBKey.nullDBKey);
+		short dmr_return[] = new short[]{-1,0,2,2};
+		Iterator<?> itd = new RelatrixIteratorTransaction(alias, xid, dmr, dmr_return); //findSet(c,"*","*");
+		Relatrix.sequentialMorphismSearch(itd, dbkeys);
+	}
+	
+	private static void keysToInstances(Alias alias, TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
+		// should have unique list of dbkeys
+		if(DEBUG) {
+			System.out.println("Keys to Instances Size:"+dbkeys.size());
+			int i = 1;
+			for(DBKey dbks : dbkeys) {
+				System.out.println((i++)+".)"+get(alias, xid, dbks));
+			}
+			System.out.println("==========");
+		}
+		for(DBKey dbks : dbkeys) {
+			//AbstractRelation.resolve((Comparable) get(alias, xid, dbks), located);
+			Object cx = get(alias, xid, dbks);
+			if(cx instanceof AbstractRelation) {
+				((AbstractRelation)cx).setIdentity(dbks);
+				((AbstractRelation)cx).setAlias(alias);
+				((AbstractRelation)cx).setTransactionId(xid);
+			}
+			instances.add((Comparable) cx);
+		}
+	}
+	
 	/**
 	 * Generate the recursively resolved list of relationships in the given AbstractRelation. If none of the components
 	 * of the relationship are themselves relationships, the original set of related objects in the tuple is returned as a list.
