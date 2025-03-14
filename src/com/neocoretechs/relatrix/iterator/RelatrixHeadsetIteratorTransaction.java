@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -149,7 +148,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			System.out.println("RelatrixHeadsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
-    public RelatrixHeadsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
     	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)

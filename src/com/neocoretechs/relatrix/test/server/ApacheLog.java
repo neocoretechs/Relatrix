@@ -18,21 +18,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.rocksdb.RocksDBException;
-import org.rocksdb.Status;
-
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Tuple;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
@@ -535,6 +529,7 @@ public class ApacheLog {
 	 * @throws InterruptedException 
 	 * @throws DuplicateKeyException 
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
 		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
@@ -644,24 +639,31 @@ public class ApacheLog {
 			});
 			*/
 			// option 3 use the findSet with Tuple to reconstruct the original store
-			Iterator<?> it = session.findTailSet(xid, '?','?','?',Long.class, String.class, String.class);
 			// Iterate all the retrieved identity relationships
 			cnt2 = 0;
-			it.forEachRemaining(e->{
-				// findSet returns Result as the lambda, which contains components of the relationships
-				result = (Result) e;
-				// use the identity as the first element to retrieve related elements
-				try {
-					Tuple tuple = new Tuple(result.get(0),result.get(1),result.get(2));
-					@SuppressWarnings("unchecked")
-					List<Comparable> res = session.findSet(xid, tuple);
-					System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				} 	
-			//
-			if(DEBUG)
-				System.out.println("-----------------");
+			session.keySet(xid, Long.class).forEachRemaining(trequest->{
+			try {
+				session.findTailSet(xid, trequest,'*','*', String.class, String.class).forEachRemaining(e->{
+					// findSet returns Result as the lambda, which contains components of the relationships
+					result = (Result) e;
+					Relation rel = (Relation)result.get();
+					// use the identity as the first element to retrieve related elements
+					try {
+						Tuple tuple = new Tuple(rel);
+						@SuppressWarnings("unchecked")
+						List<Comparable> res = session.findSet(xid, tuple);
+						System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					} 	
+					//
+					if(DEBUG)
+						System.out.println("-----------------");
+				});
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 		});
 		System.out.println("End of stored data.");
 		System.exit(0);

@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import com.neocoretechs.relatrix.AbstractRelation;
@@ -82,7 +81,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-    public RelatrixIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, short[] dmr_return) throws IOException {
       	this.alias = alias;
     	this.xid = xid;
     	this.dmr_return = dmr_return;

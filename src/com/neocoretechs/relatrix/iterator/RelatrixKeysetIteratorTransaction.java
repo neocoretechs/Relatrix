@@ -1,39 +1,34 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.rocksack.Alias;
-
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * Implementation of the standard Iterator interface which operates on K/V keys
- * to set the lower bound of the correct range search for the properly ordered set of  subclasses;
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020
+ * Implementation of the standard Iterator interface which operates on keys.
+ * We have to retrieve the entrySet in case we need to set the identity of a Relation
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2025
  *
  */
-public class RelatrixEntrysetIterator implements Iterator<Comparable> {
+public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
 	private static boolean DEBUG = false;
-	protected Iterator iter;
-    protected Comparable buffer = null;
-    protected Comparable nextit = null;
-    protected boolean needsIter = true;
-    protected Alias alias = null;
-    
-    public RelatrixEntrysetIterator() {}
+	private TransactionId xid = null;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
-     * @param dmr_return
+     * @param xid the transaction Id
+     * @param c The Class we are retrieving
      * @throws IOException 
      */
-    public RelatrixEntrysetIterator(Class c) throws IOException {
+    public RelatrixKeysetIteratorTransaction(TransactionId xid, Class c) throws IOException {
+    	this.xid = xid;
     	try {
-			iter = RelatrixKV.entrySet(c);
+			iter = RelatrixKVTransaction.entrySet(xid, c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -41,22 +36,24 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
     	if( DEBUG )
-			System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
+			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
     	}
     }
-    
     /**
-     * Pass the array we use to indicate which values to return and element 0 counter
-     * @param alias the database alias
+     * 
+     * @param alias The database alias
+     * @param xid The transaction Id
      * @param c The class we are retrieving
-     * @throws IOException for low level fail
+     * @throws IOException for low level Db fail
      */
-    public RelatrixEntrysetIterator(Alias alias, Class c) throws IOException {
+    public RelatrixKeysetIteratorTransaction(Alias alias, TransactionId xid, Class c) throws IOException {
     	this.alias = alias;
+    	this.xid = xid;
     	try {
-			iter = RelatrixKV.entrySet(alias, c);
+			iter = RelatrixKVTransaction.entrySet(alias, xid, c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -65,32 +62,17 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
     	if( DEBUG )
-    		System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
+			System.out.printf("%s xid=%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),xid,iter.hasNext(),needsIter,nextit,buffer);
     	}
     }
     
-    public RelatrixEntrysetIterator(Comparable c) throws IOException {
-    	this(c.getClass());
-    }
-    
-    public RelatrixEntrysetIterator(Alias alias, Comparable c) throws IOException {
-    	this(alias, c.getClass());
-    }
-    
-	@Override
-	@ServerMethod
-	public boolean hasNext() {
-		if( DEBUG )
-			System.out.printf("%s hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
-		return needsIter;
-	}
-
 	@Override
 	@ServerMethod
 	public Comparable next() {
-		if(buffer == null || needsIter) {
+		if( buffer == null || needsIter) {
 			if( DEBUG ) {
 				System.out.printf("%s.next before iter hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
 			}
@@ -102,6 +84,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setTransactionId(xid);
 				}
 			} else {
 				nextit = null;
@@ -112,14 +95,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 		if( DEBUG ) {
 			System.out.printf("%s after iter hasNext=%b needsIter=%b %s %s%n",this.getClass().getName(),iter.hasNext(),needsIter,nextit,buffer);
 		}
-		return buffer;
+		return (Comparable) ((Map.Entry)buffer).getKey();
 	}
-
-	@Override
-	@ServerMethod
-	public void remove() {
-		throw new RuntimeException("Remove not supported for this iterator");	
-	}
-	
-
+ 
 }

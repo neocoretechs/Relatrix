@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -91,7 +90,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
 	 * @throws IOException
 	 */
-	public RelatrixIterator(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException, NoSuchElementException {
+	public RelatrixIterator(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException {
 	   	this.dmr_return = dmr_return;
     	this.base = template;
     	this.alias = alias;

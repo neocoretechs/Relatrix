@@ -47,6 +47,7 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
@@ -1269,19 +1270,26 @@ public final class RelatrixTransaction {
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
 			if(c instanceof Tuple) {
-				ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
-				Comparable[] tuple = tuples.get(0);
-				PrimaryKeySet pk = PrimaryKeySet.locate(xid, tuple[0], tuple[1]);
-				if(pk.getIdentity() != null) {
-					Object cx = get(xid, pk.getIdentity());
-					if(cx != null) {
-						((AbstractRelation)cx).setIdentity(pk.getIdentity());
-						((AbstractRelation)cx).setTransactionId(xid);
-						located.add((Comparable) cx);
-					}
-					relatedTupleSearch(xid, pk.getIdentity(), dbkeys);
+				if(((Tuple)c).getRelation() != null) {
+					located.add(((Tuple)c).getRelation());
+					relatedTupleSearch(xid, ((Tuple)c).getRelation().getIdentity(), dbkeys);
 					keysToInstances(xid, dbkeys, located);
 					return located;
+				} else {
+					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
+					Comparable[] tuple = tuples.get(0);
+					PrimaryKeySet pk = PrimaryKeySet.locate(xid, tuple[0], tuple[1]);
+					if(pk.getIdentity() != null) {
+						Object cx = get(xid, pk.getIdentity());
+						if(cx != null) {
+							((AbstractRelation)cx).setIdentity(pk.getIdentity());
+							((AbstractRelation)cx).setTransactionId(xid);
+							located.add((Comparable) cx);
+						}
+						relatedTupleSearch(xid, pk.getIdentity(), dbkeys);
+						keysToInstances(xid, dbkeys, located);
+						return located;
+					}
 				}
 			} else {
 				dbk = (DBKey) get(xid, (Comparable)c);
@@ -1377,20 +1385,27 @@ public final class RelatrixTransaction {
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
 			if(c instanceof Tuple) {
-				ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
-				Comparable[] tuple = tuples.get(0);
-				PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, tuple[0], tuple[1]);
-				if(pk.getIdentity() != null) {
-					Object cx = get(alias, xid, pk.getIdentity());
-					if(cx != null) {
-						((AbstractRelation)cx).setIdentity(pk.getIdentity());
-						((AbstractRelation)cx).setAlias(alias);
-						((AbstractRelation)cx).setTransactionId(xid);
-						located.add((Comparable) cx);
-					}
-					relatedTupleSearch(alias, xid, pk.getIdentity(), dbkeys);
+				if(((Tuple)c).getRelation() != null) {
+					located.add(((Tuple)c).getRelation());
+					relatedTupleSearch(alias, xid, ((Tuple)c).getRelation().getIdentity(), dbkeys);
 					keysToInstances(alias, xid, dbkeys, located);
 					return located;
+				} else {
+					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
+					Comparable[] tuple = tuples.get(0);
+					PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, tuple[0], tuple[1]);
+					if(pk.getIdentity() != null) {
+						Object cx = get(alias, xid, pk.getIdentity());
+						if(cx != null) {
+							((AbstractRelation)cx).setIdentity(pk.getIdentity());
+							((AbstractRelation)cx).setAlias(alias);
+							((AbstractRelation)cx).setTransactionId(xid);
+							located.add((Comparable) cx);
+						}
+						relatedTupleSearch(alias, xid, pk.getIdentity(), dbkeys);
+						keysToInstances(alias, xid, dbkeys, located);
+						return located;
+					}
 				}
 			} else {
 				dbk = (DBKey) get(alias, xid, (Comparable)c);
@@ -3254,7 +3269,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKVTransaction.keySet(xid, clazz);
+		return new RelatrixKeysetIteratorTransaction(xid, clazz);
 	}
 	
 	/**
@@ -3269,8 +3284,9 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKVTransaction.keySet(alias, xid, clazz);
+		return new RelatrixKeysetIteratorTransaction(alias, xid, clazz);
 	}
+	
 	@ServerMethod
 	public static Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{

@@ -46,6 +46,7 @@ import com.neocoretechs.relatrix.iterator.FindTailSetMode7;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+import com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
@@ -354,7 +355,7 @@ public final class Relatrix {
 	}
 	/**
 	 * Designed to interoperate with {@link Tuple}<p>
-	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
+	 * Store the set of prepared tuples. Expects the first tuple to have d, m, r. The remaining tuples
 	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
 	 * returned in the array position of the returned tuple. 
 	 * @param alias the database alias
@@ -1098,18 +1099,25 @@ public final class Relatrix {
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
 			if(c instanceof Tuple) {
-				ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
-				Comparable[] tuple = tuples.get(0);
-				PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1]);
-				if(pk.getIdentity() != null) {
-					Object cx = get(pk.getIdentity());
-					if(cx != null) {
-						((AbstractRelation)cx).setIdentity(pk.getIdentity());
-						located.add((Comparable) cx);
-					}
-					relatedTupleSearch(pk.getIdentity(), dbkeys);
+				if(((Tuple)c).getRelation() != null) {
+					located.add(((Tuple)c).getRelation());
+					relatedTupleSearch(((Tuple)c).getRelation().getIdentity(), dbkeys);
 					keysToInstances(dbkeys, located);
 					return located;
+				} else {
+					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
+					Comparable[] tuple = tuples.get(0);
+					PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1]);
+					if(pk.getIdentity() != null) {
+						Object cx = get(pk.getIdentity());
+						if(cx != null) {
+							((AbstractRelation)cx).setIdentity(pk.getIdentity());
+							located.add((Comparable) cx);
+						}
+						relatedTupleSearch(pk.getIdentity(), dbkeys);
+						keysToInstances(dbkeys, located);
+						return located;
+					}
 				}
 			} else {
 				dbk = (DBKey) get((Comparable) c);
@@ -1204,19 +1212,26 @@ public final class Relatrix {
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
 			if(c instanceof Tuple) {
-				ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
-				Comparable[] tuple = tuples.get(0);
-				PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1]);
-				if(pk.getIdentity() != null) {
-					Object cx = get(alias, pk.getIdentity());
-					if(cx != null) {
-						((AbstractRelation)cx).setIdentity(pk.getIdentity());
-						((AbstractRelation)cx).setAlias(alias);
-						located.add((Comparable) cx);
-					}
-					relatedTupleSearch(alias, pk.getIdentity(), dbkeys);
-					keysToInstances(alias, dbkeys, located);
+				if(((Tuple)c).getRelation() != null) {
+					located.add(((Tuple)c).getRelation());
+					relatedTupleSearch(alias, ((Tuple)c).getRelation().getIdentity(), dbkeys);
+					keysToInstances(dbkeys, located);
 					return located;
+				} else {
+					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
+					Comparable[] tuple = tuples.get(0);
+					PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1]);
+					if(pk.getIdentity() != null) {
+						Object cx = get(alias, pk.getIdentity());
+						if(cx != null) {
+							((AbstractRelation)cx).setIdentity(pk.getIdentity());
+							((AbstractRelation)cx).setAlias(alias);
+							located.add((Comparable) cx);
+						}
+						relatedTupleSearch(alias, pk.getIdentity(), dbkeys);
+						keysToInstances(alias, dbkeys, located);
+						return located;
+					}
 				}
 			} else {
 				dbk = (DBKey) get(alias, (Comparable)c);
@@ -2936,12 +2951,12 @@ public final class Relatrix {
 	@ServerMethod
 	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKV.keySet(clazz);
+		return new RelatrixKeysetIterator(clazz);
 	}
 	@ServerMethod
-	public static Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKV.keySet(alias, clazz);
+		return new RelatrixKeysetIterator(alias, clazz);
 	}
 	@ServerMethod
 	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
@@ -2949,7 +2964,7 @@ public final class Relatrix {
 		return new RelatrixEntrysetIterator(clazz);
 	}
 	@ServerMethod
-	public static Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException
 	{
 		return new RelatrixEntrysetIterator(alias, clazz);
 	}

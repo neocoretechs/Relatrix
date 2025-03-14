@@ -3,8 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -163,9 +161,8 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
      * @throws IOException
-     * @throws NoSuchElementException
      */
-    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
     	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.alias = alias;

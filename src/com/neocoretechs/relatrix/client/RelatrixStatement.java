@@ -15,6 +15,7 @@ import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIterator;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKeySetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIterator;
@@ -202,7 +203,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
 								setObjectReturn( new ServerSideRemoteEntrySetIterator(getSession()) );
 							} else {
+								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator.class) {
+									setObjectReturn( new ServerSideRemoteKeySetIterator(getSession()) );
+								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								}
 							}
 						}
 					}

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class Tuple implements Serializable {
 	private static final long serialVersionUID = 1052848381620343834L;
 	private ArrayList<Comparable[]> tuples = new ArrayList<Comparable[]>();
+	private Relation relation = null;
 	/**
 	 * Prepare the initial primary relation for subsequent set of tuples
 	 * @param d domain
@@ -23,6 +24,10 @@ public class Tuple implements Serializable {
 	public Tuple(Comparable d, Comparable m, Comparable r) {
 		Comparable[] tuple = new Comparable[] {d,m,r};
 		tuples.add(tuple);
+	}
+	
+	public Tuple(Relation relation) {
+		this.relation = relation;
 	}
 	/**
 	 * Add the subsequent tuples to be related to tuple at element 0 of list
@@ -36,5 +41,9 @@ public class Tuple implements Serializable {
 
 	public ArrayList<Comparable[]> getTuples() {
 		return tuples;
+	}
+	
+	public Relation getRelation() {
+		return relation;
 	}
 }

@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -43,7 +42,7 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	}
     }
     
-    public RelatrixEntrysetIteratorTransaction(Alias alias, TransactionId xid, Class c) throws IOException, NoSuchElementException {
+    public RelatrixEntrysetIteratorTransaction(Alias alias, TransactionId xid, Class c) throws IOException {
     	this.alias = alias;
     	this.xid = xid;
     	try {

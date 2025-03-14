@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 import com.neocoretechs.relatrix.AbstractRelation;
@@ -186,9 +185,8 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
      * @param dmr_return findSet operator order and tuple return control
      * @param dmr_return
      * @throws IOException
-     * @throws NoSuchElementException
      */
-    public RelatrixHeadsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixHeadsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
     	this.alias = alias;
       	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));

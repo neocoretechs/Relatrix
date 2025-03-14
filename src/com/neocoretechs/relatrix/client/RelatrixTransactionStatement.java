@@ -7,6 +7,7 @@ import java.util.Arrays;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIteratorTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKeySetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIteratorTransaction;
@@ -100,10 +101,14 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
 							setObjectReturn( new ServerSideRemoteEntrySetIteratorTransaction(xid, getSession()) );
 						} else {
-							if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
-								setObjectReturn( new ServerSideRemoteTailSetIteratorTransaction(xid, getSession()) );
+							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction.class) {
+								setObjectReturn( new ServerSideRemoteKeySetIteratorTransaction(xid, getSession()) );
 							} else {
+								if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
+									setObjectReturn( new ServerSideRemoteTailSetIteratorTransaction(xid, getSession()) );
+								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+								}
 							}
 						}
 					}

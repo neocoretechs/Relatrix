@@ -11,15 +11,9 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;

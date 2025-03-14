@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
@@ -151,7 +150,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 			System.out.println("RelatrixTailsetIteratorTransaction xid:"+xid+" "+super.toString());
     }
     
-    public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
       	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)
