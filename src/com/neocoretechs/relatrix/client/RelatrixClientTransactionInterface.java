@@ -361,9 +361,9 @@ public interface RelatrixClientTransactionInterface{
 
 	public Iterator findSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5) throws java.io.IOException;
 
-	public List findSet(TransactionId arg1,Comparable arg2) throws java.io.IOException;
+	public List findSet(TransactionId arg1,Object arg2) throws java.io.IOException;
 
-	public List findSet(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
+	public List findSet(Alias arg1,TransactionId arg2,Object arg3) throws java.io.IOException;
 
 	public Iterator findSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException;
 

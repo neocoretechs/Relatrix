@@ -63,9 +63,9 @@ public interface RelatrixClientInterface{
 
 	public Iterator findSet(Character arg1,Character arg2,Character arg3) throws java.io.IOException;
 
-	public List findSet(Comparable arg1) throws java.io.IOException;
+	public List findSet(Object arg1) throws java.io.IOException;
 
-	public List findSet(Alias arg1,Comparable arg2) throws java.io.IOException;
+	public List findSet(Alias arg1,Object arg2) throws java.io.IOException;
 
 	public Iterator findSet(Character arg1,Character arg2,Object arg3) throws java.io.IOException;
 

@@ -225,7 +225,7 @@ public final class RelatrixKV {
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param darg Object marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access 
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -242,7 +242,7 @@ public final class RelatrixKV {
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param alias The database alias
 	 * @param darg Object marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -260,7 +260,7 @@ public final class RelatrixKV {
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param darg Comparable marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -277,7 +277,7 @@ public final class RelatrixKV {
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param alias The database alias
 	 * @param darg Comparable marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -294,7 +294,7 @@ public final class RelatrixKV {
 	 * Retrieve from the targeted Key/Value relationship from given key.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
 	 * @param darg Object for key of relationship
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -311,7 +311,7 @@ public final class RelatrixKV {
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
 	 * @param alias The database alias
 	 * @param darg Object for key of relationship
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @exception NoSuchElementException If the alias was not ofund
@@ -328,7 +328,7 @@ public final class RelatrixKV {
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
 	 * @param darg Comparable for key
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access 
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -344,7 +344,7 @@ public final class RelatrixKV {
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
 	 * @param alias The database alias
 	 * @param darg Comparable for key
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException

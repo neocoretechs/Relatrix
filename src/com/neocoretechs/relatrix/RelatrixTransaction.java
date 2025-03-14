@@ -1252,16 +1252,16 @@ public final class RelatrixTransaction {
 	/**
 	 * Return a resolved list of all components of relationships that this object participates in.
 	 * If we supply a tuple, resolves the tuple from the 2 element array in the tuple element 0
-	 * @param c The Comparable key to locate for initial retrieval
+	 * @param c The Comparable key to locate for initial retrieval, or Tuple supplying initial relation
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IOException low-level access problem
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
 	@ServerMethod
-	public static List<Comparable> findSet(TransactionId xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static List<Comparable> findSet(TransactionId xid, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
@@ -1275,6 +1275,8 @@ public final class RelatrixTransaction {
 				if(pk.getIdentity() != null) {
 					Object cx = get(xid, pk.getIdentity());
 					if(cx != null) {
+						((AbstractRelation)cx).setIdentity(pk.getIdentity());
+						((AbstractRelation)cx).setTransactionId(xid);
 						located.add((Comparable) cx);
 					}
 					relatedTupleSearch(xid, pk.getIdentity(), dbkeys);
@@ -1282,7 +1284,7 @@ public final class RelatrixTransaction {
 					return located;
 				}
 			} else {
-				dbk = (DBKey) get(xid, c);
+				dbk = (DBKey) get(xid, (Comparable)c);
 				if(dbk == null)
 					return located;
 			}
@@ -1360,14 +1362,14 @@ public final class RelatrixTransaction {
 	 * Return a resolved list of all components of relationships that this object participates in
 	 * @param c The Comparable key to locate for initial retrieval
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IOException low-level access problem
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
 	@ServerMethod
-	public static List<Comparable> findSet(Alias alias, TransactionId xid, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static List<Comparable> findSet(Alias alias, TransactionId xid, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
@@ -1381,6 +1383,9 @@ public final class RelatrixTransaction {
 				if(pk.getIdentity() != null) {
 					Object cx = get(alias, xid, pk.getIdentity());
 					if(cx != null) {
+						((AbstractRelation)cx).setIdentity(pk.getIdentity());
+						((AbstractRelation)cx).setAlias(alias);
+						((AbstractRelation)cx).setTransactionId(xid);
 						located.add((Comparable) cx);
 					}
 					relatedTupleSearch(alias, xid, pk.getIdentity(), dbkeys);
@@ -1388,7 +1393,7 @@ public final class RelatrixTransaction {
 					return located;
 				}
 			} else {
-				dbk = (DBKey) get(alias, xid, c);
+				dbk = (DBKey) get(alias, xid, (Comparable)c);
 				if(dbk == null)
 					return located;
 			}

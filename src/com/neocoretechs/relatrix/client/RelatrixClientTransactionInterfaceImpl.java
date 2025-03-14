@@ -1581,7 +1581,7 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public List findSet(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+	public List findSet(TransactionId arg1,Object arg2) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2);
 		try {
 			return (List)sendCommand(s);
@@ -1590,7 +1590,7 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public List findSet(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+	public List findSet(Alias arg1,TransactionId arg2,Object arg3) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findSet", arg1, arg2, arg3);
 		try {
 			return (List)sendCommand(s);

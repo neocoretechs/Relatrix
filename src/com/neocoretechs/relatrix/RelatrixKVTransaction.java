@@ -413,7 +413,7 @@ public final class RelatrixKVTransaction {
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param xid the transaction id
 	 * @param darg Object marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -430,7 +430,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias the database alias
 	 * @param xid the transaction id
 	 * @param darg Object marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -448,7 +448,7 @@ public final class RelatrixKVTransaction {
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param xid the transaction ID
 	 * @param darg Comparable marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -465,7 +465,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias the database alias
 	 * @param xid the transaction ID
 	 * @param darg Comparable marking start of retrieval
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access 
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -483,7 +483,7 @@ public final class RelatrixKVTransaction {
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
 	 * @param xid the transaction ID
 	 * @param darg Object for key of relationship
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -500,7 +500,7 @@ public final class RelatrixKVTransaction {
 	 * @param alias the database alias
 	 * @param xid the transaction ID
 	 * @param darg Object for key of relationship
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access 
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -518,7 +518,7 @@ public final class RelatrixKVTransaction {
 	 * @param xid the transaction ID
 	 * @param darg Comparable for key
 	 * @param parallel Optional true to execute parallel stream
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
@@ -535,7 +535,7 @@ public final class RelatrixKVTransaction {
 	 * @param xid the transaction ID
 	 * @param darg Comparable for key
 	 * @param parallel Optional true to execute parallel stream
-	 * @exception IOException low-level access or problems modifying schema
+	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 

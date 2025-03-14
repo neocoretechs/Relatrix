@@ -548,47 +548,59 @@ public class ApacheLog {
 		lin3 += "\"GET /flabicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/falafel.html\" ";
 		lin3 += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
 		
-
+		if(args.length < 3 || args.length > 5) {
+			System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remote node> <port> [log file dir | *] [true or false simplified log format]");
+			System.exit(1);
+		}
 		// get either the test line or a directory of log files, assume simple log format unless we have extra cmdl arg
+		// supplying only local, remote, port results in retrieval of previously loaded data
 		ApacheLog alfoo = new ApacheLog();
-		if(args.length == 4 || args.length == 5) {
+		if(args.length == 3 || args.length == 4 || args.length == 5) {
 			session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
 			//xid = session.getTransactionId(300000);
 			xid = session.getTransactionId();
-			if(args.length == 4)
-				alfoo.getFiles(args[3], false, xid);
-			else
-				alfoo.getFiles(args[3], true, xid);
-		} else {
-			if(args.length == 3) {
-				session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
-				xid = session.getTransactionId();
-				alfoo.readAndProcess(lin);
-				storeRelatrix(xid);
-				alfoo.readAndProcess(lin2);
-				storeRelatrix(xid);
-				alfoo.readAndProcess(lin3);
-				storeRelatrix(xid);
-			} else {
-				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remote node> <port> [log file dir] [true or false simplified log format]");
-			}	
+			// substitution * for file name loads test data
+			if(args.length == 4) {
+				if(args[3].equals("*")) {
+					alfoo.readAndProcess(lin);
+					storeRelatrix(xid);
+					alfoo.readAndProcess(lin2);
+					storeRelatrix(xid);
+					alfoo.readAndProcess(lin3);
+					storeRelatrix(xid);
+					System.exit(0);
+				} else {
+					if(args[4].equals("false")) {
+						alfoo.getFiles(args[3], false, xid);
+						System.exit(0);
+					} else {
+						if(args[4].equals("true")) {
+							alfoo.getFiles(args[3], true, xid);
+							System.exit(0);
+						} else {
+							System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remote node> <port> [log file dir | *] [true or false simplified log format]");
+							System.exit(1);
+						}
+					}
+				}
+			}
 		}
-		System.out.println("Stored..now retrieving stored data as a series of relations:");
+		System.out.println("Retrieving stored data as a series of relations:");
 		tims = System.currentTimeMillis();
 		// now display the results processed by the input
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
 		// retrieve all identity relationships that contain the concrete object specified
-		Iterator<?> it = session.findTailSet(xid, '?','*','*',Long.class, String.class, String.class);
+		//Iterator<?> it = session.findTailSet(xid, '?','*','*',Long.class, String.class, String.class);
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Iterate all the retrieved identity relationships
-		cnt2 = 0;
-		it.forEachRemaining(e->{
+		//cnt2 = 0;
+		//it.forEachRemaining(e->{
 			//System.out.println(++cnt+".) Primary relation:"+e);
-			Iterator<?> it2 = null;
+			//Iterator<?> it2 = null;
 			// findSet returns Result as the lambda, which contains components of the relationships
-			result = (Result) e;
+			//result = (Result) e;
 			// use the identity as the first element to retrieve related elements
 			/*
 			try {
@@ -609,7 +621,7 @@ public class ApacheLog {
 			}
 			***************************************************
 			 * alternate method without findSet(comparable)
-			 */
+			 *
 			try {
 				it2 = session.findSet(xid, result.get(),'?','?');
 			} catch (Exception e1) {
@@ -630,7 +642,24 @@ public class ApacheLog {
 						tims = System.currentTimeMillis();
 					}
 			});
-			 //*****************/
+			*/
+			// option 3 use the findSet with Tuple to reconstruct the original store
+			Iterator<?> it = session.findTailSet(xid, '?','?','?',Long.class, String.class, String.class);
+			// Iterate all the retrieved identity relationships
+			cnt2 = 0;
+			it.forEachRemaining(e->{
+				// findSet returns Result as the lambda, which contains components of the relationships
+				result = (Result) e;
+				// use the identity as the first element to retrieve related elements
+				try {
+					Tuple tuple = new Tuple(result.get(0),result.get(1),result.get(2));
+					@SuppressWarnings("unchecked")
+					List<Comparable> res = session.findSet(xid, tuple);
+					System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				} 	
+			//
 			if(DEBUG)
 				System.out.println("-----------------");
 		});

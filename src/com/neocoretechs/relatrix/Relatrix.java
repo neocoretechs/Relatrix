@@ -1081,16 +1081,16 @@ public final class Relatrix {
 	/**
 	 * Return a resolved list of all components of relationships that this object participates in.
 	 * If we supply a tuple, resolves the tuple from the 2 element array in the tuple element 0
-	 * @param c The Comparable key to locate for initial retrieval
+	 * @param c The key to locate for initial retrieval, or Tuple to privide intital relation
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IOException low-level access problem
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
 	@ServerMethod
-	public static List<Comparable> findSet(Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static List<Comparable> findSet(Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
@@ -1104,6 +1104,7 @@ public final class Relatrix {
 				if(pk.getIdentity() != null) {
 					Object cx = get(pk.getIdentity());
 					if(cx != null) {
+						((AbstractRelation)cx).setIdentity(pk.getIdentity());
 						located.add((Comparable) cx);
 					}
 					relatedTupleSearch(pk.getIdentity(), dbkeys);
@@ -1111,7 +1112,7 @@ public final class Relatrix {
 					return located;
 				}
 			} else {
-				dbk = (DBKey) get(c);
+				dbk = (DBKey) get((Comparable) c);
 				if(dbk == null)
 					return located;
 			}
@@ -1186,16 +1187,16 @@ public final class Relatrix {
 	}
 	/**
 	 * Return a resolved list of all components of relationships that this object participates in
-	 * @param c The Comparable key to locate for initial retrieval
+	 * @param c The key to locate for initial retrieval, or Tuple to provide initial relation
 	 * @return The list of elements related to c
-	 * @throws IOException low-level access or problems modifiying schema
+	 * @throws IOException low-level access problem
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 * @throws DuplicateKeyException 
 	 */
 	@ServerMethod
-	public static List<Comparable> findSet(Alias alias, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static List<Comparable> findSet(Alias alias, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
 		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
@@ -1209,6 +1210,8 @@ public final class Relatrix {
 				if(pk.getIdentity() != null) {
 					Object cx = get(alias, pk.getIdentity());
 					if(cx != null) {
+						((AbstractRelation)cx).setIdentity(pk.getIdentity());
+						((AbstractRelation)cx).setAlias(alias);
 						located.add((Comparable) cx);
 					}
 					relatedTupleSearch(alias, pk.getIdentity(), dbkeys);
@@ -1216,7 +1219,7 @@ public final class Relatrix {
 					return located;
 				}
 			} else {
-				dbk = (DBKey) get(alias, c);
+				dbk = (DBKey) get(alias, (Comparable)c);
 				if(dbk == null)
 					return located;
 			}

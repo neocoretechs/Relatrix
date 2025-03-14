@@ -239,7 +239,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public List findSet(Comparable arg1) throws java.io.IOException {
+	public List findSet(Object arg1) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("findSet", arg1);
 		try {
 			return (List)sendCommand(s);
@@ -248,7 +248,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public List findSet(Alias arg1,Comparable arg2) throws java.io.IOException {
+	public List findSet(Alias arg1,Object arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2);
 		try {
 			return (List)sendCommand(s);
