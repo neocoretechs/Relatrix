@@ -53,7 +53,8 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
-      	System.out.printf("%s ctor xid:%s template:%s dmr_return:%s%n",this.getClass().getName(),xid,template,Arrays.toString(dmr_return));
+    	if(DEBUG)
+    		System.out.printf("%s ctor xid:%s template:%s dmr_return:%s%n",this.getClass().getName(),xid,template,Arrays.toString(dmr_return));
     	try {
 			iter = RelatrixKVTransaction.findTailMapKV(xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {

@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  */
 public class RelatrixTransactionStatement extends RelatrixStatement implements Serializable {
 	private static final long serialVersionUID = -503217108835099285L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     String alias = null;
     
     public RelatrixTransactionStatement() {

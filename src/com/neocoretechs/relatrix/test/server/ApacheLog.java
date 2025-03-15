@@ -643,7 +643,7 @@ public class ApacheLog {
 			cnt2 = 0;
 			session.keySet(xid, Long.class).forEachRemaining(trequest->{
 			try {
-				session.findTailSet(xid, trequest,'*','*', String.class, String.class).forEachRemaining(e->{
+				session.findSet(xid, trequest,'*','*').forEachRemaining(e->{
 					// findSet returns Result as the lambda, which contains components of the relationships
 					result = (Result) e;
 					Relation rel = (Relation)result.get();
@@ -653,7 +653,13 @@ public class ApacheLog {
 						Tuple tuple = new Tuple(rel);
 						@SuppressWarnings("unchecked")
 						List<Comparable> res = session.findSet(xid, tuple);
-						System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
+						//System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
+						Relation r1 = (Relation)res.get(0);
+						System.out.println(++cnt2+".)"+r1.getDomain()+" "+r1.getMap()+" "+r1.getRange());
+						for(int i = 1; i < res.size(); i++) {
+							r1 = (Relation) res.get(i);
+							System.out.println(cnt2+".)"+r1.getMap()+" "+r1.getRange());
+						}
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					} 	
