@@ -4,6 +4,12 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIteratorTransaction;
@@ -12,8 +18,6 @@ import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIterat
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIteratorTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
-
-import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * The following class extends {@link RelatrixStatement} and allows the transport of transaction method calls to the server {@link RelatrixTransactionServer} and
@@ -25,8 +29,7 @@ import com.neocoretechs.rocksack.TransactionId;
  */
 public class RelatrixTransactionStatement extends RelatrixStatement implements Serializable {
 	private static final long serialVersionUID = -503217108835099285L;
-	private static boolean DEBUG = false;
-    protected TransactionId xid;
+	private static boolean DEBUG = true;
     String alias = null;
     
     public RelatrixTransactionStatement() {
@@ -37,31 +40,25 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
     	super(tmeth, o1);
     }
     
-	public RelatrixTransactionStatement(TransactionId xid, String session) {
+	public RelatrixTransactionStatement(String session) {
 		super(session);
-		this.xid = xid;
 	}
-
-	public TransactionId getTransactionId() {
-    	return xid;
-    }
     
     @Override
-    public synchronized String toString() { return String.format("%s for Session:%s XId:%s Method:%s Arg:%s%n",
-             this.getClass().getName(), getSession(), this.xid, methodName,
+    public synchronized String toString() { return String.format("%s for Session:%s Method:%s Arg:%s%n",
+             this.getClass().getName(), getSession(), methodName,
              (paramArray == null || paramArray.length == 0 ? "nil" : Arrays.toString(paramArray))); }
     
     @Override
  	public synchronized Class<?>[] getParams() {
-     	//System.out.println("params:"+paramArray.length);
-     	//for(int i = 0; i < paramArray.length; i++)
-     		//System.out.println("paramArray "+i+"="+paramArray[i]);
     	if( paramArray == null )
     		paramArray = new Object[0];
-         Class<?>[] c = new Class[paramArray.length];
-         for(int i = 0; i < paramArray.length; i++)
-                 c[i] = paramArray[i].getClass();
-         return c;
+    	if(DEBUG)
+    		System.out.println("params:"+paramArray.length+" "+Arrays.toString(paramArray));
+        Class<?>[] c = new Class[paramArray.length];
+        for(int i = 0; i < paramArray.length; i++)
+        	 c[i] = paramArray[i].getClass();
+        return c;
      }
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
@@ -89,23 +86,23 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 			}
 			// put it in the array and send our intermediary back
 			RelatrixTransactionServer.sessionToObject.put(getSession(), result);
-			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction.class) {
-				setObjectReturn( new ServerSideRemoteSetIteratorTransaction(xid, getSession()) );
+			if( result.getClass() == RelatrixIteratorTransaction.class) {
+				setObjectReturn( new ServerSideRemoteSetIteratorTransaction(getSession()) );
 			} else {
-				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction.class ) {
-					setObjectReturn( new ServerSideRemoteSubSetIteratorTransaction(xid, getSession()) );
+				if(result.getClass() == RelatrixSubsetIteratorTransaction.class ) {
+					setObjectReturn( new ServerSideRemoteSubSetIteratorTransaction(getSession()) );
 				} else {
-					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction.class ) {
-						setObjectReturn( new ServerSideRemoteHeadSetIteratorTransaction(xid, getSession()) );
+					if(result.getClass() == RelatrixHeadsetIteratorTransaction.class ) {
+						setObjectReturn( new ServerSideRemoteHeadSetIteratorTransaction(getSession()) );
 					} else {
-						if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction.class) {
-							setObjectReturn( new ServerSideRemoteEntrySetIteratorTransaction(xid, getSession()) );
+						if( result.getClass() == RelatrixEntrysetIteratorTransaction.class) {
+							setObjectReturn( new ServerSideRemoteEntrySetIteratorTransaction(getSession()) );
 						} else {
-							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction.class) {
-								setObjectReturn( new ServerSideRemoteKeySetIteratorTransaction(xid, getSession()) );
+							if( result.getClass() == RelatrixKeysetIteratorTransaction.class) {
+								setObjectReturn( new ServerSideRemoteKeySetIteratorTransaction(getSession()) );
 							} else {
-								if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction.class ) {
-									setObjectReturn( new ServerSideRemoteTailSetIteratorTransaction(xid, getSession()) );
+								if(result.getClass() == RelatrixTailsetIteratorTransaction.class ) {
+									setObjectReturn( new ServerSideRemoteTailSetIteratorTransaction(getSession()) );
 								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 								}

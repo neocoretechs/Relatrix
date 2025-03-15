@@ -23,7 +23,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	protected Comparable domain;
 	protected Comparable map;
 	protected Comparable range;
-	public TransportMorphism(AbstractRelation abstractRelation) {
+	private TransportMorphism(AbstractRelation abstractRelation) {
 		this.abstractRelation = abstractRelation;
 		this.identity = abstractRelation.getIdentity();
 		this.alias = abstractRelation.getAlias();
@@ -45,7 +45,7 @@ public class TransportMorphism implements Serializable, Comparable {
 		return m;
 	}
 	
-	public AbstractRelation getMorphism() {
+	private AbstractRelation getMorphism() {
 		if(abstractRelation.getIdentity() == null && identity != null)
 			abstractRelation.setIdentity(identity);
 		if(abstractRelation.getAlias() == null && alias != null)
@@ -58,7 +58,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @param target
 	 * @param newTransport
 	 */
-	public static void resolve(AbstractRelation target, TransportMorphism newTransport) {
+	private static void resolve(AbstractRelation target, TransportMorphism newTransport) {
 		if(target.domain instanceof AbstractRelation) {
 			newTransport.setDomain(new TransportMorphism((AbstractRelation) target.domain));
 			resolve((AbstractRelation) target.domain, newTransport);
@@ -77,7 +77,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @param target
 	 * @param newTransport
 	 */
-	public static void resolve(TransportMorphism target, AbstractRelation newTransport) {
+	private static void resolve(TransportMorphism target, AbstractRelation newTransport) {
 		if(target.domain instanceof TransportMorphism) {
 			newTransport.setDomainResolved( ((TransportMorphism)target.domain).getMorphism());
 			resolve((TransportMorphism) target.domain, newTransport);
@@ -91,22 +91,22 @@ public class TransportMorphism implements Serializable, Comparable {
 			resolve((TransportMorphism) target.range, newTransport);
 		}
 	}
-	public void setDomain(Comparable domain) {
+	private void setDomain(Comparable domain) {
 		this.domain = domain;
 	}
-	public void setMap(Comparable map) {
+	private void setMap(Comparable map) {
 		this.map = map;
 	}
-	public void setRange(Comparable range) {
+	private void setRange(Comparable range) {
 		this.range = range;
 	}
-	public Comparable getDomain() {
+	private Comparable getDomain() {
 		return domain;
 	}
-	public Comparable getMap() {
+	private Comparable getMap() {
 		return map;
 	}
-	public Comparable getRange() {
+	private Comparable getRange() {
 		return range;
 	}
 	@Override

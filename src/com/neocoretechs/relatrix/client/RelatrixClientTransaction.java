@@ -266,8 +266,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @param rii RelatrixTransactionStatement
 	 * @return The next iterated object or null
 	 */
-	public Object next(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
-		rii.xid = xid;
+	public Object next(RelatrixTransactionStatement rii) throws Exception {
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
@@ -280,8 +279,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @param rii RelatrixTransactionStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public boolean hasNext(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
-		rii.xid = xid;
+	public boolean hasNext(RelatrixTransactionStatement rii) throws Exception {
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];
 		return (boolean) sendCommand(rii);
@@ -292,8 +290,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(TransactionId xid, RelatrixTransactionStatement rii) throws Exception {
-		rii.xid = xid;
+	public void close(RelatrixTransactionStatement rii) throws Exception {
 		rii.methodName = "close";
 		rii.paramArray = new Object[0];
 		sendCommand(rii);

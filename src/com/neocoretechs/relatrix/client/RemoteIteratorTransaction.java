@@ -19,6 +19,10 @@ import com.neocoretechs.rocksack.TransactionId;
 public class RemoteIteratorTransaction extends RelatrixTransactionStatement implements RemoteObjectInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 4422613369716655753L;
 	private transient RelatrixClientTransaction relatrixClient;
+	
+	public RemoteIteratorTransaction(String session) {
+		super(session);
+	}
 	/**
 	 * Client side creation where we link the client transport
 	 * @param relatrixClient
@@ -26,13 +30,6 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 	public RemoteIteratorTransaction(RelatrixClientTransaction relatrixClient) {
 		super();
 		this.relatrixClient = relatrixClient;
-	}
-	/**
-	 * Invoked on server where we create this and pass it back to the client linking the server side session id
-	 * @param session
-	 */
-	public RemoteIteratorTransaction(TransactionId xid, String session) {
-		super(xid, session);
 	}
 	
 	public void setClient(ClientInterface client) {
@@ -47,7 +44,7 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 	@Override
 	public boolean hasNext() {
 		try {
-			return relatrixClient.hasNext(xid,this);
+			return relatrixClient.hasNext(this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -60,7 +57,7 @@ public class RemoteIteratorTransaction extends RelatrixTransactionStatement impl
 	@Override
 	public Object next() {
 		try {
-			return relatrixClient.next(xid,this);
+			return relatrixClient.next(this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

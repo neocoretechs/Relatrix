@@ -24,6 +24,25 @@ public class MapDomainRange extends AbstractRelation {
 	private static final long serialVersionUID = -3223516008906545636L;
     public MapDomainRange() {}
     
+    public MapDomainRange(AbstractRelation identity) throws IOException {
+    	this.templateFlag = identity.templateFlag;
+    	this.alias = identity.getAlias();
+    	this.transactionId = identity.getTransactionId();
+    	this.identity = identity.getIdentity();
+    	//if(!identity.isDomainKeyValid())
+    	//	throw new IOException("Domain key of identity is invalid: "+DBKey.whyInvalid(identity.getDomainKey())+".");
+    	setDomainKey(identity.getDomainKey());
+    	domain = identity.domain;
+      	//if(!identity.isMapKeyValid())
+    	//	throw new IOException("Map key of identity is invalid: "+DBKey.whyInvalid(identity.getMapKey())+".");
+    	setMapKey(identity.getMapKey());
+    	map = identity.map;
+    	//if(!identity.isRangeKeyValid())
+    	//	throw new IOException("Range key of identity is invalid: "+DBKey.whyInvalid(identity.getRangeKey())+".");
+    	setRangeKey(identity.getRangeKey());
+    	range = identity.range;
+    }
+    
     MapDomainRange(Comparable d, Comparable m, Comparable r) {
        	super(d,m,r);
     }
@@ -149,24 +168,11 @@ public class MapDomainRange extends AbstractRelation {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-       	if(alias == null) {
-    		if(transactionId == null) {
-    			if(templateFlag)
-    				return new MapDomainRange(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    			return new MapDomainRange(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		}
-  			if(templateFlag)
-				return new MapDomainRange(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-			return new MapDomainRange(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey()); 		
+       	try {
+    		return new MapDomainRange(this);
+    	} catch (IOException e) {
+    		throw new CloneNotSupportedException(e.getMessage());
     	}
-    	if(transactionId == null) {
-    		if(templateFlag)
-    			return new MapDomainRange(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		return new MapDomainRange(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	}
-    	if(templateFlag)
-    		return new MapDomainRange(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	return new MapDomainRange(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
     }
     
     @Override  

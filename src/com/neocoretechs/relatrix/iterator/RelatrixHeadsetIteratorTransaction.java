@@ -253,6 +253,10 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			System.out.println("RelatrixHeadsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
+	public TransactionId getTransactionId() {
+		return xid;
+	}
+	
 	@Override
 	@ServerMethod
 	public boolean hasNext() {
@@ -309,7 +313,5 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
 	}
-	
-
  
 }

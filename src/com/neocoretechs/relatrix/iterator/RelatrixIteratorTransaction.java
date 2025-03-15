@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -52,6 +53,7 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	this.dmr_return = dmr_return;
     	this.base = template;
     	identity = isIdentity(this.dmr_return);
+      	System.out.printf("%s ctor xid:%s template:%s dmr_return:%s%n",this.getClass().getName(),xid,template,Arrays.toString(dmr_return));
     	try {
 			iter = RelatrixKVTransaction.findTailMapKV(xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
@@ -110,6 +112,13 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 			System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
     }
     
+	/**
+	 * @return the xid
+	 */
+	public TransactionId getTransactionId() {
+		return xid;
+	}
+	
 	@Override
 	@ServerMethod
 	public Result next() {

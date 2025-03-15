@@ -90,22 +90,27 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	public Object clone() {
 		return new Result1(this);
 	}
-
-	//@Override
-	//public int compareTo(Object o) {
-	//	return super.compareTo(o);
-	//}
 	
 	@Override
-	public void rigForTransport() {
+	public void packForTransport() {
 		if(one instanceof AbstractRelation)
-			one = TransportMorphism.createTransport((AbstractRelation) one);	
+			one = createTransport((AbstractRelation) one);	
 	}
 	
 	@Override
 	public void unpackFromTransport() {
 		if(one != null && one.getClass() == TransportMorphism.class)
-			one = TransportMorphism.createMorphism((TransportMorphism)one);	
+			one = createRelation((TransportMorphism)one);	
+	}
+	
+	@Override
+	public TransportMorphism createTransport(AbstractRelation ar) {
+		return TransportMorphism.createTransport(ar);
+	}
+	
+	@Override
+	public AbstractRelation createRelation(TransportMorphism tm) {
+		return TransportMorphism.createMorphism(tm);
 	}
 	
 	@Override

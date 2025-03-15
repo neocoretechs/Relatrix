@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 
 import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
-import com.neocoretechs.rocksack.TransactionId;
 /**
  * Used by the RelatrixTransactionServer to produce entry sets for remote delivery.
  * Created from the {@link RelatrixTransactionStatement} process method and setObjectReturn is then called to place it in the return.
@@ -12,8 +11,8 @@ import com.neocoretechs.rocksack.TransactionId;
 public class ServerSideRemoteEntrySetIteratorTransaction extends RemoteIteratorTransaction {
 	private static boolean DEBUG = false;
 	private static final long serialVersionUID = 1206621317830948409L;
-	public ServerSideRemoteEntrySetIteratorTransaction(TransactionId xid, String session) {
-		super(xid,session);
+	public ServerSideRemoteEntrySetIteratorTransaction(String session) {
+		super(session);
 		if(DEBUG)
 			System.out.println(this);
 	}

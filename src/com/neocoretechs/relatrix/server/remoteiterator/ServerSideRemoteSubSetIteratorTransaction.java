@@ -12,8 +12,8 @@ import com.neocoretechs.rocksack.TransactionId;
  */
 public class ServerSideRemoteSubSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public ServerSideRemoteSubSetIteratorTransaction(TransactionId xid, String session) {
-		super(xid, session);
+	public ServerSideRemoteSubSetIteratorTransaction(String session) {
+		super(session);
 	}
 
 	@Override

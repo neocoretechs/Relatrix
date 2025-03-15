@@ -253,6 +253,10 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 			System.out.println("RelatrixTailsetIteratorTransaction xid:"+xid+" "+super.toString());  
     }
     
+	public TransactionId getTransactionId() {
+		return xid;
+	}
+	
 	@Override
 	@ServerMethod
 	public boolean hasNext() {
@@ -308,7 +312,6 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 	@ServerMethod
 	public void remove() {
 		throw new RuntimeException("Remove not supported for this iterator");	
-	}
-	
+	}	
 
 }

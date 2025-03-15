@@ -69,6 +69,10 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
     	}
     }
     
+	public TransactionId getTransactionId() {
+		return xid;
+	}
+	
 	@Override
 	@ServerMethod
 	public Comparable next() {
@@ -97,5 +101,6 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
 		}
 		return (Comparable) ((Map.Entry)buffer).getKey();
 	}
+
  
 }

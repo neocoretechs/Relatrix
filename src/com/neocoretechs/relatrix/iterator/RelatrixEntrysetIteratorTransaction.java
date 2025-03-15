@@ -62,6 +62,10 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	}
     }
     
+	public TransactionId getTransactionId() {
+		return xid;
+	}
+	
 	@Override
 	@ServerMethod
 	public Comparable next() {

@@ -134,12 +134,12 @@ public final class ServerInvokeMethod {
     	//int methodIndex = pkmnap.methodNames.indexOf(targetMethod);
     	ArrayList<Integer> methodIndexList = methodLookup.get(targetMethod);
     	String whyNotFound = "No such method";
+		Class[] params = tmc.getParams();
     	if(methodIndexList != null ) {
     		TreeMap<Integer,Integer> methodRank = new TreeMap<Integer,Integer>();
     		boolean found = false;
     		for(int methodIndexCtr = 0; methodIndexCtr < methodIndexList.size(); methodIndexCtr++) {
     			int methodIndex = methodIndexList.get(methodIndexCtr);
-    			Class[] params = tmc.getParams();
     			if (DEBUG) {
     				for(int iparm1 = 0; iparm1 < params.length ; iparm1++) {        
     					System.out.println("ServerInvoke Target method:"+targetMethod+" Calling param: "+params[iparm1]);

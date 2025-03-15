@@ -113,23 +113,23 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 	}
 	
 	@Override
-	public void rigForTransport() {
+	public void packForTransport() {
 		if(one instanceof AbstractRelation)
-			one = TransportMorphism.createTransport((AbstractRelation) one);
+			one = createTransport((AbstractRelation) one);
 		if(two instanceof AbstractRelation)
-			two = TransportMorphism.createTransport((AbstractRelation) two);
+			two = createTransport((AbstractRelation) two);
 		if(three instanceof AbstractRelation)
-			three = TransportMorphism.createTransport((AbstractRelation) three);
+			three = createTransport((AbstractRelation) three);
 	}
 	
 	@Override
 	public void unpackFromTransport() {
 		if(one != null && one.getClass() == TransportMorphism.class)
-			one = TransportMorphism.createMorphism((TransportMorphism)one);
+			one = createRelation((TransportMorphism)one);
 		if(two != null && two.getClass() == TransportMorphism.class)
-			two = TransportMorphism.createMorphism((TransportMorphism)two);
+			two = createRelation((TransportMorphism)two);
 		if(three != null && three.getClass() == TransportMorphism.class)
-			three = TransportMorphism.createMorphism((TransportMorphism)three);
+			three = createRelation((TransportMorphism)three);
 	}
 	
 	@Override

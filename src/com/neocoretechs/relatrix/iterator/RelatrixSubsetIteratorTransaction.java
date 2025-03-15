@@ -267,6 +267,10 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
 			System.out.println("RelatrixSubsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:");
     }
     
+	public TransactionId getTransactionId() {
+		return xid;
+	}
+	
 	@Override
 	@ServerMethod
 	public boolean hasNext() {
@@ -324,5 +328,6 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
 		throw new RuntimeException("Remove not supported for this iterator");
 		
 	}
+
 
 }

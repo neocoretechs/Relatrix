@@ -10,10 +10,11 @@ import java.util.ArrayList;
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class Tuple implements Serializable {
+public class Tuple implements TransportMorphismInterface, Serializable {
 	private static final long serialVersionUID = 1052848381620343834L;
 	private ArrayList<Comparable[]> tuples = new ArrayList<Comparable[]>();
-	private Relation relation = null;
+	private transient Relation relation = null;
+	private TransportMorphism transport = null;
 	/**
 	 * Prepare the initial primary relation for subsequent set of tuples
 	 * @param d domain
@@ -29,6 +30,41 @@ public class Tuple implements Serializable {
 	public Tuple(Relation relation) {
 		this.relation = relation;
 	}
+	
+	@Override
+	public void packForTransport() {
+		if(relation != null)
+			transport = createTransport(relation);
+		for(Comparable[] c: tuples) {
+			for(int i = 0; i < c.length; i++) {
+				if(c[i] instanceof AbstractRelation)
+					c[i] = createTransport((AbstractRelation)c[i]);
+			}
+		}
+	}
+	
+	@Override
+	public void unpackFromTransport() {
+		if(transport != null)
+			relation = (Relation) createRelation(transport);
+		for(Comparable[] c: tuples) {
+			for(int i = 0; i < c.length; i++) {
+				if(c[i].getClass() == TransportMorphism.class)
+					c[i] = createRelation((TransportMorphism)c[i]);
+			}
+		}
+	}
+	
+	@Override
+	public TransportMorphism createTransport(AbstractRelation ar) {
+		return TransportMorphism.createTransport(ar);
+	}
+	
+	@Override
+	public AbstractRelation createRelation(TransportMorphism tm) {
+		return TransportMorphism.createMorphism(tm);
+	}
+	
 	/**
 	 * Add the subsequent tuples to be related to tuple at element 0 of list
 	 * @param m map

@@ -24,7 +24,7 @@ public class DomainRangeMap extends AbstractRelation {
 	private static final long serialVersionUID = -1694888225034392347L;
     public DomainRangeMap() {}
     
-    DomainRangeMap(Relation identity) throws IOException {
+    public DomainRangeMap(AbstractRelation identity) throws IOException {
     	this.templateFlag = identity.templateFlag;
     	this.alias = identity.getAlias();
     	this.transactionId = identity.getTransactionId();
@@ -151,24 +151,11 @@ public class DomainRangeMap extends AbstractRelation {
     */
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null) {
-    		if(transactionId == null) {
-    			if(templateFlag)
-    				return new DomainRangeMap(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    			return new DomainRangeMap(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		}
-  			if(templateFlag)
-				return new DomainRangeMap(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-			return new DomainRangeMap(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());		
-    	}
-    	if(transactionId == null) {
-    		if(templateFlag)
-    			return new DomainRangeMap(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		return new DomainRangeMap(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	}
-    	if(templateFlag)
-    		return new DomainRangeMap(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	return new DomainRangeMap(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	try {
+			return new DomainRangeMap(this);
+		} catch (IOException e) {
+			throw new CloneNotSupportedException(e.getMessage());
+		}
     }
 
     @Override  

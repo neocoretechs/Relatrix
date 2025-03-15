@@ -15,7 +15,7 @@ import java.util.Objects;
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public abstract class Result implements Comparable, Serializable, Cloneable {
+public abstract class Result implements TransportMorphismInterface, Comparable, Serializable, Cloneable {
 	private static final long serialVersionUID = -3876100246517492961L;
 	private static boolean DEBUG;
 	public static boolean STRICT_SCHEMA = false; // if true, enforce type-based comparison on first element inserted, else can mix types with string basis for incompatible class types
@@ -86,7 +86,7 @@ public abstract class Result implements Comparable, Serializable, Cloneable {
 	public abstract void set(Comparable elem);
 	public abstract Comparable[] toArray();
 	public abstract int length();
-	public abstract void rigForTransport();
+	public abstract void packForTransport();
 	public abstract void unpackFromTransport();
 	
     /**

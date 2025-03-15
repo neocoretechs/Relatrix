@@ -647,6 +647,7 @@ public class ApacheLog {
 					// findSet returns Result as the lambda, which contains components of the relationships
 					result = (Result) e;
 					Relation rel = (Relation)result.get();
+					System.out.println(rel);
 					// use the identity as the first element to retrieve related elements
 					try {
 						Tuple tuple = new Tuple(rel);

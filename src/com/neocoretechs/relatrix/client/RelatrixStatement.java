@@ -12,6 +12,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIterator;
@@ -125,8 +126,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		if(o instanceof AbstractRelation) {
 			retObj = TransportMorphism.createTransport((AbstractRelation) o);
 		} else {
-			if(o instanceof Result)
-				((Result)o).rigForTransport();
+			if(o instanceof TransportMorphismInterface)
+				((TransportMorphismInterface)o).packForTransport();
 			retObj = o;
 		}
 		if(DEBUG)
@@ -140,8 +141,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 
 	@Override
 	public synchronized Object getObjectReturn() {
-		if(retObj instanceof Result)
-			((Result)retObj).unpackFromTransport();
+		if(retObj instanceof TransportMorphismInterface)
+			((TransportMorphismInterface)retObj).unpackFromTransport();
 		else
 			if(retObj != null && retObj.getClass() == TransportMorphism.class)
 				retObj = TransportMorphism.createMorphism((TransportMorphism)retObj);
@@ -154,14 +155,21 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	for(int i = 0; i < paramArray.length; i++) {
     		if(paramArray[i] instanceof AbstractRelation) {
     			paramArray[i] = TransportMorphism.createTransport((AbstractRelation) paramArray[i]);
+    		} else {
+    			if(paramArray[i] instanceof TransportMorphismInterface)
+        			((TransportMorphismInterface)paramArray[i]).packForTransport();;
     		}
     	}
 	}
 	
 	protected void unpackParamArray() {
 		for(int i = 0; i < paramArray.length; i++)
-			if(paramArray[i].getClass() == TransportMorphism.class)
+			if(paramArray[i] != null && paramArray[i].getClass() == TransportMorphism.class) {
 				paramArray[i] = TransportMorphism.createMorphism((TransportMorphism)paramArray[i]);
+			} else {
+				if(paramArray[i] instanceof TransportMorphismInterface)
+					((TransportMorphismInterface)paramArray[i]).unpackFromTransport();
+			}		
 	}
 	
 	/**
