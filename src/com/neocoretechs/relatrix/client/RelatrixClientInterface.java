@@ -439,9 +439,9 @@ public interface RelatrixClientInterface{
 
 	public Relation store(Comparable arg1,Comparable arg2,Comparable arg3) throws java.io.IOException;
 
-	public Relation[] store(ArrayList arg1) throws java.io.IOException;
+	public List store(ArrayList arg1) throws java.io.IOException;
 
-	public Relation[] store(Alias arg1,ArrayList arg2) throws java.io.IOException;
+	public List store(Alias arg1,ArrayList arg2) throws java.io.IOException;
 
 	public Relation store(Alias arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
 

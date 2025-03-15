@@ -2002,19 +2002,19 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
-	public Relation[] store(TransactionId arg1,ArrayList arg2) throws java.io.IOException {
+	public List store(TransactionId arg1,ArrayList arg2) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2);
 		try {
-			return (Relation[])sendCommand(s);
+			return (List)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Relation[] store(Alias arg1,TransactionId arg2,ArrayList arg3) throws java.io.IOException {
+	public List store(Alias arg1,TransactionId arg2,ArrayList arg3) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("store", arg1, arg2, arg3);
 		try {
-			return (Relation[])sendCommand(s);
+			return (List)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

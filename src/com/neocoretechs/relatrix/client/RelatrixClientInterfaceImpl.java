@@ -1931,19 +1931,19 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Relation[] store(ArrayList arg1) throws java.io.IOException {
+	public List store(ArrayList arg1) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("store", arg1);
 		try {
-			return (Relation[])sendCommand(s);
+			return (List)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Relation[] store(Alias arg1,ArrayList arg2) throws java.io.IOException {
+	public List store(Alias arg1,ArrayList arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2);
 		try {
-			return (Relation[])sendCommand(s);
+			return (List)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

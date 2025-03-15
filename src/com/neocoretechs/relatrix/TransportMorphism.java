@@ -34,12 +34,16 @@ public class TransportMorphism implements Serializable, Comparable {
 	}
 	
 	public static TransportMorphism createTransport(AbstractRelation m) {
+		if(m == null)
+			return null;
 		TransportMorphism t = new TransportMorphism(m);
 		resolve(m,t);
 		return t;
 	}
 	
 	public static AbstractRelation createMorphism(TransportMorphism t) {
+		if(t == null)
+			return null;
 		AbstractRelation m = t.getMorphism();
 		resolve(t,m);
 		return m;

@@ -349,8 +349,6 @@ public final class RelatrixTransaction {
 		return identity;
 	}
 	
-
-	
 	/**
 	 * Designed to interoperate with {@link Tuple}<p>
 	 * Store the set of prepared tuples. Expects the first tuple to have d, m, r. The remaining tuples
@@ -364,32 +362,33 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 */
 	@ServerMethod
-	public static Relation[] store(TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
-		Relation[] identities = new Relation[tuples.size()];
+	public static List store(TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
+		List<Comparable> identities = new RelationList();
 		Comparable[] tuple = tuples.get(0);
-		identities[0] = new Relation();
-		identities[0].setTransactionId(xid);
+		Relation identity = new Relation();
+		identity.setTransactionId(xid);
 		PrimaryKeySet pk = PrimaryKeySet.locate(xid, tuple[0], tuple[1]);
-		identities[0].setDomainKey(pk.getDomainKey());
-		identities[0].setMapKey(pk.getMapKey());
+		identity.setDomainKey(pk.getDomainKey());
+		identity.setMapKey(pk.getMapKey());
 		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
 		if(rKey == null)
-			identities[0].setRange(tuple[2]);
+			identity.setRange(tuple[2]);
 		else {
-			identities[0].setRangeKey(rKey);
-			identities[0].setRangeResolved(tuple[2]);
+			identity.setRangeKey(rKey);
+			identity.setRangeResolved(tuple[2]);
 		}
 		if(pk.getIdentity() == null) {
-			identities[0].setDomainResolved(tuple[0]);
-			identities[0].setMapResolved(tuple[1]);
+			identity.setDomainResolved(tuple[0]);
+			identity.setMapResolved(tuple[1]);
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
-			identities[0].setIdentity(identities[0].newKey(identities[0]));
-			storeParallel(xid, identities[0], pk);
+			identity.setIdentity(identity.newKey(identity));
+			storeParallel(xid, identity, pk);
 		} else {
-			identities[0].setIdentity(pk.getIdentity());
+			identity.setIdentity(pk.getIdentity());
 		}
+		identities.add(identity);
 		if(DEBUG)
 			System.out.println("Tuple size:"+tuples.size());
 		for(int i = 1; i < tuples.size(); i++) {
@@ -397,14 +396,14 @@ public final class RelatrixTransaction {
 			if(DEBUG)
 				System.out.println(Arrays.toString(tuple));
 			try {
-				identities[i] = store(xid, identities[0], tuple[0], tuple[1]);
+				identities.add(store(xid, identity, tuple[0], tuple[1]));
 			} catch(DuplicateKeyException dke) {
 				if(DEBUG)
 					System.out.println("Duplicate key returned for tuple store:"+dke);
 			}
 		}
 		if(DEBUG) {
-			for(Relation r: identities) {
+			for(Comparable r: identities) {
 				System.out.println(r);
 			}
 			System.out.println("-----");
@@ -425,37 +424,38 @@ public final class RelatrixTransaction {
 	 * @throws ClassNotFoundException
 	 */
 	@ServerMethod
-	public static Relation[] store(Alias alias, TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
-		Relation[] identities = new Relation[tuples.size()];
+	public static List store(Alias alias, TransactionId xid, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
+		List<Comparable> identities = new RelationList();
 		Comparable[] tuple = tuples.get(0);
-		identities[0] = new Relation();
-		identities[0].setAlias(alias);
-		identities[0].setTransactionId(xid);
+		Relation identity = new Relation();
+		identity.setAlias(alias);
+		identity.setTransactionId(xid);
 		PrimaryKeySet pk = PrimaryKeySet.locate(alias, xid, tuple[0], tuple[1]);
-		identities[0].setDomainKey(pk.getDomainKey());
-		identities[0].setMapKey(pk.getMapKey());
+		identity.setDomainKey(pk.getDomainKey());
+		identity.setMapKey(pk.getMapKey());
 		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
 		if(rKey == null)
-			identities[0].setRange(alias, tuple[2]);
+			identity.setRange(alias, tuple[2]);
 		else {
-			identities[0].setRangeKey(rKey);
-			identities[0].setRangeResolved(tuple[2]);
+			identity.setRangeKey(rKey);
+			identity.setRangeResolved(tuple[2]);
 		}
 		if(pk.getIdentity() == null) {
-			identities[0].setDomainResolved(tuple[0]);
-			identities[0].setMapResolved(tuple[1]);
+			identity.setDomainResolved(tuple[0]);
+			identity.setMapResolved(tuple[1]);
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
-			identities[0].setIdentity(identities[0].newKey(alias, identities[0]));
-			storeParallel(alias, xid, identities[0], pk);
+			identity.setIdentity(identity.newKey(alias, identity));
+			storeParallel(alias, xid, identity, pk);
 		} else {
-			identities[0].setIdentity(pk.getIdentity());
+			identity.setIdentity(pk.getIdentity());
 		}
+		identities.add(identity);
 		for(int i = 1; i < tuples.size(); i++) {
 			tuple = tuples.get(i);
 			try {
-				identities[i] = store(alias, xid, identities[0], tuple[0], tuple[1]);
+				identities.add(store(alias, xid, identity, tuple[0], tuple[1]));
 			} catch(DuplicateKeyException dke) {}
 		}
 		return identities;
@@ -1265,7 +1265,7 @@ public final class RelatrixTransaction {
 	public static List<Comparable> findSet(TransactionId xid, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
-		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
+		List<Comparable> located = new RelationList(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
@@ -1380,7 +1380,7 @@ public final class RelatrixTransaction {
 	public static List<Comparable> findSet(Alias alias, TransactionId xid, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.findSet prepping to find:"+c);
-		List<Comparable> located = new ArrayList<Comparable>(); //Collections.synchronizedList(new ArrayList<DBKey>());
+		List<Comparable> located = new RelationList(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
 		if(!(c instanceof AbstractRelation)) {
@@ -1493,7 +1493,7 @@ public final class RelatrixTransaction {
 	 */
 	@ServerMethod
 	public static List<Comparable> resolve(Comparable morphism) {
-		ArrayList<Comparable> res = new ArrayList<Comparable>();
+		RelationList res = new RelationList();
 		AbstractRelation.resolve(morphism, res);
 		return res;
 	}

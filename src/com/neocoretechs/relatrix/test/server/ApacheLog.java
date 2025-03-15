@@ -503,9 +503,9 @@ public class ApacheLog {
 		tuple.prepareTuple("bytes returned", numBytes);
 		if(DEBUG || DEBUGRETURN)
 			System.out.println("tuple size:"+tuple.getTuples().size());
-		Relation res[] = session.store(xid, tuple.getTuples());
+		List<Comparable> res = session.store(xid, tuple.getTuples());
 		if(DEBUG || DEBUGRETURN) {
-			for(Relation r: res) {
+			for(Comparable r: res) {
 				System.out.println(r);
 			}
 			System.out.println("-----");

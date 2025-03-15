@@ -455,9 +455,9 @@ public interface RelatrixClientTransactionInterface{
 
 	public Iterator keySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 
-	public Relation[] store(TransactionId arg1,ArrayList arg2) throws java.io.IOException;
+	public List store(TransactionId arg1,ArrayList arg2) throws java.io.IOException;
 
-	public Relation[] store(Alias arg1,TransactionId arg2,ArrayList arg3) throws java.io.IOException;
+	public List store(Alias arg1,TransactionId arg2,ArrayList arg3) throws java.io.IOException;
 
 	public Relation store(TransactionId arg1,Comparable arg2,Comparable arg3,Comparable arg4) throws java.io.IOException;
 
