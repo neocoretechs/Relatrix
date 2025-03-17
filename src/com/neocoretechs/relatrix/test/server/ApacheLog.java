@@ -24,13 +24,16 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Tuple;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.server.ErrorUtil;
+import com.neocoretechs.relatrix.type.Tuple;
 
 /**
  * Process the apache log files and place in a Relatrix database.<p/>
@@ -647,7 +650,7 @@ public class ApacheLog {
 					// findSet returns Result as the lambda, which contains components of the relationships
 					result = (Result) e;
 					Relation rel = (Relation)result.get();
-					System.out.println(rel);
+					//System.out.println(rel);
 					// use the identity as the first element to retrieve related elements
 					try {
 						Tuple tuple = new Tuple(rel);
@@ -656,6 +659,9 @@ public class ApacheLog {
 						//System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
 						Relation r1 = (Relation)res.get(0);
 						System.out.println(++cnt2+".)"+r1.getDomain()+" "+r1.getMap()+" "+r1.getRange());
+						Jsonb jsonb = JsonbBuilder.create();
+						String result = jsonb.toJson(r1);
+						System.out.println(result);
 						for(int i = 1; i < res.size(); i++) {
 							r1 = (Relation) res.get(i);
 							System.out.println(cnt2+".)"+r1.getMap()+" "+r1.getRange());

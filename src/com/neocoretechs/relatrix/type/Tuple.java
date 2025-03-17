@@ -1,7 +1,12 @@
-package com.neocoretechs.relatrix;
+package com.neocoretechs.relatrix.type;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.TransportMorphismInterface;
 /**
  * Represents a Tuple for bulk storage. The store method will extract the List and use the first 3 element array
  * of Comparable as the initial relationship, and the subsequent 2 element arrays are the map and rage of relationships with
