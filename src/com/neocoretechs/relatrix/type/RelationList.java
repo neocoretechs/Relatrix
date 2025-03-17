@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix;
+package com.neocoretechs.relatrix.type;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,6 +7,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.TransportMorphismInterface;
 
 public class RelationList implements Serializable, List<Comparable>, TransportMorphismInterface {
 	private static final long serialVersionUID = -8973345814107305867L;

@@ -5,9 +5,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -55,6 +57,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
+import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
@@ -103,12 +106,16 @@ public final class RelatrixTransaction {
 	public static final String deleteXTransaction = "DELETEXTX";
 	public static final String searchXTransaction = "SEARCHXTX";
 	
+	public static final int numMultiStoreThreads = 16;
+	public static final String multiStoreX = "MULTISTOREX";
+	
 	static {
 		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
 		sftpm.init(6, 6, new String[] {storeXTransaction});
 		sftpm.init(5, 5, new String[] {deleteXTransaction});
 		sftpm.init(2, 2, new String[] {storeITransaction});
 		sftpm.init(3, 3, new String[] {searchXTransaction});
+		sftpm.init(numMultiStoreThreads, numMultiStoreThreads, new String[] {multiStoreX});
 	}
 	
 	private static Object mutex = new Object();
@@ -459,6 +466,93 @@ public final class RelatrixTransaction {
 			} catch(DuplicateKeyException dke) {}
 		}
 		return identities;
+	}
+	
+	/**
+	 * Perform multiple store on passed List
+	 * @param transactionId the Transaction id
+	 * @param tuples ArrayList of Comparable domain, map, range arrays
+	 * @return RelationList of returned stored element relations, or null for failed store
+	 * @throws IOException If low level problem
+	 * @throws IllegalAccessException If other low level problem
+	 * @throws ClassNotFoundException If the class to store cant be located
+	 */
+	@ServerMethod
+	public static RelationList multiStore(TransactionId transactionId, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
+		   List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
+		   Future<?>[] jobs = new Future[synTuples.size()];
+		   RelationList returnList = new RelationList();
+		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
+		   AtomicInteger threadIndex = new AtomicInteger(0);
+		   if(DEBUG)
+			   System.out.println("MultiStore:"+synTuples.size()+" elements");
+		   for(int i = 0; i < synTuples.size(); i++) {
+		    	jobs[i] = SynchronizedFixedThreadPoolManager.submit(new Runnable() {
+		    		@Override
+		    		public void run() {
+		    			Comparable[] dmr = null;
+		    			synchronized(synTuples) {
+		    				dmr = synTuples.get(threadIndex.getAndIncrement());
+		    			}
+		    			try {
+		    				synchronized(synReturn) {
+		    					if(DEBUG)
+		    						System.out.println("Attempt multiStore:"+dmr[0]+","+dmr[1]);
+		    					synReturn.add(store(transactionId, dmr[0],dmr[1],dmr[2]));
+		    				}
+						} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+							synchronized(synReturn) {
+								synReturn.add(null);
+								if(DEBUG)
+									System.out.println("multiStore Threw exception:"+e.getMessage());
+							}
+						}
+		    		}
+		    	}, multiStoreX);
+		   }
+		   SynchronizedFixedThreadPoolManager.waitForCompletion(jobs);
+		   return returnList;
+	}
+	
+	/**
+	 * Perform multiple store on passed List
+	 * @param alias The database alias
+	 * @param transactionId the Transaction id
+	 * @param tuples ArrayList of Comparable domain, map, range arrays
+	 * @return RelationList of returned stored element relations, or null for failed store
+	 * @throws IOException If low level problem
+	 * @throws IllegalAccessException If other low level problem
+	 * @throws ClassNotFoundException If the class to store cant be located
+	 */
+	@ServerMethod
+	public static RelationList multiStore(Alias alias, TransactionId transactionId, ArrayList<Comparable[]> tuples) throws IOException, IllegalAccessException, ClassNotFoundException {
+		   List<Comparable[]> synTuples = Collections.synchronizedList(tuples);
+		   Future<?>[] jobs = new Future[synTuples.size()];
+		   RelationList returnList = new RelationList();
+		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
+		   AtomicInteger threadIndex = new AtomicInteger(0);
+		   for(int i = 0; i < synTuples.size(); i++) {
+		    	jobs[i] = SynchronizedFixedThreadPoolManager.submit(new Runnable() {
+		    		@Override
+		    		public void run() {
+		    			Comparable[] dmr = null;
+		    			synchronized(synTuples) {
+		    				dmr = synTuples.get(threadIndex.getAndIncrement());
+		    			}
+		    			try {
+		    				synchronized(synReturn) {
+		    					synReturn.add(store(alias, transactionId, dmr[0],dmr[1],dmr[2]));
+		    				}
+						} catch (IllegalAccessException | ClassNotFoundException | IOException | DuplicateKeyException e) {
+							synchronized(synReturn) {
+	    						synReturn.add(null);
+	    					}
+						}
+		    		}
+		    	}, multiStoreX);
+		   }
+		   SynchronizedFixedThreadPoolManager.waitForCompletion(jobs);
+		   return returnList;
 	}
 	
 	public static void storeParallel(TransactionId xid, Relation identity, PrimaryKeySet pk) throws IOException {
