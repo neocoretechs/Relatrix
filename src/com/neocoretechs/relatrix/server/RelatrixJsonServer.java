@@ -75,7 +75,7 @@ public final class RelatrixJsonServer extends RelatrixServer {
 				datasocket.setSoLinger(true, 1);
 				//
                 InputStream ois = datasocket.getInputStream();                
-                CommandPacketInterface o = jsonb.fromJson(ois, CommandPacketInterface.class);
+                CommandPacketInterface o = jsonb.fromJson(ois, CommandPacket.class);
 				if( DEBUGCOMMAND )
 					System.out.println("Relatrix Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

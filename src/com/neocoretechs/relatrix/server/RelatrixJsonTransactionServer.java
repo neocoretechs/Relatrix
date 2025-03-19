@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -37,7 +39,7 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
  *
  */
 public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGCOMMAND = false;
 	public static int WORKBOOTPORT = 9004; // Boot time portion of server that assigns databases to sockets etc
 	Jsonb jsonb = JsonbBuilder.create();
@@ -75,9 +77,16 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 				// wait 1 second before close; close blocks for 1 sec. and data can be sent
 				datasocket.setSoLinger(true, 1);
 				//
-	            InputStream ois = datasocket.getInputStream();                
-	            CommandPacketInterface o = jsonb.fromJson(ois, CommandPacketInterface.class);
-				if( DEBUGCOMMAND )
+	            InputStream ins = datasocket.getInputStream();
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				while(true) {
+					int n = ins.read(buf);
+					if( n < 0 ) break;
+					baos.write(buf,0,n);
+				}
+				baos.flush();
+				CommandPacketInterface o = jsonb.fromJson(new String(baos.toByteArray()), CommandPacket.class);
+				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
@@ -94,9 +103,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 				ThreadPoolManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RelatrixJsonTransactionServer starting new worker "+uworker+
-							//( rdb != null ? "remote db:"+rdb : "" ) +
-							" master port:"+o.getMasterPort());
+					System.out.println("RelatrixJsonTransactionServer started new worker "+uworker+" master port:"+o.getMasterPort());
 				}
 
 			} catch(Exception e) {

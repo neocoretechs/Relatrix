@@ -2,25 +2,20 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
+
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
+
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
+
 import com.neocoretechs.rocksack.TransactionId;
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
@@ -43,7 +38,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
-	Jsonb jsonb = JsonbBuilder.create();
+	Jsonb jsonb = null;
 	byte[] buf = new byte[4096];
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -155,13 +150,16 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 		// send a remote Fopen request to the node
 		// this consists of sending the running WorkBoot a message to start the worker for a particular
 		// database on the node we hand down
+		if(jsonb == null)
+			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
 		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
+		System.out.println("Socket created to "+s+" using "+jsonb);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
 		String cpij = jsonb.toJson(cpi);
+		System.out.println(cpij);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());
 		os.flush();

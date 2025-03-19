@@ -73,7 +73,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
                     datasocket.setSoLinger(true, 1);
 					//
                     InputStream ois = datasocket.getInputStream();                
-                    CommandPacketInterface o = jsonb.fromJson(ois, CommandPacketInterface.class);
+                    CommandPacketInterface o = jsonb.fromJson(ois, CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V JsonServer command received:"+o);
                     // if we get a command packet with no statement, assume it to start a new instance

@@ -80,7 +80,7 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
                     datasocket.setSoLinger(true, 1);
 					//
                     InputStream ois = datasocket.getInputStream();                
-                    CommandPacketInterface o = jsonb.fromJson(ois, CommandPacketInterface.class);
+                    CommandPacketInterface o = jsonb.fromJson(ois, CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Json Transaction Server command received:"+o);
                     TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());

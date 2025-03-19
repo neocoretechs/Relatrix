@@ -8,7 +8,7 @@ import java.io.Serializable;
  * to operate on a specific port. RemoteMaster is from the perspective of the server,
  * which is sent the packet with the master and slave ports of the client.
  * controller
- * @author jg 2015,2020
+ * @author Groff Copyright (C) NeoCoreTechs 4/2000, 5/2020
  *
  */
 public interface CommandPacketInterface extends Serializable {

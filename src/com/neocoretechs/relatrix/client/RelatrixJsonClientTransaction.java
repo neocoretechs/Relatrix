@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,7 +42,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	Jsonb jsonb = JsonbBuilder.create();
@@ -86,17 +87,18 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
   	    	 System.out.println("RelatrixJsonClientTransaction got connection "+sock);
   	    }
   	    try {
-		  while(shouldRun ) {
+		  while(shouldRun) {
 				InputStream ins = sock.getInputStream();
 				if(DEBUG)
 					System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
-				//ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				//while(true) {
-				//  int n = ins.read(buf);
-				//  if( n < 0 ) break;
-				//  baos.write(buf,0,n);
-				//}
-				RemoteResponseInterface iori = jsonb.fromJson(ins,RemoteResponseInterface.class);	
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				while(true) {
+					int n = ins.read(buf);
+					if( n < 0 ) break;
+					baos.write(buf,0,n);
+				}
+				baos.flush();
+				RemoteResponseInterface iori = jsonb.fromJson(new String(baos.toByteArray()),RemoteResponseInterface.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -154,6 +156,8 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
+		if(jsonb == null)
+			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);

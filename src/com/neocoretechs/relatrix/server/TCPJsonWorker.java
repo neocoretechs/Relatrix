@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +17,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 public class TCPJsonWorker extends TCPWorker {
 	Jsonb jsonb = JsonbBuilder.create();
 	byte[] buf = new byte[4096];
-	private boolean DEBUG = false;
+	private boolean DEBUG = true;
 
 	
 	public TCPJsonWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
@@ -57,17 +58,18 @@ public class TCPJsonWorker extends TCPWorker {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println("TCPWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPJsonWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPWorker ObjectInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-				//ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				//while(true) {
-				//  int n = ins.read(buf);
-				//  if( n < 0 ) break;
-				//  baos.write(buf,0,n);
-				//}
-				RemoteCompletionInterface iori = jsonb.fromJson(ins,RemoteCompletionInterface.class);	
+					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				while(true) {
+					int n = ins.read(buf);
+					if( n < 0 ) break;
+					baos.write(buf,0,n);
+				}
+				baos.flush();
+				RemoteCompletionInterface iori = jsonb.fromJson(new String(baos.toByteArray()),RemoteCompletionInterface.class);	
 				if(DEBUG)
 					System.out.println("TCPWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				if( DEBUG ) {

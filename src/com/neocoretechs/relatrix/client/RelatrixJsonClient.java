@@ -39,7 +39,7 @@ public class RelatrixJsonClient extends RelatrixClient {
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
 	
-	Jsonb jsonb = JsonbBuilder.create();
+	Jsonb jsonb = null;
 	byte[] buf = new byte[4096];
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -151,6 +151,8 @@ public class RelatrixJsonClient extends RelatrixClient {
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
+		if(jsonb == null)
+			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);

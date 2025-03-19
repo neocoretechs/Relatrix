@@ -37,7 +37,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	
-	Jsonb jsonb = JsonbBuilder.create();
+	Jsonb jsonb = null;
 	byte[] buf = new byte[4096];
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -156,6 +156,8 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
+		if(jsonb == null)
+			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);

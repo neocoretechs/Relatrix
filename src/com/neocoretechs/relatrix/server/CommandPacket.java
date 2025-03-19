@@ -1,7 +1,6 @@
 package com.neocoretechs.relatrix.server;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+
 /**
  * Remote master is from the perspective of the server, as it calls back to the 
  * source of the sent ComandPacket to the bootNode
@@ -13,6 +12,8 @@ public class CommandPacket implements CommandPacketInterface {
 	String bootNode;
 	int MASTERPORT;
 	String transport = "TCP";
+	
+	public CommandPacket() {}
 	
 	public CommandPacket(String bootNode, int masterport) {
 		this.bootNode = bootNode;
