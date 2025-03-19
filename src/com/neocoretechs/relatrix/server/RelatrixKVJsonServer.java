@@ -2,10 +2,13 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.InetAddress;
+import java.io.InputStream;
+
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 
@@ -31,22 +34,19 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2021
  *
  */
-public class RelatrixKVServer extends TCPServer {
+public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
-	
-	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	public static ServerInvokeMethod relatrixIteratorMethods = null;
-	//
+	public static int WORKBOOTPORT = 9001; // Boot time portion of server that assigns databases to sockets etc
+	Jsonb jsonb = JsonbBuilder.create();
+	byte[] buf = new byte[4096];
 
+	//
 	// in server, we are using local repository for handlerclassloader, but only one
 	// and that one will be located on port 9999
 	boolean isThisBytecodeRepository = false;
-	
-	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 
-	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
+	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -54,40 +54,15 @@ public class RelatrixKVServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
-		super();
-		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT);
-		if(port == 9999) {
-			isThisBytecodeRepository = true;
-			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
-			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
-			} catch (IllegalAccessException | IOException e) {
-				e.printStackTrace();
-			}
-		}
+	public RelatrixKVJsonServer(int port) throws IOException, ClassNotFoundException {
+		super(port);
 	}
 	
-	public RelatrixKVServer(String address, int port) throws IOException, ClassNotFoundException {
-		super();
-		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
-
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT,InetAddress.getByName(address));
-		if(port == 9999) {
-			isThisBytecodeRepository = true;
-			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
-			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
-			} catch (IllegalAccessException | IOException e) {
-				e.printStackTrace();
-			}
-		}
+	public RelatrixKVJsonServer(String address, int port) throws IOException, ClassNotFoundException {
+		super(address, port);
 	}
+	
+	@Override
 	public void run() {
 			while(!shouldStop) {
 				try {
@@ -97,45 +72,32 @@ public class RelatrixKVServer extends TCPServer {
                     // wait 1 second before close; close blocks for 1 sec. and data can be sent
                     datasocket.setSoLinger(true, 1);
 					//
-                    ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
-                    CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
+                    InputStream ois = datasocket.getInputStream();                
+                    CommandPacketInterface o = jsonb.fromJson(ois, CommandPacketInterface.class);
                     if( DEBUG | DEBUGCOMMAND )
-                    	System.out.println("Relatrix K/V Server command received:"+o);
-                   // db = (new File(db)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getDatabase()).getName());
+                    	System.out.println("Relatrix K/V JsonServer command received:"+o);
                     // if we get a command packet with no statement, assume it to start a new instance
                    
-                    TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+                    TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
                     if( uworker != null ) {
                     	if(o.getTransport().equals("TCP")) {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
                     	}
                     }
-                    // determine if this worker has started, if so, cancel thread and start a new one.
-                    //Relatrix.setTablespaceDirectory(db);
-                    
-                    // set the remote tablespace directory
-                    //String rdb = o.getRemoteDirectory();
-                    //if( rdb != null ) {
-                    //	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getRemoteDirectory()).getName());
-                    //	String sdb = rdb.replace('\\', '/');
-                    //	Relatrix.setRemoteDirectory(sdb);
-                    //}              
                     // Create the worker, it in turn creates a WorkerRequestProcessor
-                    uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+                    uworker = new TCPJsonWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixKVServer starting new worker "+uworker+
+                    	System.out.println("RelatrixKVJsonServer starting new worker "+uworker+
                     			//( rdb != null ? "remote db:"+rdb : "" ) +
                     			" master port:"+o.getMasterPort());
                     }
                     
 				} catch(Exception e) {
-                    System.out.println("Relatrix K/V Server node configuration server socket accept exception "+e);
+                    System.out.println("Relatrix K/V Json Server node configuration server socket accept exception "+e);
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                }
@@ -143,7 +105,7 @@ public class RelatrixKVServer extends TCPServer {
 	}
 	/**
 	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVServer.<p/>
-	 * @param args If length 1, then default port 9000, must specify tablespace or alias subsequently. Same for 2 arg: host, port. 3 args then arg 0 is to set default tablespace
+	 * @param args If length 1, then default port 9001, must specify tablespace or alias subsequently. Same for 2 arg: host, port. 3 args then arg 0 is to set default tablespace
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
@@ -153,17 +115,17 @@ public class RelatrixKVServer extends TCPServer {
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix tablespace:"+db);
 		    RelatrixKV.setTablespace(db);
-		    new RelatrixKVServer(args[1], Integer.parseInt(args[2]));
+		    new RelatrixKVJsonServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {
 			    System.out.println("Bringing up Relatrix default tablespace.");
-				new RelatrixKVServer(args[0], Integer.parseInt(args[1]));
+				new RelatrixKVJsonServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
 					System.out.println("Bringing up Relatrix default tablespace.");
-					new RelatrixKVServer(Integer.parseInt(args[0]));
+					new RelatrixKVJsonServer(Integer.parseInt(args[0]));
 				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVServer [/path/to/database/databasename] [address] <port>");
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVJsonServer [/path/to/database/databasename] [address] <port>");
 				}
 			}
 		}

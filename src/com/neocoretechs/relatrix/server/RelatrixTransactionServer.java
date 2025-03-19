@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2022, 2024
  *
  */
-public final class RelatrixTransactionServer extends TCPServer {
+public class RelatrixTransactionServer extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc

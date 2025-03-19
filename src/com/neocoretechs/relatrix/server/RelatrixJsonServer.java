@@ -2,10 +2,14 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import com.neocoretechs.relatrix.Relatrix;
 
@@ -31,23 +35,14 @@ import com.neocoretechs.relatrix.Relatrix;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2024
  *
  */
-public class RelatrixServer extends TCPServer {
+public final class RelatrixJsonServer extends RelatrixServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
+	public static int WORKBOOTPORT = 9003; // Boot time portion of server that assigns databases to sockets etc
+	Jsonb jsonb = JsonbBuilder.create();
+	byte[] buf = new byte[4096];
 	
-	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	public static ServerInvokeMethod relatrixSetMethods = null; // FindSet iterator methods
-	public static ServerInvokeMethod relatrixSubsetMethods = null; // FindSubset iterator methods
-	public static ServerInvokeMethod relatrixHeadsetMethods = null; // FindHeadset iterator methods
-	public static ServerInvokeMethod relatrixTailsetMethods = null; // FindTailset iterator methods
-	public static ServerInvokeMethod relatrixEntrysetMethods = null; // Entryset iterator methods
-	public static ServerInvokeMethod relatrixKeysetMethods = null; // Keyset methods
-	
-	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
-
-	
-	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
+	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -55,17 +50,8 @@ public class RelatrixServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixServer(int port) throws IOException, ClassNotFoundException {
-		super();
-		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
-		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator", 0);
-		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
-		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator", 0);
-		RelatrixServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
-		RelatrixServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator", 0);
-		RelatrixServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator", 0);
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT);
+	public RelatrixJsonServer(int port) throws IOException, ClassNotFoundException {
+		super(port);
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -74,19 +60,11 @@ public class RelatrixServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixServer(String address, int port) throws IOException, ClassNotFoundException {
-		super();
-		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
-		RelatrixServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator", 0);
-		RelatrixServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator", 0);
-		RelatrixServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator", 0);
-		RelatrixServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIterator", 0);
-		RelatrixServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator", 0);
-		RelatrixServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator", 0);
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+	public RelatrixJsonServer(String address, int port) throws IOException, ClassNotFoundException {
+		super(address, port);
 	}
 	
+	@Override
 	public void run() {
 		while(!shouldStop) {
 			try {
@@ -96,13 +74,13 @@ public class RelatrixServer extends TCPServer {
 				// wait 1 second before close; close blocks for 1 sec. and data can be sent
 				datasocket.setSoLinger(true, 1);
 				//
-				ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
-				CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
+                InputStream ois = datasocket.getInputStream();                
+                CommandPacketInterface o = jsonb.fromJson(ois, CommandPacketInterface.class);
 				if( DEBUGCOMMAND )
 					System.out.println("Relatrix Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
-				TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
 				if( uworker != null ) {
 					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
@@ -110,18 +88,18 @@ public class RelatrixServer extends TCPServer {
 					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+				uworker = new TCPJsonWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				ThreadPoolManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RelatrixServer starting new worker "+uworker+
+					System.out.println("RelatrixJsonServer starting new worker "+uworker+
 							//( rdb != null ? "remote db:"+rdb : "" ) +
 							" master port:"+o.getMasterPort());
 				}
 
 			} catch(Exception e) {
-				System.out.println("Relatrix Server node configuration server socket accept exception "+e);
+				System.out.println("Relatrix Json Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
@@ -129,7 +107,7 @@ public class RelatrixServer extends TCPServer {
 	}
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
-	 * @param args If length 1, then default port 9000
+	 * @param args If length 1, then default port 9003
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
@@ -139,17 +117,17 @@ public class RelatrixServer extends TCPServer {
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix tablespace:"+db);
 		    Relatrix.setTablespace(db);
-		    new RelatrixServer(args[1], Integer.parseInt(args[2]));
+		    new RelatrixJsonServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {
 			    System.out.println("Bringing up Relatrix default tablespace.");
-				new RelatrixServer(args[0], Integer.parseInt(args[1]));
+				new RelatrixJsonServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
 					System.out.println("Bringing up Relatrix default tablespace.");
-					new RelatrixServer(Integer.parseInt(args[0]));
+					new RelatrixJsonServer(Integer.parseInt(args[0]));
 				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [/path/to/database/databasename] [address] <port>");
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixJsonServer [/path/to/database/databasename] [address] <port>");
 				}
 			}
 		}

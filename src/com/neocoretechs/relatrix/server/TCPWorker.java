@@ -29,21 +29,21 @@ public class TCPWorker implements Runnable {
 	private static final boolean DEBUG = false;
 	
 	public volatile boolean shouldRun = true;
-	private Object waitHalt = new Object();
+	protected Object waitHalt = new Object();
 	
 	public int MASTERPORT = 9876;
 
     //private byte[] sendData;
-	private InetAddress IPAddress = null;
+	protected InetAddress IPAddress = null;
 	//private ServerSocketChannel workerSocketChannel;
 	//private SocketAddress workerSocketAddress;
 	//private SocketChannel masterSocketChannel;
 	private SocketAddress masterSocketAddress;
 	
-	private Socket workerSocket;
-	private Socket masterSocket;
+	protected Socket workerSocket;
+	protected Socket masterSocket;
 	
-	private WorkerRequestProcessor workerRequestProcessor;
+	protected WorkerRequestProcessor workerRequestProcessor;
 	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
 	private static boolean TEST = false;
