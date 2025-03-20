@@ -24,7 +24,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  *
  */
 public final class WorkerRequestProcessor implements Runnable {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	//public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;

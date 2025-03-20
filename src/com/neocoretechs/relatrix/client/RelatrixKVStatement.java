@@ -8,6 +8,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
+import javax.json.bind.annotation.JsonbTransient;
+
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.Alias;
@@ -30,8 +32,8 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     protected Object[] paramArray;
     private Object retObj;
     private long retLong;
+    @JsonbTransient
     private transient CountDownLatch latch;
-    private transient CyclicBarrier barrier;
     
     public RelatrixKVStatement() {
    		session = UUID.randomUUID().toString();
@@ -54,32 +56,32 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     		System.out.println("Constructor:"+this);
     }
    
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
-	 */
     @Override
 	public synchronized String getSession() {
     	return session; 
     }
     
-    protected synchronized void setSession(String session) { this.session = session; }
+    public synchronized void setSession(String session) { this.session = session; }
     
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getMethodName()
-	 */
     @Override
 	public synchronized String getMethodName() { return methodName; }
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParamArray()
-	 */
+    
+    public synchronized void setMethodName(String methodName) {
+    	this.methodName = methodName;
+    }
+  
     @Override
 	public synchronized Object[] getParamArray() { return paramArray; }
-
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParams()
-	 */
+    
+    public synchronized void setParamArray(Object[] params) {
+    	this.paramArray = params;
+    }
+    
+    @JsonbTransient
     @Override
 	public synchronized Class<?>[] getParams() {
+    	if( paramArray == null )
+     		paramArray = new Object[0];
     	//System.out.println("params:"+paramArray.length);
     	//for(int i = 0; i < paramArray.length; i++)
     		//System.out.println("paramArray "+i+"="+paramArray[i]);
@@ -88,6 +90,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
                 c[i] = paramArray[i].getClass();
         return c;
     }
+    
     @Override
     public synchronized String toString() { 
     	StringBuilder sb = new StringBuilder(String.format("<<<<<%s%n" ,this.getClass().getName()));
@@ -120,21 +123,15 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     	return sb.toString();
     }
     
+    @JsonbTransient
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {
 		return latch;
 	}
+    @JsonbTransient
 	@Override
 	public synchronized void setCountDownLatch(CountDownLatch cdl) {
 		latch = cdl;	
-	}
-	@Override
-	public synchronized CyclicBarrier getCyclicBarrier() {
-		return barrier;
-	}
-	@Override
-	public synchronized void setCyclicBarrier(CyclicBarrier cb) {
-		barrier = cb;
 	}
 	@Override
 	public synchronized void setLongReturn(long val) {

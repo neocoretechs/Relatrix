@@ -138,7 +138,6 @@ public class TCPWorker implements Runnable {
 		}
 		finally {
 			shouldRun = false;
-			workerRequestProcessor.stop();
 			try {
 				workerSocket.close();
 			} catch (IOException e) {}

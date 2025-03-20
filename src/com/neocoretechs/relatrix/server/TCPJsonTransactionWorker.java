@@ -13,20 +13,17 @@ import java.net.SocketException;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
-import com.neocoretechs.relatrix.client.RelatrixKVStatement;
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
-import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
-public class TCPJsonWorker extends TCPWorker {
+public class TCPJsonTransactionWorker extends TCPWorker {
 	private static boolean DEBUG = true;
 	
 	Jsonb jsonb = JsonbBuilder.create();
 	byte[] buf = new byte[4096];
 
-	public TCPJsonWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
+	public TCPJsonTransactionWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);
 	}
 	/**
@@ -67,14 +64,14 @@ public class TCPJsonWorker extends TCPWorker {
 			while(shouldRun) {
 				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPJsonKVWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				String inJson = in.readLine();
 				if(DEBUG)
-					System.out.println("TCPJsonKVWorker read "+inJson+" from "+workerSocket);
-				RelatrixKVStatement iori = jsonb.fromJson(inJson,RelatrixKVStatement.class);	
+					System.out.println("TCPJsonTransactionWorker read "+inJson+" from "+workerSocket);
+				RelatrixTransactionStatement iori = jsonb.fromJson(inJson,RelatrixTransactionStatement.class);	
 				if( DEBUG ) {
-					System.out.println("TCPJsonKVWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
@@ -88,7 +85,7 @@ public class TCPJsonWorker extends TCPWorker {
 		}
 		finally {
 			if( DEBUG ) {
-				System.out.println("TCPJsonKVWorker closing:"+workerSocket);
+				System.out.println("TCPJsonTransactionWorker closing:"+workerSocket);
 			}
 			shouldRun = false;
 			try {

@@ -5,12 +5,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.stream.Stream;
+
+import javax.json.bind.annotation.JsonbTransient;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -40,9 +38,9 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected Object[] paramArray;
     private Object retObj;
     private long retLong;
+    @JsonbTransient
     private transient CountDownLatch latch;
-    private transient CyclicBarrier barrier;
-    
+
     public RelatrixStatement() {
    		session = UUID.randomUUID().toString();
    		this.paramArray = new Object[0];
@@ -70,24 +68,30 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	return session; 
     }
     
-    protected synchronized void setSession(String session) { this.session = session; }
+    public synchronized void setSession(String session) { this.session = session; }
     
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getMethodName()
-	 */
     @Override
 	public synchronized String getMethodName() { return methodName; }
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParamArray()
-	 */
+    
+    public synchronized void setMethodName(String methodName) {
+    	this.methodName = methodName;
+    }
+    
     @Override
 	public synchronized Object[] getParamArray() { return paramArray; }
+    
+    public synchronized void setParamArray(Object[] params) {
+    	this.paramArray = params;
+    }
 
     /* (non-Javadoc)
 	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParams()
 	 */
+    @JsonbTransient
     @Override
 	public synchronized Class<?>[] getParams() {
+     	if( paramArray == null )
+    		paramArray = new Object[0];
     	//System.out.println("params:"+paramArray.length);
     	//for(int i = 0; i < paramArray.length; i++)
     		//System.out.println("paramArray "+i+"="+paramArray[i]);
@@ -96,31 +100,34 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
                 c[i] = paramArray[i].getClass();
         return c;
     }
+    
     @Override
     public synchronized String toString() { return String.format("%s for Session:%s Method:%s Arg:%s%n",
              this.getClass().getName(),session,methodName,
-             (paramArray == null || paramArray.length == 0 ? "nil" : Arrays.toString(paramArray))); }
+             (paramArray == null ? "nil" : Arrays.toString(paramArray))); }
     
+    @JsonbTransient
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {
 		return latch;
 	}
+    
+    @JsonbTransient
 	@Override
 	public synchronized void setCountDownLatch(CountDownLatch cdl) {
 		latch = cdl;	
 	}
-	@Override
-	public synchronized CyclicBarrier getCyclicBarrier() {
-		return barrier;
-	}
-	@Override
-	public synchronized void setCyclicBarrier(CyclicBarrier cb) {
-		barrier = cb;
-	}
+
 	@Override
 	public synchronized void setLongReturn(long val) {
 		retLong = val;
 	}
+	
+	@Override
+	public synchronized long getLongReturn() {
+		return retLong;
+	}
+
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof AbstractRelation) {
@@ -132,11 +139,6 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		}
 		if(DEBUG)
 			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), retObj);
-	}
-
-	@Override
-	public synchronized long getLongReturn() {
-		return retLong;
 	}
 
 	@Override

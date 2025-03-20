@@ -47,19 +47,8 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
     @Override
     public synchronized String toString() { return String.format("%s for Session:%s Method:%s Arg:%s%n",
              this.getClass().getName(), getSession(), methodName,
-             (paramArray == null || paramArray.length == 0 ? "nil" : Arrays.toString(paramArray))); }
+             (paramArray == null ? "nil" : Arrays.toString(paramArray))); }
     
-    @Override
- 	public synchronized Class<?>[] getParams() {
-    	if( paramArray == null )
-    		paramArray = new Object[0];
-    	if(DEBUG)
-    		System.out.println("params:"+paramArray.length+" "+Arrays.toString(paramArray));
-        Class<?>[] c = new Class[paramArray.length];
-        for(int i = 0; i < paramArray.length; i++)
-        	 c[i] = paramArray[i].getClass();
-        return c;
-     }
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable
 	 * in which case we save it server side and link it to the session for later retrieval.

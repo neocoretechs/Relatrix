@@ -46,7 +46,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	// and that one will be located on port 9999
 	boolean isThisBytecodeRepository = false;
 
-	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
+	private ConcurrentHashMap<String, TCPJsonKVWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonKVWorker>();
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -78,7 +78,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
                     	System.out.println("Relatrix K/V JsonServer command received:"+o);
                     // if we get a command packet with no statement, assume it to start a new instance
                    
-                    TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+                    TCPJsonKVWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
                     if( uworker != null ) {
                     	if(o.getTransport().equals("TCP")) {
                     		if( uworker.shouldRun )
@@ -86,7 +86,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
                     	}
                     }
                     // Create the worker, it in turn creates a WorkerRequestProcessor
-                    uworker = new TCPJsonWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+                    uworker = new TCPJsonKVWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);
                     

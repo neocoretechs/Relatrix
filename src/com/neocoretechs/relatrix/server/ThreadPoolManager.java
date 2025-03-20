@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
-
 /**
  * Class to manage thread resources throughout the application. Singleton
  * Usage pattern is ThreadPoolManager.getInstance().spin([your Runnable])
@@ -24,7 +23,7 @@ import java.util.concurrent.ThreadFactory;
  */
 public class ThreadPoolManager {
 	private static final boolean DEBUG = false;
-	private static String DEFAULT_THREAD_POOL = "SACKIO";
+	private static String DEFAULT_THREAD_POOL = "RELATRIX";
 	private int threadNum = 0;
     private static Map<String, ExecutorService> executor = new HashMap<String, ExecutorService>();// = Executors.newCachedThreadPool(dtf);
 

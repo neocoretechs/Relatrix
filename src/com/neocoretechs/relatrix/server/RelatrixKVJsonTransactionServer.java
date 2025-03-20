@@ -47,7 +47,7 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 	// and that one will be located on port 9999
 	boolean isThisBytecodeRepository = false;
 
-	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
+	private ConcurrentHashMap<String, TCPJsonKVTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonKVTransactionWorker>();
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -83,14 +83,14 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
                     CommandPacketInterface o = jsonb.fromJson(ois, CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Json Transaction Server command received:"+o);
-                    TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+                    TCPJsonKVTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
                     if( uworker != null ) {
                     	if(o.getTransport().equals("TCP")) {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
                     	}
                     }
-                    uworker = new TCPJsonWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+                    uworker = new TCPJsonKVTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
                     ThreadPoolManager.getInstance().spin(uworker);
                     

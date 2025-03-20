@@ -1,10 +1,12 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -91,14 +93,8 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 				InputStream ins = sock.getInputStream();
 				if(DEBUG)
 					System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				while(true) {
-					int n = ins.read(buf);
-					if( n < 0 ) break;
-					baos.write(buf,0,n);
-				}
-				baos.flush();
-				RemoteResponseInterface iori = jsonb.fromJson(new String(baos.toByteArray()),RemoteResponseInterface.class);	
+				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+				RelatrixTransactionStatement iori = jsonb.fromJson(in.readLine(),RelatrixTransactionStatement.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -109,6 +105,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 				}
 				RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
+					in.close();
 					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
@@ -144,8 +141,12 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
 		String iorij = jsonb.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
-		os.write(iorij.getBytes());
-		os.flush();
+		PrintWriter out = new PrintWriter(os, true);
+		if(DEBUG)
+			System.out.println("Sending "+iorij+" to "+workerSocket);
+		out.println(iorij);
+		if(DEBUG)
+			System.out.println("Sent "+iorij+" to "+workerSocket);
 	}
 
 	/**
@@ -166,8 +167,8 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
 		String cpij = jsonb.toJson(cpi);
 		OutputStream os = s.getOutputStream();
-		os.write(cpij.getBytes());
-		os.flush();
+		PrintWriter out = new PrintWriter(os, true);
+		out.println(cpij);
 		return s;
 	}
 	

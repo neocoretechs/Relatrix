@@ -1,9 +1,11 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -45,7 +47,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	Jsonb jsonb = JsonbBuilder.create();
 	byte[] buf = new byte[4096];
 
-	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
+	private ConcurrentHashMap<String, TCPJsonTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonTransactionWorker>();
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -72,25 +74,24 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 		while(!shouldStop) {
 			try {
 				Socket datasocket = server.accept();
+				if( DEBUG || DEBUGCOMMAND )
+					System.out.println("Relatrix Json Transaction Server socket accept:"+datasocket);
 				// disable Nagles algoritm; do not combine small packets into larger ones
 				datasocket.setTcpNoDelay(true);
 				// wait 1 second before close; close blocks for 1 sec. and data can be sent
 				datasocket.setSoLinger(true, 1);
 				//
 	            InputStream ins = datasocket.getInputStream();
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				while(true) {
-					int n = ins.read(buf);
-					if( n < 0 ) break;
-					baos.write(buf,0,n);
-				}
-				baos.flush();
-				CommandPacketInterface o = jsonb.fromJson(new String(baos.toByteArray()), CommandPacket.class);
+				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+				String inJson = in.readLine();
+				if( DEBUG || DEBUGCOMMAND )
+					System.out.println("Relatrix Json Transaction Server read:"+inJson);
+				CommandPacket o = jsonb.fromJson(inJson, CommandPacket.class);
 				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
-				TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPJsonTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
 				if( uworker != null ) {
 					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
@@ -98,7 +99,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 					}
 				}              
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPJsonWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+				uworker = new TCPJsonTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				ThreadPoolManager.getInstance().spin(uworker);
 
