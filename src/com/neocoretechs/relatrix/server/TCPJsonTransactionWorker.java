@@ -10,18 +10,15 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
+import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
+
 public class TCPJsonTransactionWorker extends TCPWorker {
 	private static boolean DEBUG = true;
-	
-	Jsonb jsonb = JsonbBuilder.create();
-	byte[] buf = new byte[4096];
 
 	public TCPJsonTransactionWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);
@@ -41,7 +38,7 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = jsonb.toJson(irf);
+			String jirf = new Gson().toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -66,10 +63,7 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
-				if(DEBUG)
-					System.out.println("TCPJsonTransactionWorker read "+inJson+" from "+workerSocket);
-				RelatrixTransactionStatement iori = jsonb.fromJson(inJson,RelatrixTransactionStatement.class);	
+				RelatrixTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixTransactionStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}

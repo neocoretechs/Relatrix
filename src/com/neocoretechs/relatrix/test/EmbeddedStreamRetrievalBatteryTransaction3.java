@@ -16,7 +16,8 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.TransactionId;
+
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking

@@ -17,7 +17,8 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.TransactionId;
+
 
 /**
  * The set of tests verifies the findSet relation function in the {@link  RelatrixTransaction}<p/>

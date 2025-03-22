@@ -8,16 +8,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
-import javax.json.bind.annotation.JsonbTransient;
-
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.google.gson.annotations.Expose;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterator;
-import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
  * The following class allows the transport of RelatrixKV method calls to the server
@@ -32,7 +29,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     protected Object[] paramArray;
     private Object retObj;
     private long retLong;
-    @JsonbTransient
+    @Expose(serialize = false)
     private transient CountDownLatch latch;
     
     public RelatrixKVStatement() {
@@ -77,7 +74,6 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     	this.paramArray = params;
     }
     
-    @JsonbTransient
     @Override
 	public synchronized Class<?>[] getParams() {
     	if( paramArray == null )
@@ -123,20 +119,21 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     	return sb.toString();
     }
     
-    @JsonbTransient
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {
 		return latch;
 	}
-    @JsonbTransient
+   
 	@Override
 	public synchronized void setCountDownLatch(CountDownLatch cdl) {
 		latch = cdl;	
 	}
+	
 	@Override
 	public synchronized void setLongReturn(long val) {
 		retLong = val;
 	}
+	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		retObj = o;		

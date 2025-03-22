@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+
+
 
 /**
  * Test of client side KV server stream transaction ops for multiple aliased databases.<p/>

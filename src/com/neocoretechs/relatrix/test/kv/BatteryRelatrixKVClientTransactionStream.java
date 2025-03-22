@@ -4,10 +4,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
-import com.neocoretechs.rocksack.TransactionId;
+
 
 /**
  * Client side test of transaction KV server using {@link RelatrixKVClientTransaction}. Yes, this should be a nice JUnit fixture someday.

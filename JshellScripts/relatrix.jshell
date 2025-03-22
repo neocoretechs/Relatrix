@@ -1,12 +1,7 @@
 /set mode Relatrix -quiet
 /set prompt Relatrix "->" ".."
-import javax.json.*;
 import com.neocoretechs.relatrix.*;
 import com.neocoretechs.relatrix.test.*;
 import com.neocoretechs.relatrix.client.*;
-import com.neocoretechs.rocksack.*;
-import com.neocoretechs.rocksack.test.*;
-import com.neocoretechs.rocksack.iterator.*;
-import com.neocoretechs.rocksack.session.*;
-import com.neocoretechs.rocksack.stream.*;
+
 

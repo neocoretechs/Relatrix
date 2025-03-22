@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor

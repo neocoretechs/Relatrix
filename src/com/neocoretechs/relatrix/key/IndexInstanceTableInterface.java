@@ -3,9 +3,11 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.TransactionId;
+
+
 /**
  * For Morphisms {@link com.neocoretechs.relatrix.AbstractRelation} in the Relatrix, we store Key/Value tables of 
  * instance/DBKey DBKey/Instance {@link DBKey} {@link KeySet} to reference

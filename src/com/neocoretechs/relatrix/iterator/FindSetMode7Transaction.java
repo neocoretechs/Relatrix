@@ -5,9 +5,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.Alias;
+
+
 
 /**
 * Identity morphism retrieval.

@@ -11,9 +11,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
@@ -44,8 +42,6 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	private static boolean DEBUG = true;
 	private static boolean DEBUGCOMMAND = false;
 	public static int WORKBOOTPORT = 9004; // Boot time portion of server that assigns databases to sockets etc
-	Jsonb jsonb = JsonbBuilder.create();
-	byte[] buf = new byte[4096];
 
 	private ConcurrentHashMap<String, TCPJsonTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonTransactionWorker>();
 	
@@ -86,7 +82,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 				String inJson = in.readLine();
 				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server read:"+inJson);
-				CommandPacket o = jsonb.fromJson(inJson, CommandPacket.class);
+				CommandPacket o = new Gson().fromJson(inJson, CommandPacket.class);
 				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

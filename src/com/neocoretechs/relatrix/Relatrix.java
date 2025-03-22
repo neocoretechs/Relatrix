@@ -58,7 +58,7 @@ import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
 * Top-level class that imparts behavior to the {@link AbstractRelation} subclasses which contain references for domain, map, range.<p/>

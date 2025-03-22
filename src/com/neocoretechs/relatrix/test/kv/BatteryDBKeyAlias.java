@@ -3,8 +3,9 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.neocoretechs.rocksack.Alias;
+
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;

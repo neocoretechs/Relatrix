@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>

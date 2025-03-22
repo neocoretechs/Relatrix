@@ -1,7 +1,9 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import java.net.Socket;
@@ -10,13 +12,12 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 
-import com.neocoretechs.rocksack.TransactionId;
+
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
  * Worker threads located on a remote node.<p/>
@@ -37,9 +38,6 @@ import com.neocoretechs.rocksack.TransactionId;
 public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
-	
-	Jsonb jsonb = null;
-	byte[] buf = new byte[4096];
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -82,7 +80,8 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
   	    try {
 		  while(shouldRun ) {
 				InputStream ins = sock.getInputStream();
-				RemoteResponseInterface iori = jsonb.fromJson(ins,RemoteResponseInterface.class);	
+				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+				RemoteResponseInterface iori = new Gson().fromJson(in.readLine(),RemoteResponseInterface.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -93,6 +92,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 				}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
+					in.close();
 					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
@@ -126,7 +126,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-		String iorij = jsonb.toJson(iori);
+		String iorij = new Gson().toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		if(DEBUG)
 			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
@@ -150,15 +150,13 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 		// send a remote Fopen request to the node
 		// this consists of sending the running WorkBoot a message to start the worker for a particular
 		// database on the node we hand down
-		if(jsonb == null)
-			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
 		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s+" using "+jsonb);
+		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = jsonb.toJson(cpi);
+		String cpij = new Gson().toJson(cpi);
 		System.out.println(cpij);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());

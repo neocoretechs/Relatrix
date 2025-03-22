@@ -10,13 +10,14 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking

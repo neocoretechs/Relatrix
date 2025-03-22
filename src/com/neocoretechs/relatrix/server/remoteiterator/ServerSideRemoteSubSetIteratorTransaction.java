@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 
 import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
-import com.neocoretechs.rocksack.TransactionId;
+
 /**
  * Used by RelatrixTransactionServer to produce subsets for remote delivery.
  * Created from the {@link RelatrixTransactionStatement} process method and setObjectReturn is then called to place it in the return.

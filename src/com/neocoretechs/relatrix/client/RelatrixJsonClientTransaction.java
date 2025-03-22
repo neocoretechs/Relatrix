@@ -13,13 +13,12 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 
-import com.neocoretechs.rocksack.TransactionId;
+
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
@@ -47,9 +46,6 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
-	Jsonb jsonb = JsonbBuilder.create();
-	byte[] buf = new byte[4096];
-	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 
@@ -68,7 +64,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 	}
 
 	/**
-	* Set up the socket 
+	* Set up the socket to receive the queued response from TCPJsonTransactionWorker on server
 	 */
 	@Override
 	public void run() {
@@ -94,7 +90,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 				if(DEBUG)
 					System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RelatrixTransactionStatement iori = jsonb.fromJson(in.readLine(),RelatrixTransactionStatement.class);	
+				RelatrixTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixTransactionStatement.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -109,6 +105,9 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
+					if(DEBUG) {
+						System.out.printf("%s run response loop recieved class:%s %s%n", this.getClass().getName(),o.getClass().getName(),o);
+					}
 					if(o instanceof Iterator)
 						((RemoteObjectInterface)o).setClient(this);
 					// We have the request after its session round trip, get it from outstanding waiters and signal
@@ -139,7 +138,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 	@Override
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
-		String iorij = jsonb.toJson(iori);
+		String iorij = new Gson().toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		PrintWriter out = new PrintWriter(os, true);
 		if(DEBUG)
@@ -157,15 +156,13 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
-		if(jsonb == null)
-			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = jsonb.toJson(cpi);
+		String cpij = new Gson().toJson(cpi);
 		OutputStream os = s.getOutputStream();
 		PrintWriter out = new PrintWriter(os, true);
 		out.println(cpij);

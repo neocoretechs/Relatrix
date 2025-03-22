@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import javax.json.bind.annotation.JsonbTransient;
-
+import com.google.gson.annotations.Expose;
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIterat
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIterator;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIterator;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
@@ -38,7 +38,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected Object[] paramArray;
     private Object retObj;
     private long retLong;
-    @JsonbTransient
+    @Expose(serialize = false)
     private transient CountDownLatch latch;
 
     public RelatrixStatement() {
@@ -84,10 +84,6 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	this.paramArray = params;
     }
 
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getParams()
-	 */
-    @JsonbTransient
     @Override
 	public synchronized Class<?>[] getParams() {
      	if( paramArray == null )
@@ -106,13 +102,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
              this.getClass().getName(),session,methodName,
              (paramArray == null ? "nil" : Arrays.toString(paramArray))); }
     
-    @JsonbTransient
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {
 		return latch;
 	}
     
-    @JsonbTransient
 	@Override
 	public synchronized void setCountDownLatch(CountDownLatch cdl) {
 		latch = cdl;	

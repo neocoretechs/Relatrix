@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.rocksack.Alias;
+
 /**
  * Find elements greater or equal to 'from' element.
  * Concrete object instance in range component = mode 1

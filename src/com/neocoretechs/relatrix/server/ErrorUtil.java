@@ -8,9 +8,10 @@ import org.rocksdb.Status;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.rocksack.TransactionId;
+
 /**
  * Series of error handlers to retry commit on optimistic transaction database exception during commit phase.
  * Uses exponential backoff during retry of commit for various clients of transactional database sessions.

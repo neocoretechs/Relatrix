@@ -3,9 +3,9 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.rocksack.iterator.Entry;
 
+import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 
 /**

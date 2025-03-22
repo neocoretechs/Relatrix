@@ -24,13 +24,14 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
-import com.neocoretechs.rocksack.Alias;
+
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
  * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;

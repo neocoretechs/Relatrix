@@ -1,7 +1,8 @@
 package com.neocoretechs.relatrix.server;
 
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
-import com.neocoretechs.rocksack.TransactionId;
+
 /**
  * Roll back selected transactiosn on the server. Use with caution.
  * Exceptions likely to be thrown server side if active processes. use is mainly

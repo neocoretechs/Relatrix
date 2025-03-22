@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+
+
 /**
  * Set a transport object for Morphisms, which contain transient objects.
  * At the destination, recover the transient instances and set them in the abstractRelation.

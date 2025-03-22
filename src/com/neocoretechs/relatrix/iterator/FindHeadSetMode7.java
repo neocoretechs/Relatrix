@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.relatrix.Alias;
+
 
 /**
 * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.

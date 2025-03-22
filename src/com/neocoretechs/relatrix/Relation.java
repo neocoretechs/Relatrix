@@ -3,8 +3,8 @@ package com.neocoretechs.relatrix;
 import java.io.Serializable;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+
+
 
 /**
  * This class represents a {@link AbstractRelation} stored in its natural retrieval order.<p/>

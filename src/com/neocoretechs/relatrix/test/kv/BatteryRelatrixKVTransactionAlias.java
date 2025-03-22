@@ -3,12 +3,14 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+
+
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.TransactionId;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server with alias.

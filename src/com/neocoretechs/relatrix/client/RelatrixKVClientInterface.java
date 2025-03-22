@@ -4,8 +4,11 @@ package com.neocoretechs.relatrix.client;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
+
+import com.neocoretechs.relatrix.Alias;
+
 import java.util.List;
-import com.neocoretechs.rocksack.Alias;
+
 
 
 public interface RelatrixKVClientInterface{

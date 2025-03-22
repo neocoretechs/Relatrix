@@ -14,13 +14,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
-import com.neocoretechs.rocksack.TransactionId;
+
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.

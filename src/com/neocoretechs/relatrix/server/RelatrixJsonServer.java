@@ -1,16 +1,16 @@
 package com.neocoretechs.relatrix.server;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
 import com.neocoretechs.relatrix.Relatrix;
 
 /**
@@ -39,8 +39,6 @@ public final class RelatrixJsonServer extends RelatrixServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	public static int WORKBOOTPORT = 9003; // Boot time portion of server that assigns databases to sockets etc
-	Jsonb jsonb = JsonbBuilder.create();
-	byte[] buf = new byte[4096];
 	
 	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
 	
@@ -74,8 +72,9 @@ public final class RelatrixJsonServer extends RelatrixServer {
 				// wait 1 second before close; close blocks for 1 sec. and data can be sent
 				datasocket.setSoLinger(true, 1);
 				//
-                InputStream ois = datasocket.getInputStream();                
-                CommandPacketInterface o = jsonb.fromJson(ois, CommandPacket.class);
+                InputStream ins = datasocket.getInputStream();
+    			BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+                CommandPacketInterface o = new Gson().fromJson(in.readLine(), CommandPacket.class);
 				if( DEBUGCOMMAND )
 					System.out.println("Relatrix Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

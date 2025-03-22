@@ -4,10 +4,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server stream retrieval ops.

@@ -7,9 +7,10 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteStream;
-import com.neocoretechs.rocksack.TransactionId;
+
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of KV transaction server stream ops.

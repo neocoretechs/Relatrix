@@ -2,9 +2,11 @@ package com.neocoretechs.relatrix.stream;
 
 import java.io.IOException;
 
+import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+
+
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys in a transaction context

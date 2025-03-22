@@ -8,8 +8,10 @@ import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.relatrix.TransactionId;
+
+
 
 /**
  * Class fronts the actual instances in the Relatrix relations so as to normalize those actual instances.<p/>

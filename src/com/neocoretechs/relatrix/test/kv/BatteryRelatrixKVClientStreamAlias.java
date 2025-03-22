@@ -5,10 +5,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * Client side test of streams in KV server database alias using {@link RelatrixKVClient}. 

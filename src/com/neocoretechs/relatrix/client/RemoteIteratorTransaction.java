@@ -3,7 +3,7 @@ package com.neocoretechs.relatrix.client;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import com.neocoretechs.rocksack.TransactionId;
+
 
 /**
  * Fulfills the Iterator interface contract and acts as a proxy to the client.

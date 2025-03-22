@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.rocksack.Alias;
+
 /**
  * Find elements strictly less than 'to' target.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021

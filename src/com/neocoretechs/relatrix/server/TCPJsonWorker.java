@@ -10,21 +10,15 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import com.google.gson.Gson;
 
-import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
-import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+
 
 public class TCPJsonWorker extends TCPWorker {
 	private static boolean DEBUG = true;
-	
-	Jsonb jsonb = JsonbBuilder.create();
-	byte[] buf = new byte[4096];
 
 	public TCPJsonWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);
@@ -44,7 +38,7 @@ public class TCPJsonWorker extends TCPWorker {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = jsonb.toJson(irf);
+			String jirf = new Gson().toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -67,14 +61,14 @@ public class TCPJsonWorker extends TCPWorker {
 			while(shouldRun) {
 				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPJsonKVWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				String inJson = in.readLine();
 				if(DEBUG)
-					System.out.println("TCPJsonKVWorker read "+inJson+" from "+workerSocket);
-				RelatrixKVStatement iori = jsonb.fromJson(inJson,RelatrixKVStatement.class);	
+					System.out.println("TCPJsonWorker read "+inJson+" from "+workerSocket);
+				RelatrixStatement iori = new Gson().fromJson(inJson,RelatrixStatement.class);	
 				if( DEBUG ) {
-					System.out.println("TCPJsonKVWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println("TCPJsonWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
@@ -88,7 +82,7 @@ public class TCPJsonWorker extends TCPWorker {
 		}
 		finally {
 			if( DEBUG ) {
-				System.out.println("TCPJsonKVWorker closing:"+workerSocket);
+				System.out.println("TCPJsonWorker closing:"+workerSocket);
 			}
 			shouldRun = false;
 			try {

@@ -1,21 +1,22 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
 //import com.neocoretechs.rocksack.SerializedComparator;
 //import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
  * On the client and server the following are present as conventions:<br/>
@@ -36,9 +37,6 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
-	
-	Jsonb jsonb = null;
-	byte[] buf = new byte[4096];
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -81,7 +79,8 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
   	    try {
 		  while(shouldRun ) {
 				InputStream ins = sock.getInputStream();
-				RemoteResponseInterface iori = jsonb.fromJson(ins,RemoteResponseInterface.class);	
+				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+				RelatrixKVTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixKVTransactionStatement.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -93,6 +92,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 				}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
+					in.close();
 					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
@@ -131,12 +131,12 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 			else
 				System.out.println("Socket NULL!");
 		}
-		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
+		outstandingRequests.put(iori.getSession(), (RelatrixKVTransactionStatement) iori);
 		//if(DEBUG) {
 		//	byte[] b = SerializedComparator.serializeObject(iori);
 		//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 		//}
-		String iorij = jsonb.toJson(iori);
+		String iorij = new Gson().toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		if(DEBUG)
 			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
@@ -156,15 +156,13 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
-		if(jsonb == null)
-			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = jsonb.toJson(cpi);
+		String cpij = new Gson().toJson(cpi);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());
 		os.flush();

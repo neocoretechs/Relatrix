@@ -14,8 +14,9 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.rocksack.TransactionId;
+
 
 /**
  * The set of tests verifies the higher level transaction 'findStream' functions in the {@link  RelatrixTransaction}<p/>

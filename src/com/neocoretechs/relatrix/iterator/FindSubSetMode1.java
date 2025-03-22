@@ -5,9 +5,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.Relatrix;
 
-import com.neocoretechs.rocksack.Alias;
+
 /**
  * Mode 1 find for subset permutation. The main difference we find here is that we deal with an additional argument
  * to the crucial methods that represents the ending range of the set valued results of our findSet query.

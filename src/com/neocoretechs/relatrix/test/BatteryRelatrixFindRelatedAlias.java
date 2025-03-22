@@ -11,7 +11,7 @@ import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
-import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;

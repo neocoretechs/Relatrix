@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.relatrix.TransactionId;
+
+
 
 /**
 * Mode 7 all objects. Take subset of identity Morphisms from instance d, m, r

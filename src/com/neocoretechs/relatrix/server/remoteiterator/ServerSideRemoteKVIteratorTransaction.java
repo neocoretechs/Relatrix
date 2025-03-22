@@ -1,8 +1,9 @@
 package com.neocoretechs.relatrix.server.remoteiterator;
 
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.client.RemoteKVIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
-import com.neocoretechs.rocksack.TransactionId;
+
 
 public class ServerSideRemoteKVIteratorTransaction extends RemoteKVIteratorTransaction {
 	private static final long serialVersionUID = -1003043201216184312L;

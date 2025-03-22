@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixServer;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 /**
  * This has to get called from the client to invoke the proper server side iterator

@@ -4,8 +4,9 @@ import java.io.IOException;
 
 import java.util.NoSuchElementException;
 
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys

@@ -1,16 +1,17 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import java.net.Socket;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-
+import com.google.gson.Gson;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -38,9 +39,6 @@ public class RelatrixJsonClient extends RelatrixClient {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
-	
-	Jsonb jsonb = null;
-	byte[] buf = new byte[4096];
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -91,7 +89,8 @@ public class RelatrixJsonClient extends RelatrixClient {
 				//  if( n < 0 ) break;
 				//  baos.write(buf,0,n);
 				//}
-				RemoteResponseInterface iori = jsonb.fromJson(ins,RemoteResponseInterface.class);	
+				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+				RemoteResponseInterface iori = new Gson().fromJson(in.readLine(), RemoteResponseInterface.class);
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -105,6 +104,7 @@ public class RelatrixJsonClient extends RelatrixClient {
 				}
 				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
+					in.close();
 					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
@@ -137,7 +137,7 @@ public class RelatrixJsonClient extends RelatrixClient {
 	@Override
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
-		String iorij = jsonb.toJson(iori);
+		String iorij = new Gson().toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		os.write(iorij.getBytes());
 		os.flush();
@@ -151,15 +151,13 @@ public class RelatrixJsonClient extends RelatrixClient {
 	 */
 	@Override
 	public Socket Fopen(String bootNode) throws IOException {
-		if(jsonb == null)
-			jsonb = JsonbBuilder.create();
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
 		s.setReceiveBufferSize(32767);
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = jsonb.toJson(cpi);
+		String cpij = new Gson().toJson(cpi);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());
 		os.flush();

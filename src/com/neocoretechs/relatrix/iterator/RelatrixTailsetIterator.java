@@ -9,11 +9,12 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
-import com.neocoretechs.rocksack.Alias;
+
 /**
  *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link AbstractRelation}s, or
  * Populate a series of arrays with the partial ordered sets of classes. Find elements greater or equal to 'from' element.

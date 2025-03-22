@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.TransactionId;
+
+
 
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>

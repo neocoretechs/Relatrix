@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import com.neocoretechs.rocksack.Alias;
+
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
@@ -61,7 +61,7 @@ public final class RelatrixKV {
 	public static BufferedMap getMap(Alias alias, Class type) throws IllegalAccessException, IOException {
 		BufferedMap t = mapCache.get(type.getName()+alias.getAlias());
 		if(t == null) {
-			t = DatabaseManager.getMap(alias, type);
+			t = DatabaseManager.getMap(alias.getRocksackAlias(), type);
 			mapCache.put(type.getName()+alias.getAlias(), t);
 		}
 		return t;
@@ -86,7 +86,7 @@ public final class RelatrixKV {
 	 * @throws IOException
 	 */
 	public static void setAlias(Alias alias, String path) throws IOException {
-		DatabaseManager.setTableSpaceDir(alias, path);
+		DatabaseManager.setTableSpaceDir(alias.getRocksackAlias(), path);
 	}
 	/**
 	 * Set an alias relative to the current tablespace
@@ -108,7 +108,7 @@ public final class RelatrixKV {
 	 */
 	@ServerMethod	
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
-		DatabaseManager.removeAlias(alias);
+		DatabaseManager.removeAlias(alias.getRocksackAlias());
 	}
 	
 	/**
@@ -118,7 +118,7 @@ public final class RelatrixKV {
 	 */
 	@ServerMethod
 	public static String getAlias(Alias alias) {
-		return DatabaseManager.getTableSpaceDir(alias);
+		return DatabaseManager.getTableSpaceDir(alias.getRocksackAlias());
 	}
 	/**
 	 * 
@@ -1025,7 +1025,7 @@ public final class RelatrixKV {
 	public static void close(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		DatabaseManager.removeMap(alias, ttm);
+		DatabaseManager.removeMap(alias.getRocksackAlias(), ttm);
 	}
 	/**
 	 * Close and remove database from available set

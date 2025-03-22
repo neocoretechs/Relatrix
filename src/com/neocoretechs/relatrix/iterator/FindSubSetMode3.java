@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.rocksack.Alias;
+
 
 /**
 * Mode 3. The findSet contains two object references, therefore the subset variable array must also.

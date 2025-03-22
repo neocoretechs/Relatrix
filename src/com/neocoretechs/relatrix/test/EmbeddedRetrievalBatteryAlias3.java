@@ -17,7 +17,8 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
-import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.relatrix.Alias;
+
 
 
 /**
