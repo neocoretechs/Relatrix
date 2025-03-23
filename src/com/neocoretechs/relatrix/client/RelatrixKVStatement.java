@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
-import com.google.gson.annotations.Expose;
+
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterator;
@@ -27,9 +27,8 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     protected String session = null;
     protected String methodName;
     protected Object[] paramArray;
-    private Object retObj;
-    private long retLong;
-    @Expose(serialize = false)
+    private Object objectReturn;
+    private String returnClass;
     private transient CountDownLatch latch;
     
     public RelatrixKVStatement() {
@@ -74,6 +73,14 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     	this.paramArray = params;
     }
     
+    public String getReturnClass() {
+    	return returnClass;
+    }
+    
+    public void setReturnClass(String returnClass) {
+    	this.returnClass = returnClass;
+    }
+    
     @Override
 	public synchronized Class<?>[] getParams() {
     	if( paramArray == null )
@@ -109,12 +116,12 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     		sb.append(")");
     	}
   		sb.append("\r\nReturn Object: ");
-  		if(retObj != null) {
+  		if(objectReturn != null) {
   			sb.append("Class ");
-  			sb.append(retObj.getClass().getName());
+  			sb.append(objectReturn.getClass().getName());
   			sb.append(", ");
   		}
-		sb.append(retObj);
+		sb.append(objectReturn);
 		sb.append(" >>>>>\r\n");
     	return sb.toString();
     }
@@ -128,25 +135,15 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	public synchronized void setCountDownLatch(CountDownLatch cdl) {
 		latch = cdl;	
 	}
-	
-	@Override
-	public synchronized void setLongReturn(long val) {
-		retLong = val;
-	}
-	
+		
 	@Override
 	public synchronized void setObjectReturn(Object o) {
-		retObj = o;		
-	}
-
-	@Override
-	public synchronized long getLongReturn() {
-		return retLong;
+		objectReturn = o;		
 	}
 
 	@Override
 	public synchronized Object getObjectReturn() {
-		return retObj;
+		return objectReturn;
 	}
 	/**
 	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p/>

@@ -9,9 +9,6 @@ import java.util.List;
 import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.TransactionId;
 
-
-
-
 public abstract class RelatrixKVClientTransactionInterfaceImpl implements RelatrixKVClientTransactionInterface{
 
 	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;

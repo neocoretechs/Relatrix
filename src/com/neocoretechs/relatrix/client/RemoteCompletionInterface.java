@@ -10,7 +10,6 @@ import java.util.concurrent.CountDownLatch;
 public interface RemoteCompletionInterface extends RemoteRequestInterface {
 		public CountDownLatch getCountDownLatch();
 		public void setCountDownLatch(CountDownLatch cdl);
-		public void setLongReturn(long val);
 		public void setObjectReturn(Object o);
 		public void process() throws Exception;
 }

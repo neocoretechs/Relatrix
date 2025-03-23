@@ -17,6 +17,10 @@ public interface RemoteRequestInterface {
 	public String getMethodName();
 
 	public Object[] getParamArray();
+	
+	public String getReturnClass();
+	
+	public void setReturnClass(String string);
 
 	/**
 	 * @return An array of Class objects for the parameters of the remote method

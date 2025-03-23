@@ -17,6 +17,9 @@ public class TransactionId implements Serializable {
 	public String getTransactionId() {
 		return transactionId;
 	}
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
 	public com.neocoretechs.rocksack.TransactionId getRocksackTransactionId() {
 		return new com.neocoretechs.rocksack.TransactionId(transactionId);
 	}

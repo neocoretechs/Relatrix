@@ -9,8 +9,6 @@ import com.neocoretechs.relatrix.Alias;
 
 import java.util.List;
 
-
-
 public interface RelatrixKVClientInterface{
 
 	public Stream findHeadMapKVStream(Comparable arg1) throws java.io.IOException;

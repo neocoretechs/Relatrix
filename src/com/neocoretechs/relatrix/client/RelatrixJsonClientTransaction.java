@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -95,6 +96,9 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
+				if(o.getClass() == com.google.gson.internal.LinkedTreeMap.class) {
+					o = JsonUtil.jsonMapToObject(iori.getReturnClass(), (com.google.gson.internal.LinkedTreeMap) o);
+				}
 				if( o instanceof Exception ) {
 					System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					o = ((Throwable)o).getCause();

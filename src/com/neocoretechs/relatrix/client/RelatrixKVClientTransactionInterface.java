@@ -10,8 +10,6 @@ import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.TransactionId;
 
 
-
-
 public interface RelatrixKVClientTransactionInterface{
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;

@@ -12,7 +12,6 @@ import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIteratorTransaction;
-import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
  * The following class allows the transport of method calls to the server {@link RelatrixKVTransactionServer} using a transaction context.

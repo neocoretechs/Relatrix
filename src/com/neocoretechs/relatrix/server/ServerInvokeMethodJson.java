@@ -183,6 +183,7 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     					Object o1[] = tmc.getParamArray();
     					if(DEBUG) {
     						System.out.println("ServerInvokeJson Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
+    						tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     						Object oret = methods[methodIndex].invoke( localObject, o1 );
     						System.out.println("ServerInvokeJson return from invocation:"+oret);
     						return oret;
@@ -192,6 +193,7 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     				// invoke it for return
     				if(DEBUG) {
     					System.out.println("ServerInvokeJson Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
+    					tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     					Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
     					System.out.println("ServerInvokeJson return from invocation:"+oret);
     					return oret;

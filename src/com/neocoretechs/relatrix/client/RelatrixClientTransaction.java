@@ -15,12 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.TransactionId;
-import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
-
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -209,7 +207,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		os.flush();
 		return s;
 	}
-	
 
 	public void close() {
 		shouldRun = false;
@@ -245,7 +242,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		}
 		shouldRun = false;
 	}
-	
 	
 	public String getLocalNode() {
 		return bootNode;
@@ -285,7 +281,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		rii.paramArray = new Object[0];
 		return (boolean) sendCommand(rii);
 	}
-	
 
 	/**
 	 * Issue a close which will merely remove the request resident object here and on the server

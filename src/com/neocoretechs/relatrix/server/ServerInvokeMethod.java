@@ -187,6 +187,7 @@ public class ServerInvokeMethod {
     					Object o1[] = tmc.getParamArray();
     					if(DEBUG) {
     						System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
+    						tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     						Object oret = methods[methodIndex].invoke( localObject, o1 );
     						System.out.println("ServerInvoke return from invocation:"+oret);
     						return oret;
@@ -196,6 +197,7 @@ public class ServerInvokeMethod {
     				// invoke it for return
     				if(DEBUG) {
     					System.out.println("ServerInvoke Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
+    					tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     					Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
     					System.out.println("ServerInvoke return from invocation:"+oret);
     					return oret;

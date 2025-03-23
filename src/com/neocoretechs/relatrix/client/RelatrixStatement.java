@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import com.google.gson.annotations.Expose;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.TransportMorphism;
@@ -36,9 +35,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected Alias alias = null;
     protected String methodName;
     protected Object[] paramArray;
-    private Object retObj;
-    private long retLong;
-    @Expose(serialize = false)
+    private Object objectReturn;
+    private String returnClass;
     private transient CountDownLatch latch;
 
     public RelatrixStatement() {
@@ -72,6 +70,14 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     
     public synchronized void setMethodName(String methodName) {
     	this.methodName = methodName;
+    }
+    
+    public String getReturnClass() {
+    	return returnClass;
+    }
+    
+    public void setReturnClass(String returnClass) {
+    	this.returnClass = returnClass;
     }
     
     @Override
@@ -110,38 +116,28 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	}
 
 	@Override
-	public synchronized void setLongReturn(long val) {
-		retLong = val;
-	}
-	
-	@Override
-	public synchronized long getLongReturn() {
-		return retLong;
-	}
-
-	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof AbstractRelation) {
-			retObj = TransportMorphism.createTransport((AbstractRelation) o);
+			objectReturn = TransportMorphism.createTransport((AbstractRelation) o);
 		} else {
 			if(o instanceof TransportMorphismInterface)
 				((TransportMorphismInterface)o).packForTransport();
-			retObj = o;
+			objectReturn = o;
 		}
 		if(DEBUG)
-			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), retObj);
+			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), objectReturn);
 	}
 
 	@Override
 	public synchronized Object getObjectReturn() {
-		if(retObj instanceof TransportMorphismInterface)
-			((TransportMorphismInterface)retObj).unpackFromTransport();
+		if(objectReturn instanceof TransportMorphismInterface)
+			((TransportMorphismInterface)objectReturn).unpackFromTransport();
 		else
-			if(retObj != null && retObj.getClass() == TransportMorphism.class)
-				retObj = TransportMorphism.createMorphism((TransportMorphism)retObj);
+			if(objectReturn != null && objectReturn.getClass() == TransportMorphism.class)
+				objectReturn = TransportMorphism.createMorphism((TransportMorphism)objectReturn);
 		if(DEBUG)
-			System.out.printf("%s.getObjectReturn returning %s%n", this.getClass().getName(), retObj);
-		return retObj;
+			System.out.printf("%s.getObjectReturn returning %s%n", this.getClass().getName(), objectReturn);
+		return objectReturn;
 	}
 	
 	protected void packParamArray() {

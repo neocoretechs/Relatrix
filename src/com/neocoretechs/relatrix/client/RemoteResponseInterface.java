@@ -7,6 +7,5 @@ package com.neocoretechs.relatrix.client;
  */
 public interface RemoteResponseInterface extends RemoteCompletionInterface {
 	public String getSession();
-	public long getLongReturn();
 	public Object getObjectReturn();
 }
