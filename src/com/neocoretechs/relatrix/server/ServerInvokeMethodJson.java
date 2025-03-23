@@ -17,10 +17,14 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * remotely invoked via serializable arguments and method name. By designating the reflected classes at startup
 * in the server module, remote calls have access to reflected methods designated with the {@link ServerMethod} annotation.
 * This class handles reflection of the user requests to call designated methods in the server side classes.<p/>
-* It utilizes helper class {@link MethodNamesAndParams}.
+* It utilizes helper class {@link MethodNamesAndParams} and attempts to find the best match between passed params and reflected
+* method params and so takes polymorphic calls into account.
 * It starts by populating a table of those methods, and at runtime, creates a method call transport for client,
 * and provides for server-side invocation of those methods.
-* Option to skip leading arguments for whatever reason is provided.
+* Option to skip leading arguments, for whatever reason, is provided.<p>
+* For our Json version of this, we are going to intercept the params as they
+* are passed from Gson reflection and massage them back to an object model
+* for some reason Gson refuses to do anything but change some objects to its internal map form
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 1998-2000, 2015, 2025
 */
 public final class ServerInvokeMethodJson extends ServerInvokeMethod {
@@ -56,6 +60,10 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     	ArrayList<Integer> methodIndexList = methodLookup.get(targetMethod);
     	String whyNotFound = "No such method";
 		Class[] params = tmc.getParams();
+		//
+		// We are going to reflect the method params and determine the best one to invoke
+		// based on the parameters being assignable from the method parameters
+		//
     	if(methodIndexList != null ) {
     		TreeMap<Integer,Integer> methodRank = new TreeMap<Integer,Integer>();
     		boolean found = false;
@@ -75,6 +83,9 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     				// if skipArgs, don't compare first skipArgs params
     				for(int paramIndex = 0 ; paramIndex < params.length; paramIndex++) {
     					// exact match? If passed param is null, count as 0 rank, below assignable or exact
+    					// For our Json version of this, we are going to intercept the params as they
+    					// are passed from Gson reflection and massage them back to an object model
+    					// for some reason Gson refuses to do anything but change some objects to its internal map form
     					if( params[paramIndex] != null ) {
     						if(params[paramIndex] == com.google.gson.internal.LinkedTreeMap.class) {
     							if(DEBUG) {
@@ -105,7 +116,9 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     										break;
     									}
     								}
-    								// try to either invoke setter method of set[Fieldname] 
+    								//
+    								// try to either set the field directly if not private, or setFieldname mutator method if it is
+    								//
     								if(field == null) {
     									StringBuilder sb = new StringBuilder("set");
     									sb.append(String.valueOf(((String)ltmEntry.getKey()).charAt(0)).toUpperCase());
@@ -140,6 +153,9 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     								}
     							}
     						}
+    						//
+    						// Establish our ranking of method params to parameters we passed for the call
+    						//
     						if(pkmnap.methodParams[methodIndex][paramIndex+skipArgIndex] == params[paramIndex]) {
     							sumParamRank+=2;
     						} else {

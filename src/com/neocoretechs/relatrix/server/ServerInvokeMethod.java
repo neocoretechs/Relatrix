@@ -13,7 +13,8 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * remotely invoked via serializable arguments and method name. By designating the reflected classes at startup
 * in the server module, remote calls have access to reflected methods designated with the {@link ServerMethod} annotation.
 * This class handles reflection of the user requests to call designated methods in the server side classes.<p/>
-* It utilizes helper class {@link MethodNamesAndParams}.
+* It utilizes helper class {@link MethodNamesAndParams} and attempts to find the best match between passed params and reflected
+* method params and so takes polymorphic calls into account..
 * It starts by populating a table of those methods, and at runtime, creates a method call transport for client,
 * and provides for server-side invocation of those methods.
 * Option to skip leading arguments for whatever reason is provided.
@@ -135,6 +136,10 @@ public class ServerInvokeMethod {
     	ArrayList<Integer> methodIndexList = methodLookup.get(targetMethod);
     	String whyNotFound = "No such method";
 		Class[] params = tmc.getParams();
+		//
+		// We are going to reflect the method params and determine the best one to invoke
+		// based on the parameters being assignable from the method parameters
+		//
     	if(methodIndexList != null ) {
     		TreeMap<Integer,Integer> methodRank = new TreeMap<Integer,Integer>();
     		boolean found = false;
