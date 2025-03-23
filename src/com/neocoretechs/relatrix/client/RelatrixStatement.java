@@ -60,9 +60,6 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	packParamArray();
     }
    
-    /* (non-Javadoc)
-	 * @see com.neocoretechs.relatrix.client.RemoteRequestInterface#getSession()
-	 */
     @Override
 	public synchronized String getSession() {
     	return session; 

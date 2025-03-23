@@ -52,7 +52,16 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
 	public RelatrixJsonTransactionServer(int port) throws IOException, ClassNotFoundException {
-		super(port);
+		super();
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixSetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixKeysetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction", 0);
+		WORKBOOTPORT = port;
+		startServer(WORKBOOTPORT);
 	}
 	
 	/**
@@ -63,7 +72,16 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	 * @throws ClassNotFoundException
 	 */
 	public RelatrixJsonTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
-		super(address, port);
+		super();
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixSetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction", 0);
+		RelatrixTransactionServer.relatrixKeysetMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction", 0);
+		WORKBOOTPORT = port;
+		startServer(WORKBOOTPORT,InetAddress.getByName(address));
 	}
 	
 	public void run() {

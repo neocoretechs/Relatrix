@@ -19,15 +19,15 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * Option to skip leading arguments for whatever reason is provided.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 1998-2000, 2015, 2025
 */
-public final class ServerInvokeMethod {
-	private static final boolean DEBUG = false;
+public class ServerInvokeMethod {
+	private static final boolean DEBUG = true;
     protected int skipArgs;
     int skipArgIndex;
-    private Method[] methods;
-    private MethodNamesAndParams pkmnap = new MethodNamesAndParams();
+    protected Method[] methods;
+    protected MethodNamesAndParams pkmnap = new MethodNamesAndParams();
     HandlerClassLoader hcl;
     // TreeMap of method name mapping to list of indexes to arrays of name and params
-    private TreeMap<String, ArrayList<Integer>> methodLookup = new TreeMap<String, ArrayList<Integer>>();
+    protected TreeMap<String, ArrayList<Integer>> methodLookup = new TreeMap<String, ArrayList<Integer>>();
 
     public MethodNamesAndParams getMethodNamesAndParams() { return pkmnap; }
     

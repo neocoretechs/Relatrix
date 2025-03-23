@@ -30,6 +30,9 @@ public class Alias implements Serializable {
 	public String getAlias() {
 		return alias;
 	}
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
 	public com.neocoretechs.rocksack.Alias getRocksackAlias() {
 		return new com.neocoretechs.rocksack.Alias(alias);
 	}

@@ -50,6 +50,10 @@ public class RelatrixTransactionServer extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
+	public RelatrixTransactionServer() {
+		super();
+	};
+	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server
