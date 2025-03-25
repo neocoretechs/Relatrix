@@ -17,7 +17,9 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterator;
 
 /**
- * The following class allows the transport of RelatrixKV method calls to the server
+ * The following class allows the transport of RelatrixKV method calls to the server.
+ * At the creation of each new statement, a session UUID is generated, this id is used to track the statement
+ * and link to instance of created objects for remote method invocation.
  * @author Jonathan Groff (C) neoCoreTechs 2021
  *
  */

@@ -30,7 +30,7 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 	 * @param irf
 	 */
 	@Override
-	public void queueResponse(RemoteResponseInterface irf) {
+	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);

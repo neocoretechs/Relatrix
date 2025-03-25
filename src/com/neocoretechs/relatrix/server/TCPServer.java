@@ -30,10 +30,29 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.port = port;
             System.out.println("Server "+this.getClass().getName()+" starting on "+binder+" port "+port);
 			this.server = new ServerSocket(port, 1000, binder);
-			//runner = new Thread(this);
-			//runner.start();
 			ThreadPoolManager.init(new String[]{"TCPSERVER"}, false);
 			ThreadPoolManager.getInstance().spin(this,"TCPSERVER");
+		}
+	}
+	
+	public synchronized InetAddress startServer(int port, String threadName) throws IOException {
+		if( this.server == null ) {
+			this.port = port;
+			System.out.println("Server "+this.getClass().getName()+" starting on "+InetAddress.getLocalHost().getHostName()+" port "+port);
+			this.server = new ServerSocket(port);
+			ThreadPoolManager.init(new String[]{threadName}, false);
+			ThreadPoolManager.getInstance().spin(this,threadName);
+		}
+		return server.getInetAddress();
+	}
+	
+	public synchronized void startServer(int port, InetAddress binder, String threadName) throws IOException {
+		if( this.server == null ) {
+			this.port = port;
+            System.out.println("Server "+this.getClass().getName()+" starting on "+binder+" port "+port);
+			this.server = new ServerSocket(port, 1000, binder);
+			ThreadPoolManager.init(new String[]{threadName}, false);
+			ThreadPoolManager.getInstance().spin(this,threadName);
 		}
 	}
 	

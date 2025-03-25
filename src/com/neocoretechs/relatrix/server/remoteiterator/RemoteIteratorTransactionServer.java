@@ -23,12 +23,12 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class RemoteIteratorServer extends TCPServer {
-	private ConcurrentHashMap<String, TCPIteratorWorker> dbToWorker = new ConcurrentHashMap<String, TCPIteratorWorker>();
+public class RemoteIteratorTransactionServer extends TCPServer {
+	private ConcurrentHashMap<String, TCPIteratorTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPIteratorTransactionWorker>();
 	private static  boolean DEBUG;
 	private String iteratorClass;
 	
-	public RemoteIteratorServer(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {
+	public RemoteIteratorTransactionServer(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {
 		super();
 		this.iteratorClass = iteratorClass;
 		startServer(port, host, iteratorClass);
@@ -47,10 +47,10 @@ public class RemoteIteratorServer extends TCPServer {
 				ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
 				CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
 				if( DEBUG )
-					System.out.println("RemoteIteratorServer command received:"+o);
+					System.out.println("RemoteIteratorTransactionServer command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
-				TCPIteratorWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPIteratorTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
 				if( uworker != null ) {
 					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
@@ -58,18 +58,18 @@ public class RemoteIteratorServer extends TCPServer {
 					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPIteratorWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
+				uworker = new TCPIteratorTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				ThreadPoolManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RemoteIteratorServer starting new worker "+uworker+
+					System.out.println("RemoteIteratorTransactionServer starting new worker "+uworker+
 							//( rdb != null ? "remote db:"+rdb : "" ) +
 							" master port:"+o.getMasterPort());
 				}
 
 			} catch(Exception e) {
-				System.out.println("RemoteIteratorServer Server node configuration server socket accept exception "+e);
+				System.out.println("RemoteIteratorTransactionServer Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

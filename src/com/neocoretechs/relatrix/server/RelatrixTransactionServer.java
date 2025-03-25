@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -44,7 +45,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
-	public String[] iteratorServers = new String[]{
+	public static String[] iteratorServers = new String[]{
 		"com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction",
 		"com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction",
 		"com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction",
@@ -52,10 +53,12 @@ public class RelatrixTransactionServer extends TCPServer {
 		"com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction",				
 		"com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction"
 	};				
-	public int[] iteratorPorts = new int[] {
+	public static int[] iteratorPorts = new int[] {
 			9080,9081,9082,9083,9084,9085
 	};
-	
+	public static int findIteratorServerPort(String clazz) {
+		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
+	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server
@@ -67,7 +70,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
 	/**
@@ -82,7 +85,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
 	}
 	

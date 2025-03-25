@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.server;
+package com.neocoretechs.relatrix.server.remoteiterator;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -16,16 +16,19 @@ import java.net.UnknownHostException;
 
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.relatrix.server.ServerInvokeMethod;
+import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
- * has been sent from client to WORKBOOTPORT. A WorkerRequestProcessor handles the actual processing of the
- * request after it has been acquired and extracted here.
+ * has been sent from client to support remote iterators. It processes requests directly, invoking the proper iterator
+ * methods on instances of server side iterators.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
  */
-public class TCPWorker implements Runnable {
+public class TCPIteratorTransactionWorker implements Runnable {
 	private static final boolean DEBUG = false;
 	
 	public volatile boolean shouldRun = true;
@@ -43,14 +46,16 @@ public class TCPWorker implements Runnable {
 	protected Socket workerSocket;
 	protected Socket masterSocket;
 	
-	protected WorkerRequestProcessor workerRequestProcessor;
+	public ServerInvokeMethod relatrixIteratorMethods = null; // hasNext and next iterator methods
+	
 	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
 	private static boolean TEST = false;
 	
-    public TCPWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
+    public TCPIteratorTransactionWorker(Socket datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
     	MASTERPORT= masterPort;
+		relatrixIteratorMethods = new ServerInvokeMethod(iteratorClass,0);
 		try {
 			if(TEST ) {
 				IPAddress = InetAddress.getLocalHost();
@@ -73,8 +78,6 @@ public class TCPWorker implements Runnable {
 		masterSocket.setReceiveBufferSize(32767);
 		masterSocket.setSendBufferSize(32767);
 		// spin the request processor thread for the worker
-		workerRequestProcessor = new WorkerRequestProcessor(this);
-		ThreadPoolManager.getInstance().spin(workerRequestProcessor);
 		if( DEBUG ) {
 			System.out.println("Worker on port with master "+MASTERPORT+
 					" address:"+IPAddress);
@@ -86,7 +89,7 @@ public class TCPWorker implements Runnable {
 	 * Instead of queuing to a running thread request queue, queue this for outbound message
 	 * The type is RemoteCompletionInterface and contains the Id and the payload
 	 * back to master
-	 * @param irf the remote response to be sent back to masterSocket
+	 * @param irf
 	 */
 	public void sendResponse(RemoteResponseInterface irf) {
 	
@@ -115,22 +118,37 @@ public class TCPWorker implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println("TCPWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPIteratorTransactionWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPWorker ObjectInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPIteratorTransactionWorker ObjectInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				if(DEBUG)
-					System.out.println("TCPWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPIteratorTransactionWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)ois.readObject();
+				if( iori.getMethodName().equals("close") ) {
+					RelatrixTransactionServer.sessionToObject.remove(iori.getSession());
+				} else {
+					// Get the iterator linked to this session
+					Object itInst = RelatrixTransactionServer.sessionToObject.get(iori.getSession());
+					if( itInst == null ) {
+						ois.close();
+						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
+					}
+					// invoke the desired method on this concrete server side iterator, let boxing take result
+					//System.out.println(itInst+" class:"+itInst.getClass());
+					Object result = relatrixIteratorMethods.invokeMethod(iori, itInst);
+					iori.setObjectReturn(result);
+				}
+				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println("TCPWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println("TCPIteratorTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
-				workerRequestProcessor.getQueue().put(iori);
+				sendResponse((RemoteResponseInterface) iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (IOException | ClassNotFoundException | InterruptedException ie) {
+		} catch (Exception ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
 				System.out.println("Remote client disconnect with exception "+ie);
@@ -175,10 +193,10 @@ public class TCPWorker implements Runnable {
      */
 	public static void main(String args[]) throws Exception {
 		if( args.length != 2 ) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [remote master node] [remote master port]");
+			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorWorker [remote master node] [remote master port] [iterator class]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPWorker(new Socket(),
+		ThreadPoolManager.getInstance().spin(new TCPIteratorTransactionWorker(new Socket(),
 				args[0], // remote master node
-				Integer.valueOf(args[1]))); // master port
+				Integer.valueOf(args[1]),args[2])); // master port, class
 	}
 }

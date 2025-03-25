@@ -11,12 +11,7 @@ import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKeySetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIterator;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIterator;
+
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 
@@ -25,6 +20,8 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
  * The process method calls setObjectReturn with the result of the invoked method, and in the case of an Iterator, sets
  * up the proper instance of {@link RemoteIterator} to install a persistent Iterator to receive calls to deliver iterated objects.
+ * At the creation of each new statement, a session UUID is generated, this id is used to track the statement
+ * and link to instance of created objects for remote method invocation.
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
@@ -183,25 +180,30 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
-			// put it in the array and send our intermediary back
-			RelatrixServer.sessionToObject.put(getSession(), result);
-			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {
-				setObjectReturn( new ServerSideRemoteSetIterator(getSession()) );
+			RemoteIteratorClient ric = null;
+			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {	
+				ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+							RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixIterator"));
 			} else {
 				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
-					setObjectReturn( new ServerSideRemoteSubSetIterator(getSession()) );
+					ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+							RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator"));
 				} else {
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
-						setObjectReturn( new ServerSideRemoteHeadSetIterator(getSession()) );
+						ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+								RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator"));
 					} else {
 						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator.class ) {
-							setObjectReturn( new ServerSideRemoteTailSetIterator(getSession()) );
+							ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+									RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator"));
 						} else {
 							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
-								setObjectReturn( new ServerSideRemoteEntrySetIterator(getSession()) );
+								ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+										RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator"));
 							} else {
 								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator.class) {
-									setObjectReturn( new ServerSideRemoteKeySetIterator(getSession()) );
+									ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+											RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator"));
 								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 								}
@@ -210,6 +212,9 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 					}
 				}
 			}
+			// Link the object instance to session for later method invocation
+			RelatrixServer.sessionToObject.put(ric.getSession(), result);
+			setObjectReturn(ric);
 		} else {
 			setObjectReturn(result);
 		}

@@ -25,14 +25,14 @@ public final class WorkerRequestProcessor implements Runnable {
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
 
-	private TCPWorker responseQueue;
+	private TCPWorker responseWorker;
 
 	private volatile boolean shouldRun = true;
 	private Object waitHalt = new Object();
 	private Object mutex = new Object();
 	
 	public WorkerRequestProcessor(TCPWorker tcpworker) {
-		this.responseQueue = tcpworker;
+		this.responseWorker = tcpworker;
 		this.requestQueue = new ArrayBlockingQueue<RemoteCompletionInterface>(QUEUESIZE, true);
 	}
 	/**
@@ -91,7 +91,7 @@ public final class WorkerRequestProcessor implements Runnable {
 				System.out.println("WorkerRequestProcessor processing complete, queuing response:"+iori);
 			}
 			// And finally, send the package back up the line
-			responseQueue.queueResponse(iori);
+			responseWorker.sendResponse(iori);
 			if( DEBUG ) {
 				System.out.println("Response queued:"+iori);
 			}
@@ -99,7 +99,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 			iori.setObjectReturn(e1);
 			// And finally, send the package back up the line
-			responseQueue.queueResponse(iori);
+			responseWorker.sendResponse(iori);
 		}
 	  } //shouldRun
 	  synchronized(waitHalt) {

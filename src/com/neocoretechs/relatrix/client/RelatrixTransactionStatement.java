@@ -10,13 +10,8 @@ import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction;
+
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteEntrySetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteHeadSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKeySetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteSubSetIteratorTransaction;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteTailSetIteratorTransaction;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -73,24 +68,30 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			// put it in the array and send our intermediary back
-			RelatrixTransactionServer.sessionToObject.put(getSession(), result);
+			RemoteIteratorClient ric = null;
 			if( result.getClass() == RelatrixIteratorTransaction.class) {
-				setObjectReturn( new ServerSideRemoteSetIteratorTransaction(getSession()) );
+				ric = new RemoteIteratorClient(RelatrixTransactionServer.address.getHostName(), 
+						RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction"));
 			} else {
 				if(result.getClass() == RelatrixSubsetIteratorTransaction.class ) {
-					setObjectReturn( new ServerSideRemoteSubSetIteratorTransaction(getSession()) );
+					ric = new RemoteIteratorClient(RelatrixTransactionServer.address.getHostName(), 
+							RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction"));
 				} else {
 					if(result.getClass() == RelatrixHeadsetIteratorTransaction.class ) {
-						setObjectReturn( new ServerSideRemoteHeadSetIteratorTransaction(getSession()) );
+						ric = new RemoteIteratorClient(RelatrixTransactionServer.address.getHostName(), 
+								RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction"));
 					} else {
 						if( result.getClass() == RelatrixEntrysetIteratorTransaction.class) {
-							setObjectReturn( new ServerSideRemoteEntrySetIteratorTransaction(getSession()) );
+							ric = new RemoteIteratorClient(RelatrixTransactionServer.address.getHostName(), 
+									RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction"));
 						} else {
 							if( result.getClass() == RelatrixKeysetIteratorTransaction.class) {
-								setObjectReturn( new ServerSideRemoteKeySetIteratorTransaction(getSession()) );
+								ric = new RemoteIteratorClient(RelatrixTransactionServer.address.getHostName(), 
+										RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction"));
 							} else {
 								if(result.getClass() == RelatrixTailsetIteratorTransaction.class ) {
-									setObjectReturn( new ServerSideRemoteTailSetIteratorTransaction(getSession()) );
+									ric = new RemoteIteratorClient(RelatrixTransactionServer.address.getHostName(), 
+											RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction"));
 								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 								}
@@ -99,6 +100,8 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements S
 					}
 				}
 			}
+			RelatrixTransactionServer.sessionToObject.put(ric.getSession(), result);
+			setObjectReturn(ric);
 		} else {
 			setObjectReturn(result);
 		}

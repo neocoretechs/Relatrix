@@ -15,6 +15,8 @@ import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterato
 
 /**
  * The following class allows the transport of method calls to the server {@link RelatrixKVTransactionServer} using a transaction context.
+ * At the creation of each new statement, a session UUID is generated, this id is used to track the statement
+ * and link to instance of created objects for remote method invocation.
  * @author Jonathan Groff (C) neoCoreTechs 2022
  *
  */

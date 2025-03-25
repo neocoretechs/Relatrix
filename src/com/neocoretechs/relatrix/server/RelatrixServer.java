@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relatrix;
@@ -50,7 +51,7 @@ public class RelatrixServer extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
-	public String[] iteratorServers = new String[]{
+	public static String[] iteratorServers = new String[]{
 	 "com.neocoretechs.relatrix.iterator.RelatrixIterator",
 	 "com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator",
 	 "com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator",
@@ -58,9 +59,12 @@ public class RelatrixServer extends TCPServer {
 	 "com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator",				
 	 "com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator"
 	};				
-	public int[] iteratorPorts = new int[] {
+	public static int[] iteratorPorts = new int[] {
 			9090,9091,9092,9093,9094,9095
 	};
+	public static int findIteratorServerPort(String clazz) {
+		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
+	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server
