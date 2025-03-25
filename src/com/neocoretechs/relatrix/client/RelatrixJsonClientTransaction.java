@@ -12,6 +12,7 @@ import java.net.SocketException;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -43,7 +44,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
+public class RelatrixJsonClientTransaction extends RelatrixClientTransaction implements ClientInterface, Runnable {
 	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
@@ -91,13 +92,24 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction {
 				if(DEBUG)
 					System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RelatrixTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixTransactionStatement.class);	
+				String inLine = in.readLine();
+				if(DEBUG)
+					System.out.println("RelatrixJsonClientTransaction "+sock+" raw data:"+inLine);
+				RelatrixTransactionStatement iori = new Gson().fromJson(inLine,RelatrixTransactionStatement.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
+				Class<?> returnClass = Class.forName(iori.getReturnClass());
+				// intercept remote stream, returned as a server side remote iterator and session info to communicate with remotely
+				// mostly, we just need the session and the fact its a type of stream with encapsulated iterator
 				if(o.getClass() == com.google.gson.internal.LinkedTreeMap.class) {
-					o = JsonUtil.jsonMapToObject(iori.getReturnClass(), (com.google.gson.internal.LinkedTreeMap) o);
+					LinkedTreeMap map = (com.google.gson.internal.LinkedTreeMap) o;
+					if(returnClass == Stream.class || returnClass == Iterator.class) {
+						o = new RemoteIteratorTransaction((String)map.get("session"));
+					} else {
+						o = JsonUtil.jsonMapToObject(returnClass,map);
+					}
 				}
 				if( o instanceof Exception ) {
 					System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());

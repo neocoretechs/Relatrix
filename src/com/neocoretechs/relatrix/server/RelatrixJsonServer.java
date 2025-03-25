@@ -38,7 +38,6 @@ import com.neocoretechs.relatrix.Relatrix;
 public final class RelatrixJsonServer extends RelatrixServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9003; // Boot time portion of server that assigns databases to sockets etc
 	
 	private ConcurrentHashMap<String, TCPJsonWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonWorker>();
 	

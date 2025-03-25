@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 
 import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
  * Used by the RelatrixTransactionServer to produce headsets for remote delivery.
@@ -11,8 +12,12 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class ServerSideRemoteHeadSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120088L;
-	public ServerSideRemoteHeadSetIteratorTransaction(String session) {
+	public static ServerInvokeMethod relatrixHeadsetMethods = null; // FindHeadset iterator methods
+	
+	public ServerSideRemoteHeadSetIteratorTransaction(String session) throws ClassNotFoundException {
 		super(session);
+		if(relatrixHeadsetMethods == null)
+			relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
 	}
 	
 	@Override
@@ -25,11 +30,16 @@ public class ServerSideRemoteHeadSetIteratorTransaction extends RemoteIteratorTr
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixTransactionServer.relatrixHeadsetMethods.invokeMethod(this, itInst);
+			Object result = relatrixHeadsetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getName()+" "+super.toString();
 	}
 
 }

@@ -10,8 +10,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 import java.util.Map.Entry;
 
+import com.google.gson.internal.LinkedTreeMap;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 public class JsonUtil {
@@ -23,19 +25,52 @@ public class JsonUtil {
 	
 	public JsonUtil() {}
 	
-	public static Object jsonMapToObject(String returnClass, com.google.gson.internal.LinkedTreeMap map) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException, SecurityException {
+	public static void recurse(com.google.gson.internal.LinkedTreeMap map) {
+		for(Object e: map.entrySet()) {
+			Entry me = (Entry)e;
+			if(me.getValue().getClass() == com.google.gson.internal.LinkedTreeMap.class) {
+				System.out.println("--Recurse submap:"+me.getKey());
+				recurse((LinkedTreeMap) me.getValue());
+				System.out.println("--End recurse submap");
+			} else {
+				System.out.println(me.getKey()+" "+me.getValue().getClass()+" "+me.getValue());
+				if(me.getValue().getClass() == Double.class) {
+					String dval2 = String.format("[0x%16X]",Math.round((Double)(me.getValue())));
+					System.out.println("double val:"+dval2);
+				}
+			}
+		}
+		System.out.println("--End of map");
+	}
+	
+	public static Object jsonMapToObject(Class<?> returnClass, com.google.gson.internal.LinkedTreeMap map) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException, SecurityException {
 			if(DEBUG) {
 				System.out.println("JsonUtil return class:"+returnClass+" gson map: "+map);
+				for(Object e: map.entrySet()) {
+					Entry me = (Entry)e;
+					System.out.println(e);
+					if(me.getValue().getClass() == com.google.gson.internal.LinkedTreeMap.class) {
+						System.out.println("**Submap:");
+						recurse((LinkedTreeMap) me.getValue());
+						System.out.println("**End recurse submap");
+					} else {
+						System.out.println(me.getKey()+" "+me.getValue().getClass()+" "+me.getValue());
+						if(me.getValue().getClass() == Double.class) {
+							String dval2 = String.format("[0x%16X]",Math.round((Double)(me.getValue())));
+							System.out.println("double val:"+dval2);
+						}
+					}
+				}
+				System.out.println("-End of submap");
 			}
 			//if(hcl == null)
 			//	hcl = new HandlerClassLoader();
 			//Class<?> returnClazz = hcl.loadClass(returnClass, true);
 	    	//MethodAccess ma = init(returnClass);
-			Class<?> returnClazz = Class.forName(returnClass);
 			// create the method param with constructor using Gson map attributes
 			// start with the ctor of the main object that serves as param to method
 			// paramArray matches params. we will xfer the gson map to param array
-			Constructor<?> ctor = returnClazz.getConstructor();
+			Constructor<?> ctor = returnClass.getConstructor();
 			// newinstance of param to method call
 			Object o = ctor.newInstance();
 			// extract the args from the map, it has field name, string value
@@ -45,7 +80,7 @@ public class JsonUtil {
 			while(ltmIterator.hasNext()) {
 				Map.Entry ltmEntry = (Entry) ltmIterator.next();
 				// get the field name from the param based on key in gson map
-				Field[] fields = returnClazz.getDeclaredFields();//.getDeclaredField((String) ltmEntry.getKey());
+				Field[] fields = returnClass.getDeclaredFields();//.getDeclaredField((String) ltmEntry.getKey());
 				Field field = null;
 				for(int j = 0; j < fields.length; j++) {	
 					if(fields[j].getName().equals((String) ltmEntry.getKey()) && 
@@ -64,7 +99,7 @@ public class JsonUtil {
 					String setString = sb.toString();
 					if(DEBUG)
 						System.out.println("ServerInvokeJson trying mutator "+setString);
-					Method setMethod = returnClazz.getDeclaredMethod(setString, new Class[] {String.class});
+					Method setMethod = returnClass.getDeclaredMethod(setString, new Class[] {String.class});
 						if(DEBUG)
 						System.out.println("ServerInvokeJson mutator "+setMethod+" for "+o);
 					setMethod.invoke(o, ltmEntry.getValue());

@@ -46,6 +46,7 @@ public class ThreadPoolManager {
 	 * In each appropriate place, ThreadPoolmanager.init("group") may be called to add "group" to the
 	 * list of known thread group names. The names are continually appended throughout the run.
 	 * @param threadGroupNames The topics for which thread groups are established
+	 * @param overWrite if a name provided in the threadGroupNames matches a name in the cached thread pool map and overWrite is false, a new cached pool wont be created 
 	 */
 	public static void init(String[] threadGroupNames, boolean overWrite) {
 		for(String tgn : threadGroupNames) {

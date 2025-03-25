@@ -36,7 +36,6 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9001; // Boot time portion of server that assigns databases to sockets etc
 	
 	//
 	// in server, we are using local repository for handlerclassloader, but only one

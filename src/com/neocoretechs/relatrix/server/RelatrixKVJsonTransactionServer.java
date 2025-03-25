@@ -40,7 +40,6 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransactionServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9002; // Boot time portion of server that assigns databases to sockets etc
 
 	// in server, we are using local repository for handlerclassloader, but only one
 	// and that one will be located on port 9999

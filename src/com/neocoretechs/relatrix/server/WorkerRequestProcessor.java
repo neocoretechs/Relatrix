@@ -1,13 +1,9 @@
 package com.neocoretechs.relatrix.server;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import java.util.concurrent.CountDownLatch;
-
-import org.rocksdb.RocksDBException;
 
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -78,9 +74,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			// invoke the designated method on the server, wait for countdown latch to signal finish
 			// The result is placed in the return object or other property of the request/response/completion object
 			//
-			//synchronized(mutex) {
-				((RemoteCompletionInterface)iori).process();
-			//}
+			((RemoteCompletionInterface)iori).process();
 			
 			try {
 				if( DEBUG )

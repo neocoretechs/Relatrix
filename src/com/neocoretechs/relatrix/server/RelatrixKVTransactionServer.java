@@ -35,10 +35,10 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 public class RelatrixKVTransactionServer extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
+	
+	public static InetAddress address;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	public static ServerInvokeMethod relatrixIteratorMethods = null;
 
 	// in server, we are using local repository for handlerclassloader, but only one
 	// and that one will be located on port 9999
@@ -57,10 +57,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
-		RelatrixKVTransactionServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
 	
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT);
+		address = startServer(port);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -77,13 +75,11 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixKVTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
+	public RelatrixKVTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
-		RelatrixKVTransactionServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
-	
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+		address = InetAddress.getByName(iaddress);
+		startServer(port,address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -94,7 +90,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 	}
-
+	
+	@Override
 	public void run() {
 			while(!shouldStop) {
 				try {

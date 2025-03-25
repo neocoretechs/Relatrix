@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -35,23 +36,24 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 public class RelatrixTransactionServer extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
+	
+	public static InetAddress address;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	public static ServerInvokeMethod relatrixSubsetMethods = null; // FindSubset iterator methods
-	public static ServerInvokeMethod relatrixHeadsetMethods = null; // FindHeadset iterator methods
-	public static ServerInvokeMethod relatrixTailsetMethods = null; // FindTailset iterator methods
-	public static ServerInvokeMethod relatrixSetMethods = null; // FindSet iterator methods
-	public static ServerInvokeMethod relatrixEntrysetMethods = null; // Entryset iterator methods
-	public static ServerInvokeMethod relatrixKeysetMethods = null; // Keyset iterator methods
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 
-	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
-	
-	public RelatrixTransactionServer() {
-		super();
+	public String[] iteratorServers = new String[]{
+		"com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction",
+		"com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction",
+		"com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction",
+		"com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction",
+		"com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction",				
+		"com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction"
+	};				
+	public int[] iteratorPorts = new int[] {
+			9080,9081,9082,9083,9084,9085
 	};
 	
 	/**
@@ -63,14 +65,9 @@ public class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
-		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction", 0);
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT);
+		address = startServer(port);
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
 	/**
@@ -80,19 +77,16 @@ public class RelatrixTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public RelatrixTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
+	public RelatrixTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
-		RelatrixTransactionServer.relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixHeadsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixTailsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixSetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixEntrysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction", 0);
-		RelatrixTransactionServer.relatrixKeysetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction", 0);
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+		address = InetAddress.getByName(iaddress);
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		startServer(port,address);
 	}
 	
+	@Override
 	public void run() {
 		while(!shouldStop) {
 			try {

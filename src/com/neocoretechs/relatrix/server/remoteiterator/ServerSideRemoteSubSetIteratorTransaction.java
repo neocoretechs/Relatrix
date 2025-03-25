@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 
 import com.neocoretechs.relatrix.client.RemoteIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
  * Used by RelatrixTransactionServer to produce subsets for remote delivery.
@@ -12,8 +13,12 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
  */
 public class ServerSideRemoteSubSetIteratorTransaction extends RemoteIteratorTransaction {
 	private static final long serialVersionUID = -7652502684740120087L;
-	public ServerSideRemoteSubSetIteratorTransaction(String session) {
+	public static ServerInvokeMethod relatrixSubsetMethods = null; // FindSubset iterator methods
+	
+	public ServerSideRemoteSubSetIteratorTransaction(String session) throws ClassNotFoundException {
 		super(session);
+		if(relatrixSubsetMethods == null)
+			relatrixSubsetMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction", 0);
 	}
 
 	@Override
@@ -26,11 +31,16 @@ public class ServerSideRemoteSubSetIteratorTransaction extends RemoteIteratorTra
 			if( itInst == null )
 				throw new Exception("Requested iterator instance does not exist for session "+getSession());
 			// invoke the desired method on this concrete server side iterator, let boxing take result
-			Object result = RelatrixTransactionServer.relatrixSubsetMethods.invokeMethod(this, itInst);
+			Object result = relatrixSubsetMethods.invokeMethod(this, itInst);
 			setObjectReturn(result);
 		}
 		// notify latch waiters
 		getCountDownLatch().countDown();
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getName()+" "+super.toString();
 	}
 
 }

@@ -34,10 +34,10 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public class RelatrixKVServer extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
-	public static int WORKBOOTPORT = 9000; // Boot time portion of server that assigns databases to sockets etc
+	
+	public static InetAddress address;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	public static ServerInvokeMethod relatrixIteratorMethods = null;
 	//
 
 	// in server, we are using local repository for handlerclassloader, but only one
@@ -57,9 +57,7 @@ public class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT);
+		address = startServer(port);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -71,13 +69,11 @@ public class RelatrixKVServer extends TCPServer {
 		}
 	}
 	
-	public RelatrixKVServer(String address, int port) throws IOException, ClassNotFoundException {
+	public RelatrixKVServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		RelatrixKVServer.relatrixIteratorMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.iterator.IteratorWrapper", 0);
-
-		WORKBOOTPORT = port;
-		startServer(WORKBOOTPORT,InetAddress.getByName(address));
+		address = InetAddress.getByName(iaddress);
+		startServer(port,address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -88,6 +84,8 @@ public class RelatrixKVServer extends TCPServer {
 			}
 		}
 	}
+	
+	@Override
 	public void run() {
 			while(!shouldStop) {
 				try {
