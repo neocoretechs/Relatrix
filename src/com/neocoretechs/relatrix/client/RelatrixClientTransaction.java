@@ -35,9 +35,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
- * The special case is the {@link RemoteIteratorTransaction}, which is a proxy to the 'next' and 'hasNext' methods here,
- * such that we can deliver the {@link RemoteIterator} and treat it as an abstract Iterator to simply call next and hasNext on the
- * Iterator interface. 
+ *
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
@@ -294,7 +292,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	
 	@Override
 	public String toString() {
-		return String.format("Relatrix server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
+		return String.format("Relatrix server BootNode:%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",bootNode, remoteNode, remotePort, sock, workerSocket);
 	}
 	static int i = 0;
 	/**

@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPIteratorWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();

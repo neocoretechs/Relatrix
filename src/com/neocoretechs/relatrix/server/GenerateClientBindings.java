@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
-import com.neocoretechs.relatrix.client.RemoteIterator;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
@@ -30,11 +29,6 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * class files.<p/>
  * The invokeMethod of ServerInvokeMethod can be used to call methods reflected from a supplied class on a supplied local Object. If that
  * local object is null, a static method is assumed. These requests come in the form of an encapsulated {@link RemoteRequestInterface}.<p/>
- * A core assumption is that the transport of remote iterators is through a the implementation of a {@link RemoteIterator} interface
- * that carries a method transport for "boolean hasNext()" and "Object next()" to be remotely invoked on a server-side concrete
- * Iterator subclass. In conjunction with that, a {@link RemoteStream} implementation of {@link java.util.stream.Stream} that
- * wraps that RemoteIterator is available in the same package as the one designated on the command line. In this way, local
- * Stream functionality is provided using the remote iterator transport.<p/>
  * Of course, the hardcoded params are specific to the Relatrix package, but can be changed to any code that uses the ServerInvokeMethod
  * reflection paradigm.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024

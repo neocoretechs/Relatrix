@@ -18,8 +18,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
- * The process method calls setObjectReturn with the result of the invoked method, and in the case of an Iterator, sets
- * up the proper instance of {@link RemoteIterator} to install a persistent Iterator to receive calls to deliver iterated objects.
+ * The process method calls setObjectReturn with the result of the invoked method, 
  * At the creation of each new statement, a session UUID is generated, this id is used to track the statement
  * and link to instance of created objects for remote method invocation.
  * @author Jonathan Groff (C) NeoCoreTechs 2021

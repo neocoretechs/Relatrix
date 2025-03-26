@@ -36,9 +36,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
- * The special case is the {@link RemoteIteratorTransaction}, which is a proxy to the 'next' and 'hasNext' methods here,
- * such that we can deliver the {@link RemoteIterator} and treat it as an abstract Iterator to simply call next and hasNext on the
- * Iterator interface. 
+
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
@@ -106,7 +104,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 				if(o.getClass() == com.google.gson.internal.LinkedTreeMap.class) {
 					LinkedTreeMap map = (com.google.gson.internal.LinkedTreeMap) o;
 					if(returnClass == Stream.class || returnClass == Iterator.class) {
-						o = new RemoteIteratorTransaction((String)map.get("session"));
+						//o = new RemoteIteratorTransaction((String)map.get("session"));
 					} else {
 						o = JsonUtil.jsonMapToObject(returnClass,map);
 					}

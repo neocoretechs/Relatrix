@@ -196,7 +196,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 
 		switch(args.length) {
 			case 4:
-				RemoteIterator it = (RemoteIterator) rc.entrySet(Class.forName(args[3]));
+				Iterator it = (Iterator) rc.entrySet(Class.forName(args[3]));
 				new RemoteStream(it).forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});

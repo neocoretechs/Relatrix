@@ -33,9 +33,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
- * The special case is the {@link RemoteIterator}, which is a proxy to the 'next' and 'hasNext' methods here,
- * such that we can deliver the RemoteIterator and treat it as an abstract Iterator to simply call next and hasNext on the
- * Iterator interface. 
+ *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixClient extends RelatrixClientInterfaceImpl implements ClientInterface, Runnable {

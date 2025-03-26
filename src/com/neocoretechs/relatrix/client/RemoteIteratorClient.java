@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 public class RemoteIteratorClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	private String remoteNode;
@@ -116,7 +116,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("ReemoteIteratorClient server socket accept failed with "+e1);
+			System.out.println("RemoteIteratorClient server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
@@ -125,6 +125,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		}
 		try {
 			while(shouldRun ) {
+				countDownLatch = new CountDownLatch(1);
+				countDownLatch.await();
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				objectReturn = ois.readObject();
@@ -134,8 +136,6 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 					objectReturn = ((Throwable)objectReturn).getCause();
 				}
-				// and signal the latch we have finished
-				countDownLatch.countDown();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -151,11 +151,13 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	}
 
 	public void sendCommand() throws Exception {
-		countDownLatch = new CountDownLatch(1);
+		if(DEBUG)
+			System.out.println("Attempt send:"+this);
 		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 		oos.writeObject(this);
 		oos.flush();
-		countDownLatch.await();
+		// and signal the latch we have finished
+		countDownLatch.countDown();
 		if(objectReturn instanceof Exception)
 			throw (Exception)objectReturn;
 	}
@@ -261,7 +263,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClient BootNode:%s RemoteNode:%s RemotePort:%d%n",localIPAddress, remoteNode, remotePort);
+		return String.format("RemoteIteratorClient BootNode:%s RemoteNode:%s RemotePort:%d out socket:%s, in socket:%s session:%s method:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName);
 	}
 
 	@Override
