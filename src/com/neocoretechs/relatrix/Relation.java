@@ -21,6 +21,24 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
   
     public Relation() {}
     
+    public Relation(AbstractRelation identity) {  
+    	this.templateFlag = identity.templateFlag;
+    	this.alias = identity.getAlias();
+    	this.transactionId = identity.getTransactionId();
+    	this.identity = identity.getIdentity();
+    	//if(!identity.isDomainKeyValid())
+    	//	throw new IOException("Domain key of identity is invalid: "+DBKey.whyInvalid(identity.getDomainKey())+".");
+    	setDomainKey(identity.getDomainKey());
+    	domain = identity.domain;
+    	//if(!identity.isMapKeyValid())
+    	//	throw new IOException("Map key of identity is invalid: "+DBKey.whyInvalid(identity.getMapKey())+".");
+    	setMapKey(identity.getMapKey());
+    	map = identity.map;
+    	//if(!identity.isRangeKeyValid())
+    	//	throw new IOException("Range key of identity is invalid: "+DBKey.whyInvalid(identity.getRangeKey())+".");
+    	setRangeKey(identity.getRangeKey());
+    	range = identity.range;
+    }
     public Relation(Comparable d, Comparable m, Comparable r) {
     	super(d,m,r);
     }
@@ -120,24 +138,7 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
 	
     @Override
     public Object clone() throws CloneNotSupportedException {
-    	if(alias == null) {
-    		if(transactionId == null) {
-    			if(templateFlag)
-    				return new Relation(templateFlag, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    			return new Relation(getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		}
-  			if(templateFlag)
-				return new Relation(templateFlag, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-			return new Relation(transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());		
-    	}
-    	if(transactionId == null) {
-    		if(templateFlag)
-    			return new Relation(templateFlag, alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    		return new Relation(alias, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	}
-    	if(templateFlag)
-    		return new Relation(templateFlag, alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
-    	return new Relation(alias, transactionId, getDomain(), getDomainKey(), getMap(), getMapKey(), getRange(), getRangeKey());
+    	return new Relation(this);
     }
     
 }

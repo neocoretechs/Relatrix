@@ -41,7 +41,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements ClientInterface,Runnable {
+public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface, ClientInterface,Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
@@ -142,7 +142,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
-						((RemoteIteratorClient)o).connect();
+						((RemoteIteratorClientTransaction)o).connect();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);
@@ -175,7 +175,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	}
 	
 	@Override
-	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
+	public Object sendCommand(RelatrixTransactionStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCountDownLatch(cdl);
 		send(rs);

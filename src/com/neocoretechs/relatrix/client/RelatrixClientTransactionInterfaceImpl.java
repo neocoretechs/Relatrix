@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.TransactionId;
 
 public abstract class RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface{
 
-	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
+	public abstract Object sendCommand(RelatrixTransactionStatementInterface s) throws Exception;
 	@Override
 	public Stream findStream(TransactionId arg1,Character arg2,Object arg3,Character arg4) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("findStream", arg1, arg2, arg3, arg4);

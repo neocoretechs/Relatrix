@@ -14,6 +14,10 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
@@ -29,7 +33,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPIteratorTransactionWorker implements Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -138,6 +142,14 @@ public class TCPIteratorTransactionWorker implements Runnable {
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethods.invokeMethod(iori, itInst);
+					if(result instanceof AbstractRelation) {
+						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
+						result = TransportMorphism.createTransport(((AbstractRelation)result));
+					} else {
+						if(result instanceof Result) {
+							((Result) result).packForTransport();
+						}
+					}
 					iori.setObjectReturn(result);
 				}
 				// notify latch waiters

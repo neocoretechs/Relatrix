@@ -14,12 +14,13 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
-public class RemoteIteratorClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
+public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
@@ -42,6 +43,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	private transient Object waitHalt = new Object(); 
 	
 	private String session;
+	private TransactionId transactionId;
+	
 	private transient CountDownLatch countDownLatch;
 	private Object objectReturn;
 	
@@ -50,7 +53,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	private Class<?>[] params = new Class<?>[0];
 	private String returnClass;
 	
-	private transient RemoteIteratorClient returnPayload;
+	private transient RemoteIteratorClientTransaction returnPayload;
 
 	/**
 	 * Start a client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -62,13 +65,14 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RemoteIteratorClient(String remoteNode, int remotePort)  throws IOException {
+	public RemoteIteratorClientTransaction(TransactionId transactionId, String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		session = UUID.randomUUID().toString();
+		this.transactionId = transactionId;
 	}
 	
-	public RemoteIteratorClient() {}
+	public RemoteIteratorClientTransaction() {}
 	
 	/**
 	 * This is part of RemoteCompletionInterface, it will be called by WorkerRequestProcessor
@@ -92,7 +96,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorClient constructed with remote:"+IPAddress);
+			System.out.println("RemoteIteratorClientTransaction constructed with remote:"+IPAddress);
 		}
 		//localIPAddress = InetAddress.getByName(bootNode);
 		localIPAddress = InetAddress.getLocalHost();
@@ -120,19 +124,19 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("RemoteIteratorClient server socket accept failed with "+e1);
+			System.out.println("RemoteIteratorClientTransaction server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorClient got connection "+sock);
+			System.out.println("RemoteIteratorClientTransaction got connection "+sock);
 		}
 		try {
 			while(shouldRun) {
 				countDownLatch = new CountDownLatch(1);
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
-				returnPayload = (RemoteIteratorClient) ois.readObject();
+				returnPayload = (RemoteIteratorClientTransaction) ois.readObject();
 				objectReturn = returnPayload.getObjectReturn();
 				if(objectReturn == TransportMorphism.class)
 					objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
@@ -222,7 +226,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 
 	private void shutdown() {
 		if(DEBUG)
-			System.out.println("Calling shutdown for RemoteIteratorClient");
+			System.out.println("Calling shutdown for RemoteIteratorClientTransaction");
 		if(sock != null) {
 			try {
 				sock.close();
@@ -329,6 +333,11 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	@Override
 	public void setObjectReturn(Object o) {
 		objectReturn = o;
+	}
+
+	@Override
+	public TransactionId getTransactionId() {
+		return transactionId;
 	}
 
 }

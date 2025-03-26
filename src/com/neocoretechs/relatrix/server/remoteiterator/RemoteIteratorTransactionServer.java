@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  */
 public class RemoteIteratorTransactionServer extends TCPServer {
 	private ConcurrentHashMap<String, TCPIteratorTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPIteratorTransactionWorker>();
-	private static  boolean DEBUG = true;;
+	private static  boolean DEBUG = false;
 	private String iteratorClass;
 	
 	public RemoteIteratorTransactionServer(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {

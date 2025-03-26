@@ -28,7 +28,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 1998-2000, 2015, 2025
 */
 public final class ServerInvokeMethodJson extends ServerInvokeMethod {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
     
     public ServerInvokeMethodJson(String tclass, int tskipArgs) throws ClassNotFoundException {
     	super(tclass, tskipArgs);

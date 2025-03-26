@@ -1,7 +1,6 @@
 // auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings Mon Mar 17 07:45:16 PDT 2025
 package com.neocoretechs.relatrix.client;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
