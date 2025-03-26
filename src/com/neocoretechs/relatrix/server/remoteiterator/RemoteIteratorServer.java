@@ -7,9 +7,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.TCPServer;
-import com.neocoretechs.relatrix.server.TCPWorker;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
  * When an iterator is created for remote delivery of objects, the address of the remote server

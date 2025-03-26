@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 public class RemoteIteratorClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	private String remoteNode;
@@ -36,17 +36,19 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	protected transient Socket sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
-	private transient volatile boolean shouldRun = true; // master service thread control
+	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt = new Object(); 
 	
 	private String session;
 	private transient CountDownLatch countDownLatch;
-	private transient Object objectReturn;
+	private Object objectReturn;
 	
 	private String methodName;
 	private Object[] paramArray = new Object[0];
 	private Class<?>[] params = new Class<?>[0];
 	private String returnClass;
+	
+	private transient RemoteIteratorClient returnPayload;
 
 	/**
 	 * Start a client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -124,24 +126,23 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			System.out.println("RemoteIteratorClient got connection "+sock);
 		}
 		try {
-			while(shouldRun ) {
+			while(shouldRun) {
 				countDownLatch = new CountDownLatch(1);
-				countDownLatch.await();
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
-				objectReturn = ois.readObject();
+				returnPayload = (RemoteIteratorClient) ois.readObject();
+				objectReturn = returnPayload.getObjectReturn();
 				if( DEBUG )
 					System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 					objectReturn = ((Throwable)objectReturn).getCause();
 				}
+				countDownLatch.countDown();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-			//}
-		} finally {
 			shutdown();
 		}
 		synchronized(waitHalt) {
@@ -156,13 +157,9 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 		oos.writeObject(this);
 		oos.flush();
-		// and signal the latch we have finished
-		countDownLatch.countDown();
-		if(objectReturn instanceof Exception)
-			throw (Exception)objectReturn;
 	}
 	/**
-	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
+	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
 	 * @param rii RelatrixStatement
@@ -176,10 +173,13 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		try {
+			countDownLatch.await();
+		} catch (InterruptedException e) {}
 		return objectReturn;
 	}
 	/**
-	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
+	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
 	 * @param rii RelatrixStatement
@@ -193,29 +193,34 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		try {
+			countDownLatch.await();
+		} catch (InterruptedException e) {}
 		return (boolean) objectReturn;
 	}
-
+	/**
+	 * set shouldRun to false to stop run loop, wait for loop to end, then call shutdown()
+	 */
 	public void close() {
+		if(DEBUG)
+			System.out.println("Calling close for RemoteIteratorClient");
 		shouldRun = false;
-		try {
-			if(sock != null)
-				sock.close();
-		} catch (IOException e) {}
-		sock = null;
 		synchronized(waitHalt) {
 			try {
 				waitHalt.wait();
 			} catch (InterruptedException ie) {}
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		shutdown();
 	}
 
-	protected void shutdown() {
-		if( sock != null ) {
+	private void shutdown() {
+		if(DEBUG)
+			System.out.println("Calling shutdown for RemoteIteratorClient");
+		if(sock != null) {
 			try {
 				sock.close();
 			} catch (IOException e) {}
+			sock = null;
 		}
 		if( workerSocket != null ) {
 			try {
@@ -229,7 +234,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			} catch (IOException e2) {}
 			masterSocket = null;
 		}
-		shouldRun = false;
+		ThreadPoolManager.getInstance().shutdown(); // client threads
 	}
 
 
@@ -263,7 +268,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClient BootNode:%s RemoteNode:%s RemotePort:%d out socket:%s, in socket:%s session:%s method:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName);
+		return String.format("RemoteIteratorClient BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
 	}
 
 	@Override

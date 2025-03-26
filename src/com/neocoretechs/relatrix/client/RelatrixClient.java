@@ -186,7 +186,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		return o;
 	}
 	/**
-	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
+	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
 	 * @param rii RelatrixStatement
@@ -198,7 +198,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		return sendCommand(rii);
 	}
 	/**
-	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
+	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
 	 * @param rii RelatrixStatement
