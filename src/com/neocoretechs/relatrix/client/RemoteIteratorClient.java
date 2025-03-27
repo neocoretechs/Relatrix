@@ -26,7 +26,9 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
 public class RemoteIteratorClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
 	private static final boolean DEBUG = false;
-	public static final boolean TEST = false; // true to run in local cluster test mode
+	public static final boolean LOCALTEST = false; // use localhost as remote node
+	public static final boolean TEST = true; // timing
+	private long tim;
 	
 	private String remoteNode;
 	private int remotePort;
@@ -43,8 +45,10 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
-	private transient Object waitHalt = new Object();
-	private transient Object waitPayload = new Object();
+	private transient Object waitHalt;
+	private transient Object waitPayload;
+	private transient Object waitSocket;
+	private transient CountDownLatch countDownLatch = null;
 	
 	private String session;
 	private Object objectReturn;
@@ -80,7 +84,10 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	 */
 	@Override
 	public void process() throws Exception {
-		if( TEST ) {
+		waitHalt = new Object();
+		waitPayload = new Object();
+		waitSocket = new Object();
+		if( LOCALTEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
 			IPAddress = InetAddress.getByName(remoteNode);
@@ -100,11 +107,6 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		// send message to spin connection
 		workerSocket = Fopen(localIPAddress.getHostName());
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
-	}
-	
-	@Override
-	public void run() {
 		//SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
@@ -121,25 +123,35 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		if( DEBUG ) {
 			System.out.println("RemoteIteratorClient got connection "+sock);
 		}
+		ThreadPoolManager.getInstance().spin(this);
+	}
+	
+	@Override
+	public void run() {
+		synchronized(waitSocket) {
+			waitSocket.notify();
+		}
 		try {
 			while(shouldRun) {
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				returnPayload = (RemoteIteratorClient) ois.readObject();
-				objectReturn = returnPayload.getObjectReturn();
-				if(objectReturn == TransportMorphism.class)
-					objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
-				else
-					if(objectReturn instanceof Result)
-						((Result)objectReturn).unpackFromTransport();
-				if( DEBUG )
-					System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-				if( objectReturn instanceof Exception ) {
-						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
-					objectReturn = ((Throwable)objectReturn).getCause();
-				}
 				synchronized(waitPayload) {
-					waitPayload.notify();
+					objectReturn = returnPayload.getObjectReturn();
+					if(objectReturn == TransportMorphism.class)
+						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
+					else
+						if(objectReturn instanceof Result)
+							((Result)objectReturn).unpackFromTransport();
+					if( DEBUG )
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					if( objectReturn instanceof Exception ) {
+						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
+						objectReturn = ((Throwable)objectReturn).getCause();
+					}
+					synchronized(waitPayload) {
+						waitPayload.notify();
+					}
 				}
 			}
 		} catch(Exception e) {
@@ -154,8 +166,11 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	}
 
 	public void sendCommand() throws Exception {
-		if(DEBUG)
-			System.out.println("Attempt send:"+this);
+		if(sock == null) {
+			synchronized(waitSocket) {
+				waitSocket.wait();
+			}
+		}
 		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 		oos.writeObject(this);
 		oos.flush();
