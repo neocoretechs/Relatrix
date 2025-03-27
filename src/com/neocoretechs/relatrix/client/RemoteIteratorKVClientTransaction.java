@@ -44,11 +44,11 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt = new Object(); 
+	private transient Object waitPayload = new Object();
 	
 	private String session;
 	private TransactionId transactionId;
 	
-	private transient CountDownLatch countDownLatch;
 	private Object objectReturn;
 	
 	private String methodName;
@@ -78,21 +78,11 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	public RemoteIteratorKVClientTransaction() {}
 	
 	/**
-	 * This is part of RemoteCompletionInterface, it will be called by WorkerRequestProcessor
-	 * after server dequeues the request from TCPWorker reading request from remote client
-	 * This is where we cal the methods for hasNext and next for the proper iterator method
-	 * after retrieving the object instance of iterator by session.
-	 */
-	@Override
-	public void process() throws Exception {
-		
-	}
-	
-	/**
 	 * When we deserialize this from the server as a result of remote method call, we get back the serialized
 	 * object with remote server info. Here, we want to do the actual connection to remote.
 	 */
-	public void connect() throws Exception {
+	@Override
+	public void process() throws Exception {
 		if( TEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
@@ -136,7 +126,6 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		}
 		try {
 			while(shouldRun) {
-				countDownLatch = new CountDownLatch(1);
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				returnPayload = (RemoteIteratorKVClientTransaction) ois.readObject();
@@ -149,7 +138,9 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 						System.out.println("RemoteIteratorKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 					objectReturn = ((Throwable)objectReturn).getCause();
 				}
-				countDownLatch.countDown();
+				synchronized(waitPayload) {
+					waitPayload.notify();
+				}
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -185,7 +176,9 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 			throw new RuntimeException(e);
 		}
 		try {
-			countDownLatch.await();
+			synchronized(waitPayload) {
+				waitPayload.wait();
+			}
 		} catch (InterruptedException e) {}
 		return objectReturn;
 	}
@@ -205,7 +198,9 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 			throw new RuntimeException(e);
 		}
 		try {
-			countDownLatch.await();
+			synchronized(waitPayload) {
+				waitPayload.wait();
+			}
 		} catch (InterruptedException e) {}
 		return (boolean) objectReturn;
 	}
@@ -317,16 +312,13 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		return objectReturn;
 	}
 
-
 	@Override
 	public CountDownLatch getCountDownLatch() {
-		return countDownLatch;
+		return null;
 	}
-
 
 	@Override
 	public void setCountDownLatch(CountDownLatch cdl) {
-		countDownLatch = cdl;	
 	}
 
 

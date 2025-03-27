@@ -106,7 +106,7 @@ public class RelatrixJsonClient extends RelatrixClient {
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
-						((RemoteIteratorClient)o).connect();
+						((RemoteCompletionInterface)o).process();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

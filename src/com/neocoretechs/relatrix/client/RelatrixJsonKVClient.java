@@ -100,7 +100,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 					// set it with the response object
 					if(o instanceof Iterator)
 						// TODO JSON client!!
-							((RemoteIteratorKVClient)o).connect();
+							((RemoteCompletionInterface)o).process();
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
 					rs.getCountDownLatch().countDown();

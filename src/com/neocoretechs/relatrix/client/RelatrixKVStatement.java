@@ -15,7 +15,6 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixServer;
-import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterator;
 
 /**
  * The following class allows the transport of RelatrixKV method calls to the server.

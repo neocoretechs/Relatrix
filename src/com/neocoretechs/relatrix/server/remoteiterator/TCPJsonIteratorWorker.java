@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
@@ -41,18 +42,15 @@ public class TCPJsonIteratorWorker implements Runnable {
 	
 	public int MASTERPORT = 9876;
 
-    //private byte[] sendData;
 	protected InetAddress IPAddress = null;
-	//private ServerSocketChannel workerSocketChannel;
-	//private SocketAddress workerSocketAddress;
-	//private SocketChannel masterSocketChannel;
 	private SocketAddress masterSocketAddress;
 	
 	protected Socket workerSocket;
 	protected Socket masterSocket;
 	
-	public ServerInvokeMethod relatrixIteratorMethods = null; // hasNext and next iterator methods
-	
+	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
+	private ServerInvokeMethod relatrixIteratorMethod = null;
+		
 	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
 	private static boolean TEST = false;
@@ -60,7 +58,11 @@ public class TCPJsonIteratorWorker implements Runnable {
     public TCPJsonIteratorWorker(Socket datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
     	MASTERPORT= masterPort;
-		relatrixIteratorMethods = new ServerInvokeMethod(iteratorClass,0);
+     	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
+    	if(relatrixIteratorMethod == null) {
+    		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
+    		relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
+    	}
 		try {
 			if(TEST ) {
 				IPAddress = InetAddress.getLocalHost();
@@ -145,7 +147,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
-					Object result = relatrixIteratorMethods.invokeMethod(iori, itInst);
+					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					iori.setObjectReturn(result);
 				}
 				// notify latch waiters

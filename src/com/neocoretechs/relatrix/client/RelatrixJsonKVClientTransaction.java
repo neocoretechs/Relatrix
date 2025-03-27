@@ -98,7 +98,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 				} else {
 					if(o instanceof Iterator)
 						// TODO JSON
-							((RemoteIteratorKVClientTransaction)o).connect();
+						((RemoteCompletionInterface)o).process();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

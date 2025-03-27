@@ -142,7 +142,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
-						((RemoteIteratorClientTransaction)o).connect();
+						((RemoteCompletionInterface)o).process();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

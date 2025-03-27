@@ -7,7 +7,6 @@ import java.util.Map;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.Alias;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteKVIterator;
 
 /**
  * Client side test of KV server database alias using {@link RelatrixKVClient}. Yes, this should be a nice JUnit fixture someday.

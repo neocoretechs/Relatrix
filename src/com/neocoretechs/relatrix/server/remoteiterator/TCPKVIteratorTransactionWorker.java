@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
@@ -42,17 +43,14 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 	
 	public int MASTERPORT = 9876;
 
-    //private byte[] sendData;
 	protected InetAddress IPAddress = null;
-	//private ServerSocketChannel workerSocketChannel;
-	//private SocketAddress workerSocketAddress;
-	//private SocketChannel masterSocketChannel;
 	private SocketAddress masterSocketAddress;
 	
 	protected Socket workerSocket;
 	protected Socket masterSocket;
 	
-	public ServerInvokeMethod relatrixKVIteratorMethods = null; // hasNext and next iterator methods
+	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixKVIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
+	private ServerInvokeMethod relatrixKVIteratorMethod = null;
 	
 	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
@@ -61,7 +59,11 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
     public TCPKVIteratorTransactionWorker(Socket datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
     	MASTERPORT= masterPort;
-		relatrixKVIteratorMethods = new ServerInvokeMethod(iteratorClass,0);
+       	relatrixKVIteratorMethod = relatrixKVIteratorMethods.get(iteratorClass);
+    	if(relatrixKVIteratorMethod == null) {
+    		relatrixKVIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
+    		relatrixKVIteratorMethods.put(iteratorClass,relatrixKVIteratorMethod);
+    	}
 		try {
 			if(TEST ) {
 				IPAddress = InetAddress.getLocalHost();
@@ -143,7 +145,7 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
-					Object result = relatrixKVIteratorMethods.invokeMethod(iori, itInst);
+					Object result = relatrixKVIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixKVTransactionStatementInterface)iori).getTransactionId());
 						result = TransportMorphism.createTransport(((AbstractRelation)result));

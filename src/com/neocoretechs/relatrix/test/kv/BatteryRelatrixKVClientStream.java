@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
-import com.neocoretechs.relatrix.client.RemoteKVIterator;
 
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of Client side KV server stream retrieval ops.

@@ -26,8 +26,10 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  */
 public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	private static final boolean DEBUG = false;
-	public static final boolean TEST = false; // true to run in local cluster test mode
+	public static final boolean DEBUG = true;
+	public static final boolean LOCALTEST = false; // use localhost as remote node
+	public static final boolean TEST = true; // timing
+	private long tim;
 	
 	private String remoteNode;
 	private int remotePort;
@@ -40,16 +42,18 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 
 	protected transient Socket workerSocket = null; // socket assigned to slave port
 	protected transient ServerSocket masterSocket; // master socket connected back to via server
-	protected transient Socket sock; // socket of mastersocket
+	protected transient Socket sock = null; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
-	private transient Object waitHalt = new Object(); 
+	private transient Object waitHalt;
+	private transient Object waitPayload;
+	private transient Object waitSocket;
+	private transient CountDownLatch countDownLatch = null;
 	
 	private String session;
 	private TransactionId transactionId;
 	
-	private transient CountDownLatch countDownLatch;
 	private Object objectReturn;
 	
 	private String methodName;
@@ -76,25 +80,19 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		this.transactionId = transactionId;
 	}
 	
-	public RemoteIteratorClientTransaction() {}
-	
-	/**
-	 * This is part of RemoteCompletionInterface, it will be called by WorkerRequestProcessor
-	 * after server dequeues the request from TCPWorker reading request from remote client
-	 * This is where we cal the methods for hasNext and next for the proper iterator method
-	 * after retrieving the object instance of iterator by session.
-	 */
-	@Override
-	public void process() throws Exception {
-		
+	public RemoteIteratorClientTransaction() {
 	}
 	
 	/**
 	 * When we deserialize this from the server as a result of remote method call, we get back the serialized
 	 * object with remote server info. Here, we want to do the actual connection to remote.
 	 */
-	public void connect() throws Exception {
-		if( TEST ) {
+	@Override
+	public void process() throws Exception {
+		waitHalt = new Object();
+		waitPayload = new Object();
+		waitSocket = new Object();
+		if( LOCALTEST ) {
 			IPAddress = InetAddress.getLocalHost();
 		} else {
 			IPAddress = InetAddress.getByName(remoteNode);
@@ -114,11 +112,6 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		// send message to spin connection
 		workerSocket = Fopen(localIPAddress.getHostName());
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
-	}
-	
-	@Override
-	public void run() {
 		//SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
@@ -135,25 +128,34 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		if( DEBUG ) {
 			System.out.println("RemoteIteratorClientTransaction got connection "+sock);
 		}
+		ThreadPoolManager.getInstance().spin(this);
+	}
+	
+	@Override
+	public void run() {
+		synchronized(waitSocket) {
+			waitSocket.notify();
+		}
 		try {
 			while(shouldRun) {
-				countDownLatch = new CountDownLatch(1);
 				InputStream ins = sock.getInputStream();
 				ObjectInputStream ois = new ObjectInputStream(ins);
 				returnPayload = (RemoteIteratorClientTransaction) ois.readObject();
-				objectReturn = returnPayload.getObjectReturn();
-				if(objectReturn == TransportMorphism.class)
-					objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
-				else
-					if(objectReturn instanceof Result)
-						((Result)objectReturn).unpackFromTransport();
-				if( DEBUG )
-					System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-				if( objectReturn instanceof Exception ) {
+				synchronized(waitPayload) {
+					objectReturn = returnPayload.getObjectReturn();
+					if(objectReturn == TransportMorphism.class)
+						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
+					else
+						if(objectReturn instanceof Result)
+							((Result)objectReturn).unpackFromTransport();
+					if( DEBUG )
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
-					objectReturn = ((Throwable)objectReturn).getCause();
+						objectReturn = ((Throwable)objectReturn).getCause();
+					}
+					waitPayload.notify();
 				}
-				countDownLatch.countDown();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -167,8 +169,11 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	}
 
 	public void sendCommand() throws Exception {
-		if(DEBUG)
-			System.out.println("Attempt send:"+this);
+		if(sock == null) {
+			synchronized(waitSocket) {
+				waitSocket.wait();
+			}
+		}
 		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
 		oos.writeObject(this);
 		oos.flush();
@@ -177,40 +182,50 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param rii RelatrixStatement
 	 * @return The next iterated object or null
 	 */
 	@Override
 	public Object next() {
 		this.methodName = "next";
-		try {
-			sendCommand();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		synchronized(waitPayload) {
+			try {
+				sendCommand();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			try {
+				if(TEST)
+					tim = System.nanoTime();
+				waitPayload.wait();
+				if(TEST)
+					System.out.println("next waited:"+(System.nanoTime()-tim)+" nanos.");
+			} catch (InterruptedException e) {}
 		}
-		try {
-			countDownLatch.await();
-		} catch (InterruptedException e) {}
 		return objectReturn;
 	}
 	/**
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param rii RelatrixStatement
 	 * @return The boolean result of hasNext on server
 	 */
 	@Override
 	public boolean hasNext() {
 		methodName = "hasNext";
-		try {
-			sendCommand();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		synchronized(waitPayload) {
+			try {
+				sendCommand();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			try {
+				if(TEST)
+					tim = System.nanoTime();
+				waitPayload.wait();
+				if(TEST)
+					System.out.println("hasNext waited:"+(System.nanoTime()-tim)+" nanos.");
+			} catch (InterruptedException e) {}
 		}
-		try {
-			countDownLatch.await();
-		} catch (InterruptedException e) {}
 		return (boolean) objectReturn;
 	}
 	/**
@@ -260,7 +275,6 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	public int getRemotePort( ) {
 		return remotePort;
 	}
-
 
 	/**
 	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
@@ -321,18 +335,15 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		return objectReturn;
 	}
 
-
 	@Override
 	public CountDownLatch getCountDownLatch() {
 		return countDownLatch;
 	}
 
-
 	@Override
 	public void setCountDownLatch(CountDownLatch cdl) {
-		countDownLatch = cdl;	
+		countDownLatch = cdl;
 	}
-
 
 	@Override
 	public void setObjectReturn(Object o) {
