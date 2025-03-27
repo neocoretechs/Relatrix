@@ -17,9 +17,11 @@ import java.net.UnknownHostException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
@@ -32,7 +34,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
  */
-public class TCPIteratorTransactionWorker implements Runnable {
+public class TCPKVIteratorTransactionWorker implements Runnable {
 	private static final boolean DEBUG = false;
 	
 	public volatile boolean shouldRun = true;
@@ -50,16 +52,16 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	protected Socket workerSocket;
 	protected Socket masterSocket;
 	
-	public ServerInvokeMethod relatrixIteratorMethods = null; // hasNext and next iterator methods
+	public ServerInvokeMethod relatrixKVIteratorMethods = null; // hasNext and next iterator methods
 	
 	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
 	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
 	private static boolean TEST = false;
 	
-    public TCPIteratorTransactionWorker(Socket datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
+    public TCPKVIteratorTransactionWorker(Socket datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
     	MASTERPORT= masterPort;
-		relatrixIteratorMethods = new ServerInvokeMethod(iteratorClass,0);
+		relatrixKVIteratorMethods = new ServerInvokeMethod(iteratorClass,0);
 		try {
 			if(TEST ) {
 				IPAddress = InetAddress.getLocalHost();
@@ -131,30 +133,26 @@ public class TCPIteratorTransactionWorker implements Runnable {
 					System.out.println("TCPIteratorTransactionWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)ois.readObject();
 				if( iori.getMethodName().equals("close") ) {
-					RelatrixTransactionServer.sessionToObject.remove(iori.getSession());
+					RelatrixKVTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
 					// Get the iterator linked to this session
-					Object itInst = RelatrixTransactionServer.sessionToObject.get(iori.getSession());
+					Object itInst = RelatrixKVTransactionServer.sessionToObject.get(iori.getSession());
 					if( itInst == null ) {
 						ois.close();
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
-					Object result = relatrixIteratorMethods.invokeMethod(iori, itInst);
+					Object result = relatrixKVIteratorMethods.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
-						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
+						((AbstractRelation)result).setTransactionId(((RelatrixKVTransactionStatementInterface)iori).getTransactionId());
 						result = TransportMorphism.createTransport(((AbstractRelation)result));
-					} else {
-						if(result instanceof Result) {
-							((Result) result).packForTransport();
-						}
 					}
 					iori.setObjectReturn(result);
 				}
 				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println("TCPIteratorTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println("TCPKVIteratorTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
@@ -205,9 +203,9 @@ public class TCPIteratorTransactionWorker implements Runnable {
      */
 	public static void main(String args[]) throws Exception {
 		if( args.length != 2 ) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorTransactionWorker [remote master node] [remote master port] [iterator class]");
+			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPKVIteratorTransactionWorker [remote master node] [remote master port] [iterator class]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPIteratorTransactionWorker(new Socket(),
+		ThreadPoolManager.getInstance().spin(new TCPKVIteratorTransactionWorker(new Socket(),
 				args[0], // remote master node
 				Integer.valueOf(args[1]),args[2])); // master port, class
 	}

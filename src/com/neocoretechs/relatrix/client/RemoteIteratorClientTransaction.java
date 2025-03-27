@@ -19,7 +19,11 @@ import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
-
+/**
+ * Manages remote iterators via client that is serialized to remote transaction servers and returned as payload.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
+ *
+ */
 public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
 	private static final boolean DEBUG = false;
@@ -146,7 +150,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 				if( DEBUG )
 					System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				if( objectReturn instanceof Exception ) {
-						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
+						System.out.println("RemoteIteratorClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 					objectReturn = ((Throwable)objectReturn).getCause();
 				}
 				countDownLatch.countDown();
@@ -214,7 +218,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	 */
 	public void close() {
 		if(DEBUG)
-			System.out.println("Calling close for RemoteIteratorClient");
+			System.out.println("Calling close for RemoteIteratorClientTransaction");
 		shouldRun = false;
 		synchronized(waitHalt) {
 			try {
@@ -279,7 +283,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClient BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("RemoteIteratorClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
 	}
 
 	@Override

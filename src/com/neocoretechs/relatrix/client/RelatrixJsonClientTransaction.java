@@ -123,7 +123,8 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 						System.out.printf("%s run response loop recieved class:%s %s%n", this.getClass().getName(),o.getClass().getName(),o);
 					}
 					if(o instanceof Iterator)
-						((RemoteObjectInterface)o).setClient(this);
+						// TODO  JSON
+						((RemoteIteratorClientTransaction)o).connect();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

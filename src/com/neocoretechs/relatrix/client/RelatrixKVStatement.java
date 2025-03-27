@@ -14,6 +14,7 @@ import com.neocoretechs.rocksack.KeyValue;
 
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
+import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterator;
 
 /**
@@ -187,11 +188,16 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 				return;
 			}
 			RelatrixKVServer.sessionToObject.put(getSession(), result);
-			if( result.getClass() == IteratorWrapper.class) {
-				setObjectReturn(new ServerSideRemoteKVIterator(getSession()));
+			RemoteIteratorKVClient ric = null;
+			if(result.getClass() == IteratorWrapper.class) {	
+				ric = new RemoteIteratorKVClient(RelatrixKVServer.address.getHostName(), 
+							RelatrixKVServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
+			// Link the object instance to session for later method invocation
+			RelatrixKVServer.sessionToObject.put(ric.getSession(), result);
+			setObjectReturn(ric);
 		} else {
 			setObjectReturn(result);
 		}

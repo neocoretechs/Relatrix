@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -48,6 +50,15 @@ public class RelatrixKVTransactionServer extends TCPServer {
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
+	public static String[] iteratorServers = new String[]{
+			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
+	};				
+	public static int[] iteratorPorts = new int[] {
+			9050
+	};
+	public static int findIteratorServerPort(String clazz) {
+		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
+	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
@@ -68,6 +79,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 				e.printStackTrace();
 			}
 		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -89,6 +102,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 				e.printStackTrace();
 			}
 		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
 	@Override

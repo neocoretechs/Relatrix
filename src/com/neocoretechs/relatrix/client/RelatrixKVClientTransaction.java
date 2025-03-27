@@ -50,7 +50,6 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	private InetAddress localIPAddress = null; // local server address
 
 	protected Socket workerSocket = null; // socket assigned to slave port
-	private SocketAddress workerSocketAddress; //address of slave
 	protected ServerSocket masterSocket; // master socket connected back to via server
 	protected Socket sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
@@ -151,7 +150,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
-						((RemoteObjectInterface)o).setClient(this);
+						((RemoteIteratorKVClientTransaction)o).connect();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);

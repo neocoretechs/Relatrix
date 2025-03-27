@@ -51,7 +51,6 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	private InetAddress localIPAddress = null; // local server address
 
 	protected Socket workerSocket = null; // socket assigned to slave port
-	private SocketAddress workerSocketAddress; //address of slave
 	protected ServerSocket masterSocket; // master socket connected back to via server
 	protected Socket sock; // socker of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
@@ -155,7 +154,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					if(o instanceof Iterator)
-						((RemoteObjectInterface)o).setClient(this);
+							((RemoteIteratorKVClient)o).connect();
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
 					rs.getCountDownLatch().countDown();

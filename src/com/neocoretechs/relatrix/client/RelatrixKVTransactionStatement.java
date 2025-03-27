@@ -10,6 +10,7 @@ import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
+import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIteratorTransaction;
 
@@ -20,7 +21,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.ServerSideRemoteKVIterato
  * @author Jonathan Groff (C) neoCoreTechs 2022
  *
  */
-public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements Serializable {
+public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements RelatrixKVTransactionStatementInterface, Serializable {
 	private static final long serialVersionUID = 1452088222610286234L;
 	private static boolean DEBUG = false;
     protected TransactionId xid;
@@ -102,11 +103,16 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 				return;
 			}
 			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);
-			if( result.getClass() == IteratorWrapper.class) {
-				setObjectReturn(new ServerSideRemoteKVIteratorTransaction(xid, getSession()));
+			RemoteIteratorKVClientTransaction ric = null;
+			if(result.getClass() == IteratorWrapper.class) {	
+				ric = new RemoteIteratorKVClientTransaction(xid, RelatrixKVTransactionServer.address.getHostName(), 
+							RelatrixKVTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
+			// Link the object instance to session for later method invocation
+			RelatrixKVTransactionServer.sessionToObject.put(ric.getSession(), result);
+			setObjectReturn(ric);
 		} else {
 			setObjectReturn(result);
 		}
