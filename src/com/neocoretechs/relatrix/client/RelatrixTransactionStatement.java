@@ -55,9 +55,9 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 	}
     
     @Override
-    public synchronized String toString() { return String.format("%s for Session:%s xid:%s Method:%s Arg:%s%n",
+    public synchronized String toString() { return String.format("%s for Session:%s xid:%s Method:%s params:%s return Class:%s%n",
              this.getClass().getName(), getSession(), transactionId, methodName,
-             (paramArray == null ? "nil" : Arrays.toString(paramArray))); }
+             (paramArray == null ? "nil" : Arrays.toString(paramArray)), returnClass); }
     
 	/**
 	 * Call methods of the main Relatrix class, which will return an instance or an object that is not Serializable

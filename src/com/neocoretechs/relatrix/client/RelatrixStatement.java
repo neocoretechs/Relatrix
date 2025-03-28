@@ -32,7 +32,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected String methodName;
     protected Object[] paramArray;
     private Object objectReturn;
-    private String returnClass;
+    protected String returnClass;
     private transient CountDownLatch latch;
 
     public RelatrixStatement() {
@@ -97,9 +97,9 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     }
     
     @Override
-    public synchronized String toString() { return String.format("%s for Session:%s Method:%s Arg:%s%n",
+    public synchronized String toString() { return String.format("%s for Session:%s Method:%s params:%s return class:%s%n",
              this.getClass().getName(),session,methodName,
-             (paramArray == null ? "nil" : Arrays.toString(paramArray))); }
+             (paramArray == null ? "nil" : Arrays.toString(paramArray)), returnClass); }
     
 	@Override
 	public synchronized CountDownLatch getCountDownLatch() {

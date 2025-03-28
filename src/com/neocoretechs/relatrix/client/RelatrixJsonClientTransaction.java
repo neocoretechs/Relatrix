@@ -43,7 +43,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixJsonClientTransaction extends RelatrixClientTransaction implements ClientInterface, Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -103,8 +103,11 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 				// mostly, we just need the session and the fact its a type of stream with encapsulated iterator
 				if(o.getClass() == com.google.gson.internal.LinkedTreeMap.class) {
 					LinkedTreeMap map = (com.google.gson.internal.LinkedTreeMap) o;
+					if(DEBUG)
+						System.out.println("RelatrixJsonClientTransaction return object LinkedTreeMap:"+map);
 					if(returnClass == Stream.class || returnClass == Iterator.class) {
-						//o = new RemoteIteratorTransaction((String)map.get("session"));
+						// convert treemap into RemoteIteratorJsonClientTransaction to call process and connect to remote iterator server
+						((RemoteCompletionInterface)o).process();
 					} else {
 						o = JsonUtil.jsonMapToObject(returnClass,map);
 					}
@@ -116,7 +119,6 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 				RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					in.close();
-					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(DEBUG) {

@@ -41,8 +41,6 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	private static boolean DEBUG = true;
 	private static boolean DEBUGCOMMAND = false;
 	
-	public static InetAddress address;
-	
 	private ConcurrentHashMap<String, TCPJsonTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonTransactionWorker>();
 	
 	public static String[] iteratorServers = new String[]{

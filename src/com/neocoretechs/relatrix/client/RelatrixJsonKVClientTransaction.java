@@ -97,7 +97,6 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
-						// TODO JSON
 						((RemoteCompletionInterface)o).process();
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object

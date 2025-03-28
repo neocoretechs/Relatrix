@@ -181,9 +181,9 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     			} else {
     				if( skipArgs > 0) {
     					Object o1[] = tmc.getParamArray();
+    					tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     					if(DEBUG) {
     						System.out.println("ServerInvokeJson Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
-    						tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     						Object oret = methods[methodIndex].invoke( localObject, o1 );
     						System.out.println("ServerInvokeJson return from invocation:"+oret);
     						return oret;
@@ -198,6 +198,7 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     					System.out.println("ServerInvokeJson return from invocation:"+oret);
     					return oret;
     				}
+    				tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     				return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
     			}
     		} else {

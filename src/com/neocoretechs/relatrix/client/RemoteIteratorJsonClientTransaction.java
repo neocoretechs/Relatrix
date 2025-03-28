@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -245,7 +243,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	 */
 	public void close() {
 		if(DEBUG)
-			System.out.println("Calling close for RemoteIteratorClientTransaction");
+			System.out.println("Calling close for RemoteIteratorJsonClientTransaction");
 		shouldRun = false;
 		synchronized(waitHalt) {
 			try {
@@ -257,7 +255,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 
 	private void shutdown() {
 		if(DEBUG)
-			System.out.println("Calling shutdown for RemoteIteratorClientTransaction");
+			System.out.println("Calling shutdown for RemoteIteratorJsonClientTransaction");
 		if(sock != null) {
 			try {
 				sock.close();
@@ -312,7 +310,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("RemoteIteratorJsonClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
 	}
 
 	@Override
