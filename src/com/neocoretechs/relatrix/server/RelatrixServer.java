@@ -60,6 +60,9 @@ public class RelatrixServer extends TCPServer {
 	public static int findIteratorServerPort(String clazz) {
 		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
 	}
+	
+	public RelatrixServer() {}
+	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server

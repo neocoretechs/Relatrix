@@ -53,11 +53,14 @@ public class RelatrixKVServer extends TCPServer {
 			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
 	};				
 	public static int[] iteratorPorts = new int[] {
-			9050
+			9030
 	};
 	public static int findIteratorServerPort(String clazz) {
 		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
 	}
+	
+	public RelatrixKVServer() {}
+	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.

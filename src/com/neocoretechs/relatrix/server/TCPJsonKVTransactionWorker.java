@@ -11,7 +11,6 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import com.google.gson.Gson;
-import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;

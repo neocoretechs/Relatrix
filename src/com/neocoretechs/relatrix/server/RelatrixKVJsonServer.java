@@ -5,12 +5,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorJsonServer;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -49,7 +52,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
 	};				
 	public static int[] iteratorPorts = new int[] {
-			9050
+			9040
 	};
 	public static int findIteratorServerPort(String clazz) {
 		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
@@ -61,11 +64,38 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
 	public RelatrixKVJsonServer(int port) throws IOException, ClassNotFoundException {
-		super(port);
+		super();
+		RelatrixKVJsonServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		address = startServer(port);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
-	public RelatrixKVJsonServer(String address, int port) throws IOException, ClassNotFoundException {
-		super(address, port);
+	public RelatrixKVJsonServer(String iaddress, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVJsonServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		address = InetAddress.getByName(iaddress);
+		startServer(port,address);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
 	@Override

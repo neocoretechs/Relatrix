@@ -1,12 +1,10 @@
 package com.neocoretechs.relatrix.server;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
@@ -14,10 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorJsonTransactionServer;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -57,13 +52,13 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 			"com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction",
 			"com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction",				
 			"com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction"
-		};				
-		public static int[] iteratorPorts = new int[] {
-				9080,9081,9082,9083,9084,9085
-		};
-		public static int findIteratorServerPort(String clazz) {
-			return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
-		}
+	};				
+	public static int[] iteratorPorts = new int[] {
+			9080,9081,9082,9083,9084,9085
+	};
+	public static int findIteratorServerPort(String clazz) {
+		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
+	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server
@@ -71,7 +66,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
 	public RelatrixJsonTransactionServer(int port) throws IOException, ClassNotFoundException {
-		super(port);
+		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -86,7 +81,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	 * @throws ClassNotFoundException
 	 */
 	public RelatrixJsonTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
-		super(port);
+		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)

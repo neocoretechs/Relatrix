@@ -5,13 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorJsonServer;
+
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -48,7 +49,11 @@ public final class RelatrixJsonServer extends RelatrixServer {
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
 	public RelatrixJsonServer(int port) throws IOException, ClassNotFoundException {
-		super(port);
+		super();
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		address = startServer(port);
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -57,8 +62,13 @@ public final class RelatrixJsonServer extends RelatrixServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixJsonServer(String address, int port) throws IOException, ClassNotFoundException {
-		super(address, port);
+	public RelatrixJsonServer(String iaddress, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		address = InetAddress.getByName(iaddress);
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+		startServer(port,address);
 	}
 	
 	@Override

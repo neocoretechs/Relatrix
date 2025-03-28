@@ -5,14 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorJsonTransactionServer;
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -47,15 +47,14 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 
 	private ConcurrentHashMap<String, TCPJsonKVTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonKVTransactionWorker>();
 	
-	/**
-	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
-	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
-	 * @throws IOException
-	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
-	 */
-	public RelatrixKVJsonTransactionServer(int port) throws IOException, ClassNotFoundException {
-		super(port);
-
+	public static String[] iteratorServers = new String[]{
+			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
+	};				
+	public static int[] iteratorPorts = new int[] {
+			9030
+	};
+	public static int findIteratorServerPort(String clazz) {
+		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -63,8 +62,44 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixKVJsonTransactionServer(String address, int port) throws IOException, ClassNotFoundException {
-		super(address,port);
+	public RelatrixKVJsonTransactionServer(int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVJsonTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
+		address = startServer(port);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This Json KV transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+	}
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
+	 * @throws IOException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
+	 */
+	public RelatrixKVJsonTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVJsonTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		address = InetAddress.getByName(iaddress);
+		startServer(port,address);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This Json KV transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 
 	@Override
