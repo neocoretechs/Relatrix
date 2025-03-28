@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
@@ -44,6 +45,15 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 
 	private ConcurrentHashMap<String, TCPJsonKVWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonKVWorker>();
 	
+	public static String[] iteratorServers = new String[]{
+			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
+	};				
+	public static int[] iteratorPorts = new int[] {
+			9050
+	};
+	public static int findIteratorServerPort(String clazz) {
+		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
+	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.

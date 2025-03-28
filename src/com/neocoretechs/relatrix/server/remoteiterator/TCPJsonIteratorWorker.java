@@ -21,11 +21,11 @@ import com.google.gson.Gson;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorClient;
+import com.neocoretechs.relatrix.client.RemoteIteratorJsonClient;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
-
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
@@ -135,7 +135,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 				String inJson = in.readLine();
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorWorker read "+inJson+" from "+workerSocket);
-				RemoteIteratorClient iori = new Gson().fromJson(inJson,RemoteIteratorClient.class);	
+				RemoteIteratorJsonClient iori = new Gson().fromJson(inJson,RemoteIteratorJsonClient.class);	
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -152,7 +152,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 				}
 				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println("TCPIteratorWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println("TCPJsonIteratorWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
@@ -203,7 +203,7 @@ public class TCPJsonIteratorWorker implements Runnable {
      */
 	public static void main(String args[]) throws Exception {
 		if( args.length != 2 ) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorWorker [remote master node] [remote master port] [class]");
+			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPJsonIteratorWorker [remote master node] [remote master port] [class]");
 		}
 		ThreadPoolManager.getInstance().spin(new TCPJsonIteratorWorker(new Socket(),
 				args[0], // remote master node

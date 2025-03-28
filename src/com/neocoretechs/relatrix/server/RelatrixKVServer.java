@@ -40,7 +40,6 @@ public class RelatrixKVServer extends TCPServer {
 	public static InetAddress address;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	//
 
 	// in server, we are using local repository for handlerclassloader, but only one
 	// and that one will be located on port 9999
