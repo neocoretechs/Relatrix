@@ -181,25 +181,37 @@ public final class ServerInvokeMethodJson extends ServerInvokeMethod {
     			} else {
     				if( skipArgs > 0) {
     					Object o1[] = tmc.getParamArray();
-    					tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
     					if(DEBUG) {
     						System.out.println("ServerInvokeJson Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(o1));
-    						Object oret = methods[methodIndex].invoke( localObject, o1 );
-    						System.out.println("ServerInvokeJson return from invocation:"+oret);
-    						return oret;
     					}
-    					return methods[methodIndex].invoke( localObject, o1 );
+    					Object or = methods[methodIndex].invoke(localObject, o1);
+    					if(or != null) {
+    						tmc.setReturnClass(or.getClass().getName());
+    						if(DEBUG)
+    							System.out.println("ServerInvokeJson return from invocation:"+or+" class:"+or.getClass().getName());
+    					} else {
+    						tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
+    						if(DEBUG)
+    							System.out.println("ServerInvokeJson returned NULL from invocation, setting return class "+methods[methodIndex].getReturnType().getName());
+    					}
+    					return or;
     				} 
     				// invoke it for return
     				if(DEBUG) {
     					System.out.println("ServerInvokeJson Invoking method:"+methods[methodIndex]+" on object "+localObject+" with params "+Arrays.toString(tmc.getParamArray()));
-    					tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
-    					Object oret = methods[methodIndex].invoke(localObject, tmc.getParamArray());
-    					System.out.println("ServerInvokeJson return from invocation:"+oret);
-    					return oret;
     				}
-    				tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
-    				return methods[methodIndex].invoke( localObject, tmc.getParamArray() );
+    				//tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
+    				Object or = methods[methodIndex].invoke(localObject, tmc.getParamArray());
+    				if(or != null) {
+    					tmc.setReturnClass(or.getClass().getName());
+    					if(DEBUG)
+    						System.out.println("ServerInvokeJson return from invocation:"+or+" class:"+or.getClass().getName());
+    				} else {
+    					tmc.setReturnClass(methods[methodIndex].getReturnType().getName());
+    					if(DEBUG)
+    						System.out.println("ServerInvokeJson returned NULL from invocation, setting return class "+methods[methodIndex].getReturnType().getName());
+    				}
+    				return or;
     			}
     		} else {
     			whyNotFound = "wrong number of parameters";

@@ -37,6 +37,8 @@ public class TCPJsonWorker extends TCPWorker {
 			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
+			if(irf.getObjectReturn() instanceof Throwable)
+				irf.setObjectReturn(((Throwable)irf.getObjectReturn()).getMessage());
 			// Write response to master for forwarding to client
 			String jirf = new Gson().toJson(irf);
 			if(DEBUG)

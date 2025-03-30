@@ -15,6 +15,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.LinkedTreeMap;
 import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.server.CommandPacket;
@@ -85,67 +90,137 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
   	    	 System.out.println("RelatrixJsonClientTransaction got connection "+sock);
   	    }
   	    try {
-		  while(shouldRun) {
-				InputStream ins = sock.getInputStream();
-				if(DEBUG)
-					System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inLine = in.readLine();
-				if(DEBUG)
-					System.out.println("RelatrixJsonClientTransaction "+sock+" raw data:"+inLine);
-				RelatrixTransactionStatement iori = new Gson().fromJson(inLine,RelatrixTransactionStatement.class);	
-				// get the original request from the stored table
-				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-				Object o = iori.getObjectReturn();
-				Class<?> returnClass = Class.forName(iori.getReturnClass());
-				// intercept remote stream, returned as a server side remote iterator and session info to communicate with remotely
-				// mostly, we just need the session and the fact its a type of stream with encapsulated iterator
-				if(o.getClass() == com.google.gson.internal.LinkedTreeMap.class) {
-					LinkedTreeMap map = (com.google.gson.internal.LinkedTreeMap) o;
-					if(DEBUG)
-						System.out.println("RelatrixJsonClientTransaction return object LinkedTreeMap:"+map);
-					if(returnClass == Stream.class || returnClass == Iterator.class) {
-						// convert treemap into RemoteIteratorJsonClientTransaction to call process and connect to remote iterator server
-						((RemoteCompletionInterface)o).process();
-					} else {
-						o = JsonUtil.jsonMapToObject(returnClass,map);
-					}
-				}
-				if( o instanceof Exception ) {
-					System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
-					o = ((Throwable)o).getCause();
-				}
-				RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
-				if( rs == null ) {
-					in.close();
-					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
-				} else {
-					if(DEBUG) {
-						System.out.printf("%s run response loop recieved class:%s %s%n", this.getClass().getName(),o.getClass().getName(),o);
-					}
-					if(o instanceof Iterator)
-						// TODO  JSON
-						((RemoteCompletionInterface)o).process();
-					// We have the request after its session round trip, get it from outstanding waiters and signal
-					// set it with the response object
-					rs.setObjectReturn(o);
-					// and signal the latch we have finished
-					rs.getCountDownLatch().countDown();
-				}
-		  }
-		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
-				// we lost the remote master, try to close worker and wait for reconnect
-				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-			}
-		} finally {
-			shutdown();
+  	    	while(shouldRun) {
+  	    		InputStream ins = sock.getInputStream();
+  	    		if(DEBUG)
+  	    			System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
+  	    		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+  	    		String inLine = in.readLine();
+  	    		if(DEBUG) {
+  	    			System.out.println("RelatrixJsonClientTransaction "+sock+" raw data:"+inLine);
+  	    		}
+  	    		RelatrixTransactionStatement iori = new Gson().fromJson(inLine,RelatrixTransactionStatement.class);
+  	    		// get the original request from the stored table
+  	    		if( DEBUG )
+  	    			System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+
+  	    		Object o = iori.getObjectReturn();
+  	    		Class<?> returnClass = Class.forName(iori.getReturnClass());
+
+  	    		// intercept remote stream, returned as a server side remote iterator and session info to communicate with remotely
+  	    		// mostly, we just need the session and the fact its a type of stream with encapsulated iterator
+  	    		if(o.getClass() == com.google.gson.internal.LinkedTreeMap.class) {
+  	    			// try to extract object returned from remote method call encapsulated in returned request
+  	    			JsonObject retClassIndex = parse(inLine);
+  	    			String retClassName = parseString(retClassIndex,"returnClass");
+  	    			JsonObject retObjectData = null;
+  	    			boolean parsedJson = false;
+  	    			try {
+  	    				if(!retClassName.isEmpty()) {
+  	    					if(DEBUG)
+  	    						System.out.println("Extracted class name:"+retClassName);
+  	    					retObjectData = retClassIndex.getAsJsonObject("objectReturn");
+  	    					if(!retObjectData.isJsonNull()) {
+  	    							if(DEBUG)
+  	    								System.out.println("Extracted data:"+retObjectData);
+  	    							o = new Gson().fromJson(retObjectData,Class.forName(retClassName));
+  	    							parsedJson = true;			
+  	    					} else {
+  	    						if(DEBUG)
+  	    							System.out.println("objectRetrun null");
+  	    					}
+  	    				} else
+  	    					if(DEBUG)
+  	    						System.out.println("returnClass empty or null");
+  	    			} catch(Exception e) {
+  	    				if(DEBUG) {
+  	    					System.out.println("Failed to parse extracted data:");
+  	    					e.printStackTrace();
+  	    				}
+  	    				parsedJson = false;
+  	    			}
+  	    			// if we failed to parse the Json payload, try to get something from the
+  	    			// Gson linked map
+  	    			if(!parsedJson) {
+  	    				LinkedTreeMap map = (com.google.gson.internal.LinkedTreeMap) o;
+  	    				if(DEBUG)
+  	    					System.out.println("RelatrixJsonClientTransaction return object LinkedTreeMap:"+map);
+  	    				o = JsonUtil.jsonMapToObject(returnClass,map);
+  	    			}
+  	    		}
+  	    		if( o instanceof Exception ) {
+  	    			System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			o = ((Throwable)o).getCause();
+  	    		}
+  	    		RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
+  	    		if( rs == null ) {
+  	    			in.close();
+  	    			throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
+  	    		} else {
+  	    			if(DEBUG) {
+  	    				System.out.printf("%s run response loop recieved class:%s %s%n", this.getClass().getName(),o.getClass().getName(),o);
+  	    			}
+  	    			if(o instanceof Iterator)
+  	    				((RemoteCompletionInterface)o).process();
+  	    			// We have the request after its session round trip, get it from outstanding waiters and signal
+  	    			// set it with the response object
+  	    			rs.setObjectReturn(o);
+  	    			// and signal the latch we have finished
+  	    			rs.getCountDownLatch().countDown();
+  	    		}
+  	    	}
+  	    } catch(Exception e) {
+  	    	if(!(e instanceof SocketException)) {
+  	    		// we lost the remote master, try to close worker and wait for reconnect
+  	    		e.printStackTrace();
+  	    		System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+  	    	}
+  	    } finally {
+  	    	shutdown();
   	    }
   	    synchronized(waitHalt) {
   	    	waitHalt.notifyAll();
   	    }
+	}
+	/**
+	 * Starting point to process raw Json text and get JsonObject back
+	 * @param jsonLine source text
+	 * @return JsonObject processed from input text
+	 */
+	public JsonObject parse(String jsonLine) {
+	    JsonElement jelement = JsonParser.parseString(jsonLine);
+	    JsonObject  jobject = jelement.getAsJsonObject();
+	    return jobject;
+	}
+	/** 
+	 * @param jobject the map from source text parsed
+	 * @param jsonElem the element of the map to get
+	 * @return the element as string
+	 */
+	public String parseString(JsonObject jobject, String jsonElem) {
+	    String result = jobject.get(jsonElem).getAsString();
+	    return result;
+	}
+	/** 
+	 * @param jobject the map from source text parsed
+	 * @param jsonElem the element of the map to get
+	 * @return the element as long
+	 */
+	public long parseLong(JsonObject jobject, String jsonElem) {
+	    JsonPrimitive result = jobject.get(jsonElem).getAsJsonPrimitive();
+	    return result.getAsLong();
+	}
+	/** 
+	 * @param jobject the map from source text parsed
+	 * @param jsonElem the element of the map to get, presumed array of longs
+	 * @param arrayElem the element of the array
+	 * @return the element as long
+	 */
+	public long parseArrayLong(JsonObject jobject, String jsonElem, int arrayElem) {
+	    JsonArray jarray = jobject.getAsJsonArray(jsonElem);
+	    JsonObject jobjectx = jarray.get(arrayElem).getAsJsonObject();
+	    JsonPrimitive result = jobjectx.getAsJsonPrimitive();
+	    return result.getAsLong();
 	}
 	
 	/**

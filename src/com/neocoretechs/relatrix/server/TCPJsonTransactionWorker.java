@@ -11,7 +11,6 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import com.google.gson.Gson;
-import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -38,6 +37,11 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 		}
 		try {
 			// Write response to master for forwarding to client
+			if(irf.getObjectReturn() instanceof Throwable) {
+				System.out.println("Exception detected:"+(irf.getObjectReturn()));
+				System.out.println(((Throwable)(irf.getObjectReturn())).getCause());
+				irf.setObjectReturn(((Throwable)irf.getObjectReturn()).getCause().getMessage());
+			}
 			String jirf = new Gson().toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
