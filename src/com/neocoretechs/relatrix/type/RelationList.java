@@ -34,7 +34,7 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 
 	@Override
 	public void packForTransport() {
-		this.list.replaceAll(e -> createTransport((AbstractRelation) e));	
+		this.list.replaceAll(e -> createTransport((Relation)e));	
 	}
 
 	@Override
@@ -43,12 +43,12 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 	}
 
 	@Override
-	public TransportMorphism createTransport(AbstractRelation o) {
+	public TransportMorphism createTransport(Relation o) {
 		return TransportMorphism.createTransport(o);
 	}
 
 	@Override
-	public AbstractRelation createRelation(TransportMorphism o) {
+	public Relation createRelation(TransportMorphism o) {
 		return TransportMorphism.createMorphism(o);
 	}
 

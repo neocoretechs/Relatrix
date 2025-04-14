@@ -15,8 +15,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 
 import com.neocoretechs.relatrix.client.RemoteIteratorKVJsonClient;
@@ -105,7 +107,7 @@ public class TCPKVJsonIteratorWorker implements Runnable {
 		try {
 			// Write response to master for forwarding to client
 			OutputStream os = masterSocket.getOutputStream();
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			PrintWriter out = new PrintWriter(os, true);
@@ -129,10 +131,10 @@ public class TCPKVJsonIteratorWorker implements Runnable {
 					System.out.println("TCPKVJsonIteratorWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				InputStream ins = workerSocket.getInputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("TCPKVJsonIteratorWorker read "+inJson+" from "+workerSocket);
-				RemoteIteratorKVJsonClient iori = new Gson().fromJson(inJson,RemoteIteratorKVJsonClient.class);	
+				RemoteIteratorKVJsonClient iori = (RemoteIteratorKVJsonClient) inJson.toObject();//RemoteIteratorKVJsonClient.class);	
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixKVServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -146,7 +148,7 @@ public class TCPKVJsonIteratorWorker implements Runnable {
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixKVIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
-						result = TransportMorphism.createTransport(((AbstractRelation)result));
+						result = TransportMorphism.createTransport((Relation)result);
 					}
 					iori.setObjectReturn(result);
 				}

@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
@@ -145,7 +146,7 @@ public class TCPIteratorWorker implements Runnable {
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
-						result = TransportMorphism.createTransport(((AbstractRelation)result));
+						result = TransportMorphism.createTransport((Relation)result);
 					} else {
 						if(result instanceof Result) {
 							((Result) result).packForTransport();

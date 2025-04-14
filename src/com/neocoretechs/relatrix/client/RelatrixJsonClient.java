@@ -11,7 +11,8 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -87,7 +88,8 @@ public class RelatrixJsonClient extends RelatrixClient {
 				//  baos.write(buf,0,n);
 				//}
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RemoteResponseInterface iori = new Gson().fromJson(in.readLine(), RemoteResponseInterface.class);
+				JSONObject jobj = new JSONObject(in.readLine());
+				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//, RemoteResponseInterface.class);
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -134,7 +136,7 @@ public class RelatrixJsonClient extends RelatrixClient {
 	@Override
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
-		String iorij = new Gson().toJson(iori);
+		String iorij = JSONObject.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		os.write(iorij.getBytes());
 		os.flush();
@@ -154,7 +156,7 @@ public class RelatrixJsonClient extends RelatrixClient {
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = new Gson().toJson(cpi);
+		String cpij = JSONObject.toJson(cpi);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());
 		os.flush();

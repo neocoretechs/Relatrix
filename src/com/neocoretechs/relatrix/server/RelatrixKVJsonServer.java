@@ -10,7 +10,8 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorJsonServer;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
@@ -110,7 +111,8 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 					//
                     InputStream ins = datasocket.getInputStream();
         			BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-                    CommandPacketInterface o = new Gson().fromJson(in.readLine(), CommandPacket.class);
+        			JSONObject jobj = new JSONObject(in.readLine());
+                    CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//,CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V JsonServer command received:"+o);
                     // if we get a command packet with no statement, assume it to start a new instance

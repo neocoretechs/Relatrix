@@ -10,7 +10,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -36,7 +37,7 @@ public class TCPJsonKVWorker extends TCPWorker {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -61,7 +62,8 @@ public class TCPJsonKVWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RelatrixKVStatement iori = new Gson().fromJson(in.readLine(),RelatrixKVStatement.class);	
+				JSONObject jobj = new JSONObject(in.readLine());
+				RelatrixKVStatement iori = (RelatrixKVStatement) jobj.toObject();//,RelatrixKVStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
@@ -69,7 +71,7 @@ public class TCPJsonKVWorker extends TCPWorker {
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (IOException | InterruptedException ie) {
+		} catch (IOException | InterruptedException | InstantiationException | IllegalAccessException ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
 			}

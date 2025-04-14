@@ -17,8 +17,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
@@ -108,7 +110,7 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -133,10 +135,10 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 					System.out.println("TCPJsonIteratorTransactionWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				InputStream ins = workerSocket.getInputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorTransactionWorker read "+inJson+" from "+workerSocket);
-				RemoteIteratorJsonClientTransaction iori = new Gson().fromJson(inJson,RemoteIteratorJsonClientTransaction.class);	
+				RemoteIteratorJsonClientTransaction iori = (RemoteIteratorJsonClientTransaction) inJson.toObject();//,RemoteIteratorJsonClientTransaction.class);	
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorTransactionWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				if( iori.getMethodName().equals("close") ) {
@@ -153,7 +155,7 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
-						result = TransportMorphism.createTransport(((AbstractRelation)result));
+						result = TransportMorphism.createTransport((Relation)result);
 					} else {
 						if(result instanceof Result) {
 							((Result) result).packForTransport();

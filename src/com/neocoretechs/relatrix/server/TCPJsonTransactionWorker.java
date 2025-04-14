@@ -10,7 +10,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -36,13 +37,8 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
-			// Write response to master for forwarding to client
-			if(irf.getObjectReturn() instanceof Throwable) {
-				System.out.println("Exception detected:"+(irf.getObjectReturn()));
-				System.out.println(((Throwable)(irf.getObjectReturn())).getCause());
-				irf.setObjectReturn(((Throwable)irf.getObjectReturn()).getCause().getMessage());
-			}
-			String jirf = new Gson().toJson(irf);
+			// can't call getObjectReturn or it will unpack transport
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -67,7 +63,8 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RelatrixTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixTransactionStatement.class);	
+				JSONObject jobj = new JSONObject(in.readLine());
+				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
@@ -75,7 +72,7 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (IOException | InterruptedException ie) {
+		} catch (IOException | InterruptedException | InstantiationException | IllegalAccessException ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
 			}

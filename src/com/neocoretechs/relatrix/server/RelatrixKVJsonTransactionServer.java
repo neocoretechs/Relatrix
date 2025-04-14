@@ -10,7 +10,8 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorJsonTransactionServer;
 
@@ -114,7 +115,8 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 					//
                     InputStream ins = datasocket.getInputStream();
         			BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-                    CommandPacketInterface o = new Gson().fromJson(in.readLine(), CommandPacket.class);
+        			JSONObject jobj = new JSONObject(in.readLine());
+                    CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//, CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Json Transaction Server command received:"+o);
                     TCPJsonKVTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());

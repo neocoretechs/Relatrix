@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.*;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorJsonServer;
 
@@ -83,7 +83,8 @@ public final class RelatrixJsonServer extends RelatrixServer {
 				//
                 InputStream ins = datasocket.getInputStream();
     			BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-                CommandPacketInterface o = new Gson().fromJson(in.readLine(), CommandPacket.class);
+    			JSONObject jobj = new JSONObject(in.readLine());
+                CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//CommandPacketInterface.class);
 				if( DEBUGCOMMAND )
 					System.out.println("Relatrix Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

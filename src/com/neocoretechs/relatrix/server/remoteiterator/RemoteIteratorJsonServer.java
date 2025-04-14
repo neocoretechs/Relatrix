@@ -8,7 +8,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
@@ -47,10 +48,10 @@ public class RemoteIteratorJsonServer extends TCPServer {
 				datasocket.setSoLinger(true, 1);
 				//
 				BufferedReader in = new BufferedReader(new InputStreamReader(datasocket.getInputStream()));
-				String inLine = in.readLine();
+				JSONObject inLine = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("RemoteIteratorJsonServer "+datasocket+" raw data:"+inLine);
-				CommandPacket o = new Gson().fromJson(inLine,CommandPacket.class);	
+				CommandPacket o = (CommandPacket) inLine.toObject();//CommandPacket.class);	
 				if( DEBUG )
 					System.out.println("RemoteIteratorJsonServer command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

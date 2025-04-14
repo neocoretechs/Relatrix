@@ -43,7 +43,7 @@ public class Tuple implements TransportMorphismInterface, Serializable {
 		for(Comparable[] c: tuples) {
 			for(int i = 0; i < c.length; i++) {
 				if(c[i] instanceof AbstractRelation)
-					c[i] = createTransport((AbstractRelation)c[i]);
+					c[i] = createTransport((Relation)c[i]);
 			}
 		}
 	}
@@ -61,12 +61,12 @@ public class Tuple implements TransportMorphismInterface, Serializable {
 	}
 	
 	@Override
-	public TransportMorphism createTransport(AbstractRelation ar) {
+	public TransportMorphism createTransport(Relation ar) {
 		return TransportMorphism.createTransport(ar);
 	}
 	
 	@Override
-	public AbstractRelation createRelation(TransportMorphism tm) {
+	public Relation createRelation(TransportMorphism tm) {
 		return TransportMorphism.createMorphism(tm);
 	}
 	

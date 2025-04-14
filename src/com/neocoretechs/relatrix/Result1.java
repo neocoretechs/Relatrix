@@ -94,7 +94,7 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	@Override
 	public void packForTransport() {
 		if(one instanceof AbstractRelation)
-			one = createTransport((AbstractRelation) one);	
+			one = createTransport((Relation) one);	
 	}
 	
 	@Override
@@ -104,12 +104,12 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	}
 	
 	@Override
-	public TransportMorphism createTransport(AbstractRelation ar) {
+	public TransportMorphism createTransport(Relation ar) {
 		return TransportMorphism.createTransport(ar);
 	}
 	
 	@Override
-	public AbstractRelation createRelation(TransportMorphism tm) {
+	public Relation createRelation(TransportMorphism tm) {
 		return TransportMorphism.createMorphism(tm);
 	}
 	

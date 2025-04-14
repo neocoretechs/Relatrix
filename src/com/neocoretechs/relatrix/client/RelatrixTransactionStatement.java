@@ -31,6 +31,8 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
     public RelatrixTransactionStatement() {
     	super();
     }
+    
+    /*
     public RelatrixTransactionStatement(RelatrixTransactionStatement rts) {
     	super(rts.getMethodName(), rts.getParamArray());
     	this.transactionId = rts.transactionId;
@@ -39,7 +41,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
     	this.returnClass = rts.returnClass;
     	this.setObjectReturn(rts.getObjectReturn());
     }
-    
+    */
     public RelatrixTransactionStatement(String tmeth, Object ... o1) {
     	super(tmeth, o1);
     	if(o1.length > 1) {

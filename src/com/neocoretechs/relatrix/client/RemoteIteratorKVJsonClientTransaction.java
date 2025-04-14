@@ -15,7 +15,8 @@ import java.util.UUID;
 
 import java.util.concurrent.CountDownLatch;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.CommandPacket;
@@ -140,10 +141,10 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 			while(shouldRun) {
 				InputStream ins = sock.getInputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("RemoteIteratorKVJsonClientTransaction read "+inJson+" from "+sock);
-				returnPayload =  new Gson().fromJson(inJson,RemoteIteratorKVJsonClientTransaction.class);
+				returnPayload =  (RemoteIteratorKVJsonClientTransaction) inJson.toObject();//RemoteIteratorKVJsonClientTransaction.class);
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
@@ -176,7 +177,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 				waitSocket.wait();
 			}
 		}
-		String jirf = new Gson().toJson(this);
+		String jirf = JSONObject.toJson(this);
 		if(DEBUG)
 			System.out.println("Sending "+jirf+" to "+workerSocket);
 		OutputStream os = workerSocket.getOutputStream();
@@ -289,7 +290,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacket cpi = new CommandPacket(bootNode, MASTERPORT);
-		String jirf = new Gson().toJson(cpi);
+		String jirf = JSONObject.toJson(cpi);
 		if(DEBUG)
 			System.out.println("Fopen "+jirf+" to "+s);
 		OutputStream os = s.getOutputStream();

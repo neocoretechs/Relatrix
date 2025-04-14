@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class TransportMorphism implements Serializable, Comparable {
 	private static final long serialVersionUID = 654432956755099495L;
 	// AbstractRelation will store the keys to original AbstractRelation, domain, map, range instances are transient
-	private AbstractRelation abstractRelation;
+	private Relation abstractRelation;
 	private DBKey identity;
 	private Alias alias;
 	private TransactionId transactionId;
@@ -23,7 +23,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	protected Comparable domain;
 	protected Comparable map;
 	protected Comparable range;
-	private TransportMorphism(AbstractRelation abstractRelation) {
+	private TransportMorphism(Relation abstractRelation) {
 		this.abstractRelation = abstractRelation;
 		this.identity = abstractRelation.getIdentity();
 		this.alias = abstractRelation.getAlias();
@@ -33,23 +33,23 @@ public class TransportMorphism implements Serializable, Comparable {
 		this.range = abstractRelation.range;
 	}
 	
-	public static TransportMorphism createTransport(AbstractRelation m) {
-		if(m == null)
+	public static TransportMorphism createTransport(Relation result) {
+		if(result == null)
 			return null;
-		TransportMorphism t = new TransportMorphism(m);
-		resolve(m,t);
+		TransportMorphism t = new TransportMorphism(result);
+		resolve(result,t);
 		return t;
 	}
 	
-	public static AbstractRelation createMorphism(TransportMorphism t) {
+	public static Relation createMorphism(TransportMorphism t) {
 		if(t == null)
 			return null;
-		AbstractRelation m = t.getMorphism();
+		Relation m = t.getMorphism();
 		resolve(t,m);
 		return m;
 	}
 	
-	private AbstractRelation getMorphism() {
+	private Relation getMorphism() {
 		if(abstractRelation.getIdentity() == null && identity != null)
 			abstractRelation.setIdentity(identity);
 		if(abstractRelation.getAlias() == null && alias != null)
@@ -64,15 +64,15 @@ public class TransportMorphism implements Serializable, Comparable {
 	 */
 	private static void resolve(AbstractRelation target, TransportMorphism newTransport) {
 		if(target.domain instanceof AbstractRelation) {
-			newTransport.setDomain(new TransportMorphism((AbstractRelation) target.domain));
+			newTransport.setDomain(new TransportMorphism((Relation) target.domain));
 			resolve((AbstractRelation) target.domain, newTransport);
 		}	
 		if(target.map instanceof AbstractRelation) {
-			newTransport.setMap(new TransportMorphism((AbstractRelation) target.map));
+			newTransport.setMap(new TransportMorphism((Relation) target.map));
 			resolve((AbstractRelation) target.map, newTransport);
 		}
 		if(target.range instanceof AbstractRelation) {
-			newTransport.setRange(new TransportMorphism((AbstractRelation) target.range));
+			newTransport.setRange(new TransportMorphism((Relation) target.range));
 			resolve((AbstractRelation) target.range, newTransport);
 		}
 	}

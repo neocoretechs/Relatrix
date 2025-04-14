@@ -67,11 +67,11 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
 		super(flag, alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	Relation(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public Relation(Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(d, domainkey, m, mapKey, r, rangeKey);
 	}
 
-	Relation(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public Relation(Alias alias, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, d, domainkey, m, mapKey, r, rangeKey);
 	}
 	
@@ -87,7 +87,7 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
 		super(alias, transactionId, d, m, r);
 	}
 
-	Relation(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public Relation(Alias alias, TransactionId transactionId, Comparable d, DBKey domainkey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(alias, transactionId, d, domainkey, m, mapKey, r, rangeKey);
 	}
 
@@ -95,7 +95,7 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
 		super(flag, transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 
-	Relation(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
+	public Relation(TransactionId transactionId, Comparable d, DBKey domainKey, Comparable m, DBKey mapKey, Comparable r, DBKey rangeKey) {
 		super(transactionId, d, domainKey, m, mapKey, r, rangeKey);
 	}
 

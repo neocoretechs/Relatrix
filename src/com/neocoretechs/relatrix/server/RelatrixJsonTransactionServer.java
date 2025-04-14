@@ -10,7 +10,8 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorJsonTransactionServer;
 
@@ -65,7 +66,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	 */
 	public RelatrixJsonTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
@@ -80,7 +81,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	 */
 	public RelatrixJsonTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethodJson("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
@@ -103,7 +104,8 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 				String inJson = in.readLine();
 				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server read:"+inJson);
-				CommandPacket o = new Gson().fromJson(inJson, CommandPacket.class);
+				JSONObject jobj = new JSONObject(inJson);
+				CommandPacket o = (CommandPacket) jobj.toObject();//, CommandPacket.class);
 				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

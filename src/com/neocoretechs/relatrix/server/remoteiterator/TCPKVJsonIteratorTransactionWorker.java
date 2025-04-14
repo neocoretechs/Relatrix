@@ -15,9 +15,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorKVJsonClientTransaction;
@@ -104,7 +105,7 @@ public class TCPKVJsonIteratorTransactionWorker implements Runnable {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -131,10 +132,10 @@ public class TCPKVJsonIteratorTransactionWorker implements Runnable {
 				if(DEBUG)
 					System.out.println("TCPKVJsonIteratorTransactionWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("TCPKVJsonIteratorTransactionWorker read "+inJson+" from "+workerSocket);
-				RemoteIteratorKVJsonClientTransaction iori = new Gson().fromJson(inJson,RemoteIteratorKVJsonClientTransaction.class);	
+				RemoteIteratorKVJsonClientTransaction iori = (RemoteIteratorKVJsonClientTransaction) inJson.toObject();//RemoteIteratorKVJsonClientTransaction.class);	
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixKVTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -149,7 +150,7 @@ public class TCPKVJsonIteratorTransactionWorker implements Runnable {
 					Object result = relatrixKVIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixKVTransactionStatementInterface)iori).getTransactionId());
-						result = TransportMorphism.createTransport(((AbstractRelation)result));
+						result = TransportMorphism.createTransport((Relation)result);
 					}
 					iori.setObjectReturn(result);
 				}

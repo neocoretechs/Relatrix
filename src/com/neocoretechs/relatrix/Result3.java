@@ -115,11 +115,11 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 	@Override
 	public void packForTransport() {
 		if(one instanceof AbstractRelation)
-			one = createTransport((AbstractRelation) one);
+			one = createTransport((Relation) one);
 		if(two instanceof AbstractRelation)
-			two = createTransport((AbstractRelation) two);
+			two = createTransport((Relation) two);
 		if(three instanceof AbstractRelation)
-			three = createTransport((AbstractRelation) three);
+			three = createTransport((Relation) three);
 	}
 	
 	@Override

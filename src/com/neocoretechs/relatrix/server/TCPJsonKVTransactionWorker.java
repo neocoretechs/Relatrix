@@ -10,7 +10,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -36,7 +37,7 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -61,7 +62,8 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonKVTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RelatrixKVTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixKVTransactionStatement.class);	
+				JSONObject jobj = new JSONObject(in.readLine());
+				RelatrixKVTransactionStatement iori = (RelatrixKVTransactionStatement) jobj.toObject();//(,RelatrixKVTransactionStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonKVTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
@@ -69,7 +71,7 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (IOException | InterruptedException ie) {
+		} catch (IOException | InterruptedException | InstantiationException | IllegalAccessException ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
 			}

@@ -27,7 +27,7 @@ import java.util.zip.ZipInputStream;
 
 
 import com.neocoretechs.relatrix.Relation;
-import com.google.gson.Gson;
+
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransactionId;
@@ -660,10 +660,6 @@ public class ApacheLog {
 						//System.out.println(++cnt2+".) "+Arrays.toString(res.toArray()));
 						Relation r1 = (Relation)res.get(0);
 						System.out.println(++cnt2+".)"+r1.getDomain()+" "+r1.getMap()+" "+r1.getRange());
-						Gson gson = new Gson();
-						String json = gson.toJson(r1);
-						r1 = gson.fromJson(json, Relation.class);
-						System.out.println("from Json:"+r1.getDomain()+"--"+r1.getMap()+"--"+r1.getRange());
 						//System.out.println(result);
 						for(int i = 1; i < res.size(); i++) {
 							r1 = (Relation) res.get(i);

@@ -10,7 +10,8 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 //import com.neocoretechs.rocksack.SerializedComparator;
 //import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
@@ -80,7 +81,8 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 		  while(shouldRun ) {
 				InputStream ins = sock.getInputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RelatrixKVTransactionStatement iori = new Gson().fromJson(in.readLine(),RelatrixKVTransactionStatement.class);	
+				JSONObject jobj = new JSONObject(in.readLine());
+				RelatrixKVTransactionStatement iori = (RelatrixKVTransactionStatement) jobj.toObject();//,RelatrixKVTransactionStatement.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -136,7 +138,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 		//	byte[] b = SerializedComparator.serializeObject(iori);
 		//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 		//}
-		String iorij = new Gson().toJson(iori);
+		String iorij = JSONObject.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		if(DEBUG)
 			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
@@ -162,7 +164,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = new Gson().toJson(cpi);
+		String cpij = JSONObject.toJson(cpi);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());
 		os.flush();

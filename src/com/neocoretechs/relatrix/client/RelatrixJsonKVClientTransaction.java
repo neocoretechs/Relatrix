@@ -12,11 +12,11 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.TransactionId;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
@@ -81,7 +81,8 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 		  while(shouldRun ) {
 				InputStream ins = sock.getInputStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				RemoteResponseInterface iori = new Gson().fromJson(in.readLine(),RemoteResponseInterface.class);	
+				JSONObject jobj = new JSONObject(in.readLine());
+				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//,RemoteResponseInterface.class);	
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -126,7 +127,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-		String iorij = new Gson().toJson(iori);
+		String iorij = JSONObject.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		if(DEBUG)
 			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
@@ -156,8 +157,9 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 		s.setSendBufferSize(32767);
 		System.out.println("Socket created to "+s);
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = new Gson().toJson(cpi);
-		System.out.println(cpij);
+		String cpij = JSONObject.toJson(cpi);
+		if(DEBUG)
+			System.out.println(cpij);
 		OutputStream os = s.getOutputStream();
 		os.write(cpij.getBytes());
 		os.flush();

@@ -8,6 +8,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -25,7 +26,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  *
  */
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
     protected Alias alias = null;
@@ -114,7 +115,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof AbstractRelation) {
-			objectReturn = TransportMorphism.createTransport((AbstractRelation) o);
+			objectReturn = TransportMorphism.createTransport((Relation) o);
 		} else {
 			if(o instanceof TransportMorphismInterface)
 				((TransportMorphismInterface)o).packForTransport();
@@ -139,7 +140,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	protected void packParamArray() {
     	for(int i = 0; i < paramArray.length; i++) {
     		if(paramArray[i] instanceof AbstractRelation) {
-    			paramArray[i] = TransportMorphism.createTransport((AbstractRelation) paramArray[i]);
+    			paramArray[i] = TransportMorphism.createTransport((Relation) paramArray[i]);
     		} else {
     			if(paramArray[i] instanceof TransportMorphismInterface)
         			((TransportMorphismInterface)paramArray[i]).packForTransport();;

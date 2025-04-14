@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
@@ -37,10 +37,9 @@ public class TCPJsonWorker extends TCPWorker {
 			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
-			if(irf.getObjectReturn() instanceof Throwable)
-				irf.setObjectReturn(((Throwable)irf.getObjectReturn()).getMessage());
+			// cant call getObjectReturn from irf or it will unpack transport
 			// Write response to master for forwarding to client
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -65,10 +64,10 @@ public class TCPJsonWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("TCPJsonWorker read "+inJson+" from "+workerSocket);
-				RelatrixStatement iori = new Gson().fromJson(inJson,RelatrixStatement.class);	
+				RelatrixStatement iori = (RelatrixStatement) inJson.toObject();//,RelatrixStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
@@ -76,7 +75,7 @@ public class TCPJsonWorker extends TCPWorker {
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (IOException | InterruptedException ie) {
+		} catch (IOException | InterruptedException | InstantiationException | IllegalAccessException ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
 			}

@@ -17,7 +17,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorClient;
@@ -105,7 +106,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = new Gson().toJson(irf);
+			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
 			OutputStream os = masterSocket.getOutputStream();
@@ -132,10 +133,10 @@ public class TCPJsonIteratorWorker implements Runnable {
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorWorker read "+inJson+" from "+workerSocket);
-				RemoteIteratorJsonClient iori = new Gson().fromJson(inJson,RemoteIteratorJsonClient.class);	
+				RemoteIteratorJsonClient iori = (RemoteIteratorJsonClient) inJson.toObject();//RemoteIteratorJsonClient.class);	
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixServer.sessionToObject.remove(iori.getSession());
 				} else {
