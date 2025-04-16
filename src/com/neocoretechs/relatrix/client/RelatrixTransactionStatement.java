@@ -138,5 +138,9 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 	public TransactionId getTransactionId() {
 		return transactionId;
 	}
+	
+	public void setTransactionId(TransactionId transactionId) {
+		this.transactionId = transactionId;
+	}
 
 }

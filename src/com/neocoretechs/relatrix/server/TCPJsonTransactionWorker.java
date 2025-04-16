@@ -64,6 +64,8 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				JSONObject jobj = new JSONObject(in.readLine());
+				if(DEBUG)
+					System.out.printf("%s %s%n", this.getClass().getName(),jobj);
 				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);

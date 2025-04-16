@@ -55,7 +55,11 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 	public TransactionId getTransactionId() {
     	return xid;
     }
-
+	
+	public void setTransactionId(TransactionId transactionId) {
+		this.xid = transactionId;
+	}
+	
     @Override
     public synchronized String toString() { 
     	String s = super.toString();
