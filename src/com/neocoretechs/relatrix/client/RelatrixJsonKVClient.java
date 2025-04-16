@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Iterator;
@@ -87,11 +88,23 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
+	    		Class<?> returnClass = Class.forName(iori.getReturnClass());
 				if( o instanceof Exception ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixJsonKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					 o = ((Throwable)o).getCause();
-				}
+				} else {
+  	    			if(returnClass != o.getClass()) {
+  	    				// one way to correct mismatch - provide ctor with type of returnClass designated by method call return type
+  	    				try {
+  	    					Constructor co = returnClass.getConstructor(o.getClass());
+  	    					o = co.newInstance(o);
+  	    				} catch(Exception oe) {
+  	    					System.out.println("RelatrixJsonKVClient: ******** REMOTE EXCEPTION ******** "+oe);
+  	    					o = oe;
+  	    				}
+  	    			}
+  	    		}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					in.close();
