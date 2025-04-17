@@ -102,20 +102,22 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
   	    			System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
   	    		// unpack from TransportMorphism
   	    		Object o = iori.getObjectReturn();
-  	    		Class<?> returnClass = Class.forName(iori.getReturnClass());
   	    		// check for impedance mismatch in JSON return
-  	    		
   	    		// intercept remote stream, returned as a server side remote iterator and session info to communicate with remotely
   	    		// mostly, we just need the session and the fact its a type of stream with encapsulated iterator	
-  	    		if( o instanceof Exception ) {
+  	    		if( o instanceof Throwable ) {
   	    			System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    		} else {
+  		    		Class<?> returnClass = Class.forName(iori.getReturnClass());
   	    			if(returnClass != o.getClass()) {
   	    				// one way to correct mismatch - provide ctor with type of returnClass designated by method call return type
+  	    				// if exception was thrown, returnClass should be throwable
   	    				try {
   	    					Constructor co = returnClass.getConstructor(o.getClass());
   	    					o = co.newInstance(o);
+  	    					if(o instanceof Throwable)
+  	    						throw new Exception((String)((Throwable)o).getMessage());
   	    				} catch(Exception oe) {
   	    					System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+oe);
   	    					o = oe;

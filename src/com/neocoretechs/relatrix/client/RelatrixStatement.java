@@ -133,7 +133,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			if(objectReturn != null && objectReturn.getClass() == TransportMorphism.class)
 				objectReturn = TransportMorphism.createMorphism((TransportMorphism)objectReturn);
 		if(DEBUG)
-			System.out.printf("%s.getObjectReturn returning %s%n", this.getClass().getName(), objectReturn);
+			System.out.printf("%s.getObjectReturn returning class %s: %s%n", this.getClass().getName(), objectReturn.getClass().getName(), objectReturn);
 		return objectReturn;
 	}
 	

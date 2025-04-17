@@ -130,7 +130,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 				Object o = iori.getObjectReturn();
 				if( DEBUG )
 					 System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-				if( o instanceof Exception ) {
+				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					 o = ((Throwable)o).getCause();

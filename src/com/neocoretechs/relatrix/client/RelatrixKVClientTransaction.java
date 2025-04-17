@@ -140,7 +140,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
-				if( o instanceof Exception ) {
+				if( o instanceof Throwable ) {
 					System.out.println("RelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					o = ((Throwable)o).getCause();
 				}

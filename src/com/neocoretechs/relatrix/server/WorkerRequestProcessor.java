@@ -98,6 +98,7 @@ public final class WorkerRequestProcessor implements Runnable {
 		} catch (Exception e1) {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
 			iori.setObjectReturn(e1);
+			iori.setReturnClass("java.lang.Throwable");
 			// And finally, send the package back up the line
 			responseWorker.sendResponse(iori);
 		}

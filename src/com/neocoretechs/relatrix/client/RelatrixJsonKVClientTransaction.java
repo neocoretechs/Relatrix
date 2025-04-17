@@ -87,16 +87,18 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
-	    		Class<?> returnClass = Class.forName(iori.getReturnClass());
-				if( o instanceof Exception ) {
+				if( o instanceof Throwable ) {
 					System.out.println("RelatrixJsonKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					o = ((Throwable)o).getCause();
 				} else {
+		    		Class<?> returnClass = Class.forName(iori.getReturnClass());
   	    			if(returnClass != o.getClass()) {
   	    				// one way to correct mismatch - provide ctor with type of returnClass designated by method call return type
   	    				try {
   	    					Constructor co = returnClass.getConstructor(o.getClass());
   	    					o = co.newInstance(o);
+	    					if(o instanceof Throwable)
+  	    						throw new Exception((String)((Throwable)o).getMessage());
   	    				} catch(Exception oe) {
   	    					System.out.println("RelatrixJsonKVClientTransaction: ******** REMOTE EXCEPTION ******** "+oe);
   	    					o = oe;
