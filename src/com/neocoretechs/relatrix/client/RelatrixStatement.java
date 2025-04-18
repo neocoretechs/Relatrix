@@ -32,26 +32,36 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected Alias alias = null;
     protected String methodName;
     protected Object[] paramArray;
+    protected String[] paramTypes;
     private Object objectReturn;
     protected String returnClass;
+    protected transient Class<?>[] params = null;
     private transient CountDownLatch latch;
 
     public RelatrixStatement() {
-   		session = UUID.randomUUID().toString();
-   		this.paramArray = new Object[0];
     }
     
     public RelatrixStatement(String session) {
     	this.session = session;
     	this.paramArray = new Object[0];
+ 		this.paramTypes = new String[0];
+ 		this.params = new Class[0];
     }
     /**
-     * Prep RelatrixStatement to send remote method call
+     * Prep the statement for a remote call. Set our types to the actual class types for now..
+     * @param tmeth
+     * @param o1
      */
     public RelatrixStatement(String tmeth, Object ... o1) {
     	this.methodName = tmeth;
     	this.paramArray = o1;
     	this.session = UUID.randomUUID().toString();
+ 		this.paramTypes = new String[o1.length];
+ 		this.params = new Class<?>[o1.length];
+ 		for(int i = 0; i < o1.length; i++) {
+ 			paramTypes[i] = o1[i].getClass().getName();
+ 			params[i] = o1[i].getClass();
+ 		}
     	packParamArray();
     }
    
@@ -84,17 +94,24 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	this.paramArray = params;
     }
 
+    /**
+     * Get the parameters based on the paramTypes array using class.forName, if an exception is 
+     * thrown in that process, use getClass of the actual instance. We have to override any
+     * deserialization process that may have convoluted the original types in the parameter array
+     */
     @Override
-	public synchronized Class<?>[] getParams() {
-     	if( paramArray == null )
-    		paramArray = new Object[0];
-    	//System.out.println("params:"+paramArray.length);
-    	//for(int i = 0; i < paramArray.length; i++)
-    		//System.out.println("paramArray "+i+"="+paramArray[i]);
-        Class<?>[] c = new Class[paramArray.length];
-        for(int i = 0; i < paramArray.length; i++)
-                c[i] = paramArray[i].getClass();
-        return c;
+    public synchronized Class<?>[] getParams() {
+    	if(params == null) {
+    		params = new Class<?>[paramArray.length];
+    		for(int i = 0; i < paramArray.length; i++) {
+    			try {
+    				params[i] = Class.forName(paramTypes[i]); // set deserialization to rights
+    			} catch (ClassNotFoundException e) {
+    				params[i] = paramArray[i].getClass(); // default, may not be relevant
+    			}
+    		}
+    	}
+    	return params;
     }
     
     @Override

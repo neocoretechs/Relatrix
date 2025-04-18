@@ -10,6 +10,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONObject;
 
@@ -65,19 +67,30 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				String sobj = in.readLine();
-				if(sobj == null)
-					continue;
+				if(sobj == null) {
+					ins.close();
+					break;
+				}
 				JSONObject jobj = new JSONObject(sobj);
 				if(DEBUG) {
 					System.out.printf("%s %s%n", this.getClass().getName(),jobj);
-					ArrayList pa = (ArrayList)jobj.get("paramArray");
-					for(Object obj: pa) {
-						System.out.println(obj.getClass().getName()+" -- "+obj);
-					}
 				}
-				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);	
+				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);
 				if( DEBUG ) {
 					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					if(iori.getParamArray() != null)
+						for(int i = 0; i < iori.getParamArray().length; i++) {
+							Object op = iori.getParamArray()[i];
+							Class<?> cp = iori.getParams()[i];
+							if(op != null) {
+								System.out.println(cp+" type:"+op.getClass().getName()+" -- "+op);
+								if(op instanceof Map)
+									for(Object mp: ((Map)op).entrySet()) {
+										Entry emp = (Entry)mp;
+										System.out.println("\t"+emp.getKey()+" == "+emp.getValue().getClass().getName()+" -- "+emp.getValue());
+									}
+							}
+						}
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
