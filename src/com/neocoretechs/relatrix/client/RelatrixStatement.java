@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;

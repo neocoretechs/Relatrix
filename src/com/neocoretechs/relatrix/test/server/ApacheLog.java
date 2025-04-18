@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.Relation;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.server.ErrorUtil;
 

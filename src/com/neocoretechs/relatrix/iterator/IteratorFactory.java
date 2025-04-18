@@ -4,9 +4,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
-
 
 	/**
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors

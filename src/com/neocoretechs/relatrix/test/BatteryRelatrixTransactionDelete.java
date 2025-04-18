@@ -15,9 +15,8 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.IndexResolver;
-
 
 /**
  * The set of tests verifies the delete functions in the {@link  RelatrixTransaction}<p/>

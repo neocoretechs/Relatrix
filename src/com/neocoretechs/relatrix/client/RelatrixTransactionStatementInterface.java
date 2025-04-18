@@ -1,6 +1,6 @@
 package com.neocoretechs.relatrix.client;
 
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Defines the contract for remote calls to the Relatrix server. Ensured a transactionId is available

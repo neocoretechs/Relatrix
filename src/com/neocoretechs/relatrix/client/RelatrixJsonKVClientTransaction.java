@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 

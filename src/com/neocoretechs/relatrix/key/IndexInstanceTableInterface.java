@@ -3,9 +3,9 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 
 
 /**

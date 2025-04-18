@@ -62,7 +62,10 @@ public class TCPJsonKVWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject jobj = new JSONObject(in.readLine());
+				String sobj = in.readLine();
+				if(sobj == null)
+					continue;
+				JSONObject jobj = new JSONObject(sobj);
 				RelatrixKVStatement iori = (RelatrixKVStatement) jobj.toObject();//,RelatrixKVStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonWorker FROM REMOTE on port:"+workerSocket+" "+iori);

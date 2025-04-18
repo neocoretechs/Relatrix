@@ -6,9 +6,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.Alias;
-import com.neocoretechs.relatrix.TransactionId;
-
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p/>

@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.ArrayList;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
-
 
 public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInterface{
 

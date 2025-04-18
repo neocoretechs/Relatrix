@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
 
-import com.neocoretechs.relatrix.Alias;
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 public abstract class RelatrixKVClientTransactionInterfaceImpl implements RelatrixKVClientTransactionInterface{
 

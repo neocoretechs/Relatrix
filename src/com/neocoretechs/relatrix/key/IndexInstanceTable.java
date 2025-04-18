@@ -7,12 +7,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
 
 import com.neocoretechs.rocksack.KeyValue;
@@ -439,7 +439,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		TransactionalMap tm = RelatrixKVTransaction.getMap(DBKey.class, transactionId);
-		Object o =  tm.get(transactionId.getRocksackTransactionId(), index);
+		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
 		o = ((KeyValue)o).getmValue();
@@ -454,7 +454,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
 		TransactionalMap tm = RelatrixKVTransaction.getMap(alias, DBKey.class, transactionId);
-		Object o =  tm.get(transactionId.getRocksackTransactionId(), index);
+		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
 		o = ((KeyValue)o).getmValue();

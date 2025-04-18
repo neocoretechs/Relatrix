@@ -6,13 +6,11 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
 
-
 import java.util.ArrayList;
 import com.neocoretechs.relatrix.type.RelationList;
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.TransactionId;
-
+import com.neocoretechs.rocksack.TransactionId;
 
 public interface RelatrixClientTransactionInterface{
 

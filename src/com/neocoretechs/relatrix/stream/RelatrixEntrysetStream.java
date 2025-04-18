@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 
 

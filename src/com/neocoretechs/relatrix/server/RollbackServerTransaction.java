@@ -1,6 +1,6 @@
 package com.neocoretechs.relatrix.server;
 
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 
 /**

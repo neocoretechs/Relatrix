@@ -4,7 +4,7 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.neocoretechs.relatrix.TransactionId;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;

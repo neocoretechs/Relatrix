@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapDomainRange;
-
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor

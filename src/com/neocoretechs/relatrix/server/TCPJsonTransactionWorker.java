@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 import org.json.JSONObject;
 
@@ -63,9 +64,17 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject jobj = new JSONObject(in.readLine());
-				if(DEBUG)
+				String sobj = in.readLine();
+				if(sobj == null)
+					continue;
+				JSONObject jobj = new JSONObject(sobj);
+				if(DEBUG) {
 					System.out.printf("%s %s%n", this.getClass().getName(),jobj);
+					ArrayList pa = (ArrayList)jobj.get("paramArray");
+					for(Object obj: pa) {
+						System.out.println(obj.getClass().getName()+" -- "+obj);
+					}
+				}
 				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);	
 				if( DEBUG ) {
 					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);

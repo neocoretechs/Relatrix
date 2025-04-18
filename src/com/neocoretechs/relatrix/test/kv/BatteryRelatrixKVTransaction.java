@@ -7,8 +7,7 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.TransactionId;
-
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Transaction KV client test battery. Test of transaction KV server.

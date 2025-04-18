@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 
 /**

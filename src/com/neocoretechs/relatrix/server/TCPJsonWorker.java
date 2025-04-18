@@ -64,7 +64,10 @@ public class TCPJsonWorker extends TCPWorker {
 				if(DEBUG)
 					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject inJson = new JSONObject(in.readLine());
+				String sobj = in.readLine();
+				if(sobj == null)
+					continue;
+				JSONObject inJson = new JSONObject(sobj);
 				if(DEBUG)
 					System.out.println("TCPJsonWorker read "+inJson+" from "+workerSocket);
 				RelatrixStatement iori = (RelatrixStatement) inJson.toObject();//,RelatrixStatement.class);	

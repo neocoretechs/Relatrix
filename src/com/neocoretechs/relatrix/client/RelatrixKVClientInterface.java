@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.Alias;
+import com.neocoretechs.rocksack.Alias;
 
 import java.util.List;
 
