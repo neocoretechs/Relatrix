@@ -5,8 +5,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -19,9 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.client.RelatrixStatement;
-import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
-import com.neocoretechs.relatrix.client.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.RemoteIteratorJsonClient;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -36,7 +31,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPJsonIteratorWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -102,7 +97,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// Write response to master for forwarding to client

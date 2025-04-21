@@ -33,7 +33,7 @@ public class TCPJsonKVWorker extends TCPWorker {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// Write response to master for forwarding to client

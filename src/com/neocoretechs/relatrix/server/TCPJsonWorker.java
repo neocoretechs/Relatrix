@@ -34,7 +34,7 @@ public class TCPJsonWorker extends TCPWorker {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// cant call getObjectReturn from irf or it will unpack transport

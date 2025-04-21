@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.json.JSONObject;
+import org.json.reflect.JsonUtil;
+import org.json.reflect.ReflectFieldsAndMethods;
 
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
@@ -37,7 +39,7 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// can't call getObjectReturn or it will unpack transport
@@ -76,6 +78,8 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 					System.out.printf("%s %s%n", this.getClass().getName(),jobj);
 				}
 				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);
+				if(iori.getParamArray() != null)
+					JsonUtil.generateParams(iori.getParamArray(), iori.getParams());
 				if( DEBUG ) {
 					System.out.println("TCPJsonTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 					if(iori.getParamArray() != null)

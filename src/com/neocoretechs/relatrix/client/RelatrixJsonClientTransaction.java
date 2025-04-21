@@ -111,6 +111,8 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
   	    		} else {
   		    		Class<?> returnClass = Class.forName(iori.getReturnClass());
   	    			if(returnClass != o.getClass()) {
+  	    				if(DEBUG)
+  	    					System.out.println("RelatrixJsonClientTransaction class mismatch expected:"+returnClass+" got:"+o.getClass());
   	    				// one way to correct mismatch - provide ctor with type of returnClass designated by method call return type
   	    				// if exception was thrown, returnClass should be throwable
   	    				try {

@@ -37,7 +37,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPKVIteratorTransactionWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -103,7 +103,7 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// Write response to master for forwarding to client

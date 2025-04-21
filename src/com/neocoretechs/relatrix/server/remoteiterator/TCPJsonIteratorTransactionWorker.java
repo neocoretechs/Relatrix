@@ -5,8 +5,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -39,7 +37,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPJsonIteratorTransactionWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -106,7 +104,7 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from worker to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// Write response to master for forwarding to client
