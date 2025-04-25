@@ -20,6 +20,7 @@ import org.json.reflect.ReflectFieldsAndMethods;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.json.RelatrixJsonTransactionStatement;
 import com.neocoretechs.relatrix.server.TCPWorker;
 
 
@@ -78,7 +79,7 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 				if(DEBUG) {
 					System.out.printf("%s %s%n", this.getClass().getName(),jobj);
 				}
-				RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);
+				RelatrixJsonTransactionStatement iori = (RelatrixJsonTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);
 				if(iori.getParamArray() != null)
 					JsonUtil.generateParams(iori.getParamArray(), iori.getParams());
 				if( DEBUG ) {

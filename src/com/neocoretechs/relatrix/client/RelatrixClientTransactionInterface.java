@@ -12,7 +12,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.rocksack.TransactionId;
 
-public interface RelatrixClientTransactionInterface{
+public interface RelatrixClientTransactionInterface extends ClientTransactionInterface{
 
 	public Stream findStream(TransactionId arg1,Character arg2,Object arg3,Character arg4) throws java.io.IOException;
 

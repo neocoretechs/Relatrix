@@ -13,7 +13,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
 
 
-public interface RelatrixClientInterface{
+public interface RelatrixClientInterface extends ClientNonTransactionInterface {
 
 	public Object lastKey(Alias arg1) throws java.io.IOException;
 

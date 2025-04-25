@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
 import java.io.Serializable;
@@ -11,6 +11,9 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
+import com.neocoretechs.relatrix.client.RelatrixStatement;
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteIteratorClient;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
@@ -25,7 +28,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
+public class RelatrixJsonStatement extends RelatrixStatement implements RelatrixStatementInterface, Serializable {
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
@@ -38,10 +41,10 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected transient Class<?>[] params = null;
     private transient CountDownLatch latch;
 
-    public RelatrixStatement() {
+    public RelatrixJsonStatement() {
     }
     
-    public RelatrixStatement(String session) {
+    public RelatrixJsonStatement(String session) {
     	this.session = session;
     	this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
@@ -52,7 +55,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
      * @param tmeth
      * @param o1
      */
-    public RelatrixStatement(String tmeth, Object ... o1) {
+    public RelatrixJsonStatement(String tmeth, Object ... o1) {
     	this.methodName = tmeth;
     	this.paramArray = o1;
     	this.session = UUID.randomUUID().toString();

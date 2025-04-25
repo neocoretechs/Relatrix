@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -41,7 +43,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface, ClientInterface,Runnable {
+public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface, ClientTransactionInterface,Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
@@ -292,7 +294,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	
 	@Override
 	public String toString() {
-		return String.format("Relatrix server BootNode:%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",bootNode, remoteNode, remotePort, sock, workerSocket);
+		return String.format("%s BootNode:%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",this.getClass().getName(), remoteNode, remotePort, sock, workerSocket);
 	}
 	static int i = 0;
 	/**
@@ -332,7 +334,5 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		rc.endTransaction(xid);
 		rc.close();
 	}
-
-
 
 }

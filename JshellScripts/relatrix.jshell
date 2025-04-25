@@ -4,5 +4,6 @@ import com.neocoretechs.rocksack.*;
 import com.neocoretechs.relatrix.*;
 import com.neocoretechs.relatrix.test.*;
 import com.neocoretechs.relatrix.client.*;
+import com.neocoretechs.relatrix.client.json.*;
 
 

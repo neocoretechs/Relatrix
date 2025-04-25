@@ -1,11 +1,8 @@
 package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
-import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 

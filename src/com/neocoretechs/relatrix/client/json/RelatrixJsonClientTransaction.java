@@ -5,31 +5,40 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.ClientInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
+
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 
 /**
- * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
+ * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixJsonTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
  * On the client and server the following are present as conventions:<br/>
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
@@ -38,7 +47,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the {@link RelatrixTransactionServer}. The client contacts the boot time server port, the desired database
+ * which is the {@link RelatrixJsonTransactionServer}. The client contacts the boot time server port, the desired database
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
@@ -46,15 +55,31 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
 
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
- * The {@link RelatrixTransactionStatement} contains the transaction Id.
+ * The {@link RelatrixJsonTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixJsonClientTransaction extends RelatrixClientTransaction implements ClientInterface, Runnable {
+public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransactionInterfaceImpl implements ClientTransactionInterface, Runnable {
 	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
+	private String bootNode, remoteNode;
+	private int remotePort;
+	
+	protected int MASTERPORT = 9878; // master port, accepts connection from remote server
+	protected int SLAVEPORT = 9879; // slave port, conects to remote, sends outbound requests to master port of remote
+	
+	protected InetAddress IPAddress = null; // remote server address
+	private InetAddress localIPAddress = null; // local server address
+
+	protected Socket workerSocket = null; // socket assigned to slave port
+	protected ServerSocket masterSocket; // master socket connected back to via server
+	protected Socket sock; // socket of mastersocket
+	//private SocketAddress masterSocketAddress; // address of master
+	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
+	
+	protected ConcurrentHashMap<String, RelatrixJsonTransactionStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixJsonTransactionStatement>();
 
 	/**
 	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -67,9 +92,130 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 	 * @throws IOException
 	 */
 	public RelatrixJsonClientTransaction(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		super(bootNode, remoteNode, remotePort);
+		this.bootNode = bootNode;
+		this.remoteNode = remoteNode;
+		this.remotePort = remotePort;
+		IndexResolver.setRemoteTransaction(this);
+		if( TEST ) {
+			IPAddress = InetAddress.getLocalHost();
+		} else {
+			IPAddress = InetAddress.getByName(remoteNode);
+		}
+		if( DEBUG ) {
+			System.out.println("RelatrixJsonClientTransaction constructed with remote:"+IPAddress);
+		}
+		localIPAddress = InetAddress.getByName(bootNode);
+		//
+ 		// Wait for master server node to connect back to here for return channel communication
+		//
+		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
+		masterSocket = new ServerSocket(0, 1000, localIPAddress);
+		MASTERPORT = masterSocket.getLocalPort();
+		SLAVEPORT = remotePort;
+		// send message to spin connection
+		workerSocket = Fopen(bootNode);
+		//masterSocket.bind(masterSocketAddress);
+		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
+		ThreadPoolManager.getInstance().spin(this);
 	}
 
+	@Override
+	public Object sendCommand(RelatrixTransactionStatementInterface rs) throws Exception {
+		CountDownLatch cdl = new CountDownLatch(1);
+		rs.setCountDownLatch(cdl);
+		send(rs);
+		cdl.await();
+		Object o = rs.getObjectReturn();
+		outstandingRequests.remove(rs.getSession());
+		if(o instanceof Exception)
+			throw (Exception)o;
+		return o;
+	}
+
+
+	public void close() {
+		shouldRun = false;
+		try {
+			sock.close();
+		} catch (IOException e) {}
+		sock = null;
+		synchronized(waitHalt) {
+			try {
+				waitHalt.wait();
+			} catch (InterruptedException ie) {}
+		}
+		ThreadPoolManager.getInstance().shutdown(); // client threads
+	}
+	
+	protected void shutdown() {
+		if( sock != null ) {
+			try {
+				sock.close();
+			} catch (IOException e) {}
+		}
+		if( workerSocket != null ) {
+			try {
+				workerSocket.close();
+			} catch (IOException e2) {}
+			workerSocket = null;
+		}
+		if( masterSocket != null ) {
+			try {
+				masterSocket.close();
+			} catch (IOException e2) {}
+			masterSocket = null;
+		}
+		shouldRun = false;
+	}
+	
+	public String getLocalNode() {
+		return bootNode;
+	}
+	
+	public String getRemoteNode() {
+		return remoteNode;
+	}
+	
+	public int getRemotePort( ) {
+		return remotePort;
+	}
+
+	/**
+	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param xid Transaction Id
+	 * @param rii RelatrixTransactionStatement
+	 * @return The next iterated object or null
+	 */
+	public Object next(RelatrixJsonTransactionStatement rii) throws Exception {
+		rii.methodName = "next";
+		rii.paramArray = new Object[0];
+		return sendCommand(rii);
+	}
+	/**
+	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param xid Transaction Id
+	 * @param rii RelatrixTransactionStatement
+	 * @return The boolean result of hasNext on server
+	 */	
+	public boolean hasNext(RelatrixJsonTransactionStatement rii) throws Exception {
+		rii.methodName = "hasNext";
+		rii.paramArray = new Object[0];
+		return (boolean) sendCommand(rii);
+	}
+
+	/**
+	 * Issue a close which will merely remove the request resident object here and on the server
+	 * @param rii
+	 */
+	public void close(RelatrixJsonTransactionStatement rii) throws Exception {
+		rii.methodName = "close";
+		rii.paramArray = new Object[0];
+		sendCommand(rii);
+	}
 	/**
 	* Set up the socket to receive the queued response from TCPJsonTransactionWorker on server
 	 */
@@ -132,7 +278,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
   	    				}
   	    			}
   	    		}
-  	    		RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
+  	    		RelatrixJsonTransactionStatement rs = (RelatrixJsonTransactionStatement) outstandingRequests.get(iori.getSession());
   	    		if( rs == null ) {
   	    			in.close();
   	    			throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
@@ -167,9 +313,8 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
-	@Override
 	public void send(RemoteRequestInterface iori) throws Exception {
-		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
+		outstandingRequests.put(iori.getSession(), (RelatrixJsonTransactionStatement) iori);
 		String iorij = JSONObject.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		PrintWriter out = new PrintWriter(os, true);
@@ -186,7 +331,6 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 	 * @return Opened socket
 	 * @throws IOException
 	 */
-	@Override
 	public Socket Fopen(String bootNode) throws IOException {
 		Socket s = new Socket(IPAddress, SLAVEPORT);
 		s.setKeepAlive(true);
@@ -215,7 +359,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 	public static void main(String[] args) throws Exception {
 		RelatrixJsonClientTransaction rc = new RelatrixJsonClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
 		TransactionId xid = rc.getTransactionId();
-		RelatrixTransactionStatement rs = null;
+		RelatrixJsonTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
 				Iterator it = rc.entrySet(xid,Class.forName(args[3]));
@@ -225,16 +369,16 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4]);
+				rs = new RelatrixJsonTransactionStatement(args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5]);
+				rs = new RelatrixJsonTransactionStatement(args[3],xid,args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixJsonTransactionStatement(args[3],xid,args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				rs = new RelatrixJsonTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
