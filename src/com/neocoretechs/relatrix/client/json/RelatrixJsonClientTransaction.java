@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -18,6 +18,12 @@ import java.util.stream.Stream;
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.client.ClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
+import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
+import com.neocoretechs.relatrix.client.RemoteRequestInterface;
+import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 
@@ -96,7 +102,7 @@ public class RelatrixJsonClientTransaction extends RelatrixClientTransaction imp
   	    			System.out.println("RelatrixJsonClientTransaction "+sock+" raw data:"+inLine);
   	    		}
   	    		JSONObject jobj = new JSONObject(inLine);
-  	    		RelatrixTransactionStatement iori = (RelatrixTransactionStatement) jobj.toObject();//,RelatrixTransactionStatement.class);
+  	    		RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//,RelatrixTransactionStatement.class);
   	    		// get the original request from the stored table
   	    		if( DEBUG )
   	    			System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);

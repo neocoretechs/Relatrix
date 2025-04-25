@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.server;
+package com.neocoretechs.relatrix.server.json;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.server.TCPWorker;
 
 
 public class TCPJsonWorker extends TCPWorker {

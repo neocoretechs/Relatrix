@@ -1,9 +1,9 @@
-package com.neocoretechs.relatrix.server.remoteiterator;
+package com.neocoretechs.relatrix.server.remoteiterator.json;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
+
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**

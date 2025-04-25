@@ -60,7 +60,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
 	}
 	
-	RelatrixKVTransactionServer() {}
+	protected RelatrixKVTransactionServer() {}
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.

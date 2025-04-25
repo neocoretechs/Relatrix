@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.server;
+package com.neocoretechs.relatrix.server.json;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -12,14 +12,15 @@ import java.net.SocketException;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
+import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.server.TCPWorker;
 
-public class TCPJsonKVTransactionWorker extends TCPWorker {
+public class TCPJsonKVWorker extends TCPWorker {
 	private static boolean DEBUG = true;
 
-	public TCPJsonKVTransactionWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
+	public TCPJsonKVWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);
 	}
 	/**
@@ -60,15 +61,15 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 			while(shouldRun) {
 				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPJsonKVTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				String sobj = in.readLine();
 				if(sobj == null)
 					continue;
 				JSONObject jobj = new JSONObject(sobj);
-				RelatrixKVTransactionStatement iori = (RelatrixKVTransactionStatement) jobj.toObject();//(,RelatrixKVTransactionStatement.class);	
+				RelatrixKVStatement iori = (RelatrixKVStatement) jobj.toObject();//,RelatrixKVStatement.class);	
 				if( DEBUG ) {
-					System.out.println("TCPJsonKVTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println("TCPJsonWorker FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
@@ -82,7 +83,7 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 		}
 		finally {
 			if( DEBUG ) {
-				System.out.println("TCPJsonKVTransactionWorker closing:"+workerSocket);
+				System.out.println("TCPJsonWorker closing:"+workerSocket);
 			}
 			shouldRun = false;
 			try {

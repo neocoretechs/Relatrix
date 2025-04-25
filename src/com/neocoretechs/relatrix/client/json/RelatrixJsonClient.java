@@ -1,26 +1,29 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.json.JSONObject;
 
-//import com.neocoretechs.rocksack.SerializedComparator;
-//import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.RelatrixStatement;
+import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
+import com.neocoretechs.relatrix.client.RemoteRequestInterface;
+import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 
 /**
- * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
+ * This class functions as client to the RelatrixServer Worker threads located on a remote node.
  * On the client and server the following are present as conventions:<br/>
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
  * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
@@ -32,34 +35,34 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
+ * The client thread initiates with a CommandPacketInterface.<p/>
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixJsonKVClient extends RelatrixKVClient {
+public class RelatrixJsonClient extends RelatrixClient {
 	private static final boolean DEBUG = false;
-	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
-	public static boolean SHOWDUPEKEYEXCEPTION = false;
+	public static final boolean TEST = false; // true to run in local cluster test mode
+	public static boolean SHOWDUPEKEYEXCEPTION = true;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
-
+	
 	/**
 	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
 	 * database and get back the master and slave ports of the remote server. The main client thread then
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
+	 * @param bootNode Name of local master socket to coonect back to
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixJsonKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
+	public RelatrixJsonClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
 		super(bootNode, remoteNode, remotePort);
 	}
-	
+
 	/**
 	* Set up the socket 
-	 */
+	*/
 	@Override
 	public void run() {
   	    //SocketChannel sock;
@@ -71,26 +74,36 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("RelatrixJsonKVClient server socket accept failed with "+e1);
+			System.out.println("RelatrixJsonClient server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
   	    if( DEBUG ) {
-  	    	 System.out.println("RelatrixJsonKVClient got connection "+sock);
+  	    	 System.out.println("RelatrixJsonClient got connection "+sock);
   	    }
   	    try {
 		  while(shouldRun ) {
 				InputStream ins = sock.getInputStream();
+				if(DEBUG)
+					System.out.println("RelatrixJsonClient "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
+				//ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				//while(true) {
+				//  int n = ins.read(buf);
+				//  if( n < 0 ) break;
+				//  baos.write(buf,0,n);
+				//}
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				JSONObject jobj = new JSONObject(in.readLine());
-				RelatrixKVTransactionStatement iori = (RelatrixKVTransactionStatement) jobj.toObject();//,RelatrixKVTransactionStatement.class);	
+				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//, RemoteResponseInterface.class);
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
+				if( DEBUG )
+					 System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
-						System.out.println("RelatrixJsonKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+						System.out.println("RelatrixJsonClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					 o = ((Throwable)o).getCause();
 				} else {
 		    		Class<?> returnClass = Class.forName(iori.getReturnClass());
@@ -102,32 +115,32 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	    					if(o instanceof Throwable)
   	    						throw new Exception((String)((Throwable)o).getMessage());
   	    				} catch(Exception oe) {
-  	    					System.out.println("RelatrixJsonKVClient: ******** REMOTE EXCEPTION ******** "+oe);
+  	    					System.out.println("RelatrixJsonClient: ******** REMOTE EXCEPTION ******** "+oe);
   	    					o = oe;
   	    				}
   	    			}
   	    		}
-				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
+				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					in.close();
 					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
-					// We have the request after its session round trip, get it from outstanding waiters and signal
-					// set it with the response object
 					if(o instanceof Iterator)
 						((RemoteCompletionInterface)o).process();
+					// We have the request after its session round trip, get it from outstanding waiters and signal
+					// set it with the response object
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
 					rs.getCountDownLatch().countDown();
 				}
 		  }
 		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
+			//if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
 				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
-			}
+			//}
 		} finally {
 			shutdown();
   	    }
@@ -141,28 +154,11 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	 */
 	@Override
 	public void send(RemoteRequestInterface iori) throws Exception {
-		if(DEBUG) {
-			System.out.println("Attempting to send "+iori+" to "+workerSocket);
-			if(workerSocket != null)
-				System.out.println("Socket bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-			else
-				System.out.println("Socket NULL!");
-		}
-		outstandingRequests.put(iori.getSession(), (RelatrixKVTransactionStatement) iori);
-		//if(DEBUG) {
-		//	byte[] b = SerializedComparator.serializeObject(iori);
-		//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		//}
+		outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
 		String iorij = JSONObject.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
-		if(DEBUG)
-			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 		os.write(iorij.getBytes());
-		if(DEBUG)
-			System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 		os.flush();
-		if(DEBUG)
-			System.out.println(iori+" sent to "+workerSocket);
 	}
 
 	/**
@@ -193,55 +189,39 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	
 	static int i = 0;
 	/**
-	 * case 4:
-	 * <dd>Generic call to server: localaddr, remote addr, port, class
-	 * <dd>Displays entry set stream of class from database running on addr and port
-	 * <dd>case 5-8:
-	 * <dd>Call to server method: localaddr, remote addr, port, server_method <arg1> <arg2> ... 
-	 * <dd>Invokes named method on the server at host and port using the given string arguments.<p/>
-	 * Note that method must accept the number of string arguments provided, such as loadClassFromJar <jar>
-	 * and loadClassFromPath <package> <path> and removePackageFromRepository <package>.<p/>
+	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		//RelatrixKVClient rc = new RelatrixKVClient("localhost","localhost", 9000);
-		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
-		//rc.send(rs);
-		i = 0;
-		RelatrixJsonKVClient rc = new RelatrixJsonKVClient(args[0],args[1],Integer.parseInt(args[2]));
-
+		RelatrixJsonClient rc = new RelatrixJsonClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixStatement rs = null;
 		switch(args.length) {
 			case 4:
-				Iterator it = (Iterator) rc.entrySet(Class.forName(args[3]));
-				new RemoteStream(it).forEach(e ->{	
-					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
-				});
-				/*
+				Iterator it = rc.entrySet(Class.forName(args[3]));
 				it.forEachRemaining(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
-				*/
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVStatement(args[3],args[4]);
+				rs = new RelatrixStatement(args[3],args[4]);
 				break;
 			case 6:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5]);
+				rs = new RelatrixStatement(args[3],args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6]);
+				rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
 				return;
 		}
-		rc.sendCommand(rs);
+		System.out.println(rc.sendCommand(rs));
+		//rc.send(rs);
 		rc.close();
 	}
-
 	
 }

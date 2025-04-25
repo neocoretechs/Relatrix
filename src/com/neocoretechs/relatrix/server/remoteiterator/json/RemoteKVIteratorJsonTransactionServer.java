@@ -1,9 +1,8 @@
-package com.neocoretechs.relatrix.server.remoteiterator;
+package com.neocoretechs.relatrix.server.remoteiterator.json;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
+
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
  * When an iterator is created for remote delivery of objects, the address of the remote server
@@ -26,12 +25,12 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class RemoteKVIteratorJsonServer extends TCPServer {
-	private ConcurrentHashMap<String, TCPKVJsonIteratorWorker> dbToWorker = new ConcurrentHashMap<String, TCPKVJsonIteratorWorker>();
+public class RemoteKVIteratorJsonTransactionServer extends TCPServer {
+	private ConcurrentHashMap<String, TCPKVJsonIteratorTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPKVJsonIteratorTransactionWorker>();
 	private static  boolean DEBUG = false;
 	private String iteratorClass;
 	
-	public RemoteKVIteratorJsonServer(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {
+	public RemoteKVIteratorJsonTransactionServer(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {
 		super();
 		this.iteratorClass = iteratorClass;
 		startServer(port, host, iteratorClass);
@@ -50,13 +49,13 @@ public class RemoteKVIteratorJsonServer extends TCPServer {
 				BufferedReader in = new BufferedReader(new InputStreamReader(datasocket.getInputStream()));
 				JSONObject inLine = new JSONObject(in.readLine());
 				if(DEBUG)
-					System.out.println("RemoteKVIteratorJsonServer "+datasocket+" raw data:"+inLine);
-				CommandPacket o = (CommandPacket) inLine.toObject();//CommandPacket.class);	
+					System.out.println("RemoteKVIteratorJsonTransactionServer "+datasocket+" raw data:"+inLine);
+				CommandPacket o = (CommandPacket) inLine.toObject();	
 				if( DEBUG )
-					System.out.println("RemoteKVIteratorJsonServer command received:"+o);
+					System.out.println("RemoteKVIteratorJsonTransactionServer command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
-				TCPKVJsonIteratorWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPKVJsonIteratorTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
 				if( uworker != null ) {
 					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
@@ -64,18 +63,18 @@ public class RemoteKVIteratorJsonServer extends TCPServer {
 					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPKVJsonIteratorWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
+				uworker = new TCPKVJsonIteratorTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				ThreadPoolManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RemoteKVIteratorJsonServer starting new worker "+uworker+
+					System.out.println("RemoteKVIteratorJsonTransactionServer starting new worker "+uworker+
 							//( rdb != null ? "remote db:"+rdb : "" ) +
 							" master port:"+o.getMasterPort());
 				}
 
 			} catch(Exception e) {
-				System.out.println("RemoteKVIteratorJsonServer Server node configuration server socket accept exception "+e);
+				System.out.println("RemoteKVIteratorJsonTransactionServer Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

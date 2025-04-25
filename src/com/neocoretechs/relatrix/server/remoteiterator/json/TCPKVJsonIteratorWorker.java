@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.server.remoteiterator;
+package com.neocoretechs.relatrix.server.remoteiterator.json;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -21,7 +21,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 
-import com.neocoretechs.relatrix.client.RemoteIteratorKVJsonClient;
+import com.neocoretechs.relatrix.client.json.RemoteIteratorKVJsonClient;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;

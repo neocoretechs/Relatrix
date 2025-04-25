@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.server;
+package com.neocoretechs.relatrix.server.json;
 
 import java.io.File;
 

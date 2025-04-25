@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +15,12 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
+import com.neocoretechs.relatrix.client.RelatrixKVStatement;
+import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
+import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
+import com.neocoretechs.relatrix.client.RemoteRequestInterface;
+import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 

@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,16 +17,18 @@ import java.util.concurrent.CountDownLatch;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.server.CommandPacket;
+import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
- * Manages remote iterators via client that is serialized to remote kv transaction servers and returned as payload.
+ * Manages remote iterators via client that is serialized to remote iterator servers and returned as payload.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class RemoteIteratorKVJsonClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
+public class RemoteIteratorJsonClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
 	private static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
@@ -54,8 +56,6 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	private transient CountDownLatch countDownLatch = null;
 	
 	private String session;
-	private TransactionId transactionId;
-	
 	private Object objectReturn;
 	
 	private String methodName;
@@ -63,7 +63,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	private Class<?>[] params = new Class<?>[0];
 	private String returnClass;
 	
-	private transient RemoteIteratorKVJsonClientTransaction returnPayload;
+	private transient RemoteIteratorJsonClient returnPayload;
 
 	/**
 	 * Start a client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -75,14 +75,13 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RemoteIteratorKVJsonClientTransaction(TransactionId transactionId, String remoteNode, int remotePort)  throws IOException {
+	public RemoteIteratorJsonClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		session = UUID.randomUUID().toString();
-		this.transactionId = transactionId;
 	}
 	
-	public RemoteIteratorKVJsonClientTransaction() {}
+	public RemoteIteratorJsonClient() {}
 	
 	/**
 	 * When we deserialize this from the server as a result of remote method call, we get back the serialized
@@ -99,7 +98,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorKVJsonClientTransaction constructed with remote:"+IPAddress);
+			System.out.println("RemoteIteratorJsonClient constructed with remote:"+IPAddress);
 		}
 		//localIPAddress = InetAddress.getByName(bootNode);
 		localIPAddress = InetAddress.getLocalHost();
@@ -112,6 +111,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		SLAVEPORT = remotePort;
 		// send message to spin connection
 		workerSocket = Fopen(localIPAddress.getHostName());
+		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		//SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
@@ -121,14 +121,13 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("RemoteIteratorKVJsonClientTransaction server socket accept failed with "+e1);
+			System.out.println("RemoteIteratorJsonClient server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorKVJsonClientTransaction got connection "+sock);
+			System.out.println("RemoteIteratorJsonClient got connection "+sock);
 		}
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		ThreadPoolManager.getInstance().spin(this);
 	}
 	
@@ -143,16 +142,19 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
-					System.out.println("RemoteIteratorKVJsonClientTransaction read "+inJson+" from "+sock);
-				returnPayload =  (RemoteIteratorKVJsonClientTransaction) inJson.toObject();//RemoteIteratorKVJsonClientTransaction.class);
+					System.out.println("RemoteIteratorJsonClient read "+inJson+" from "+workerSocket);
+				returnPayload =  (RemoteIteratorJsonClient) inJson.toObject();
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
 						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
+					else
+						if(objectReturn instanceof Result)
+							((Result)objectReturn).unpackFromTransport();
 					if( DEBUG )
 						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 					if( objectReturn instanceof Exception ) {
-						System.out.println("RemoteIteratorKVJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
+						System.out.println("RemoteIteratorJsonClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
 					}
 					synchronized(waitPayload) {
@@ -221,11 +223,11 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		try {
-			synchronized(waitPayload) {
+		synchronized(waitPayload) {
+			try {
 				waitPayload.wait();
-			}
-		} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {}
+		}
 		return (boolean) objectReturn;
 	}
 	/**
@@ -233,7 +235,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	 */
 	public void close() {
 		if(DEBUG)
-			System.out.println("Calling close for RemoteIteratorKVJsonClientTransaction");
+			System.out.println("Calling close for RemoteIteratorJsonClient");
 		shouldRun = false;
 		synchronized(waitHalt) {
 			try {
@@ -245,7 +247,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 
 	private void shutdown() {
 		if(DEBUG)
-			System.out.println("Calling shutdown for RemoteIteratorKVJsonClientTransaction");
+			System.out.println("Calling shutdown for RemoteIteratorJsonClient");
 		if(sock != null) {
 			try {
 				sock.close();
@@ -301,7 +303,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorKVJsonClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("RemoteIteratorJsonClient BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
 	}
 
 	@Override
@@ -339,6 +341,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		return objectReturn;
 	}
 
+
 	@Override
 	public CountDownLatch getCountDownLatch() {
 		return null;
@@ -352,11 +355,6 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	@Override
 	public void setObjectReturn(Object o) {
 		objectReturn = o;
-	}
-
-	@Override
-	public TransactionId getTransactionId() {
-		return transactionId;
 	}
 
 }
