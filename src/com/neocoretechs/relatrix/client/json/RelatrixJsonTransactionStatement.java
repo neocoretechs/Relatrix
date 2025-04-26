@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.client.json;
 import java.io.Externalizable;
 import java.io.Serializable;
 
+import org.json.JSONObject;
+
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
@@ -26,7 +28,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  */
 public class RelatrixJsonTransactionStatement extends RelatrixTransactionStatement implements RelatrixTransactionStatementInterface, Serializable {
 	private static final long serialVersionUID = -6487669704181333578L;
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     
     public RelatrixJsonTransactionStatement() {
     	super();
@@ -108,8 +110,11 @@ public class RelatrixJsonTransactionStatement extends RelatrixTransactionStateme
 				}
 			}
 			RelatrixJsonTransactionServer.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
+			JSONObject jric = new JSONObject(ric);
+			setReturnClass(RemoteIteratorJsonClientTransaction.class.getName());
+			setObjectReturn(jric);
 		} else {
+			result = new JSONObject(result);
 			setObjectReturn(result);
 		}
 		getCountDownLatch().countDown();
