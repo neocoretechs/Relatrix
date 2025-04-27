@@ -12,6 +12,7 @@ import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -259,15 +260,22 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 				} else {
 		    		Class<?> returnClass = Class.forName(iori.getReturnClass());
   	    			if(returnClass != o.getClass()) {
-  	    				// one way to correct mismatch - provide ctor with type of returnClass designated by method call return type
-  	    				try {
-  	    					Constructor co = returnClass.getConstructor(o.getClass());
-  	    					o = co.newInstance(o);
-	    					if(o instanceof Throwable)
+ 	    				// if exception was thrown, returnClass should be throwable
+  	    				if(Throwable.class.isAssignableFrom(returnClass)) {
+  	    					try {
+  	    						Constructor co = returnClass.getConstructor(o.getClass());
+  	    						o = co.newInstance(o);
   	    						throw new Exception((String)((Throwable)o).getMessage());
-  	    				} catch(Exception oe) {
-  	    					System.out.println("RelatrixJsonClient: ******** REMOTE EXCEPTION ******** "+oe);
-  	    					o = oe;
+  	    					} catch(Exception oe) {
+  	    						System.out.println("RelatrixJsonClient: ******** REMOTE EXCEPTION ******** "+oe);
+  	    						o = oe;
+  	    					}
+  	    				} else {
+  	    					// class mismatch of non Throwable variety, we my have a hashmap of values
+  	    					if(o instanceof HashMap) {
+  	    						JSONObject jo = (JSONObject) JSONObject.wrap(o);
+  	    						o = jo.toObject(returnClass);
+  	    					}
   	    				}
   	    			}
   	    		}

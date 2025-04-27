@@ -8,9 +8,10 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.net.Socket;
 import java.net.SocketException;
-
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
@@ -47,6 +48,8 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
+	
+	protected ConcurrentHashMap<String, RelatrixJsonKVTransactionStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixJsonKVTransactionStatement>();
 
 	/**
 	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
@@ -76,12 +79,12 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("RelatrixKVClient server socket accept failed with "+e1);
+			System.out.println("RelatrixJsonKVClientTransaction server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
   	    if( DEBUG ) {
-  	    	 System.out.println("RelatrixKVClient got connection "+sock);
+  	    	 System.out.println("RelatrixJsonKVClientTransaction got connection "+sock);
   	    }
   	    try {
 		  while(shouldRun ) {
@@ -99,19 +102,26 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 				} else {
 		    		Class<?> returnClass = Class.forName(iori.getReturnClass());
   	    			if(returnClass != o.getClass()) {
-  	    				// one way to correct mismatch - provide ctor with type of returnClass designated by method call return type
-  	    				try {
-  	    					Constructor co = returnClass.getConstructor(o.getClass());
-  	    					o = co.newInstance(o);
-	    					if(o instanceof Throwable)
+ 	    				// if exception was thrown, returnClass should be throwable
+  	    				if(Throwable.class.isAssignableFrom(returnClass)) {
+  	    					try {
+  	    						Constructor co = returnClass.getConstructor(o.getClass());
+  	    						o = co.newInstance(o);
   	    						throw new Exception((String)((Throwable)o).getMessage());
-  	    				} catch(Exception oe) {
-  	    					System.out.println("RelatrixJsonKVClientTransaction: ******** REMOTE EXCEPTION ******** "+oe);
-  	    					o = oe;
+  	    					} catch(Exception oe) {
+  	    						System.out.println("RelatrixJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+oe);
+  	    						o = oe;
+  	    					}
+  	    				} else {
+  	    					// class mismatch of non Throwable variety, we my have a hashmap of values
+  	    					if(o instanceof HashMap) {
+  	    						JSONObject jo = (JSONObject) JSONObject.wrap(o);
+  	    						o = jo.toObject(returnClass);
+  	    					}
   	    				}
   	    			}
   	    		}
-				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
+				RelatrixJsonKVTransactionStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					in.close();
 					ins.close();
@@ -146,7 +156,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
-		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
+		outstandingRequests.put(iori.getSession(), (RelatrixJsonKVTransactionStatement) iori);
 		String iorij = JSONObject.toJson(iori);
 		OutputStream os = workerSocket.getOutputStream();
 		if(DEBUG)
@@ -205,7 +215,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixKVTransactionStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
+		RelatrixJsonKVTransactionStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		i = 0;
 		RelatrixJsonKVClientTransaction rc = new RelatrixJsonKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
 		TransactionId xid = null;
@@ -225,16 +235,16 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 				rc.endTransaction(xid);
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4]);
+				rs = new RelatrixJsonKVTransactionStatement(args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5]);
+				rs = new RelatrixJsonKVTransactionStatement(args[3],xid,args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixJsonKVTransactionStatement(args[3],xid,args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixKVTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				rs = new RelatrixJsonKVTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

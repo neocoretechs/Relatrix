@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
@@ -29,7 +31,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  *
  */
 public class RelatrixJsonStatement extends RelatrixStatement implements RelatrixStatementInterface, Serializable {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
     protected Alias alias = null;
@@ -200,29 +202,29 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
-			RemoteIteratorClient ric = null;
+			RemoteIteratorJsonClient ric = null;
 			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {	
-				ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+				ric = new RemoteIteratorJsonClient(RelatrixServer.address.getHostName(), 
 							RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixIterator"));
 			} else {
 				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
-					ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+					ric = new RemoteIteratorJsonClient(RelatrixServer.address.getHostName(), 
 							RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator"));
 				} else {
 					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
-						ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+						ric = new RemoteIteratorJsonClient(RelatrixServer.address.getHostName(), 
 								RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator"));
 					} else {
 						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator.class ) {
-							ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+							ric = new RemoteIteratorJsonClient(RelatrixServer.address.getHostName(), 
 									RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator"));
 						} else {
 							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
-								ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+								ric = new RemoteIteratorJsonClient(RelatrixServer.address.getHostName(), 
 										RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator"));
 							} else {
 								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator.class) {
-									ric = new RemoteIteratorClient(RelatrixServer.address.getHostName(), 
+									ric = new RemoteIteratorJsonClient(RelatrixServer.address.getHostName(), 
 											RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator"));
 								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
@@ -234,8 +236,11 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 			}
 			// Link the object instance to session for later method invocation
 			RelatrixServer.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
+			JSONObject jric = new JSONObject(ric);
+			setReturnClass(RemoteIteratorJsonClient.class.getName());
+			setObjectReturn(jric);
 		} else {
+			result = new JSONObject(result);
 			setObjectReturn(result);
 		}
 		getCountDownLatch().countDown();

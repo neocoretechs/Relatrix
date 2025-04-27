@@ -43,7 +43,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteIteratorJsonTr
  *
  */
 public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	
 	private ConcurrentHashMap<String, TCPJsonTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPJsonTransactionWorker>();

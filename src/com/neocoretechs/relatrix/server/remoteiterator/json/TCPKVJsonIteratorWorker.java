@@ -35,7 +35,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPKVJsonIteratorWorker implements Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();

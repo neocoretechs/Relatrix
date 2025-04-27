@@ -28,7 +28,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  */
 public class RelatrixJsonTransactionStatement extends RelatrixTransactionStatement implements RelatrixTransactionStatementInterface, Serializable {
 	private static final long serialVersionUID = -6487669704181333578L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
     
     public RelatrixJsonTransactionStatement() {
     	super();

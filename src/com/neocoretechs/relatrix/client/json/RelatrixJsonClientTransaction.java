@@ -59,7 +59,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransactionInterfaceImpl implements ClientTransactionInterface, Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
 	private String bootNode, remoteNode;

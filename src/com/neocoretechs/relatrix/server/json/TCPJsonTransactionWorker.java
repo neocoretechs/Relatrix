@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.server.TCPWorker;
 
 
 public class TCPJsonTransactionWorker extends TCPWorker {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 
 	public TCPJsonTransactionWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);

@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.TCPWorker;
 
 public class TCPJsonKVTransactionWorker extends TCPWorker {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 
 	public TCPJsonKVTransactionWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);

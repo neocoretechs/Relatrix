@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClientTransaction
  */
 public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = true; // timing
 	private long tim;
