@@ -64,7 +64,7 @@ public final class WorkerRequestProcessor implements Runnable {
 		// because all operations are taking place on 1 tablespace and thread with coordination
 		// at the Master level otherwise
 		CountDownLatch cdl = new CountDownLatch(1);
-		((RemoteCompletionInterface)iori).setCountDownLatch(cdl);
+		((RemoteCompletionInterface)iori).setCompletionObject(cdl);
 		if( DEBUG  ) {
 			System.out.println("WorkerRequestProcessor preparing to process:"+iori);
 		}

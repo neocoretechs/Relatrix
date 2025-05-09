@@ -155,7 +155,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 					// set it with the response object
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
-					rs.getCountDownLatch().countDown();
+					rs.signalCompletion(o);
 				}
 		  }
 		  if(DEBUG)
@@ -235,7 +235,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	@Override
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
+		rs.setCompletionObject(cdl);
 		send(rs);
 		cdl.await();
 		Object o = rs.getObjectReturn();

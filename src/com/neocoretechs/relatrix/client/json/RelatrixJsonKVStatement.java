@@ -4,6 +4,7 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
@@ -37,7 +38,7 @@ public class RelatrixJsonKVStatement implements Serializable, RelatrixStatementI
     protected transient Class<?>[] params = null;
     private Object objectReturn;
     private String returnClass;
-    private transient CountDownLatch latch;
+    private transient Object completionObject;
     
     public RelatrixJsonKVStatement() {
     }
@@ -144,15 +145,26 @@ public class RelatrixJsonKVStatement implements Serializable, RelatrixStatementI
     }
     
 	@Override
-	public synchronized CountDownLatch getCountDownLatch() {
-		return latch;
+	public synchronized Object getCompletionObject() {
+		return completionObject;
 	}
-   
+    
 	@Override
-	public synchronized void setCountDownLatch(CountDownLatch cdl) {
-		latch = cdl;	
+	public synchronized void setCompletionObject(Object cdl) {
+		completionObject = cdl;	
 	}
-		
+
+	@Override
+	public synchronized void signalCompletion(Object o) {
+		if(completionObject.getClass() == CountDownLatch.class)
+			((CountDownLatch)completionObject).countDown();
+		else
+			if(completionObject.getClass() == CompletableFuture.class)
+				((CompletableFuture)completionObject).complete(o);
+			else
+				throw new RuntimeException("Unknown completion object type:"+completionObject.getClass());
+	}
+	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		objectReturn = o;		
@@ -198,7 +210,7 @@ public class RelatrixJsonKVStatement implements Serializable, RelatrixStatementI
 			// put it in the array and send our intermediary back
 			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
 				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
-				getCountDownLatch().countDown();
+				signalCompletion(getObjectReturn());
 				return;
 			}
 			RelatrixKVJsonServer.sessionToObject.put(getSession(), result);
@@ -214,10 +226,11 @@ public class RelatrixJsonKVStatement implements Serializable, RelatrixStatementI
 			JSONObject jric = new JSONObject(ric);
 			setReturnClass(RemoteIteratorKVJsonClient.class.getName());
 			setObjectReturn(jric);
+			signalCompletion(jric);
 		} else {
 			result = new JSONObject(result);
 			setObjectReturn(result);
+			signalCompletion(result);
 		}
-		getCountDownLatch().countDown();		
 	}
 }

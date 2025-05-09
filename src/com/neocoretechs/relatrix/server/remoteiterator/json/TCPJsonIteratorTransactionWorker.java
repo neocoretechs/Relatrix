@@ -22,6 +22,7 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
+import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClient;
 import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClientTransaction;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
@@ -37,10 +38,11 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  */
 public class TCPJsonIteratorTransactionWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
+	private Object mutex = new Object();
 	
 	public int MASTERPORT = 9876;
 
@@ -54,8 +56,6 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
 	
-	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
-	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
 	private static boolean TEST = false;
 	
     public TCPJsonIteratorTransactionWorker(Socket datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
@@ -132,13 +132,12 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorTransactionWorker waiting getInputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				InputStream ins = workerSocket.getInputStream();
+
 				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
 				JSONObject inJson = new JSONObject(in.readLine());
 				if(DEBUG)
 					System.out.println("TCPJsonIteratorTransactionWorker read "+inJson+" from "+workerSocket);
 				RemoteIteratorJsonClientTransaction iori = (RemoteIteratorJsonClientTransaction) inJson.toObject();//,RemoteIteratorJsonClientTransaction.class);	
-				if(DEBUG)
-					System.out.println("TCPJsonIteratorTransactionWorker attempt readObject "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -151,24 +150,38 @@ public class TCPJsonIteratorTransactionWorker implements Runnable {
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
+					if(DEBUG)
+						System.out.println("TCPJsonIteratorTransactionWorker result of method invocation:"+result);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
 						result = TransportMorphism.createTransport((Relation)result);
+						result = new JSONObject(result);
+						if(DEBUG)
+							System.out.println(this.getClass().getName()+" result JSONObject from transportMorphism:"+result);
+						iori.setReturnClass(Relation.class.getName());
 					} else {
 						if(result instanceof Result) {
+							iori.setReturnClass(result.getClass().getName());
 							((Result) result).packForTransport();
-						}
+							if(DEBUG)
+								System.out.println(this.getClass().getName()+" packed Result:"+result);
+							result = new JSONObject(result);
+							if(DEBUG)
+								System.out.println(this.getClass().getName()+" result JSONObject from Result:"+result);
+						} else
+							iori.setReturnClass(result.getClass().getName());
 					}
 					iori.setObjectReturn(result);
-				}
-				// notify latch waiters
-				if( DEBUG ) {
-					System.out.println("TCPJsonIteratorTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					// notify latch waiters
+					if( DEBUG ) {
+						System.out.println(this.getClass().getName()+" RESPONSE:"+iori);
+					}
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
 			}
-		// Call to shut down has been received from stopWorker
+
+			// Call to shut down has been received from stopWorker
 		} catch (Exception ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();

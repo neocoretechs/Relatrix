@@ -157,7 +157,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 							((RemoteCompletionInterface)o).process();
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
-					rs.getCountDownLatch().countDown();
+					rs.signalCompletion(o);
 				}
 		  }
 		} catch(Exception e) {
@@ -246,7 +246,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	@Override
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
+		rs.setCompletionObject(cdl);
 		send(rs);
 		cdl.await();
 		Object o = rs.getObjectReturn();

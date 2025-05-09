@@ -343,15 +343,18 @@ public class RemoteIteratorJsonClient implements Runnable, RelatrixStatementInte
 
 
 	@Override
-	public CountDownLatch getCountDownLatch() {
+	public Object getCompletionObject() {
 		return null;
 	}
 
 	@Override
-	public void setCountDownLatch(CountDownLatch cdl) {
+	public void setCompletionObject(Object cdl) {
 	}
 
-
+	@Override
+	public synchronized void signalCompletion(Object o) {
+	}
+	
 	@Override
 	public void setObjectReturn(Object o) {
 		objectReturn = o;

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClientTransaction
  */
 public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = true; // timing
 	private long tim;
@@ -55,7 +56,6 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	private transient Object waitHalt;
 	private transient Object waitPayload;
 	private transient Object waitSocket;
-	private transient CountDownLatch countDownLatch = null;
 	
 	private String session;
 	private TransactionId transactionId;
@@ -152,6 +152,12 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 				returnPayload =  (RemoteIteratorJsonClientTransaction) inJson.toObject();//RemoteIteratorJsonClientTransaction.class);
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
+					if(objectReturn.getClass() == HashMap.class) {
+						if(DEBUG)
+							System.out.println(this.getClass().getName()+" attempt to instantiate returnPayload class "+returnPayload.getReturnClass()+" for "+objectReturn);
+						JSONObject jobj = (JSONObject) JSONObject.wrap(objectReturn);
+						objectReturn = jobj.toObject(Class.forName(returnPayload.getReturnClass()));
+					}
 					if(objectReturn == TransportMorphism.class)
 						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
 					else
@@ -351,15 +357,18 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	}
 
 	@Override
-	public CountDownLatch getCountDownLatch() {
-		return countDownLatch;
+	public Object getCompletionObject() {
+		return null;
 	}
 
 	@Override
-	public void setCountDownLatch(CountDownLatch cdl) {
-		countDownLatch = cdl;
+	public void setCompletionObject(Object cdl) {
 	}
 
+	@Override
+	public synchronized void signalCompletion(Object o) {
+	}
+	
 	@Override
 	public void setObjectReturn(Object o) {
 		objectReturn = o;

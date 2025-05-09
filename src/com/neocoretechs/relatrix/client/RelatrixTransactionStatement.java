@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.client;
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
@@ -128,10 +129,11 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			}
 			RelatrixTransactionServer.sessionToObject.put(ric.getSession(), result);
 			setObjectReturn(ric);
+			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);
+			signalCompletion(result);
 		}
-		getCountDownLatch().countDown();
 	}
 
 	@Override

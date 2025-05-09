@@ -136,7 +136,7 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 						((RemoteCompletionInterface)o).process();
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
-					rs.getCountDownLatch().countDown();
+					rs.signalCompletion(o);
 				}
 		  }
 		} catch(Exception e) {

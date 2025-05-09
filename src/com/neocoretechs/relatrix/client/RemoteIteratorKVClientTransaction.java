@@ -48,7 +48,6 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	private transient Object waitHalt;
 	private transient Object waitPayload;
 	private transient Object waitSocket;
-	private transient CountDownLatch countDownLatch = null;
 	
 	private String session;
 	private TransactionId transactionId;
@@ -328,15 +327,18 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	}
 
 	@Override
-	public CountDownLatch getCountDownLatch() {
+	public Object getCompletionObject() {
 		return null;
 	}
 
 	@Override
-	public void setCountDownLatch(CountDownLatch cdl) {
+	public void setCompletionObject(Object cdl) {
 	}
 
-
+	@Override
+	public synchronized void signalCompletion(Object o) {
+	}
+	
 	@Override
 	public void setObjectReturn(Object o) {
 		objectReturn = o;

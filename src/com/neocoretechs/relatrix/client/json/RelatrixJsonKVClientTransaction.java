@@ -133,7 +133,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 					// set it with the response object
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
-					rs.getCountDownLatch().countDown();
+					rs.signalCompletion(o);
 				}
 		  }
 		  if(DEBUG)

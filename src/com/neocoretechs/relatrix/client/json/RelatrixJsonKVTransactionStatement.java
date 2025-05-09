@@ -106,7 +106,7 @@ public class RelatrixJsonKVTransactionStatement extends RelatrixKVStatement impl
 			// put it in the array and send our intermediary back
 			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
 				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
-				getCountDownLatch().countDown();
+				signalCompletion(getObjectReturn());
 				return;
 			}
 			RelatrixKVJsonTransactionServer.sessionToObject.put(getSession(), result);
@@ -122,11 +122,12 @@ public class RelatrixJsonKVTransactionStatement extends RelatrixKVStatement impl
 			JSONObject jric = new JSONObject(ric);
 			setReturnClass(RemoteIteratorKVJsonClientTransaction.class.getName());
 			setObjectReturn(jric);
+			signalCompletion(jric);
 		} else {
 			result = new JSONObject(result);
 			setObjectReturn(result);
+			signalCompletion(result);
 		}
-		getCountDownLatch().countDown();
 	}	
 
 }

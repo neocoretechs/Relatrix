@@ -4,6 +4,7 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.AbstractRelation;
@@ -36,7 +37,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     private Object objectReturn;
     protected String returnClass;
     protected transient Class<?>[] params = null;
-    private transient CountDownLatch latch;
+    private transient Object completionObject;
 
     public RelatrixStatement() {
     }
@@ -120,15 +121,26 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
              (paramArray == null ? "nil" : Arrays.toString(paramArray)), returnClass); }
     
 	@Override
-	public synchronized CountDownLatch getCountDownLatch() {
-		return latch;
+	public synchronized Object getCompletionObject() {
+		return completionObject;
 	}
     
 	@Override
-	public synchronized void setCountDownLatch(CountDownLatch cdl) {
-		latch = cdl;	
+	public synchronized void setCompletionObject(Object cdl) {
+		completionObject = cdl;	
 	}
 
+	@Override
+	public synchronized void signalCompletion(Object o) {
+		if(completionObject.getClass() == CountDownLatch.class)
+			((CountDownLatch)completionObject).countDown();
+		else
+			if(completionObject.getClass() == CompletableFuture.class)
+				((CompletableFuture)completionObject).complete(o);
+			else
+				throw new RuntimeException("Unknown completion object type:"+completionObject.getClass());
+	}
+	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof AbstractRelation) {
@@ -232,10 +244,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			// Link the object instance to session for later method invocation
 			RelatrixServer.sessionToObject.put(ric.getSession(), result);
 			setObjectReturn(ric);
+			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);
+			signalCompletion(result);
 		}
-		getCountDownLatch().countDown();
 	}
 
 }

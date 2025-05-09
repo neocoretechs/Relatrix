@@ -2,9 +2,11 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 
+import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransactionInterface;
 
 /**
  * The IndexResolver determines whether the database index instance table resides locally, and an
@@ -41,15 +43,16 @@ public class IndexResolver {
 	 * @param remoteClient Implementations of RelatrixClientInterface may include transaction context information.
 	 * @throws IOException 
 	 */
-	public static void setRemote(RelatrixClientInterface remoteClient) throws IOException {
+	public static void setRemote(ClientInterface remoteClient) throws IOException {
 		instanceTable = new RemoteIndexInstanceTable(remoteClient);
 		if(DEBUG)
 			System.out.println("IndexResolver setRemote instance table:"+instanceTable);
 	}
-	public static void setRemoteTransaction(RelatrixClientTransactionInterface remoteClient) throws IOException {
-		instanceTable = new RemoteIndexInstanceTable(remoteClient);
-		if(DEBUG)
-			System.out.println("IndexResolver setRemoteTransaction instance table:"+instanceTable);
+
+	public static void setRemoteTransaction(ClientInterface clientInterface) {
+		// TODO Auto-generated method stub
+		
 	}
+
 
 }

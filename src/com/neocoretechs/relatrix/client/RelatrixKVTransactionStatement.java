@@ -101,7 +101,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 			// put it in the array and send our intermediary back
 			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
 				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
-				getCountDownLatch().countDown();
+				signalCompletion(getObjectReturn());
 				return;
 			}
 			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);
@@ -115,10 +115,11 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 			// Link the object instance to session for later method invocation
 			RelatrixKVTransactionServer.sessionToObject.put(ric.getSession(), result);
 			setObjectReturn(ric);
+			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);
+			signalCompletion(result);
 		}
-		getCountDownLatch().countDown();
 	}	
 
 }

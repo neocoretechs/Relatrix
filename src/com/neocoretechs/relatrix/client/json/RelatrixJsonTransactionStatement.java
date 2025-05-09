@@ -113,11 +113,12 @@ public class RelatrixJsonTransactionStatement extends RelatrixTransactionStateme
 			JSONObject jric = new JSONObject(ric);
 			setReturnClass(RemoteIteratorJsonClientTransaction.class.getName());
 			setObjectReturn(jric);
+			signalCompletion(jric);
 		} else {
 			result = new JSONObject(result);
 			setObjectReturn(result);
+			signalCompletion(result);
 		}
-		getCountDownLatch().countDown();
 	}
 
 }

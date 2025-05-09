@@ -122,7 +122,7 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 	@Override
 	public Object sendCommand(RelatrixTransactionStatementInterface rs) throws Exception {
 		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
+		rs.setCompletionObject(cdl);
 		send(rs);
 		cdl.await();
 		Object o = rs.getObjectReturn();
@@ -299,7 +299,7 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
   	    			// set it with the response object
   	    			rs.setObjectReturn(o);
   	    			// and signal the latch we have finished
-  	    			rs.getCountDownLatch().countDown();
+  	    			rs.signalCompletion(o);
   	    		}
   	    	}
   	    } catch(Exception e) {

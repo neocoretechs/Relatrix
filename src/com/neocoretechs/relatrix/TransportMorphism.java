@@ -35,6 +35,8 @@ public class TransportMorphism implements Serializable, Comparable {
 		this.range = abstractRelation.range;
 	}
 	
+	public TransportMorphism() {}
+	
 	public static TransportMorphism createTransport(Relation result) {
 		if(result == null)
 			return null;

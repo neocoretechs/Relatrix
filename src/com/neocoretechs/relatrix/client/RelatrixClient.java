@@ -146,7 +146,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 					// set it with the response object
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
-					rs.getCountDownLatch().countDown();
+					rs.signalCompletion(null);
 				}
 		  }
 		} catch(Exception e) {
@@ -176,7 +176,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCountDownLatch(cdl);
+		rs.setCompletionObject(cdl);
 		send(rs);
 		cdl.await();
 		Object o = rs.getObjectReturn();
