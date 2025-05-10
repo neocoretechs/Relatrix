@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.client.ClientInterface;
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
@@ -49,10 +50,12 @@ public class IndexResolver {
 			System.out.println("IndexResolver setRemote instance table:"+instanceTable);
 	}
 
-	public static void setRemoteTransaction(ClientInterface clientInterface) {
-		// TODO Auto-generated method stub
-		
+	public static void setRemoteTransaction(ClientInterface remoteClient) throws IOException {
+		if(!(remoteClient instanceof ClientTransactionInterface))
+			throw new IOException("Remote Client not instance of ClientTransactionInterface:"+remoteClient.getClass());
+		instanceTable = new RemoteIndexInstanceTable(remoteClient);
+		if(DEBUG)
+			System.out.println("IndexResolver setRemote instance table:"+instanceTable);	
 	}
-
 
 }
