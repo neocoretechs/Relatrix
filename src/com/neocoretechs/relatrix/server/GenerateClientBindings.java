@@ -47,7 +47,7 @@ public class GenerateClientBindings {
 		"java.util.stream.Stream",
 		"java.util.List",
 		"com.neocoretechs.rocksack.Alias",
-		"com.neocoretehs.rocksack.TransactionId"
+		"com.neocoretechs.rocksack.TransactionId"
 	};
 	// if you want the client to trap Exception(s) and generate a simplified version, indicate it here
 	public static boolean exceptionOverride = false;
