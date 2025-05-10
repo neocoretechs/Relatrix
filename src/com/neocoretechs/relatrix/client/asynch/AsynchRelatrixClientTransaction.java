@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
@@ -47,8 +48,8 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransactionInterfaceImpl implements AsynchRelatrixClientTransactionInterface, AsynchClientTransactionInterface,Runnable {
-	private static final boolean DEBUG = true;
+public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransactionInterfaceImpl implements AsynchRelatrixClientTransactionInterface, ClientTransactionInterface,Runnable {
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	

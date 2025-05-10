@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RemoteStream;
 import com.neocoretechs.rocksack.TransactionId;
 
-public interface AsynchRelatrixClientTransactionInterface extends AsynchClientTransactionInterface{
+public interface AsynchRelatrixClientTransactionInterface extends ClientTransactionInterface{
 
 	public CompletableFuture<Stream> findStream(TransactionId arg1,Character arg2,Object arg3,Character arg4) ;
 
@@ -88,9 +88,9 @@ public interface AsynchRelatrixClientTransactionInterface extends AsynchClientTr
 
 	public CompletableFuture<Object> commit(Alias arg1,TransactionId arg2) ;
 
-	public CompletableFuture<Object> getByIndex(TransactionId arg1,Comparable arg2) ;
+	public Object getByIndex(TransactionId arg1,Comparable arg2) ;
 
-	public CompletableFuture<Object> getByIndex(Alias arg1,TransactionId arg2,Comparable arg3) ;
+	public Object getByIndex(Alias arg1,TransactionId arg2,Comparable arg3) ;
 
 	public void storekv(Alias arg1,TransactionId arg2,Comparable arg3,Object arg4);
 
@@ -242,7 +242,7 @@ public interface AsynchRelatrixClientTransactionInterface extends AsynchClientTr
 
 	public CompletableFuture<Object> multiStore(Alias arg1,TransactionId arg2,ArrayList arg3) ;
 
-	public CompletableFuture<Object> endTransaction(TransactionId arg1) ;
+	public CompletableFuture<Void> endTransaction(TransactionId arg1) ;
 
 	public CompletableFuture<Object> setRelativeAlias(Alias arg1);
 
@@ -504,9 +504,9 @@ public interface AsynchRelatrixClientTransactionInterface extends AsynchClientTr
 
 	public CompletableFuture<Object> contains(Alias arg1,TransactionId arg2,Comparable arg3) ;
 
-	public CompletableFuture<Object> get(TransactionId arg1,Comparable arg2) ;
+	public Object get(TransactionId arg1,Comparable arg2) ;
 
-	public CompletableFuture<Object> get(Alias arg1,TransactionId arg2,Comparable arg3) ;
+	public Object get(Alias arg1,TransactionId arg2,Comparable arg3) ;
 
 	public CompletableFuture<Object> remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) ;
 

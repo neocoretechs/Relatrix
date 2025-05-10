@@ -491,14 +491,24 @@ public abstract class AsynchRelatrixClientTransactionInterfaceImpl implements As
 		return queueCommand(s);
 	}
 	@Override
-	public CompletableFuture<Object> getByIndex(TransactionId arg1,Comparable arg2)  {
+	public Object getByIndex(TransactionId arg1,Comparable arg2)  {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", arg1, arg2);
-		return queueCommand(s);
+		CompletableFuture<Object> cf = queueCommand(s);
+		try {
+			return cf.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	@Override
-	public CompletableFuture<Object> getByIndex(Alias arg1,TransactionId arg2,Comparable arg3)  {
+	public Object getByIndex(Alias arg1,TransactionId arg2,Comparable arg3)  {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("getByIndex", arg1, arg2, arg3);
-		return queueCommand(s);
+		CompletableFuture<Object> cf = queueCommand(s);
+		try {
+			return cf.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	@Override
 	public void storekv(Alias arg1,TransactionId arg2,Comparable arg3,Object arg4)  {
@@ -1031,9 +1041,9 @@ public abstract class AsynchRelatrixClientTransactionInterfaceImpl implements As
 		return queueCommand(s);
 	}
 	@Override
-	public CompletableFuture<Object> endTransaction(TransactionId arg1)  {
+	public CompletableFuture<Void> endTransaction(TransactionId arg1)  {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("endTransaction", arg1);
-		return queueCommand(s);
+		return queueCommand(s).thenApply(result -> (Void) result);
 	}
 	@Override
 	public CompletableFuture<Object> setRelativeAlias(Alias arg1)  {
@@ -2071,14 +2081,24 @@ public abstract class AsynchRelatrixClientTransactionInterfaceImpl implements As
 		return queueCommand(s);
 	}
 	@Override
-	public CompletableFuture<Object> get(TransactionId arg1,Comparable arg2)  {
+	public Object get(TransactionId arg1,Comparable arg2)  {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", arg1, arg2);
-		return queueCommand(s);
+		CompletableFuture<Object> cf = queueCommand(s);
+		try {
+			return cf.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}	
 	}
 	@Override
-	public CompletableFuture<Object> get(Alias arg1,TransactionId arg2,Comparable arg3)  {
+	public Object get(Alias arg1,TransactionId arg2,Comparable arg3)  {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("get", arg1, arg2, arg3);
-		return queueCommand(s);
+		CompletableFuture<Object> cf = queueCommand(s);
+		try {
+			return cf.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}	
 	}
 	@Override
 	public CompletableFuture<Object> remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4)  {

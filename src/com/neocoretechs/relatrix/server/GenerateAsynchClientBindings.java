@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletionException;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -23,7 +24,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
 /**
  * Call with args: classname, output interface name, statement and transport method names,and desired package declaration.<p/>
  * This is an adjunct to the {@link ServerInvokeMethod} class that generates the server side callable method bindings
- * for a given class, such that a remote client side transport can invoke those methods and receive returned responses.<p/>
+ * for a given class, such that a remote client side transport can invoke those methods and receive returned responses asynchronously.<p/>
  * The methods will specified via the {@link ServerMethod} annotation in the server-side source class.<p/>
  * Combinations of these tools simplifies the process of building and maintaining 2 tier client/server models from existing
  * class files.<p/>
@@ -31,33 +32,47 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * local object is null, a static method is assumed. These requests come in the form of an encapsulated {@link RemoteRequestInterface}.<p/>
  * Of course, the hardcoded params are specific to the Relatrix package, but can be changed to any code that uses the ServerInvokeMethod
  * reflection paradigm.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class GenerateClientBindings {
-	public static String outputClass = "RelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
+public class GenerateAsynchClientBindings {
+	public static String outputClass = "AsynchRelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
 	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
 	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
-	public static String command = "sendCommand"; // method used for wire transport in the client that extends generated bindings, will be abstract method: public abstract Object
-	public static String packageDecl = "com.neocoretechs.relatrix.client"; // fully qualified name to be formed into package decl
+	public static String command = "queueCommand"; // method used for wire transport in the client that extends generated bindings, will be abstract method: public abstract Object
+	public static String packageDecl = "com.neocoretechs.relatrix.client.asynch"; // fully qualified name to be formed into package decl
 	public static String[] imports = new String[] {	// prime this with best guess, system will fill in required fully qualified class names for import
 		"java.io.IOException",
 		"java.util.Iterator",
 		"java.util.stream.Stream",
 		"java.util.List",
+		"java.util.concurrent.CompletableFuture",
 		"com.neocoretechs.rocksack.Alias",
 		"com.neocoretehs.rocksack.TransactionId"
 	};
+	// append to return [command] for stream type
+	public static String streamDecl = ".thenApply(result -> {\r\n"
+			+ "	        try {\r\n"
+			+ "	            return (Stream)(new RemoteStream((Iterator) result));\r\n"
+			+ "	        } catch (Exception e) {\r\n"
+			+ "	            throw new CompletionException(e);\r\n"
+			+ "	        }\r\n"
+			+ "	    }).exceptionally(ex -> {\r\n"
+			+ "	        // Handle the exception, e.g., return an empty stream or throw a custom exception\r\n"
+			+ "	        throw new RuntimeException(ex);\r\n"
+			+ "	    });";
+	// append to return [command] for Iterator type
+	public static String iteratorDecl = ".thenApply(result -> (Iterator) result);";
 	// if you want the client to trap Exception(s) and generate a simplified version, indicate it here
 	public static boolean exceptionOverride = false;
 	public static String simplifiedException = "java.io.IOException";
 	
-	public GenerateClientBindings() {}
+	public GenerateAsynchClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
 		if(args.length < 1 || args.length > 7)
-			throw new Exception("usage: java GenerateClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl]");
+			throw new Exception("usage: java GenerateAsynchClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl]");
 		if(!args[0].equals("false")) {
 			exceptionOverride = true;
 			simplifiedException = args[0];
@@ -89,7 +104,7 @@ public class GenerateClientBindings {
 	}
 	/**
 	 * Generate the implementation of the interface for the client bindings to our processed server side source class
-	 * @param rmnap
+	 * @param rmnap reflected methods from input class
 	 * @throws IOException
 	 */
 	public static void generateImpl(MethodNamesAndParams rmnap) throws IOException {
@@ -104,7 +119,7 @@ public class GenerateClientBindings {
 		// statement and command are passed from command line
 		FileOutputStream fos = new FileOutputStream(outputClass+"Impl.java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateClientBindings ");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateAsynchClientBindings ");
 		outStream.writeBytes((new Date()).toString());
 		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");
@@ -126,12 +141,13 @@ public class GenerateClientBindings {
 		outStream.writeBytes(outputClass);
 		outStream.writeBytes("{");	
 		outStream.writeBytes("\r\n\r\n\t");
-		// assumption is transport command returns Object type
-		outStream.writeBytes("public abstract Object ");
+		// assumption is transport command returns CompletableFuture<Object> type
+		outStream.writeBytes("public abstract CompletableFuture<Object> ");
 		outStream.writeBytes(command);
 		outStream.writeBytes("(");
 		outStream.writeBytes(statementInterface);
-		outStream.writeBytes(" s) throws Exception;\r\n");
+		outStream.writeBytes(" s);\r\n");
+		// start generating the methods from the reflected input class
 		for(int mnum = 0; mnum < rmnap.methodNames.size(); mnum++) {
 			if(rmnap.methodNames.get(mnum).equals("main"))
 				continue;
@@ -139,9 +155,9 @@ public class GenerateClientBindings {
 				outStream.writeBytes("\t@Override\r\n");
 				outStream.writeBytes("\tpublic ");
 				if(rmnap.returnTypes[mnum].equals(Void.class))
-					outStream.writeBytes("void");
+					outStream.writeBytes("CompletableFuture<Void>");
 				else
-					outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
+					outStream.writeBytes("CompletableFuture<"+rmnap.returnTypes[mnum].getSimpleName()+">");
 				outStream.writeBytes(" ");
 				outStream.writeBytes(rmnap.methodNames.get(mnum));
 				outStream.writeBytes("(");
@@ -157,29 +173,7 @@ public class GenerateClientBindings {
 					if(i < rmnap.methodParams[mnum].length-1)
 						outStream.writeBytes(",");
 				}
-				int ithrows = rmnap.methodSigs[mnum].indexOf("throws");
-				LinkedHashMap<Class,String> excepts = null;
-				if(ithrows != -1) {
-					outStream.writeBytes(") ");
-					if(exceptionOverride) {
-						outStream.writeBytes("throws ");
-						outStream.writeBytes(simplifiedException);
-						excepts = new LinkedHashMap<Class,String>();
-						excepts.put(Exception.class, "\t\t\tthrow new "+simplifiedException+"(e);\r\n");
-					} else {
-						outStream.writeBytes(rmnap.methodSigs[mnum].substring(ithrows));
-						excepts = generateExceptions(rmnap.methodSigs[mnum].substring(ithrows+7));
-					}
-				} else {
-					outStream.writeBytes(")");
-					excepts = new LinkedHashMap<Class,String>();
-					if(!rmnap.returnTypes[mnum].equals(Void.class)) {
-						excepts.put(Exception.class, "\t\t\treturn null;\r\n"); // just trap Exception with no action
-					} else {
-						excepts.put(Exception.class, ""); // just trap Exception with no action
-					}
-				}
-				outStream.writeBytes(" {\r\n");
+				outStream.writeBytes(") {\r\n");
 				outStream.writeBytes("\t\t");
 				outStream.writeBytes(statement);
 				outStream.writeBytes(" s = new ");
@@ -197,51 +191,35 @@ public class GenerateClientBindings {
 							outStream.writeBytes(",");
 					}
 				outStream.writeBytes(");\r\n");
-				// if we have exceptions to trap, write the try first
-				if(excepts != null && !excepts.isEmpty()) {
-					outStream.writeBytes("\t\ttry {\r\n\t");
-				}
 				// If not void, set up cast to return type for transport call
-				// If we are returning type of stream, get the remote iterator and wrap it in a remote stream thusly:
-				//return new RemoteStream((RemoteIterator) sendCommand(s));
+				// If we are returning type of Stream or Iterator, add special logic
 				// NOTE: WE ASSUME RemoteStream and RemoteIterator are in same package as generated class and interface!
 				if(!rmnap.returnTypes[mnum].equals(Void.class)) {
 					if(!Stream.class.isAssignableFrom(rmnap.returnTypes[mnum])) {
-						outStream.writeBytes("\t\treturn ("); // cast return to return type of method
-						outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
-						outStream.writeBytes(")");
-						outStream.writeBytes(command);
-						outStream.writeBytes("(s);\r\n");
+						if(!Iterator.class.isAssignableFrom(rmnap.returnTypes[mnum])) {
+							outStream.writeBytes("\t\treturn ("); // cast return to return type of method
+							outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
+							outStream.writeBytes(")");
+							outStream.writeBytes(command);
+							outStream.writeBytes("(s);\r\n");
+						} else {
+							outStream.writeBytes("\t\treturn "); // cast return to remote stream
+							outStream.writeBytes(command);
+							outStream.writeBytes("(s)");
+							outStream.writeBytes(iteratorDecl);
+							outStream.writeBytes("\r\n");
+						}
 					} else {
-						outStream.writeBytes("\t\treturn new RemoteStream((Iterator)"); // cast return to remote stream
+						outStream.writeBytes("\t\treturn "); // cast return to remote stream
 						outStream.writeBytes(command);
-						outStream.writeBytes("(s));\r\n");
+						outStream.writeBytes("(s)");
+						outStream.writeBytes(streamDecl);
+						outStream.writeBytes("\r\n");
 					}
 				} else {
 					outStream.writeBytes("\t\t");
 					outStream.writeBytes(command);
 					outStream.writeBytes("(s);\r\n");
-				}
-				// write exceptions, if any, trapped from call to transport
-				// these are exceptions coming back from server and trapped as generic Exception
-				// we now break it out into its possible subclasses which are the
-				// thows clause of the method call we are currently writing out
-				if(excepts != null && !excepts.isEmpty()) {
-					outStream.writeBytes("\t\t} catch(Exception e) {\r\n");
-					Set<Entry<Class,String>> eset = excepts.entrySet();
-					Iterator<Entry<Class, String>> it = eset.iterator();
-					while(it.hasNext()) {
-						Entry<Class,String> e = it.next();
-						// if its the last entry, just fall through
-						if(it.hasNext()) {
-							outStream.writeBytes("\t\t\tif(e instanceof ");
-							outStream.writeBytes(e.getKey().getName());
-							outStream.writeBytes(")\r\n");
-							outStream.writeBytes("\t");
-						}
-						outStream.writeBytes(e.getValue());
-					}
-					outStream.writeBytes("\t\t}\r\n");
 				}
 				outStream.writeBytes("\t}\r\n");
 			}
@@ -255,47 +233,7 @@ public class GenerateClientBindings {
 		fos.close();
 
 	}
-	/**
-	 * Generate the list of exceptions and their repackaging as a linked map of
-	 * exception classes key and repackaged throws clause string, ready to write, as values
-	 * @param throwLine the line of comma separated throws from method signature
-	 * @return the Linked map of exception class and repackage string
-	 */
-	public static LinkedHashMap<Class,String> generateExceptions(String throwLine) {
-		LinkedHashMap<Class,String> lhm = new LinkedHashMap<Class,String>();
-		String[] excepts = throwLine.split(",");
-		Class[] cexcepts = new Class[excepts.length];
-		//System.out.println(Arrays.toString(excepts));
-		// parse string of exception types, create classes, get constructors, determine params
-		nextExcept:
-		for(int c = 0; c < excepts.length; c++) {
-			try {
-				cexcepts[c] = Class.forName(excepts[c]); // get exception class
-				Constructor[] ctors = cexcepts[c].getConstructors();
-				// see if we can construct this particular exception with thrown generic Exception, string, or no args
-				// if no args, we wont find an entry in the LinkedHasMap
-				for(Constructor ctor: ctors) {
-					Class[] params = ctor.getParameterTypes();
-					for(Class param: params) {	
-						if(Throwable.class.isAssignableFrom(param) && 
-								!excepts[c].contains("NoSuchElementException") &&
-								!excepts[c].contains("ClassNotFoundException")) { // for some reason, this kludge is necessary
-							lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"(e);\r\n"); // create from Exception
-							continue nextExcept; // found an exception param, done here
-						} else {
-							if(String.class.isAssignableFrom(param)) {
-								lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"(e.getMessage());\r\n"); // create from String
-							}
-						}
-					}
-				}
-				// went through all ctors with continue at main loop, must be a no-arg ctor situation if we dont have entry
-				if(!lhm.containsKey(cexcepts[c]))
-					lhm.put(cexcepts[c], "\t\t\tthrow new "+excepts[c]+"();\r\n"); 
-			} catch (ClassNotFoundException e) {}
-		}
-		return lhm;
-	}
+
 	/**
 	 * Generate the interface file for each client method binding
 	 * @param rmnap
