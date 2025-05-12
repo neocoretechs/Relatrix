@@ -5,23 +5,16 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
-import com.neocoretechs.relatrix.client.RemoteStream;
 
 /**
  * Call with args: classname, output interface name, statement and transport method names,and desired package declaration.<p/>
@@ -52,8 +45,11 @@ public class GenerateAsynchClientBindings {
 		"java.util.stream.Stream",
 		"java.util.List",
 		"java.util.concurrent.CompletableFuture",
+		"java.util.concurrent.ExecutionException",
+		"java.util.concurrent.CompletionException",
 		"com.neocoretechs.rocksack.Alias",
-		"com.neocoretechs.rocksack.TransactionId"
+		"com.neocoretechs.rocksack.TransactionId",
+		"com.neocoretechs.relatrix.client.*"
 	};
 	// append to return [command] for stream type
 	public static String streamDecl = ".thenApply(result -> {\r\n"
@@ -69,11 +65,21 @@ public class GenerateAsynchClientBindings {
 	// append to return [command] for Iterator type
 	public static String iteratorDecl = ".thenApply(result -> (Iterator) result);\r\n";
 	public static String castDecl = ".thenApply(result -> (%s) result);\r\n";
-	public static String returnCastDecl = "		try {\r\n"
-			+ "			return cf.get();\r\n"
-			+ "		} catch (InterruptedException | ExecutionException e) {\r\n"
-			+ "			throw new RuntimeException(e);\r\n"
-			+ "		}\r\n";
+	public static String returnCastDecl = "          try {\r\n"
+			+ "                    return cf.get();\r\n"
+			+ "          } catch (InterruptedException | ExecutionException e) {\r\n"
+			+ "                    throw new RuntimeException(e);\r\n"
+			+ "          }\r\n";
+	public static String voidCastDecl = "          try {\r\n"
+			+ "                    cf.get();\r\n"
+			+ "          } catch (InterruptedException | ExecutionException e) {\r\n"
+			+ "                    throw new RuntimeException(e);\r\n"
+			+ "          }\r\n";
+	public static String returnCastDeclApply = "          try {\r\n"
+			+ "                    return cf.thenApply(result -> (%s) result).get();\r\n"
+			+ "          } catch (InterruptedException | ExecutionException e) {\r\n"
+			+ "                    throw new RuntimeException(e);\r\n"
+			+ "          }\r\n";
 	//
 	// The extend field specifies the interfaces implemented by this class that include methods that should be synchronous to comply with the other synchronous
 	// implementations for compatibility. We will issue an asych call to queueCommand , then do a a get to return a completed instance
@@ -225,7 +231,13 @@ public class GenerateAsynchClientBindings {
 					outStream.writeBytes("\t\tCompletableFuture<Object> cf = "); // cast return to return type of method
 					outStream.writeBytes(command);
 					outStream.writeBytes("(s);\r\n");
-					outStream.writeBytes(returnCastDecl);
+					if(rmnap.returnTypes[mnum].equals(Void.class))
+						outStream.writeBytes(voidCastDecl);
+					else
+						if(rmnap.returnTypes[mnum].equals(Object.class))
+							outStream.writeBytes(returnCastDecl);
+						else 
+							outStream.writeBytes(String.format(returnCastDeclApply, rmnap.returnTypes[mnum].getSimpleName()));
 					outStream.writeBytes("\t}\r\n");
 				} else {	
 					// ...method not excluded
@@ -241,8 +253,10 @@ public class GenerateAsynchClientBindings {
 									rType = rType+rmnap.returnTypes[mnum].getSimpleName().substring(1);
 									outStream.writeBytes(String.format(castDecl,rType));
 								} else
-									outStream.writeBytes(String.format(castDecl, rmnap.returnTypes[mnum].getSimpleName()));
-								outStream.writeBytes(";\r\n");
+									if(rmnap.returnTypes[mnum].equals(Object.class))
+										outStream.writeBytes(";\r\n");
+									else
+										outStream.writeBytes(String.format(castDecl, rmnap.returnTypes[mnum].getSimpleName()));
 							} else {
 								outStream.writeBytes("\t\treturn "); // cast return to remote iterator
 								outStream.writeBytes(command);
@@ -258,7 +272,7 @@ public class GenerateAsynchClientBindings {
 							outStream.writeBytes("\r\n");
 						}
 					} else {
-						outStream.writeBytes("\t\t"); // Void
+						outStream.writeBytes("\t\treturn "); // Void
 						outStream.writeBytes(command);
 						outStream.writeBytes("(s)");
 						outStream.writeBytes(String.format(castDecl,"Void"));
