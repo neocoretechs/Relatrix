@@ -8,24 +8,26 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixStatement;
+import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
+import com.neocoretechs.rocksack.Alias;
 
 /**
- * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixServer} 
+ * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVServer} 
  * Worker threads located on a remote node. 
  * On the client and server the following are present as conventions:<br/>
  * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
@@ -42,7 +44,7 @@ import com.neocoretechs.relatrix.server.ThreadPoolManager;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface, ClientNonTransactionInterface, Runnable {
+public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl implements AsynchRelatrixKVClientInterface, ClientNonTransactionInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
@@ -51,8 +53,8 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	private String bootNode, remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
+	protected int MASTERPORT = 9874; // master port, accepts connection from remote server
+	protected int SLAVEPORT = 9875; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected InetAddress IPAddress = null; // remote server address
 	private InetAddress localIPAddress = null; // local server address
@@ -65,10 +67,10 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 
-	public AsynchRelatrixClient() { }
+	public AsynchRelatrixKVClient() { }
 	
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
+	 * Start a Relatrix K/V client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
 	 * database and get back the master and slave ports of the remote server. The main client thread then
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
@@ -77,7 +79,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public AsynchRelatrixClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
+	public AsynchRelatrixKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
@@ -88,7 +90,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("AsynchRelatrixClient constructed with remote:"+IPAddress);
+			System.out.println("AsynchRelatrixKVClient constructed with remote:"+IPAddress);
 		}
 		localIPAddress = InetAddress.getByName(bootNode);
 		//
@@ -120,12 +122,12 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 			sock.setReceiveBufferSize(32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("AsynchRelatrixClient server socket accept failed with "+e1);
+			System.out.println("AsynchRelatrixKVClient server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
   	    if( DEBUG ) {
-  	    	 System.out.println("AsynchRelatrixClient got connection "+sock);
+  	    	 System.out.println("AsynchRelatrixKVClient got connection "+sock);
   	    }
   	    try {
   	    	while(shouldRun ) {
@@ -142,7 +144,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    			System.out.println("Asynch FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println("AsynchRelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println("AsynchRelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    			cf.completeExceptionally((Throwable) o);
   	    		} else {
@@ -172,7 +174,6 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	/**
 	 * Queue a command to the blocking deque. Its a circular deque, so once capacity is reach, oldest requests are overwritten
 	*/ 
-	//@Override
 	public CompletableFuture<Object> queueCommand(RelatrixStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
 		rs.setCompletionObject(cf);
@@ -255,9 +256,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * @param rii RelatrixTransactionStatement
 	 * @return The next iterated object or null
 	 */
-	public CompletableFuture<Object> next(RelatrixStatement rii) throws Exception {
-		rii.methodName = "next";
-		rii.paramArray = new Object[0];
+	public CompletableFuture<Object> next(RelatrixKVStatement rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
 	/**
@@ -267,9 +268,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * @param rii RelatrixTransactionStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public CompletableFuture<Object> hasNext(RelatrixStatement rii) throws Exception {
-		rii.methodName = "hasNext";
-		rii.paramArray = new Object[0];
+	public CompletableFuture<Object> hasNext(RelatrixKVStatement rii) throws Exception {
+		rii.setMethodName("hasNext");
+		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
 
@@ -277,9 +278,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(RelatrixStatement rii) throws Exception {
-		rii.methodName = "close";
-		rii.paramArray = new Object[0];
+	public void close(RelatrixKVStatement rii) throws Exception {
+		rii.setMethodName("close");
+		rii.setParamArray(new Object[0]);
 		queueCommand(rii);
 	}
 	
@@ -287,7 +288,39 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public String toString() {
 		return String.format("%s BootNode:%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",this.getClass().getName(), remoteNode, remotePort, sock, workerSocket);
 	}
-
+	/**
+	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
+	 * NonTransactionClient interface on the back end.
+	 */
+	@Override
+	public void storekv(Comparable index, Object instance) throws IOException {
+		store(index, instance);
+	}
+	/**
+	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
+	 * NonTransactionClient interface on the back end.
+	 */
+	@Override
+	public void storekv(Alias alias, Comparable index, Object instance) throws IOException {
+		store(alias, index, instance);
+	}
+	/**
+	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
+	 * NonTransactionClient interface on the back end.
+	 */
+	@Override
+	public Object getByIndex(DBKey index) throws IOException {
+		return get(index);
+	}
+	/**
+	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 
+	 * NonTransactionClient interface on the back end.
+	 */
+	@Override
+	public Object getByIndex(Alias alias, DBKey index) throws IOException {
+		return get(alias, index);
+	}
+	
 	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
@@ -295,8 +328,8 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		AsynchRelatrixClient rc = new AsynchRelatrixClient(args[0],args[1],Integer.parseInt(args[2]));
-		RelatrixStatement rs = null;
+		AsynchRelatrixKVClient rc = new AsynchRelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVStatement rs = null;
 		switch(args.length) {
 			case 4:
 				System.out.println("queueing..");
@@ -310,16 +343,16 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixStatement(args[3],args[4]);
+				rs = new RelatrixKVStatement(args[3],args[4]);
 				break;
 			case 6:
-				rs = new RelatrixStatement(args[3],args[4],args[5]);
+				rs = new RelatrixKVStatement(args[3],args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
+				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
@@ -332,5 +365,6 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		System.out.println("Return from future:"+cf.get()+" took:"+(System.nanoTime()-tim)+"ns.");
 		rc.close();
 	}
+
 
 }
