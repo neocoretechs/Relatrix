@@ -1,0 +1,1 @@
+generateclientbindingsasynch java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatement queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client com.neocoretechs.relatrix.client.ClientTransactionInterface 

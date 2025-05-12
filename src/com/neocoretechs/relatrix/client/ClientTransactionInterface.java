@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
 
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -11,6 +10,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
 public interface ClientTransactionInterface extends ClientInterface{
+	
 	public TransactionId getTransactionId() throws IOException;
 
 	public void storekv(TransactionId transactionId, Comparable index, Object instance) throws IOException;

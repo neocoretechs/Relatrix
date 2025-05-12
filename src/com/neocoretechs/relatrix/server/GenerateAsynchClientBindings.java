@@ -38,7 +38,9 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  *
  */
 public class GenerateAsynchClientBindings {
+	private static boolean DEBUG = true;
 	public static String outputClass = "AsynchRelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
+	public static String extend = "com.neocoretechs.relatrix.client.ClientNonTransactionInterface"; // extends this interface
 	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
 	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
@@ -73,17 +75,16 @@ public class GenerateAsynchClientBindings {
 			+ "			throw new RuntimeException(e);\r\n"
 			+ "		}\r\n";
 	//
-	// specify the interfaces that include methods that should be synchronous to comply with the other synchronous
+	// The extend field specifies the interfaces implemented by this class that include methods that should be synchronous to comply with the other synchronous
 	// implementations for compatibility. We will issue an asych call to queueCommand , then do a a get to return a completed instance
 	// with an object rather than CompletableFuture
-	private static String[] excludesInterfaces = new String[] {"ClientInterface"};
 	private static MethodNamesAndParams excludedMethods = null;
-	
+
 	public GenerateAsynchClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
-		if(args.length < 1 || args.length > 7)
-			throw new Exception("usage: java GenerateAsynchClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl]");
+		if(args.length < 1 || args.length > 8)
+			throw new Exception("usage: java GenerateAsynchClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl] [extends interface]");
 		if(!args[0].equals("false")) {
 			try {
 				Class c = Class.forName(args[0]);
@@ -105,8 +106,11 @@ public class GenerateAsynchClientBindings {
 			statementInterface = args[5];
 		if(args.length > 6)
 			packageDecl = args[6];
+		if(args.length > 7)
+			extend = args[7];
 		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0, false);
 		MethodNamesAndParams rmnap = sim.getMethodNamesAndParams();
+		generateExclusions();
 		generateInterface(rmnap);
 		generateImpl(rmnap);
 		System.exit(0);
@@ -163,7 +167,7 @@ public class GenerateAsynchClientBindings {
 			if(rmnap.methodSigs[mnum].contains(inputClass)) {
 				outStream.writeBytes("\t@Override\r\n");
 				outStream.writeBytes("\tpublic ");
-				if(isMethodExcluded(rmnap.methodSigs[mnum])) {
+				if(isMethodExcluded(rmnap.methodNames.get(mnum))) {
 					if(rmnap.returnTypes[mnum].equals(Void.class))
 						outStream.writeBytes("void");
 					else
@@ -171,8 +175,15 @@ public class GenerateAsynchClientBindings {
 				} else {
 					if(rmnap.returnTypes[mnum].equals(Void.class))
 						outStream.writeBytes("CompletableFuture<Void>");
-					else
-						outStream.writeBytes("CompletableFuture<"+rmnap.returnTypes[mnum].getSimpleName()+">");
+					else {
+						if(rmnap.returnTypes[mnum].isPrimitive()) {
+							// convert to class name of primitive wrapper
+							String rType = String.valueOf(rmnap.returnTypes[mnum].getSimpleName().charAt(0)).toUpperCase();
+							rType = rType+rmnap.returnTypes[mnum].getSimpleName().substring(1);
+							outStream.writeBytes("CompletableFuture<"+rType+">");
+						} else
+							outStream.writeBytes("CompletableFuture<"+rmnap.returnTypes[mnum].getSimpleName()+">");
+					}
 				}
 				outStream.writeBytes(" ");
 				outStream.writeBytes(rmnap.methodNames.get(mnum));
@@ -210,7 +221,7 @@ public class GenerateAsynchClientBindings {
 				// If not void, set up cast to return type for transport call
 				// If we are returning type of Stream or Iterator, add special logic
 				// NOTE: WE ASSUME RemoteStream and RemoteIterator are in same package as generated class and interface!
-				if(isMethodExcluded(rmnap.methodSigs[mnum])) {
+				if(isMethodExcluded(rmnap.methodNames.get(mnum))) {
 					outStream.writeBytes("\t\tCompletableFuture<Object> cf = "); // cast return to return type of method
 					outStream.writeBytes(command);
 					outStream.writeBytes("(s);\r\n");
@@ -224,10 +235,16 @@ public class GenerateAsynchClientBindings {
 								outStream.writeBytes("\t\treturn "); // cast return to return type of method
 								outStream.writeBytes(command);
 								outStream.writeBytes("(s)");
-								outStream.writeBytes(String.format(castDecl, rmnap.returnTypes[mnum].getSimpleName()));
+								if(rmnap.returnTypes[mnum].isPrimitive()) {
+									// convert to class name of primitive wrapper
+									String rType = String.valueOf(rmnap.returnTypes[mnum].getSimpleName().charAt(0)).toUpperCase();
+									rType = rType+rmnap.returnTypes[mnum].getSimpleName().substring(1);
+									outStream.writeBytes(String.format(castDecl,rType));
+								} else
+									outStream.writeBytes(String.format(castDecl, rmnap.returnTypes[mnum].getSimpleName()));
 								outStream.writeBytes(";\r\n");
 							} else {
-								outStream.writeBytes("\t\treturn "); // cast return to remote stream
+								outStream.writeBytes("\t\treturn "); // cast return to remote iterator
 								outStream.writeBytes(command);
 								outStream.writeBytes("(s)");
 								outStream.writeBytes(iteratorDecl);
@@ -241,9 +258,11 @@ public class GenerateAsynchClientBindings {
 							outStream.writeBytes("\r\n");
 						}
 					} else {
-						outStream.writeBytes("\t\t");
+						outStream.writeBytes("\t\t"); // Void
 						outStream.writeBytes(command);
-						outStream.writeBytes("(s);\r\n");
+						outStream.writeBytes("(s)");
+						outStream.writeBytes(String.format(castDecl,"Void"));
+						outStream.writeBytes("\r\n");
 					}
 					outStream.writeBytes("\t}\r\n");
 				}
@@ -272,7 +291,7 @@ public class GenerateAsynchClientBindings {
 		//}
 		FileOutputStream fos = new FileOutputStream(outputClass+".java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateClientBindings ");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateAsynchClientBindings ");
 		outStream.writeBytes((new Date()).toString());
 		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");
@@ -289,6 +308,10 @@ public class GenerateAsynchClientBindings {
 		outStream.writeBytes("\r\n\r\n");
 		outStream.writeBytes("public interface ");
 		outStream.writeBytes(outputClass);
+		if(extend != null) {
+			outStream.writeBytes(" extends ");
+			outStream.writeBytes(extend);
+		}
 		outStream.writeBytes("{");
 		outStream.writeBytes("\r\n\r\n");
 		for(int mnum = 0; mnum < rmnap.methodNames.size(); mnum++) {
@@ -296,17 +319,30 @@ public class GenerateAsynchClientBindings {
 				continue;
 			if(rmnap.methodSigs[mnum].contains(inputClass)) { // only methods with fully qualified class name in signature
 				outStream.writeBytes("\tpublic ");
-				if(rmnap.returnTypes[mnum].equals(Void.class))
-					outStream.writeBytes("void");
-				else
-					outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
+				if(isMethodExcluded(rmnap.methodNames.get(mnum))) {
+					if(rmnap.returnTypes[mnum].equals(Void.class))
+						outStream.writeBytes("void");
+					else
+						outStream.writeBytes(rmnap.returnTypes[mnum].getSimpleName());
+				} else {
+					if(rmnap.returnTypes[mnum].equals(Void.class))
+						outStream.writeBytes("CompletableFuture<Void>");
+					else
+						if(rmnap.returnTypes[mnum].isPrimitive()) {
+							// convert to class name of primitive wrapper
+							String rType = String.valueOf(rmnap.returnTypes[mnum].getSimpleName().charAt(0)).toUpperCase();
+							rType = rType+rmnap.returnTypes[mnum].getSimpleName().substring(1);
+							outStream.writeBytes("CompletableFuture<"+rType+">");
+						} else
+							outStream.writeBytes("CompletableFuture<"+rmnap.returnTypes[mnum].getSimpleName()+">");
+				}
 				outStream.writeBytes(" ");
 				outStream.writeBytes(rmnap.methodNames.get(mnum));
 				outStream.writeBytes("(");
 				for(int i = 0; i < rmnap.methodParams[mnum].length; i++) {
 					// substitute ellipsis for object array?
 					if(rmnap.methodParams[mnum][i].getSimpleName().contains("Object[]") && 
-						!rmnap.methodParams[mnum][i].isInstance(Object[].class))
+							!rmnap.methodParams[mnum][i].isInstance(Object[].class))
 						outStream.writeBytes("Object...");
 					else
 						outStream.writeBytes(rmnap.methodParams[mnum][i].getSimpleName());
@@ -315,10 +351,9 @@ public class GenerateAsynchClientBindings {
 					if(i < rmnap.methodParams[mnum].length-1)
 						outStream.writeBytes(",");
 				}
-				outStream.writeBytes(")");
-				outStream.writeBytes(";\r\n\r\n");
 			}
-			outStream.flush();
+			outStream.writeBytes(")");
+			outStream.writeBytes(";\r\n\r\n");
 		}
 		outStream.writeBytes("}");
 		outStream.writeBytes("\r\n\r\n");
@@ -353,14 +388,19 @@ public class GenerateAsynchClientBindings {
 	/**
 	 * Generate a list of methods from the stated interfaces that are processed as regular synchronous
 	 * methods to maintain compatibility with other implementations
+	 * @param inputClass 
 	 * @throws ClassNotFoundException
 	 */
 	private static void generateExclusions() throws ClassNotFoundException {
 		excludedMethods = new MethodNamesAndParams();
+		String[] excludesInterfaces = extend != null ? extend.split(",") : new String[] {};
 		for(String ifaces: excludesInterfaces) {
-			Class clazz = Class.forName(ifaces);
+			Class<?> clazz = Class.forName(ifaces);
+			System.out.println("Exclusion interface "+clazz);
 			Method[] m = clazz.getMethods();
 			for(Method me : m) {
+				if(DEBUG)
+					System.out.println("Got exclusion method:"+me.getName());
 				excludedMethods.methodNames.add(me.getName());
 			}
 		}
@@ -372,16 +412,29 @@ public class GenerateAsynchClientBindings {
 			Class<?> clazz = Class.forName(ifaces);
 			Method[] m = clazz.getMethods();
 			for(int i = 0; i < m.length; i++) {
-				excludedMethods.methodParams[methCnt] = m[i].getParameterTypes();
-				excludedMethods.methodSigs[methCnt] = m[i].toString();
-				excludedMethods.returnTypes[methCnt++] = m[i].getReturnType();
+				try {
+					Method me = clazz.getMethod(excludedMethods.methodNames.get(methCnt), m[i].getParameterTypes());
+					excludedMethods.methodParams[methCnt] = me.getParameterTypes();
+					excludedMethods.methodSigs[methCnt] = me.toString();
+					excludedMethods.returnTypes[methCnt] = me.getReturnType();
+				} catch (NoSuchMethodException | SecurityException e) {
+					e.printStackTrace();
+				}
+				++methCnt;
 			}
 		}
+		if(DEBUG)
+			for(int i = 0; i < excludedMethods.methodNames.size(); i++)
+				System.out.println("Exclude method:"+excludedMethods.methodNames.get(i));
 	}
-	private static boolean isMethodExcluded(String methodSig) {
-		for(int i = 0; i < excludedMethods.methodSigs.length; i++) {
-			if(excludedMethods.methodSigs[i].equals(methodSig))
-				return true;
+
+	private static boolean isMethodExcluded(String methodName) {
+		if(DEBUG)
+			System.out.println("Checking excluded method "+methodName);	
+		if(excludedMethods.methodNames.contains(methodName)) {
+			if(DEBUG)
+				System.out.println("Method "+methodName+" excluded");
+			return true;
 		}
 		return false;
 	}

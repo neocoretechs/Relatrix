@@ -36,6 +36,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  */
 public class GenerateClientBindings {
 	public static String outputClass = "RelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
+	public static String extend = "ClientNonTransactionInterface"; // extends this interface
 	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
 	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
@@ -56,8 +57,8 @@ public class GenerateClientBindings {
 	public GenerateClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
-		if(args.length < 1 || args.length > 7)
-			throw new Exception("usage: java GenerateClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl]");
+		if(args.length < 1 || args.length > 8)
+			throw new Exception("usage: java GenerateClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl] [extends interface]");
 		if(!args[0].equals("false")) {
 			exceptionOverride = true;
 			simplifiedException = args[0];
@@ -81,6 +82,8 @@ public class GenerateClientBindings {
 			statementInterface = args[5];
 		if(args.length > 6)
 			packageDecl = args[6];
+		if(args.length > 7)
+			extend = args[7];
 		ServerInvokeMethod sim = new ServerInvokeMethod(ClassLoader.getSystemClassLoader(), inputClass, 0, false);
 		MethodNamesAndParams rmnap = sim.getMethodNamesAndParams();
 		generateInterface(rmnap);
@@ -326,6 +329,10 @@ public class GenerateClientBindings {
 		outStream.writeBytes("\r\n\r\n");
 		outStream.writeBytes("public interface ");
 		outStream.writeBytes(outputClass);
+		if(extend != null) {
+			outStream.writeBytes(" extends ");
+			outStream.writeBytes(extend);
+		}
 		outStream.writeBytes("{");
 		outStream.writeBytes("\r\n\r\n");
 		for(int mnum = 0; mnum < rmnap.methodNames.size(); mnum++) {
