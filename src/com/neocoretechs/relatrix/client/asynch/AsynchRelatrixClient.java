@@ -157,7 +157,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    		rs.signalCompletion(o);
   	    	}
 		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
+			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
 				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -207,11 +207,8 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 			sock.close();
 		} catch (IOException e) {}
 		sock = null;
-		synchronized(waitHalt) {
-			try {
-				waitHalt.wait();
-			} catch (InterruptedException ie) {}
-		}
+		queuedRequests = null;
+		Thread.currentThread().interrupt();
 		ThreadPoolManager.getInstance().shutdown(); // client threads
 	}
 	

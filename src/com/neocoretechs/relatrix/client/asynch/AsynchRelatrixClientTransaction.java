@@ -163,7 +163,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
   	    		rs.signalCompletion(o);
   	    	}
 		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
+			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
 				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -213,11 +213,8 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 			sock.close();
 		} catch (IOException e) {}
 		sock = null;
-		synchronized(waitHalt) {
-			try {
-				waitHalt.wait();
-			} catch (InterruptedException ie) {}
-		}
+		queuedRequests = null;
+		Thread.currentThread().interrupt();
 		ThreadPoolManager.getInstance().shutdown(); // client threads
 	}
 	
@@ -293,7 +290,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	
 	@Override
 	public String toString() {
-		return String.format("%s BootNode:%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",this.getClass().getName(), remoteNode, remotePort, sock, workerSocket);
+		return String.format("%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",this.getClass().getName(), remoteNode, remotePort, sock, workerSocket);
 	}
 
 	static int i = 0;
