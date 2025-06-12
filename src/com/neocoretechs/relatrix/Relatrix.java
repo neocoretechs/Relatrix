@@ -118,7 +118,7 @@ public final class Relatrix {
 		sftpm.init(6, 6, new String[] {storeX});
 		sftpm.init(5, 5, new String[] {deleteX});
 		sftpm.init(2, 2, new String[] {storeI});
-		sftpm.init(3, 3, new String[] {searchX});
+		sftpm.init(16, 16, new String[] {searchX});
 		sftpm.init(numMultiStoreThreads, numMultiStoreThreads, new String[] {multiStoreX});
 	}
 	
@@ -918,14 +918,14 @@ public final class Relatrix {
 	}
 	
 	/**
-	 * Appears slower for this application
-	 * @param itd
-	 * @param itm
-	 * @param itr
-	 * @param deleted
+	 * Perform parallel findSet with list of domains
+	 * @param d List of domain Objects
+	 * @param m map operator
+	 * @param r range operator
+	 * @return List of Results
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(List<Comparable> d, Character m, Character r) {
+	public static List<Result> findSetParallel(List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
@@ -959,9 +959,216 @@ public final class Relatrix {
 		return results;
 	}
 	/**
-	 * 
-	 * @param transactionId
-	 * @param removed
+	 * Perform parallel findSet with list of maps
+	 * @param d domain operator
+	 * @param m List of maps
+	 * @param r range operator
+	 * @return List of Results
+	 */
+	@ServerMethod
+	public static List<Result> findSetParallel(Character d, List<Object> m, Character r) {
+		List<Future<Object>> futures = new ArrayList<>();
+		for(int i = 0; i < m.size(); i++) {
+			final int taskId = i;
+			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+				@Override
+				public List<Result> call() {
+					List<Result> res = new ArrayList<Result>();
+					try {
+						Iterator<?> it = findSet(m.get(taskId), m, r);
+						while(it.hasNext()) {
+							res.add((Result) it.next());
+						}
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					return res;
+				}
+			},searchX));
+		}
+		// Collect results
+		List<Result> results = new ArrayList<>();
+		for (Future<Object> future : futures) {
+			List<Result> res;
+			try {
+				res = (List<Result>) future.get();
+				results.addAll(res); // Blocking call to get the result
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
+	}
+	/**
+	 * Perform parallel findSet with list of ranges
+	 * @param d domain operator
+	 * @param m map operator
+	 * @param r List of ranges
+	 * @return List of Results
+	 */
+	@ServerMethod
+	public static List<Result> findSetParallel(Character d, Character m, List<Object> r) {
+		List<Future<Object>> futures = new ArrayList<>();
+		for(int i = 0; i < r.size(); i++) {
+			final int taskId = i;
+			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+				@Override
+				public List<Result> call() {
+					List<Result> res = new ArrayList<Result>();
+					try {
+						Iterator<?> it = findSet(r.get(taskId), m, r);
+						while(it.hasNext()) {
+							res.add((Result) it.next());
+						}
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					return res;
+				}
+			},searchX));
+		}
+		// Collect results
+		List<Result> results = new ArrayList<>();
+		for (Future<Object> future : futures) {
+			List<Result> res;
+			try {
+				res = (List<Result>) future.get();
+				results.addAll(res); // Blocking call to get the result
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
+	}
+	/**
+	 * Perform parallel findSet with list of domains
+	 * @param alias alias
+	 * @param d List of domain Objects
+	 * @param m map operator
+	 * @param r range operator
+	 * @return List of Results
+	 */
+	@ServerMethod
+	public static List<Result> findSetParallel(Alias alias, List<Object> d, Character m, Character r) {
+		List<Future<Object>> futures = new ArrayList<>();
+		for(int i = 0; i < d.size(); i++) {
+			final int taskId = i;
+			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+				@Override
+				public List<Result> call() {
+					List<Result> res = new ArrayList<Result>();
+					try {
+						Iterator<?> it = findSet(alias, d.get(taskId), m, r);
+						while(it.hasNext()) {
+							res.add((Result) it.next());
+						}
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					return res;
+				}
+			},searchX));
+		}
+		// Collect results
+		List<Result> results = new ArrayList<>();
+		for (Future<Object> future : futures) {
+			List<Result> res;
+			try {
+				res = (List<Result>) future.get();
+				results.addAll(res); // Blocking call to get the result
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
+	}
+	/**
+	 * Perform parallel findSet with list of maps
+	 * @param alias alias
+	 * @param d domain operator
+	 * @param m List of maps
+	 * @param r range operator
+	 * @return List of Results
+	 */
+	@ServerMethod
+	public static List<Result> findSetParallel(Alias alias, Character d, List<Object> m, Character r) {
+		List<Future<Object>> futures = new ArrayList<>();
+		for(int i = 0; i < m.size(); i++) {
+			final int taskId = i;
+			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+				@Override
+				public List<Result> call() {
+					List<Result> res = new ArrayList<Result>();
+					try {
+						Iterator<?> it = findSet(alias, m.get(taskId), m, r);
+						while(it.hasNext()) {
+							res.add((Result) it.next());
+						}
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					return res;
+				}
+			},searchX));
+		}
+		// Collect results
+		List<Result> results = new ArrayList<>();
+		for (Future<Object> future : futures) {
+			List<Result> res;
+			try {
+				res = (List<Result>) future.get();
+				results.addAll(res); // Blocking call to get the result
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
+	}
+	/**
+	 * Perform parallel findSet with list of ranges
+	 * @param alias alias
+	 * @param d domain operator
+	 * @param m map operator
+	 * @param r List of ranges
+	 * @return List of Results
+	 */
+	@ServerMethod
+	public static List<Result> findSetParallel(Alias alias, Character d, Character m, List<Object> r) {
+		List<Future<Object>> futures = new ArrayList<>();
+		for(int i = 0; i < r.size(); i++) {
+			final int taskId = i;
+			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+				@Override
+				public List<Result> call() {
+					List<Result> res = new ArrayList<Result>();
+					try {
+						Iterator<?> it = findSet(alias, r.get(taskId), m, r);
+						while(it.hasNext()) {
+							res.add((Result) it.next());
+						}
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
+					}
+					return res;
+				}
+			},searchX));
+		}
+		// Collect results
+		List<Result> results = new ArrayList<>();
+		for (Future<Object> future : futures) {
+			List<Result> res;
+			try {
+				res = (List<Result>) future.get();
+				results.addAll(res); // Blocking call to get the result
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
+	}
+	/**
+	 * Internal parallel delete
+	 * @param removed List of DBKeys to remove
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
