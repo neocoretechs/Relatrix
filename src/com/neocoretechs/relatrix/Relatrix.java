@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -922,57 +924,39 @@ public final class Relatrix {
 	 * @param itr
 	 * @param deleted
 	 */
-	private static void parallelSearch(Iterator<?> itd, Iterator<?> itm, Iterator<?> itr, List<DBKey> deleted) {
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {    
-				try {
-					while(itd.hasNext()) {
-						Result o = (Result) itd.next();
-						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
-							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
+	@ServerMethod
+	public static List<Result> findSetParallel(List<Comparable> d, Character m, Character r) {
+		List<Future<Object>> futures = new ArrayList<>();
+		for(int i = 0; i < d.size(); i++) {
+			final int taskId = i;
+			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+				@Override
+				public List<Result> call() {
+					List<Result> res = new ArrayList<Result>();
+					try {
+						Iterator<?> it = findSet(d.get(taskId), m, r);
+						while(it.hasNext()) {
+							res.add((Result) it.next());
 						}
+					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+						throw new RuntimeException(e);
 					}
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
+					return res;
 				}
-			}
-		},searchX);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {    
-				try {
-					while(itm.hasNext()) {
-						Result o = (Result) itm.next();
-						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
-							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
-						}
-					}
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},searchX);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
-			@Override
-			public void run() {    
-				try {
-					while(itr.hasNext()) {
-						Result o = (Result) itr.next();
-						if(!deleted.contains(((AbstractRelation)o.get(0)).getIdentity())) {
-							deleted.add(((AbstractRelation)o.get(0)).getIdentity());
-						}
-					}
-				} catch (IllegalArgumentException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		},searchX);
-		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(searchX);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			},searchX));
 		}
+		// Collect results
+		List<Result> results = new ArrayList<>();
+		for (Future<Object> future : futures) {
+			List<Result> res;
+			try {
+				res = (List<Result>) future.get();
+				results.addAll(res); // Blocking call to get the result
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		return results;
 	}
 	/**
 	 * 

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -285,6 +286,25 @@ public class SynchronizedFixedThreadPoolManager {
 		FactoryThreadsLimit ftl = ((FactoryThreadsLimit)executor.get(group));
 		ExecutorService exe = ftl.exs;
 	    return exe.submit(r);
+	}
+	/**
+	 * Get the Future via executor submit for default SYSTEMSYNC
+	 * @param r
+	 * @return
+	 */
+	public static Future<Object> submit(Callable<Object> r) {
+		FactoryThreadsLimit ftl = ((FactoryThreadsLimit)executor.get("SYSTEMSYNC"));
+        return ftl.exs.submit(r);
+    }
+    /**
+     * Get the Future via executor for named group
+     * @param r
+     * @param group
+     * @return
+     */
+	public static Future<Object> submit(Callable<Object> r, String group) {
+		FactoryThreadsLimit ftl = ((FactoryThreadsLimit)executor.get(group));
+	    return ftl.exs.submit(r);
 	}
     /**
      * Shutdown all threads
