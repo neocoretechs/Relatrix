@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -35,6 +36,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.ThreadPoolManager;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -379,6 +381,48 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 		System.out.println(rc.sendCommand(rs));
 		//rc.send(rs);
 		rc.close();
+	}
+
+
+	@Override
+	public List findSetParallel(Alias arg1, Character arg2, List arg3, Character arg4) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List findSetParallel(Alias arg1, List arg2, Character arg3, Character arg4) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List findSetParallel(Alias arg1, Character arg2, Character arg3, List arg4) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List findSetParallel(Character arg1, Character arg2, List arg3) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List findSetParallel(Character arg1, List arg2, Character arg3) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List findSetParallel(List arg1, Character arg2, Character arg3) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

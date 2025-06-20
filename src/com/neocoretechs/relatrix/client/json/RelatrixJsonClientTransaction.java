@@ -16,12 +16,14 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import org.json.JSONObject;
 
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
@@ -394,6 +396,42 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 		System.out.println(rc.sendCommand(rs));
 		rc.endTransaction(xid);
 		rc.close();
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1, TransactionId arg2, Character arg3, Character arg4, List arg5) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1, TransactionId arg2, Character arg3, List arg4, Character arg5) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List findSetParallel(TransactionId arg1, List arg2, Character arg3, Character arg4) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1, TransactionId arg2, List arg3, Character arg4, Character arg5) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List findSetParallel(TransactionId arg1, Character arg2, Character arg3, List arg4) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List findSetParallel(TransactionId arg1, Character arg2, List arg3, Character arg4) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

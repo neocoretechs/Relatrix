@@ -118,7 +118,7 @@ public final class RelatrixTransaction {
 		sftpm.init(6, 6, new String[] {storeXTransaction});
 		sftpm.init(5, 5, new String[] {deleteXTransaction});
 		sftpm.init(2, 2, new String[] {storeITransaction});
-		sftpm.init(16, 15, new String[] {searchXTransaction});
+		sftpm.init(16, 16, new String[] {searchXTransaction});
 		sftpm.init(numMultiStoreThreads, numMultiStoreThreads, new String[] {multiStoreX});
 	}
 	
