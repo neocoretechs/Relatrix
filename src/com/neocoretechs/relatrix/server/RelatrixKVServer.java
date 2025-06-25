@@ -38,6 +38,7 @@ public class RelatrixKVServer extends TCPServer {
 	private static boolean DEBUGCOMMAND = false;
 	
 	public static InetAddress address;
+	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
 
@@ -69,6 +70,7 @@ public class RelatrixKVServer extends TCPServer {
 	 */
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
 		address = startServer(port);
 		if(port == 9999) {
@@ -86,9 +88,47 @@ public class RelatrixKVServer extends TCPServer {
 	
 	public RelatrixKVServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
 		address = InetAddress.getByName(iaddress);
 		startServer(port,address);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+	}
+	
+	public RelatrixKVServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVServer.port = port;
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		address = iaddress;
+		startServer(port,address);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+	}
+	
+	public RelatrixKVServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVServer.port = port;
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		address = iaddress;
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");

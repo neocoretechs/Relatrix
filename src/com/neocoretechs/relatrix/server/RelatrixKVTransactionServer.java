@@ -39,6 +39,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	private static boolean DEBUGCOMMAND = false;
 	
 	public static InetAddress address;
+	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
 
@@ -70,8 +71,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 */
 	public RelatrixKVTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
-	
 		address = startServer(port);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
@@ -93,9 +94,58 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 */
 	public RelatrixKVTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
 		address = InetAddress.getByName(iaddress);
 		startServer(port,address);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+	}
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
+	 * @throws IOException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
+	 */
+	public RelatrixKVTransactionServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVTransactionServer.port = port;
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		address = iaddress;
+		startServer(port,address);
+		if(port == 9999) {
+			isThisBytecodeRepository = true;
+			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
+			try {
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
+			} catch (IllegalAccessException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+	}
+	
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
+	 * @throws IOException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
+	 */
+	public RelatrixKVTransactionServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixKVTransactionServer.port = port;
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		address = iaddress;
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");

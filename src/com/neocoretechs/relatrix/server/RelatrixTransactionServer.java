@@ -39,6 +39,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	private static boolean DEBUGCOMMAND = false;
 	
 	public static InetAddress address;
+	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
 	
@@ -70,6 +71,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	 */
 	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixTransactionServer.port = port;
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -85,11 +87,45 @@ public class RelatrixTransactionServer extends TCPServer {
 	 */
 	public RelatrixTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixTransactionServer.port = port;
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+	}
+	
+	/**
+	 * Construct the server bound to stated address
+	 * @param address
+	 * @param port
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public RelatrixTransactionServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixTransactionServer.port = port;
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		address = iaddress;
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+		startServer(port,address);
+	}
+	
+	/**
+	 * Construct the server bound to stated address
+	 * @param address
+	 * @param port
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public RelatrixTransactionServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixTransactionServer.port = port;
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		address = iaddress;
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
 	@Override

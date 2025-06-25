@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.server;
 import java.net.*;
-
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.io.*;
 
 /**
@@ -11,6 +12,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 	Socket data = null;
 	private int port;
 	protected volatile boolean shouldStop = false;
+	private CountDownLatch startLatch = new CountDownLatch(1);
 	
 	public synchronized InetAddress startServer(int port) throws IOException {
 		if( this.server == null ) {
@@ -21,6 +23,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			//runner.start();
 			ThreadPoolManager.init(new String[]{"TCPSERVER"}, false);
 			ThreadPoolManager.getInstance().spin(this,"TCPSERVER");
+			startLatch.countDown();
 		}
 		return server.getInetAddress();
 	}
@@ -32,6 +35,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.server = new ServerSocket(port, 1000, binder);
 			ThreadPoolManager.init(new String[]{"TCPSERVER"}, false);
 			ThreadPoolManager.getInstance().spin(this,"TCPSERVER");
+			startLatch.countDown();
 		}
 	}
 	
@@ -42,6 +46,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.server = new ServerSocket(port);
 			ThreadPoolManager.init(new String[]{threadName}, false);
 			ThreadPoolManager.getInstance().spin(this,threadName);
+			startLatch.countDown();
 		}
 		return server.getInetAddress();
 	}
@@ -53,6 +58,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.server = new ServerSocket(port, 1000, binder);
 			ThreadPoolManager.init(new String[]{threadName}, false);
 			ThreadPoolManager.getInstance().spin(this,threadName);
+			startLatch.countDown();
 		}
 	}
 	
@@ -76,12 +82,15 @@ public abstract class TCPServer implements Cloneable, Runnable {
      * @throws IOException if socket or thread fails
      */
     public synchronized void startServer(InetAddress binder, String threadName) throws IOException {
+		if( this.server == null ) {
           	//InetAddress binder = InetAddress.getByName(host);
           	this.server = new ServerSocket(0,0,binder);
   			this.port = this.server.getLocalPort();
   			System.out.println("Server "+this.getClass().getName()+" starting on "+binder.getHostName()+" port "+port);
 			ThreadPoolManager.init(new String[]{threadName}, false);
 			ThreadPoolManager.getInstance().spin(this,threadName);
+			startLatch.countDown();
+		}
     }
 
 	public synchronized void stopServer() throws IOException {
@@ -89,8 +98,17 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			shouldStop = true;
 			server.close();
 			server = null;
+			startLatch = new CountDownLatch(1);
 			ThreadPoolManager.getInstance().shutdown("TCPSERVER");
 		}
+	}
+	
+	public void awaitStart() throws InterruptedException {
+		startLatch.await();
+	}
+
+	public boolean awaitStart(long timeout, TimeUnit unit) throws InterruptedException {
+		return startLatch.await(timeout, unit);
 	}
 
     public void reInit() throws IOException {

@@ -39,6 +39,7 @@ public class RelatrixServer extends TCPServer {
 	private static boolean DEBUGCOMMAND = false;
 	
 	public static InetAddress address;
+	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
 	
@@ -71,6 +72,7 @@ public class RelatrixServer extends TCPServer {
 	 */
 	public RelatrixServer(int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixServer.port = port;
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -85,11 +87,28 @@ public class RelatrixServer extends TCPServer {
 	 */
 	public RelatrixServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
+		RelatrixServer.port = port;
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+	}
+	
+	/**
+	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
+	 * @param address IP address
+	 * @param port Port upon which to start server
+	 * @throws IOException
+	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
+	 */
+	public RelatrixServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
+		super();
+		RelatrixServer.port = port;
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		address = iaddress;
+		for(int i = 0; i < iteratorServers.length; i++)
+			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
 	}
 	
 	@Override
