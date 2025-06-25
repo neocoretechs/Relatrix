@@ -67,7 +67,8 @@ public class ServerInvokeMethod {
     	for(int i = m.length-1; i >= 0 ; i--) {
     		if( m[i].isAnnotationPresent(ServerMethod.class) ) {
     			pkmnap.methodNames.add(m[i].getName());
-    			System.out.println("Method "+m[i].toString());
+    			if(DEBUG)
+    				System.out.println("Method "+m[i].toString());
     		}
     	}
     	// create arrays
