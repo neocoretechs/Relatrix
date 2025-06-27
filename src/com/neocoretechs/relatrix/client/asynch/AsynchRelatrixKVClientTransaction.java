@@ -138,7 +138,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
   	    }
   	    try {
   	    	while(shouldRun ) {
-  	    		RelatrixKVTransactionStatementInterface rs = queuedRequests.takeFirst();
+  	    		RelatrixKVTransactionStatementInterface rs = queuedRequests.takeFirstNotify();
   	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
   	    		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
   	    		oos.writeObject(rs);
@@ -185,7 +185,9 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 	public CompletableFuture<Object> queueCommand(RelatrixKVTransactionStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
 		rs.setCompletionObject(cf);
-		queuedRequests.addLast(rs);
+		try {
+			queuedRequests.addLastWait(rs);
+		} catch (InterruptedException e) {}
 		return cf;
 	}
 

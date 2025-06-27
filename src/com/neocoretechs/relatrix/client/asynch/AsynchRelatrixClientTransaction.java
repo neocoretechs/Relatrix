@@ -135,7 +135,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
   	    }
   	    try {
   	    	while(shouldRun ) {
-  	    		RelatrixTransactionStatementInterface rs = queuedRequests.takeFirst();
+  	    		RelatrixTransactionStatementInterface rs = queuedRequests.takeFirstNotify();
   	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
   	    		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
   	    		oos.writeObject(rs);
@@ -182,7 +182,9 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	public CompletableFuture<Object> queueCommand(RelatrixTransactionStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
 		rs.setCompletionObject(cf);
-		queuedRequests.addLast(rs);
+		try {
+			queuedRequests.addLastWait(rs);
+		} catch (InterruptedException e) {}
 		return cf;
 	}
 
