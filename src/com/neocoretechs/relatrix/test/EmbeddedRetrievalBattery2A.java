@@ -88,7 +88,7 @@ public class EmbeddedRetrievalBattery2A {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				dmr = Relatrix.store(fkey, "Has unit", new Long(i));
+				dmr = Relatrix.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -296,8 +296,8 @@ public class EmbeddedRetrievalBattery2A {
 		System.out.println("----------");
 		System.out.println("Repeat tests with region search range "+(max/2));
 		displayLine = 0;
-		System.out.println("18.) FindHeadset(?,?,?,String.class, String.class,"+(new Long(max/2))+");");
-		it =  Relatrix.findHeadSet('?', '?', '?',String.class, String.class, new Long(max/2));
+		System.out.println("18.) FindHeadset(?,?,?,String.class, String.class,"+(Long.valueOf(max/2))+");");
+		it =  Relatrix.findHeadSet('?', '?', '?',String.class, String.class, Long.valueOf(max/2));
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result3 c = (Result3)o;
@@ -308,8 +308,8 @@ public class EmbeddedRetrievalBattery2A {
 		}
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("19."+j+") FindHeadSet(?,?,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','?','?',ar3.get(j).get(0),ar3.get(j).get(1), new Long(max/2));
+			System.out.println("19."+j+") FindHeadSet(?,?,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','?','?',ar3.get(j).get(0),ar3.get(j).get(1), Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -320,8 +320,8 @@ public class EmbeddedRetrievalBattery2A {
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
 			displayLine = 0;
-			System.out.println("20."+j+") FindHeadSet(*,?,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','?','?',ar3.get(j).get(0), ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("20."+j+") FindHeadSet(*,?,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','?','?',ar3.get(j).get(0), ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -331,8 +331,8 @@ public class EmbeddedRetrievalBattery2A {
 			}
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("21."+j+") FindHeadSet(*,?,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','?','*',ar3.get(j).get(0), ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("21."+j+") FindHeadSet(*,?,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','?','*',ar3.get(j).get(0), ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -341,8 +341,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("22."+j+") FindHeadSet(?,*,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','*','*',ar3.get(j).get(0), ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("22."+j+") FindHeadSet(?,*,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','*','*',ar3.get(j).get(0), ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -351,8 +351,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("23."+j+") FindHeadSet(?,*,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','*','?',ar3.get(j).get(0), ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("23."+j+") FindHeadSet(?,*,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','*','?',ar3.get(j).get(0), ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -361,8 +361,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("24."+j+") FindHeadSet(?,?,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','?','*',ar3.get(j).get(0), ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("24."+j+") FindHeadSet(?,?,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','?','*',ar3.get(j).get(0), ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -371,8 +371,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("25."+j+") FindHeadSet(*,*,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','*','?',ar3.get(j).get(0), ar3.get(j).get(1), new Long(max/2));
+			System.out.println("25."+j+") FindHeadSet(*,*,?,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','*','?',ar3.get(j).get(0), ar3.get(j).get(1), Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -381,8 +381,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("26."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','*','*',ar3.get(j).get(0), ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("26."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+(ar3.get(j)).get(0)+","+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','*','*',ar3.get(j).get(0), ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -391,8 +391,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine = 0;
-			System.out.println("27."+j+") FindHeadSet(?,?,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','?','?',String.class,ar3.get(j).get(1), new Long(max/2));
+			System.out.println("27."+j+") FindHeadSet(?,?,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','?','?',String.class,ar3.get(j).get(1), Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -403,8 +403,8 @@ public class EmbeddedRetrievalBattery2A {
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
 			displayLine = 0;
-			System.out.println("28."+j+") FindHeadSet(*,?,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','?','?',String.class, ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("28."+j+") FindHeadSet(*,?,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','?','?',String.class, ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -414,8 +414,8 @@ public class EmbeddedRetrievalBattery2A {
 			}
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("29."+j+") FindHeadSet(*,?,*,<obj>,<obj>,<obj>) using = String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','?','*',String.class, ar3.get(j).get(1), new Long(max/2));
+			System.out.println("29."+j+") FindHeadSet(*,?,*,<obj>,<obj>,<obj>) using = String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','?','*',String.class, ar3.get(j).get(1), Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -424,8 +424,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("30."+j+") FindHeadSet(?,*,*,<obj>,<obj>,<obj>) using = String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','*','*',String.class, ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("30."+j+") FindHeadSet(?,*,*,<obj>,<obj>,<obj>) using = String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','*','*',String.class, ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -434,8 +434,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("31."+j+") FindHeadSet(?,*,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','*','?',String.class, ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("31."+j+") FindHeadSet(?,*,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','*','?',String.class, ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -444,8 +444,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("32."+j+") FindHeadSet(?,?,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('?','?','*',String.class, ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("32."+j+") FindHeadSet(?,?,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('?','?','*',String.class, ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -454,8 +454,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("33."+j+") FindHeadSet(*,*,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','*','?',String.class, ar3.get(j).get(1), new Long(max/2));
+			System.out.println("33."+j+") FindHeadSet(*,*,?,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','*','?',String.class, ar3.get(j).get(1), Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -464,8 +464,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("34."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ new Long(max/2));
-			it = Relatrix.findHeadSet('*','*','*',String.class, ar3.get(j).get(1),  new Long(max/2));
+			System.out.println("34."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using =String.class,"+(ar3.get(j)).get(1)+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','*','*',String.class, ar3.get(j).get(1),  Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;

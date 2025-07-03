@@ -120,7 +120,7 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				dmr = RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, new Long(i));
+				dmr = RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

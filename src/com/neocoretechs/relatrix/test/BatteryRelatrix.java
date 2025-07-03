@@ -103,7 +103,7 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(i));
+				Relatrix.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -130,7 +130,7 @@ public class BatteryRelatrix {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr = Relatrix.store(fkey, "Has unit", new Long(99999));
+				Relation dmr = Relatrix.store(fkey, "Has unit", Long.valueOf(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -168,7 +168,7 @@ public class BatteryRelatrix {
 					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 					throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 				}
-				//Long unit = new Long(i);
+				//Long unit = Long.valueOf(i);
 				//if(!nex[2].equals(unit))
 					//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[2]);
 				++i;
@@ -255,7 +255,7 @@ public class BatteryRelatrix {
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			//Long unit = new Long(i);
+			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
@@ -291,7 +291,7 @@ public class BatteryRelatrix {
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			//Long unit = new Long(i);
+			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 			//	System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
@@ -303,7 +303,7 @@ public class BatteryRelatrix {
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new Long(max));
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.valueOf(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
 	 * @param argv
 	 * @throws Exception
@@ -313,7 +313,7 @@ public class BatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max);
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new Long(max));
+		Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.valueOf(max));
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
@@ -326,7 +326,7 @@ public class BatteryRelatrix {
 				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			//Long unit = new Long(i);
+			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
@@ -376,7 +376,7 @@ public class BatteryRelatrix {
 			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
-		Relatrix.store(fkey, "Has unit", new Long(min));
+		Relatrix.store(fkey, "Has unit", Long.valueOf(min));
 		its = Relatrix.findSet('*', fkey, '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);

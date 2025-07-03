@@ -85,7 +85,7 @@ public class BatteryRelatrixKVClientTransaction {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(xid, fkey, new Long(i));
+			rkvc.store(xid, fkey, Long.valueOf(i));
 			++recs;
 		}
 		rkvc.commit(xid);
@@ -105,7 +105,7 @@ public class BatteryRelatrixKVClientTransaction {
 		TransactionId xid2 = rkvc.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(xid2, fkey, new Long(fkey));
+			rkvc.store(xid2, fkey, Long.valueOf(fkey));
 			++recs;
 		}
 		if( recs > 0) {
@@ -476,7 +476,7 @@ public class BatteryRelatrixKVClientTransaction {
 		String fkey = null;
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(xid2, fkey, new Long(i));
+			rkvc.store(xid2, fkey, Long.valueOf(i));
 			++recs;
 		}
 		System.out.println("Checkpointing new transaction "+xid2);
@@ -485,7 +485,7 @@ public class BatteryRelatrixKVClientTransaction {
 		System.out.println("Checkpointing new transaction took "+(System.currentTimeMillis()-ntim)+" .ms");
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(xid2, fkey, new Long(i));
+			rkvc.store(xid2, fkey, Long.valueOf(i));
 			++recs;
 		}
 		ntim = System.currentTimeMillis();

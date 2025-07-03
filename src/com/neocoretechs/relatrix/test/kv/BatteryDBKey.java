@@ -70,7 +70,7 @@ public class BatteryDBKey {
 		for(int i = min; i < max; i++) {
 			//try {
 				fkey = DBKey.newKey(indexTable, i); // puts to index and instance
-				//RelatrixKV.store(fkey, new Long(i));
+				//RelatrixKV.store(fkey, Long.valueOf(i));
 				++recs;
 			//} catch(DuplicateKeyException dke) { ++dupes; }
 		}

@@ -80,7 +80,7 @@ public class BatteryRelatrixKVClient {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(fkey, new Long(i));
+			rkvc.store(fkey, Long.valueOf(i));
 			++recs;
 		}
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -469,7 +469,7 @@ public class BatteryRelatrixKVClient {
 		String fkey = null;
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(fkey, new Long(i));
+			rkvc.store(fkey, Long.valueOf(i));
 			++recs;
 		}
 		// verify size
@@ -478,7 +478,7 @@ public class BatteryRelatrixKVClient {
 			System.out.println("Size at halway point of restore incorrect:"+s+" should be "+max1);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(fkey, new Long(i));
+			rkvc.store(fkey, Long.valueOf(i));
 			++recs;
 		}
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");

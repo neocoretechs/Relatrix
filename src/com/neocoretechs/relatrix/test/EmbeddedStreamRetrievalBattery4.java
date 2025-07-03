@@ -94,7 +94,7 @@ public class EmbeddedStreamRetrievalBattery4 {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				dmr = Relatrix.store(fkey, "Has unit", new Long(i));
+				dmr = Relatrix.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

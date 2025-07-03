@@ -86,7 +86,7 @@ public class BatteryRelatrixKVTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.store(xid, fkey, new Long(i));
+				RelatrixKVTransaction.store(xid, fkey, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -109,7 +109,7 @@ public class BatteryRelatrixKVTransactionStream {
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.store(xid2, fkey, new Long(fkey));
+				RelatrixKVTransaction.store(xid2, fkey, Long.valueOf(fkey));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -485,7 +485,7 @@ public class BatteryRelatrixKVTransactionStream {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.store(xid2, fkey, new Long(i));
+				RelatrixKVTransaction.store(xid2, fkey, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -494,7 +494,7 @@ public class BatteryRelatrixKVTransactionStream {
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKVTransaction.store(xid2, fkey, new Long(i));
+				RelatrixKVTransaction.store(xid2, fkey, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

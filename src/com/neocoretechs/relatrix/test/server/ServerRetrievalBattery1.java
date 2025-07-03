@@ -85,7 +85,7 @@ public class ServerRetrievalBattery1 {
 			Relation dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
-				dmr = rkvc.store(fkey, "Has unit", new Long(i));
+				dmr = rkvc.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			}
 			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");

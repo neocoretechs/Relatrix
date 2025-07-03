@@ -89,7 +89,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(xid, fkey, new Long(i));
+			rkvc.store(xid, fkey, Long.valueOf(i));
 			++recs;
 		}
 		rkvc.commit(xid);
@@ -110,7 +110,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 		System.out.println("KV Battery11 new transaction:"+xid2);
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(xid2, fkey, new Long(fkey));
+			rkvc.store(xid2, fkey, Long.valueOf(fkey));
 			++recs;
 		}
 		if( recs > 0) {

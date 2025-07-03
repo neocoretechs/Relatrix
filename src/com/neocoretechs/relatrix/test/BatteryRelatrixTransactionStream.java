@@ -110,7 +110,7 @@ public class BatteryRelatrixTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
+				RelatrixTransaction.store(xid2, fkey, "Has unit", Long.valueOf(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -139,7 +139,7 @@ public class BatteryRelatrixTransactionStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(99999));
+				Relation dmr = RelatrixTransaction.store(xid2, fkey, "Has unit", Long.valueOf(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -306,7 +306,7 @@ public class BatteryRelatrixTransactionStream {
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", new Long(max));
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.valueOf(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
 	 * @param argv
 	 * @param xid2 
@@ -317,9 +317,9 @@ public class BatteryRelatrixTransactionStream {
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max);
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "Has unit", new Long(max));
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "Has unit", Long.valueOf(max));
 		System.out.println(xid2+" Batteryt1AR101");
-		RelatrixTransaction.findStream(xid2, fkey, "Has unit", new Long(max)).forEach(e->{
+		RelatrixTransaction.findStream(xid2, fkey, "Has unit", Long.valueOf(max)).forEach(e->{
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
 			Result nex = (Result) e;
@@ -332,7 +332,7 @@ public class BatteryRelatrixTransactionStream {
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			//Long unit = new Long(i);
+			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;
@@ -383,7 +383,7 @@ public class BatteryRelatrixTransactionStream {
 			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
-		RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(min));
+		RelatrixTransaction.store(xid2, fkey, "Has unit", Long.valueOf(min));
 		its = RelatrixTransaction.findSet(xid2, "*", fkey, "*");
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);

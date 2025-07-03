@@ -103,7 +103,7 @@ public class BatteryRelatrixStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(i));
+				Relatrix.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -130,7 +130,7 @@ public class BatteryRelatrixStream {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr = Relatrix.store(fkey, "Has unit", new Long(99999));
+				Relation dmr = Relatrix.store(fkey, "Has unit", Long.valueOf(99999));
 				++recs;
 				System.out.println("SHOULD NOT BE storing "+recs+" "+fkey+" dmr:"+dmr);
 				//if((System.currentTimeMillis()-tims) > 1000) {
@@ -291,7 +291,7 @@ public class BatteryRelatrixStream {
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Relatrix.findStream(fkey, "Has unit", new Long(max));
+	 * Relatrix.findStream(fkey, "Has unit", Long.valueOf(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
 	 * @param argv
 	 * @throws Exception
@@ -302,7 +302,7 @@ public class BatteryRelatrixStream {
 		System.out.println("Battery1AR101");
 		String fkey = key + String.format(uniqKeyFmt, max);
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Relatrix.findStream(fkey, "Has unit", new Long(max)).forEach(e->{
+		Relatrix.findStream(fkey, "Has unit", Long.valueOf(max)).forEach(e->{
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
 			Result nex = (Result) e;
@@ -315,7 +315,7 @@ public class BatteryRelatrixStream {
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			//Long unit = new Long(i);
+			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
 			++i;

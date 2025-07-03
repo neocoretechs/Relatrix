@@ -80,7 +80,7 @@ public class BatteryRelatrixKV {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(fkey, new Long(i));
+				RelatrixKV.store(fkey, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -466,7 +466,7 @@ public class BatteryRelatrixKV {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(fkey, new Long(i));
+				RelatrixKV.store(fkey, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -476,7 +476,7 @@ public class BatteryRelatrixKV {
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(fkey, new Long(i));
+				RelatrixKV.store(fkey, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

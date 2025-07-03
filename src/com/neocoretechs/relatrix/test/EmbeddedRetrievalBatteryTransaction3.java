@@ -94,7 +94,7 @@ public class EmbeddedRetrievalBatteryTransaction3 {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				dmr = RelatrixTransaction.store(xid2, fkey, "Has unit", new Long(i));
+				dmr = RelatrixTransaction.store(xid2, fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

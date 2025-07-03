@@ -127,7 +127,7 @@ public class BatteryRelatrixKVClientStreamAlias {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias12, fkey+alias12, new Long(i));
+			rkvc.store(alias12, fkey+alias12, Long.valueOf(i));
 			++recs;
 		}
 		System.out.println(alias12+" KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");

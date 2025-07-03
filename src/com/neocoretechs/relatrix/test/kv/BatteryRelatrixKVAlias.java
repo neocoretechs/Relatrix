@@ -90,7 +90,7 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias1, fkey+alias1, new Long(i));
+				RelatrixKV.store(alias1, fkey+alias1, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -103,7 +103,7 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias2, fkey+alias2, new Long(i));
+				RelatrixKV.store(alias2, fkey+alias2, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -116,7 +116,7 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias3, fkey+alias3, new Long(i));
+				RelatrixKV.store(alias3, fkey+alias3, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -562,9 +562,9 @@ public class BatteryRelatrixKVAlias {
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias1, fkey+alias1, new Long(i));
-				RelatrixKV.store(alias2, fkey+alias2, new Long(i));
-				RelatrixKV.store(alias3, fkey+alias3, new Long(i));
+				RelatrixKV.store(alias1, fkey+alias1, Long.valueOf(i));
+				RelatrixKV.store(alias2, fkey+alias2, Long.valueOf(i));
+				RelatrixKV.store(alias3, fkey+alias3, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -574,9 +574,9 @@ public class BatteryRelatrixKVAlias {
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
-				RelatrixKV.store(alias1, fkey+alias1, new Long(i));
-				RelatrixKV.store(alias2, fkey+alias2, new Long(i));
-				RelatrixKV.store(alias3, fkey+alias3, new Long(i));
+				RelatrixKV.store(alias1, fkey+alias1, Long.valueOf(i));
+				RelatrixKV.store(alias2, fkey+alias2, Long.valueOf(i));
+				RelatrixKV.store(alias3, fkey+alias3, Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}

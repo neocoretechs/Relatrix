@@ -30,9 +30,16 @@
 
   <!-- Compiles the java code (including the usage of library for JUnit -->
   <target name="compile" depends="makedir">
-    <javac compiler="modern" srcdir="${src.dir}" destdir="${build.dir}" >
+    <!--<javac compiler="modern" srcdir="${src.dir}" destdir="${build.dir}" >
   		<classpath refid="master-classpath"/>
-    </javac>
+    </javac>-->
+  	<javac srcdir="${src.dir}" destdir="${build.dir}" source="25" target="25" includeantruntime="false">
+  	  <compilerarg value="--enable-preview"/>
+  	  <compilerarg value="--add-modules"/>
+  	  <compilerarg value="jdk.incubator.vector"/>
+  	  <classpath refid="master-classpath"/>
+  	</javac>
+
   </target>
 
 	<target name="copy" depends="jar">

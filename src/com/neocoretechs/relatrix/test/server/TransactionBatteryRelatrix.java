@@ -60,9 +60,9 @@ public class TransactionBatteryRelatrix {
 		int i = min;
 		for(; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			Relation dmr = session.store(xid, fkey, "Has unit", new Long(i));
+			Relation dmr = session.store(xid, fkey, "Has unit", Long.valueOf(i));
 			System.out.println(i+".)"+dmr);
-			Relation dmr2 = session.store(xid, dmr ,"has identity",new Long(i));
+			Relation dmr2 = session.store(xid, dmr ,"has identity",Long.valueOf(i));
 			System.out.println(i+".)"+dmr2);
 			++recs;
 		}
@@ -76,7 +76,7 @@ public class TransactionBatteryRelatrix {
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-				Optional<?> o =  session.findStream(xid, fkey, "Has unit", new Long(i)).findFirst();
+				Optional<?> o =  session.findStream(xid, fkey, "Has unit", Long.valueOf(i)).findFirst();
 				if(o.isPresent()) {
 					Optional<?> p = session.findStream(xid, ((Result)o.get()).get(), '*', '*').findFirst();
 					if(p.isPresent()) {
@@ -106,7 +106,7 @@ public class TransactionBatteryRelatrix {
 								if(!(d.getRange() instanceof Long))
 									System.out.println(d.getRange().getClass()+" range isnt Long; value:"+d);
 								else {
-									if(!d.getRange().equals(new Long(i)))
+									if(!d.getRange().equals(Long.valueOf(i)))
 										System.out.println("Range doesnt match "+i);
 								}
 								// that takes care of morphism within morphism, now check remainder of composite morphism

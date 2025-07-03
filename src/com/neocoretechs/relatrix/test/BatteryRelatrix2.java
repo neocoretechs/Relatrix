@@ -88,7 +88,7 @@ public class BatteryRelatrix2 {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relatrix.store(fkey, "Has unit", new Long(i));
+				Relatrix.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -229,7 +229,7 @@ public class BatteryRelatrix2 {
 		int j = 0;
 		int range = 10;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSubSet('*', '*', '?', String.class, String.class, new Long(i), new Long(i+range));
+		Iterator<?> its = Relatrix.findSubSet('*', '*', '?', String.class, String.class, Long.valueOf(i), Long.valueOf(i+range));
 		System.out.println("Battery1E");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -261,7 +261,7 @@ public class BatteryRelatrix2 {
 		String skey = key + String.format(uniqKeyFmt, i);
 		String skey2 = key + String.format(uniqKeyFmt, i+range); // if 500 and 510 we should get 500 to 509
 		// Notice how we qualify the ranges here for subset. Should we have one range lesser, that range would supersede the greater.
-		Iterator<?> its = Relatrix.findSubSet('*', "Has unit", '?',skey, skey2, new Long(i), new Long(i+range));
+		Iterator<?> its = Relatrix.findSubSet('*', "Has unit", '?',skey, skey2, Long.valueOf(i), Long.valueOf(i+range));
 		System.out.println("Battery1F");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();

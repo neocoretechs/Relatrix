@@ -128,7 +128,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias12, xid, fkey+alias12, new Long(i));
+			rkvc.store(alias12, xid, fkey+alias12, Long.valueOf(i));
 			++recs;
 		}
 		rkvc.commit(alias12, xid);
@@ -148,9 +148,9 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		TransactionId xid2 = rkvc.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias1, xid2, fkey+alias1, new Long(fkey));
-			rkvc.store(alias2, xid2, fkey+alias2, new Long(fkey));
-			rkvc.store(alias3, xid2, fkey+alias3, new Long(fkey));
+			rkvc.store(alias1, xid2, fkey+alias1, Long.valueOf(fkey));
+			rkvc.store(alias2, xid2, fkey+alias2, Long.valueOf(fkey));
+			rkvc.store(alias3, xid2, fkey+alias3, Long.valueOf(fkey));
 			++recs;
 		}
 		if( recs > 0) {
@@ -523,14 +523,14 @@ public class BatteryRelatrixKVClientTransactionAlias {
 		String fkey = null;
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias12, xid2, fkey+alias12, new Long(i));
+			rkvc.store(alias12, xid2, fkey+alias12, Long.valueOf(i));
 			++recs;
 		}
 		System.out.println(alias12+" Checkpointing. new id:"+xid2);
 		rkvc.checkpoint(xid2);
 		for(int i = max1; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias12, xid2, fkey+alias12, new Long(i));
+			rkvc.store(alias12, xid2, fkey+alias12, Long.valueOf(i));
 			++recs;
 		}
 		rkvc.rollbackToCheckpoint(alias12, xid2);

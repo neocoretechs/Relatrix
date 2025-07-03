@@ -518,7 +518,7 @@ public class ApacheLog {
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
 		// retrieve all identity relationships that contain the concrete object specified
-		Iterator<?> it = Relatrix.findTailSet('*',"accessed by",'*', new Long(0),"");
+		Iterator<?> it = Relatrix.findTailSet('*',"accessed by",'*', Long.valueOf(0),"");
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Iterate all the retrieved identity relationships

@@ -104,7 +104,7 @@ public class BatteryRelatrixDeleteAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr1 = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
+				Relation dmr1 = Relatrix.store(alias12, fkey, "Has unit "+alias12, Long.valueOf(i));
 				++recs;
 				Relation dmr2 = Relatrix.store(alias12, dmr1, "Has related "+alias12, rando.nextLong());
 				++recs;	
@@ -145,7 +145,7 @@ public class BatteryRelatrixDeleteAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr1 = Relatrix.store(alias12, fkey, "Has unit "+alias12, new Long(i));
+				Relation dmr1 = Relatrix.store(alias12, fkey, "Has unit "+alias12, Long.valueOf(i));
 				++recs;
 				Relation dmr2 = Relatrix.store(alias12, dmr1, "Has related "+alias12, rando.nextLong());
 				++recs;
@@ -184,7 +184,7 @@ public class BatteryRelatrixDeleteAlias {
 		long tims = System.currentTimeMillis();
 		System.out.println(alias12+" Battery1AR6");
 		for(int i = min; i < max; i++) {
-			Long irec = new Long(i);
+			Long irec = Long.valueOf(i);
 			Relatrix.remove(alias12, irec);
 			if((System.currentTimeMillis()-tims) > 1000) {
 				System.out.println("deleting "+irec);

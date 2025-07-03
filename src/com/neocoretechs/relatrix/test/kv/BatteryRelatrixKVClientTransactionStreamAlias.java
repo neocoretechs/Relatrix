@@ -126,7 +126,7 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias12, xid, fkey+alias12, new Long(i));
+			rkvc.store(alias12, xid, fkey+alias12, Long.valueOf(i));
 			++recs;
 		}
 		rkvc.commit(alias12, xid);
@@ -147,7 +147,7 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 		TransactionId xid2 = rkvc.getTransactionId();
 		for(int i = max; i < max*2; i++) {
 			fkey = String.format(uniqKeyFmt, i);
-			rkvc.store(alias12, xid2, fkey+alias12, new Long(fkey));
+			rkvc.store(alias12, xid2, fkey+alias12, Long.valueOf(fkey));
 			++recs;
 		}
 		if( recs > 0) {
