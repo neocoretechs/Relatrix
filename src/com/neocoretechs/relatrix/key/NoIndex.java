@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class NoIndex implements Comparable, Serializable {
 	private static final long serialVersionUID = 1L;
-	private transient DBKey dbKey;
+	private DBKey dbKey;
 	private Object instance;
 	
 	public NoIndex() {}
