@@ -1362,7 +1362,7 @@ public final class Relatrix {
 	/**
 	 * Return a resolved list of all components of relationships that this object participates in.
 	 * If we supply a tuple, resolves the tuple from the 2 element array in the tuple element 0
-	 * @param c The key to locate for initial retrieval, or Tuple to privide intital relation
+	 * @param c The key to locate for initial retrieval, or Tuple to provide initial relation
 	 * @return The list of elements related to c
 	 * @throws IOException low-level access problem
 	 * @throws IllegalAccessException 

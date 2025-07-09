@@ -204,7 +204,13 @@ public interface IndexInstanceTableInterface {
 	 * @throws IOException
 	 */
 	DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException;
-
-
+	
+	void putKey(Alias alias2, DBKey dbKey, Object instance);
+	
+	void putKey(DBKey dbKey, Object instance);
+	
+	void putKey(Alias alias2, TransactionId transactionId, DBKey dbKey, Object instance);
+	
+	void putKey(TransactionId transactionId, DBKey dbKey, Object instance);
 
 }

@@ -419,5 +419,40 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		return (DBKey) ((ClientTransactionInterface)rc).get(alias, transactionId, (Comparable) instance);
 	}
 
+	@Override
+	public void putKey(Alias alias2, DBKey dbKey, Object instance) {
+		try {
+			((ClientNonTransactionInterface)rc).storekv(alias2, dbKey, instance);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void putKey(DBKey dbKey, Object instance) {
+		try {
+			((ClientNonTransactionInterface)rc).storekv(dbKey, instance);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public void putKey(Alias alias2, TransactionId transactionId, DBKey dbKey, Object instance) {
+		try {
+			((ClientTransactionInterface)rc).storekv(alias2, transactionId, dbKey, instance);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void putKey(TransactionId transactionId, DBKey dbKey, Object instance) {
+		try {
+			((ClientTransactionInterface)rc).storekv(transactionId, dbKey, instance);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 }

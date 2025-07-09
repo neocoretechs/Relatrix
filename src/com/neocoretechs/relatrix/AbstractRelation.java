@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
+import com.neocoretechs.relatrix.key.NoIndex;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.NotifyDBCompareTo;
 import com.neocoretechs.rocksack.TransactionId;
@@ -636,14 +637,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
          * valid, the {@link IndexResolver} uses its {@link com.neocoretechs.relatrix.key.IndexInstanceTableInterface}
          * to perform a getByIndex call on the range key of the KeySet, thus retrieving a range from the DBKey. 
 		 * {@link com.neocoretechs.relatrix.key.RelatrixIndex} 
-         * @return The real Comparable instance, pointed to by DBKey
+         * @return The real Comparable instance, pointed to by DBKey, or NoIndex instance containing Object
          */
         public Comparable getRange() {
         	try {
         		if(range != null)
         			return range;
         		if(DBKey.isValid(getRangeKey())) {
-        			range = resolveKey(getRangeKey());
+        			range = resolveKeyNoIndex(getRangeKey());
         		}
         		return range;
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
@@ -667,33 +668,49 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         	if(range == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
-         		checkKeyComaptibility(range);
-        		this.range = range;
-        		DBKey dbKey = null;
-        		if((dbKey = resolveInstance(range)) == null)
-        			setRangeKey(newKey(range));
-        		else
-        			setRangeKey(dbKey);						
+        		if(range instanceof NoIndex) {
+        			if(transactionId != null)
+        				IndexResolver.getIndexInstanceTable().putKey(transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			else
+        				IndexResolver.getIndexInstanceTable().putKey(((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			setRangeKey(((NoIndex)range).getDBKey());
+        		} else {
+        			checkKeyComaptibility(range);
+        			this.range = range;
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(range)) == null)
+        				setRangeKey(newKey(range));
+        			else
+        				setRangeKey(dbKey);	
+        		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
         	}
         }
         /**
-         * 
-         * @param alias2
-         * @param range
+         * Set the range for the relationship
+         * @param alias2 The database alias
+         * @param range The range value for the relation
          */
         public void setRange(Alias alias2, Comparable<?> range) {
         	if(range == null)
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
-         		checkKeyComaptibility(alias2, range);
-        		this.range = range;
-        		DBKey dbKey = null;
-        		if((dbKey = resolveInstance(alias2, range)) == null)
-        			setRangeKey(newKey(alias2, range));
-        		else
-        			setRangeKey(dbKey);						
+        		if(range instanceof NoIndex) {
+        			if(transactionId != null)
+        				IndexResolver.getIndexInstanceTable().putKey(alias2, transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			else
+        				IndexResolver.getIndexInstanceTable().putKey(alias2, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			setRangeKey(((NoIndex)range).getDBKey());
+        		} else {
+        			checkKeyComaptibility(alias2, range);
+        			this.range = range;
+        			DBKey dbKey = null;
+        			if((dbKey = resolveInstance(alias2, range)) == null)
+        				setRangeKey(newKey(alias2, range));
+        			else
+        				setRangeKey(dbKey);
+        		}
         	} catch (IllegalAccessException | ClassNotFoundException | IOException | NoSuchElementException e) {
         		throw new RuntimeException(e);
         	}
@@ -831,7 +848,6 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 				return (Comparable) IndexResolver.getIndexInstanceTable().get(key);
 			return (Comparable) IndexResolver.getIndexInstanceTable().get(transactionId,key);
 		}
-		
 		/**
 		 * Resolve an instance from the passed DBKey from the aliased database
 		 * @param key
@@ -855,6 +871,84 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 			if(transactionId == null)
 				return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
 			return (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
+		}
+		
+		/**
+		 * Resolve an instance from the passed DBKey from the aliased database for a range value that may not be Comparable and indexed
+		 * @param key
+		 * @return
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws IOException
+		 */
+		private Comparable resolveKeyNoIndex(Alias alias2, DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(DEBUG) {
+				if(transactionId == null) {
+					Object o = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
+					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,0);
+					if(!(o instanceof Comparable))
+						return new NoIndex(key, o);
+					return (Comparable) o;
+				} else {
+					Object o = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
+					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,o);
+					if(!(o instanceof Comparable))
+						return new NoIndex(key, o);
+					return (Comparable) o;
+				}
+			}
+			if(transactionId == null) {
+				Object o = IndexResolver.getIndexInstanceTable().get(alias2,key);
+				if(!(o instanceof Comparable))
+					return new NoIndex(key, o);
+				return (Comparable)o;
+			}
+			Object o = IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
+			if(!(o instanceof Comparable))
+				return new NoIndex(key, o);
+			return (Comparable)o;
+		}
+		/**
+		 * Resolve an instance from the passed DBKey for a range value that may not be Comparable and indexed
+		 * Wrap it in NoIndex class to provide a valid range
+		 * @param key
+		 * @return A COmparable instance, possibly of NoIndex
+		 * @throws IllegalAccessException
+		 * @throws ClassNotFoundException
+		 * @throws IOException
+		 */
+		protected Comparable resolveKeyNoIndex(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
+			if(DEBUG) {
+				System.out.printf("%s.resolveKey for id=%s xid=%s%n",this.getClass().getName(),this.getIdentity(),transactionId);
+				if(alias != null)
+					return resolveKeyNoIndex(alias, key);
+				if(transactionId == null) {
+					Object o = IndexResolver.getIndexInstanceTable().get(key);
+					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,o);
+					if(!(o instanceof Comparable))
+						return new NoIndex(key, o);
+					return (Comparable) o;
+				} else {
+					Object o = IndexResolver.getIndexInstanceTable().get(transactionId,key);
+					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,o);
+					if(!(o instanceof Comparable))
+						return new NoIndex(key, o);
+					return (Comparable) o;
+				}
+			}
+			if(alias != null) {
+				return resolveKeyNoIndex(alias, key);
+			}
+			if(transactionId == null) {
+				Object o = IndexResolver.getIndexInstanceTable().get(key);
+				if(!(o instanceof Comparable))
+					return new NoIndex(key, o);
+				return (Comparable)o;
+			}
+			Object o = IndexResolver.getIndexInstanceTable().get(transactionId,key);
+			if(!(o instanceof Comparable))
+				return new NoIndex(key, o);
+			return (Comparable)o;
 		}
 		
 		/**

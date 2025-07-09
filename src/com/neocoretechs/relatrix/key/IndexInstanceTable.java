@@ -545,6 +545,41 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
 		return Relatrix.getNewKey();
 	}
+	
+	@Override
+	public void putKey(Alias alias2, DBKey dbKey, Object instance) {
+		try {
+			RelatrixKV.store(alias2, dbKey, instance);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new RuntimeException(e);
+		}		
+	}
+	
+	@Override
+	public void putKey(DBKey dbKey, Object instance) {
+		try {
+				RelatrixKV.store(dbKey, instance);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new RuntimeException(e);
+		}	
+	}
+	
+	@Override
+	public void putKey(Alias alias2, TransactionId transactionId, DBKey dbKey, Object instance) {
+		try {
+			RelatrixKVTransaction.store(alias2, transactionId, dbKey, instance);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new RuntimeException(e);
+		}		
+	}
 
+	@Override
+	public void putKey(TransactionId transactionId, DBKey dbKey, Object instance) {
+		try {
+			RelatrixKVTransaction.store(transactionId, dbKey, instance);
+		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
+			throw new RuntimeException(e);
+		}		
+	}
 
 }
