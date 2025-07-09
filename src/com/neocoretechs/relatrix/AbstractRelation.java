@@ -669,11 +669,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		if(range instanceof NoIndex) {
-        			if(transactionId != null)
-        				IndexResolver.getIndexInstanceTable().putKey(transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
-        			else
-        				IndexResolver.getIndexInstanceTable().putKey(((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			if(resolveKeyNoIndex(((NoIndex)range).getDBKey()) == null) {
+        				if(transactionId != null)
+        					IndexResolver.getIndexInstanceTable().putKey(transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        				else
+        					IndexResolver.getIndexInstanceTable().putKey(((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			}
         			setRangeKey(((NoIndex)range).getDBKey());
+        			this.range = range;
         		} else {
         			checkKeyComaptibility(range);
         			this.range = range;
@@ -697,11 +700,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         		throw new RuntimeException("Cannot set relationship component null.");
         	try {
         		if(range instanceof NoIndex) {
-        			if(transactionId != null)
-        				IndexResolver.getIndexInstanceTable().putKey(alias2, transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
-        			else
-        				IndexResolver.getIndexInstanceTable().putKey(alias2, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			if(resolveKeyNoIndex(alias2,((NoIndex)range).getDBKey()) == null) {
+        				if(transactionId != null)
+        					IndexResolver.getIndexInstanceTable().putKey(alias2, transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        				else
+        					IndexResolver.getIndexInstanceTable().putKey(alias2, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
+        			}
         			setRangeKey(((NoIndex)range).getDBKey());
+        			this.range = range;
         		} else {
         			checkKeyComaptibility(alias2, range);
         			this.range = range;
@@ -886,12 +892,16 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 				if(transactionId == null) {
 					Object o = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,key);
 					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,0);
+					if(o == null)
+						return null;
 					if(!(o instanceof Comparable))
 						return new NoIndex(key, o);
 					return (Comparable) o;
 				} else {
 					Object o = (Comparable) IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
 					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,o);
+					if(o == null) 
+						return null;
 					if(!(o instanceof Comparable))
 						return new NoIndex(key, o);
 					return (Comparable) o;
@@ -899,11 +909,15 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 			}
 			if(transactionId == null) {
 				Object o = IndexResolver.getIndexInstanceTable().get(alias2,key);
+				if(o == null) 
+					return null;
 				if(!(o instanceof Comparable))
 					return new NoIndex(key, o);
 				return (Comparable)o;
 			}
 			Object o = IndexResolver.getIndexInstanceTable().get(alias2,transactionId,key);
+			if(o == null)
+				return null;
 			if(!(o instanceof Comparable))
 				return new NoIndex(key, o);
 			return (Comparable)o;
@@ -925,12 +939,16 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 				if(transactionId == null) {
 					Object o = IndexResolver.getIndexInstanceTable().get(key);
 					System.out.printf("%s.resolveKey for key:%s resulted in:%s%n",this.getClass().getName(),key,o);
+					if(o == null)
+						return null;
 					if(!(o instanceof Comparable))
 						return new NoIndex(key, o);
 					return (Comparable) o;
 				} else {
 					Object o = IndexResolver.getIndexInstanceTable().get(transactionId,key);
 					System.out.printf("%s.resolveKey for xid:%s key:%s resulted in:%s%n",this.getClass().getName(),transactionId,key,o);
+					if(o == null)
+						return null;
 					if(!(o instanceof Comparable))
 						return new NoIndex(key, o);
 					return (Comparable) o;
@@ -941,11 +959,15 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 			}
 			if(transactionId == null) {
 				Object o = IndexResolver.getIndexInstanceTable().get(key);
+				if(o == null)
+					return null;
 				if(!(o instanceof Comparable))
 					return new NoIndex(key, o);
 				return (Comparable)o;
 			}
 			Object o = IndexResolver.getIndexInstanceTable().get(transactionId,key);
+			if(o == null)
+				return null;
 			if(!(o instanceof Comparable))
 				return new NoIndex(key, o);
 			return (Comparable)o;
