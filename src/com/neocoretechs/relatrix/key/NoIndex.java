@@ -37,6 +37,9 @@ public class NoIndex implements Comparable, Serializable {
 	public static NoIndex create(Object instance) {
 		return new NoIndex(instance);
 	}
+	public void update(Object instance) {
+		this.instance = instance;
+	}
 	@Override
 	public int hashCode() {
 		return dbKey.hashCode();
