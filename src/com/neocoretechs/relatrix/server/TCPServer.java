@@ -1,8 +1,14 @@
 package com.neocoretechs.relatrix.server;
-import java.net.*;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import java.io.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
 * TCPServer is the superclass of all objects using ServerSockets.
@@ -21,8 +27,8 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.server = new ServerSocket(port);
 			//runner = new Thread(this);
 			//runner.start();
-			ThreadPoolManager.init(new String[]{"TCPSERVER"}, false);
-			ThreadPoolManager.getInstance().spin(this,"TCPSERVER");
+			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER"}, false);
+			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
 			startLatch.countDown();
 		}
 		return server.getInetAddress();
@@ -33,8 +39,8 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.port = port;
             System.out.println("Server "+this.getClass().getName()+" starting on "+binder+" port "+port);
 			this.server = new ServerSocket(port, 1000, binder);
-			ThreadPoolManager.init(new String[]{"TCPSERVER"}, false);
-			ThreadPoolManager.getInstance().spin(this,"TCPSERVER");
+			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER"}, false);
+			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
 			startLatch.countDown();
 		}
 	}
@@ -44,8 +50,8 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.port = port;
 			System.out.println("Server "+this.getClass().getName()+" starting on "+InetAddress.getLocalHost().getHostName()+" port "+port);
 			this.server = new ServerSocket(port);
-			ThreadPoolManager.init(new String[]{threadName}, false);
-			ThreadPoolManager.getInstance().spin(this,threadName);
+			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
+			SynchronizedThreadManager.getInstance().spin(this,threadName);
 			startLatch.countDown();
 		}
 		return server.getInetAddress();
@@ -56,8 +62,8 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			this.port = port;
             System.out.println("Server "+this.getClass().getName()+" starting on "+binder+" port "+port);
 			this.server = new ServerSocket(port, 1000, binder);
-			ThreadPoolManager.init(new String[]{threadName}, false);
-			ThreadPoolManager.getInstance().spin(this,threadName);
+			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
+			SynchronizedThreadManager.getInstance().spin(this,threadName);
 			startLatch.countDown();
 		}
 	}
@@ -87,8 +93,8 @@ public abstract class TCPServer implements Cloneable, Runnable {
           	this.server = new ServerSocket(0,0,binder);
   			this.port = this.server.getLocalPort();
   			System.out.println("Server "+this.getClass().getName()+" starting on "+binder.getHostName()+" port "+port);
-			ThreadPoolManager.init(new String[]{threadName}, false);
-			ThreadPoolManager.getInstance().spin(this,threadName);
+  			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
+  			SynchronizedThreadManager.getInstance().spin(this,threadName);
 			startLatch.countDown();
 		}
     }
@@ -99,7 +105,7 @@ public abstract class TCPServer implements Cloneable, Runnable {
 			server.close();
 			server = null;
 			startLatch = new CountDownLatch(1);
-			ThreadPoolManager.getInstance().shutdown("TCPSERVER");
+			SynchronizedThreadManager.getInstance().shutdown("TCPSERVER");
 		}
 	}
 	

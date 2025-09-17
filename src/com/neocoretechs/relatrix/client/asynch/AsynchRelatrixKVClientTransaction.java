@@ -11,24 +11,20 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer} 
@@ -111,9 +107,8 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
-
 
 	/**
 	* Set up the socket 
@@ -220,7 +215,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 		sock = null;
 		queuedRequests = null;
 		Thread.currentThread().interrupt();
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {

@@ -13,12 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
+
 import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteKVIteratorJsonServer;
 
 /**
@@ -132,7 +132,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
                     // Create the worker, it in turn creates a WorkerRequestProcessor
                     uworker = new TCPJsonKVWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
-                    ThreadPoolManager.getInstance().spin(uworker);
+                    SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
                     	System.out.println("RelatrixKVJsonServer starting new worker "+uworker+

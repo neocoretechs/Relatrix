@@ -17,9 +17,10 @@ import java.util.concurrent.CountDownLatch;
 //import com.neocoretechs.rocksack.SerializedComparator;
 //import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
+
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
  * On the client and server the following are present as conventions:<br/>
@@ -97,7 +98,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
 	public String getLocalNode() {
@@ -212,7 +213,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 				waitHalt.wait();
 			} catch (InterruptedException ie) {}
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {

@@ -13,11 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
+
 import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteKVIteratorJsonTransactionServer;
 
 /**
@@ -133,7 +134,7 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
                     }
                     uworker = new TCPJsonKVTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
-                    ThreadPoolManager.getInstance().spin(uworker);
+                    SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
                     	System.out.println("RelatrixKVTransactionServer starting new worker "+uworker+

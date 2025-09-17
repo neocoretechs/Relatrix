@@ -18,10 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClient;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
@@ -201,7 +201,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPJsonIteratorWorker [remote master node] [remote master port] [class]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPJsonIteratorWorker(new Socket(),
+		SynchronizedThreadManager.getInstance().spin(new TCPJsonIteratorWorker(new Socket(),
 				args[0], // remote master node
 				Integer.valueOf(args[1]),args[2])); // master port, class
 	}

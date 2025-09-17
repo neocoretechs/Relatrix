@@ -13,7 +13,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.rocksack.KeyValue;
 
@@ -228,7 +228,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -241,7 +241,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -255,7 +255,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}
 			},RelatrixTransaction.storeITransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -269,7 +269,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -282,7 +282,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -296,7 +296,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}
 			},RelatrixTransaction.storeITransaction);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(RelatrixTransaction.storeITransaction);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(RelatrixTransaction.storeITransaction);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -310,7 +310,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -323,7 +323,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -337,7 +337,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}
 			},Relatrix.storeI);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -351,7 +351,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -364,7 +364,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -378,7 +378,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				}
 			},Relatrix.storeI);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

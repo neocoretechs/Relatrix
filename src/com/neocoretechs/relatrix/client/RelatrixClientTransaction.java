@@ -18,9 +18,9 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -103,7 +103,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
 	/**
@@ -221,7 +221,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 				waitHalt.wait();
 			} catch (InterruptedException ie) {}
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {

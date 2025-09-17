@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 
-import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
  * The RemoteIndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
@@ -88,7 +88,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			// no new instance exists. store both new entries
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -98,7 +98,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -109,7 +109,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			},Relatrix.storeI);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -126,7 +126,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			// no new instance exists. store both new entries
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -136,7 +136,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -147,7 +147,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			},Relatrix.storeI);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -161,7 +161,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -171,7 +171,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -182,7 +182,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			}
 		},Relatrix.storeI);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -193,7 +193,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -203,7 +203,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -214,7 +214,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			}
 		},Relatrix.storeI);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}	
@@ -226,7 +226,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -236,7 +236,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -247,7 +247,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			}
 		},Relatrix.storeI);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -258,7 +258,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -268,7 +268,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+		SynchronizedThreadManager.getInstance().spin(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -279,7 +279,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			}
 		},Relatrix.storeI);
 		try {
-			SynchronizedFixedThreadPoolManager.waitForGroupToFinish(Relatrix.storeI);
+			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

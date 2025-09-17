@@ -1,12 +1,9 @@
 package com.neocoretechs.relatrix.client.json;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
@@ -22,10 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
@@ -33,9 +27,9 @@ import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -113,7 +107,7 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
 	
@@ -166,7 +160,7 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 				waitHalt.wait();
 			} catch (InterruptedException ie) {}
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {

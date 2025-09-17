@@ -1,12 +1,9 @@
 package com.neocoretechs.relatrix.client.json;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
@@ -25,19 +22,16 @@ import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
-
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixJsonTransactionServer} 
@@ -118,7 +112,7 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
 	@Override
@@ -146,7 +140,7 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 				waitHalt.wait();
 			} catch (InterruptedException ie) {}
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {

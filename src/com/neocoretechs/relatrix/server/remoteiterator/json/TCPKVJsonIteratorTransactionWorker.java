@@ -22,10 +22,10 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.json.RemoteIteratorKVJsonClientTransaction;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
@@ -209,7 +209,7 @@ public class TCPKVJsonIteratorTransactionWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPKVJsonIteratorTransactionWorker [remote master node] [remote master port] [iterator class]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPKVJsonIteratorTransactionWorker(new Socket(),
+		SynchronizedThreadManager.getInstance().spin(new TCPKVJsonIteratorTransactionWorker(new Socket(),
 				args[0], // remote master node
 				Integer.valueOf(args[1]),args[2])); // master port, class
 	}

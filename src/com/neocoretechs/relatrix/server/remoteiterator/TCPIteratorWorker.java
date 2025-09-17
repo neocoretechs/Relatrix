@@ -19,13 +19,12 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
+
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
-
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
@@ -209,7 +208,7 @@ public class TCPIteratorWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorWorker [remote master node] [remote master port] [class]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPIteratorWorker(new Socket(),
+		SynchronizedThreadManager.getInstance().spin(new TCPIteratorWorker(new Socket(),
 				args[0], // remote master node
 				Integer.valueOf(args[1]),args[2])); // master port
 	}

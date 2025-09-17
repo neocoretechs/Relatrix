@@ -9,9 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.TCPServer;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
  * When an iterator is created for remote delivery of objects, the address of the remote server
  * is sent back to the requesting client. The client then issues the handshake connection. The client
@@ -64,7 +64,7 @@ public class RemoteIteratorJsonTransactionServer extends TCPServer {
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPJsonIteratorTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
-				ThreadPoolManager.getInstance().spin(uworker);
+				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
 					System.out.println("RemoteIteratorJsonTransactionServer starting new worker "+uworker+

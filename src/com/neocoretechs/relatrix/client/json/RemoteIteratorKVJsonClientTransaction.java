@@ -13,15 +13,13 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.UUID;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 /**
  * Manages remote iterators via client that is serialized to remote kv transaction servers and returned as payload.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
@@ -129,7 +127,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 			System.out.println("RemoteIteratorKVJsonClientTransaction got connection "+sock);
 		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
 	@Override
@@ -264,7 +262,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 			} catch (IOException e2) {}
 			masterSocket = null;
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 
 

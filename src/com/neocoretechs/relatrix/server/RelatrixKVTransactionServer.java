@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
 /**
@@ -182,7 +183,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
                     }
                     uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
-                    ThreadPoolManager.getInstance().spin(uworker);
+                    SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
                     	System.out.println("RelatrixKVTransactionServer starting new worker "+uworker+

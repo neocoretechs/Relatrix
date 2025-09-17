@@ -12,7 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
@@ -21,9 +20,9 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -104,7 +103,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		workerSocket = Fopen(bootNode);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
 
@@ -212,7 +211,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		sock = null;
 		queuedRequests = null;
 		Thread.currentThread().interrupt();
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {

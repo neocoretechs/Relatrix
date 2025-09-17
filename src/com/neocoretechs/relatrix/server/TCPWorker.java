@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 
 /**
@@ -74,7 +75,7 @@ public class TCPWorker implements Runnable {
 		masterSocket.setSendBufferSize(32767);
 		// spin the request processor thread for the worker
 		workerRequestProcessor = new WorkerRequestProcessor(this);
-		ThreadPoolManager.getInstance().spin(workerRequestProcessor);
+		SynchronizedThreadManager.getInstance().spin(workerRequestProcessor);
 		if( DEBUG ) {
 			System.out.println("Worker on port with master "+MASTERPORT+
 					" address:"+IPAddress);
@@ -177,7 +178,7 @@ public class TCPWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [remote master node] [remote master port]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPWorker(new Socket(),
+		SynchronizedThreadManager.getInstance().spin(new TCPWorker(new Socket(),
 				args[0], // remote master node
 				Integer.valueOf(args[1]))); // master port
 	}

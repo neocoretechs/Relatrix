@@ -60,7 +60,7 @@ import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.parallel.SynchronizedFixedThreadPoolManager;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 
 /**
@@ -104,7 +104,7 @@ public final class Relatrix {
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
 	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
   
-	private static SynchronizedFixedThreadPoolManager sftpm;
+	private static SynchronizedThreadManager sftpm;
 	public static final String storeX = "STOREXTX";
 	public static final String storeI = "STOREITX";
 	public static final String deleteX = "DELETEXTX";
@@ -114,12 +114,12 @@ public final class Relatrix {
 	public static final String multiStoreX = "MULTISTOREX";
 	
 	static {
-		sftpm = SynchronizedFixedThreadPoolManager.getInstance();
-		sftpm.init(6, 6, new String[] {storeX});
-		sftpm.init(5, 5, new String[] {deleteX});
-		sftpm.init(2, 2, new String[] {storeI});
-		sftpm.init(16, 16, new String[] {searchX});
-		sftpm.init(numMultiStoreThreads, numMultiStoreThreads, new String[] {multiStoreX});
+		sftpm = SynchronizedThreadManager.getInstance();
+		sftpm.init(new String[] {storeX});
+		sftpm.init(new String[] {deleteX});
+		sftpm.init(new String[] {storeI});
+		sftpm.init(new String[] {searchX});
+		sftpm.init(new String[] {multiStoreX});
 	}
 	
 	private static Object mutex = new Object();
@@ -429,7 +429,7 @@ public final class Relatrix {
 		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
 		   AtomicInteger threadIndex = new AtomicInteger(0);
 		   for(int i = 0; i < synTuples.size(); i++) {
-		    	jobs[i] = SynchronizedFixedThreadPoolManager.submit(new Runnable() {
+		    	jobs[i] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 		    		@Override
 		    		public void run() {
 		    			Comparable[] dmr = null;
@@ -448,7 +448,7 @@ public final class Relatrix {
 		    		}
 		    	}, multiStoreX);
 		   }
-		   SynchronizedFixedThreadPoolManager.waitForCompletion(jobs);
+		   SynchronizedThreadManager.getInstance().waitForCompletion(jobs);
 		   return returnList;
 	}
 	
@@ -469,7 +469,7 @@ public final class Relatrix {
 		   List<Comparable> synReturn = Collections.synchronizedList(returnList);
 		   AtomicInteger threadIndex = new AtomicInteger(0);
 		   for(int i = 0; i < synTuples.size(); i++) {
-		    	jobs[i] = SynchronizedFixedThreadPoolManager.submit(new Runnable() {
+		    	jobs[i] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 		    		@Override
 		    		public void run() {
 		    			Comparable[] dmr = null;
@@ -488,7 +488,7 @@ public final class Relatrix {
 		    		}
 		    	}, multiStoreX);
 		   }
-		   SynchronizedFixedThreadPoolManager.waitForCompletion(jobs);
+		   SynchronizedThreadManager.getInstance().waitForCompletion(jobs);
 		   return returnList;
 	}
 	
@@ -496,7 +496,7 @@ public final class Relatrix {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		synchronized(mutex) {
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -512,7 +512,7 @@ public final class Relatrix {
 				} // run
 			},storeX); // spin 
 			// Start threads to store remaining indexes now that we have our primary set up
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -529,7 +529,7 @@ public final class Relatrix {
 					}
 				} // run
 			},storeX); // spin 
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -546,7 +546,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -563,7 +563,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {  
 					try {
@@ -580,7 +580,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -598,7 +598,7 @@ public final class Relatrix {
 				}
 			},storeX);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeX);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(storeX);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -613,7 +613,7 @@ public final class Relatrix {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		synchronized(mutex) {
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -629,7 +629,7 @@ public final class Relatrix {
 				} // run
 			},storeX); // spin 
 			// Start threads to store remaining indexes now that we have our primary set up
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -646,7 +646,7 @@ public final class Relatrix {
 					}
 				} // run
 			},storeX); // spin 
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -663,7 +663,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -680,7 +680,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {  
 					try {
@@ -697,7 +697,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -715,7 +715,7 @@ public final class Relatrix {
 				}
 			},storeX);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(storeX);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(storeX);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -929,7 +929,7 @@ public final class Relatrix {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -970,7 +970,7 @@ public final class Relatrix {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1011,7 +1011,7 @@ public final class Relatrix {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1053,7 +1053,7 @@ public final class Relatrix {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1095,7 +1095,7 @@ public final class Relatrix {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1137,7 +1137,7 @@ public final class Relatrix {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedFixedThreadPoolManager.submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1190,7 +1190,7 @@ public final class Relatrix {
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1200,7 +1200,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1210,7 +1210,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1220,7 +1220,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1230,7 +1230,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1241,7 +1241,7 @@ public final class Relatrix {
 				}
 			},deleteX);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(deleteX);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -1272,7 +1272,7 @@ public final class Relatrix {
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1282,7 +1282,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1292,7 +1292,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1302,7 +1302,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1312,7 +1312,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedFixedThreadPoolManager.spin(new Runnable() {
+			SynchronizedThreadManager.getInstance().spin(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1323,7 +1323,7 @@ public final class Relatrix {
 				}
 			},deleteX);
 			try {
-				SynchronizedFixedThreadPoolManager.waitForGroupToFinish(deleteX);
+				SynchronizedThreadManager.getInstance().waitForGroupToFinish(deleteX);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

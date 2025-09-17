@@ -14,18 +14,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClientTransaction;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 /**
  * Manages remote iterators via client that is serialized to remote transaction servers and returned as payload.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
@@ -134,7 +131,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 		if( DEBUG ) {
 			System.out.println("RemoteIteratorJsonClientTransaction got connection "+sock);
 		}
-		ThreadPoolManager.getInstance().spin(this);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
 	@Override
@@ -282,7 +279,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 			} catch (IOException e2) {}
 			masterSocket = null;
 		}
-		ThreadPoolManager.getInstance().shutdown(); // client threads
+		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 
 

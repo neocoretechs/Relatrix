@@ -13,10 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
+
 import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteIteratorJsonTransactionServer;
 
 /**
@@ -124,7 +125,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPJsonTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
-				ThreadPoolManager.getInstance().spin(uworker);
+				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
 					System.out.println("RelatrixJsonTransactionServer started new worker "+uworker+" master port:"+o.getMasterPort());

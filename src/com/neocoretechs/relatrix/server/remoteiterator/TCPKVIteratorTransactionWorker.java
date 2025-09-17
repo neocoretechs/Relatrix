@@ -17,17 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
-import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
-import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.ThreadPoolManager;
-
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
@@ -208,7 +204,7 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPKVIteratorTransactionWorker [remote master node] [remote master port] [iterator class]");
 		}
-		ThreadPoolManager.getInstance().spin(new TCPKVIteratorTransactionWorker(new Socket(),
+		SynchronizedThreadManager.getInstance().spin(new TCPKVIteratorTransactionWorker(new Socket(),
 				args[0], // remote master node
 				Integer.valueOf(args[1]),args[2])); // master port, class
 	}
