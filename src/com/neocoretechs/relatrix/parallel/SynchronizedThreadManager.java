@@ -1,20 +1,15 @@
 package com.neocoretechs.relatrix.parallel;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Class to manage thread resources throughout the application. Singleton. Unbounded virtual threads.
@@ -28,6 +23,7 @@ import java.util.concurrent.TimeoutException;
  *
  */
 public class SynchronizedThreadManager {
+	private static boolean DEBUG = false;
 	int threadNum = 0;
     private static Map<String, ExtendedExecutor> executor = new ConcurrentHashMap<String, ExtendedExecutor>();
 	public static volatile SynchronizedThreadManager threadManager = null;
@@ -44,6 +40,16 @@ public class SynchronizedThreadManager {
 		return threadManager;
 	}
 	
+	public ExecutorService getExecutor() {
+		return executor.get("SYSTEMSYNC").exs;
+	}
+	
+	public ExecutorService getExecutor(String group) {
+		ExtendedExecutor ftl = executor.get(group);
+		if(ftl == null)
+			throw new RuntimeException("Executor Group "+group+" not initialized");
+		return ftl.exs;
+	}
 	/**
 	 * Create an array of Executors that manage threads for
 	 * reading topics. One thread pool per topic to notify listeners of data ready
@@ -95,6 +101,7 @@ public class SynchronizedThreadManager {
 		ExecutorService tpx = Executors.newVirtualThreadPerTaskExecutor();
 		executor.put(group, new ExtendedExecutor(group, tpx));
 	}
+	
 	public void reinit(int maxThreads, int executionLimit) {
 		reinit("SYSTEMSYNC");
 	}
@@ -112,93 +119,12 @@ public class SynchronizedThreadManager {
 		ExecutorService tpx = Executors.newVirtualThreadPerTaskExecutor();
 		executor.put("SYSTEMSYNC", new ExtendedExecutor("SYSTEMSYNC", tpx));
 	}
-	/**
-	 * Reset countdown latch for default SYSTEMSYNC group
-	 */
-	public void resetLatch() {
-		ExtendedExecutor exe = ((ExtendedExecutor)executor.get("SYSTEMSYNC"));
-		// now reset latch
-		exe.latch = new CountDownLatch(1);
-	}
-	/**
-	 * Reset countdown latch for named group
-	 * @param group group for new latch
-	 */
-	public void resetLatch(String group) {
-		ExtendedExecutor exe = ((ExtendedExecutor)executor.get(group));
-		// now reset latch
-		if(exe != null)
-			exe.latch = new CountDownLatch(1);
-		else
-			throw new RuntimeException("Executor Group "+group+" not initialized");
-	}
-	/**
-	 * Wait for group to finish based on latch
-	 * @param group The group name
-	 * @throws InterruptedException
-	 */
-	public void waitForGroupToFinish(String group) throws InterruptedException {
-		ExtendedExecutor exe = executor.get(group);
-		if(exe != null)
-			exe.waitForGroupToFinish();
-		else
-			throw new RuntimeException("Executor Group "+group+" not initialized");
-	}
-	/**
-	 * Wait for default SYSTEMSYNC group to finish based on latch
-	 * @throws InterruptedException
-	 */
-	public void waitForGroupToFinish() throws InterruptedException {
-		ExtendedExecutor exe = executor.get("SYSTEMSYNC");
-		exe.waitForGroupToFinish();
-	}
-	/**
-	 * Get task queue for group
-	 * @param group The group name
-	 * @return Queue of Futures executing
-	 */
-	public BlockingQueue<Future> getQueue(String group) {
-		ExtendedExecutor ftl = executor.get(group);
-		if(ftl == null)
-			throw new RuntimeException("Executor Group "+group+" not initialized");
-		return ftl.getQueue();
-	}
-	/**
-	 * Get task queue for default group
-	 * @return
-	 */
-	public BlockingQueue<Future> getQueue() {
-		ExtendedExecutor ftl = executor.get("SYSTEMSYNC");
-		return ftl.getQueue();
-	}
-	/**
-	 * Wait for notification of synchronized ExecutorService
-	 * @param group
-	 */
-	public void waitGroup(String group) {
-		ExtendedExecutor exe = executor.get(group);
-		if(exe == null)
-			throw new RuntimeException("Executor Group "+group+" not initialized");
-		exe.waitForGroupToFinish();
-	}
-	/**
-	 * Timed wait for notification of group executor service, each executing thread is
-	 * waited upon for the given time in milliseconds.
-	 * @param group
-	 * @param millis
-	 * @throws TimeoutException 
-	 */
-	public void waitGroup(String group, long millis) throws TimeoutException {
-		ExtendedExecutor exe = executor.get(group);
-		if(exe == null)
-			throw new RuntimeException("Executor Group "+group+" not initialized");
-		exe.waitForGroupToFinish(millis);
-	}
+
 	/**
 	 * Wait for completion of submitted Future tasks
 	 * @param futures array of executing thread Futures
 	 */
-	public void waitForCompletion(Future<?>[] futures) {
+	public static void waitForCompletion(Future<?>[] futures) {
 	    	//System.out.println("waitForCompletion on:"+futures.length);
 	        int size = futures.length;
 	        try {
@@ -211,18 +137,7 @@ public class SynchronizedThreadManager {
 	            e.printStackTrace();
 	        }
 	}
-	/**
-	 * Notify group waiting on ExecutorService
-	 * @param group The group name
-	 */
-	public void notifyGroup(String group) {
-		ExtendedExecutor exe = executor.get(group);
-		if(exe == null)
-			throw new RuntimeException("Executor Group "+group+" not initialized");
-		synchronized(exe) {
-			exe.notifyAll();
-		}
-	}
+
 	/**
 	 * Use ExtendedExecutor ExecutorService to execute runnable
 	 * @param r The runnable thread
@@ -298,17 +213,21 @@ public class SynchronizedThreadManager {
     /**
      * Shutdown all threads
      */
-	public void shutdown() {
+	public void shutdownAll() {
 		Collection<ExtendedExecutor> ex = executor.values();
 		for(ExtendedExecutor e : ex) {
 			List<Runnable> spun = e.exs.shutdownNow();
 			for(Runnable rs : spun) {
-				System.out.println("Marked for Termination:"+rs.toString()+" "+e.toString());
+				if(DEBUG)
+					System.out.println("Marked for Termination:"+rs.toString()+" "+e.toString());
 			}
+			try {
+				e.waitForGroupToTerminate();
+			} catch (InterruptedException e1) {}
 		}
 	}
-	   /**
-     * Shutdown all threads
+	/**
+     * Shutdown all threads for a group
      */
 	public void shutdown(String group) {
 		ExtendedExecutor ex = executor.get(group);
@@ -316,92 +235,63 @@ public class SynchronizedThreadManager {
 			throw new RuntimeException("Executor Group "+group+" not initialized");
 		List<Runnable> spun = ex.exs.shutdownNow();
 		for(Runnable rs : spun) {
+			if(DEBUG)
 				System.out.println("Marked for Termination:"+rs.toString()+" "+ex.toString());
 		}
+		try {
+			ex.waitForGroupToTerminate();
+		} catch (InterruptedException e1) {}
 	}
 	/**
-	 * The ExtenedeExecutor doing the work. Maintains a LinkedBlockingDeque of Futures of running threads by group name.
+     * Shutdown default group
+     */
+	public void shutdown() {
+		ExtendedExecutor ex = executor.get("SYSTEMSYNC");
+		List<Runnable> spun = ex.exs.shutdownNow();
+		for(Runnable rs : spun) {
+			if(DEBUG)
+				System.out.println("Marked for Termination:"+rs.toString()+" "+ex.toString());
+		}
+		try {
+			ex.waitForGroupToTerminate();
+		} catch (InterruptedException e1) {}
+	}
+	/**
+	 * The ExtenedeExecutor doing the work.
 	 */
 	static class ExtendedExecutor {
 		public ExecutorService exs;
 		public String group;
-		public CountDownLatch latch;
-		LinkedBlockingDeque<Future> queue = new LinkedBlockingDeque<Future>();
+		private long threadNum = 0L;
 		public ExtendedExecutor(String group, ExecutorService exs) {
 			this.group = group;
 			this.exs = exs;
-			this.latch = new CountDownLatch(1);
 		}
-		public CountDownLatch getLatch() { return latch; }
-		public BlockingQueue<Future> getQueue() { return queue; }
 		
 		public void waitForGroupToTerminate() throws InterruptedException {
 			this.exs.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-			this.latch.countDown();
-			this.latch = new CountDownLatch(1);
 		}
-		public void waitForGroupToFinish() {
-			Iterator<?> it = queue.iterator();
-			try {
-				while(it.hasNext()) {
-					Future<?> f = (Future<?>) it.next();
-					f.get();
-				}
-			} catch (ExecutionException | InterruptedException ex) {
-				ex.printStackTrace();
-			}
-			this.latch.countDown();
-			this.latch = new CountDownLatch(1);
-			this.notifyAll();
-		}
-		public void waitForGroupToFinish(long millis) throws TimeoutException {
-			Iterator<?> it = queue.iterator();
-			try {
-				while(it.hasNext()) {
-					Future<?> f = (Future<?>) it.next();
-					f.get(millis, TimeUnit.MILLISECONDS);
-				}
-			} catch (ExecutionException | InterruptedException ex) {
-				ex.printStackTrace();
-			}
-			this.latch.countDown();
-			this.latch = new CountDownLatch(1);
-			this.notifyAll();
-		}
+
 		public Future<?> submitDaemon(ThreadGroup threadGroup, Runnable r) {
-			Thread thread = new Thread(threadGroup, r, threadGroup.getName()+queue.size()+1);
+			Thread thread = new Thread(threadGroup, r, threadGroup.getName()+threadNum++);
 			thread.setDaemon(true);
 			Future<?> f = exs.submit(thread);
-			queue.add(f);
 			return f;
 		}
 		public Future<?> submitDaemon(Runnable r) {
 	        Thread thread = new Thread(r);
 	        thread.setDaemon(true);
 	        Future<?> f = exs.submit(thread);
-	        queue.add(f);
 	        return f;
 		}
 		public Future<?> submit(Runnable r) {
-	        Future<?> f = exs.submit(r);
-	        queue.add(f);
-	        return f;
+	        return exs.submit(r);
 		}
 		public Future<Object> submit(Callable<Object> r) {
-			Runnable runnable = () -> {
-				try {
-					r.call(); // Call the Callable's method
-				} catch (Exception e) {
-					e.printStackTrace(); // Handle exceptions
-				}
-			};
-			Future f = exs.submit(r); // Submit the Callable to the executor
-			queue.add(f);
-			return f;
+			return exs.submit(r); // Submit the Callable to the executor
 		}
 		public void execute(Runnable r) {
-	        Future f = exs.submit(r);
-	        queue.add(f);
+	        exs.execute(r);
 		}
 		@Override
 		public boolean equals(Object o) {

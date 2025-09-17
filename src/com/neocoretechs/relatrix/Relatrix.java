@@ -448,7 +448,7 @@ public final class Relatrix {
 		    		}
 		    	}, multiStoreX);
 		   }
-		   SynchronizedThreadManager.getInstance().waitForCompletion(jobs);
+		   SynchronizedThreadManager.waitForCompletion(jobs);
 		   return returnList;
 	}
 	
@@ -488,15 +488,16 @@ public final class Relatrix {
 		    		}
 		    	}, multiStoreX);
 		   }
-		   SynchronizedThreadManager.getInstance().waitForCompletion(jobs);
+		   SynchronizedThreadManager.waitForCompletion(jobs);
 		   return returnList;
 	}
 	
 	public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
+		Future<?>[] jobs = new Future[6];
 		synchronized(mutex) {
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -512,7 +513,7 @@ public final class Relatrix {
 				} // run
 			},storeX); // spin 
 			// Start threads to store remaining indexes now that we have our primary set up
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -529,7 +530,7 @@ public final class Relatrix {
 					}
 				} // run
 			},storeX); // spin 
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[2] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -546,7 +547,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[3] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -563,7 +564,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[4] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {  
 					try {
@@ -580,7 +581,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[5] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -597,11 +598,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(storeX);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(DEBUG)
 			System.out.println(identity);
@@ -612,8 +609,9 @@ public final class Relatrix {
 	public static void storeParallel(Alias alias, Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
+		Future<?>[] jobs = new Future[6];
 		synchronized(mutex) {
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -629,7 +627,7 @@ public final class Relatrix {
 				} // run
 			},storeX); // spin 
 			// Start threads to store remaining indexes now that we have our primary set up
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -646,7 +644,7 @@ public final class Relatrix {
 					}
 				} // run
 			},storeX); // spin 
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[2] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -663,7 +661,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[3] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -680,7 +678,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[4] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {  
 					try {
@@ -697,7 +695,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[5] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -714,11 +712,7 @@ public final class Relatrix {
 					}
 				}
 			},storeX);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(storeX);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(DEBUG)
 			System.out.println(identity);
@@ -1183,14 +1177,15 @@ public final class Relatrix {
 			Relation dmr = (Relation) RelatrixKV.remove(dbk); // dbkey table
 			RelatrixKV.remove(dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
-			RelatrixKV.remove( pks);
+			RelatrixKV.remove(pks);
 			// indexes
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			Future<?>[] jobs = new Future[5];
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1200,7 +1195,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1210,7 +1205,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[2] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1220,7 +1215,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[3] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1230,7 +1225,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[4] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1240,11 +1235,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(deleteX);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 	}
 	/**
@@ -1272,7 +1263,8 @@ public final class Relatrix {
 			MapRangeDomain mrd = new MapRangeDomain(dmr);
 			RangeDomainMap rdm = new RangeDomainMap(dmr);
 			RangeMapDomain rmd = new RangeMapDomain(dmr);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			Future<?>[] jobs = new Future[5];
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1282,7 +1274,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1292,7 +1284,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[2] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1302,7 +1294,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[3] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1312,7 +1304,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[4] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {    
 					try {
@@ -1322,11 +1314,7 @@ public final class Relatrix {
 					}
 				}
 			},deleteX);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(deleteX);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 	}
 	/**

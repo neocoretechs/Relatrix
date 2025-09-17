@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 
 import java.util.NoSuchElementException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
@@ -226,9 +227,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static void storeParallel(TransactionId transactionId, DBKey index, Comparable instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
+		Future<?>[] jobs = new Future[2];
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -241,7 +243,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -254,11 +256,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
@@ -267,9 +265,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static void storeParallel(Alias alias, TransactionId transactionId, DBKey index, Comparable instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
+		Future<?>[] jobs = new Future[2];
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -282,7 +281,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -295,11 +294,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},RelatrixTransaction.storeITransaction);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(RelatrixTransaction.storeITransaction);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
@@ -308,9 +303,10 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public static void storeParallel(DBKey index, Comparable instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
+		Future<?>[] jobs = new Future[2];
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -323,7 +319,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -336,11 +332,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},Relatrix.storeI);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
@@ -350,8 +342,9 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
+		Future<?>[] jobs = new Future[2];
 		synchronized(mutex) {
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -364,7 +357,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -377,11 +370,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 					}
 				}
 			},Relatrix.storeI);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
@@ -88,7 +89,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			// no new instance exists. store both new entries
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			Future<?>[] jobs = new Future[2];
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -98,7 +100,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -108,11 +110,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					}
 				}
 			},Relatrix.storeI);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		return retKey;		
 	}
@@ -126,7 +124,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			// no new instance exists. store both new entries
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			Future<?>[] jobs = new Future[2];
+			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -136,7 +135,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					}
 				}
 			},Relatrix.storeI);
-			SynchronizedThreadManager.getInstance().spin(new Runnable() {
+			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -146,11 +145,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 					}
 				}
 			},Relatrix.storeI);
-			try {
-				SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			SynchronizedThreadManager.waitForCompletion(jobs);
 			return index;
 		}
 		return retKey;		
@@ -161,7 +156,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		Future<?>[] jobs = new Future[2];
+		jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -171,7 +167,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -181,11 +177,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		try {
-			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		SynchronizedThreadManager.waitForCompletion(jobs);
 	}
 
 	@Override
@@ -193,7 +185,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		Future<?>[] jobs = new Future[2];
+		jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -203,7 +196,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -213,11 +206,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		try {
-			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}	
+		SynchronizedThreadManager.waitForCompletion(jobs);	
 	}
 
 	@Override
@@ -226,7 +215,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		Future<?>[] jobs = new Future[2];
+		jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -236,7 +226,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -246,19 +236,16 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		try {
-			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		SynchronizedThreadManager.waitForCompletion(jobs);
 	}
 
 	@Override
 	public void put(Alias alias, TransactionId transactionId, DBKey index, Comparable instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		Future<?>[] jobs = new Future[2];
 		if(DEBUG)
 			System.out.printf("%s.putAlias Alias:%s Xid:%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId, instance.getClass().getName(), instance);
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -268,7 +255,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		SynchronizedThreadManager.getInstance().spin(new Runnable() {
+		jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -278,11 +265,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				}
 			}
 		},Relatrix.storeI);
-		try {
-			SynchronizedThreadManager.getInstance().waitForGroupToFinish(Relatrix.storeI);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		SynchronizedThreadManager.waitForCompletion(jobs);
 	}
 
 	public static synchronized DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
