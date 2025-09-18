@@ -59,6 +59,8 @@ public final class RelatrixJsonServer extends RelatrixServer {
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -74,6 +76,8 @@ public final class RelatrixJsonServer extends RelatrixServer {
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	@Override

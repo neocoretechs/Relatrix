@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,6 +27,7 @@ public class SynchronizedThreadManager {
 	private static boolean DEBUG = false;
 	int threadNum = 0;
     private static Map<String, ExtendedExecutor> executor = new ConcurrentHashMap<String, ExtendedExecutor>();
+    private static final String DEFAULT_THREAD_POOL = "SYSTEMSYNC";
 	public static volatile SynchronizedThreadManager threadManager = null;
 	private SynchronizedThreadManager() { }
 
@@ -41,7 +43,7 @@ public class SynchronizedThreadManager {
 	}
 	
 	public ExecutorService getExecutor() {
-		return executor.get("SYSTEMSYNC").exs;
+		return executor.get(DEFAULT_THREAD_POOL).exs;
 	}
 	
 	public ExecutorService getExecutor(String group) {
@@ -103,13 +105,13 @@ public class SynchronizedThreadManager {
 	}
 	
 	public void reinit(int maxThreads, int executionLimit) {
-		reinit("SYSTEMSYNC");
+		reinit(DEFAULT_THREAD_POOL);
 	}
 	/**
-	 * Initialize default group SYSTEMSYNC<p/>
+	 * Initialize default group <p/>
 	 */
 	public void init() {
-		ExtendedExecutor ftl = executor.get("SYSTEMSYNC");
+		ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
 		if( ftl != null ) {
 			//ftl.exs.shutdownNow();
 			//executor.remove(ftl.group);
@@ -117,7 +119,7 @@ public class SynchronizedThreadManager {
 			return;
 		}
 		ExecutorService tpx = Executors.newVirtualThreadPerTaskExecutor();
-		executor.put("SYSTEMSYNC", new ExtendedExecutor("SYSTEMSYNC", tpx));
+		executor.put(DEFAULT_THREAD_POOL, new ExtendedExecutor(DEFAULT_THREAD_POOL, tpx));
 	}
 
 	/**
@@ -165,7 +167,7 @@ public class SynchronizedThreadManager {
 	 * @param r the Runnable
 	 */
 	public void spin(Runnable r) {
-		ExtendedExecutor ftl = executor.get("SYSTEMSYNC");
+		ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
 	    ftl.execute(r);
 	}
 	/**
@@ -174,7 +176,7 @@ public class SynchronizedThreadManager {
 	 * @return the Future executing thread
 	 */
     public Future<?> submit(Runnable r) {
-		ExtendedExecutor ftl = executor.get("SYSTEMSYNC");
+		ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
         return ftl.submit(r);
     }
     /**
@@ -195,7 +197,7 @@ public class SynchronizedThreadManager {
 	 * @return The Future<Object>
 	 */
 	public Future<Object> submit(Callable<Object> r) {
-		ExtendedExecutor ftl = executor.get("SYSTEMSYNC");
+		ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
         return ftl.submit(r);
     }
     /**
@@ -209,6 +211,22 @@ public class SynchronizedThreadManager {
 		if(ftl == null)
 			throw new RuntimeException("Executor Group "+group+" not initialized");
 	    return ftl.submit(r);
+	}
+	/**
+	 * Start a supervisor platform thread to keep JVM from exiting. 
+	 * Virtual threads are all daemon by default.
+	 */
+	public static void startSupervisorThread() {
+		Thread supervisor = new Thread(() -> {
+		    while (!Thread.currentThread().isInterrupted()) {
+		        try {
+		            Thread.sleep(10000);
+		        } catch (InterruptedException e) {
+		            break;
+		        }
+		    }
+		});
+		supervisor.start(); // Not daemon by default
 	}
     /**
      * Shutdown all threads
@@ -246,7 +264,7 @@ public class SynchronizedThreadManager {
      * Shutdown default group
      */
 	public void shutdown() {
-		ExtendedExecutor ex = executor.get("SYSTEMSYNC");
+		ExtendedExecutor ex = executor.get(DEFAULT_THREAD_POOL);
 		List<Runnable> spun = ex.exs.shutdownNow();
 		for(Runnable rs : spun) {
 			if(DEBUG)
@@ -272,18 +290,6 @@ public class SynchronizedThreadManager {
 			this.exs.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 		}
 
-		public Future<?> submitDaemon(ThreadGroup threadGroup, Runnable r) {
-			Thread thread = new Thread(threadGroup, r, threadGroup.getName()+threadNum++);
-			thread.setDaemon(true);
-			Future<?> f = exs.submit(thread);
-			return f;
-		}
-		public Future<?> submitDaemon(Runnable r) {
-	        Thread thread = new Thread(r);
-	        thread.setDaemon(true);
-	        Future<?> f = exs.submit(thread);
-	        return f;
-		}
 		public Future<?> submit(Runnable r) {
 	        return exs.submit(r);
 		}
@@ -293,6 +299,7 @@ public class SynchronizedThreadManager {
 		public void execute(Runnable r) {
 	        exs.execute(r);
 		}
+	
 		@Override
 		public boolean equals(Object o) {
 			return group.equals(((ExtendedExecutor)o).group);

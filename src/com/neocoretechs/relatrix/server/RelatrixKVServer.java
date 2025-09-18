@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
@@ -85,6 +86,8 @@ public class RelatrixKVServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVServer(String iaddress, int port) throws IOException, ClassNotFoundException {
@@ -104,6 +107,8 @@ public class RelatrixKVServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
@@ -123,6 +128,8 @@ public class RelatrixKVServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
@@ -141,6 +148,8 @@ public class RelatrixKVServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	@Override
@@ -197,6 +206,7 @@ public class RelatrixKVServer extends TCPServer {
                }
 		}
 	}
+	
 	/**
 	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVServer.<p/>
 	 * @param args If length 1, then default port 9000, must specify tablespace or alias subsequently. Same for 2 arg: host, port. 3 args then arg 0 is to set default tablespace

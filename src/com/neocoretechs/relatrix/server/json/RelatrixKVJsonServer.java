@@ -84,6 +84,8 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVJsonServer(String iaddress, int port) throws IOException, ClassNotFoundException {
@@ -102,6 +104,8 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	@Override

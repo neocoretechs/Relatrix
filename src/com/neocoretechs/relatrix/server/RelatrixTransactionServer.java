@@ -77,6 +77,8 @@ public class RelatrixTransactionServer extends TCPServer {
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	/**
@@ -94,6 +96,8 @@ public class RelatrixTransactionServer extends TCPServer {
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	/**
@@ -111,6 +115,8 @@ public class RelatrixTransactionServer extends TCPServer {
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	/**
@@ -127,6 +133,8 @@ public class RelatrixTransactionServer extends TCPServer {
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	@Override

@@ -78,6 +78,8 @@ public class RelatrixServer extends TCPServer {
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -94,6 +96,8 @@ public class RelatrixServer extends TCPServer {
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	/**
@@ -110,6 +114,8 @@ public class RelatrixServer extends TCPServer {
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	@Override

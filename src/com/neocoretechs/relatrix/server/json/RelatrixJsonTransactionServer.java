@@ -75,6 +75,8 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	/**
@@ -91,6 +93,8 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
 		startServer(port,address);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public void run() {

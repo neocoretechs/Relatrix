@@ -86,6 +86,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -110,6 +112,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -134,6 +138,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	/**
@@ -158,6 +164,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	@Override

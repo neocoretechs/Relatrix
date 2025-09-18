@@ -84,6 +84,8 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -107,6 +109,8 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			new RemoteKVIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+		
+		SynchronizedThreadManager.startSupervisorThread();
 	}
 
 	@Override
