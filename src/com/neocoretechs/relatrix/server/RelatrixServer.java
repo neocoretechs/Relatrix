@@ -48,6 +48,8 @@ public class RelatrixServer extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
+	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
+	
 	public static String[] iteratorServers = new String[]{
 	 "com.neocoretechs.relatrix.iterator.RelatrixIterator",
 	 "com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator",
@@ -77,7 +79,7 @@ public class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -94,7 +96,7 @@ public class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		startServer(port,address);
 		
 		SynchronizedThreadManager.startSupervisorThread();
@@ -113,9 +115,25 @@ public class RelatrixServer extends TCPServer {
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
+	}
+	
+	@Override
+	public void stopServer() {
+		iteratorToServer.forEach((k,e)->{
+			try {
+				e.stopServer();
+			} catch (IOException e1) {}
+		});
+		dbToWorker.forEach((k,e)->{
+			e.stopWorker();
+		});
+		try {
+			super.stopServer();
+		} catch (IOException e1) {}
+		SynchronizedThreadManager.stopAllSupervisors();
 	}
 	
 	@Override

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +26,9 @@ public class SynchronizedThreadManager {
 	private static boolean DEBUG = false;
 	int threadNum = 0;
     private static Map<String, ExtendedExecutor> executor = new ConcurrentHashMap<String, ExtendedExecutor>();
+    private static final Map<String, Thread> supervisors = new ConcurrentHashMap<>();
     private static final String DEFAULT_THREAD_POOL = "SYSTEMSYNC";
+	private static final String DEFAULT_SUPERVISOR = "SUPERVISOR";
 	public static volatile SynchronizedThreadManager threadManager = null;
 	private SynchronizedThreadManager() { }
 
@@ -212,11 +213,13 @@ public class SynchronizedThreadManager {
 			throw new RuntimeException("Executor Group "+group+" not initialized");
 	    return ftl.submit(r);
 	}
+
 	/**
 	 * Start a supervisor platform thread to keep JVM from exiting. 
 	 * Virtual threads are all daemon by default.
 	 */
 	public static void startSupervisorThread() {
+		if (supervisors.containsKey(DEFAULT_SUPERVISOR)) return;
 		Thread supervisor = new Thread(() -> {
 		    while (!Thread.currentThread().isInterrupted()) {
 		        try {
@@ -226,7 +229,44 @@ public class SynchronizedThreadManager {
 		        }
 		    }
 		});
+		supervisors.put(DEFAULT_SUPERVISOR, supervisor);
 		supervisor.start(); // Not daemon by default
+	}
+	/**
+	 * Start a supervisor platform thread to keep JVM from exiting. 
+	 * Virtual threads are all daemon by default.
+	 */
+	public static void startSupervisorThread(String name) {
+		if (supervisors.containsKey(name)) return;
+		Thread supervisor = new Thread(() -> {
+		    while (!Thread.currentThread().isInterrupted()) {
+		        try {
+		            Thread.sleep(10000);
+		        } catch (InterruptedException e) {
+		            break;
+		        }
+		    }
+		});
+		supervisors.put(name, supervisor);
+		supervisor.start(); // Not daemon by default
+	}
+	public static void stopSupervisorThread() {
+		Thread supervisor = supervisors.remove(DEFAULT_SUPERVISOR);
+		if (supervisor != null) {
+			supervisor.interrupt();
+		}
+	}
+	public static void stopSupervisorThread(String name) {
+		Thread supervisor = supervisors.remove(name);
+		if (supervisor != null) {
+			supervisor.interrupt();
+		}
+	}
+	public static void stopAllSupervisors() {
+	    for (Thread t : supervisors.values()) {
+	        t.interrupt();
+	    }
+	    supervisors.clear();
 	}
     /**
      * Shutdown all threads

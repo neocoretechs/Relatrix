@@ -47,6 +47,9 @@ public class RelatrixTransactionServer extends TCPServer {
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
+	
+	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
+	
 	public static String[] iteratorServers = new String[]{
 		"com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction",
 		"com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction",
@@ -76,7 +79,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -94,7 +97,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = InetAddress.getByName(iaddress);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]));
 		startServer(port,address);
 		
 		SynchronizedThreadManager.startSupervisorThread();
@@ -113,7 +116,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]));
 		startServer(port,address);
 		
 		SynchronizedThreadManager.startSupervisorThread();
@@ -132,9 +135,25 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
+	}
+	
+	@Override
+	public void stopServer() {
+		iteratorToServer.forEach((k,e)->{
+			try {
+				e.stopServer();
+			} catch (IOException e1) {}
+		});
+		dbToWorker.forEach((k,e)->{
+			e.stopWorker();
+		});
+		try {
+			super.stopServer();
+		} catch (IOException e1) {}
+		SynchronizedThreadManager.stopAllSupervisors();
 	}
 	
 	@Override

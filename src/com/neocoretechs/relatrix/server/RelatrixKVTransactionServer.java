@@ -52,6 +52,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
+	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
+	
 	public static String[] iteratorServers = new String[]{
 			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
 	};				
@@ -85,7 +87,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -111,7 +113,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -137,7 +139,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -163,9 +165,25 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]);
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
+	}
+	
+	@Override
+	public void stopServer() {
+		iteratorToServer.forEach((k,e)->{
+			try {
+				e.stopServer();
+			} catch (IOException e1) {}
+		});
+		dbToWorker.forEach((k,e)->{
+			e.stopWorker();
+		});
+		try {
+			super.stopServer();
+		} catch (IOException e1) {}
+		SynchronizedThreadManager.stopAllSupervisors();
 	}
 	
 	@Override
