@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import org.rocksdb.CompressionType;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.rocksack.Alias;
@@ -19,7 +21,10 @@ import com.neocoretechs.rocksack.TransactionId;
 * based on any number of possible operators and objects passed to the various 'findSet' permutations.
 * @author Jonathan Groff (C) NeoCoreTechs 2014,2015
 */ 
-@DatabaseClass(tablespace="com.neocoretechs.relatrix.Relation")
+@DatabaseClass(tablespace="com.neocoretechs.relatrix.Relation",
+compression=CompressionType.LZ4_COMPRESSION,
+maxWriteBufferNumber=2,
+writeBufferSize=64L * org.rocksdb.util.SizeUnit.MB)
 public class RangeDomainMap extends AbstractRelation {
 	private static final long serialVersionUID = -1689898604140078900L;
     public RangeDomainMap() {}

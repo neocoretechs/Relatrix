@@ -6,8 +6,6 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
-
-
 /**
  * This class represents a {@link AbstractRelation} stored in its natural retrieval order.<p/>
  * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
