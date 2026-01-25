@@ -27,7 +27,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	private static final long serialVersionUID = 1L;
 	public static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
-	public static final boolean TEST = true; // timing
+	public static final boolean TEST = false; // timing
 	private long tim;
 	
 	private String remoteNode;

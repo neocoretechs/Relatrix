@@ -1,0 +1,3 @@
+RelatrixJsonClientTransaction rct2 = new RelatrixJsonClientTransaction("volvatron","coreplex",9010);
+com.neocoretechs.rocksack.TransactionId xid2 = rct2.getTransactionId();
+Iterator it = rct2.findSet(xid2,'*','*','*');

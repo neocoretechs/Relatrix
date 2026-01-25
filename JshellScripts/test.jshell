@@ -1,0 +1,8 @@
+RelatrixJsonClientTransaction rct2 = new RelatrixJsonClientTransaction("volvatron","coreplex",9010);
+com.neocoretechs.rocksack.TransactionId xid2 = rct2.getTransactionId();
+Alias a = new Alias("qa");
+Date date = new Date();
+byte[] bb = new byte[]{1,2,3,4,5};
+HashMap hh = new HashMap();
+hh.put("hi","There");
+Iterator it = rct2.findSet(a,xid2,bb,date,hh);
