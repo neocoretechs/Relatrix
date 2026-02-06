@@ -1199,12 +1199,13 @@ public final class RelatrixTransaction {
 		}
 	}
 	/**
-	 * Perform parallel findSet with list of domains
+	 * Perform parallel findSet with list of domains. Result set contains copies of original domain for each returned
+	 * Result. The user must match original domain set to returned Result(0) set.
 	 * @param transactionId transaction id
 	 * @param d List of domain Objects
 	 * @param m map operator
 	 * @param r range operator
-	 * @return List of Results
+	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
 	public static List<Result> findSetParallel(TransactionId transactionId, List<Object> d, Character m, Character r) {
@@ -1218,7 +1219,25 @@ public final class RelatrixTransaction {
 					try {
 						Iterator<?> it = findSet(transactionId, d.get(taskId), m, r);
 						while(it.hasNext()) {
-							res.add((Result) it.next());
+							Result r3;
+							Result r2 = (Result) it.next();
+							Comparable[] c1 = r2.toArray();
+							switch(c1.length) {
+								case 1:
+									r3 = new Result2();
+									r3.set(0,(Comparable)d.get(taskId));
+									r3.set(1,c1[0]);
+									break;
+								case 2:
+									r3 = new Result3();
+									r3.set(0,(Comparable)d.get(taskId));
+									r3.set(1,c1[0]);
+									r3.set(2,c1[1]);
+									break;
+								default:
+									throw new RuntimeException("Invalid array length");
+							}
+							res.add(r3);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1241,12 +1260,13 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of maps
+	 * Perform parallel findSet with list of maps. Result set contains copies of original map for each returned
+	 * Result. The user must match original map set to returned Result(0) set.
 	 * @param transactionId transactionId
 	 * @param d domain operator
 	 * @param m List of maps
 	 * @param r range operator
-	 * @return List of Results
+	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
 	public static List<Result> findSetParallel(TransactionId transactionId, Character d, List<Object> m, Character r) {
@@ -1258,9 +1278,27 @@ public final class RelatrixTransaction {
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(transactionId, m.get(taskId), m, r);
+						Iterator<?> it = findSet(transactionId, d, m.get(taskId), r);
 						while(it.hasNext()) {
-							res.add((Result) it.next());
+							Result r3;
+							Result r2 = (Result) it.next();
+							Comparable[] c1 = r2.toArray();
+							switch(c1.length) {
+							case 1:
+								r3 = new Result2();
+								r3.set(0,(Comparable)m.get(taskId));
+								r3.set(1,c1[0]);
+								break;
+							case 2:
+								r3 = new Result3();
+								r3.set(0,(Comparable)m.get(taskId));
+								r3.set(1,c1[0]);
+								r3.set(2,c1[1]);
+								break;
+							default:
+								throw new RuntimeException("Invalid array length");
+							}
+							res.add(r3);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1283,12 +1321,13 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of ranges
+	 * Perform parallel findSet with list of ranges. Result set contains copies of original range for each returned
+	 * Result. The user must match original range set to returned Result(0) set.
 	 * @param transactionId transactionId
 	 * @param d domain operator
 	 * @param m map operator
 	 * @param r List of ranges
-	 * @return List of Results
+	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
 	public static List<Result> findSetParallel(TransactionId transactionId, Character d, Character m, List<Object> r) {
@@ -1300,9 +1339,27 @@ public final class RelatrixTransaction {
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(transactionId, r.get(taskId), m, r);
+						Iterator<?> it = findSet(transactionId, d, m, r.get(taskId));
 						while(it.hasNext()) {
-							res.add((Result) it.next());
+							Result r3;
+							Result r2 = (Result) it.next();
+							Comparable[] c1 = r2.toArray();
+							switch(c1.length) {
+							case 1:
+								r3 = new Result2();
+								r3.set(0,(Comparable)r.get(taskId));
+								r3.set(1,c1[0]);
+								break;
+							case 2:
+								r3 = new Result3();
+								r3.set(0,(Comparable)r.get(taskId));
+								r3.set(1,c1[0]);
+								r3.set(2,c1[1]);
+								break;
+							default:
+								throw new RuntimeException("Invalid array length");
+							}
+							res.add(r3);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1325,13 +1382,14 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of domains
+	 * Perform parallel findSet with list of domains. Result set contains copies of original domain for each returned
+	 * Result. The user must match original domain set to returned Result(0) set.
 	 * @param alias alias
 	 * @param transactionId transaction ID
 	 * @param d List of domain Objects
 	 * @param m map operator
 	 * @param r range operator
-	 * @return List of Results
+	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId, List<Object> d, Character m, Character r) {
@@ -1345,7 +1403,25 @@ public final class RelatrixTransaction {
 					try {
 						Iterator<?> it = findSet(alias, transactionId, d.get(taskId), m, r);
 						while(it.hasNext()) {
-							res.add((Result) it.next());
+							Result r3;
+							Result r2 = (Result) it.next();
+							Comparable[] c1 = r2.toArray();
+							switch(c1.length) {
+							case 1:
+								r3 = new Result2();
+								r3.set(0,(Comparable)d.get(taskId));
+								r3.set(1,c1[0]);
+								break;
+							case 2:
+								r3 = new Result3();
+								r3.set(0,(Comparable)d.get(taskId));
+								r3.set(1,c1[0]);
+								r3.set(2,c1[1]);
+								break;
+							default:
+								throw new RuntimeException("Invalid array length");
+							}
+							res.add(r3);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1368,13 +1444,14 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of maps
+	 * Perform parallel findSet with list of maps. Result set contains copies of original map for each returned
+	 * Result. The user must match original map set to returned Result(0) set.
 	 * @param alias alias
 	 * @param transactionId transaction Id
 	 * @param d domain operator
 	 * @param m List of maps
 	 * @param r range operator
-	 * @return List of Results
+	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId,  Character d, List<Object> m, Character r) {
@@ -1386,9 +1463,27 @@ public final class RelatrixTransaction {
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(alias, transactionId, m.get(taskId), m, r);
+						Iterator<?> it = findSet(alias, transactionId, d, m.get(taskId), r);
 						while(it.hasNext()) {
-							res.add((Result) it.next());
+							Result r3;
+							Result r2 = (Result) it.next();
+							Comparable[] c1 = r2.toArray();
+							switch(c1.length) {
+							case 1:
+								r3 = new Result2();
+								r3.set(0,(Comparable)m.get(taskId));
+								r3.set(1,c1[0]);
+								break;
+							case 2:
+								r3 = new Result3();
+								r3.set(0,(Comparable)m.get(taskId));
+								r3.set(1,c1[0]);
+								r3.set(2,c1[1]);
+								break;
+							default:
+								throw new RuntimeException("Invalid array length");
+							}
+							res.add(r3);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1411,13 +1506,14 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of ranges
+	 * Perform parallel findSet with list of ranges. Result set contains copies of original range for each returned
+	 * Result. The user must match original range set to returned Result(0) set.
 	 * @param alias alias
 	 * @param transactionId transaction Id
 	 * @param d domain operator
 	 * @param m map operator
 	 * @param r List of ranges
-	 * @return List of Results
+	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId, Character d, Character m, List<Object> r) {
@@ -1429,9 +1525,27 @@ public final class RelatrixTransaction {
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(alias, transactionId, r.get(taskId), m, r);
+						Iterator<?> it = findSet(alias, transactionId, d, m, r.get(taskId));
 						while(it.hasNext()) {
-							res.add((Result) it.next());
+							Result r3;
+							Result r2 = (Result) it.next();
+							Comparable[] c1 = r2.toArray();
+							switch(c1.length) {
+							case 1:
+								r3 = new Result2();
+								r3.set(0,(Comparable)r.get(taskId));
+								r3.set(1,c1[0]);
+								break;
+							case 2:
+								r3 = new Result3();
+								r3.set(0,(Comparable)r.get(taskId));
+								r3.set(1,c1[0]);
+								r3.set(2,c1[1]);
+								break;
+							default:
+								throw new RuntimeException("Invalid array length");
+							}
+							res.add(r3);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);

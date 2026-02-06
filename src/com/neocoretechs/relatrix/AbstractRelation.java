@@ -925,7 +925,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 * Resolve an instance from the passed DBKey for a range value that may not be Comparable and indexed
 		 * Wrap it in NoIndex class to provide a valid range
 		 * @param key
-		 * @return A COmparable instance, possibly of NoIndex
+		 * @return A Comparable instance, possibly of NoIndex
 		 * @throws IllegalAccessException
 		 * @throws ClassNotFoundException
 		 * @throws IOException

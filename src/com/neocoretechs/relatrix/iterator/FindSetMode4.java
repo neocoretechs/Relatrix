@@ -12,15 +12,15 @@ import com.neocoretechs.relatrix.Relation;
 * Find the set of objects in the relation via the specified predicate. 
 * This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
 * for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
-* Legal permutations are:<br/>
-* [object],*,* <br/>
-* [object],*,?  <br/>
-* [object],?,?  <br/>
-* [object],?,* <br/>
-* [TemplateClass],*,* <br/>
-* [TemplateClass],*,? <br/>
-* [TemplateClass],?,? <br/>
-* [TemplateClass],?,* <br/>
+* Legal permutations are:<br>
+* [object],*,* <br>
+* [object],*,?  <br>
+* [object],?,?  <br>
+* [object],?,* <br>
+* [TemplateClass],*,* <br>
+* [TemplateClass],*,? <br>
+* [TemplateClass],?,? <br>
+* [TemplateClass],?,* <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -51,7 +51,7 @@ public class FindSetMode4 extends IteratorFactory {
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-		return new RelatrixIterator( tdmr, dmr_return);
+		return new RelatrixIterator(tdmr, dmr_return);
 	}
 	
 	/**
