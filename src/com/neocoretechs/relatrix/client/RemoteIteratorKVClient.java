@@ -100,6 +100,7 @@ public class RemoteIteratorKVClient implements Runnable, RelatrixStatementInterf
 		// Wait for master server node to connect back to here for return channel communication
 		//
 		masterSocket = ServerSocketChannel.open();
+		masterSocket.configureBlocking(true);
 		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		//MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
@@ -108,6 +109,7 @@ public class RemoteIteratorKVClient implements Runnable, RelatrixStatementInterf
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to masterSocketAddress:%s%n", this.getClass().getName(), masterSocket.toString());
 		sock = masterSocket.accept();
+		sock.configureBlocking(true);
 		sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
 		sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
 		sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);

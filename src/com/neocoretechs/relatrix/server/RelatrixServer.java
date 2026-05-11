@@ -146,6 +146,7 @@ public class RelatrixServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
+				datasocket.configureBlocking(true);
                 // disable Nagles algoritm; do not combine small packets into larger ones
                 datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
                 // wait 1 second before close; close blocks for 1 sec. and data can be sent
@@ -190,6 +191,7 @@ public class RelatrixServer extends TCPServer {
 	 */
 	public static SocketChannel Fopen(String bootNode, int masterPort, InetAddress address, int slavePort) throws IOException {
 		SocketChannel s = SocketChannel.open(new InetSocketAddress(address, slavePort));
+		s.configureBlocking(true);
 		s.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		s.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
 		s.setOption(StandardSocketOptions.SO_SNDBUF, 32767);

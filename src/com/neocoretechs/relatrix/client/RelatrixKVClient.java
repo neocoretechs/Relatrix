@@ -92,6 +92,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
 		masterSocket = ServerSocketChannel.open();
+		masterSocket.configureBlocking(true);
 		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		if(DEBUG) {
 			System.out.printf("%s with arguments bootNode:%s remoteNode:%s remotePort:%d masterSocket:%s MASTERPORT:%d%n", this.getClass().getName(), bootNode, remoteNode, remotePort, masterSocket.toString(), MASTERPORT);
@@ -123,6 +124,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
+			sock.configureBlocking(true);
 			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
 			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
 			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);

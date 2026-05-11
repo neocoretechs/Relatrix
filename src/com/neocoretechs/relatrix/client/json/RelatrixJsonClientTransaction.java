@@ -111,6 +111,7 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
 		masterSocket = ServerSocketChannel.open();
+		masterSocket.configureBlocking(true);
 		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
@@ -224,6 +225,7 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 	public void run() {
 		try {
 			sock = masterSocket.accept();
+			sock.configureBlocking(true);
 			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
 			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
 			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
@@ -367,43 +369,5 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 		rc.endTransaction(xid);
 		rc.close();
 	}
-
-	@Override
-	public List findSetParallel(Alias arg1, TransactionId arg2, Character arg3, Character arg4, List arg5) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List findSetParallel(Alias arg1, TransactionId arg2, Character arg3, List arg4, Character arg5) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List findSetParallel(TransactionId arg1, List arg2, Character arg3, Character arg4) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List findSetParallel(Alias arg1, TransactionId arg2, List arg3, Character arg4, Character arg5) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List findSetParallel(TransactionId arg1, Character arg2, Character arg3, List arg4) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List findSetParallel(TransactionId arg1, Character arg2, List arg3, Character arg4) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 
 }

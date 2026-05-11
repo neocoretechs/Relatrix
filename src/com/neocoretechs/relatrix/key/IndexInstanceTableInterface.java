@@ -33,7 +33,7 @@ public interface IndexInstanceTableInterface {
 	DBKey put(Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;
 	/**
 	 * Put the key to the proper tables
-	 * @return TODO
+	 * @return the DBKey
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -41,7 +41,7 @@ public interface IndexInstanceTableInterface {
 	DBKey put(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException;	
 	/**
 	 * Put the key to the proper tables
-	 * @return TODO
+	 * @return The DBKey
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException
@@ -49,7 +49,7 @@ public interface IndexInstanceTableInterface {
 	DBKey put(Alias alias, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException;
 	/**
 	 * Put the key to the proper tables
-	 * @return TODO
+	 * @return The DBKey
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws ClassNotFoundException

@@ -180,6 +180,7 @@ public class RelatrixKVServer extends TCPServer {
 			while(!shouldStop) {
 				try {
 					SocketChannel datasocket = server.accept();
+					datasocket.configureBlocking(true);
                     // disable Nagles algoritm; do not combine small packets into larger ones
                     datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
                     // wait 1 second before close; close blocks for 1 sec. and data can be sent

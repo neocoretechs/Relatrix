@@ -1,11 +1,9 @@
 // auto generated from com.neocoretechs.relatrix.tooling.GenerateClientBindings Mon Mar 17 07:45:21 PDT 2025
 package com.neocoretechs.relatrix.client.json;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
-
 
 import java.util.ArrayList;
 import com.neocoretechs.relatrix.type.RelationList;
@@ -15,7 +13,6 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteStream;
 import com.neocoretechs.rocksack.TransactionId;
-
 
 public abstract class RelatrixJsonClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface{
 
@@ -29,6 +26,66 @@ public abstract class RelatrixJsonClientTransactionInterfaceImpl implements Rela
 			throw new java.io.IOException(e);
 		}
 	}
+	@Override
+	public List findSetParallel(Alias arg1, TransactionId arg2, Character arg3, Character arg4, List arg5) {
+		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findSetParallel", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1, TransactionId arg2, Character arg3, List arg4, Character arg5) {
+		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findSetParallel", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(TransactionId arg1, List arg2, Character arg3, Character arg4) {
+		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1, TransactionId arg2, List arg3, Character arg4, Character arg5) {
+		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findSetParallel", arg1, arg2, arg3, arg4, arg5);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(TransactionId arg1, Character arg2, Character arg3, List arg4) {
+		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(TransactionId arg1, Character arg2, List arg3, Character arg4) {
+		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
 		RelatrixJsonTransactionStatement s = new RelatrixJsonTransactionStatement("findStream", arg1, arg2, arg3, arg4, arg5);

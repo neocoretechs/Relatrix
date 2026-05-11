@@ -116,6 +116,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 			while(!shouldStop) {
 				try {
 					SocketChannel datasocket = server.accept();
+					datasocket.configureBlocking(true);
 	                // disable Nagles algoritm; do not combine small packets into larger ones
 					datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 					datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);

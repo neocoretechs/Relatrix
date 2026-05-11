@@ -102,6 +102,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
 		masterSocket = ServerSocketChannel.open();
+		masterSocket.configureBlocking(true);
 		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
@@ -120,6 +121,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
+			sock.configureBlocking(true);
 			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
 			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
 			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);

@@ -47,7 +47,9 @@ public abstract class TCPServer implements Cloneable, Runnable {
 	public synchronized SocketAddress startServer(int port) throws IOException {
 		if( server == null ) {
 			this.port = port;
-			server = ServerSocketChannel.open().bind(new InetSocketAddress(port));
+			server = ServerSocketChannel.open();
+			server.configureBlocking(true);
+			server.bind(new InetSocketAddress(port));
 			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
 			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
 			startLatch.countDown();
@@ -70,7 +72,9 @@ public abstract class TCPServer implements Cloneable, Runnable {
 				System.out.println("TCPServer attempt local bind "+binder+" port "+port);
 			this.port = port;
 			InetSocketAddress iSockAddr = new InetSocketAddress(binder,port);
-			server = ServerSocketChannel.open().bind(iSockAddr);
+			server = ServerSocketChannel.open();
+			server.configureBlocking(true);
+			server.bind(iSockAddr);
 			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
 			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
 			startLatch.countDown();
@@ -82,7 +86,9 @@ public abstract class TCPServer implements Cloneable, Runnable {
 				System.out.println("TCPServer attempt local bind "+binder+" port "+port+" using thread:"+threadName);
 			this.port = port;
 			InetSocketAddress iSockAddr = new InetSocketAddress(binder,port);
-			server = ServerSocketChannel.open().bind(iSockAddr);
+			server = ServerSocketChannel.open();
+			server.configureBlocking(true);
+			server.bind(iSockAddr);
 			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
 			SynchronizedThreadManager.getInstance().spin(this,threadName);
 			startLatch.countDown();
@@ -92,7 +98,9 @@ public abstract class TCPServer implements Cloneable, Runnable {
 		if( server == null ) {
 			if( DEBUG )
 				System.out.println("TCPServer attempt local bind "+address);
-			server = ServerSocketChannel.open().bind(address);
+			server = ServerSocketChannel.open();
+			server.configureBlocking(true);
+			server.bind(address);
 			this.port = server.socket().getLocalPort();
 			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
 			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
@@ -103,7 +111,9 @@ public abstract class TCPServer implements Cloneable, Runnable {
 		if( server == null ) {
 			if( DEBUG )
 				System.out.println("TCPServer attempt local bind "+address+" using thread "+threadName);
-			server = ServerSocketChannel.open().bind(address);
+			server = ServerSocketChannel.open();
+			server.configureBlocking(true);
+			server.bind(address);
 			this.port = server.socket().getLocalPort();
 			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
 			SynchronizedThreadManager.getInstance().spin(this,threadName);

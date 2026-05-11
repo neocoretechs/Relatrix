@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
@@ -98,6 +99,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
 		masterSocket = ServerSocketChannel.open();
+		masterSocket.configureBlocking(true);
 		SocketAddress masterSocketAddress = new InetSocketAddress(localIPAddress, MASTERPORT);
 		masterSocket.bind(masterSocketAddress);
 		//MASTERPORT = masterSocket.getLocalPort();
@@ -117,6 +119,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
+			sock.configureBlocking(true);
 			sock.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 			sock.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
 			sock.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
@@ -281,54 +284,33 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
 	/**
-	 * 
+	 * Send an object utility method - channel blocking
 	 * @param channel
 	 * @param obj
 	 * @throws IOException
 	 */
 	public static void sendObject(SocketChannel channel, Object obj) throws IOException {
-	    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-	    try (ObjectOutputStream objOut = new ObjectOutputStream(byteStream)) {
-	        objOut.writeObject(obj);
-	    }
-	    byte[] bytes = byteStream.toByteArray();
-	    ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
-	    lengthBuffer.putInt(bytes.length);
-	    lengthBuffer.flip();
-	    while (lengthBuffer.hasRemaining()) {
-	        //System.out.println("chan="+channel+" len buf="+lengthBuffer);
-	        channel.write(lengthBuffer);
-	    }
-	    ByteBuffer dataBuffer = ByteBuffer.wrap(bytes);
-	    while (dataBuffer.hasRemaining()) {
-	    	//System.out.println("chan="+channel+" databuf="+dataBuffer);
-	        channel.write(dataBuffer);
-	    }
+		try (OutputStream os = Channels.newOutputStream(channel);
+				ObjectOutputStream oos = new ObjectOutputStream(os)) {
+			oos.writeObject(obj);
+			oos.flush();
+			oos.reset();
+		}
+	}
+	/**
+	 * Receive an object blocking channel
+	 * @param channel
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public static Object receiveObject(SocketChannel channel) throws IOException, ClassNotFoundException {
+		try(InputStream is = Channels.newInputStream(channel);
+			ObjectInputStream ois = new ObjectInputStream(is)) {
+			return ois.readObject(); // blocks until a full object is received
+		}
 	}
 	
-	public static Object receiveObject(SocketChannel channel) throws IOException, ClassNotFoundException {
-	    ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
-	    while (lengthBuffer.hasRemaining()) {
-	        if (channel.read(lengthBuffer) == -1) {
-	            throw new EOFException("Connection closed prematurely");
-	        }
-	    }
-	    lengthBuffer.flip();
-	    int length = lengthBuffer.getInt();
-	    // Read exactly 'length' bytes
-	    ByteBuffer dataBuffer = ByteBuffer.allocate(length);
-	    while (dataBuffer.hasRemaining()) {
-	        if (channel.read(dataBuffer) == -1) {
-	            throw new EOFException("Incomplete data received");
-	        }
-	    }
-	    dataBuffer.flip();
-	    byte[] bytes = new byte[length];
-	    dataBuffer.get(bytes);
-	    try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
-	        return (Object) objIn.readObject();
-	    }
-	}
 	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...

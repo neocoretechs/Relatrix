@@ -2,13 +2,14 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -164,6 +165,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
+				datasocket.configureBlocking(true);
                 // disable Nagles algoritm; do not combine small packets into larger ones
                 datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
                 // wait 1 second before close; close blocks for 1 sec. and data can be sent

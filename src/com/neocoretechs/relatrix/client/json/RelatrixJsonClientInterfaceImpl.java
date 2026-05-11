@@ -4,18 +4,79 @@ package com.neocoretechs.relatrix.client.json;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
-
 import java.util.ArrayList;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.client.RelatrixClientInterface;
+import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteStream;
 
 public abstract class RelatrixJsonClientInterfaceImpl implements RelatrixClientInterface{
 
+	@Override
+	public List findSetParallel(Alias arg1,Character arg2, List arg3, Character arg4) {
+		RelatrixStatement s = new RelatrixJsonStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1,List arg2,Character arg3,Character arg4) {
+		RelatrixStatement s = new RelatrixJsonStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(Alias arg1, Character arg2, Character arg3, List arg4) {
+		RelatrixStatement s = new RelatrixJsonStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(Character arg1, Character arg2, List arg3) {
+		RelatrixStatement s = new RelatrixJsonStatement("findSetParallel", arg1, arg2, arg3);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(Character arg1, List arg2, Character arg3) {
+		RelatrixStatement s = new RelatrixJsonStatement("findSetParallel", arg1, arg2, arg3);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List findSetParallel(List arg1, Character arg2, Character arg3) {
+		RelatrixStatement s = new RelatrixJsonStatement("findSetParallel", arg1, arg2, arg3);
+		try {
+			return (List)sendCommand(s);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
 	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	@Override
 	public Object lastKey(Alias arg1) throws java.io.IOException {

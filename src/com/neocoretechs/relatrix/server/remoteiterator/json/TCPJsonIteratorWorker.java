@@ -76,6 +76,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 		}
 		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
 		masterSocket = SocketChannel.open(masterSocketAddress);
+		masterSocket.configureBlocking(true);
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
 		if(!masterSocket.connect(masterSocketAddress)) {
