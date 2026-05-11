@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  */
 public class TCPWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -57,7 +57,7 @@ public class TCPWorker implements Runnable {
 			System.out.printf("%s with params datasocket:%s, remoteMaster:%s masterPort:%d connection to masterPort at IPAddress:%s%n", this.getClass().getName(), datasocket.toString(), remoteMaster, masterPort, IPAddress.toString()); 
 		}
 		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
-		masterSocket = SocketChannel.open(masterSocketAddress);
+		masterSocket = SocketChannel.open();
 		masterSocket.configureBlocking(true);
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
@@ -78,7 +78,9 @@ public class TCPWorker implements Runnable {
 		SynchronizedThreadManager.getInstance().spin(workerRequestProcessor);
 		if( DEBUG ) {
 			System.out.println("Worker on port with master "+MASTERPORT+
-					" address:"+IPAddress);
+					" address:"+IPAddress+" channel:"+masterSocket+" wroker:"+workerSocket+" connected:"+workerSocket.isConnected());
+			if(!workerSocket.isConnected())
+				System.out.println("Worker Not connected, pending:"+workerSocket.isConnectionPending());
 		}
 	}
 	
@@ -95,7 +97,7 @@ public class TCPWorker implements Runnable {
     	}
     	try {
     		// Write response to master for forwarding to client
-    		RelatrixClient.sendObject(masterSocket, irf);
+    		RelatrixClient.sendObject(workerSocket, irf);
     	} catch (IOException e) {
     		throw new RuntimeException(e);
     	}
