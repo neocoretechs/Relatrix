@@ -25,6 +25,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.RelatrixServer;
 
 
 /**
@@ -102,7 +103,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		//MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(bootNode);
+		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -274,24 +275,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		sendCommand(rs);
 	}
 	
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened socket
-	 * @throws IOException
-	 */
-	public SocketChannel Fopen(String bootNode) throws IOException {
-		SocketChannel s = SocketChannel.open();
-		SocketAddress clientSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-		s.bind(clientSocketAddress);
-		s.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		s.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-		s.setOption(StandardSocketOptions.SO_SNDBUF, 32767);		
-		System.out.println("Socket created to "+s);
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		sendObject(s, cpi);
-		return s;
-	}
 	
 	@Override
 	public String toString() {

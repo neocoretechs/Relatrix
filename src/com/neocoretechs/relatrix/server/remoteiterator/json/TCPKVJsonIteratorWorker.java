@@ -123,7 +123,7 @@ public class TCPKVJsonIteratorWorker implements Runnable {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
 				throw new RuntimeException(e);
 		}
 	}

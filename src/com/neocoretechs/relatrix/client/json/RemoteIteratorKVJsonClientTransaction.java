@@ -8,8 +8,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -20,6 +22,8 @@ import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
+import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 /**
  * Manages remote iterators via client that is serialized to remote kv transaction servers and returned as payload.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
@@ -41,10 +45,9 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	protected transient InetAddress IPAddress = null; // remote server address
 	private transient InetAddress localIPAddress = null; // local server address
 
-	protected transient Socket workerSocket = null; // socket assigned to slave port
-	protected transient ServerSocket masterSocket; // master socket connected back to via server
-	protected transient Socket sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
+	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected transient SocketChannel sock; // socket of mastersocket
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt;
@@ -105,18 +108,17 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(localIPAddress.getHostName());
+		workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
 		//SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RemoteIteratorKVJsonClientTransaction server socket accept failed with "+e1);
@@ -137,9 +139,8 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		}
 		try {
 			while(shouldRun) {
-				InputStream ins = sock.getInputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject inJson = new JSONObject(in.readLine());
+				String s = new String (RelatrixJsonServer.readUntil(sock,(byte)'\n'));
+				JSONObject inJson = new JSONObject(s);
 				if(DEBUG)
 					System.out.println("RemoteIteratorKVJsonClientTransaction read "+inJson+" from "+sock);
 				returnPayload =  (RemoteIteratorKVJsonClientTransaction) inJson.toObject();//RemoteIteratorKVJsonClientTransaction.class);
@@ -178,9 +179,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		String jirf = JSONObject.toJson(this);
 		if(DEBUG)
 			System.out.println("Sending "+jirf+" to "+workerSocket);
-		OutputStream os = workerSocket.getOutputStream();
-		PrintWriter out = new PrintWriter(os, true);
-		out.println(jirf);
+		RelatrixJsonServer.writeLineBlocking(workerSocket, jirf, null);
 	}
 	/**
 	 * Called for the various 'findSet' methods.
@@ -272,29 +271,6 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 
 	public int getRemotePort( ) {
 		return remotePort;
-	}
-
-
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened socket
-	 * @throws IOException
-	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		CommandPacket cpi = new CommandPacket(bootNode, MASTERPORT);
-		String jirf = JSONObject.toJson(cpi);
-		if(DEBUG)
-			System.out.println("Fopen "+jirf+" to "+s);
-		OutputStream os = s.getOutputStream();
-		PrintWriter out = new PrintWriter(os, true);
-		out.println(jirf);
-		return s;
 	}
 
 	@Override

@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+
 import java.lang.reflect.Constructor;
+
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +35,8 @@ import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -62,9 +69,9 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 	protected InetAddress IPAddress = null; // remote server address
 	private InetAddress localIPAddress = null; // local server address
 
-	protected Socket workerSocket = null; // socket assigned to slave port
-	protected ServerSocket masterSocket; // master socket connected back to via server
-	protected Socket sock; // socket of mastersocket
+	protected SocketChannel workerSocket = null; // socket assigned to slave port
+	protected ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected SocketChannel sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -100,11 +107,11 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
  		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(bootNode);
+		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -216,10 +223,9 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixJsonClient server socket accept failed with "+e1);
@@ -231,17 +237,10 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
   	    }
   	    try {
 		  while(shouldRun ) {
-				InputStream ins = sock.getInputStream();
 				if(DEBUG)
-					System.out.println("RelatrixJsonClient "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
-				//ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				//while(true) {
-				//  int n = ins.read(buf);
-				//  if( n < 0 ) break;
-				//  baos.write(buf,0,n);
-				//}
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject jobj = new JSONObject(in.readLine());
+					System.out.println("RelatrixJsonClient connected:"+sock.isConnected());
+				String s = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
+				JSONObject jobj = new JSONObject(s);
 				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//, RemoteResponseInterface.class);
 				// get the original request from the stored table
 				if( DEBUG )
@@ -277,8 +276,6 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
   	    		}
 				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					in.close();
-					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
@@ -304,35 +301,13 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
   	    }
 	}
 	/**
-	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
+	 * Send request to remote worker
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixJsonStatement) iori);
 		String iorij = JSONObject.toJson(iori);
-		OutputStream os = workerSocket.getOutputStream();
-		os.write(iorij.getBytes());
-		os.flush();
-	}
-
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened socket
-	 * @throws IOException
-	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = JSONObject.toJson(cpi);
-		OutputStream os = s.getOutputStream();
-		os.write(cpij.getBytes());
-		os.flush();
-		return s;
+		RelatrixJsonServer.writeLineBlocking(workerSocket, iorij, null);
 	}
 	
 	@Override

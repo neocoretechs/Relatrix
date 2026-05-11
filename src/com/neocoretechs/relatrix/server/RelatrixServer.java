@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.server;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -179,6 +180,23 @@ public class RelatrixServer extends TCPServer {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
+	 * @param bootNode local MASTER node name to connect back to
+	 * @return Opened SocketChannel
+	 * @throws IOException on channel fail
+	 */
+	public static SocketChannel Fopen(String bootNode, int masterPort, InetAddress address, int slavePort) throws IOException {
+		SocketChannel s = SocketChannel.open(new InetSocketAddress(address, slavePort));
+		s.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		s.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+		s.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
+		System.out.println("Channel created to "+s);
+		CommandPacketInterface cpi = new CommandPacket(bootNode, masterPort);
+		RelatrixClient.sendObject(s, cpi);
+		return s;
 	}
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>

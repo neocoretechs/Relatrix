@@ -17,7 +17,6 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
 
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
-
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.

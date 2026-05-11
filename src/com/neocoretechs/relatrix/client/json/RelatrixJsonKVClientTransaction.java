@@ -6,8 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
-import java.net.Socket;
+
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +25,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
@@ -73,10 +75,9 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixJsonKVClientTransaction server socket accept failed with "+e1);
@@ -88,9 +89,8 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
   	    }
   	    try {
 		  while(shouldRun ) {
-				InputStream ins = sock.getInputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject jobj = new JSONObject(in.readLine());
+			  String s = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
+				JSONObject jobj = new JSONObject(s);
 				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//,RemoteResponseInterface.class);	
 				// get the original request from the stored table
 				if( DEBUG )
@@ -123,8 +123,6 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
   	    		}
 				RelatrixJsonKVTransactionStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					in.close();
-					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
@@ -158,42 +156,9 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixJsonKVTransactionStatement) iori);
 		String iorij = JSONObject.toJson(iori);
-		OutputStream os = workerSocket.getOutputStream();
-		if(DEBUG)
-			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		os.write(iorij.getBytes());
-		if(DEBUG)
-			System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		os.flush();
+		RelatrixJsonServer.writeLineBlocking(workerSocket, iorij, null);
 		if(DEBUG)
 			System.out.println(iori+" sent to "+workerSocket);
-	}
-	
-	/**
-	 * Open a socket to the remote
-	 * @param fname
-	 * @param remote remote database name
-	 * @param port remote port
-	 * @return
-	 * @throws IOException
-	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		// send a remote Fopen request to the node
-		// this consists of sending the running WorkBoot a message to start the worker for a particular
-		// database on the node we hand down
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = JSONObject.toJson(cpi);
-		if(DEBUG)
-			System.out.println(cpij);
-		OutputStream os = s.getOutputStream();
-		os.write(cpij.getBytes());
-		os.flush();
-		return s;
 	}
 	
 	@Override

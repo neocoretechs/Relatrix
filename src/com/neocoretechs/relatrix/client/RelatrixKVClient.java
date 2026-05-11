@@ -4,22 +4,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-//import com.neocoretechs.rocksack.SerializedComparator;
-//import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
@@ -51,9 +54,9 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	protected InetAddress IPAddress = null; // remote server address
 	private InetAddress localIPAddress = null; // local server address
 
-	protected Socket workerSocket = null; // socket assigned to slave port
-	protected ServerSocket masterSocket; // master socket connected back to via server
-	protected Socket sock; // socker of mastersocket
+	protected SocketChannel workerSocket = null; // socket assigned to slave port
+	protected ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected SocketChannel sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -88,14 +91,14 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		if(DEBUG) {
 			System.out.printf("%s with arguments bootNode:%s remoteNode:%s remotePort:%d masterSocket:%s MASTERPORT:%d%n", this.getClass().getName(), bootNode, remoteNode, remotePort, masterSocket.toString(), MASTERPORT);
 		}
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(bootNode);
+		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -120,10 +123,9 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixKVClient server socket accept failed with "+e1);
@@ -135,9 +137,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
   	    }
   	    try {
 		  while(shouldRun ) {
-				InputStream ins = sock.getInputStream();
-				ObjectInputStream ois = new ObjectInputStream(ins);
-				RemoteResponseInterface iori = (RemoteResponseInterface) ois.readObject();
+				RemoteResponseInterface iori = (RemoteResponseInterface) RelatrixClient.receiveObject(sock);
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -149,7 +149,6 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 				}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					// We have the request after its session round trip, get it from outstanding waiters and signal
@@ -182,24 +181,12 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		if(DEBUG) {
 			System.out.println("Attempting to send "+iori+" to "+workerSocket);
 			if(workerSocket != null)
-				System.out.println("Socket bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+				System.out.println("Channel connected:"+workerSocket.isConnected());
 			else
 				System.out.println("Socket NULL!");
 		}
 		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-		//if(DEBUG) {
-		//	byte[] b = SerializedComparator.serializeObject(iori);
-		//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		//}
-		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-		if(DEBUG)
-			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		oos.writeObject(iori);
-		if(DEBUG)
-			System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		oos.flush();
-		if(DEBUG)
-			System.out.println(iori+" sent to "+workerSocket);
+		RelatrixClient.sendObject(workerSocket, iori);
 	}
 	
 	public void close() {
@@ -306,47 +293,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		sendCommand(rii);
 	}
 	
-	/**
-	 * Open a socket to the remote 
-	 * @param fname
-	 * @param remote remote database name
-	 * @param port remote port
-	 * @return
-	 * @throws IOException
-	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		// send a remote Fopen request to the node
-		// this consists of sending the running WorkBoot a message to start the worker for a particular
-		// database on the node we hand down
-		//if(workerSocket == null ) {
-		//	workerSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
-		//	workerSocket = new Socket();
-		//	workerSocket.connect(workerSocketAddress);
-		//}
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		/*
-		if( remoteDBName != null )
-			cpi.setDatabase(remoteDBName);
-		else
-			cpi.setDatabase(DBName);
-		cpi.setMasterPort(String.valueOf(MASTERPORT));
-		cpi.setSlavePort(String.valueOf(SLAVEPORT));
-		cpi.setRemoteMaster(InetAddress.getLocalHost().getHostAddress());
-		cpi.setTransport("TCP");
-		*/
-		os.writeObject(cpi);
-		os.flush();
-		//os.close();
-		//s.close();
-		return s;
-	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);

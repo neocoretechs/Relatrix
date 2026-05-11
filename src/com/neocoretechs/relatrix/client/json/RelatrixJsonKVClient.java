@@ -6,8 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
-import java.net.Socket;
+
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
-//import com.neocoretechs.rocksack.SerializedComparator;
-//import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
@@ -26,6 +25,7 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteStream;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
@@ -68,17 +68,15 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 	}
 	
 	/**
-	* Set up the socket 
+	* Set up the socketchannel
 	 */
 	@Override
 	public void run() {
-  	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixJsonKVClient server socket accept failed with "+e1);
@@ -90,9 +88,8 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
   	    }
   	    try {
 		  while(shouldRun ) {
-				InputStream ins = sock.getInputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				JSONObject jobj = new JSONObject(in.readLine());
+			String s = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
+			JSONObject jobj = new JSONObject(s);
 				RelatrixJsonKVStatement iori = (RelatrixJsonKVStatement) jobj.toObject();//,RelatrixKVTransactionStatement.class);	
 				// get the original request from the stored table
 				if( DEBUG )
@@ -126,8 +123,6 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
   	    		}
 				RelatrixJsonKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					in.close();
-					ins.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					// We have the request after its session round trip, get it from outstanding waiters and signal
@@ -161,46 +156,15 @@ public class RelatrixJsonKVClient extends RelatrixKVClient {
 		if(DEBUG) {
 			System.out.println("Attempting to send "+iori+" to "+workerSocket);
 			if(workerSocket != null)
-				System.out.println("Socket bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
+				System.out.println("Channel connected:"+workerSocket.isConnected());
 			else
-				System.out.println("Socket NULL!");
+				System.out.println("Channel NULL!");
 		}
 		outstandingRequests.put(iori.getSession(), (RelatrixJsonKVStatement) iori);
-		//if(DEBUG) {
-		//	byte[] b = SerializedComparator.serializeObject(iori);
-		//	System.out.println("Payload bytes="+b.length+" Put session "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		//}
 		String iorij = JSONObject.toJson(iori);
-		OutputStream os = workerSocket.getOutputStream();
-		if(DEBUG)
-			System.out.println("Output stream "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		os.write(iorij.getBytes());
-		if(DEBUG)
-			System.out.println("writeObject "+iori+" to "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-		os.flush();
+		RelatrixJsonServer.writeLineBlocking(workerSocket, iorij, null);
 		if(DEBUG)
 			System.out.println(iori+" sent to "+workerSocket);
-	}
-
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened socket
-	 * @throws IOException
-	 */
-	@Override
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = JSONObject.toJson(cpi);
-		OutputStream os = s.getOutputStream();
-		os.write(cpij.getBytes());
-		os.flush();
-		return s;
 	}
 	
 	@Override

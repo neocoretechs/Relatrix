@@ -115,7 +115,7 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
 				throw new RuntimeException(e);
 		}
 	}
@@ -128,7 +128,7 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 			while(shouldRun) {
 				if(DEBUG)
 					System.out.println("TCPIteratorTransactionWorker connected:"+workerSocket.isConnected());
-				RemoteCompletionInterface iori = (RemoteCompletionInterface)RelatrixClient.receiveObject(masterSocket);
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)RelatrixClient.receiveObject(workerSocket);
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixKVTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {

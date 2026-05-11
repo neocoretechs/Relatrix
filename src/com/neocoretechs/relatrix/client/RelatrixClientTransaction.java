@@ -6,21 +6,23 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -56,9 +58,9 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	protected InetAddress IPAddress = null; // remote server address
 	private InetAddress localIPAddress = null; // local server address
 
-	protected Socket workerSocket = null; // socket assigned to slave port
-	protected ServerSocket masterSocket; // master socket connected back to via server
-	protected Socket sock; // socket of mastersocket
+	protected SocketChannel workerSocket = null; // socket assigned to slave port
+	protected ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected SocketChannel sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -96,11 +98,11 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
  		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(bootNode);
+		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -114,10 +116,9 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixClientTransaction server socket accept failed with "+e1);
@@ -129,9 +130,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
   	    }
   	    try {
 		  while(shouldRun ) {
-				InputStream ins = sock.getInputStream();
-				ObjectInputStream ois = new ObjectInputStream(ins);
-				RemoteResponseInterface iori = (RemoteResponseInterface) ois.readObject();
+				RemoteResponseInterface iori = (RemoteResponseInterface) RelatrixClient.receiveObject(sock);
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -142,7 +141,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 				}
 				RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
@@ -168,14 +166,12 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
   	    }
 	}
 	/**
-	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
+	 * Send request to remote worker via workerSocket
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
-		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-		oos.writeObject(iori);
-		oos.flush();
+		RelatrixClient.sendObject(workerSocket, iori);
 	}
 	
 	@Override
@@ -189,25 +185,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		if(o instanceof Exception)
 			throw (Exception)o;
 		return o;
-	}
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Open Socket
-	 * @throws IOException
-	 */
-
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		os.writeObject(cpi);
-		os.flush();
-		return s;
 	}
 
 	public void close() {

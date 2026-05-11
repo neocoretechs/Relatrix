@@ -1,21 +1,22 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
+
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.RelatrixServer;
 /**
  * Manages remote iterators via client that is serialized to remote kv transaction servers and returned as payload.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
@@ -37,9 +38,9 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	protected transient InetAddress IPAddress = null; // remote server address
 	private transient InetAddress localIPAddress = null; // local server address
 
-	protected transient Socket workerSocket = null; // socket assigned to slave port
-	protected transient ServerSocket masterSocket; // master socket connected back to via server
-	protected transient Socket sock; // socket of mastersocket
+	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
+	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected transient SocketChannel sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -95,30 +96,24 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		if( DEBUG ) {
 			System.out.println("RemoteIteratorKVClientTransaction constructed with remote:"+IPAddress);
 		}
-		//localIPAddress = InetAddress.getByName(bootNode);
+
 		localIPAddress = InetAddress.getLocalHost();
 		//
 		// Wait for master server node to connect back to here for return channel communication
 		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
+		//MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(localIPAddress.getHostName());
-		//SocketChannel sock;
-		try {
-			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("RemoteIteratorKVClientTransaction server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
+		workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
+		if(DEBUG)
+			System.out.printf("%s about to connect socket to masterSocketAddress:%s%n", this.getClass().getName(), masterSocket.toString());
+		sock = masterSocket.accept();
+		sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+		sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+		sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
+		// spin the request processor thread for the worker
 		if( DEBUG ) {
 			System.out.println("RemoteIteratorKVClientTransaction got connection "+sock);
 		}
@@ -133,9 +128,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		}
 		try {
 			while(shouldRun) {
-				InputStream ins = sock.getInputStream();
-				ObjectInputStream ois = new ObjectInputStream(ins);
-				returnPayload = (RemoteIteratorKVClientTransaction) ois.readObject();
+				returnPayload = (RemoteIteratorKVClientTransaction) RelatrixClient.receiveObject(sock);
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
@@ -146,9 +139,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 						System.out.println("RemoteIteratorKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
 					}
-					synchronized(waitPayload) {
-						waitPayload.notify();
-					}
+					waitPayload.notify();
 				}
 			}
 		} catch(Exception e) {
@@ -159,18 +150,18 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		synchronized(waitHalt) {
 			waitHalt.notifyAll();
 		}
-
 	}
-
+	/**
+	 * send 'this' via workerSocket
+	 * @throws Exception
+	 */
 	public void sendCommand() throws Exception {
 		if(sock == null) {
 			synchronized(waitSocket) {
 				waitSocket.wait();
 			}
 		}
-		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-		oos.writeObject(this);
-		oos.flush();
+		RelatrixClient.sendObject(workerSocket, this);
 	}
 	/**
 	 * Called for the various 'findSet' methods.
@@ -255,33 +246,12 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 
-
 	public String getRemoteNode() {
 		return remoteNode;
 	}
 
 	public int getRemotePort( ) {
 		return remotePort;
-	}
-
-
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened socket
-	 * @throws IOException
-	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		os.writeObject(cpi);
-		os.flush();
-		return s;
 	}
 
 	@Override

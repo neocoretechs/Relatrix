@@ -33,7 +33,6 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 	 */
 	@Override
 	public void sendResponse(RemoteResponseInterface irf) {
-	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
@@ -47,7 +46,7 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Socket send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
 				throw new RuntimeException(e);
 		}
 	}

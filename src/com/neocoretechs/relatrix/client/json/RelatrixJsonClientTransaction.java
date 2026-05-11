@@ -7,10 +7,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +35,8 @@ import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
+import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixJsonTransactionServer} 
@@ -67,9 +72,9 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 	protected InetAddress IPAddress = null; // remote server address
 	private InetAddress localIPAddress = null; // local server address
 
-	protected Socket workerSocket = null; // socket assigned to slave port
-	protected ServerSocket masterSocket; // master socket connected back to via server
-	protected Socket sock; // socket of mastersocket
+	protected SocketChannel workerSocket = null; // socket assigned to slave port
+	protected ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected SocketChannel sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -105,11 +110,11 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
  		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = Fopen(bootNode);
+		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
 		//masterSocket.bind(masterSocketAddress);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
@@ -217,13 +222,11 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 	 */
 	@Override
 	public void run() {
-  	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixJsonClientTransaction server socket accept failed with "+e1);
@@ -235,11 +238,9 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
   	    }
   	    try {
   	    	while(shouldRun) {
-  	    		InputStream ins = sock.getInputStream();
   	    		if(DEBUG)
-  	    			System.out.println("RelatrixJsonClientTransaction "+sock+" bound:"+sock.isBound()+" closed:"+sock.isClosed()+" connected:"+sock.isConnected()+" input shut:"+sock.isInputShutdown()+" output shut:"+sock.isOutputShutdown());
-  	    		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-  	    		String inLine = in.readLine();
+  	    			System.out.println("RelatrixJsonClientTransaction "+sock+" connected:"+sock.isConnected());
+  	    		String inLine = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
   	    		if(DEBUG) {
   	    			System.out.println("RelatrixJsonClientTransaction "+sock+" raw data:"+inLine);
   	    		}
@@ -283,7 +284,6 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
   	    		}
   	    		RelatrixJsonTransactionStatement rs = (RelatrixJsonTransactionStatement) outstandingRequests.get(iori.getSession());
   	    		if( rs == null ) {
-  	    			in.close();
   	    			throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
   	    		} else {
   	    			if(DEBUG) {
@@ -319,35 +319,11 @@ public class RelatrixJsonClientTransaction extends RelatrixJsonClientTransaction
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixJsonTransactionStatement) iori);
 		String iorij = JSONObject.toJson(iori);
-		OutputStream os = workerSocket.getOutputStream();
-		PrintWriter out = new PrintWriter(os, true);
-		if(DEBUG)
-			System.out.println("Sending "+iorij+" to "+workerSocket);
-		out.println(iorij);
+		RelatrixJsonServer.writeLineBlocking(workerSocket, iorij, null);
 		if(DEBUG)
 			System.out.println("Sent "+iorij+" to "+workerSocket);
 	}
 
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened socket
-	 * @throws IOException
-	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
-		System.out.println("Socket created to "+s);
-		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		String cpij = JSONObject.toJson(cpi);
-		OutputStream os = s.getOutputStream();
-		PrintWriter out = new PrintWriter(os, true);
-		out.println(cpij);
-		return s;
-	}
-	
 	
 	@Override
 	public String toString() {
