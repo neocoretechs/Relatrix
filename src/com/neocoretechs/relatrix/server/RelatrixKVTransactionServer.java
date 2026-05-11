@@ -4,11 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
@@ -39,7 +44,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	
-	public static InetAddress address;
+	public static SocketAddress address;
 	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
@@ -87,7 +92,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -101,8 +106,8 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		super();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
-		address = InetAddress.getByName(iaddress);
-		startServer(port,address);
+		address = new InetSocketAddress(iaddress, port);
+		startServer(address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -113,22 +118,24 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
+
+
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
 	 * @param port Port upon which to start server. The port at 9999 is reserved for serving Java bytecode specifically in support of server operations.
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixKVTransactionServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
+	public RelatrixKVTransactionServer(SocketAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
 		address = iaddress;
-		startServer(port,address);
+		startServer(address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -139,7 +146,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -150,7 +157,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixKVTransactionServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
+	public RelatrixKVTransactionServer(SocketAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
@@ -165,7 +172,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -190,14 +197,13 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	public void run() {
 			while(!shouldStop) {
 				try {
-					Socket datasocket = server.accept();
+					SocketChannel datasocket = server.accept();
                     // disable Nagles algoritm; do not combine small packets into larger ones
-                    datasocket.setTcpNoDelay(true);
-                    // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                    datasocket.setSoLinger(true, 1);
+					datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+					datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
 					//
-                    ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
-                    CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
+                    CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Transaction Server command received:"+o);
                     TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());

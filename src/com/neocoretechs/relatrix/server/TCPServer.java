@@ -6,68 +6,25 @@ import java.util.concurrent.TimeUnit;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import java.io.*;
+
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 /**
 * TCPServer is the superclass of all objects using ServerSockets.
 */
 public abstract class TCPServer implements Cloneable, Runnable {
-	protected ServerSocket server = null;
-	Socket data = null;
+	private static boolean DEBUG;
+	protected ServerSocketChannel server = null;
+	SocketChannel data = null;
 	private int port;
 	protected volatile boolean shouldStop = false;
 	private CountDownLatch startLatch = new CountDownLatch(1);
-	
-	public synchronized InetAddress startServer(int port) throws IOException {
-		if( this.server == null ) {
-			this.port = port;
-			System.out.println("Server "+this.getClass().getName()+" starting on "+InetAddress.getLocalHost().getHostName()+" port "+port);
-			this.server = new ServerSocket(port);
-			//runner = new Thread(this);
-			//runner.start();
-			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER"}, false);
-			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
-			startLatch.countDown();
-		}
-		return server.getInetAddress();
-	}
-	
-	public synchronized void startServer(int port, InetAddress binder) throws IOException {
-		if( this.server == null ) {
-			this.port = port;
-            System.out.println("Server "+this.getClass().getName()+" starting on "+binder+" port "+port);
-			this.server = new ServerSocket(port, 1000, binder);
-			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER"}, false);
-			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
-			startLatch.countDown();
-		}
-	}
-	
-	public synchronized InetAddress startServer(int port, String threadName) throws IOException {
-		if( this.server == null ) {
-			this.port = port;
-			System.out.println("Server "+this.getClass().getName()+" starting on "+InetAddress.getLocalHost().getHostName()+" port "+port);
-			this.server = new ServerSocket(port);
-			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
-			SynchronizedThreadManager.getInstance().spin(this,threadName);
-			startLatch.countDown();
-		}
-		return server.getInetAddress();
-	}
-	
-	public synchronized void startServer(int port, InetAddress binder, String threadName) throws IOException {
-		if( this.server == null ) {
-			this.port = port;
-            System.out.println("Server "+this.getClass().getName()+" starting on "+binder+" port "+port);
-			this.server = new ServerSocket(port, 1000, binder);
-			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
-			SynchronizedThreadManager.getInstance().spin(this,threadName);
-			startLatch.countDown();
-		}
-	}
-	
+		
 	/**
      * Creates an {@link InetAddress} with both an IP and a host set so that no
      * further resolving will take place.
@@ -87,28 +44,85 @@ public abstract class TCPServer implements Cloneable, Runnable {
    	 * @param threadName a thread group name under which to spin the new thread for processing
      * @throws IOException if socket or thread fails
      */
-    public synchronized void startServer(InetAddress binder, String threadName) throws IOException {
-		if( this.server == null ) {
-          	//InetAddress binder = InetAddress.getByName(host);
-          	this.server = new ServerSocket(0,0,binder);
-  			this.port = this.server.getLocalPort();
-  			System.out.println("Server "+this.getClass().getName()+" starting on "+binder.getHostName()+" port "+port);
-  			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
-  			SynchronizedThreadManager.getInstance().spin(this,threadName);
+	public synchronized SocketAddress startServer(int port) throws IOException {
+		if( server == null ) {
+			this.port = port;
+			server = ServerSocketChannel.open().bind(new InetSocketAddress(port));
+			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
+			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
 			startLatch.countDown();
 		}
-    }
-
+		return server.getLocalAddress();
+	}
+	public synchronized SocketAddress startServer(int port, String threadName) throws IOException {
+		if( server == null ) {
+			this.port = port;
+			server = ServerSocketChannel.open().bind(new InetSocketAddress(port));
+			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
+			SynchronizedThreadManager.getInstance().spin(this,threadName);
+			startLatch.countDown();
+		}
+		return server.getLocalAddress();
+	}
+	public synchronized void startServer(int port, InetAddress binder) throws IOException {
+		if( server == null ) {
+			if( DEBUG )
+				System.out.println("TCPServer attempt local bind "+binder+" port "+port);
+			this.port = port;
+			InetSocketAddress iSockAddr = new InetSocketAddress(binder,port);
+			server = ServerSocketChannel.open().bind(iSockAddr);
+			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
+			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
+			startLatch.countDown();
+		}
+	}
+	public synchronized void startServer(int port, InetAddress binder, String threadName) throws IOException {
+		if( server == null ) {
+			if( DEBUG )
+				System.out.println("TCPServer attempt local bind "+binder+" port "+port+" using thread:"+threadName);
+			this.port = port;
+			InetSocketAddress iSockAddr = new InetSocketAddress(binder,port);
+			server = ServerSocketChannel.open().bind(iSockAddr);
+			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
+			SynchronizedThreadManager.getInstance().spin(this,threadName);
+			startLatch.countDown();
+		}
+	}
+	public synchronized void startServer(SocketAddress address) throws IOException {
+		if( server == null ) {
+			if( DEBUG )
+				System.out.println("TCPServer attempt local bind "+address);
+			server = ServerSocketChannel.open().bind(address);
+			this.port = server.socket().getLocalPort();
+			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
+			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
+			startLatch.countDown();
+		}
+	}
+	public synchronized void startServer(SocketAddress address, String threadName) throws IOException {
+		if( server == null ) {
+			if( DEBUG )
+				System.out.println("TCPServer attempt local bind "+address+" using thread "+threadName);
+			server = ServerSocketChannel.open().bind(address);
+			this.port = server.socket().getLocalPort();
+			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
+			SynchronizedThreadManager.getInstance().spin(this,threadName);
+			startLatch.countDown();
+		}
+	}
 	public synchronized void stopServer() throws IOException {
 		if( server != null ) {
 			shouldStop = true;
 			server.close();
 			server = null;
-			startLatch = new CountDownLatch(1);
 			SynchronizedThreadManager.getInstance().shutdown("TCPSERVER");
+			SynchronizedThreadManager.getInstance().shutdown("WORKERS");
 		}
 	}
-	
+
+	public void shutdown() throws IOException {
+		stopServer();
+	}
 	public void awaitStart() throws InterruptedException {
 		startLatch.await();
 	}

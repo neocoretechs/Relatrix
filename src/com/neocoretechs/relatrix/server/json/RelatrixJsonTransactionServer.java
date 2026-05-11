@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +18,7 @@ import org.json.JSONObject;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
+import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
@@ -74,7 +78,7 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
+			new RemoteIteratorJsonTransactionServer(iteratorServers[i], ((InetSocketAddress)RelatrixJsonTransactionServer.address).getAddress(), iteratorPorts[i]);
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -89,10 +93,10 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	public RelatrixJsonTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
-		address = InetAddress.getByName(iaddress);
+		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorJsonTransactionServer(iteratorServers[i], address, iteratorPorts[i]);
-		startServer(port,address);
+			new RemoteIteratorJsonTransactionServer(iteratorServers[i], ((InetSocketAddress)RelatrixJsonTransactionServer.address).getAddress(), iteratorPorts[i]);
+		startServer(address);
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -100,17 +104,13 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 	public void run() {
 		while(!shouldStop) {
 			try {
-				Socket datasocket = server.accept();
-				if( DEBUG || DEBUGCOMMAND )
-					System.out.println("Relatrix Json Transaction Server socket accept:"+datasocket);
-				// disable Nagles algoritm; do not combine small packets into larger ones
-				datasocket.setTcpNoDelay(true);
-				// wait 1 second before close; close blocks for 1 sec. and data can be sent
-				datasocket.setSoLinger(true, 1);
+				SocketChannel datasocket = server.accept();
+                // disable Nagles algoritm; do not combine small packets into larger ones
+				datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+				datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+				datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
 				//
-	            InputStream ins = datasocket.getInputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String inJson = in.readLine();
+				String inJson = new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n'));
 				if( DEBUG || DEBUGCOMMAND )
 					System.out.println("Relatrix Json Transaction Server read:"+inJson);
 				JSONObject jobj = new JSONObject(inJson);

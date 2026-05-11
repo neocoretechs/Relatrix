@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,7 +28,7 @@ import com.neocoretechs.relatrix.server.TCPWorker;
 public class TCPJsonTransactionWorker extends TCPWorker {
 	private static boolean DEBUG = false;
 
-	public TCPJsonTransactionWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
+	public TCPJsonTransactionWorker(SocketChannel datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);
 	}
 	/**
@@ -48,9 +49,7 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
-			OutputStream os = masterSocket.getOutputStream();
-			PrintWriter out = new PrintWriter(os, true);
-			out.println(jirf);
+			RelatrixJsonServer.writeLineBlocking(masterSocket, jirf, null);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
@@ -66,15 +65,9 @@ public class TCPJsonTransactionWorker extends TCPWorker {
 	public void run() {
 		try {
 			while(shouldRun) {
-				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String sobj = in.readLine();
-				if(sobj == null) {
-					ins.close();
-					break;
-				}
+					System.out.println("TCPJsonTransactionWorker InputStream "+workerSocket+" connected:"+workerSocket.isConnected());
+				String sobj = new String(RelatrixJsonServer.readUntil(masterSocket, (byte)'\n'));
 				JSONObject jobj = new JSONObject(sobj);
 				if(DEBUG) {
 					System.out.printf("%s %s%n", this.getClass().getName(),jobj);

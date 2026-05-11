@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
@@ -13,6 +15,7 @@ import org.json.JSONObject;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.TCPServer;
+import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**
  * When an iterator is created for remote delivery of objects, the address of the remote server
@@ -41,14 +44,14 @@ public class RemoteKVIteratorJsonServer extends TCPServer {
 	public void run() {
 		while(!shouldStop) {
 			try {
-				Socket datasocket = server.accept();
-				// disable Nagles algoritm; do not combine small packets into larger ones
-				datasocket.setTcpNoDelay(true);
-				// wait 1 second before close; close blocks for 1 sec. and data can be sent
-				datasocket.setSoLinger(true, 1);
+				SocketChannel datasocket = server.accept();
+                // disable Nagles algoritm; do not combine small packets into larger ones
+                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+                // wait 1 second before close; close blocks for 1 sec. and data can be sent
+                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 				//
-				BufferedReader in = new BufferedReader(new InputStreamReader(datasocket.getInputStream()));
-				JSONObject inLine = new JSONObject(in.readLine());
+                String s = new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n'));
+				JSONObject inLine = new JSONObject(s);
 				if(DEBUG)
 					System.out.println("RemoteKVIteratorJsonServer "+datasocket+" raw data:"+inLine);
 				CommandPacket o = (CommandPacket) inLine.toObject();//CommandPacket.class);	

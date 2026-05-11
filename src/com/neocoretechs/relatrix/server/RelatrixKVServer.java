@@ -4,12 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
@@ -39,7 +44,7 @@ public class RelatrixKVServer extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	
-	public static InetAddress address;
+	public static SocketAddress address;
 	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
@@ -87,7 +92,7 @@ public class RelatrixKVServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -96,8 +101,7 @@ public class RelatrixKVServer extends TCPServer {
 		super();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		address = InetAddress.getByName(iaddress);
-		startServer(port,address);
+		startServer(new InetSocketAddress(iaddress,port));
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -108,7 +112,7 @@ public class RelatrixKVServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -117,8 +121,8 @@ public class RelatrixKVServer extends TCPServer {
 		super();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		address = iaddress;
-		startServer(port,address);
+		address = new InetSocketAddress(iaddress, port);
+		startServer(address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -129,7 +133,7 @@ public class RelatrixKVServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -138,7 +142,8 @@ public class RelatrixKVServer extends TCPServer {
 		super();
 		RelatrixKVServer.port = port;
 		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		address = iaddress;
+		address = new InetSocketAddress(iaddress, port);
+		startServer(address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -149,7 +154,7 @@ public class RelatrixKVServer extends TCPServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], address, iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -174,14 +179,13 @@ public class RelatrixKVServer extends TCPServer {
 	public void run() {
 			while(!shouldStop) {
 				try {
-					Socket datasocket = server.accept();
+					SocketChannel datasocket = server.accept();
                     // disable Nagles algoritm; do not combine small packets into larger ones
-                    datasocket.setTcpNoDelay(true);
+                    datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
                     // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                    datasocket.setSoLinger(true, 1);
+                    datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 					//
-                    ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
-                    CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
+                    CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V Server command received:"+o);
                    // db = (new File(db)).toPath().getParent().toString() + File.separator +

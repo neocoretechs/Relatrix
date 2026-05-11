@@ -1,12 +1,19 @@
 package com.neocoretechs.relatrix.server.json;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.*;
@@ -58,7 +65,7 @@ public final class RelatrixJsonServer extends RelatrixServer {
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+			new RemoteIteratorJsonServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]);
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -72,11 +79,10 @@ public final class RelatrixJsonServer extends RelatrixServer {
 	public RelatrixJsonServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
-		address = InetAddress.getByName(iaddress);
+		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
-		startServer(port,address);
-		
+			new RemoteIteratorJsonServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]);
+		startServer(address);		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
@@ -84,15 +90,14 @@ public final class RelatrixJsonServer extends RelatrixServer {
 	public void run() {
 		while(!shouldStop) {
 			try {
-				Socket datasocket = server.accept();
-				// disable Nagles algoritm; do not combine small packets into larger ones
-				datasocket.setTcpNoDelay(true);
-				// wait 1 second before close; close blocks for 1 sec. and data can be sent
-				datasocket.setSoLinger(true, 1);
+				SocketChannel datasocket = server.accept();
+                // disable Nagles algoritm; do not combine small packets into larger ones
+                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+                // wait 1 second before close; close blocks for 1 sec. and data can be sent
+                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 				//
-                InputStream ins = datasocket.getInputStream();
-    			BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-    			JSONObject jobj = new JSONObject(in.readLine());
+                byte[] bb = readUntil(datasocket,(byte)'\n');
+    			JSONObject jobj = new JSONObject(new String(bb));
                 CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//CommandPacketInterface.class);
 				if( DEBUGCOMMAND )
 					System.out.println("Relatrix Server command received:"+o);
@@ -122,6 +127,36 @@ public final class RelatrixJsonServer extends RelatrixServer {
 				e.printStackTrace();
 			}
 		}
+	}
+	public static byte[] readUntil(SocketChannel ch, byte delimiter) throws IOException {
+	    ByteBuffer buf = ByteBuffer.allocate(1024);
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    while (true) {
+	        int r = ch.read(buf);
+	        if (r == -1) break;
+	        if (r == 0) { Thread.yield(); continue; }
+	        buf.flip();
+	        while (buf.hasRemaining()) {
+	            byte b = buf.get();
+	            out.write(b);
+	            if (b == delimiter) return out.toByteArray();
+	        }
+	        buf.clear();
+	    }
+	    return out.toByteArray();
+	}
+	public static void writeLineBlocking(SocketChannel ch, String line, Charset cs) throws IOException {
+	    if (cs == null) cs = StandardCharsets.UTF_8;
+	    // choose terminator: "\n" or "\r\n" depending on protocol
+	    byte[] bytes = (line + "\n").getBytes(cs);
+	    ByteBuffer buf = ByteBuffer.wrap(bytes);
+	    while (buf.hasRemaining()) {
+	        int written = ch.write(buf);
+	        if (written == 0) {
+	            // In blocking mode this rarely happens; yield briefly to avoid busy spin
+	            Thread.yield();
+	        }
+	    }
 	}
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>

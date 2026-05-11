@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
@@ -112,7 +113,7 @@ public class RelatrixJsonKVTransactionStatement extends RelatrixKVStatement impl
 			RelatrixKVJsonTransactionServer.sessionToObject.put(getSession(), result);
 			RemoteIteratorKVJsonClientTransaction ric = null;
 			if(result.getClass() == IteratorWrapper.class) {	
-				ric = new RemoteIteratorKVJsonClientTransaction(xid, RelatrixKVJsonTransactionServer.address.getHostName(), 
+				ric = new RemoteIteratorKVJsonClientTransaction(xid, ((InetSocketAddress)RelatrixKVJsonTransactionServer.address).getAddress().getHostName(), 
 							RelatrixKVJsonTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);

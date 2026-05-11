@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.SocketChannel;
 
 import org.json.JSONObject;
 
@@ -21,7 +22,7 @@ import com.neocoretechs.relatrix.server.TCPWorker;
 public class TCPJsonWorker extends TCPWorker {
 	private static boolean DEBUG = false;
 
-	public TCPJsonWorker(Socket datasocket, String remoteMaster, int masterPort) throws IOException {
+	public TCPJsonWorker(SocketChannel datasocket, String remoteMaster, int masterPort) throws IOException {
 		super(datasocket, remoteMaster, masterPort);
 	}
 	/**
@@ -43,9 +44,7 @@ public class TCPJsonWorker extends TCPWorker {
 			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
 				System.out.println("Sending "+jirf+" to "+masterSocket);
-			OutputStream os = masterSocket.getOutputStream();
-			PrintWriter out = new PrintWriter(os, true);
-			out.println(jirf);
+			RelatrixJsonServer.writeLineBlocking(masterSocket, jirf, null);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
@@ -61,13 +60,9 @@ public class TCPJsonWorker extends TCPWorker {
 	public void run() {
 		try {
 			while(shouldRun) {
-				InputStream ins = workerSocket.getInputStream();
 				if(DEBUG)
-					System.out.println("TCPJsonWorker InputStream "+workerSocket+" bound:"+workerSocket.isBound()+" closed:"+workerSocket.isClosed()+" connected:"+workerSocket.isConnected()+" input shut:"+workerSocket.isInputShutdown()+" output shut:"+workerSocket.isOutputShutdown());
-				BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-				String sobj = in.readLine();
-				if(sobj == null)
-					continue;
+					System.out.println("TCPJsonWorker InputStream "+workerSocket+" connected:"+workerSocket.isConnected());
+				String sobj = new String(RelatrixJsonServer.readUntil(masterSocket, (byte) '\n'));
 				JSONObject inJson = new JSONObject(sobj);
 				if(DEBUG)
 					System.out.println("TCPJsonWorker read "+inJson+" from "+workerSocket);

@@ -116,7 +116,9 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("[").append(one).append("]");
+		builder.append("[");
+		builder.append(one);
+		builder.append("]");
 		return builder.toString();
 	}
 

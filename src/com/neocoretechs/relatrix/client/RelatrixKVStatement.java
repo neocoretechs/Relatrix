@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -212,7 +213,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 			RelatrixKVServer.sessionToObject.put(getSession(), result);
 			RemoteIteratorKVClient ric = null;
 			if(result.getClass() == IteratorWrapper.class) {	
-				ric = new RemoteIteratorKVClient(RelatrixKVServer.address.getHostName(), 
+				ric = new RemoteIteratorKVClient(((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), 
 							RelatrixKVServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);

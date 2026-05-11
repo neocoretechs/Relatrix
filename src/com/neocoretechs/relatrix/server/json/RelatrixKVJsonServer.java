@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -83,7 +86,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteKVIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+			new RemoteKVIteratorJsonServer(iteratorServers[i], ((InetSocketAddress)RelatrixKVJsonServer.address).getAddress(), iteratorPorts[i]);
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -91,8 +94,8 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	public RelatrixKVJsonServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVJsonServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
-		address = InetAddress.getByName(iaddress);
-		startServer(port,address);
+		address = new InetSocketAddress(iaddress, port);
+		startServer(address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
@@ -103,7 +106,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 			}
 		}
 		for(int i = 0; i < iteratorServers.length; i++)
-			new RemoteKVIteratorJsonServer(iteratorServers[i], address, iteratorPorts[i]);
+			new RemoteKVIteratorJsonServer(iteratorServers[i], ((InetSocketAddress)RelatrixKVJsonServer.address).getAddress(), iteratorPorts[i]);
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -112,15 +115,13 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	public void run() {
 			while(!shouldStop) {
 				try {
-					Socket datasocket = server.accept();
-                    // disable Nagles algoritm; do not combine small packets into larger ones
-                    datasocket.setTcpNoDelay(true);
-                    // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                    datasocket.setSoLinger(true, 1);
+					SocketChannel datasocket = server.accept();
+	                // disable Nagles algoritm; do not combine small packets into larger ones
+					datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+					datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
 					//
-                    InputStream ins = datasocket.getInputStream();
-        			BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-        			JSONObject jobj = new JSONObject(in.readLine());
+        			JSONObject jobj = new JSONObject(new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n')));
                     CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//,CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.println("Relatrix K/V JsonServer command received:"+o);

@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.StandardSocketOptions;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
@@ -37,14 +40,14 @@ public class RemoteIteratorServer extends TCPServer {
 	public void run() {
 		while(!shouldStop) {
 			try {
-				Socket datasocket = server.accept();
-				// disable Nagles algoritm; do not combine small packets into larger ones
-				datasocket.setTcpNoDelay(true);
-				// wait 1 second before close; close blocks for 1 sec. and data can be sent
-				datasocket.setSoLinger(true, 1);
+				SocketChannel datasocket = server.accept();
+                // disable Nagles algoritm; do not combine small packets into larger ones
+                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+                // wait 1 second before close; close blocks for 1 sec. and data can be sent
+                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 				//
-				ObjectInputStream ois = new ObjectInputStream(datasocket.getInputStream());
-				CommandPacketInterface o = (CommandPacketInterface) ois.readObject();
+				//
+				CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
 				if( DEBUG )
 					System.out.println("RemoteIteratorServer command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance

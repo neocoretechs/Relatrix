@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
@@ -12,7 +13,6 @@ import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction;
-
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
@@ -97,27 +97,27 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			// put it in the array and send our intermediary back
 			RemoteIteratorClientTransaction ric = null;
 			if( result.getClass() == RelatrixIteratorTransaction.class) {
-				ric = new RemoteIteratorClientTransaction(transactionId, RelatrixTransactionServer.address.getHostName(), 
+				ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), 
 						RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction"));
 			} else {
 				if(result.getClass() == RelatrixSubsetIteratorTransaction.class ) {
-					ric = new RemoteIteratorClientTransaction(transactionId, RelatrixTransactionServer.address.getHostName(), 
+					ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), 
 							RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction"));
 				} else {
 					if(result.getClass() == RelatrixHeadsetIteratorTransaction.class ) {
-						ric = new RemoteIteratorClientTransaction(transactionId, RelatrixTransactionServer.address.getHostName(), 
+						ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), 
 								RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction"));
 					} else {
 						if( result.getClass() == RelatrixEntrysetIteratorTransaction.class) {
-							ric = new RemoteIteratorClientTransaction(transactionId, RelatrixTransactionServer.address.getHostName(), 
+							ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), 
 									RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction"));
 						} else {
 							if( result.getClass() == RelatrixKeysetIteratorTransaction.class) {
-								ric = new RemoteIteratorClientTransaction(transactionId, RelatrixTransactionServer.address.getHostName(), 
+								ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), 
 										RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction"));
 							} else {
 								if(result.getClass() == RelatrixTailsetIteratorTransaction.class ) {
-									ric = new RemoteIteratorClientTransaction(transactionId, RelatrixTransactionServer.address.getHostName(), 
+									ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), 
 											RelatrixTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction"));
 								} else {
 									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);

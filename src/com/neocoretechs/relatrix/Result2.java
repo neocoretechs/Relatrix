@@ -131,7 +131,11 @@ public class Result2 extends Result1 implements Comparable, Serializable, Clonea
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("[").append(one).append(", ").append(two).append("]");
+		builder.append("[");
+		builder.append(one);
+		builder.append(", ");
+		builder.append(two);
+		builder.append("]");
 		return builder.toString();
 	}
 	

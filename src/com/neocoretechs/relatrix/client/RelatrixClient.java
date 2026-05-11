@@ -1,13 +1,20 @@
 package com.neocoretechs.relatrix.client;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,9 +58,9 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	protected InetAddress IPAddress = null; // remote server address
 	private InetAddress localIPAddress = null; // local server address
 
-	protected Socket workerSocket = null; // socket assigned to slave port
-	protected ServerSocket masterSocket; // master socket connected back to via server
-	protected Socket sock; // socket of mastersocket
+	protected SocketChannel workerSocket = null; // socket assigned to slave port
+	protected ServerSocketChannel masterSocket; // master socket connected back to via server
+	protected SocketChannel sock; // socket of mastersocket
 	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -66,10 +73,10 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	 * database and get back the master and slave ports of the remote server. The main client thread then
 	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket to coonect back to
-	 * @param remoteNode
-	 * @param remotePort
-	 * @throws IOException
+	 * @param bootNode Name of local master socket to connect back to
+	 * @param remoteNode The remote Node
+	 * @param remotePort The remote Port
+	 * @throws IOException if connect fail
 	 */
 	public RelatrixClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
 		this.bootNode = bootNode;
@@ -89,8 +96,10 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
  		// Wait for master server node to connect back to here for return channel communication
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = new ServerSocket(0, 1000, localIPAddress);
-		MASTERPORT = masterSocket.getLocalPort();
+		masterSocket = ServerSocketChannel.open();
+		SocketAddress masterSocketAddress = new InetSocketAddress(localIPAddress, MASTERPORT);
+		masterSocket.bind(masterSocketAddress);
+		//MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
 		// send message to spin connection
 		workerSocket = Fopen(bootNode);
@@ -107,10 +116,9 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
   	    //SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.setKeepAlive(true);
-			//sock.setTcpNoDelay(true);
-			sock.setSendBufferSize(32767);
-			sock.setReceiveBufferSize(32767);
+			sock.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+			sock.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+			sock.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
 			System.out.println("RelatrixClient server socket accept failed with "+e1);
@@ -122,9 +130,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
   	    }
   	    try {
 		  while(shouldRun ) {
-				InputStream ins = sock.getInputStream();
-				ObjectInputStream ois = new ObjectInputStream(ins);
-				RemoteResponseInterface iori = (RemoteResponseInterface) ois.readObject();
+				RemoteResponseInterface iori = (RemoteResponseInterface) receiveObject(sock);
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -138,7 +144,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 				}
 				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					ois.close();
 					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
@@ -169,9 +174,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
-		ObjectOutputStream oos = new ObjectOutputStream(workerSocket.getOutputStream());
-		oos.writeObject(iori);
-		oos.flush();
+		sendObject(workerSocket, iori);
 	}
 	
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
@@ -277,16 +280,16 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	 * @return Opened socket
 	 * @throws IOException
 	 */
-	public Socket Fopen(String bootNode) throws IOException {
-		Socket s = new Socket(IPAddress, SLAVEPORT);
-		s.setKeepAlive(true);
-		s.setReceiveBufferSize(32767);
-		s.setSendBufferSize(32767);
+	public SocketChannel Fopen(String bootNode) throws IOException {
+		SocketChannel s = SocketChannel.open();
+		SocketAddress clientSocketAddress = new InetSocketAddress(IPAddress, SLAVEPORT);
+		s.bind(clientSocketAddress);
+		s.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		s.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+		s.setOption(StandardSocketOptions.SO_SNDBUF, 32767);		
 		System.out.println("Socket created to "+s);
-		ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
 		CommandPacketInterface cpi = new CommandPacket(bootNode, MASTERPORT);
-		os.writeObject(cpi);
-		os.flush();
+		sendObject(s, cpi);
 		return s;
 	}
 	
@@ -294,7 +297,55 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	public String toString() {
 		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
+	/**
+	 * 
+	 * @param channel
+	 * @param obj
+	 * @throws IOException
+	 */
+	public static void sendObject(SocketChannel channel, Object obj) throws IOException {
+	    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+	    try (ObjectOutputStream objOut = new ObjectOutputStream(byteStream)) {
+	        objOut.writeObject(obj);
+	    }
+	    byte[] bytes = byteStream.toByteArray();
+	    ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
+	    lengthBuffer.putInt(bytes.length);
+	    lengthBuffer.flip();
+	    while (lengthBuffer.hasRemaining()) {
+	        //System.out.println("chan="+channel+" len buf="+lengthBuffer);
+	        channel.write(lengthBuffer);
+	    }
+	    ByteBuffer dataBuffer = ByteBuffer.wrap(bytes);
+	    while (dataBuffer.hasRemaining()) {
+	    	//System.out.println("chan="+channel+" databuf="+dataBuffer);
+	        channel.write(dataBuffer);
+	    }
+	}
 	
+	public static Object receiveObject(SocketChannel channel) throws IOException, ClassNotFoundException {
+	    ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
+	    while (lengthBuffer.hasRemaining()) {
+	        if (channel.read(lengthBuffer) == -1) {
+	            throw new EOFException("Connection closed prematurely");
+	        }
+	    }
+	    lengthBuffer.flip();
+	    int length = lengthBuffer.getInt();
+	    // Read exactly 'length' bytes
+	    ByteBuffer dataBuffer = ByteBuffer.allocate(length);
+	    while (dataBuffer.hasRemaining()) {
+	        if (channel.read(dataBuffer) == -1) {
+	            throw new EOFException("Incomplete data received");
+	        }
+	    }
+	    dataBuffer.flip();
+	    byte[] bytes = new byte[length];
+	    dataBuffer.get(bytes);
+	    try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+	        return (Object) objIn.readObject();
+	    }
+	}
 	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
