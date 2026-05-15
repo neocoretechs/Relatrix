@@ -22,8 +22,10 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.server.CommandPacket;
+import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClientTransaction;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
@@ -49,9 +51,10 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	private transient InetAddress localIPAddress = null; // local server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
+	protected transient ConnectionHandler workerHandler;
 	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected transient SocketChannel sock = null; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected transient SocketChannel sock; // socket of mastersocket
+	protected transient ConnectionHandler masterHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt;
@@ -105,7 +108,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorJsonClientTransaction constructed with remote:"+IPAddress);
+			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
 		}
 		//localIPAddress = InetAddress.getByName(bootNode);
 		localIPAddress = InetAddress.getLocalHost();
@@ -114,27 +117,32 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 		//
 		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
 		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
 		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
+		//workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+			CommandPacketInterface cpi = new CommandPacket(localIPAddress.getHostName(), MASTERPORT);
+			workerHandler.sendObject(cpi);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		//SocketChannel sock;
 		try {
 			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
+			masterHandler = new ConnectionHandler(sock);
 			// At this point we have a connection back from 'slave'
 		} catch (IOException e1) {
-			System.out.println("RemoteIteratorJsonClientTransaction server socket accept failed with "+e1);
+			System.out.println(this.getClass().getName()+" server socket accept failed with "+e1);
 			shutdown();
 			return;
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorJsonClientTransaction got connection "+sock);
+			System.out.println(this.getClass().getName()+" got connection "+sock);
 		}
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -149,7 +157,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 				String s = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
 				JSONObject inJson = new JSONObject(s);
 				if(DEBUG)
-					System.out.println("RemoteIteratorJsonClientTransction read "+inJson+" from "+workerSocket);
+					System.out.println(this.getClass().getName()+" read "+inJson+" from "+workerSocket);
 				returnPayload =  (RemoteIteratorJsonClientTransaction) inJson.toObject();//RemoteIteratorJsonClientTransaction.class);
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
@@ -263,27 +271,14 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	private void shutdown() {
 		if(DEBUG)
 			System.out.println("Calling shutdown for RemoteIteratorJsonClientTransaction");
-		if(sock != null) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-			sock = null;
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+		if( masterHandler != null ) {
+			masterHandler.close();
 		}
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
-
 
 	public String getRemoteNode() {
 		return remoteNode;
@@ -295,7 +290,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorJsonClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("%s RemoteNode:%s RemotePort:%d workerSocket:%s, session:%s method:%s return:%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, session, methodName, objectReturn);
 	}
 
 	@Override

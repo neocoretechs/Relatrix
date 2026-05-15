@@ -50,24 +50,24 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
-	
+
 	private String bootNode, remoteNode;
 	private int remotePort;
-	
+
 	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
 	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
+
 	protected InetAddress IPAddress = null; // remote server address
-	private InetAddress localIPAddress = null; // local server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ServerSocketChannel masterSocket; // master socket connected back to via server
 	protected SocketChannel sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
-	
+
+	private ConnectionHandler workerHandler;
+
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
-	
+
 	protected ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();
 
 	/**
@@ -93,94 +93,86 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		if( DEBUG ) {
 			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
 		}
-		localIPAddress = InetAddress.getByName(bootNode);
 		//
- 		// Wait for master server node to connect back to here for return channel communication
+		// Wait for master server node to connect back to here for return channel communication
 		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		SocketAddress masterSocketAddress = new InetSocketAddress(localIPAddress, MASTERPORT);
-		masterSocket.bind(masterSocketAddress);
-		//MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		//masterSocket.bind(masterSocketAddress);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
 	/**
-	* Set up the socket 
-	*/
+	 * Set up the socket 
+	 */
 	@Override
 	public void run() {
-  	    //SocketChannel sock;
+		//SocketChannel sock;
 		try {
-			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("RelatrixClient server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-  	    if( DEBUG ) {
-  	    	 System.out.println("RelatrixClient got connection "+sock);
-  	    }
-  	    try {
-		  while(shouldRun ) {
-				RemoteResponseInterface iori = (RemoteResponseInterface) receiveObject(sock);
+			while(shouldRun) {
+				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				Object o = iori.getObjectReturn();
 				if( DEBUG )
-					 System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
-					 o = ((Throwable)o).getCause();
+					o = ((Throwable)o).getCause();
 				}
 				RelatrixStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
+					throw new RuntimeException("REQUEST/RESPONSE MISMATCH, statement:"+iori);
 				} else {
 					if(o instanceof Iterator)
-						((RemoteCompletionInterface)o).process();
+						try {
+							((RemoteCompletionInterface)o).process();
+						} catch (Exception e) {
+							e.printStackTrace();
+							o = e;
+						}
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object
 					rs.setObjectReturn(o);
 					// and signal the latch we have finished
 					rs.signalCompletion(null);
+					if( DEBUG ) {
+						System.out.println("RelatrixClient got connection "+sock);
+					}  
 				}
-		  }
+			}
 		} catch(Exception e) {
-			//if(!(e instanceof SocketException)) {
-				// we lost the remote master, try to close worker and wait for reconnect
-				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			// we lost the remote master, try to close worker and wait for reconnect
+			e.printStackTrace();
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
 			//}
 		} finally {
 			shutdown();
-  	    }
-  	    synchronized(waitHalt) {
-  	    	waitHalt.notifyAll();
-  	    }
+		}
+		synchronized(waitHalt) {
+			waitHalt.notifyAll();
+		}
 	}
+
 	/**
 	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		outstandingRequests.put(iori.getSession(), (RelatrixStatement) iori);
-		sendObject(workerSocket, iori);
+		workerHandler.sendObject(iori);
 	}
-	
+
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -205,6 +197,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
 	}
+
 	/**
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
@@ -217,14 +210,10 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		rii.paramArray = new Object[0];
 		return (boolean) sendCommand(rii);
 	}
-	
+
 	public void close() {
 		shouldRun = false;
-		try {
-			if(sock != null)
-				sock.close();
-		} catch (IOException e) {}
-		sock = null;
+
 		synchronized(waitHalt) {
 			try {
 				waitHalt.wait();
@@ -232,18 +221,11 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		}
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
-	
+
 	protected void shutdown() {
-		if( sock != null ) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
+	
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		if( masterSocket != null ) {
 			try {
@@ -253,64 +235,34 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		}
 		shouldRun = false;
 	}
-	
-	
+
 	public String getLocalNode() {
 		return bootNode;
 	}
-	
+
 	public String getRemoteNode() {
 		return remoteNode;
 	}
-	
+
 	public int getRemotePort( ) {
 		return remotePort;
 	}
 
-	
 	public void closeDb(Class clazz) throws Exception {
 		RelatrixStatement rs = new RelatrixStatement("close", clazz);
 		sendCommand(rs);
 	}
-	
+
 	public void closeDb(String alias, Class clazz) throws Exception {
 		RelatrixStatement rs = new RelatrixStatement("close", alias, clazz);
 		sendCommand(rs);
 	}
-	
-	
+
 	@Override
 	public String toString() {
 		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
 	}
-	/**
-	 * Send an object utility method - channel blocking
-	 * @param channel
-	 * @param obj
-	 * @throws IOException
-	 */
-	public static void sendObject(SocketChannel channel, Object obj) throws IOException {
-		try (OutputStream os = Channels.newOutputStream(channel);
-				ObjectOutputStream oos = new ObjectOutputStream(os)) {
-			oos.writeObject(obj);
-			oos.flush();
-			oos.reset();
-		}
-	}
-	/**
-	 * Receive an object blocking channel
-	 * @param channel
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 */
-	public static Object receiveObject(SocketChannel channel) throws IOException, ClassNotFoundException {
-		try(InputStream is = Channels.newInputStream(channel);
-			ObjectInputStream ois = new ObjectInputStream(is)) {
-			return ois.readObject(); // blocks until a full object is received
-		}
-	}
-	
+
 	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
@@ -321,31 +273,31 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 		RelatrixClient rc = new RelatrixClient(args[0],args[1],Integer.parseInt(args[2]));
 		RelatrixStatement rs = null;
 		switch(args.length) {
-			case 4:
-				Iterator it = rc.entrySet(Class.forName(args[3]));
-				it.forEachRemaining(e ->{	
-					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
-				});
-				System.exit(0);
-			case 5:
-				rs = new RelatrixStatement(args[3],args[4]);
-				break;
-			case 6:
-				rs = new RelatrixStatement(args[3],args[4],args[5]);
-				break;
-			case 7:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
-				break;
-			case 8:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
-				break;
-			default:
-				System.out.println("Cant process argument list of length:"+args.length);
-				return;
+		case 4:
+			Iterator it = rc.entrySet(Class.forName(args[3]));
+			it.forEachRemaining(e ->{	
+				System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
+			});
+			System.exit(0);
+		case 5:
+			rs = new RelatrixStatement(args[3],args[4]);
+			break;
+		case 6:
+			rs = new RelatrixStatement(args[3],args[4],args[5]);
+			break;
+		case 7:
+			rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
+			break;
+		case 8:
+			rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
+			break;
+		default:
+			System.out.println("Cant process argument list of length:"+args.length);
+			return;
 		}
 		System.out.println(rc.sendCommand(rs));
 		//rc.send(rs);
 		rc.close();
 	}
-	
+
 }

@@ -1,14 +1,11 @@
 package com.neocoretechs.relatrix.client.asynch;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -17,7 +14,7 @@ import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
@@ -60,12 +57,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected InetAddress IPAddress = null; // remote server address
-	private InetAddress localIPAddress = null; // local server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected SocketChannel sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -95,50 +89,33 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		if( DEBUG ) {
 			System.out.println("AsynchRelatrixClient constructed with remote:"+IPAddress);
 		}
-		localIPAddress = InetAddress.getByName(bootNode);
 		//
  		// Wait for master server node to connect back to here for return channel communication
 		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		//masterSocket.bind(masterSocketAddress);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
-
 
 	/**
 	* Set up the socket 
 	 */
 	@Override
 	public void run() {
-  	    //SocketChannel sock;
-		try {
-			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("AsynchRelatrixClient server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-  	    if( DEBUG ) {
-  	    	 System.out.println("AsynchRelatrixClient got connection "+sock);
-  	    }
   	    try {
   	    	while(shouldRun ) {
   	    		RelatrixStatementInterface rs = queuedRequests.takeFirstNotify();
   	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
-  	    		RelatrixClient.sendObject(workerSocket, rs);
-  	    		RemoteResponseInterface iori = (RemoteResponseInterface) RelatrixClient.receiveObject(sock);
+  	    		workerHandler.sendObject(rs);
+  	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
   	    		if( DEBUG )
   	    			System.out.println("Asynch FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -185,33 +162,15 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	}
 
 	public void close() {
-		shouldRun = false;
-		try {
-			sock.close();
-		} catch (IOException e) {}
-		sock = null;
+		shutdown();
 		queuedRequests = null;
 		Thread.currentThread().interrupt();
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {
-		if( sock != null ) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		shouldRun = false;
 	}
@@ -265,7 +224,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	
 	@Override
 	public String toString() {
-		return String.format("%s BootNode:%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",this.getClass().getName(), remoteNode, remotePort, sock, workerSocket);
+		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket);
 	}
 
 	static int i = 0;

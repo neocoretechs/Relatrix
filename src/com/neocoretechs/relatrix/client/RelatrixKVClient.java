@@ -1,15 +1,10 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -20,24 +15,11 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
  * 
- * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the RelatrixServer. The client contacts the boot time server port, the desired database
- * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
- * and slave ports that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.
+ * A worker thread that handles traffic back from the server.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements ClientInterface, Runnable {
@@ -52,12 +34,9 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	protected int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected InetAddress IPAddress = null; // remote server address
-	private InetAddress localIPAddress = null; // local server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected SocketChannel sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -84,23 +63,21 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RelatrixKVClient constructed with remote:"+IPAddress);
+			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
 		}
-		localIPAddress = InetAddress.getByName(bootNode);
 		//
 		// Wait for master server node to connect back to here for return channel communication
 		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
-		if(DEBUG) {
-			System.out.printf("%s with arguments bootNode:%s remoteNode:%s remotePort:%d masterSocket:%s MASTERPORT:%d%n", this.getClass().getName(), bootNode, remoteNode, remotePort, masterSocket.toString(), MASTERPORT);
-		}
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		//masterSocket.bind(masterSocketAddress);
+		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -121,25 +98,9 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	 */
 	@Override
 	public void run() {
-  	    //SocketChannel sock;
-		try {
-			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("RelatrixKVClient server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-  	    if( DEBUG ) {
-  	    	 System.out.println("RelatrixKVClient got connection "+sock);
-  	    }
   	    try {
 		  while(shouldRun ) {
-				RemoteResponseInterface iori = (RemoteResponseInterface) RelatrixClient.receiveObject(sock);
+				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
 					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -181,22 +142,18 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
 		if(DEBUG) {
-			System.out.println("Attempting to send "+iori+" to "+workerSocket);
+			System.out.println("Attempting to send "+iori+" to "+workerHandler);
 			if(workerSocket != null)
 				System.out.println("Channel connected:"+workerSocket.isConnected());
 			else
 				System.out.println("Socket NULL!");
 		}
 		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-		RelatrixClient.sendObject(workerSocket, iori);
+		workerHandler.sendObject(iori);
 	}
 	
 	public void close() {
 		shouldRun = false;
-		try {
-			sock.close();
-		} catch (IOException e) {}
-		sock = null;
 		synchronized(waitHalt) {
 			try {
 				waitHalt.wait();
@@ -206,22 +163,8 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	}
 	
 	protected void shutdown() {
-		if( sock != null ) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		shouldRun = false;
 	}

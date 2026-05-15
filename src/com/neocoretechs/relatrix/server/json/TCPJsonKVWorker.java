@@ -21,8 +21,8 @@ import com.neocoretechs.relatrix.server.TCPWorker;
 public class TCPJsonKVWorker extends TCPWorker {
 	private static boolean DEBUG = false;
 
-	public TCPJsonKVWorker(SocketChannel datasocket, String remoteMaster, int masterPort) throws IOException {
-		super(datasocket, remoteMaster, masterPort);
+	public TCPJsonKVWorker(SocketChannel datasocket) throws IOException {
+		super(datasocket);
 	}
 	/**
 	 * Queue a request on this worker,
@@ -35,19 +35,19 @@ public class TCPJsonKVWorker extends TCPWorker {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerSocket);
 		}
 		try {
 			// Write response to master for forwarding to client
 			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
-				System.out.println("Sending "+jirf+" to "+masterSocket);
-			RelatrixJsonServer.writeLineBlocking(masterSocket, jirf, null);
+				System.out.println("Sending "+jirf+" to "+workerSocket);
+			RelatrixJsonServer.writeLineBlocking(workerSocket, jirf, null);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+				System.out.println("Channel send error "+e+" to address "+workerSocket);
 				throw new RuntimeException(e);
 		}
 	}
@@ -60,7 +60,7 @@ public class TCPJsonKVWorker extends TCPWorker {
 			while(shouldRun) {
 				if(DEBUG)
 					System.out.println("TCPJsonWorker InputStream "+workerSocket+" connected:"+workerSocket.isConnected());
-				String sobj = new String(RelatrixJsonServer.readUntil(masterSocket, (byte)'\n'));
+				String sobj = new String(RelatrixJsonServer.readUntil(workerSocket, (byte)'\n'));
 				JSONObject jobj = new JSONObject(sobj);
 				RelatrixKVStatement iori = (RelatrixKVStatement) jobj.toObject();//,RelatrixKVStatement.class);	
 				if( DEBUG ) {
@@ -83,9 +83,6 @@ public class TCPJsonKVWorker extends TCPWorker {
 			shouldRun = false;
 			try {
 				workerSocket.close();
-			} catch (IOException e) {}
-			try {
-				masterSocket.close();
 			} catch (IOException e) {}
 			synchronized(waitHalt) {
 				waitHalt.notify();

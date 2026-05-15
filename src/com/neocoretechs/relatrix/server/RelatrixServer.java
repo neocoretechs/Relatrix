@@ -2,22 +2,21 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
-
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -146,34 +145,23 @@ public class RelatrixServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				datasocket.configureBlocking(true);
-                // disable Nagles algoritm; do not combine small packets into larger ones
-                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
-				//
-				CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
-				if( DEBUGCOMMAND )
-					System.out.println("Relatrix Server command received:"+o);
-				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				if(DEBUG)
+					System.out.printf("%s accept channel: %s%n", this.getClass().getName(),datasocket);
+				TCPWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
+                    if( DEBUG | DEBUGCOMMAND )
+                    	System.out.printf("%s found existing worker:%s%n",this.getClass().getName(),uworker);
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				uworker = new TCPWorker(datasocket);
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
-				if( DEBUG ) {
-					System.out.println("RelatrixServer starting new worker "+uworker+
-							//( rdb != null ? "remote db:"+rdb : "" ) +
-							" master port:"+o.getMasterPort());
-				}
+                if( DEBUG ) {
+                	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
+                }
 
 			} catch(Exception e) {
 				System.out.println("Relatrix Server node configuration server socket accept exception "+e);
@@ -183,23 +171,7 @@ public class RelatrixServer extends TCPServer {
 		}
 	}
 	
-	/**
-	 * Open a socket to the remote worker located at IPAddress and SLAVEPORT using {@link CommandPacket} bootNode and MASTERPORT
-	 * @param bootNode local MASTER node name to connect back to
-	 * @return Opened SocketChannel
-	 * @throws IOException on channel fail
-	 */
-	public static SocketChannel Fopen(String bootNode, int masterPort, InetAddress address, int slavePort) throws IOException {
-		SocketChannel s = SocketChannel.open(new InetSocketAddress(address, slavePort));
-		s.configureBlocking(true);
-		s.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		s.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-		s.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
-		System.out.println("Channel created to "+s);
-		CommandPacketInterface cpi = new CommandPacket(bootNode, masterPort);
-		RelatrixClient.sendObject(s, cpi);
-		return s;
-	}
+
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
 	 * @param args If length 1, then default port 9000

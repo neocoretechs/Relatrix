@@ -5,8 +5,7 @@ import java.io.Serializable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
-
+ 
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -16,8 +15,6 @@ import java.util.UUID;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-
-import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * Manages remote iterators via client that is serialized to remote iterator servers and returned as payload.
@@ -38,11 +35,9 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected transient InetAddress IPAddress = null; // remote server address
-	private transient InetAddress localIPAddress = null; // local server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
-	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected transient SocketChannel sock; // socket of mastersocket
+	protected transient ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt;
@@ -60,11 +55,9 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	private transient RemoteIteratorClient returnPayload;
 
 	/**
-	 * Start a client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket to coonect back to
+	 * @param bootNode Name of local master socket 
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
@@ -92,36 +85,17 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorClient constructed with remote:"+IPAddress);
+			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
 		}
-		//localIPAddress = InetAddress.getByName(bootNode);
-		localIPAddress = InetAddress.getLocalHost();
-		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
+
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		//SocketChannel sock;
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
 		try {
-			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("RemoteIteratorClient server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-		if( DEBUG ) {
-			System.out.println("RemoteIteratorClient got connection "+sock);
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -133,7 +107,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		}
 		try {
 			while(shouldRun) {
-				returnPayload = (RemoteIteratorClient) RelatrixClient.receiveObject(sock);
+				returnPayload = (RemoteIteratorClient) workerHandler.readObject();
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
@@ -167,12 +141,12 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	 * @throws Exception
 	 */
 	public void sendCommand() throws Exception {
-		if(sock == null) {
+		if(workerHandler == null) {
 			synchronized(waitSocket) {
 				waitSocket.wait();
 			}
 		}
-		RelatrixClient.sendObject(workerSocket, this);
+		workerHandler.sendObject(this);
 	}
 	/**
 	 * Called for the various 'findSet' methods.
@@ -236,23 +210,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	private void shutdown() {
 		if(DEBUG)
 			System.out.println("Calling shutdown for RemoteIteratorClient");
-		if(sock != null) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-			sock = null;
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
@@ -268,7 +227,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClient BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("RemoteIteratorClient BootNode:%s RemotePort:%d workerSocket:%s session:%s method:%s return:%s%n", remoteNode, remotePort, workerSocket, session, methodName, objectReturn);
 	}
 
 	@Override

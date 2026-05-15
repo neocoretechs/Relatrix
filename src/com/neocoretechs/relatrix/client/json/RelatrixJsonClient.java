@@ -1,22 +1,16 @@
 package com.neocoretechs.relatrix.client.json;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 
 import java.lang.reflect.Constructor;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
-import java.nio.channels.ServerSocketChannel;
+
 import java.nio.channels.SocketChannel;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -33,26 +27,12 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
+
 import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
-import com.neocoretechs.rocksack.Alias;
 
 /**
- * This class functions as client to the RelatrixServer Worker threads located on a remote node.
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
- * 
- * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the RelatrixServer. The client contacts the boot time server port, the desired database
- * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
- * and slave ports that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.<p/>
+ * This class functions as client to the {@link RelatrixJsonServer} Worker threads located on a remote node.
+ * a worker thread that handles traffic back from the server.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implements ClientNonTransactionInterface, Runnable {
@@ -67,12 +47,8 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 	protected int SLAVEPORT = 9881; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected InetAddress IPAddress = null; // remote server address
-	private InetAddress localIPAddress = null; // local server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected SocketChannel sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -100,25 +76,16 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
+			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
 		}
-		localIPAddress = InetAddress.getByName(bootNode);
-		//
- 		// Wait for master server node to connect back to here for return channel communication
-		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		//masterSocket.bind(masterSocketAddress);
+		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
-	
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
 		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
@@ -157,12 +124,7 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 	}
 	
 	public void close() {
-		shouldRun = false;
-		try {
-			if(sock != null)
-				sock.close();
-		} catch (IOException e) {}
-		sock = null;
+		shutdown();
 		synchronized(waitHalt) {
 			try {
 				waitHalt.wait();
@@ -172,22 +134,10 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 	}
 	
 	protected void shutdown() {
-		if( sock != null ) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-		}
 		if( workerSocket != null ) {
 			try {
 				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+			} catch (IOException e) {}
 		}
 		shouldRun = false;
 	}
@@ -221,27 +171,11 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 	*/
 	@Override
 	public void run() {
-  	    //SocketChannel sock;
-		try {
-			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("RelatrixJsonClient server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-  	    if( DEBUG ) {
-  	    	 System.out.println("RelatrixJsonClient got connection "+sock);
-  	    }
   	    try {
 		  while(shouldRun ) {
 				if(DEBUG)
-					System.out.println("RelatrixJsonClient connected:"+sock.isConnected());
-				String s = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
+					System.out.println("RelatrixJsonClient connected:"+workerSocket.isConnected());
+				String s = new String(RelatrixJsonServer.readUntil(workerSocket, (byte)'\n'));
 				JSONObject jobj = new JSONObject(s);
 				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//, RemoteResponseInterface.class);
 				// get the original request from the stored table

@@ -1,13 +1,8 @@
 package com.neocoretechs.relatrix.server.json;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
+
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 
@@ -21,8 +16,8 @@ import com.neocoretechs.relatrix.server.TCPWorker;
 public class TCPJsonKVTransactionWorker extends TCPWorker {
 	private static boolean DEBUG = false;
 
-	public TCPJsonKVTransactionWorker(SocketChannel datasocket, String remoteMaster, int masterPort) throws IOException {
-		super(datasocket, remoteMaster, masterPort);
+	public TCPJsonKVTransactionWorker(SocketChannel datasocket) throws IOException {
+		super(datasocket);
 	}
 	/**
 	 * Queue a request on this worker,
@@ -34,19 +29,19 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 	@Override
 	public void sendResponse(RemoteResponseInterface irf) {
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerSocket);
 		}
 		try {
 			// Write response to master for forwarding to client
 			String jirf = JSONObject.toJson(irf);
 			if(DEBUG)
-				System.out.println("Sending "+jirf+" to "+masterSocket);
-			RelatrixJsonServer.writeLineBlocking(masterSocket, jirf, null);
+				System.out.println("Sending "+jirf+" to "+workerSocket);
+			RelatrixJsonServer.writeLineBlocking(workerSocket, jirf, null);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+				System.out.println("Channel send error "+e+" to address "+workerSocket);
 				throw new RuntimeException(e);
 		}
 	}
@@ -58,12 +53,12 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println("TCPJsonKVTransactionWorker InputStream "+" connected:"+workerSocket.isConnected());
-				String sobj = new String(RelatrixJsonServer.readUntil(masterSocket, (byte)'\n'));
+					System.out.println(this.getClass().getName()+" InputStream "+" connected:"+workerSocket.isConnected());
+				String sobj = new String(RelatrixJsonServer.readUntil(workerSocket, (byte)'\n'));
 				JSONObject jobj = new JSONObject(sobj);
 				RelatrixKVTransactionStatement iori = (RelatrixKVTransactionStatement) jobj.toObject();//(,RelatrixKVTransactionStatement.class);	
 				if( DEBUG ) {
-					System.out.println("TCPJsonKVTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println(this.getClass().getName()+" FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put((RemoteCompletionInterface) iori);
@@ -77,14 +72,11 @@ public class TCPJsonKVTransactionWorker extends TCPWorker {
 		}
 		finally {
 			if( DEBUG ) {
-				System.out.println("TCPJsonKVTransactionWorker closing:"+workerSocket);
+				System.out.println(this.getClass().getName()+" closing:"+workerSocket);
 			}
 			shouldRun = false;
 			try {
 				workerSocket.close();
-			} catch (IOException e) {}
-			try {
-				masterSocket.close();
 			} catch (IOException e) {}
 			synchronized(waitHalt) {
 				waitHalt.notify();

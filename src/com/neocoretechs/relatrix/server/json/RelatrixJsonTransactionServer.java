@@ -107,37 +107,30 @@ public class RelatrixJsonTransactionServer extends RelatrixTransactionServer {
 				SocketChannel datasocket = server.accept();
 				datasocket.configureBlocking(true);
                 // disable Nagles algoritm; do not combine small packets into larger ones
+	            datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+	            // wait 1 second before close; close blocks for 1 sec. and data can be sent
+	            datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 				datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 				datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
 				datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
 				//
-				String inJson = new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n'));
-				if( DEBUG || DEBUGCOMMAND )
-					System.out.println("Relatrix Json Transaction Server read:"+inJson);
-				JSONObject jobj = new JSONObject(inJson);
-				CommandPacket o = (CommandPacket) jobj.toObject();//, CommandPacket.class);
-				if( DEBUG || DEBUGCOMMAND )
-					System.out.println("Relatrix Json Transaction Server command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
-				TCPJsonTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPJsonTransactionWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}              
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPJsonTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				uworker = new TCPJsonTransactionWorker(datasocket);
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
-
 				if( DEBUG ) {
-					System.out.println("RelatrixJsonTransactionServer started new worker "+uworker+" master port:"+o.getMasterPort());
+					System.out.println(this.getClass().getName()+" started new worker "+uworker);
 				}
 
 			} catch(Exception e) {
-				System.out.println("Relatrix Json Transaction Server node configuration server socket accept exception "+e);
+				System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

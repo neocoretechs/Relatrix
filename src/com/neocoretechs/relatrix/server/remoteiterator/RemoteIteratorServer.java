@@ -1,14 +1,14 @@
 package com.neocoretechs.relatrix.server.remoteiterator;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
@@ -41,14 +41,8 @@ public class RemoteIteratorServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				datasocket.configureBlocking(true);
-                // disable Nagles algoritm; do not combine small packets into larger ones
-                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
-				//
-				//
-				CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
+				ConnectionHandler dataHandler = new ConnectionHandler(datasocket);
+				CommandPacketInterface o = (CommandPacketInterface) dataHandler.readObject();
 				if( DEBUG )
 					System.out.println("RemoteIteratorServer command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
@@ -65,11 +59,9 @@ public class RemoteIteratorServer extends TCPServer {
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
-				if( DEBUG ) {
-					System.out.println("RemoteIteratorServer starting new worker "+uworker+
-							//( rdb != null ? "remote db:"+rdb : "" ) +
-							" master port:"+o.getMasterPort());
-				}
+	            if( DEBUG ) {
+	                System.out.println(this.getClass().getName()+" starting new worker "+uworker);
+	            }
 
 			} catch(Exception e) {
 				System.out.println("RemoteIteratorServer Server node configuration server socket accept exception "+e);

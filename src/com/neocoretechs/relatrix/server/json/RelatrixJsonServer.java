@@ -96,34 +96,25 @@ public final class RelatrixJsonServer extends RelatrixServer {
                 datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
                 // wait 1 second before close; close blocks for 1 sec. and data can be sent
                 datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
-				//
-                byte[] bb = readUntil(datasocket,(byte)'\n');
-    			JSONObject jobj = new JSONObject(new String(bb));
-                CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//CommandPacketInterface.class);
-				if( DEBUGCOMMAND )
-					System.out.println("Relatrix Server command received:"+o);
-				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPJsonWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+    			datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+				datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+				datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
+				TCPJsonWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPJsonWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				uworker = new TCPJsonWorker(datasocket);
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RelatrixJsonServer starting new worker "+uworker+
-							//( rdb != null ? "remote db:"+rdb : "" ) +
-							" master port:"+o.getMasterPort());
+					System.out.println(this.getClass().getName()+" starting new worker "+uworker);
 				}
 
 			} catch(Exception e) {
-				System.out.println("Relatrix Json Server node configuration server socket accept exception "+e);
+				System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

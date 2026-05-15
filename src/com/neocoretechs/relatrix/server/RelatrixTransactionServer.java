@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
@@ -42,7 +43,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransaction
  *
  */
 public class RelatrixTransactionServer extends TCPServer {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGCOMMAND = false;
 	
 	public static SocketAddress address;
@@ -165,34 +166,23 @@ public class RelatrixTransactionServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				datasocket.configureBlocking(true);
-                // disable Nagles algoritm; do not combine small packets into larger ones
-                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
-				//
-				CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
-				if( DEBUGCOMMAND )
-					System.out.println("Relatrix Transaction Server command received:"+o);
-				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				if(DEBUG)
+					System.out.printf("%s accept channel: %s%n", this.getClass().getName(),datasocket);
+				TCPWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
+                    if( DEBUG | DEBUGCOMMAND )
+                    	System.out.printf("%s found existing worker:%s%n",this.getClass().getName(),uworker);
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}              
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				uworker = new TCPWorker(datasocket);
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
-				if( DEBUG ) {
-					System.out.println("RelatrixTransactionServer starting new worker "+uworker+
-							//( rdb != null ? "remote db:"+rdb : "" ) +
-							" master port:"+o.getMasterPort());
-				}
+                if( DEBUG ) {
+                	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
+                }
 
 			} catch(Exception e) {
 				System.out.println("Relatrix Transaction Server node configuration server socket accept exception "+e);

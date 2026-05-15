@@ -5,7 +5,6 @@ import java.io.Serializable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -16,7 +15,7 @@ import java.util.UUID;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.RelatrixServer;
+
 /**
  * Manages remote iterators via client that is serialized to remote kv transaction servers and returned as payload.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
@@ -36,12 +35,10 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected transient InetAddress IPAddress = null; // remote server address
-	private transient InetAddress localIPAddress = null; // local server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
-	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected transient SocketChannel sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected transient ConnectionHandler workerHandler;
+
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt;
@@ -94,31 +91,20 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorKVClientTransaction constructed with remote:"+IPAddress);
+			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
 		}
-
-		localIPAddress = InetAddress.getLocalHost();
-		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
-		//MASTERPORT = masterSocket.getLocalPort();
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
 		if(DEBUG)
-			System.out.printf("%s about to connect socket to masterSocketAddress:%s%n", this.getClass().getName(), masterSocket.toString());
-		sock = masterSocket.accept();
-		sock.configureBlocking(true);
-		sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-		sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-		sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
-		// spin the request processor thread for the worker
-		if( DEBUG ) {
-			System.out.println("RemoteIteratorKVClientTransaction got connection "+sock);
+			System.out.printf("%s about to connect socket to masterSocketAddress:%s%n", this.getClass().getName(), workerSocket.toString());
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
+		// spin the request processor thread for the worker
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -130,7 +116,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		}
 		try {
 			while(shouldRun) {
-				returnPayload = (RemoteIteratorKVClientTransaction) RelatrixClient.receiveObject(sock);
+				returnPayload = (RemoteIteratorKVClientTransaction) workerHandler.readObject();
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
@@ -158,12 +144,12 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	 * @throws Exception
 	 */
 	public void sendCommand() throws Exception {
-		if(sock == null) {
+		if(workerHandler == null) {
 			synchronized(waitSocket) {
 				waitSocket.wait();
 			}
 		}
-		RelatrixClient.sendObject(workerSocket, this);
+		workerHandler.sendObject(this);
 	}
 	/**
 	 * Called for the various 'findSet' methods.
@@ -214,7 +200,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	 */
 	public void close() {
 		if(DEBUG)
-			System.out.println("Calling close for RemoteIteratorKVClientTransaction");
+			System.out.println("Calling close for "+this.getClass().getName());
 		shouldRun = false;
 		synchronized(waitHalt) {
 			try {
@@ -226,24 +212,9 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 
 	private void shutdown() {
 		if(DEBUG)
-			System.out.println("Calling shutdown for RemoteIteratorClientTransaction");
-		if(sock != null) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-			sock = null;
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+			System.out.println("Calling shutdown for "+this.getClass().getName());
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
@@ -258,7 +229,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorKVClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("%s RemoteNode:%s RemotePort:%d workerSocket:%s session:%s method:%s return:%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, session, methodName, objectReturn);
 	}
 
 	@Override

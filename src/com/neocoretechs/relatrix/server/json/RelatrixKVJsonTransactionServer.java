@@ -122,33 +122,28 @@ public final class RelatrixKVJsonTransactionServer extends RelatrixKVTransaction
 					SocketChannel datasocket = server.accept();
 					datasocket.configureBlocking(true);
                     // disable Nagles algoritm; do not combine small packets into larger ones
+		            datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		            // wait 1 second before close; close blocks for 1 sec. and data can be sent
+		            datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 					datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 					datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
+					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
 					//
-        			JSONObject jobj = new JSONObject(new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n')));
-                    CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//, CommandPacket.class);
-                    if( DEBUG | DEBUGCOMMAND )
-                    	System.out.println("Relatrix K/V Json Transaction Server command received:"+o);
-                    TCPJsonKVTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+                    TCPJsonKVTransactionWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
                     if( uworker != null ) {
-                    	if(o.getTransport().equals("TCP")) {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
-                    	}
                     }
-                    uworker = new TCPJsonKVTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-                    dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+                    uworker = new TCPJsonKVTransactionWorker(datasocket);
+                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
                     SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixKVTransactionServer starting new worker "+uworker+
-                    			//( rdb != null ? "remote db:"+rdb : "" ) +
-                    			" master port:"+o.getMasterPort());
+                    	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                     }
                     
 				} catch(Exception e) {
-                    System.out.println("Relatrix K/V Transaction Server node configuration server socket accept exception "+e);
+                    System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                }

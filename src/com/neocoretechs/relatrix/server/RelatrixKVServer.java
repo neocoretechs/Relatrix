@@ -2,18 +2,16 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
@@ -180,46 +178,24 @@ public class RelatrixKVServer extends TCPServer {
 			while(!shouldStop) {
 				try {
 					SocketChannel datasocket = server.accept();
-					datasocket.configureBlocking(true);
-                    // disable Nagles algoritm; do not combine small packets into larger ones
-                    datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                    // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                    datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
-					//
-                    CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
-                    if( DEBUG | DEBUGCOMMAND )
-                    	System.out.println("Relatrix K/V Server command received:"+o);
-                   // db = (new File(db)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getDatabase()).getName());
-                    // if we get a command packet with no statement, assume it to start a new instance
-                   
-                    TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+					if(DEBUG)
+						System.out.printf("%s accept channel: %s%n", this.getClass().getName(),datasocket);
+                    TCPWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
                     if( uworker != null ) {
-                    	if(o.getTransport().equals("TCP")) {
+                        if( DEBUG | DEBUGCOMMAND )
+                        	System.out.printf("%s found existing worker:%s%n",this.getClass().getName(),uworker);
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
-                    	}
                     }
-                    // determine if this worker has started, if so, cancel thread and start a new one.
-                    //Relatrix.setTablespaceDirectory(db);
-                    
-                    // set the remote tablespace directory
-                    //String rdb = o.getRemoteDirectory();
-                    //if( rdb != null ) {
-                    //	rdb = (new File(rdb)).toPath().getParent().toString() + File.separator +
-                    //		(new File(o.getRemoteDirectory()).getName());
-                    //	String sdb = rdb.replace('\\', '/');
-                    //	Relatrix.setRemoteDirectory(sdb);
-                    //}              
                     // Create the worker, it in turn creates a WorkerRequestProcessor
-                    uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-                    dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+                    if( DEBUG | DEBUGCOMMAND )
+                    	System.out.printf("%s created worker worker:%s%n",this.getClass().getName(),uworker);
+                    uworker = new TCPWorker(datasocket);
+                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
                     SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixKVServer starting new worker "+uworker+
-                    			//( rdb != null ? "remote db:"+rdb : "" ) +
-                    			" master port:"+o.getMasterPort());
+                    	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                     }
                     
 				} catch(Exception e) {

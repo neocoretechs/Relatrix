@@ -1,15 +1,14 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -17,9 +16,6 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * Manages remote iterators via client that is serialized to remote transaction servers and returned as payload.
@@ -40,12 +36,10 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected transient InetAddress IPAddress = null; // remote server address
-	private transient InetAddress localIPAddress = null; // local server address
+
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
-	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected transient SocketChannel sock = null; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected transient ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt;
@@ -65,11 +59,9 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	private transient RemoteIteratorClientTransaction returnPayload;
 
 	/**
-	 * Start a client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket to coonect back to
+	 * @param bootNode Name of local master socket
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
@@ -99,29 +91,20 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
 		if( DEBUG ) {
-			System.out.println("RemoteIteratorClientTransaction constructed with remote:"+IPAddress);
+			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
 		}
-		//localIPAddress = InetAddress.getByName(bootNode);
-		localIPAddress = InetAddress.getLocalHost();
 		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
-		sock = masterSocket.accept();
-		sock.configureBlocking(true);
-		sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-		sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-		sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		if( DEBUG ) {
-			System.out.println("RemoteIteratorClientTransaction got connection "+sock);
+		//workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
+		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
@@ -132,7 +115,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		}
 		try {
 			while(shouldRun) {
-				returnPayload = (RemoteIteratorClientTransaction) RelatrixClient.receiveObject(sock);
+				returnPayload = (RemoteIteratorClientTransaction) workerHandler.readObject();
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
@@ -164,12 +147,12 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	 * @throws Exception
 	 */
 	public void sendCommand() throws Exception {
-		if(sock == null) {
+		if(workerHandler == null) {
 			synchronized(waitSocket) {
 				waitSocket.wait();
 			}
 		}
-		RelatrixClient.sendObject(workerSocket, this);
+		workerHandler.sendObject(this);
 	}
 	/**
 	 * Called for the various 'findSet' methods.
@@ -239,27 +222,11 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	private void shutdown() {
 		if(DEBUG)
 			System.out.println("Calling shutdown for RemoteIteratorClientTransaction");
-		if(sock != null) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-			sock = null;
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
-
 
 	public String getRemoteNode() {
 		return remoteNode;
@@ -271,7 +238,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClientTransaction BootNode:%s RemoteNode:%s RemotePort:%d workerSocket out socket:%s, in socket:%s session:%s method:%s return:%s%n",localIPAddress, remoteNode, remotePort, workerSocket, sock, session, methodName, objectReturn);
+		return String.format("%s RemoteNode:%s RemotePort:%d workerSocket socket:%s session:%s method:%s return:%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, session, methodName, objectReturn);
 	}
 
 	@Override

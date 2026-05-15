@@ -2,16 +2,12 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
+
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,10 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.client.RelatrixClient;
+
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
@@ -46,7 +44,9 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 	private SocketAddress masterSocketAddress;
 	
 	protected SocketChannel workerSocket;
+	protected ConnectionHandler workerHandler;
 	protected SocketChannel masterSocket;
+	protected ConnectionHandler masterHandler;
 	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixKVIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixKVIteratorMethod = null;
@@ -75,7 +75,6 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 		}
 		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
 		masterSocket = SocketChannel.open(masterSocketAddress);
-		masterSocket.configureBlocking(true);
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
 		if(!masterSocket.connect(masterSocketAddress)) {
@@ -87,13 +86,10 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 				} catch (InterruptedException e) {}
 			}
 		}
-		masterSocket.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-		masterSocket.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-		masterSocket.setOption(StandardSocketOptions.SO_SNDBUF,32767);
+		masterHandler = new ConnectionHandler(masterSocket);
 		// spin the request processor thread for the worker
 		if( DEBUG ) {
-			System.out.println("Worker on port with master "+MASTERPORT+
-					" address:"+IPAddress);
+			System.out.println("Worker on port with master "+MASTERPORT+" address:"+IPAddress);
 		}
 	}
 	
@@ -105,13 +101,12 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 	 * @param irf
 	 */
 	public void sendResponse(RemoteResponseInterface irf) {
-	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// Write response to master for forwarding to client
-			RelatrixClient.sendObject(masterSocket, irf);
+			masterHandler.sendObject(irf);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
@@ -128,15 +123,14 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println("TCPIteratorTransactionWorker connected:"+workerSocket.isConnected());
-				RemoteCompletionInterface iori = (RemoteCompletionInterface)RelatrixClient.receiveObject(workerSocket);
+					System.out.println(this.getClass().getName()+" connected:"+workerSocket.isConnected());
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixKVTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
 					// Get the iterator linked to this session
 					Object itInst = RelatrixKVTransactionServer.sessionToObject.get(iori.getSession());
 					if( itInst == null ) {
-	
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
@@ -164,12 +158,8 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 		}
 		finally {
 			shouldRun = false;
-			try {
-				workerSocket.close();
-			} catch (IOException e) {}
-			try {
-				masterSocket.close();
-			} catch (IOException e) {}
+			workerHandler.close();
+			masterHandler.close();
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}
@@ -189,10 +179,15 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 		synchronized(waitHalt) {
 			shouldRun = false;
 			try {
-				workerSocket.close(); // if we get a socket close error we probably dont want to wait anyway
+				workerHandler.close(); // if we get a socket close error we probably dont want to wait anyway
 				waitHalt.wait();
-			} catch (InterruptedException | IOException e) {}
+			} catch (InterruptedException e) {}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s master=%s worker=%s MASTERPORT=%s master Address=%s %s%n",this.getClass().getName(),masterSocket,workerSocket,getMasterPort(),IPAddress,masterSocketAddress);
 	}
 	/**
      * Spin the worker from command line

@@ -16,6 +16,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
@@ -24,7 +25,6 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
@@ -35,6 +35,7 @@ import com.neocoretechs.relatrix.server.ServerInvokeMethod;
  */
 public class TCPIteratorTransactionWorker implements Runnable {
 	private static final boolean DEBUG = false;
+	private static boolean TEST = false;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -46,14 +47,12 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	private SocketAddress masterSocketAddress;
 	
 	protected SocketChannel workerSocket;
+	protected ConnectionHandler workerHandler;
 	protected SocketChannel masterSocket;
+	protected ConnectionHandler masterHandler;
 	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
-	
-	// ByteBuffer for NIO socket read/write, currently broken under arm 5/2015
-	//private ByteBuffer b = ByteBuffer.allocate(LogToFile.DEFAULT_LOG_BUFFER_SIZE);
-	private static boolean TEST = false;
 	
     public TCPIteratorTransactionWorker(SocketChannel datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
@@ -77,16 +76,12 @@ public class TCPIteratorTransactionWorker implements Runnable {
 		}
 		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
 		masterSocket = SocketChannel.open(masterSocketAddress);
-		masterSocket.configureBlocking(true);
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
-		masterSocket.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-		masterSocket.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-		masterSocket.setOption(StandardSocketOptions.SO_SNDBUF,32767);
+		masterHandler = new ConnectionHandler(masterSocket);
 		// spin the request processor thread for the worker
 		if( DEBUG ) {
-			System.out.println("Worker on port with master "+MASTERPORT+
-					" address:"+IPAddress);
+			System.out.println("Worker on port with master "+MASTERPORT+" address:"+IPAddress);
 		}
 	}
 	
@@ -98,19 +93,15 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	 * @param irf
 	 */
 	public void sendResponse(RemoteResponseInterface irf) {
-	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
 		}
 		try {
 			// Write response to master for forwarding to client
-			RelatrixClient.sendObject(masterSocket, irf);
-		} catch (SocketException e) {
-				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
-				//throw new RuntimeException(e);
+			masterHandler.sendObject(irf);
 		} catch (IOException e) {
-				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
-				throw new RuntimeException(e);
+			System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+			throw new RuntimeException(e);
 		}
 	}
 	/**
@@ -121,8 +112,8 @@ public class TCPIteratorTransactionWorker implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println("TCPIteratorTransactionWorker waiting getInputStream "+workerSocket+" connected:"+workerSocket.isConnected());
-				RemoteCompletionInterface iori = (RemoteCompletionInterface)RelatrixClient.receiveObject(masterSocket);
+					System.out.println(this+" waiting on input."+" connected:"+workerSocket.isConnected());
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)masterHandler.readObject();
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -146,7 +137,7 @@ public class TCPIteratorTransactionWorker implements Runnable {
 				}
 				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println("TCPIteratorTransactionWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println(this+" recieved object:"+iori);
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
@@ -160,12 +151,8 @@ public class TCPIteratorTransactionWorker implements Runnable {
 		}
 		finally {
 			shouldRun = false;
-			try {
-				workerSocket.close();
-			} catch (IOException e) {}
-			try {
-				masterSocket.close();
-			} catch (IOException e) {}
+			workerHandler.close();
+			masterHandler.close();
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}
@@ -189,6 +176,11 @@ public class TCPIteratorTransactionWorker implements Runnable {
 				waitHalt.wait();
 			} catch (InterruptedException | IOException e) {}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s master=%s worker=%s MASTERPORT=%s master Address=%s %s%n",this.getClass().getName(),masterSocket,workerSocket,getMasterPort(),IPAddress,masterSocketAddress);
 	}
 	/**
      * Spin the worker from command line

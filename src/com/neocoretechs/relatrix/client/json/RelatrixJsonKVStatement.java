@@ -2,12 +2,14 @@ package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+
 import java.net.InetSocketAddress;
+
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
+
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
@@ -15,11 +17,9 @@ import org.json.JSONObject;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
+
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
-import com.neocoretechs.relatrix.client.RemoteIteratorKVClient;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.json.RelatrixKVJsonServer;
 
 /**

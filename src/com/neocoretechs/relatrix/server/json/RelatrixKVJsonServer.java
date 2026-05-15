@@ -1,15 +1,13 @@
 package com.neocoretechs.relatrix.server.json;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,17 +30,10 @@ import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteKVIteratorJson
  * and if the remote call is linked to an object instance on the server, as it is 
  * for non-serializable iterators and streams, then you must maintain 
  * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
- * Static methods need no server side object in residence and can be called willy nilly.
- * Functionally, this class Extends TCPServer, receives CommandPacketinterface,
+ * Static methods need no server side object in residence.
  * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<br/>
  * WorkerRequestProcessor takes requests and processes them.<br/>
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT.<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it.<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it.<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.<br/>
- * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.<br/>
- * In this way multiple databases can be used by instantiating separate clients.
+ * @see TCPJsonKVWorker
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2021
  *
  */
@@ -118,14 +109,18 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 					SocketChannel datasocket = server.accept();
 					datasocket.configureBlocking(true);
 	                // disable Nagles algoritm; do not combine small packets into larger ones
+		            // disable Nagles algoritm; do not combine small packets into larger ones
+		            datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		            // wait 1 second before close; close blocks for 1 sec. and data can be sent
+		            datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
 					datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 					datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
+					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
 					//
         			JSONObject jobj = new JSONObject(new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n')));
                     CommandPacketInterface o = (CommandPacketInterface) jobj.toObject();//,CommandPacket.class);
                     if( DEBUG | DEBUGCOMMAND )
-                    	System.out.println("Relatrix K/V JsonServer command received:"+o);
+                    	System.out.println(this.getClass().getName()+" command received:"+o);
                     // if we get a command packet with no statement, assume it to start a new instance
                    
                     TCPJsonKVWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
@@ -136,18 +131,16 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
                     	}
                     }
                     // Create the worker, it in turn creates a WorkerRequestProcessor
-                    uworker = new TCPJsonKVWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
+                    uworker = new TCPJsonKVWorker(datasocket);
                     dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
                     SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixKVJsonServer starting new worker "+uworker+
-                    			//( rdb != null ? "remote db:"+rdb : "" ) +
-                    			" master port:"+o.getMasterPort());
+                    	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                     }
                     
 				} catch(Exception e) {
-                    System.out.println("Relatrix K/V Json Server node configuration server socket accept exception "+e);
+                    System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                }

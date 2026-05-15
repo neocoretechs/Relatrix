@@ -5,24 +5,23 @@ import java.util.concurrent.TimeUnit;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
-import java.io.*;
+import java.io.IOException;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 
 /**
 * TCPServer is the superclass of all objects using ServerSockets.
 */
 public abstract class TCPServer implements Cloneable, Runnable {
-	private static boolean DEBUG;
+	private static boolean DEBUG = true;
 	protected ServerSocketChannel server = null;
-	SocketChannel data = null;
 	private int port;
 	protected volatile boolean shouldStop = false;
+	protected volatile boolean isRunning = false;
 	private CountDownLatch startLatch = new CountDownLatch(1);
 		
 	/**
@@ -45,14 +44,21 @@ public abstract class TCPServer implements Cloneable, Runnable {
      * @throws IOException if socket or thread fails
      */
 	public synchronized SocketAddress startServer(int port) throws IOException {
-		if( server == null ) {
+		if( this.server == null ) {
 			this.port = port;
 			server = ServerSocketChannel.open();
 			server.configureBlocking(true);
 			server.bind(new InetSocketAddress(port));
+			if(DEBUG)
+				System.out.printf("%s bound %s%n",this.getClass().getName(),server);
+		}
+		if(!this.isRunning) {
 			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
 			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
+			this.isRunning = true;
 			startLatch.countDown();
+			if(DEBUG)
+				System.out.printf("%s starting %s%n",this.getClass().getName(),server);
 		}
 		return server.getLocalAddress();
 	}
@@ -60,74 +66,103 @@ public abstract class TCPServer implements Cloneable, Runnable {
 		if( server == null ) {
 			this.port = port;
 			server = ServerSocketChannel.open().bind(new InetSocketAddress(port));
+			if(DEBUG)
+				System.out.printf("%s bound %s%n",this.getClass().getName(),server);
+		}
+		if(!this.isRunning) {
 			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
 			SynchronizedThreadManager.getInstance().spin(this,threadName);
+			this.isRunning = true;
 			startLatch.countDown();
+			if(DEBUG)
+				System.out.printf("%s starting %s%n",this.getClass().getName(),server);
 		}
 		return server.getLocalAddress();
 	}
 	public synchronized void startServer(int port, InetAddress binder) throws IOException {
 		if( server == null ) {
-			if( DEBUG )
-				System.out.println("TCPServer attempt local bind "+binder+" port "+port);
-			this.port = port;
 			InetSocketAddress iSockAddr = new InetSocketAddress(binder,port);
 			server = ServerSocketChannel.open();
 			server.configureBlocking(true);
 			server.bind(iSockAddr);
+			if(DEBUG)
+				System.out.printf("%s bound %s%n",this.getClass().getName(),server);
+		}
+		if(!this.isRunning) {
 			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
 			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
+			this.isRunning = true;
 			startLatch.countDown();
+			if(DEBUG)
+				System.out.printf("%s starting %s%n",this.getClass().getName(),server);
 		}
 	}
 	public synchronized void startServer(int port, InetAddress binder, String threadName) throws IOException {
 		if( server == null ) {
-			if( DEBUG )
-				System.out.println("TCPServer attempt local bind "+binder+" port "+port+" using thread:"+threadName);
 			this.port = port;
 			InetSocketAddress iSockAddr = new InetSocketAddress(binder,port);
 			server = ServerSocketChannel.open();
 			server.configureBlocking(true);
 			server.bind(iSockAddr);
+			if(DEBUG)
+				System.out.printf("%s bound %s with thread %s%n",this.getClass().getName(),server,threadName);
+		}
+		if(!this.isRunning) {
 			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
 			SynchronizedThreadManager.getInstance().spin(this,threadName);
+			this.isRunning = true;
 			startLatch.countDown();
+			if(DEBUG)
+				System.out.printf("%s starting %s%n",this.getClass().getName(),server);
 		}
 	}
 	public synchronized void startServer(SocketAddress address) throws IOException {
 		if( server == null ) {
-			if( DEBUG )
-				System.out.println("TCPServer attempt local bind "+address);
 			server = ServerSocketChannel.open();
 			server.configureBlocking(true);
 			server.bind(address);
 			this.port = server.socket().getLocalPort();
+			if(DEBUG)
+				System.out.printf("%s bound %s%n",this.getClass().getName(),server);
+		}
+		if(!this.isRunning) {
 			SynchronizedThreadManager.getInstance().init(new String[]{"TCPSERVER","WORKERS"}, false);
 			SynchronizedThreadManager.getInstance().spin(this,"TCPSERVER");
+			this.isRunning = true;
 			startLatch.countDown();
+			if(DEBUG)
+				System.out.printf("%s starting %s%n",this.getClass().getName(),server);
 		}
 	}
 	public synchronized void startServer(SocketAddress address, String threadName) throws IOException {
 		if( server == null ) {
-			if( DEBUG )
-				System.out.println("TCPServer attempt local bind "+address+" using thread "+threadName);
 			server = ServerSocketChannel.open();
 			server.configureBlocking(true);
 			server.bind(address);
 			this.port = server.socket().getLocalPort();
+			if(DEBUG)
+				System.out.printf("%s bound %s with thread %s%n",this.getClass().getName(),server,threadName);
+		}
+		if(!this.isRunning) {
 			SynchronizedThreadManager.getInstance().init(new String[]{threadName}, false);
 			SynchronizedThreadManager.getInstance().spin(this,threadName);
+			this.isRunning = true;
 			startLatch.countDown();
+			if(DEBUG)
+				System.out.printf("%s starting %s%n",this.getClass().getName(),server);
 		}
 	}
 	public synchronized void stopServer() throws IOException {
-		if( server != null ) {
+		if( this.server != null && this.isRunning) {
+			if(DEBUG)
+				System.out.printf("%s stopping %s%n",this.getClass().getName(),server);
 			shouldStop = true;
 			server.close();
 			server = null;
 			SynchronizedThreadManager.getInstance().shutdown("TCPSERVER");
 			SynchronizedThreadManager.getInstance().shutdown("WORKERS");
 		}
+		this.isRunning = false;
 	}
 
 	public void shutdown() throws IOException {
@@ -141,13 +176,13 @@ public abstract class TCPServer implements Cloneable, Runnable {
 		return startLatch.await(timeout, unit);
 	}
 
-    public void reInit() throws IOException {
-         	if( data != null ) data.close();
-    }
-    
     public int getPort() {
     	return port;
     }
- 
+    
+	@Override
+	public String toString() {
+		return String.format("%s channel=%s port=%s isRunning:%b%n",this.getClass().getName(),server,String.valueOf(port),isRunning);
+	}
 }	
 

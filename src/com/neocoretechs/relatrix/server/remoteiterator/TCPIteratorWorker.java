@@ -15,10 +15,13 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.relatrix.server.CommandPacket;
+import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
@@ -41,7 +44,9 @@ public class TCPIteratorWorker implements Runnable {
 	private SocketAddress masterSocketAddress;
 	
 	protected SocketChannel workerSocket;
+	protected ConnectionHandler workerHandler;
 	protected SocketChannel masterSocket;
+	protected ConnectionHandler masterHandler;
 	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
@@ -72,15 +77,13 @@ public class TCPIteratorWorker implements Runnable {
 		}
 		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
 		masterSocket = SocketChannel.open(masterSocketAddress);
-		masterSocket.configureBlocking(true);
+		masterHandler = new ConnectionHandler(masterSocket);
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
-
-
+	
 		// spin the request processor thread for the worker
 		if( DEBUG ) {
-			System.out.println("Worker on port with master "+MASTERPORT+
-					" address:"+IPAddress);
+			System.out.println("Worker on port with master "+MASTERPORT+" address:"+IPAddress);
 		}
 	}
 	
@@ -98,7 +101,7 @@ public class TCPIteratorWorker implements Runnable {
 		}
 		try {
 			// Write response to master for forwarding to client
-			RelatrixClient.sendObject(masterSocket, irf);
+			masterHandler.sendObject(irf);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
@@ -115,8 +118,8 @@ public class TCPIteratorWorker implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println("TCPIteratorWorker attempt readObject "+masterSocket);
-				RemoteCompletionInterface iori = (RemoteCompletionInterface)RelatrixClient.receiveObject(masterSocket);
+					System.out.println(this.getClass().getName()+" attempt readObject "+masterSocket);
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)masterHandler.readObject();
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -139,7 +142,7 @@ public class TCPIteratorWorker implements Runnable {
 				}
 				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println("TCPIteratorWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println(this.getClass().getName()+" FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
@@ -153,12 +156,7 @@ public class TCPIteratorWorker implements Runnable {
 		}
 		finally {
 			shouldRun = false;
-			try {
-				workerSocket.close();
-			} catch (IOException e) {}
-			try {
-				masterSocket.close();
-			} catch (IOException e) {}
+			masterHandler.close();
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}
@@ -178,9 +176,9 @@ public class TCPIteratorWorker implements Runnable {
 		synchronized(waitHalt) {
 			shouldRun = false;
 			try {
-				workerSocket.close(); // if we get a socket close error we probably dont want to wait anyway
+				masterHandler.close(); // if we get a socket close error we probably dont want to wait anyway
 				waitHalt.wait();
-			} catch (InterruptedException | IOException e) {}
+			} catch (InterruptedException e) {}
 		}
 	}
 	/**

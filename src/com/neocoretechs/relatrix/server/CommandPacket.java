@@ -4,7 +4,7 @@ package com.neocoretechs.relatrix.server;
 /**
  * Remote master is from the perspective of the server, as it calls back to the 
  * source of the sent ComandPacket to the bootNode
- * @author jg 2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2026
  *
  */
 public class CommandPacket implements CommandPacketInterface {

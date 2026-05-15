@@ -1,23 +1,22 @@
 package com.neocoretechs.relatrix.client.asynch;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
+
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
@@ -27,7 +26,6 @@ import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -51,7 +49,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransactionInterfaceImpl implements AsynchRelatrixClientTransactionInterface, ClientTransactionInterface,Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	
@@ -63,12 +61,9 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
 	
 	protected InetAddress IPAddress = null; // remote server address
-	private InetAddress localIPAddress = null; // local server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected SocketChannel sock; // socket of mastersocket
-	//private SocketAddress masterSocketAddress; // address of master
+	protected ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -95,21 +90,26 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 		} else {
 			IPAddress = InetAddress.getByName(remoteNode);
 		}
+
 		if( DEBUG ) {
-			System.out.println("AsynchRelatrixClientTransaction constructed with remote:"+IPAddress);
+			System.out.printf("%s constructed with remote:%s remotePort/SLAVEPORT:%s bootNode:%s %n",this.getClass().getName(),IPAddress,String.valueOf(remotePort),bootNode);
 		}
-		localIPAddress = InetAddress.getByName(bootNode);
 		//
  		// Wait for master server node to connect back to here for return channel communication
 		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.configureBlocking(true);
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
 		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		//masterSocket.bind(masterSocketAddress);
+		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		try {
+			workerHandler = new ConnectionHandler(workerSocket);
+			System.out.println("Channel created to "+workerHandler);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		if( DEBUG ) {
+			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
+		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -120,27 +120,12 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	@Override
 	public void run() {
   	    //SocketChannel sock;
-		try {
-			sock = masterSocket.accept();
-			sock.configureBlocking(true);
-			sock.setOption(StandardSocketOptions.SO_KEEPALIVE,true);
-			sock.setOption(StandardSocketOptions.SO_RCVBUF,32767);
-			sock.setOption(StandardSocketOptions.SO_SNDBUF,32767);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println("AsynchRelatrixClientTransaction server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-  	    if( DEBUG ) {
-  	    	 System.out.println("AsynchRelatrixClientTransaction got connection "+sock);
-  	    }
   	    try {
   	    	while(shouldRun ) {
   	    		RelatrixTransactionStatementInterface rs = queuedRequests.takeFirstNotify();
   	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
-  	    		RelatrixClient.sendObject(workerSocket, rs);
-  	    		RemoteResponseInterface iori = (RemoteResponseInterface) RelatrixClient.receiveObject(sock);
+  	    		workerHandler.sendObject(rs);
+  	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
   	    		if( DEBUG )
   	    			System.out.println("Asynch FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
@@ -187,33 +172,15 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	}
 
 	public void close() {
-		shouldRun = false;
-		try {
-			sock.close();
-		} catch (IOException e) {}
-		sock = null;
+		shutdown();
 		queuedRequests = null;
 		Thread.currentThread().interrupt();
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 	
 	protected void shutdown() {
-		if( sock != null ) {
-			try {
-				sock.close();
-			} catch (IOException e) {}
-		}
-		if( workerSocket != null ) {
-			try {
-				workerSocket.close();
-			} catch (IOException e2) {}
-			workerSocket = null;
-		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
+		if( workerHandler != null ) {
+			workerHandler.close();
 		}
 		shouldRun = false;
 	}
@@ -269,7 +236,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	
 	@Override
 	public String toString() {
-		return String.format("%s RemoteNode:%s RemotePort:%d input socket:%s output socket%s%n",this.getClass().getName(), remoteNode, remotePort, sock, workerSocket);
+		return String.format("%s RemoteNode:%s RemotePort:%d socket%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket);
 	}
 
 	static int i = 0;

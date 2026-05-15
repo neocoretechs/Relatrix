@@ -2,18 +2,16 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
@@ -198,30 +196,21 @@ public class RelatrixKVTransactionServer extends TCPServer {
 			while(!shouldStop) {
 				try {
 					SocketChannel datasocket = server.accept();
-					datasocket.configureBlocking(true);
-                    // disable Nagles algoritm; do not combine small packets into larger ones
-					datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-					datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-					datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);	
-					//
-                    CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
-                    if( DEBUG | DEBUGCOMMAND )
-                    	System.out.println("Relatrix K/V Transaction Server command received:"+o);
-                    TCPWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+					if(DEBUG)
+						System.out.printf("%s accept channel: %s%n", this.getClass().getName(),datasocket);
+                    TCPWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
                     if( uworker != null ) {
-                    	if(o.getTransport().equals("TCP")) {
+                        if( DEBUG | DEBUGCOMMAND )
+                        	System.out.printf("%s found existing worker:%s%n",this.getClass().getName(),uworker);
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
-                    	}
                     }
-                    uworker = new TCPWorker(datasocket, o.getRemoteMaster(), o.getMasterPort());
-                    dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+                    uworker = new TCPWorker(datasocket);
+                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
                     SynchronizedThreadManager.getInstance().spin(uworker);
                     
                     if( DEBUG ) {
-                    	System.out.println("RelatrixKVTransactionServer starting new worker "+uworker+
-                    			//( rdb != null ? "remote db:"+rdb : "" ) +
-                    			" master port:"+o.getMasterPort());
+                    	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                     }
                     
 				} catch(Exception e) {

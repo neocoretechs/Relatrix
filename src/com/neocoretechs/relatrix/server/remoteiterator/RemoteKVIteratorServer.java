@@ -9,6 +9,7 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.CommandPacketInterface;
@@ -42,16 +43,11 @@ public class RemoteKVIteratorServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				datasocket.configureBlocking(true);
-                // disable Nagles algoritm; do not combine small packets into larger ones
-                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
+				ConnectionHandler dataHandler = new ConnectionHandler(datasocket);
 				//
-				//
-				CommandPacketInterface o = (CommandPacketInterface) RelatrixClient.receiveObject(datasocket);
+				CommandPacketInterface o = (CommandPacketInterface) dataHandler.readObject();
 				if( DEBUG )
-					System.out.println("RemoteKVIteratorServer command received:"+o);
+					System.out.println(this.getClass().getName()+" command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
 
 				TCPKVIteratorWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
@@ -67,13 +63,11 @@ public class RemoteKVIteratorServer extends TCPServer {
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RemoteKVIteratorServer starting new worker "+uworker+
-							//( rdb != null ? "remote db:"+rdb : "" ) +
-							" master port:"+o.getMasterPort());
+					System.out.println(this.getClass().getName()+" starting new worker "+uworker);
 				}
 
 			} catch(Exception e) {
-				System.out.println("RemoteKVIteratorServer Server node configuration server socket accept exception "+e);
+				System.out.println(this.getClass().getName()+" Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

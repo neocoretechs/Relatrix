@@ -1,16 +1,11 @@
 package com.neocoretechs.relatrix.test.server;
 
-import java.util.Iterator;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 
 /**
