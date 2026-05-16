@@ -42,7 +42,7 @@ public class ServerRetrievalBattery2 {
 			if(argv.length < 3) {
 				System.out.println("Usage: <bootNode> <remoteNode> <remotePort> [init]");
 			}
-			rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
+			rkvc = new RelatrixClient(argv[1], Integer.parseInt(argv[2]) );
 			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 			if(argv.length == 4 && argv[3].equals("init")) {
 					battery1AR17(argv);

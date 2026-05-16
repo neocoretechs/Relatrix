@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.client.ConnectionHandler;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
@@ -21,22 +20,15 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of {@link ServerInvokeMethod} and populating that at construction of this class.<p/>
+ * another static instance of {@link ServerInvokeMethod} and populating that at construction of this class.<p>
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
  * and if the remote call is linked to an object instance on the server, as it 
  * is for non-serializable iterators, then you must maintain 
- * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
- * Static methods need no server side object in residence and can be called willy nilly.<br/>
- * Functionally this class Extends TCPServer, receives CommandPacketinterface,
- * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p/>
- * WorkerRequestProcessor takes requests and processes them.<br/>
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT.<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it.<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it.<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.<br/>
- * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.<br/>
- * In this way multiple databases can be used by instantiating separate clients.<br/>
+ * a mapping from session GUID to an instance of the object you are invoking on the server side.<p>
+ * Static methods need no server side object in residence .<br>
+ * Functionally this class Extends TCPServer,
+ * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p>
+ * WorkerRequestProcessor takes requests and processes them.<br>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2024
  *
  */
@@ -170,7 +162,6 @@ public class RelatrixServer extends TCPServer {
 			}
 		}
 	}
-	
 
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>

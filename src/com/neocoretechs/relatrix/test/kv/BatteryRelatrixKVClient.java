@@ -39,7 +39,7 @@ public class BatteryRelatrixKVClient {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClient <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
-		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClient(argv[1], Integer.parseInt(argv[2]));
 		battery1(argv);	
 		battery11(argv);
 		battery1AR6(argv);

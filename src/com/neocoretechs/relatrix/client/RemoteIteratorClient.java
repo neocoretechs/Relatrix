@@ -5,8 +5,7 @@ import java.io.Serializable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
- 
-import java.nio.channels.ServerSocketChannel;
+
 import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
@@ -30,11 +29,6 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	
 	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
 	protected transient ConnectionHandler workerHandler;
@@ -79,18 +73,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-
-		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -116,7 +100,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 						if(objectReturn instanceof Result)
 							((Result)objectReturn).unpackFromTransport();
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" remote node:"+remoteNode+" port:"+remotePort);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -128,7 +112,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" remote node:"+remoteNode+" port:"+remotePort);
 			shutdown();
 		}
 		synchronized(waitHalt) {
@@ -227,7 +211,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 
 	@Override
 	public String toString() {
-		return String.format("RemoteIteratorClient BootNode:%s RemotePort:%d workerSocket:%s session:%s method:%s return:%s%n", remoteNode, remotePort, workerSocket, session, methodName, objectReturn);
+		return String.format("%s RemoteNode:%s RemotePort:%d workerSocket:%s session:%s method:%s return:%s%n", this.getClass().getName(), remoteNode, remotePort, workerSocket, session, methodName, objectReturn);
 	}
 
 	@Override

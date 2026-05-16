@@ -32,7 +32,7 @@ public class BatteryRelatrix {
 	public static void main(String[] argv) throws Exception {
 		DATABASE = argv[0];
 		//session.setTablespace(DATABASE);
-		session = new RelatrixClient(DATABASE, argv[1], Integer.parseInt(argv[2]) );
+		session = new RelatrixClient(argv[1], Integer.parseInt(argv[2]) );
 		if(session.size() == 0) {
 			battery1();
 		}

@@ -1,15 +1,12 @@
 package com.neocoretechs.relatrix.client.json;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,38 +15,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.ClientInterface;
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransactionInterfaceImpl;
-import com.neocoretechs.relatrix.client.RelatrixKVStatement;
-import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
-import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
+
 import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
- * Worker threads located on a remote node.<p/>
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
- * 
- * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is on the RelatrixKVTransactionServer. The client contacts the boot time server port, the desired database
- * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
- * and slave ports that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.
+ * Worker threads located on a remote node that handles traffic back from the server.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransactionInterfaceImpl implements ClientInterface, Runnable {
@@ -58,13 +36,8 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9376; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	
@@ -81,24 +54,8 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 	 * @throws IOException
 	 */
 	public RelatrixJsonKVClientTransaction(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
-		this.remotePort = remotePort;
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -115,7 +72,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//,RemoteResponseInterface.class);	
 				// get the original request from the stored table
 				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Throwable ) {
 					System.out.println("RelatrixJsonKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -161,7 +118,7 @@ public class RelatrixJsonKVClientTransaction extends RelatrixKVClientTransaction
 			if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			}
 		} finally {
 			shutdown();

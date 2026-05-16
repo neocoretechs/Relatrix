@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
@@ -24,19 +23,13 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  */
 public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = false; // timing
 	private long tim;
 	
 	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
-
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
 	protected transient ConnectionHandler workerHandler;
@@ -85,19 +78,8 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		//
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+	
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -124,7 +106,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 						if(objectReturn instanceof Result)
 							((Result)objectReturn).unpackFromTransport();
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" handler:"+workerHandler);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -134,7 +116,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" handler:"+workerHandler);
 			shutdown();
 		}
 		synchronized(waitHalt) {

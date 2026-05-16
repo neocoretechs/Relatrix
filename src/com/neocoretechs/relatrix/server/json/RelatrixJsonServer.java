@@ -38,11 +38,6 @@ import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteIteratorJsonSe
  * Functionally this class Extends TCPServer, receives CommandPacketinterface,
  * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p/>
  * WorkerRequestProcessor takes requests and processes them.<br/>
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT.<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it.<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it.<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.<br/>
  * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.<br/>
  * In this way multiple databases can be used by instantiating separate clients.<br/>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2024

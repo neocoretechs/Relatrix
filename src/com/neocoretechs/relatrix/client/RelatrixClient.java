@@ -31,16 +31,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
- * 
- * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the RelatrixServer. The client contacts the boot time server port, the desired database
- * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
- * and slave ports that correspond to the sockets that the server thread uses to service the traffic
+ * that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
  *
@@ -51,18 +42,10 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
 
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
 
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-
-	protected InetAddress IPAddress = null; // remote server address
-
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected SocketChannel sock; // socket of mastersocket
-
 	private ConnectionHandler workerHandler;
 
 	private volatile boolean shouldRun = true; // master service thread control
@@ -71,35 +54,17 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	protected ConcurrentHashMap<String, RelatrixStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatement>();
 
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket to connect back to
 	 * @param remoteNode The remote Node
 	 * @param remotePort The remote Port
 	 * @throws IOException if connect fail
 	 */
-	public RelatrixClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public RelatrixClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemote((RelatrixClientInterface) this);
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println("RelatrixClient constructed with remote:"+IPAddress);
-		}
-		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -121,10 +86,10 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
-					System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
 				Object o = iori.getObjectReturn();
 				if( DEBUG )
-					System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					System.out.println("FROM Remote, returned object from response:"+o+" remote Node:"+remoteNode+" slave:"+remotePort);
 				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -147,14 +112,14 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 					// and signal the latch we have finished
 					rs.signalCompletion(null);
 					if( DEBUG ) {
-						System.out.println("RelatrixClient got connection "+sock);
+						System.out.println(this.getClass().getName()+" got connection "+workerHandler);
 					}  
 				}
 			}
 		} catch(Exception e) {
 			// we lost the remote master, try to close worker and wait for reconnect
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			//}
 		} finally {
 			shutdown();
@@ -165,7 +130,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	}
 
 	/**
-	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
+	 * Send request to remote worker
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
@@ -223,21 +188,10 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	}
 
 	protected void shutdown() {
-	
 		if( workerHandler != null ) {
 			workerHandler.close();
 		}
-		if( masterSocket != null ) {
-			try {
-				masterSocket.close();
-			} catch (IOException e2) {}
-			masterSocket = null;
-		}
 		shouldRun = false;
-	}
-
-	public String getLocalNode() {
-		return bootNode;
 	}
 
 	public String getRemoteNode() {
@@ -260,7 +214,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 
 	@Override
 	public String toString() {
-		return String.format("Relatrix client BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
+		return String.format("%s handler:%s%n",this.getClass().getName(),workerHandler);
 	}
 
 	static int i = 0;
@@ -270,7 +224,7 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClient rc = new RelatrixClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixClient rc = new RelatrixClient(args[1],Integer.parseInt(args[2]));
 		RelatrixStatement rs = null;
 		switch(args.length) {
 		case 4:

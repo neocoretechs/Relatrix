@@ -30,12 +30,6 @@ public class RemoteIteratorKVClient implements Runnable, RelatrixStatementInterf
 	private String remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
-	private transient InetAddress localIPAddress = null; // local server address
-
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
 	protected transient ConnectionHandler workerHandler;
 	
@@ -79,18 +73,8 @@ public class RemoteIteratorKVClient implements Runnable, RelatrixStatementInterf
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		//localIPAddress = InetAddress.getByName(bootNode);
-		localIPAddress = InetAddress.getLocalHost();
 		//
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -113,7 +97,7 @@ public class RemoteIteratorKVClient implements Runnable, RelatrixStatementInterf
 					if(objectReturn == TransportMorphism.class)
 						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" remote node:"+remoteNode+" slave:"+remotePort);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -123,7 +107,7 @@ public class RemoteIteratorKVClient implements Runnable, RelatrixStatementInterf
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			shutdown();
 		}
 		synchronized(waitHalt) {

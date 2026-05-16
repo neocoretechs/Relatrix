@@ -47,7 +47,7 @@ public class BatteryRelatrixKVClientTransactionAlias {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransactionAlias <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
-		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClientTransaction(argv[1], Integer.parseInt(argv[2]));
 		if(rkvc.getAlias(alias1) == null)
 			rkvc.setRelativeAlias(alias1);
 		if(rkvc.getAlias(alias2) == null)

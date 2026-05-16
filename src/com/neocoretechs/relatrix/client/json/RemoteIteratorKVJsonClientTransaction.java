@@ -41,10 +41,6 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 	private String remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
 
 	private volatile boolean shouldRun = true; // master service thread control
@@ -92,18 +88,8 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println("RemoteIteratorKVJsonClientTransaction constructed with remote:"+IPAddress);
-		};
-		SLAVEPORT = remotePort;
 		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -118,14 +104,14 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 				String s = new String (RelatrixJsonServer.readUntil(workerSocket,(byte)'\n'));
 				JSONObject inJson = new JSONObject(s);
 				if(DEBUG)
-					System.out.println("RemoteIteratorKVJsonClientTransaction read "+inJson+" from "+workerSocket);
+					System.out.println(this.getClass().getName()+" read "+inJson+" from "+workerSocket);
 				returnPayload =  (RemoteIteratorKVJsonClientTransaction) inJson.toObject();//RemoteIteratorKVJsonClientTransaction.class);
 				synchronized(waitPayload) {
 					objectReturn = returnPayload.getObjectReturn();
 					if(objectReturn == TransportMorphism.class)
 						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" remote Node:"+remoteNode+" slave:"+remotePort);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorKVJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -137,7 +123,7 @@ public class RemoteIteratorKVJsonClientTransaction implements Runnable, Relatrix
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+remoteNode+" slave:"+remotePort);
 			shutdown();
 		}
 		synchronized(waitHalt) {

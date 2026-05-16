@@ -31,7 +31,7 @@ public class TransactionBatteryRelatrix {
 	public static void main(String[] argv) throws Exception {
 		DATABASE = argv[0];
 		//session.setTablespace(DATABASE);
-		session = new RelatrixClientTransaction(DATABASE, argv[1], Integer.parseInt(argv[2]) );
+		session = new RelatrixClientTransaction(argv[1], Integer.parseInt(argv[2]) );
 		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
 		if(session.size(xid) == 0) {

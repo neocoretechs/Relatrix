@@ -43,19 +43,9 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	
 	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
-	private transient InetAddress localIPAddress = null; // local server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
-	protected transient ConnectionHandler workerHandler;
-	protected transient ServerSocketChannel masterSocket; // master socket connected back to via server
-	protected transient SocketChannel sock; // socket of mastersocket
-	protected transient ConnectionHandler masterHandler;
-	
+
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt;
 	private transient Object waitPayload;
@@ -74,14 +64,12 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	private transient RemoteIteratorJsonClientTransaction returnPayload;
 
 	/**
-	 * Start a client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket to coonect back to
-	 * @param remoteNode
-	 * @param remotePort
-	 * @throws IOException
+	 * @param transactionId the TransactionId
+	 * @param remoteNode The remote node
+	 * @param remotePort The remote port
+	 * @throws IOException if connection fails
 	 */
 	public RemoteIteratorJsonClientTransaction(TransactionId transactionId, String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
@@ -102,47 +90,9 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		//localIPAddress = InetAddress.getByName(bootNode);
-		localIPAddress = InetAddress.getLocalHost();
-		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		//masterSocketAddress = new InetSocketAddress(MASTERPORT);
-		masterSocket = ServerSocketChannel.open();
-		masterSocket.bind(new InetSocketAddress(localIPAddress, MASTERPORT));
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
-		try {
-			workerHandler = new ConnectionHandler(workerSocket);
-			System.out.println("Channel created to "+workerHandler);
-			CommandPacketInterface cpi = new CommandPacket(localIPAddress.getHostName(), MASTERPORT);
-			workerHandler.sendObject(cpi);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		//SocketChannel sock;
-		try {
-			sock = masterSocket.accept();
-			masterHandler = new ConnectionHandler(sock);
-			// At this point we have a connection back from 'slave'
-		} catch (IOException e1) {
-			System.out.println(this.getClass().getName()+" server socket accept failed with "+e1);
-			shutdown();
-			return;
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" got connection "+sock);
+			System.out.println(this.getClass().getName()+" got connection "+workerSocket);
 		}
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -154,7 +104,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 		}
 		try {
 			while(shouldRun) {
-				String s = new String(RelatrixJsonServer.readUntil(sock, (byte)'\n'));
+				String s = new String(RelatrixJsonServer.readUntil(workerSocket, (byte)'\n'));
 				JSONObject inJson = new JSONObject(s);
 				if(DEBUG)
 					System.out.println(this.getClass().getName()+" read "+inJson+" from "+workerSocket);
@@ -173,7 +123,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 						if(objectReturn instanceof Result)
 							((Result)objectReturn).unpackFromTransport();
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" remote Node:"+remoteNode+" slave:"+remotePort);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorJsonClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -183,7 +133,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			shutdown();
 		}
 		synchronized(waitHalt) {
@@ -193,7 +143,7 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	}
 
 	public void sendCommand() throws Exception {
-		if(sock == null) {
+		if(workerSocket == null) {
 			synchronized(waitSocket) {
 				waitSocket.wait();
 			}
@@ -271,11 +221,10 @@ public class RemoteIteratorJsonClientTransaction implements Runnable, RelatrixTr
 	private void shutdown() {
 		if(DEBUG)
 			System.out.println("Calling shutdown for RemoteIteratorJsonClientTransaction");
-		if( workerHandler != null ) {
-			workerHandler.close();
-		}
-		if( masterHandler != null ) {
-			masterHandler.close();
+		if( workerSocket != null ) {
+			try {
+				workerSocket.close();
+			} catch (IOException e) {}
 		}
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}

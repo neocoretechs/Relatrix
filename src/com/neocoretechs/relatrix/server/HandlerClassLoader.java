@@ -92,7 +92,7 @@ public class HandlerClassLoader extends ClassLoader {
     public static void connectToRemoteRepository() throws IOException, IllegalAccessException {
     	useEmbedded = false;
 		String hostName = InetAddress.getLocalHost().getHostName();
-    	remoteRepository = new RelatrixKVClient(hostName, hostName, 9999);
+    	remoteRepository = new RelatrixKVClient(hostName, 9999);
     } 
     /**
      * Variation when remote is located on a different node, port is still assumed the default of 9999
@@ -103,7 +103,7 @@ public class HandlerClassLoader extends ClassLoader {
     public static void connectToRemoteRepository(String remote) throws IOException, IllegalAccessException {
     	useEmbedded = false;
 		String hostName = InetAddress.getLocalHost().getHostName();
-    	remoteRepository = new RelatrixKVClient(hostName, remote, 9999);
+    	remoteRepository = new RelatrixKVClient(remote, 9999);
     } 
     /**
      * Variation when remote is different node, and port has been set to something other than standard default
@@ -115,7 +115,7 @@ public class HandlerClassLoader extends ClassLoader {
     public static void connectToRemoteRepository(String remote, int port) throws IOException, IllegalAccessException {
     	useEmbedded = false;
 		String hostName = InetAddress.getLocalHost().getHostName();
-    	remoteRepository = new RelatrixKVClient(hostName, remote, port);
+    	remoteRepository = new RelatrixKVClient(remote, port);
     } 
     /**
      * Variation when everything is different, somehow
@@ -127,7 +127,7 @@ public class HandlerClassLoader extends ClassLoader {
      */
     public static void connectToRemoteRepository(String local, String remote, int port) throws IOException, IllegalAccessException {
     	useEmbedded = false;
-    	remoteRepository = new RelatrixKVClient(local, remote, port);
+    	remoteRepository = new RelatrixKVClient(remote, port);
     }
     /**
      * Local repository for embedded mode, no remote server

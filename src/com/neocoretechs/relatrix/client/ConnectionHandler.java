@@ -36,6 +36,7 @@ public class ConnectionHandler {
 
 		NonClosingOutputStream ncOs = new NonClosingOutputStream(os);
 		this.oos = new ObjectOutputStream(ncOs); // writes header once
+		this.oos.flush();
 		this.ois = new ObjectInputStream(is);    // read side: create once
 	}
 

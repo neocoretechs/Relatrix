@@ -58,7 +58,7 @@ public class StreamRetrievalBattery0 {
 		String fmap;
 		long tims = System.currentTimeMillis();
 		int recs = 0;
-		rkvc = new RelatrixClient(argv[0], argv[1], Integer.parseInt(argv[2]) );
+		rkvc = new RelatrixClient(argv[1], Integer.parseInt(argv[2]) );
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
 		ArrayList<Result> ar = new ArrayList<Result>();

@@ -39,11 +39,6 @@ public class RemoteIteratorJsonClient implements Runnable, RelatrixStatementInte
 	
 	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
 	
@@ -90,19 +85,7 @@ public class RemoteIteratorJsonClient implements Runnable, RelatrixStatementInte
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println("RemoteIteratorJsonClient constructed with remote:"+IPAddress);
-		}
-
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(localIPAddress.getHostName(), MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
@@ -126,7 +109,7 @@ public class RemoteIteratorJsonClient implements Runnable, RelatrixStatementInte
 						if(objectReturn instanceof Result)
 							((Result)objectReturn).unpackFromTransport();
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" remote Node:"+remoteNode+" slave:"+remotePort);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorJsonClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -136,7 +119,7 @@ public class RemoteIteratorJsonClient implements Runnable, RelatrixStatementInte
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			shutdown();
 		}
 		synchronized(waitHalt) {

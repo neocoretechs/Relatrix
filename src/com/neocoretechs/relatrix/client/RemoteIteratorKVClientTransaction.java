@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
@@ -30,11 +29,6 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 	
 	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected transient InetAddress IPAddress = null; // remote server address
 
 	protected transient SocketChannel workerSocket = null; // socket assigned to slave port
 	protected transient ConnectionHandler workerHandler;
@@ -85,19 +79,10 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-		if( LOCALTEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		SLAVEPORT = remotePort;
 		// send message to spin connection
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		if(DEBUG)
-			System.out.printf("%s about to connect socket to masterSocketAddress:%s%n", this.getClass().getName(), workerSocket.toString());
+			System.out.printf("%s about to connect socket to Address:%s%n", this.getClass().getName(), workerSocket.toString());
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -122,7 +107,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 					if(objectReturn == TransportMorphism.class)
 						objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
 					if( DEBUG )
-						System.out.println("FROM Remote, returned object from response:"+objectReturn+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+						System.out.println("FROM Remote, returned object from response:"+objectReturn+" remote Node:"+remoteNode+" slave:"+remotePort);
 					if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -132,7 +117,7 @@ public class RemoteIteratorKVClientTransaction implements Runnable, RelatrixTran
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+remoteNode+" slave:"+remotePort);
 			shutdown();
 		}
 		synchronized(waitHalt) {

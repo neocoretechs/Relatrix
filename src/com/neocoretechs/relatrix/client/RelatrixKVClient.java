@@ -27,13 +27,8 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9376; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9377; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
@@ -44,34 +39,16 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	protected ConcurrentHashMap<String, RelatrixKVStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixKVStatement>();
 
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix client to a remote server.  A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public RelatrixKVClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		//
-		// Wait for master server node to connect back to here for return channel communication
-		//
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -80,10 +57,6 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
-	}
-	
-	public String getLocalNode() {
-		return bootNode;
 	}
 	
 	public String getRemoteNode() {
@@ -103,7 +76,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
@@ -127,7 +100,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 			if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			}
 		} finally {
 			shutdown();
@@ -137,7 +110,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
   	    }
 	}
 	/**
-	 * Send request to remote worker, if workerSocket is null open SLAVEPORT connection to remote master
+	 * Send request to remote worker, if workerSocket is null open connection to remote master
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
@@ -241,7 +214,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 
 	@Override
 	public String toString() {
-		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
+		return String.format("%s handler::%s%n",this.getClass().getName(),workerHandler);
 	}
 	
 	static int i = 0;
@@ -250,10 +223,10 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	 * <dd>Generic call to server: localaddr, remote addr, port, class
 	 * <dd>Displays entry set stream of class from database running on addr and port
 	 * <dd>case 5-8:
-	 * <dd>Call to server method: localaddr, remote addr, port, server_method <arg1> <arg2> ... 
+	 * <dd>Call to server method: localaddr, remote addr, port, server_method arg1, arg2 ... 
 	 * <dd>Invokes named method on the server at host and port using the given string arguments.<p/>
-	 * Note that method must accept the number of string arguments provided, such as loadClassFromJar <jar>
-	 * and loadClassFromPath <package> <path> and removePackageFromRepository <package>.<p/>
+	 * Note that method must accept the number of string arguments provided, such as loadClassFromJar jar
+	 * and loadClassFromPath package path and removePackageFromRepository package.<p/>
 	 * @param args
 	 * @throws Exception
 	 */
@@ -262,7 +235,7 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixKVClient rc = new RelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVClient rc = new RelatrixKVClient(args[1],Integer.parseInt(args[2]));
 
 		switch(args.length) {
 			case 4:

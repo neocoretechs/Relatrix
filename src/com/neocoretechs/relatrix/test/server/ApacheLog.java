@@ -555,7 +555,7 @@ public class ApacheLog {
 		// supplying only local, remote, port results in retrieval of previously loaded data
 		ApacheLog alfoo = new ApacheLog();
 		if(args.length == 3 || args.length == 4 || args.length == 5) {
-			session = new RelatrixClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
+			session = new RelatrixClientTransaction(args[1], Integer.parseInt(args[2]));
 			//xid = session.getTransactionId(300000);
 			xid = session.getTransactionId();
 			// substitution * for file name loads test data

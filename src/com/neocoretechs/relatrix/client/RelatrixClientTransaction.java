@@ -20,18 +20,6 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
- * 
- * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the {@link RelatrixTransactionServer}. The client contacts the boot time server port, the desired database
- * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
- * and slave ports that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.<p/>
  *
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
@@ -42,14 +30,9 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
-
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
 	
@@ -61,32 +44,17 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	public RelatrixClientTransaction() { }
 	
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixClientTransaction(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public RelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemoteTransaction((ClientInterface) this);
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println("RelatrixClientTransaction constructed with remote:"+IPAddress);
-		}
-	
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -107,7 +75,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Throwable ) {
 					System.out.println("RelatrixClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -130,7 +98,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 			if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			}
 		} finally {
 			shutdown();
@@ -176,10 +144,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 			workerHandler.close();
 		}
 		shouldRun = false;
-	}
-	
-	public String getLocalNode() {
-		return bootNode;
 	}
 	
 	public String getRemoteNode() {
@@ -238,7 +202,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[1],Integer.parseInt(args[2]));
 		TransactionId xid = rc.getTransactionId();
 		RelatrixTransactionStatement rs = null;
 		switch(args.length) {

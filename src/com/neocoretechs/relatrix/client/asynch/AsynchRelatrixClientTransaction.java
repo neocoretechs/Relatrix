@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
@@ -24,17 +23,11 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
+
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it<p/>
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
  * which is the {@link RelatrixTransactionServer}. The client contacts the boot time server port, the desired database
@@ -56,11 +49,6 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	protected CircularBlockingDeque<RelatrixTransactionStatementInterface> queuedRequests = new CircularBlockingDeque<RelatrixTransactionStatementInterface>(REQUEST_QUEUE);
 	private String bootNode, remoteNode;
 	private int remotePort;
-	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
@@ -85,22 +73,14 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemoteTransaction((AsynchRelatrixClientTransactionInterface) this);
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-
 		if( DEBUG ) {
-			System.out.printf("%s constructed with remote:%s remotePort/SLAVEPORT:%s bootNode:%s %n",this.getClass().getName(),IPAddress,String.valueOf(remotePort),bootNode);
+			System.out.printf("%s constructed with remote Node:%s remotePort:%s %n",this.getClass().getName(),remoteNode,remotePort);
 		}
 		//
  		// Wait for master server node to connect back to here for return channel communication
 		//
-		SLAVEPORT = remotePort;
 		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -128,7 +108,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
   	    		if( DEBUG )
-  	    			System.out.println("Asynch FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+  	    			System.out.println("Asynch FROM Remote, response:"+iori+" remote Node:"+remoteNode+" port:"+remotePort);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
   	    			System.out.println("AsynchRelatrixClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -149,7 +129,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote node:"+remoteNode+" slave:"+remotePort);
 			}
 		} finally {
 			shutdown();

@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
  */
 public class RollbackServerTransaction {
 	public static void main(String[] args) throws Exception {
-		RelatrixKVClientTransaction rkvc = new RelatrixKVClientTransaction(args[0], args[1], Integer.parseInt(args[2]));
+		RelatrixKVClientTransaction rkvc = new RelatrixKVClientTransaction(args[1], Integer.parseInt(args[2]));
 		Object[] states = rkvc.getTransactionState();
 		int i = 0;
 		for(Object s : states) {

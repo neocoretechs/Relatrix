@@ -47,7 +47,7 @@ public class BatteryRelatrixKVClientTransactionStream {
 			System.exit(1);
 		}
 		System.out.println("local="+argv[0]+" remote="+argv[0]+" port="+argv[1]);
-		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClientTransaction(argv[1], Integer.parseInt(argv[2]));
 		TransactionId xid = rkvc.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  

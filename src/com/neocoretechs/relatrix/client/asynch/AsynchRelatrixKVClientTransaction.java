@@ -51,11 +51,6 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 	private String bootNode, remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9876; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9877; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
-
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
 	
@@ -79,18 +74,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemoteTransaction((AsynchRelatrixClientTransactionInterface) this);
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println("AsynchRelatrixKVClientTransaction constructed with remote:"+IPAddress);
-		}
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -114,7 +98,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
   	    		if( DEBUG )
-  	    			System.out.println("Asynch FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+  	    			System.out.println("Asynch FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
   	    			System.out.println("AsynchRelatrixKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -135,7 +119,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			}
 		} finally {
 			shutdown();

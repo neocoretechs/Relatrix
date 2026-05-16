@@ -45,7 +45,7 @@ public class BatteryRelatrixKVClientTransactionStreamAlias {
 			System.exit(1);
 		}
 		System.out.println("local="+argv[0]+" remote="+argv[0]+" port="+argv[1]);
-		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClientTransaction(argv[1], Integer.parseInt(argv[2]));
 		if(rkvc.getAlias(alias1) == null)
 			rkvc.setRelativeAlias(alias1);
 		if(rkvc.getAlias(alias2) == null)

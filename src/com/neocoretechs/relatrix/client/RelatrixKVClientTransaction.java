@@ -22,25 +22,17 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * Worker threads located on a remote node.<p/>
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is on the RelatrixKVTransactionServer. The client contacts the boot time server port, the desired database
- * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
- * and slave ports that correspond to the sockets that the server thread uses to service the traffic
+ * which is on the RelatrixKVTransactionServer that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInterfaceImpl implements ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9376; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9377; // slave port, connects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
-
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
 
@@ -50,32 +42,16 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	protected ConcurrentHashMap<String, RelatrixKVStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixKVStatement>();
 
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix client to a remote server.  A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixKVClientTransaction(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public RelatrixKVClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println("RelatrixKVClient constructed with remote:"+IPAddress);
-		}
-
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
 			System.out.println("Channel created to "+workerHandler);
@@ -86,10 +62,6 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 			System.out.printf("%s about to connect socket to masterSocketAddress:%s%n", this.getClass().getName(), workerSocket.toString());
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
-	}
-	
-	public String getLocalNode() {
-		return bootNode;
 	}
 	
 	public String getRemoteNode() {
@@ -109,7 +81,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
 				Object o = iori.getObjectReturn();
 				if( o instanceof Throwable ) {
 					System.out.println("RelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -134,7 +106,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 			if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
 			}
 		} finally {
 			shutdown();
@@ -154,7 +126,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	
 	public void close() {
 		if(DEBUG) {
-			System.out.println(this.getClass().getName()+" close Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+" remote Node:"+remoteNode+" slave:"+remotePort);
 		}
 		shouldRun = false;
 		synchronized(waitHalt) {
@@ -167,7 +139,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	
 	protected void shutdown() {
 		if(DEBUG) {
-			System.out.println(this.getClass().getName()+" shutdown Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+			System.out.println(this.getClass().getName()+" shutdown remote Node:"+remoteNode+" slave:"+remotePort);
 		}
 		if( workerHandler != null ) {
 			workerHandler.close();
@@ -231,7 +203,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	
 	@Override
 	public String toString() {
-		return String.format("Key/Value server BootNode:%s RemoteNode:%s RemotePort:%d%n",bootNode, remoteNode, remotePort);
+		return String.format("%s handler:%s%n",this.getClass().getName(),workerHandler);
 	}
 	
 	static int i = 0;
@@ -250,7 +222,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	public static void main(String[] args) throws Exception {
 		RelatrixKVTransactionStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		i = 0;
-		RelatrixKVClientTransaction rc = new RelatrixKVClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
+		RelatrixKVClientTransaction rc = new RelatrixKVClientTransaction(args[1],Integer.parseInt(args[2]));
 		TransactionId xid = null;
 		switch(args.length) {
 			case 4:

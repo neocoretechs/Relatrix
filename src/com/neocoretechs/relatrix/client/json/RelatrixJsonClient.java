@@ -43,11 +43,6 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 	private String bootNode, remoteNode;
 	private int remotePort;
 	
-	protected int MASTERPORT = 9880; // master port, accepts connection from remote server
-	protected int SLAVEPORT = 9881; // slave port, conects to remote, sends outbound requests to master port of remote
-	
-	protected InetAddress IPAddress = null; // remote server address
-
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	
 	private volatile boolean shouldRun = true; // master service thread control
@@ -70,18 +65,7 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemote(this);
-		if( TEST ) {
-			IPAddress = InetAddress.getLocalHost();
-		} else {
-			IPAddress = InetAddress.getByName(remoteNode);
-		}
-		if( DEBUG ) {
-			System.out.println(this.getClass().getName()+" constructed with remote:"+IPAddress);
-		}
-		SLAVEPORT = remotePort;
-		// send message to spin connection
-		//workerSocket = RelatrixServer.Fopen(bootNode, MASTERPORT, IPAddress, SLAVEPORT);
-		workerSocket = SocketChannel.open(new InetSocketAddress(IPAddress, SLAVEPORT));
+		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -174,16 +158,16 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
   	    try {
 		  while(shouldRun ) {
 				if(DEBUG)
-					System.out.println("RelatrixJsonClient connected:"+workerSocket.isConnected());
+					System.out.println(this.getClass().getName()+" connected:"+workerSocket.isConnected());
 				String s = new String(RelatrixJsonServer.readUntil(workerSocket, (byte)'\n'));
 				JSONObject jobj = new JSONObject(s);
 				RemoteResponseInterface iori = (RemoteResponseInterface) jobj.toObject();//, RemoteResponseInterface.class);
 				// get the original request from the stored table
 				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
 				Object o = iori.getObjectReturn();
 				if( DEBUG )
-					 System.out.println("FROM Remote, returned object from response:"+o+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+					 System.out.println("FROM Remote, returned object from response:"+o+" remote Node:"+remoteNode+" slave:"+remotePort);
 				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixJsonClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -227,7 +211,7 @@ public class RelatrixJsonClient extends RelatrixJsonClientInterfaceImpl implemen
 			//if(!(e instanceof SocketException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" Address:"+IPAddress+" master port:"+MASTERPORT+" slave:"+SLAVEPORT);
+				System.out.println(this.getClass().getName()+": receive IO error "+e+" remoteNode:"+remoteNode+" slave:"+remotePort);
 			//}
 		} finally {
 			shutdown();

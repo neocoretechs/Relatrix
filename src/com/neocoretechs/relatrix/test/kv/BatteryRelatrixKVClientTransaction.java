@@ -42,7 +42,7 @@ public class BatteryRelatrixKVClientTransaction {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransaction <DB local client NODE> <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
-		rkvc = new RelatrixKVClientTransaction(argv[0], argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClientTransaction(argv[1], Integer.parseInt(argv[2]));
 		TransactionId xid = rkvc.getTransactionId();
 		battery1(xid);	
 		battery11(xid);

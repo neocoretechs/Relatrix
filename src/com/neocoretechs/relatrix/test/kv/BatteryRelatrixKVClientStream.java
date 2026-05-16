@@ -44,7 +44,7 @@ public class BatteryRelatrixKVClientStream {
 			System.exit(1);
 		}
 		System.out.println("local="+argv[0]+" remote="+argv[1]+" port="+argv[2]);
-		rkvc = new RelatrixKVClient(argv[0], argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClient(argv[1], Integer.parseInt(argv[2]));
 		battery1(argv);	// build and store
 		battery11(argv);
 		battery1AR6(argv);
