@@ -46,10 +46,12 @@ public class RemoteKVIteratorJsonServer extends TCPServer {
 			try {
 				SocketChannel datasocket = server.accept();
 				datasocket.configureBlocking(true);
-                // disable Nagles algoritm; do not combine small packets into larger ones
-                datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                // wait 1 second before close; close blocks for 1 sec. and data can be sent
-                datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
+	            datasocket.setOption(StandardSocketOptions.TCP_NODELAY, true);
+	            // wait 1 second before close; close blocks for 1 sec. and data can be sent
+	            datasocket.setOption(StandardSocketOptions.SO_LINGER, 1);
+	            datasocket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+				datasocket.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+				datasocket.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
 				//
                 String s = new String(RelatrixJsonServer.readUntil(datasocket, (byte)'\n'));
 				JSONObject inLine = new JSONObject(s);
@@ -68,7 +70,7 @@ public class RemoteKVIteratorJsonServer extends TCPServer {
 					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPKVJsonIteratorWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
+				uworker = new TCPKVJsonIteratorWorker(datasocket, iteratorClass);
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 

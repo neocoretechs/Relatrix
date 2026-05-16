@@ -15,9 +15,7 @@ import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
 
 /**
- * When an iterator is created for remote delivery of objects, the address of the remote server
- * is sent back to the requesting client. The client then issues the handshake connection. The client
- * connects to waiting serversocket for each type of iterator. The serversocket then connects back to the client
+ * When an iterator is created for remote delivery of objects,
  * and creates a {@link com.neocoretechs.relatrix.server.TCPWorker} that creates a 
  * {@link com.neocoretechs.relatrix.server.WorkerRequestProcessor} that dequeues requests
  * with the proper ServerSideIterator that receives each hasNext and next request. The process method of
@@ -44,22 +42,14 @@ public class RemoteIteratorTransactionServer extends TCPServer {
 				SocketChannel datasocket = server.accept();
 				ConnectionHandler dataHandler = new ConnectionHandler(datasocket);
 				//
-				//
-				CommandPacketInterface o = (CommandPacketInterface) dataHandler.readObject();
-				if( DEBUG )
-					System.out.println("RemoteIteratorTransactionServer command received:"+o);
-				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPIteratorTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPIteratorTransactionWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPIteratorTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				uworker = new TCPIteratorTransactionWorker(datasocket, iteratorClass);
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {

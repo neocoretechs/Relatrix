@@ -63,7 +63,7 @@ public class RemoteKVIteratorTransactionServer extends TCPServer {
 					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPKVIteratorTransactionWorker(datasocket, o.getRemoteMaster(), o.getMasterPort(), iteratorClass);
+				uworker = new TCPKVIteratorTransactionWorker(datasocket, iteratorClass);
 				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 

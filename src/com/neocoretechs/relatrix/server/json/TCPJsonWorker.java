@@ -13,7 +13,9 @@ import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.server.TCPWorker;
 
-
+/**
+ * Handles raw SocketChannel, does not rely on ConnectionHandler.
+ */
 public class TCPJsonWorker extends TCPWorker {
 	private static boolean DEBUG = false;
 

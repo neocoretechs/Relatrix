@@ -29,8 +29,8 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
- * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
- * has been sent from client to support remote iterators. It processes requests directly, invoking the proper iterator
+ * This TCPWorker is spawned for servicing traffic from clients 
+ * to support remote iterators. It processes requests directly, invoking the proper iterator
  * methods on instances of server side iterators.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
@@ -41,56 +41,23 @@ public class TCPKVIteratorWorker implements Runnable {
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
 	
-	public int MASTERPORT = 9876;
-
-	protected InetAddress IPAddress = null;
-	private SocketAddress masterSocketAddress;
-	
 	protected SocketChannel workerSocket;
 	protected ConnectionHandler workerHandler;
-	protected SocketChannel masterSocket;
-	protected ConnectionHandler masterHandler;
 	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixKVIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixKVIteratorMethod = null;
 	
-    public TCPKVIteratorWorker(SocketChannel datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
+    public TCPKVIteratorWorker(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	MASTERPORT= masterPort;
+    	workerHandler = new ConnectionHandler(datasocket);
     	relatrixKVIteratorMethod = relatrixKVIteratorMethods.get(iteratorClass);
     	if(relatrixKVIteratorMethod == null) {
     		relatrixKVIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
     		relatrixKVIteratorMethods.put(iteratorClass,relatrixKVIteratorMethod);
     	}
-		try {
-			if(TEST ) {
-				IPAddress = InetAddress.getLocalHost();
-			} else {
-				IPAddress = InetAddress.getByName(remoteMaster);
-			}
-		} catch (UnknownHostException e) {
-			throw new RuntimeException("Bad remote master address:"+remoteMaster);
-		}
+
 		if(DEBUG) {
-			System.out.printf("%s with params datasocket:%s, remoteMaster:%s masterPort:%d connection to masterPort at IPAddress:%s%n", this.getClass().getName(), datasocket.toString(), remoteMaster, masterPort, IPAddress.toString()); 
-		}
-		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
-		masterSocket = SocketChannel.open(masterSocketAddress);
-		if(DEBUG)
-			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
-		if(!masterSocket.connect(masterSocketAddress)) {
-			while(!masterSocket.finishConnect()) {
-				if(DEBUG)
-					System.out.printf("%s RETRY connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {}
-			}
-		}
-		masterHandler = new ConnectionHandler(masterSocket);
-		// spin the request processor thread for the worker
-		if( DEBUG ) {
-			System.out.println("Worker on port with master "+MASTERPORT+" address:"+IPAddress);
+			System.out.printf("%s with handler:%s%n", this.getClass().getName(), workerHandler.toString()); 
 		}
 	}
 	
@@ -104,16 +71,16 @@ public class TCPKVIteratorWorker implements Runnable {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerHandler.toString());
 		}
 		try {
 			// Write response to master for forwarding to client
-			masterHandler.sendObject(irf);
+			workerHandler.sendObject(irf);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+				System.out.println("Channel send error "+e+" to "+workerHandler.toString());
 				throw new RuntimeException(e);
 		}
 	}
@@ -161,15 +128,10 @@ public class TCPKVIteratorWorker implements Runnable {
 		finally {
 			shouldRun = false;
 			workerHandler.close();
-			masterHandler.close();
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}
 		}
-	}
-
-	public String getMasterPort() {
-		return String.valueOf(MASTERPORT);
 	}
 
 	public String getSlavePort() {
@@ -189,7 +151,7 @@ public class TCPKVIteratorWorker implements Runnable {
 	
 	@Override
 	public String toString() {
-		return String.format("%s master=%s worker=%s MASTERPORT=%s master Address=%s %s%n",this.getClass().getName(),masterSocket,workerSocket,getMasterPort(),IPAddress,masterSocketAddress);
+		return String.format("%s worker=%s%n",this.getClass().getName(),workerHandler.toString());
 	}
 	/**
      * Spin the worker from command line
@@ -200,8 +162,6 @@ public class TCPKVIteratorWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPKVIteratorWorker [remote master node] [remote master port] [class]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPKVIteratorWorker(SocketChannel.open(),
-				args[0], // remote master node
-				Integer.valueOf(args[1]),args[2])); // master port
+		SynchronizedThreadManager.getInstance().spin(new TCPKVIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2])); // master port, class
 	}
 }

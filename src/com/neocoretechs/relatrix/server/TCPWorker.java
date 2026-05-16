@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 /**
  * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
  * has been sent from client to WORKBOOTPORT. A WorkerRequestProcessor handles the actual processing of the
- * request after it has been acquired and extracted here.
+ * request after it has been acquired and extracted here. Creates a {@link ConnectionHandler}
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
  */

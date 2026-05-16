@@ -40,48 +40,23 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
 	
-	public int MASTERPORT = 9876;
-
-	protected InetAddress IPAddress = null;
-
-	private SocketAddress masterSocketAddress;
-	
 	protected SocketChannel workerSocket;
 	protected ConnectionHandler workerHandler;
-	protected SocketChannel masterSocket;
-	protected ConnectionHandler masterHandler;
+
 	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
 	
-    public TCPIteratorTransactionWorker(SocketChannel datasocket, String remoteMaster, int masterPort, String iteratorClass) throws IOException, ClassNotFoundException {
+    public TCPIteratorTransactionWorker(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	MASTERPORT= masterPort;
+    	workerHandler = new ConnectionHandler(datasocket);
     	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
     	if(relatrixIteratorMethod == null) {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
     		relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
     	}
-		try {
-			if(TEST ) {
-				IPAddress = InetAddress.getLocalHost();
-			} else {
-				IPAddress = InetAddress.getByName(remoteMaster);
-			}
-		} catch (UnknownHostException e) {
-			throw new RuntimeException("Bad remote master address:"+remoteMaster);
-		}
 		if(DEBUG) {
-			System.out.printf("%s with params datasocket:%s, remoteMaster:%s masterPort:%d connection to masterPort at IPAddress:%s%n", this.getClass().getName(), datasocket.toString(), remoteMaster, masterPort, IPAddress.toString()); 
-		}
-		masterSocketAddress = new InetSocketAddress(IPAddress, MASTERPORT);
-		masterSocket = SocketChannel.open(masterSocketAddress);
-		if(DEBUG)
-			System.out.printf("%s about to connect socket to masterSocketAddress IPAddress:%s%n", this.getClass().getName(), masterSocketAddress.toString());
-		masterHandler = new ConnectionHandler(masterSocket);
-		// spin the request processor thread for the worker
-		if( DEBUG ) {
-			System.out.println("Worker on port with master "+MASTERPORT+" address:"+IPAddress);
+			System.out.printf("%s with params datasocket:%s, handler:%s%n", this.getClass().getName(), workerHandler); 
 		}
 	}
 	
@@ -94,13 +69,13 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	 */
 	public void sendResponse(RemoteResponseInterface irf) {
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+IPAddress+" port:"+MASTERPORT);
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerHandler.toString());
 		}
 		try {
 			// Write response to master for forwarding to client
-			masterHandler.sendObject(irf);
+			workerHandler.sendObject(irf);
 		} catch (IOException e) {
-			System.out.println("Channel send error "+e+" to address "+IPAddress+" on port "+MASTERPORT);
+			System.out.println("Channel send error "+e+" to "+workerHandler.toString());
 			throw new RuntimeException(e);
 		}
 	}
@@ -113,7 +88,7 @@ public class TCPIteratorTransactionWorker implements Runnable {
 			while(shouldRun) {
 				if(DEBUG)
 					System.out.println(this+" waiting on input."+" connected:"+workerSocket.isConnected());
-				RemoteCompletionInterface iori = (RemoteCompletionInterface)masterHandler.readObject();
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
@@ -152,15 +127,10 @@ public class TCPIteratorTransactionWorker implements Runnable {
 		finally {
 			shouldRun = false;
 			workerHandler.close();
-			masterHandler.close();
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}
 		}
-	}
-
-	public String getMasterPort() {
-		return String.valueOf(MASTERPORT);
 	}
 
 	public String getSlavePort() {
@@ -172,15 +142,15 @@ public class TCPIteratorTransactionWorker implements Runnable {
 		synchronized(waitHalt) {
 			shouldRun = false;
 			try {
-				workerSocket.close(); // if we get a socket close error we probably dont want to wait anyway
+				workerHandler.close(); // if we get a socket close error we probably dont want to wait anyway
 				waitHalt.wait();
-			} catch (InterruptedException | IOException e) {}
+			} catch (InterruptedException e) {}
 		}
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("%s master=%s worker=%s MASTERPORT=%s master Address=%s %s%n",this.getClass().getName(),masterSocket,workerSocket,getMasterPort(),IPAddress,masterSocketAddress);
+		return String.format("%s worker=%s%n",this.getClass().getName(),workerHandler);
 	}
 	/**
      * Spin the worker from command line
@@ -191,8 +161,6 @@ public class TCPIteratorTransactionWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorTransactionWorker [remote master node] [remote master port] [iterator class]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPIteratorTransactionWorker(SocketChannel.open(),
-				args[0], // remote master node
-				Integer.valueOf(args[1]),args[2])); // master port, class
+		SynchronizedThreadManager.getInstance().spin(new TCPIteratorTransactionWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2])); // master port, class
 	}
 }

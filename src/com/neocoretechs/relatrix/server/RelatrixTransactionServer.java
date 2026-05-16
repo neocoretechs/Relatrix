@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.StandardSocketOptions;
 
 import java.nio.channels.SocketChannel;
 
@@ -14,8 +13,6 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
 
@@ -27,18 +24,10 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransaction
  * and if the remote call is linked to an object instance on the server, as it 
  * is for non-serializable iterators, then you must maintain 
  * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
- * Static methods need no server side object in residence and can be called willy nilly.<br/>
- * Functionally this class Extends TCPServer, receives CommandPacketinterface,
+ * Static methods need no server side object in residence.<br/>
+ * Functionally this class Extends TCPServer, 
  * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p/>
  * WorkerRequestProcessor takes requests and processes them.<br/>
- * On the client and server the following are present as conventions:<br/>
- * On the client a ServerSocket waits for inbound connection on MASTERPORT after DB spinup message to WORKBOOTPORT.<br/>
- * On the client a socket is created to connect to SLAVEPORT and objects are written to it.<br/>
- * On the server a socket is created to connect to MASTERPORT and response objects are written to it.<br/>
- * On the server a ServerSocket waits on SLAVEPORT and request Object are read from it.<br/>
- * The client is going to connect and tell the server the master and slave ports that it will be using to process requests.<br/>
- * In this way multiple databases can be used by instantiating separate clients.<br/>
- * Use this server for transaction context.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2022, 2024
  *
  */
