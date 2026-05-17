@@ -43,23 +43,14 @@ public class RemoteKVIteratorServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				ConnectionHandler dataHandler = new ConnectionHandler(datasocket);
-				//
-				CommandPacketInterface o = (CommandPacketInterface) dataHandler.readObject();
-				if( DEBUG )
-					System.out.println(this.getClass().getName()+" command received:"+o);
-				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPKVIteratorWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPKVIteratorWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPKVIteratorWorker(datasocket, iteratorClass);
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {

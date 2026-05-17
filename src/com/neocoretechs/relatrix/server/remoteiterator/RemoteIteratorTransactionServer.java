@@ -40,7 +40,6 @@ public class RemoteIteratorTransactionServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				ConnectionHandler dataHandler = new ConnectionHandler(datasocket);
 				//
 				TCPIteratorTransactionWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {

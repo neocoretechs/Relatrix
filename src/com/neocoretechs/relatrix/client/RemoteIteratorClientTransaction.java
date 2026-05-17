@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 import com.neocoretechs.relatrix.Result;
@@ -280,5 +281,43 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	public TransactionId getTransactionId() {
 		return transactionId;
 	}
-
+	/**
+	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
+	 * java RemoteIteratorClientTransaction VOLVATRON VOLVATRON 9010 java.lang.String
+	 * @param args
+	 * @throws Exception
+	 */
+	static int i = 0;
+	public static void main(String[] args) throws Exception {
+		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[1],Integer.parseInt(args[2]));
+		TransactionId xid = rc.getTransactionId();
+		RelatrixTransactionStatement rs = null;
+		switch(args.length) {
+			case 4:
+				Iterator it = rc.entrySet(xid,Class.forName(args[3]));
+				it.forEachRemaining(e ->{	
+					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
+				});
+				System.exit(0);				
+				break;
+			case 5:
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4]);
+				break;
+			case 6:
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5]);
+				break;
+			case 7:
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				break;
+			case 8:
+				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				break;
+			default:
+				System.out.println("Cant process argument list of length:"+args.length);
+				return;
+		}
+		System.out.println(rc.sendCommand(rs));
+		rc.endTransaction(xid);
+		rc.close();
+	}
 }

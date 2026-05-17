@@ -1,26 +1,22 @@
 package com.neocoretechs.relatrix.server.remoteiterator.json;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 /**
- * When an iterator is created for remote delivery of objects, the address of the remote server
- * is sent back to the requesting client. The client then issues the handshake connection. The client
- * connects to waiting serversocket for each type of iterator. The serversocket then connects back to the client
- * and creates a {@link com.neocoretechs.relatrix.server.TCPWorker} that creates a 
+ * When an iterator is created for remote delivery of objects, 
+ * it creates a {@link com.neocoretechs.relatrix.server.TCPWorker} that creates a 
  * {@link com.neocoretechs.relatrix.server.WorkerRequestProcessor} that dequeues requests
  * with the proper ServerSideIterator that receives each hasNext and next request. The process method of
  * a {@link com.neocoretechs.relatrix.client.RemoteCompletionInterface}, which is implemented
@@ -56,29 +52,22 @@ public class RemoteIteratorJsonServer extends TCPServer {
 				JSONObject inLine = new JSONObject(s);
 				if(DEBUG)
 					System.out.println("RemoteIteratorJsonServer "+datasocket+" raw data:"+inLine);
-				CommandPacket o = (CommandPacket) inLine.toObject();//CommandPacket.class);	
-				if( DEBUG )
-					System.out.println("RemoteIteratorJsonServer command received:"+o);
-				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPJsonIteratorWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPJsonIteratorWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPJsonIteratorWorker(datasocket, iteratorClass);
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {
-					System.out.println("RemoteIteratorJsonServer starting new worker "+uworker+" master port:"+o.getMasterPort());
+					System.out.println(this.getClass().getName()+" starting new worker "+uworker);
 				}
 
 			} catch(Exception e) {
-				System.out.println("RemoteIteratorJsonServer Server node configuration server socket accept exception "+e);
+				System.out.println(this.getClass().getName()+" Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}
