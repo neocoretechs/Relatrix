@@ -1,17 +1,12 @@
 package com.neocoretechs.relatrix.client.json;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
-import java.nio.channels.ServerSocketChannel;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -19,12 +14,8 @@ import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 /**
  * Manages remote iterators via client that is serialized to remote kv transaction servers and returned as payload.

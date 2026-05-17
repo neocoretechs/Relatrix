@@ -1,13 +1,12 @@
 package com.neocoretechs.relatrix.client.json;
 
 import java.io.IOException;
-
 import java.io.Serializable;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
 
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -17,12 +16,9 @@ import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
-import com.neocoretechs.relatrix.server.CommandPacket;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
 
 /**

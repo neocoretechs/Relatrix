@@ -43,7 +43,7 @@ public class ConnectionHandler {
 	// Single-threaded writer or synchronized
 	public synchronized void sendObject(Object obj) throws IOException {
 		if(DEBUG)
-			System.out.printf("%s send object %s channel:%s%n",this.getClass().getName(), obj, channel);
+			System.out.printf("%s send object %s channel:%s%n",this.getClass().getName(), obj, this.toString());
 		oos.writeObject(obj);
 		oos.flush();
 		oos.reset(); // avoid cache growth if sending many objects
@@ -67,7 +67,15 @@ public class ConnectionHandler {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s%n",this.getClass().getName(), channel);
+		String local = "UNKNOWN";
+		String remote = "UNKNOWN";
+		try {
+			remote = channel.getRemoteAddress().toString();
+		} catch (IOException e) {}
+		try {
+			local = channel.getLocalAddress().toString();
+		} catch (IOException e) {}
+		return String.format("%s local=%s remote=%s isBlocking=%b isConnected=%b isPending=%b isOpen=%b",this.getClass().getName(), local, remote, channel.isBlocking(), channel.isConnected(), channel.isConnectionPending(), channel.isOpen());
 	}
 }
 

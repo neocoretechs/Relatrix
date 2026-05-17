@@ -17,7 +17,7 @@ import java.nio.channels.ServerSocketChannel;
 * TCPServer is the superclass of all objects using ServerSockets.
 */
 public abstract class TCPServer implements Cloneable, Runnable {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	protected ServerSocketChannel server = null;
 	private int port;
 	protected volatile boolean shouldStop = false;

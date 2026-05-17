@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
 
 /**
@@ -49,22 +48,15 @@ public class RemoteKVIteratorTransactionServer extends TCPServer {
 				SocketChannel datasocket = server.accept();
 				ConnectionHandler dataHandler = new ConnectionHandler(datasocket);
 				//
-				//
-				CommandPacketInterface o = (CommandPacketInterface) dataHandler.readObject();
-				if( DEBUG )
-					System.out.println(this.getClass().getName()+" command received:"+o);
 				// if we get a command packet with no statement, assume it to start a new instance
-
-				TCPKVIteratorTransactionWorker uworker = dbToWorker.get(o.getRemoteMaster()+":"+o.getMasterPort());
+				TCPKVIteratorTransactionWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
-					if(o.getTransport().equals("TCP")) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
-					}
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPKVIteratorTransactionWorker(datasocket, iteratorClass);
-				dbToWorker.put(o.getRemoteMaster()+":"+o.getMasterPort(), uworker); 
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
 				if( DEBUG ) {

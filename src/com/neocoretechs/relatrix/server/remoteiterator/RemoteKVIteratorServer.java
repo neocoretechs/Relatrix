@@ -1,18 +1,14 @@
 package com.neocoretechs.relatrix.server.remoteiterator;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.CommandPacketInterface;
 import com.neocoretechs.relatrix.server.TCPServer;
 
 /**

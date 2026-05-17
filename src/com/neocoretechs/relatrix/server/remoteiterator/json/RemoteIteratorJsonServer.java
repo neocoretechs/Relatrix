@@ -51,7 +51,7 @@ public class RemoteIteratorJsonServer extends TCPServer {
                 String s = new String(RelatrixJsonServer.readUntil(datasocket, (byte) '\n'));
 				JSONObject inLine = new JSONObject(s);
 				if(DEBUG)
-					System.out.println("RemoteIteratorJsonServer "+datasocket+" raw data:"+inLine);
+					System.out.println(this.getClass().getName()+" "+datasocket+" raw data:"+inLine);
 				TCPJsonIteratorWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
 						if( uworker.shouldRun )

@@ -3,12 +3,9 @@ package com.neocoretechs.relatrix.server.remoteiterator;
 import java.io.EOFException;
 import java.io.IOException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
-import java.net.UnknownHostException;
+
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +14,6 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
