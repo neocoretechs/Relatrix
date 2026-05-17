@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-
+import java.net.SocketException;
 import java.net.StandardSocketOptions;
 
 import java.nio.channels.Channels;
@@ -16,7 +16,7 @@ import java.nio.channels.SocketChannel;
  * Server-side socket accept connection handler
  */
 public class ConnectionHandler {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private final SocketChannel channel;
 	private final ObjectOutputStream oos;
 	private final ObjectInputStream ois;
@@ -53,6 +53,10 @@ public class ConnectionHandler {
 		try {
 			return ois.readObject(); // blocks until full object
 		} catch (Exception e) {
+			if(e instanceof SocketException) {
+				close();
+				return null;
+			}
 			e.printStackTrace();
 			close();
 			throw new RuntimeException(e);

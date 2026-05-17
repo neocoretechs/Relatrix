@@ -85,6 +85,8 @@ public class TCPKVIteratorWorker implements Runnable {
 				if(DEBUG)
 					System.out.println(this.getClass().getName()+" waiting getInputStream "+workerSocket+" connected:"+workerSocket.isConnected());
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
+				if(iori == null)
+					break;
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixKVServer.sessionToObject.remove(iori.getSession());
 				} else {

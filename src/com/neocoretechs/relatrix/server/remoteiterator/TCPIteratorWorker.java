@@ -93,6 +93,8 @@ public class TCPIteratorWorker implements Runnable {
 				if(DEBUG)
 					System.out.println(this.getClass().getName()+" attempt readObject "+workerHandler);
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
+				if(iori == null)
+					break;
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixServer.sessionToObject.remove(iori.getSession());
 				} else {

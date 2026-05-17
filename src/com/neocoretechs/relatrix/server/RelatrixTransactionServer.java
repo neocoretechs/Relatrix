@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransaction
  *
  */
 public class RelatrixTransactionServer extends TCPServer {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	
 	public static SocketAddress address;

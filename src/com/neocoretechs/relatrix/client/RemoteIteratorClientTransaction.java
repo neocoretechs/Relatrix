@@ -24,7 +24,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  */
 public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = false; // timing
 	private long tim;

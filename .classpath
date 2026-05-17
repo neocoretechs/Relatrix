@@ -1,0 +1,4 @@
+	<classpathentry kind="lib" path="C:/Program Files/apache/apache-tomcat/lib/rocksdbjni-9.10.0-win64.jar"/>
+	<classpathentry kind="src" path="/json"/>
+	<classpathentry kind="lib" path="C:/Program Files/apache/apache-tomcat/lib/json.jar"/>
+	<classpathentry kind="output" path="bin"/>

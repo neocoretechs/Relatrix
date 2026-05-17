@@ -85,6 +85,9 @@ public class TCPIteratorTransactionWorker implements Runnable {
 				if(DEBUG)
 					System.out.println(this+" waiting on input."+" connected:"+workerSocket.isConnected());
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
+				if(iori == null) {
+					break;
+				}
 				if( iori.getMethodName().equals("close") ) {
 					RelatrixTransactionServer.sessionToObject.remove(iori.getSession());
 				} else {
