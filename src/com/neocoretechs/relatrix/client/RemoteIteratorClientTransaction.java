@@ -83,7 +83,8 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
-			System.out.println("Channel created to "+workerHandler);
+			if(DEBUG)
+				System.out.println("Channel created to "+workerHandler);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
