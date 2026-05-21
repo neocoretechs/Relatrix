@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import java.lang.reflect.Constructor;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import java.nio.channels.SocketChannel;
