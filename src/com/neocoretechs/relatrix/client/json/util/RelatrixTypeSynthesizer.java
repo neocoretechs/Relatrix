@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.client.json.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ import org.json.cbor.CborEncoder;
 import org.json.cbor.CborException;
 import org.json.cbor.builder.MapBuilder;
 import org.json.cbor.model.DataItem;
+
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
+
 /**
  * Class to generate hashed class names from JSON field names to create ersatz 
  * database differentiators.
@@ -45,8 +49,17 @@ public class RelatrixTypeSynthesizer {
         // Return a clean, safe Java class name identifier
         return classPrefix + "_" + structureHash;
     }
-    public static Class<?> generateMorphicClass(String className) {
-    	return null;
+    /**
+     * Must call generateMorphicClassName first to build structures. this is the first step in this method.
+     * From there, the CborBuilder creates the payload
+     * @param j The JSONObject that has the payload
+     * @return The byte array that has the payload
+     * @throws CborException If parsing fails
+     */
+    public static byte[] generateCborPayload(JSONObject j) throws CborException {
+    	generateMorphicClassName(j,JsonRecordClassGenerator.generatedJsonClassPrefix);
+    	CborBuilder cb = new CborBuilder();
+    	return generateMorphicPayload(structuralTokens, elements, cb);
     }
     /**
      * Recursively traverse the node structure  populating the tokens and values lists
@@ -188,10 +201,20 @@ public class RelatrixTypeSynthesizer {
     public static void main(String[] args) throws Exception {
     	String x = "{\"timestamp\":1779166000301,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
     	JSONObject jo = new JSONObject(x);
-    	System.out.println(generateMorphicClassName(jo,"Relatrix_"));
-    
-    	CborBuilder cb = new CborBuilder();
+    	HandlerClassLoader hcl = new HandlerClassLoader();
+    	long tim = System.nanoTime();
+    	String className = generateMorphicClassName(jo,"Relatrix_");
+       	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);
+    	Class<?> c = hcl.findLoaded(className);
+    	if (c == null)
+    		c = hcl.defineAClass(className, b);
+      	CborBuilder cb = new CborBuilder();
     	byte[] encodedBytes = generateMorphicPayload(structuralTokens, elements, cb);
+    	Constructor ctor = c.getConstructor(byte[].class);
+    	Object o = ctor.newInstance(encodedBytes);
+        System.out.println("nanos="+(System.nanoTime()-tim));
+        System.out.println(c);
+  
   
     	System.out.println(Arrays.toString(encodedBytes)+" length="+encodedBytes.length);
     	decode(encodedBytes);

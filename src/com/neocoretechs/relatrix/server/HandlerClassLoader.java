@@ -30,9 +30,9 @@ import com.neocoretechs.relatrix.client.RelatrixKVClient;
 /**
 * This is a generic ClassLoader of which many examples abound.
 * We do some tricks with resolution from a hashtable of names and bytecodes,
-* and InputStreams as well.</p>
-* If you want to find a class and throw an exception if its not in the available cache, used findClass.<br/>
-* If you want to load a class by all means available and make it available, use loadClass.<p/>
+* and InputStreams as well.<p>
+* If you want to find a class and throw an exception if its not in the available cache, used findClass.<br>
+* If you want to load a class by all means available and make it available, use loadClass.<p>
 * This is to support the Relatrix JAR load, and remote classloading.
 * We can operate in embedded mode, or remote using a client to retrieve bytecode from server.
 * @author Jonathan Groff (C) NeoCoreTechs 1999, 2000, 2020
@@ -102,7 +102,7 @@ public class HandlerClassLoader extends ClassLoader {
      */
     public static void connectToRemoteRepository(String remote) throws IOException, IllegalAccessException {
     	useEmbedded = false;
-		String hostName = InetAddress.getLocalHost().getHostName();
+		//String hostName = InetAddress.getLocalHost().getHostName();
     	remoteRepository = new RelatrixKVClient(remote, 9999);
     } 
     /**
@@ -114,7 +114,7 @@ public class HandlerClassLoader extends ClassLoader {
      */
     public static void connectToRemoteRepository(String remote, int port) throws IOException, IllegalAccessException {
     	useEmbedded = false;
-		String hostName = InetAddress.getLocalHost().getHostName();
+		//String hostName = InetAddress.getLocalHost().getHostName();
     	remoteRepository = new RelatrixKVClient(remote, port);
     } 
     /**
@@ -144,6 +144,8 @@ public class HandlerClassLoader extends ClassLoader {
     	}
     	DatabaseManager.setTableSpaceDir(defaultPath);
     }
+    
+    @Override
     /**
     * Find a class by the given name
     */
@@ -156,6 +158,7 @@ public class HandlerClassLoader extends ClassLoader {
         }
         throw new ClassNotFoundException(name+" not found in HandlerClassLoader.findClass()");
     }
+    @Override
     /**
     * loadClass will attempt to load the named class, If not found in cache
     * or system or user, will attempt to use Hastable of name and bytecodes
@@ -244,7 +247,7 @@ public class HandlerClassLoader extends ClassLoader {
     /**
     * Define a single class by name and byte array.
     * We will attempt to liberate it from the cache first; if it's not
-    * there, we go defining.
+    * there, we go defining. calls overloaded defineAClass
     * @param name The class name
     * @param data The byte array to get bytecodes from
     */
@@ -254,7 +257,7 @@ public class HandlerClassLoader extends ClassLoader {
     /**
     * Define a single class by name and position in byte array.
     * We will attempt to liberate it from the cache first; if it's not
-    * there, we go defining.
+    * there, we go defining. Finally calls ClassLoader.defineClass
     * @param name The class name
     * @param data The byte array to get bytecodes from
     * @param offset The offset to above array
@@ -277,6 +280,10 @@ public class HandlerClassLoader extends ClassLoader {
     
     public synchronized void defineClasses(String jarFile) throws IOException {
     	defineClasses(new JarFile(jarFile));
+    }
+    
+    public synchronized Class findLoaded(String className) {
+    	return findLoadedClass(className);
     }
     
     public synchronized void defineClasses(JarFile jarFile) throws IOException {
