@@ -3,7 +3,6 @@ package com.neocoretechs.relatrix.client.json.util;
 import java.lang.classfile.ClassFile;
 import java.io.FileOutputStream;
 
-import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
 import java.lang.constant.ConstantDescs;
@@ -22,8 +21,6 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  */
 public final class JsonRecordClassGenerator {
 	public static final String generatedJsonClassPrefix = "com.neocoretechs.relatrix.Relatrix_";
-	public static long hash = 1L;
-	public static long cbor = 2L;
     /**
      * Build class bytes for className suing JDK25 ClassDesc java.lang.classfile tooling.
      * <pre>
@@ -45,30 +42,27 @@ public final class JsonRecordClassGenerator {
         ClassDesc byteArray = ClassDesc.ofDescriptor(byte[].class.getName());
         ClassDesc arraysClass = ClassDesc.of(Arrays.class.getName());
         ClassDesc longBox = ClassDesc.of(Long.class.getName());
+        ClassDesc object = ClassDesc.of(java.lang.Object.class.getName());
         ClassDesc byteUtils = ClassDesc.of("com.neocoretechs.relatrix.client.json.util.ByteUtils"); // runtime helper
-
+        ClassDesc longDesc = ClassDesc.ofDescriptor("J"); // primitive long descriptor
+        
         ClassFile cf = ClassFile.of();
         byte[] bytes = cf.build(thisClass, classBuilder -> {
             classBuilder.withFlags(AccessFlag.PUBLIC)
                         .withVersion(61, 0) // adjust if you target a different major version
-                        .withInterfaceSymbols(serializable)
-                        .withInterfaceSymbols(comparable)
-
+                        .withInterfaceSymbols(serializable,comparable)
                         .withField("cbor", byteArray, 0x0002 | 0x0010)
                         // serialVersionUID as private static final long; we'll initialize it in <clinit>
-                        .withField("serialVersionUID", longClass, 0x0002 | 0x0010 | 0x0008)
-
+                        .withField("serialVersionUID", longDesc, 0x0002 | 0x0010 | 0x0008)
                         // class initializer <clinit> to set serialVersionUID
-                        /*.withMethod("<clinit>", MethodTypeDesc.of(ConstantDescs.CD_void),
-                        		0x0008, //static
-                                    clinit -> clinit.withCode(code -> {
-                                        // push long constant (example value); choose your own stable value if desired
-                                        long svuid = 0x9E3779B97F4A7C15L; // example stable constant
-                                        code.loadConstant(svuid); // primitive long
-                                        code.putstatic(thisClass, "serialVersionUID", longClass);
-                                        code.return_();
-                                    }))
-*/
+                        .withMethod("<clinit>", MethodTypeDesc.of(ConstantDescs.CD_void),
+                        	    0x0008, // ACC_STATIC
+                        	    clinit -> clinit.withCode(code -> {
+                        	        long svuid = 0x9E3779B97F4A7C15L;
+                        	        code.loadConstant(svuid); // pushes primitive long (ldc2_w)
+                        	        code.putstatic(thisClass, "serialVersionUID", longDesc);
+                        	        code.return_();
+                        	    }))
                         // constructor: public ctor(byte[] cbor)
                         .withMethod("<init>",
                                     MethodTypeDesc.of(ConstantDescs.CD_void, ClassDesc.ofDescriptor(byte[].class.getName())),
@@ -84,14 +78,17 @@ public final class JsonRecordClassGenerator {
                                         code.return_();
                                     }))
 
-                        // compareTo(JsonRecord other): public int compareTo(JsonRecord)
+                        // compareTo(Object other): public int compareTo(Object)
                         .withMethod("compareTo",
-                                    MethodTypeDesc.of(ConstantDescs.CD_int, thisClass),
+                                    MethodTypeDesc.of(ConstantDescs.CD_int, object),
                                     0x0001, // public
                                     method -> method.withCode(code -> {
                                         code.aload(0)
                                             .getfield(thisClass, "cbor", byteArray);
-                                        code.aload(1)
+                                        code.aload(1);
+                                        code.checkcast(thisClass);   // <-- actual cast instruction
+                                        code.astore(2);
+                                        code.aload(2)
                                             .getfield(thisClass, "cbor", byteArray);
                                         code.invokestatic(byteUtils, "unsignedCompare",
                                                            MethodTypeDesc.of(ConstantDescs.CD_int, ClassDesc.ofDescriptor(byte[].class.getName()), ClassDesc.ofDescriptor(byte[].class.getName())));
@@ -99,12 +96,16 @@ public final class JsonRecordClassGenerator {
                                     }))
                         // equals(Object o): public boolean equals(Object)
                         .withMethod("equals",
-                        		 MethodTypeDesc.of(ConstantDescs.CD_boolean, thisClass),
+                        		 MethodTypeDesc.of(ConstantDescs.CD_boolean, object),
                         		 0x0001,
                                         // return Arrays.equals(this.cbor, other.cbor);
                         		 method -> method.withCode(code -> {
                                         code.aload(0).getfield(thisClass, "cbor", byteArray);
-                                        code.aload(1).getfield(thisClass, "cbor", byteArray);
+                                        code.aload(1);
+                                        code.checkcast(thisClass);   // <-- actual cast instruction
+                                        code.astore(2);
+                                        code.aload(2)
+                                            .getfield(thisClass, "cbor", byteArray);
                                         code.invokestatic(byteUtils, "equalsBoolean",
                                                        MethodTypeDesc.of(ConstantDescs.CD_boolean, ClassDesc.ofDescriptor(byte[].class.getName()), ClassDesc.ofDescriptor(byte[].class.getName())));
                                         code.ireturn();

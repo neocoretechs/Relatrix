@@ -2,6 +2,13 @@ package com.neocoretechs.relatrix.client.json.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -50,14 +57,15 @@ public class RelatrixTypeSynthesizer {
         return classPrefix + "_" + structureHash;
     }
     /**
-     * Must call generateMorphicClassName first to build structures. this is the first step in this method.
-     * From there, the CborBuilder creates the payload
-     * @param j The JSONObject that has the payload
+     * CborBuilder creates the payload
+     * @param node The JSONObject that has the payload
      * @return The byte array that has the payload
      * @throws CborException If parsing fails
      */
-    public static byte[] generateCborPayload(JSONObject j) throws CborException {
-    	generateMorphicClassName(j,JsonRecordClassGenerator.generatedJsonClassPrefix);
+    public static byte[] generateCborPayload(JSONObject node) throws CborException {
+        structuralTokens = new ArrayList<>();
+        elements = new ArrayList<Object>();
+        extractStructuralTokens("", node, structuralTokens, elements);
     	CborBuilder cb = new CborBuilder();
     	return generateMorphicPayload(structuralTokens, elements, cb);
     }
@@ -214,10 +222,52 @@ public class RelatrixTypeSynthesizer {
     	Object o = ctor.newInstance(encodedBytes);
         System.out.println("nanos="+(System.nanoTime()-tim));
         System.out.println(c);
-  
-  
     	System.out.println(Arrays.toString(encodedBytes)+" length="+encodedBytes.length);
     	decode(encodedBytes);
+    	// try another instance
+    	String y = "{\"timestamp\":1779166000302,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
+    	JSONObject jo2 = new JSONObject(y);
+    	Object o2 = ctor.newInstance(generateCborPayload(jo2));
+    	System.out.println("equals="+o.equals(o2));
+    	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
+    	jo2 = new JSONObject(x);
+    	o2 = ctor.newInstance(generateCborPayload(jo2));
+      	System.out.println("equals="+o.equals(o2));
+    	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
+    	String z = "{\"timestamp\":1779166000300,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
+    	jo2 = new JSONObject(z);
+    	o2 = ctor.newInstance(generateCborPayload(jo2));
+      	System.out.println("equals="+o.equals(o2));
+    	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
+    	File f = new File("C:/Users/jg/workspace/relatrix/build/test.ser");
+    	ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+    	out.writeObject(o);
+    	out.flush();
+    	out.close();
+    	ObjectInputStream in = new ObjectInputStream(new FileInputStream(f)) {
+             @Override
+             protected Class<?> resolveClass(ObjectStreamClass desc)
+                     throws IOException, ClassNotFoundException {
+                 String name = desc.getName();
+                 try {
+                     return Class.forName(name, true, hcl);
+                 } catch (ClassNotFoundException e) {
+                     return super.resolveClass(desc);
+                 }
+             }
+             @Override
+             protected Class<?> resolveProxyClass(String[] interfaces)
+                     throws IOException, ClassNotFoundException {
+                 try {
+                     return Class.forName(interfaces[0], true, hcl).getClass();
+                 } catch (Exception ex) {
+                     return super.resolveProxyClass(interfaces);
+                 }
+             }
+         };
+    	Object or = in.readObject();
+    	System.out.println("equals="+o.equals(or));
+    	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)or));
     }
 }
 
