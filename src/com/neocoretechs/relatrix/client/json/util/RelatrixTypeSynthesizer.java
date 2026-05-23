@@ -239,15 +239,20 @@ public class RelatrixTypeSynthesizer {
     	o2 = ctor.newInstance(generateCborPayload(jo2));
       	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
-    	File f = new File("C:/Users/jg/workspace/relatrix/build/test.ser");
-    	ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(f));
+    	//File f = new File("C:/Users/jg/workspace/relatrix/build/test.ser");
+    	long stime = System.nanoTime();
+    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    	ObjectOutputStream out = new ObjectOutputStream(baos/*new FileOutputStream(f)*/);
     	out.writeObject(o);
     	out.flush();
     	out.close();
-    	ObjectInputStream in = new ObjectInputStream(new FileInputStream(f)) {
+    	byte[] ser = baos.toByteArray();
+    	System.out.println("serialized size="+ser.length+" time="+(System.nanoTime()-stime));
+    	stime = System.nanoTime();
+    	//ObjectInputStream in = new ObjectInputStream(new FileInputStream(f)) {
+    	ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(ser)) {
              @Override
-             protected Class<?> resolveClass(ObjectStreamClass desc)
-                     throws IOException, ClassNotFoundException {
+             protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
                  String name = desc.getName();
                  try {
                      return Class.forName(name, true, hcl);
@@ -256,8 +261,7 @@ public class RelatrixTypeSynthesizer {
                  }
              }
              @Override
-             protected Class<?> resolveProxyClass(String[] interfaces)
-                     throws IOException, ClassNotFoundException {
+             protected Class<?> resolveProxyClass(String[] interfaces) throws IOException, ClassNotFoundException {
                  try {
                      return Class.forName(interfaces[0], true, hcl).getClass();
                  } catch (Exception ex) {
@@ -266,6 +270,7 @@ public class RelatrixTypeSynthesizer {
              }
          };
     	Object or = in.readObject();
+    	System.out.println("deser time="+(System.nanoTime()-stime));
     	System.out.println("equals="+o.equals(or));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)or));
     }

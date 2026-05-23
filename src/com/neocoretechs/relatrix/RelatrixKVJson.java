@@ -63,48 +63,105 @@ public final class RelatrixKVJson {
 	 * Get a class definition and hence a BufferedMap from the JSON payload. The fields define the class via
 	 * the hashed representation. Assumes getClassName has previously been called. 
 	 * Approx 50ms timing for class build and define.
-	 * @param json
-	 * @return
+	 * @param json The JSON payload with field names
+	 * @return The BufferedMap for the generated class
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @see RelatrixTypeSynthesizer
 	 * @see JsonRecordClassGenerator
 	 */
-	public static BufferedMap getMap(String className) throws IllegalAccessException, IOException {
-		BufferedMap t = mapCache.get(className);
+	public static BufferedMap getMap(Comparable<?> json) throws IllegalAccessException, IOException {
+		JSONObject jsono = new JSONObject(json);
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
+		BufferedMap t = mapCache.get(cjson);
 		byte[] ctype = null;
 		if(t == null) {
-			ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);
-			Class<?> c = classLoader.findLoaded(className);
-			if (c == null)
-				c = classLoader.defineAClass(className,ctype,0,ctype.length);
+			Class<?> c = classLoader.findLoaded(cjson);
+			if (c == null) {
+				try {
+					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+				} catch (BytecodeNotFoundInRepositoryException e) {
+					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
+					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+				}
+				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
+			}
 			t = DatabaseManager.getMap(c);
-			mapCache.put(className, t);
+			mapCache.put(cjson, t);
 		}
 		return t;
 	}
 	
-	public static BufferedMap getMap(Comparable type) throws IllegalAccessException, IOException {
-		return getMap(type.getClass());
-	}
-	
-	public static BufferedMap getMap(Alias alias, Comparable type) throws IllegalAccessException, IOException {
-		return getMap(alias, type.getClass());
-	}
-	
-	public static BufferedMap getMap(Class type) throws IllegalAccessException, IOException {
-		BufferedMap t = mapCache.get(type.getName());
+	public static BufferedMap getMap(Alias alias, Comparable<?> json) throws IllegalAccessException, IOException {
+		JSONObject jsono = new JSONObject(json);
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
+		BufferedMap t = mapCache.get(cjson);
+		byte[] ctype = null;
 		if(t == null) {
-			t = DatabaseManager.getMap(type);
-			mapCache.put(type.getName(), t);
+			Class<?> c = classLoader.findLoaded(cjson);
+			if (c == null) {
+				try {
+					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+				} catch (BytecodeNotFoundInRepositoryException e) {
+					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
+					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+				}
+				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
+			}
+			t = DatabaseManager.getMap(alias, c);
+			mapCache.put(cjson, t);
 		}
 		return t;
 	}
-	public static BufferedMap getMap(Alias alias, Class type) throws IllegalAccessException, IOException {
-		BufferedMap t = mapCache.get(type.getName()+alias.getAlias());
+	/**
+	 * Get a class definition and hence a BufferedMap from the JSON payload. The fields define the class via
+	 * the hashed representation. Assumes getClassName has previously been called. 
+	 * Approx 50ms timing for class build and define.
+	 * @param json The JSON payload with field names
+	 * @return The BufferedMap for the generated class
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @see RelatrixTypeSynthesizer
+	 * @see JsonRecordClassGenerator
+	 */
+	public static BufferedMap getMap(Class<?> json) throws IllegalAccessException, IOException {
+		String cjson = json.getName();
+		BufferedMap t = mapCache.get(cjson);
+		byte[] ctype = null;
 		if(t == null) {
-			t = DatabaseManager.getMap(alias, type);
-			mapCache.put(type.getName()+alias.getAlias(), t);
+			Class<?> c = classLoader.findLoaded(cjson);
+			if (c == null) {
+				try {
+					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+				} catch (BytecodeNotFoundInRepositoryException e) {
+					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
+					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+				}
+				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
+			}
+			t = DatabaseManager.getMap(c);
+			mapCache.put(cjson, t);
+		}
+		return t;
+	}
+	
+	public static BufferedMap getMap(Alias alias, Class<?> json) throws IllegalAccessException, IOException {
+		String cjson = json.getName();
+		BufferedMap t = mapCache.get(cjson);
+		byte[] ctype = null;
+		if(t == null) {
+			Class<?> c = classLoader.findLoaded(cjson);
+			if (c == null) {
+				try {
+					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+				} catch (BytecodeNotFoundInRepositoryException e) {
+					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
+					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+				}
+				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
+			}
+			t = DatabaseManager.getMap(alias, c);
+			mapCache.put(cjson, t);
 		}
 		return t;
 	}
