@@ -26,6 +26,7 @@ import org.json.cbor.CborException;
 import org.json.cbor.builder.MapBuilder;
 import org.json.cbor.model.DataItem;
 
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
@@ -35,8 +36,8 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  */
 public class RelatrixTypeSynthesizer {
     private static boolean DEBUG = false;
-    static List<Object> elements;
-    static List<String> structuralTokens;
+    public static List<Object> elements;
+    public static List<String> structuralTokens;
 	/**
      * Generates a deterministic class name based on the unique structure of an ad-hoc node.
      * @param node The JSON object holding the data fields
@@ -273,6 +274,7 @@ public class RelatrixTypeSynthesizer {
     	System.out.println("deser time="+(System.nanoTime()-stime));
     	System.out.println("equals="+o.equals(or));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)or));
+    	System.out.println(RelatrixKVJson.getData((Comparable) or));
     }
 }
 

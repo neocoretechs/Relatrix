@@ -51,7 +51,7 @@ public final class JsonRecordClassGenerator {
             classBuilder.withFlags(AccessFlag.PUBLIC)
                         .withVersion(61, 0) // adjust if you target a different major version
                         .withInterfaceSymbols(serializable,comparable)
-                        .withField("cbor", byteArray, 0x0002 | 0x0010)
+                        .withField("cbor", byteArray, 0x0001 | 0x0010)
                         // serialVersionUID as private static final long; we'll initialize it in <clinit>
                         .withField("serialVersionUID", longDesc, 0x0002 | 0x0010 | 0x0008)
                         // class initializer <clinit> to set serialVersionUID
