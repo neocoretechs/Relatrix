@@ -2,17 +2,17 @@ package com.neocoretechs.relatrix.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.net.InetAddress;
+
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -23,6 +23,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
@@ -369,34 +370,39 @@ public class HandlerClassLoader extends ClassLoader {
        	ClassNameAndBytes cnab = new ClassNameAndBytes(name, retBytes);
    	 	if(DEBUG)
 	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get for "+name);
-        try {
         	if(useEmbedded) {
-        	 	BufferedMap localRepository = DatabaseManager.getMap(String.class); // class type of key
+        	 	BufferedMap localRepository = null;
+				try {
+					localRepository = DatabaseManager.getMap(String.class);
+				} catch (IllegalAccessException | IOException e) {
+					throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+				} // class type of key
         	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
-                cnab = (ClassNameAndBytes) localRepository.get(name);	
+                try {
+                	if(DEBUG)
+                		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository name="+name+" get(name)="+localRepository.get(name));
+					cnab = (ClassNameAndBytes)((KeyValue<String,ClassNameAndBytes>)localRepository.get(name)).getValue();
+				} catch (IOException e) {
+					throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+				}	
         	} else {
            	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from remote repository "+remoteRepository);
-        		cnab = (ClassNameAndBytes) remoteRepository.get(name);
+        		try {
+					cnab = (ClassNameAndBytes) remoteRepository.get(name);
+				} catch (IOException e) {
+					throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+				}
         	}
-            if( cnab != null ) {
-            	if(cnab.getBytes() == null) {
-               	 	if(DEBUG)
-            	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload from remote repository "+remoteRepository+" came back null");
-            	} else {
-               	 	if(DEBUG)
-            	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload returned "+cnab.getBytes().length+" bytes from remote repository "+remoteRepository);
-               	 	return cnab.getBytes();
-            	}
-            } else {
-            	System.out.println("Failed to return bytecodes from remote repository "+remoteRepository);
+            if(cnab == null || cnab.getBytes() == null) {
+               	 if(DEBUG)
+            	 	System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload from remote repository "+remoteRepository+" came back null");
             	throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
             }
-        } catch(Exception e) {
-                e.printStackTrace();
-        }
-        return null;
+      	 	if(DEBUG)
+    	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload returned "+cnab.getBytes().length+" bytes from remote repository "+remoteRepository);
+       	 	return cnab.getBytes();
    }
     /**
     * Put the bytecodes to BigSack repository.  This function to be

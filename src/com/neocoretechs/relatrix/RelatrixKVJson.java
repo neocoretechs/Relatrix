@@ -1,14 +1,18 @@
 package com.neocoretechs.relatrix;
 
 import java.io.IOException;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
+import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +37,8 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
-* The compareTo and fullCompareTo provide the comparison methods to drive the processes.
+* The compareTo in the dynamically generated JSOn wrapper classes provide the comparison methods to drive the processes
+* via the RocksDB AbstractComparator in RockSack, then in RocksDB.<p>
 * The retrieval operators allow us to form the partially ordered result sets that are returned.<br>
 * The Json version differs in that classes are generated dynamically based on the fields in the JSON payload.
 * These classes are named after the hash of the fields and a dynamically generated wrapper class stored the CBOR bytes.
@@ -41,9 +46,10 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 * @author Jonathan Groff (C) NeoCoreTechs 2026
 */
 public final class RelatrixKVJson {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
+	private static String LOCAL_BYTECODE_REPOSITORY = "D:/etc/Relatrix/db/jsonbytecode";
 	private static ConcurrentHashMap<String, BufferedMap> mapCache = new ConcurrentHashMap<String, BufferedMap>();
 	// Multithreaded double check Singleton setups:
 	// 1.) privatized constructor; no other class can call
@@ -57,6 +63,11 @@ public final class RelatrixKVJson {
 			if(instance == null) {
 				instance = new RelatrixKVJson();
 				classLoader = new HandlerClassLoader();
+				try {
+					HandlerClassLoader.connectToLocalRepository(LOCAL_BYTECODE_REPOSITORY);
+				} catch (IllegalAccessException | IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return instance;
@@ -106,14 +117,44 @@ public final class RelatrixKVJson {
 	
 	public static String getData(Comparable c) {
 		Field f;
+		if(DEBUG)
+			System.out.println("RelatrixKVJson.getData for:"+c+" class:"+c.getClass());
 		try {
 			f = c.getClass().getField("cbor");
 		} catch (NoSuchFieldException e) {
+			if(DEBUG)
+				e.printStackTrace();
 			return null;
 		}
 		byte[] payload = null;
 		try {
 			payload = (byte[]) f.get(c);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			if(DEBUG)
+				e.printStackTrace();
+			return null;
+		}
+		List<DataItem> d = null;
+		try {
+			d = CborDecoder.decode(payload);
+		} catch (CborException e) {
+			if(DEBUG)
+				e.printStackTrace();
+			return null;
+		}
+		return d.get(0).toString();
+	}
+	
+	public static Map.Entry<String,Object> getData(Map.Entry<Comparable,Object> c) {
+		Field f;
+		try {
+			f = c.getKey().getClass().getField("cbor");
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+		byte[] payload = null;
+		try {
+			payload = (byte[]) f.get(c.getKey());
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			return null;
 		}
@@ -123,7 +164,8 @@ public final class RelatrixKVJson {
 		} catch (CborException e) {
 			return null;
 		}
-		return d.get(0).toString();
+		String kload = d.get(0).toString();
+		return new AbstractMap.SimpleEntry<String,Object>(kload,c.getValue());
 	}
 	
 	public static final class TransformingIterator<T,R> implements Iterator<R> {
@@ -153,7 +195,7 @@ public final class RelatrixKVJson {
 	 * @see JsonRecordClassGenerator
 	 */
 	public static BufferedMap getMap(Comparable<?> json) throws IllegalAccessException, IOException {
-		JSONObject jsono = new JSONObject(json);
+		JSONObject jsono = new JSONObject(String.valueOf(json));
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		BufferedMap t = mapCache.get(cjson);
 		byte[] ctype = null;
@@ -175,7 +217,7 @@ public final class RelatrixKVJson {
 	}
 	
 	public static BufferedMap getMap(Alias alias, Comparable<?> json) throws IllegalAccessException, IOException {
-		JSONObject jsono = new JSONObject(json);
+		JSONObject jsono = new JSONObject(String.valueOf(json));
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		BufferedMap t = mapCache.get(cjson);
 		byte[] ctype = null;
@@ -209,6 +251,8 @@ public final class RelatrixKVJson {
 	public static BufferedMap getMap(Class<?> json) throws IllegalAccessException, IOException {
 		String cjson = json.getName();
 		BufferedMap t = mapCache.get(cjson);
+		if(DEBUG)
+			System.out.println("RelatrixKVJson.getMap for "+cjson+" got BufferedMap "+t);
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c = classLoader.findLoaded(cjson);
@@ -222,6 +266,8 @@ public final class RelatrixKVJson {
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
 			t = DatabaseManager.getMap(c);
+			if(DEBUG)
+				System.out.println("RelatrixKVJson.getMap for "+cjson+" created BufferedMap "+t);
 			mapCache.put(cjson, t);
 		}
 		return t;
@@ -320,7 +366,7 @@ public final class RelatrixKVJson {
 	public static void store(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		BufferedMap ttm = getMap(key);
 		if( DEBUG  )
-			System.out.println("RelatrixKV.store storing key:"+key+" value:"+value+" in map:"+ttm);
+			System.out.println("RelatrixKVJson.store storing key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
 	}
 
@@ -336,7 +382,7 @@ public final class RelatrixKVJson {
 	public static void store(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		BufferedMap ttm = getMap(alias, key);
 		if( DEBUG  )
-			System.out.println("RelatrixKV.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
+			System.out.println("RelatrixKVJson.store storing alias:"+alias+" key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
 	}
 
@@ -379,9 +425,9 @@ public final class RelatrixKVJson {
 	@ServerMethod
 	public static Object remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(c);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixKV.remove prepping to remove:"+c);
+			System.out.println("RelatrixKVJson.remove prepping to remove:"+c);
+		BufferedMap ttm = getMap(c);
 		return ttm.remove(c);
 	}
 	/**
@@ -398,7 +444,7 @@ public final class RelatrixKVJson {
 	{
 		BufferedMap ttm = getMap(alias, c);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("RelatrixKV.remove prepping to remove:"+c);
+			System.out.println("RelatrixKVJson.remove prepping to remove:"+c);
 		return ttm.remove(c);
 	}
 
@@ -845,7 +891,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> entrySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return new TransformingIterator<>(ttm.entrySet(),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return new TransformingIterator<>(ttm.entrySet(),v -> RelatrixKVJson.getData((Map.Entry<Comparable,Object>) v));
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -858,7 +904,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> entrySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return ttm.entrySetStream().map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.entrySetStream().map(e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -873,7 +919,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> entrySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return ttm.entrySetStream().map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.entrySetStream().map(e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
 	}
 	/**
 	 * Return the keyset for the given class
