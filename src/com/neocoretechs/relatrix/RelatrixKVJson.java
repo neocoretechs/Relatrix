@@ -47,7 +47,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 * @author Jonathan Groff (C) NeoCoreTechs 2026
 */
 public final class RelatrixKVJson {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	private static String LOCAL_BYTECODE_REPOSITORY = "D:/etc/Relatrix/db/jsonbytecode";
