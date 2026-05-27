@@ -140,7 +140,7 @@ public final class JsonRecordClassGenerator {
     	JSONObject j = new JSONObject(x);
     	String className = RelatrixTypeSynthesizer.generateMorphicClassName(j,JsonRecordClassGenerator.generatedJsonClassPrefix);
     	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);
-		Class<?> c = hcl.findLoaded(className);
+		Class<?> c = Class.forName(className, false, hcl);
 		if (c == null)
 			c = hcl.defineAClass(className, b);
     	System.out.println("nanos="+(System.nanoTime()-tim));

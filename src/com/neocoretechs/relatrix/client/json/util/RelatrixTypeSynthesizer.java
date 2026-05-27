@@ -213,10 +213,13 @@ public class RelatrixTypeSynthesizer {
     	HandlerClassLoader hcl = new HandlerClassLoader();
     	long tim = System.nanoTime();
     	String className = generateMorphicClassName(jo,"Relatrix_");
-       	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);
-    	Class<?> c = hcl.findLoaded(className);
-    	if (c == null)
+       	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   	
+      	Class<?> c;
+      	try {
+      		c = Class.forName(className, false, hcl);
+      	} catch(ClassNotFoundException cnf) {
     		c = hcl.defineAClass(className, b);
+      	}
       	CborBuilder cb = new CborBuilder();
     	byte[] encodedBytes = generateMorphicPayload(structuralTokens, elements, cb);
     	Constructor ctor = c.getConstructor(byte[].class);

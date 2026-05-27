@@ -3,22 +3,27 @@ package com.neocoretechs.relatrix;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
+
 import org.rocksdb.RocksDBException;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.rocksack.session.BufferedMap;
+
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
+
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
+
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -35,6 +40,7 @@ public final class RelatrixKVJsonTransaction {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
+	private static String LOCAL_BYTECODE_REPOSITORY = "D:/etc/Relatrix/db/jsonbytecode";
 	private static ConcurrentHashMap<String, TransactionalMap> mapCache = new ConcurrentHashMap<String, TransactionalMap>();
 	private static HandlerClassLoader classLoader = null;
 	public static boolean optimisticConcurrency = true;
@@ -51,6 +57,13 @@ public final class RelatrixKVJsonTransaction {
 			if(instance == null) {
 				instance = new RelatrixKVJsonTransaction();
 				classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(classLoader);
+				SerializedComparatorFactory.setClassLoader(classLoader);
+				try {
+					HandlerClassLoader.connectToLocalRepository(LOCAL_BYTECODE_REPOSITORY);
+				} catch (IllegalAccessException | IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return instance;
@@ -62,8 +75,10 @@ public final class RelatrixKVJsonTransaction {
 		TransactionalMap t = mapCache.get(cjson);
 		byte[] ctype = null;
 		if(t == null) {
-			Class<?> c = classLoader.findLoaded(cjson);
-			if (c == null) {
+			Class<?> c;
+			try {
+				c = Class.forName(cjson);
+			} catch (ClassNotFoundException cnf) {
 				try {
 					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
@@ -89,8 +104,10 @@ public final class RelatrixKVJsonTransaction {
 		TransactionalMap t = mapCache.get(cjson);
 		byte[] ctype = null;
 		if(t == null) {
-			Class<?> c = classLoader.findLoaded(cjson);
-			if (c == null) {
+			Class<?> c;
+			try {
+				c = Class.forName(cjson, false, classLoader);
+			} catch (ClassNotFoundException cnf) {
 				try {
 					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
@@ -114,8 +131,10 @@ public final class RelatrixKVJsonTransaction {
 		TransactionalMap t = mapCache.get(cjson);
 		byte[] ctype = null;
 		if(t == null) {
-			Class<?> c = classLoader.findLoaded(cjson);
-			if (c == null) {
+			Class<?> c;
+			try {
+				c = Class.forName(cjson, false, classLoader);
+			} catch (ClassNotFoundException cnf) {
 				try {
 					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {
@@ -140,8 +159,10 @@ public final class RelatrixKVJsonTransaction {
 		TransactionalMap t = mapCache.get(cjson);
 		byte[] ctype = null;
 		if(t == null) {
-			Class<?> c = classLoader.findLoaded(cjson);
-			if (c == null) {
+			Class<?> c;
+			try {
+				c = Class.forName(cjson, false, classLoader);
+			} catch (ClassNotFoundException cnf) {
 				try {
 					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
 				} catch (BytecodeNotFoundInRepositoryException e) {

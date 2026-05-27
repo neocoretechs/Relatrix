@@ -39,7 +39,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClient;
 * @author Jonathan Groff (C) NeoCoreTechs 1999, 2000, 2020
 */
 public class HandlerClassLoader extends ClassLoader {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGSETREPOSITORY = true;
     private static ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
     private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
@@ -283,10 +283,6 @@ public class HandlerClassLoader extends ClassLoader {
     	defineClasses(new JarFile(jarFile));
     }
     
-    public synchronized Class findLoaded(String className) {
-    	return findLoadedClass(className);
-    }
-    
     public synchronized void defineClasses(JarFile jarFile) throws IOException {
         Enumeration<JarEntry> e = jarFile.entries();
         byte[] buffer = new byte[4096];
@@ -380,9 +376,12 @@ public class HandlerClassLoader extends ClassLoader {
         	 	if(DEBUG)
         	 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
                 try {
+                	Object o = localRepository.get(name);
+                	if(o == null)
+                		throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
                 	if(DEBUG)
                 		System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository name="+name+" get(name)="+localRepository.get(name));
-					cnab = (ClassNameAndBytes)((KeyValue<String,ClassNameAndBytes>)localRepository.get(name)).getValue();
+					cnab = (ClassNameAndBytes)(((KeyValue<ClassNameAndBytes,String>)o).getValue());
 				} catch (IOException e) {
 					throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
 				}	
