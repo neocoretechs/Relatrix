@@ -129,7 +129,12 @@ public final class RelatrixKVJson {
 				throw new IllegalAccessException(e.getMessage());
 		}
 	}
-	
+	/**
+	 * Transform a morphic class into a String class instance by extracting the 'cbor' field
+	 * with the binary payload, performing the decode, and rendering the String instance
+	 * @param c The morphic class
+	 * @return The String representation
+	 */
 	public static String getData(Comparable c) {
 		Field f;
 		if(DEBUG)
@@ -159,7 +164,20 @@ public final class RelatrixKVJson {
 		}
 		return d.get(0).toString();
 	}
-	
+	/**
+	 * Transform a morphic class instance into a JSONObject by calling getData on the
+	 * morphic class to transform it into a String, then creating a JSONObject from that String.
+	 * @param c The original Class
+	 * @return The JSONObject from getData
+	 */
+	public static JSONObject getJsonData(Comparable c) {
+		return new JSONObject(getData(c));
+	}
+	/**
+	 * Transform a morphic keyed map into a String keyed map
+	 * @param c The original Map
+	 * @return The transformed Map
+	 */
 	public static Map.Entry<String,Object> getData(Map.Entry<Comparable,Object> c) {
 		Field f;
 		try {
@@ -182,7 +200,39 @@ public final class RelatrixKVJson {
 		String kload = d.get(0).toString();
 		return new AbstractMap.SimpleEntry<String,Object>(kload,c.getValue());
 	}
-	
+	/**
+	 * Transform a morphic keyed map into a JSONObject keyed map
+	 * @param c The original Map
+	 * @return The transformed Map
+	 */
+	public static Map.Entry<JSONObject,Object> getJsonData(Map.Entry<Comparable,Object> c) {
+		Field f;
+		try {
+			f = c.getKey().getClass().getField("cbor");
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+		byte[] payload = null;
+		try {
+			payload = (byte[]) f.get(c.getKey());
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return null;
+		}
+		List<DataItem> d = null;
+		try {
+			d = CborDecoder.decode(payload);
+		} catch (CborException e) {
+			return null;
+		}
+		String kload = d.get(0).toString();
+		JSONObject jo = new JSONObject(kload);
+		return new AbstractMap.SimpleEntry<JSONObject,Object>(jo,c.getValue());
+	}
+	/**
+	 * Utility class to translate a morphic class iterator into a another type of iterator
+	 * @param <T>  The morphic iterator type
+	 * @param <R> The function return type that performs the conversion, for instance, the getData methods
+	 */
 	public static final class TransformingIterator<T,R> implements Iterator<R> {
 	    private final Iterator<? extends T> src;
 	    private final Function<? super T, ? extends R> fn;
@@ -192,7 +242,9 @@ public final class RelatrixKVJson {
 	        if(DEBUG)
 	        	System.out.println("RelatrixKVJson.TransformingIterator ctor iterator:"+this.src);
 	    }
-	    @Override public boolean hasNext(){ return src.hasNext(); }
+	    @Override public boolean hasNext(){ 
+	    	return src.hasNext(); 
+	    }
 	    @Override public R next(){
 	        T t = src.next();
 	        if(DEBUG)
@@ -201,9 +253,77 @@ public final class RelatrixKVJson {
 	    }
 	    @Override public void remove(){ src.remove(); }
 	}
-
-
-	
+	/**
+	 * Transform a morphic class iterator to a String iterator using TransformingIterator
+	 * @param it The original Iterator
+	 * @return The transformed Iterator
+	 */
+	public static Iterator<?> getStringIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,v -> RelatrixKVJson.getData((Comparable<?>) v));
+	}
+	/**
+	 * Transform a morphic class iterator to a JSONObject iterator using TransformingIterator
+	 * @param it The original iterator
+	 * @return The transformed Iterator
+	 */
+	public static Iterator<?> getJsonIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,v -> RelatrixKVJson.getJsonData((Comparable<?>) v));
+	}
+	/**
+	 * Transform a morphic class stream into a String stream using map and getData
+	 * @param s The original Stream
+	 * @return The transformed Stream
+	 */
+	public static Stream<?> getStringStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJson.getData((Comparable<?>)e));
+	}
+	/**
+	 * Transform a morphic class stream into a Json stream using map and getData
+	 * @param s The original Stream
+	 * @return The transformed Stream
+	 */
+	public static Stream<?> getJsonStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJson.getJsonData((Comparable<?>)e));
+	}	
+	/**
+	 * Transform a morphic class iterator to a String key map iterator using TransformingIterator
+	 * @param it The original iterator
+	 * @return The transformed iterator
+	 */
+	public static Iterator<?> getStringMapIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Transform a morphic class iterator to a JSONObject iterator using TransformingIterator
+	 * @param it The original iterator
+	 * @return The transformed iterator
+	 */
+	public static Iterator<?> getJsonMapIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,e->RelatrixKVJson.getJsonData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Transform a morphic class stream into a String stream using map and getData
+	 * @param s
+	 * @return
+	 */
+	public static Stream<?> getStringMapStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Transform a morphic class stream into a Json stream using map and getData
+	 * @param s The original morphic class key map Stream
+	 * @return The transformed Stream of JSONObject keyed maps 
+	 */
+	public static Stream<?> getJsonMapStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJson.getJsonData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Obtain the BufferedMap for the morphic class represented by the JSONObject passed.
+	 * @param jsono the JSONObject containing the fields that define a morphic class
+	 * @return The BufferedMap that facilitates storage/retrieval of morphic class instances
+	 * @throws IllegalAccessException If the class cannot be constructed
+	 * @throws IOException If the underlying storage subsystem fails
+	 */
 	private static BufferedMap getJsonClass(JSONObject jsono) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		BufferedMap t = mapCache.get(cjson);
@@ -226,7 +346,14 @@ public final class RelatrixKVJson {
 		}
 		return t;
 	}
-	
+	/**
+	 * Obtain the BufferedMap for the morphic class represented by the JSONObject passed.
+	 * @param alias The alias for the database target
+	 * @param jsono the JSONObject containing the fields that define a morphic class
+	 * @return The BufferedMap that facilitates storage/retrieval of morphic class instances
+	 * @throws IllegalAccessException If the class cannot be constructed
+	 * @throws IOException If the underlying storage subsystem fails
+	 */
 	private static BufferedMap getJsonClass(Alias alias, JSONObject jsono) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		BufferedMap t = mapCache.get(cjson);
@@ -249,7 +376,6 @@ public final class RelatrixKVJson {
 		}
 		return t;
 	}
-	
 	
 	/**
 	 * Get a class definition and hence a BufferedMap from the JSON payload. The fields define the class via
@@ -484,7 +610,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> findTailMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return new TransformingIterator<>(ttm.tailMap(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.tailMap(darg);
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -502,7 +628,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> findTailMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return new TransformingIterator<>(ttm.tailMap(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.tailMap(darg);
 	}
 
 	/**
@@ -519,7 +645,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.tailMapStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.tailMapStream(darg);//.map(e->RelatrixKVJson.getData((Comparable<?>)e));
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -536,9 +662,8 @@ public final class RelatrixKVJson {
 	public static Stream<?> findTailMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.tailMapStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.tailMapStream(darg);
 	}
-
 	/**
 	 * Retrieve from the targeted Key/Value relationship from given key.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
@@ -553,7 +678,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> findTailMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return new TransformingIterator<>(ttm.tailMapKV(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.tailMapKV(darg);
 	}
 	/**
 	 * Retrieve from the targeted Key/Value relationship from given key.
@@ -571,9 +696,8 @@ public final class RelatrixKVJson {
 	public static Iterator<?> findTailMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return new TransformingIterator<>(ttm.tailMapKV(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.tailMapKV(darg);
 	}
-
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
 	 * @param darg Comparable for key
@@ -587,7 +711,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.tailMapKVStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.tailMapKVStream(darg);
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
@@ -604,7 +728,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findTailMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.tailMapKVStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.tailMapKVStream(darg);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
@@ -619,7 +743,7 @@ public final class RelatrixKVJson {
 	{
 		BufferedMap ttm = getMap(darg.getClass());
 		// check for at least one object reference in our headset factory
-		return new TransformingIterator<>(ttm.headMap(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.headMap(darg);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
@@ -636,9 +760,8 @@ public final class RelatrixKVJson {
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
 		// check for at least one object reference in our headset factory
-		return new TransformingIterator<>(ttm.headMap(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.headMap(darg);
 	}
-
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
 	 * @param darg Comparable key
@@ -651,7 +774,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findHeadMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.headMapStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.headMapStream(darg);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
@@ -667,9 +790,8 @@ public final class RelatrixKVJson {
 	public static Stream<?> findHeadMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.headMapStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.headMapStream(darg);
 	}
-
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
 	 * @param darg The comparable key
@@ -683,7 +805,7 @@ public final class RelatrixKVJson {
 	{
 		BufferedMap ttm = getMap(darg.getClass());
 		// check for at least one object reference in our headset factory
-		return new TransformingIterator<>(ttm.headMapKV(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.headMapKV(darg);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -700,9 +822,8 @@ public final class RelatrixKVJson {
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
 		// check for at least one object reference in our headset factory
-		return new TransformingIterator<>(ttm.headMapKV(darg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.headMapKV(darg);
 	}
-
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
 	 * @param darg Comparable key
@@ -715,7 +836,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findHeadMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.headMapKVStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.headMapKVStream(darg);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
@@ -732,9 +853,8 @@ public final class RelatrixKVJson {
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
 		// check for at least one object reference in our headset factory
-		return ttm.headMapKVStream(darg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.headMapKVStream(darg);
 	}
-
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
 	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
@@ -750,7 +870,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> findSubMap(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return new TransformingIterator<>(ttm.subMap(darg,marg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.subMap(darg,marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
@@ -787,7 +907,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findSubMapStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.subMapStream(darg, marg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.subMapStream(darg, marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first.
@@ -806,7 +926,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> findSubMapStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.subMapStream(darg, marg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.subMapStream(darg, marg);
 	}
 
 	/**
@@ -825,7 +945,7 @@ public final class RelatrixKVJson {
 	{
 		// check for at least one object reference
 		BufferedMap ttm = getMap(darg.getClass());
-		return new TransformingIterator<>(ttm.subMapKV(darg,marg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.subMapKV(darg,marg);
 	}
 	/**
 	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
@@ -845,7 +965,7 @@ public final class RelatrixKVJson {
 	{
 		// check for at least one object reference
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return new TransformingIterator<>(ttm.subMapKV(darg,marg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.subMapKV(darg,marg);
 	}
 
 	/**
@@ -864,7 +984,7 @@ public final class RelatrixKVJson {
 	{
 		// check for at least one object reference
 		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.subMapKVStream(darg, marg).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.subMapKVStream(darg, marg);
 	}
 	/**
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
@@ -884,9 +1004,8 @@ public final class RelatrixKVJson {
 	{
 		// check for at least one object reference
 		BufferedMap ttm = getMap(alias, darg.getClass());
-		return (ttm.subMapKVStream(darg, marg)).map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.subMapKVStream(darg, marg);
 	}
-
 	/**
 	 * Return the entry set for the given class type
 	 * @param clazz the class to retrieve
@@ -898,7 +1017,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> entrySet(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return new TransformingIterator<>(ttm.entrySet(),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.entrySet();//new TransformingIterator<>(ttm.entrySet(),v -> RelatrixKVJson.getData((Comparable<?>) v));
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -913,7 +1032,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> entrySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return new TransformingIterator<>(ttm.entrySet(),v -> RelatrixKVJson.getData((Map.Entry<Comparable,Object>) v));
+		return ttm.entrySet();
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -926,7 +1045,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> entrySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return ttm.entrySetStream().map(e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
+		return ttm.entrySetStream();
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -941,7 +1060,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> entrySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return ttm.entrySetStream().map(e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
+		return ttm.entrySetStream();
 	}
 	/**
 	 * Return the keyset for the given class
@@ -969,7 +1088,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> keySet(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return new TransformingIterator<>(ttm.keySet(),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return ttm.keySet();
 	}
 	/**
 	 * Return the keyset for the given class
@@ -982,7 +1101,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> keySetStream(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return ttm.keySetStream().map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.keySetStream();
 	}
 	/**
 	 * Return the keyset for the given class
@@ -997,7 +1116,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> keySetStream(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return ttm.keySetStream().map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return ttm.keySetStream();
 	}
 	/**
 	 * return lowest valued key.
