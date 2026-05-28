@@ -50,7 +50,6 @@ public final class RelatrixKVJson {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
-	private static String LOCAL_BYTECODE_REPOSITORY = "D:/etc/Relatrix/db/jsonbytecode";
 	private static ConcurrentHashMap<String, BufferedMap> mapCache = new ConcurrentHashMap<String, BufferedMap>();
 	// Multithreaded double check Singleton setups:
 	// 1.) privatized constructor; no other class can call
@@ -67,9 +66,9 @@ public final class RelatrixKVJson {
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
-					HandlerClassLoader.connectToLocalRepository(LOCAL_BYTECODE_REPOSITORY);
+					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
 				} catch (IllegalAccessException | IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		}
