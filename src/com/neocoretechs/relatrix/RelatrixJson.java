@@ -1,9 +1,10 @@
 package com.neocoretechs.relatrix;
 
 import java.io.IOException;
+
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -175,12 +176,12 @@ public final class RelatrixJson {
 	 */
 	public static void setTablespace(String path) throws IOException {
 		getInstance();
-		RelatrixKV.setTablespace(path);
+		RelatrixKVJson.setTablespace(path);
 	}
 	
 	@ServerMethod
 	public static String getTableSpace() {
-		return RelatrixKV.getTableSpace();
+		return RelatrixKVJson.getTableSpace();
 	}
 
 	/**
@@ -193,7 +194,7 @@ public final class RelatrixJson {
 	public static void setRelativeAlias(Alias alias) throws IOException {
 		if(alias.getAlias().contains("/") || alias.getAlias().contains("\\") || alias.getAlias().contains("..") || alias.getAlias().contains("~"))
 			throw new IOException("No path allowed");
-		RelatrixKV.setAlias(alias, RelatrixKV.getTableSpace()+alias.getAlias());
+		RelatrixKVJson.setAlias(alias, RelatrixKVJson.getTableSpace()+alias.getAlias());
 	}
 	
 	/**
@@ -203,7 +204,7 @@ public final class RelatrixJson {
 	 * @throws IOException
 	 */
 	public static void setAlias(Alias alias, String path) throws IOException {
-		RelatrixKV.setAlias(alias, path);
+		RelatrixKVJson.setAlias(alias, path);
 	}
 	/**
 	 * Get the tablespace path for this alias. Will return null if alias does not exist
@@ -212,7 +213,7 @@ public final class RelatrixJson {
 	 */
 	@ServerMethod
 	public static String getAlias(Alias alias) {
-		return RelatrixKV.getAlias(alias);
+		return RelatrixKVJson.getAlias(alias);
 	}
 	
 	/**
@@ -221,7 +222,7 @@ public final class RelatrixJson {
 	 */
 	@ServerMethod
 	public static String[][] getAliases() {
-		return RelatrixKV.getAliases();
+		return RelatrixKVJson.getAliases();
 	}
 	/**
 	 * Verify that we are specifying a directory, then set an alias as top level file structure and database name
@@ -230,7 +231,7 @@ public final class RelatrixJson {
 	 */
 	@ServerMethod
 	public static void removeAlias(Alias alias) throws NoSuchElementException {
-		RelatrixKV.removeAlias(alias);
+		RelatrixKVJson.removeAlias(alias);
 	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
@@ -514,7 +515,7 @@ public final class RelatrixJson {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKV.store(pk, identity.getIdentity());
+							RelatrixKVJson.storekv(pk, identity.getIdentity());
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored primary:"+pk);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -531,7 +532,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapDomainRange(identity);
-							RelatrixKV.store(dmr, identity.getIdentity());	
+							RelatrixKVJson.storekv(dmr, identity.getIdentity());	
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -548,7 +549,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new DomainRangeMap(identity);
-							RelatrixKV.store(dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -565,7 +566,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapRangeDomain(identity);
-							RelatrixKV.store(dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -582,7 +583,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeDomainMap(identity);
-							RelatrixKV.store(dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -599,7 +600,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeMapDomain(identity);
-							RelatrixKV.store(dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -628,7 +629,7 @@ public final class RelatrixJson {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKV.store(alias, pk, identity.getIdentity());
+							RelatrixKVJson.storekv(alias, pk, identity.getIdentity());
 						if( DEBUG  )
 							System.out.println("RelatrixTransaction.store stored primary:"+pk);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
@@ -645,7 +646,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapDomainRange(identity);
-							RelatrixKV.store(alias, dmr, identity.getIdentity());	
+							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());	
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -662,7 +663,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new DomainRangeMap(identity);
-							RelatrixKV.store(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -679,7 +680,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapRangeDomain(identity);
-							RelatrixKV.store(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -696,7 +697,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeDomainMap(identity);
-							RelatrixKV.store(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -713,7 +714,7 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeMapDomain(identity);
-							RelatrixKV.store(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
 								System.out.println("Relatrix.store stored :"+dmr);
 						}
@@ -733,19 +734,19 @@ public final class RelatrixJson {
 	}
 	@ServerMethod
 	public static void storekv(Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException {
-		RelatrixKV.store(key, value);
+		RelatrixKVJson.store(key, value);
 	}
 	@ServerMethod
 	public static void storekv(Alias alias, Comparable key, Object value) throws IOException, IllegalAccessException, DuplicateKeyException, NoSuchElementException {
-		RelatrixKV.store(alias, key, value);
+		RelatrixKVJson.store(alias, key, value);
 	}
 	@ServerMethod
 	public static Object removekv(Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException {
-		return RelatrixKV.remove(c);
+		return RelatrixKVJson.remove(c);
 	}
 	@ServerMethod
 	public static Object removekv(Alias alias, Comparable<?> c) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, NoSuchElementException {
-		return RelatrixKV.remove(alias,c);
+		return RelatrixKVJson.remove(alias,c);
 	}
 	/**
 	 * Delete all relationships that this object participates in
@@ -760,14 +761,14 @@ public final class RelatrixJson {
 	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);// Remove main entry, which is possibly Relation
-		DBKey primaryKey = (DBKey) RelatrixKV.remove(c);
+		DBKey primaryKey = (DBKey) RelatrixKVJson.remove(c);
 		// remove DBKey table
-		RelatrixKV.remove(primaryKey);
+		RelatrixKVJson.remove(primaryKey);
 		// Remove primary key if AbstractRelation
 		if(c instanceof AbstractRelation) {
 			Relation dmr = (Relation)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
-			RelatrixKV.remove(pks);
+			RelatrixKVJson.remove(pks);
 		}
 		List<DBKey> removed = new ArrayList<DBKey>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		try {
@@ -803,14 +804,14 @@ public final class RelatrixJson {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		// Remove main entry, which is possibly Relation
-		DBKey primaryKey = (DBKey) RelatrixKV.remove(alias, c);
+		DBKey primaryKey = (DBKey) RelatrixKVJson.remove(alias, c);
 		// remove DBKey table
-		RelatrixKV.remove(alias, primaryKey);
+		RelatrixKVJson.remove(alias, primaryKey);
 		// Remove primary key if AbstractRelation
 		if(c instanceof AbstractRelation) {
 			Relation dmr = (Relation)c;
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
-			RelatrixKV.remove(alias, pks);
+			RelatrixKVJson.remove(alias, pks);
 		}
 		List<DBKey> removed = new ArrayList<DBKey>(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		try {
@@ -938,10 +939,10 @@ public final class RelatrixJson {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
-			Relation dmr = (Relation) RelatrixKV.remove(dbk); // dbkey table
-			RelatrixKV.remove(dmr); // instance
+			Relation dmr = (Relation) RelatrixKVJson.remove(dbk); // dbkey table
+			RelatrixKVJson.remove(dmr); // instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey());
-			RelatrixKV.remove(pks);
+			RelatrixKVJson.remove(pks);
 			// indexes
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
@@ -953,7 +954,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(drm);
+						RelatrixKVJson.remove(drm);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -963,7 +964,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(mdr);
+						RelatrixKVJson.remove(mdr);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -973,7 +974,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(mrd);
+						RelatrixKVJson.remove(mrd);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -983,7 +984,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(rdm);
+						RelatrixKVJson.remove(rdm);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -993,7 +994,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(rmd);
+						RelatrixKVJson.remove(rmd);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1017,10 +1018,10 @@ public final class RelatrixJson {
 		for(DBKey dbk : removed) {
 			if( DEBUG || DEBUGREMOVE)
 				System.out.println("Relatrix.remove iterated perm 1 "+dbk);
-			Relation dmr = (Relation) RelatrixKV.remove(alias, dbk); // dbkey
-			RelatrixKV.remove(alias, dmr); //instance
+			Relation dmr = (Relation) RelatrixKVJson.remove(alias, dbk); // dbkey
+			RelatrixKVJson.remove(alias, dmr); //instance
 			PrimaryKeySet pks = new PrimaryKeySet(dmr.getDomainKey(),dmr.getMapKey(), alias);
-			RelatrixKV.remove(alias, pks);
+			RelatrixKVJson.remove(alias, pks);
 			dmr.setAlias(alias);
 			DomainRangeMap drm = new DomainRangeMap(dmr);
 			MapDomainRange mdr = new MapDomainRange(dmr);
@@ -1032,7 +1033,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(alias, drm);
+						RelatrixKVJson.remove(alias, drm);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1042,7 +1043,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(alias, mdr);
+						RelatrixKVJson.remove(alias, mdr);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1052,7 +1053,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(alias, mrd);
+						RelatrixKVJson.remove(alias, mrd);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1062,7 +1063,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(alias, rdm);
+						RelatrixKVJson.remove(alias, rdm);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1072,7 +1073,7 @@ public final class RelatrixJson {
 				@Override
 				public void run() {    
 					try {
-						RelatrixKV.remove(alias, rmd);
+						RelatrixKVJson.remove(alias, rmd);
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -2900,8 +2901,8 @@ public final class RelatrixJson {
 	public static Object first() throws IOException
 	{
 		try {
-			Relation dmr = (Relation) RelatrixKV.firstKey(Relation.class);
-			DBKey dbkey = (DBKey) RelatrixKV.firstValue(Relation.class);
+			Relation dmr = (Relation) RelatrixKVJson.firstKey(Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVJson.firstValue(Relation.class);
 			dmr.setIdentity(dbkey);
 			return dmr;
 		} catch (IllegalAccessException e) {
@@ -2912,8 +2913,8 @@ public final class RelatrixJson {
 	public static Object first(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			Relation dmr = (Relation) RelatrixKV.firstKey(alias,Relation.class);
-			DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,Relation.class);
+			Relation dmr = (Relation) RelatrixKVJson.firstKey(alias,Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVJson.firstValue(alias,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setAlias(alias);
 			return dmr;
@@ -2932,9 +2933,9 @@ public final class RelatrixJson {
 	{
 		Object o = null;
 		try {
-			o = RelatrixKV.firstKey(clazz);
+			o = RelatrixKVJson.firstKey(clazz);
 			if(o instanceof AbstractRelation) {
-				DBKey dbkey = (DBKey) RelatrixKV.firstValue(clazz);
+				DBKey dbkey = (DBKey) RelatrixKVJson.firstValue(clazz);
 				((AbstractRelation)o).setIdentity(dbkey);
 			}
 		} catch (IllegalAccessException e) {
@@ -2947,9 +2948,9 @@ public final class RelatrixJson {
 	{
 		Object o = null;
 		try {
-			o = RelatrixKV.firstKey(alias,clazz);
+			o = RelatrixKVJson.firstKey(alias,clazz);
 			if(o instanceof AbstractRelation) {
-				DBKey dbkey = (DBKey) RelatrixKV.firstValue(alias,clazz);
+				DBKey dbkey = (DBKey) RelatrixKVJson.firstValue(alias,clazz);
 				((AbstractRelation)o).setIdentity(dbkey);
 				((AbstractRelation)o).setAlias(alias);
 			}
@@ -3001,7 +3002,7 @@ public final class RelatrixJson {
 	public static Object firstValue() throws IOException
 	{
 		try {
-			return RelatrixKV.firstValue(Relation.class);
+			return RelatrixKVJson.firstValue(Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3017,7 +3018,7 @@ public final class RelatrixJson {
 	public static Object firstValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.firstValue(alias, Relation.class);
+			return RelatrixKVJson.firstValue(alias, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3033,8 +3034,8 @@ public final class RelatrixJson {
 	public static Object last() throws IOException
 	{
 		try {
-			Relation dmr = (Relation) RelatrixKV.lastKey(Relation.class);
-			DBKey dbkey = (DBKey) RelatrixKV.lastValue(Relation.class);
+			Relation dmr = (Relation) RelatrixKVJson.lastKey(Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVJson.lastValue(Relation.class);
 			dmr.setIdentity(dbkey);
 			return dmr;
 		} catch (IllegalAccessException e) {
@@ -3052,8 +3053,8 @@ public final class RelatrixJson {
 	public static Object last(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			Relation dmr = (Relation) RelatrixKV.lastKey(alias,Relation.class);
-			DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,Relation.class);
+			Relation dmr = (Relation) RelatrixKVJson.lastKey(alias,Relation.class);
+			DBKey dbkey = (DBKey) RelatrixKVJson.lastValue(alias,Relation.class);
 			dmr.setIdentity(dbkey);
 			dmr.setAlias(alias);
 			return dmr;
@@ -3073,9 +3074,9 @@ public final class RelatrixJson {
 	{
 		Object o = null;
 		try {
-			o = RelatrixKV.lastKey(clazz);
+			o = RelatrixKVJson.lastKey(clazz);
 			if(o instanceof AbstractRelation) {
-				DBKey dbkey = (DBKey) RelatrixKV.lastValue(clazz);
+				DBKey dbkey = (DBKey) RelatrixKVJson.lastValue(clazz);
 				((AbstractRelation)o).setIdentity(dbkey);
 			}
 		} catch (IllegalAccessException e) {
@@ -3096,9 +3097,9 @@ public final class RelatrixJson {
 	{
 		Object o = null;
 		try {
-			o = RelatrixKV.lastKey(alias,clazz);
+			o = RelatrixKVJson.lastKey(alias,clazz);
 			if(o instanceof AbstractRelation) {
-				DBKey dbkey = (DBKey) RelatrixKV.lastValue(alias,clazz);
+				DBKey dbkey = (DBKey) RelatrixKVJson.lastValue(alias,clazz);
 				((AbstractRelation)o).setIdentity(dbkey);
 				((AbstractRelation)o).setAlias(alias);
 			}
@@ -3133,7 +3134,7 @@ public final class RelatrixJson {
 	public static Object lastValue() throws IOException
 	{
 		try {
-			return RelatrixKV.lastValue(Relation.class);
+			return RelatrixKVJson.lastValue(Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3142,7 +3143,7 @@ public final class RelatrixJson {
 	public static Object lastValue(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.lastValue(alias, Relation.class);
+			return RelatrixKVJson.lastValue(alias, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3174,7 +3175,7 @@ public final class RelatrixJson {
 	public static Object lastValue(Class clazz) throws IOException
 	{
 		try {
-			return RelatrixKV.lastValue(clazz);
+			return RelatrixKVJson.lastValue(clazz);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3183,7 +3184,7 @@ public final class RelatrixJson {
 	public static Object lastValue(Alias alias, Class clazz) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.lastValue(alias, clazz);
+			return RelatrixKVJson.lastValue(alias, clazz);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3197,7 +3198,7 @@ public final class RelatrixJson {
 	public static long size() throws IOException
 	{
 		try {
-			return RelatrixKV.size(Relation.class);
+			return RelatrixKVJson.size(Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3206,7 +3207,7 @@ public final class RelatrixJson {
 	public static long size(Alias alias) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.size(alias, Relation.class);
+			return RelatrixKVJson.size(alias, Relation.class);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3220,7 +3221,7 @@ public final class RelatrixJson {
 	public static long size(Class c) throws IOException
 	{
 		try {
-			return RelatrixKV.size(c);
+			return RelatrixKVJson.size(c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3229,7 +3230,7 @@ public final class RelatrixJson {
 	public static long size(Alias alias, Class c) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.size(alias, c);
+			return RelatrixKVJson.size(alias, c);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3244,7 +3245,7 @@ public final class RelatrixJson {
 	public static boolean contains(Comparable obj) throws IOException
 	{
 		try {
-			return RelatrixKV.contains(obj);
+			return RelatrixKVJson.contains(obj);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3253,7 +3254,7 @@ public final class RelatrixJson {
 	public static boolean contains(Alias alias, Comparable obj) throws IOException, NoSuchElementException
 	{
 		try {
-			return RelatrixKV.contains(alias, obj);
+			return RelatrixKVJson.contains(alias, obj);
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		}
@@ -3284,12 +3285,12 @@ public final class RelatrixJson {
 	@ServerMethod
 	public static Object firstValue(Class clazz) throws IOException, IllegalAccessException
 	{
-		return RelatrixKV.firstValue(clazz);
+		return RelatrixKVJson.firstValue(clazz);
 	}
 	@ServerMethod
 	public static Object firstValue(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKV.firstValue(alias, clazz);
+		return RelatrixKVJson.firstValue(alias, clazz);
 	}
 	/**
 	 * Return the value for the key.
@@ -3301,12 +3302,12 @@ public final class RelatrixJson {
 	@ServerMethod
 	public static Object get(Comparable key) throws IOException, IllegalAccessException
 	{
-		return RelatrixKV.get(key);
+		return RelatrixKVJson.get(key);
 	}
 	@ServerMethod
 	public static Object get(Alias alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return RelatrixKV.get(alias, key);
+		return RelatrixKVJson.get(alias, key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -3319,7 +3320,7 @@ public final class RelatrixJson {
 	@ServerMethod
 	public static Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return RelatrixKV.get(key);
+		return RelatrixKVJson.get(key);
 	}
 	/**
 	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
@@ -3333,7 +3334,7 @@ public final class RelatrixJson {
 	@ServerMethod
 	public static Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
 	{
-		return RelatrixKV.get(alias,key);
+		return RelatrixKVJson.get(alias,key);
 	}
 	/**
 	 * Return the keyset for the given class

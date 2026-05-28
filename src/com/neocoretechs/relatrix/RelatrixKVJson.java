@@ -514,7 +514,14 @@ public final class RelatrixKVJson {
 			System.out.println("RelatrixKVJson.store storing key:"+jkey+" value:"+value+" in map:"+ttm);
 		ttm.put(jkey, value);
 	}
-
+	
+	@ServerMethod
+	public static void storekv(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		BufferedMap ttm = getMap(key.getClass());
+		if( DEBUG  )
+			System.out.println("RelatrixKVJson.store storing key:"+key+" value:"+value+" in map:"+ttm);
+		ttm.put(key, value);
+	}
 	/**
 	 * Store our permutations of the key/value
 	 * @param alias The database alias
@@ -532,7 +539,14 @@ public final class RelatrixKVJson {
 			System.out.println("RelatrixKVJson.store storing alias:"+alias+" key:"+jkey+" value:"+value+" in map:"+ttm);
 		ttm.put(jkey, value);
 	}
-
+	
+	@ServerMethod
+	public static void storekv(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		BufferedMap ttm = getMap(alias, key.getClass());
+		if( DEBUG  )
+			System.out.println("RelatrixKVJson.store storing key:"+key+" value:"+value+" in map:"+ttm+" for alias "+alias);
+		ttm.put(key, value);
+	}
 	/**
 	 * Load the stated package from the declared path into the bytecode repository
 	 * @param pack
