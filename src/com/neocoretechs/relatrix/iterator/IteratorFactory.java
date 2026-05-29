@@ -12,8 +12,8 @@ import com.neocoretechs.relatrix.Relatrix;
 	 * of findSet: HeadSet from selected result set,SubSet from result set, or tailSet from findSet return ordered set.
 	 * The iterator will, in general, return an array of Comparable corresponding to the number of elements specified 
 	 * in the findSet retrieval indicated by the '?' parameter. 
-	 * {@link Relatrix.OPERATOR_TUPLE_CHAR} {@link Relatrix.OPERATOR_WILDCARD_CHAR} <br/>
-	 * This factory generates the proper iterator based on our findSet semantics.<p/>
+	 * {@link Relatrix.OPERATOR_TUPLE_CHAR} {@link Relatrix.OPERATOR_WILDCARD_CHAR} <br>
+	 * This factory generates the proper iterator based on our findSet semantics.<p>
 	 * Overloaded methods support transaction context.
 	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2022
 	 *

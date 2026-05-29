@@ -10,19 +10,19 @@ import com.neocoretechs.relatrix.Relatrix;
 
 
 /**
- * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p/>
+ * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p>
  * In this case, the domain, map, and range operators can be ?, *, or concrete instance, just as other permutations, but the variable parameter
  * section suffix contains either a class designation for ? or * wildcard, or two concrete object instances for a start and end range
  * in the event there is a ? or * and no concrete instance in the corresponding operator section. In other words, we need a range to 
- * designate the subset where we do not have a class to use. If we have a class, we use the first to last keys in the corresponding class.<p/>
- * If we dont have a class to use, we need those concrete instances to designate the range.<p/>
+ * designate the subset where we do not have a class to use. If we have a class, we use the first to last keys in the corresponding class.<p>
+ * If we dont have a class to use, we need those concrete instances to designate the range.<p>
  * Just as in the other set retrievals, if we have a concrete object in the operator section, other than ? or *, that concrete object
  * determines the relationship for that domain, map, or range part and we forego having either a class or concrete object range in the variable
- * list of objects and classes in the suffix.<p/>
- * Examples:<p/>
- * ?,*,[object],[object],[object],[class] <br/>
- * ?,?,?,[class],[class],[object],[object] <br/>
- * ?,?,?,[object],[object],[object],[object],[object],[object] <br/>
+ * list of objects and classes in the suffix.<p>
+ * Examples:<p>
+ * ?,*,[object],[object],[object],[class] <br>
+ * ?,?,?,[class],[class],[object],[object] <br>
+ * ?,?,?,[object],[object],[object],[object],[object],[object] <br>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2024
  *
  */

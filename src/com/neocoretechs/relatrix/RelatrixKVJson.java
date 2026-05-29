@@ -519,7 +519,7 @@ public final class RelatrixKVJson {
 	public static void storekv(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		BufferedMap ttm = getMap(key.getClass());
 		if( DEBUG  )
-			System.out.println("RelatrixKVJson.store storing key:"+key+" value:"+value+" in map:"+ttm);
+			System.out.println("RelatrixKVJson.storekv storing key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
 	}
 	/**
@@ -544,7 +544,7 @@ public final class RelatrixKVJson {
 	public static void storekv(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		BufferedMap ttm = getMap(alias, key.getClass());
 		if( DEBUG  )
-			System.out.println("RelatrixKVJson.store storing key:"+key+" value:"+value+" in map:"+ttm+" for alias "+alias);
+			System.out.println("RelatrixKVJson.storekv storing key:"+key+" value:"+value+" in map:"+ttm+" for alias "+alias);
 		ttm.put(key, value);
 	}
 	/**

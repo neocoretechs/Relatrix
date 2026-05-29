@@ -1,23 +1,32 @@
 package com.neocoretechs.relatrix;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-
+import java.util.AbstractMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
-
+import org.json.cbor.CborBuilder;
+import org.json.cbor.CborDecoder;
+import org.json.cbor.CborException;
+import org.json.cbor.model.DataItem;
 import org.rocksdb.RocksDBException;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
-
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
@@ -37,10 +46,9 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2022,2023,2024,2026
 */
 public final class RelatrixKVJsonTransaction {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
-	private static String LOCAL_BYTECODE_REPOSITORY = "D:/etc/Relatrix/db/jsonbytecode";
 	private static ConcurrentHashMap<String, TransactionalMap> mapCache = new ConcurrentHashMap<String, TransactionalMap>();
 	private static HandlerClassLoader classLoader = null;
 	public static boolean optimisticConcurrency = true;
@@ -60,46 +68,265 @@ public final class RelatrixKVJsonTransaction {
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
-					HandlerClassLoader.connectToLocalRepository(LOCAL_BYTECODE_REPOSITORY);
+					HandlerClassLoader.connectToLocalRepository(null);
 				} catch (IllegalAccessException | IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		}
 		return instance;
 	}	
-	
-	public static TransactionalMap getMap(Comparable json, TransactionId xid) throws IllegalAccessException, IOException {
-		JSONObject jsono = new JSONObject(json);
-		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
-		TransactionalMap t = mapCache.get(cjson);
-		byte[] ctype = null;
-		if(t == null) {
-			Class<?> c;
-			try {
-				c = Class.forName(cjson);
-			} catch (ClassNotFoundException cnf) {
-				try {
-					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
-				} catch (BytecodeNotFoundInRepositoryException e) {
-					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
-					HandlerClassLoader.setBytesInRepository(cjson, ctype);
-				}
-				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
-			}
-			if(optimisticConcurrency)
-				t = DatabaseManager.getOptimisticTransactionalMap(c, xid);
-			else
-				t = DatabaseManager.getTransactionalMap(c, xid);
-			mapCache.put(cjson, t);
-		}
-		if(!DatabaseManager.isSessionAssociated(xid, t))
-			DatabaseManager.associateSession(xid, t);
-		return t;
+	/**
+	 * Generate a class name from a JSONObject
+	 * @param jsono the JSONObject with the fields
+	 * @return
+	 */
+	public static String getClassName(JSONObject jsono) {
+		return RelatrixTypeSynthesizer.generateMorphicClassName(jsono,JsonRecordClassGenerator.generatedJsonClassPrefix);
 	}
-
-	public static TransactionalMap getMap(Alias alias, Comparable json, TransactionId xid) throws IllegalAccessException, IOException {
-		JSONObject jsono = new JSONObject(json);
+	
+	public static Class<?> getClassType(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+		TransactionalMap tm = getJsonClass(jsono, xid);
+		Class<?> c;
+		c = Class.forName(tm.getClassName(), false, classLoader);
+		if(DEBUG)
+			System.out.println("RelatrixKVJsonTransaction.getClassType returning class:"+c+" for map "+tm);
+		return c;
+	}
+	
+	public static Comparable<?> getObject(JSONObject json, TransactionId xid) throws IllegalAccessException, IOException, ClassNotFoundException {
+		TransactionalMap tm = getJsonClass(json, xid);
+		return getObject(tm);
+	}
+	/**
+	 * Must call getJsonClass initially! It will define the fields and contents of fields and place them
+	 * in the RelatrixTypeSynthesizer.structuralTokens and elements.<p>
+	 * Creates a class definition from BufferedMap that represents the morphic class.
+	 * @param tm the TransactionalMap with relevant class and database definition
+	 * @return The comparable object
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private static Comparable<?> getObject(TransactionalMap tm) throws IllegalAccessException, IOException {
+		Class<?> c;
+		try {
+			c = Class.forName(tm.getClassName(), false, classLoader);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	   	CborBuilder cb = new CborBuilder();
+    	byte[] encodedBytes;
+		try {
+			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(RelatrixTypeSynthesizer.structuralTokens, RelatrixTypeSynthesizer.elements, cb);
+		} catch (CborException e) {
+			throw new IOException(e);
+		}
+    	Constructor<?> ctor;
+		try {
+			ctor = c.getConstructor(byte[].class);
+			return (Comparable<?>) ctor.newInstance(encodedBytes);
+		} catch (InstantiationException | IllegalArgumentException | NoSuchMethodException | InvocationTargetException e) {
+				throw new IllegalAccessException(e.getMessage());
+		}
+	}
+	/**
+	 * Transform a morphic class into a String class instance by extracting the 'cbor' field
+	 * with the binary payload, performing the decode, and rendering the String instance
+	 * @param c The morphic class
+	 * @return The String representation
+	 */
+	public static String getData(Comparable c) {
+		Field f;
+		if(DEBUG)
+			System.out.println("RelatrixKVJsonTransaction.getData for:"+c+" class:"+c.getClass());
+		try {
+			f = c.getClass().getField("cbor");
+		} catch (NoSuchFieldException e) {
+			if(DEBUG)
+				e.printStackTrace();
+			return null;
+		}
+		byte[] payload = null;
+		try {
+			payload = (byte[]) f.get(c);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			if(DEBUG)
+				e.printStackTrace();
+			return null;
+		}
+		List<DataItem> d = null;
+		try {
+			d = CborDecoder.decode(payload);
+		} catch (CborException e) {
+			if(DEBUG)
+				e.printStackTrace();
+			return null;
+		}
+		return d.get(0).toString();
+	}
+	/**
+	 * Transform a morphic class instance into a JSONObject by calling getData on the
+	 * morphic class to transform it into a String, then creating a JSONObject from that String.
+	 * @param c The original Class
+	 * @return The JSONObject from getData
+	 */
+	public static JSONObject getJsonData(Comparable c) {
+		return new JSONObject(getData(c));
+	}
+	/**
+	 * Transform a morphic keyed map into a String keyed map
+	 * @param c The original Map
+	 * @return The transformed Map
+	 */
+	public static Map.Entry<String,Object> getData(Map.Entry<Comparable,Object> c) {
+		Field f;
+		try {
+			f = c.getKey().getClass().getField("cbor");
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+		byte[] payload = null;
+		try {
+			payload = (byte[]) f.get(c.getKey());
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return null;
+		}
+		List<DataItem> d = null;
+		try {
+			d = CborDecoder.decode(payload);
+		} catch (CborException e) {
+			return null;
+		}
+		String kload = d.get(0).toString();
+		return new AbstractMap.SimpleEntry<String,Object>(kload,c.getValue());
+	}
+	/**
+	 * Transform a morphic keyed map into a JSONObject keyed map
+	 * @param c The original Map
+	 * @return The transformed Map
+	 */
+	public static Map.Entry<JSONObject,Object> getJsonData(Map.Entry<Comparable,Object> c) {
+		Field f;
+		try {
+			f = c.getKey().getClass().getField("cbor");
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+		byte[] payload = null;
+		try {
+			payload = (byte[]) f.get(c.getKey());
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return null;
+		}
+		List<DataItem> d = null;
+		try {
+			d = CborDecoder.decode(payload);
+		} catch (CborException e) {
+			return null;
+		}
+		String kload = d.get(0).toString();
+		JSONObject jo = new JSONObject(kload);
+		return new AbstractMap.SimpleEntry<JSONObject,Object>(jo,c.getValue());
+	}
+	/**
+	 * Utility class to translate a morphic class iterator into a another type of iterator
+	 * @param <T>  The morphic iterator type
+	 * @param <R> The function return type that performs the conversion, for instance, the getData methods
+	 */
+	public static final class TransformingIterator<T,R> implements Iterator<R> {
+	    private final Iterator<? extends T> src;
+	    private final Function<? super T, ? extends R> fn;
+	    public TransformingIterator(Iterator<? extends T> iterator, Function<? super T, ? extends R> fn){
+	        this.src = Objects.requireNonNull(iterator);
+	        this.fn  = Objects.requireNonNull(fn);
+	        if(DEBUG)
+	        	System.out.println("RelatrixKVJsonTransaction.TransformingIterator ctor iterator:"+this.src);
+	    }
+	    @Override public boolean hasNext(){ 
+	    	return src.hasNext(); 
+	    }
+	    @Override public R next(){
+	        T t = src.next();
+	        if(DEBUG)
+	        	System.out.println("RelatrixKVJsonTransaction.TransformingIterator:"+t.getClass().getName()+" "+t);
+	        return fn.apply(t);
+	    }
+	    @Override public void remove(){ src.remove(); }
+	}
+	/**
+	 * Transform a morphic class iterator to a String iterator using TransformingIterator
+	 * @param it The original Iterator
+	 * @return The transformed Iterator
+	 */
+	public static Iterator<?> getStringIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,v -> RelatrixKVJsonTransaction.getData((Comparable<?>) v));
+	}
+	/**
+	 * Transform a morphic class iterator to a JSONObject iterator using TransformingIterator
+	 * @param it The original iterator
+	 * @return The transformed Iterator
+	 */
+	public static Iterator<?> getJsonIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,v -> RelatrixKVJsonTransaction.getJsonData((Comparable<?>) v));
+	}
+	/**
+	 * Transform a morphic class stream into a String stream using map and getData
+	 * @param s The original Stream
+	 * @return The transformed Stream
+	 */
+	public static Stream<?> getStringStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJsonTransaction.getData((Comparable<?>)e));
+	}
+	/**
+	 * Transform a morphic class stream into a Json stream using map and getData
+	 * @param s The original Stream
+	 * @return The transformed Stream
+	 */
+	public static Stream<?> getJsonStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJsonTransaction.getJsonData((Comparable<?>)e));
+	}	
+	/**
+	 * Transform a morphic class iterator to a String key map iterator using TransformingIterator
+	 * @param it The original iterator
+	 * @return The transformed iterator
+	 */
+	public static Iterator<?> getStringMapIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,e->RelatrixKVJsonTransaction.getData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Transform a morphic class iterator to a JSONObject iterator using TransformingIterator
+	 * @param it The original iterator
+	 * @return The transformed iterator
+	 */
+	public static Iterator<?> getJsonMapIterator(Iterator<?> it) {
+		return new TransformingIterator<>(it,e->RelatrixKVJsonTransaction.getJsonData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Transform a morphic class stream into a String stream using map and getData
+	 * @param s
+	 * @return
+	 */
+	public static Stream<?> getStringMapStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJsonTransaction.getData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Transform a morphic class stream into a Json stream using map and getData
+	 * @param s The original morphic class key map Stream
+	 * @return The transformed Stream of JSONObject keyed maps 
+	 */
+	public static Stream<?> getJsonMapStream(Stream<?> s) {
+		return s.map(e->RelatrixKVJsonTransaction.getJsonData((Map.Entry<Comparable,Object>) e));
+	}
+	/**
+	 * Obtain the TransactionalMap for the morphic class represented by the JSONObject passed.
+	 * @param jsono the JSONObject containing the fields that define a morphic class
+	 * @param xid transaction id
+	 * @return The TransactionalMap that facilitates storage/retrieval of morphic class instances
+	 * @throws IllegalAccessException If the class cannot be constructed
+	 * @throws IOException If the underlying storage subsystem fails
+	 */
+	private static TransactionalMap getJsonClass(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		TransactionalMap t = mapCache.get(cjson);
 		byte[] ctype = null;
@@ -117,15 +344,54 @@ public final class RelatrixKVJsonTransaction {
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
 			if(optimisticConcurrency)
-				t = DatabaseManager.getOptimisticTransactionalMap(alias, c, xid);
+				t = DatabaseManager.getOptimisticTransactionalMap(c, xid);
 			else
-				t = DatabaseManager.getTransactionalMap(alias, c, xid);
+				t = DatabaseManager.getTransactionalMap(c, xid);
 			mapCache.put(cjson, t);
+			return t;
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);
 		return t;
 	}
+	/**
+	 * Obtain the TransactionalMap for the morphic class represented by the JSONObject passed.
+	 * @param alias The alias for the database target
+	 * @param jsono the JSONObject containing the fields that define a morphic class
+	 * @param xid Transaction id
+	 * @return The TransactionalMap that facilitates storage/retrieval of morphic class instances
+	 * @throws IllegalAccessException If the class cannot be constructed
+	 * @throws IOException If the underlying storage subsystem fails
+	 */
+	private static TransactionalMap getJsonClass(Alias alias, JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
+		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
+		TransactionalMap t = mapCache.get(cjson+alias.getAlias());
+		byte[] ctype = null;
+		if(t == null) {
+			Class<?> c;
+			try {
+				c = Class.forName(cjson, false, classLoader);
+			} catch (ClassNotFoundException cnf) {
+				try {
+					ctype = HandlerClassLoader.getBytesFromRepository(cjson);
+				} catch (BytecodeNotFoundInRepositoryException e) {
+					ctype = JsonRecordClassGenerator.buildJsonRecordClassBytes(cjson);
+					HandlerClassLoader.setBytesInRepository(cjson, ctype);
+				}
+				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
+			}
+				if(optimisticConcurrency)
+					t = DatabaseManager.getOptimisticTransactionalMap(alias, c, xid);
+				else
+					t = DatabaseManager.getTransactionalMap(alias, c, xid);
+				mapCache.put(cjson+alias.getAlias(), t);
+				return t;
+			}
+			if(!DatabaseManager.isSessionAssociated(xid, t))
+				DatabaseManager.associateSession(xid, t);
+			return t;
+	}
+	
 	public static TransactionalMap getMap(Class<?> json, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = json.getName();
 		TransactionalMap t = mapCache.get(cjson);
@@ -150,13 +416,13 @@ public final class RelatrixKVJsonTransaction {
 			mapCache.put(cjson, t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
-			DatabaseManager.associateSession(xid, t);
+			DatabaseManager.associateSession(xid, t);	
 		return t;
 	}
 
 	public static TransactionalMap getMap(Alias alias, Class<?> json, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = json.getName();
-		TransactionalMap t = mapCache.get(cjson);
+		TransactionalMap t = mapCache.get(cjson+alias.getAlias());
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -175,12 +441,13 @@ public final class RelatrixKVJsonTransaction {
 				t = DatabaseManager.getOptimisticTransactionalMap(alias, c, xid);
 			else
 				t = DatabaseManager.getTransactionalMap(alias, c, xid);
-			mapCache.put(cjson, t);
+			mapCache.put(cjson+alias.getAlias(), t);
 		}
 		if(!DatabaseManager.isSessionAssociated(xid, t))
 			DatabaseManager.associateSession(xid, t);
 		return t;
 	}
+	
 	public static void setOptimisticConcurrency(boolean optimistic) {
 		optimisticConcurrency = optimistic;
 	}
@@ -303,43 +570,55 @@ public final class RelatrixKVJsonTransaction {
 	
 	/**
 	 * Store our permutations of the key/value
-	 * This is a transactional store in the context of a previously initiated transaction.
-	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
-	 * to prevent a recovery on the next operation.
-	 * @param xid the transaction id
+	 * @param xid transaction id
 	 * @param key of comparable
 	 * @param value
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static void store(TransactionId xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		TransactionalMap ttm = getMap(key, xid);
+	public static void store(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		JSONObject jsono = new JSONObject(String.valueOf(key));
+		TransactionalMap ttm = getJsonClass(jsono, xid);
+		Comparable<?> jkey = getObject(ttm);
 		if( DEBUG  )
-			System.out.println("RelatrixKVTransaction.transactionalStore Id:"+xid+" storing key:"+key+" value:"+value);
+			System.out.println("RelatrixKVJsonTransaction.store storing key:"+jkey+" value:"+value+" in map:"+ttm);
+		ttm.put(xid, jkey, value);
+	}
+	
+	@ServerMethod
+	public static void storekv(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		TransactionalMap ttm = getMap(key.getClass(), xid);
+		if( DEBUG  )
+			System.out.println("RelatrixKVJsonTransaction.storekv storing key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(xid, key, value);
 	}
 	/**
 	 * Store our permutations of the key/value
-	 * This is a transactional store in the context of a previously initiated transaction.
-	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
-	 * to prevent a recovery on the next operation.
-	 * @param alias database alias
-	 * @param xid the transaction id
+	 * @param alias The database alias
 	 * @param key of comparable
 	 * @param value
 	 * @throws IllegalAccessException
 	 * @throws IOException
-	 * @throws NoSuchElementException If alias not found
 	 */
 	@ServerMethod
-	public static void store(Alias alias, TransactionId xid, Comparable key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, key, xid);
+	public static void store(Alias alias, TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+		JSONObject jsono = new JSONObject(key);
+		TransactionalMap ttm = getJsonClass(alias, jsono, xid);
+		Comparable<?> jkey = getObject(ttm);
 		if( DEBUG  )
-			System.out.println("RelatrixKVTransaction.transactionalStore Id:"+xid+" storing key:"+key+" value:"+value);
+			System.out.println("RelatrixKVJsonTransaction.store storing alias:"+alias+" key:"+jkey+" value:"+value+" in map:"+ttm);
+		ttm.put(xid, jkey, value);
+	}
+	
+	@ServerMethod
+	public static void storekv(Alias alias, TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		TransactionalMap ttm = getMap(alias, key.getClass(), xid);
+		if( DEBUG  )
+			System.out.println("RelatrixKVJsonTransaction.storekv storing key:"+key+" value:"+value+" in map:"+ttm+" for alias "+alias);
 		ttm.put(xid, key, value);
 	}
-
+	
 	/**
 	 * Commit the outstanding transaction data in each active class.
 	 * @param xid transaction id
@@ -477,7 +756,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Object remove(TransactionId transactionId, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(c, transactionId);
+		TransactionalMap ttm = getMap(c.getClass(), transactionId);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKVTransaction.remove prepping to remove:"+c);
 		return ttm.remove(transactionId, c);
@@ -496,7 +775,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Object remove(Alias alias, TransactionId transactionId, Comparable c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, c, transactionId);
+		TransactionalMap ttm = getMap(alias, c.getClass(), transactionId);
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKVTransaction.remove prepping to remove:"+c);
 		return ttm.remove(transactionId, c);
@@ -515,7 +794,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findTailMap(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.tailMap(xid, darg);
 	}
 	/**
@@ -533,7 +812,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findTailMap(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.tailMap(xid, darg);
 	}
 
@@ -550,7 +829,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findTailMapStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.tailMapStream(xid, darg);
 	}
 	/**
@@ -568,7 +847,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findTailMapStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.tailMapStream(xid, darg);
 	}
 
@@ -585,7 +864,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findTailMapKV(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.tailMapKV(xid, darg);
 	}
 	/**
@@ -603,7 +882,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findTailMapKV(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.tailMapKV(xid, darg);
 	}
 
@@ -620,7 +899,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findTailMapKVStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.tailMapKVStream(xid, darg);
 	}
 	/**
@@ -638,7 +917,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findTailMapKVStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.tailMapKVStream(xid, darg);
 	}
 
@@ -653,7 +932,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findHeadMap(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.headMap(xid, darg);
 	}
 	/**
@@ -669,7 +948,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findHeadMap(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.headMap(xid, darg);
 	}
 
@@ -684,7 +963,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findHeadMapStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.headMapStream(xid, darg);
 	}
 	/**
@@ -700,7 +979,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findHeadMapStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.headMapStream(xid, darg);
 	}
 
@@ -717,7 +996,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findHeadMapKV(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.headMapKV(xid, darg);
 	}
 	/**
@@ -731,7 +1010,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findHeadMapKV(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.headMapKV(xid, darg);
 	}
 
@@ -747,7 +1026,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findHeadMapKVStream(TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.headMapKVStream(xid, darg);
 	}
 	/**
@@ -763,7 +1042,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findHeadMapKVStream(Alias alias, TransactionId xid, Comparable darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.headMapKVStream(xid, darg);
 	}
 
@@ -781,7 +1060,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findSubMap(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.subMap(xid, darg, marg);
 	}
 	/**
@@ -800,7 +1079,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Iterator<?> findSubMap(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.subMap(xid, darg, marg);
 	}
 
@@ -818,7 +1097,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findSubMapStream(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.subMapStream(xid, darg, marg);
 	}
 	/**
@@ -837,7 +1116,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findSubMapStream(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.subMapStream(xid, darg, marg);
 	}
 
@@ -856,7 +1135,7 @@ public final class RelatrixKVJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> findSubMapKV(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		// check for at least one object reference
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.subMapKV(xid, darg, marg);
 	}
 	/**
@@ -876,7 +1155,7 @@ public final class RelatrixKVJsonTransaction {
 	@ServerMethod
 	public static Iterator<?> findSubMapKV(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// check for at least one object reference
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.subMapKV(xid, darg, marg);
 	}
 
@@ -894,7 +1173,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Stream<?> findSubMapKVStream(TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
-		TransactionalMap ttm = getMap(darg, xid);
+		TransactionalMap ttm = getMap(darg.getClass(), xid);
 		return ttm.subMapKVStream(xid, darg, marg);
 	}
 	/**
@@ -914,7 +1193,7 @@ public final class RelatrixKVJsonTransaction {
 	@ServerMethod
 	public static Stream<?> findSubMapKVStream(Alias alias, TransactionId xid, Comparable darg, Comparable marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		// check for at least one object reference
-		TransactionalMap ttm = getMap(alias, darg, xid);
+		TransactionalMap ttm = getMap(alias, darg.getClass(), xid);
 		return ttm.subMapKVStream(xid, darg, marg);
 	}
 
@@ -1068,7 +1347,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Object get(TransactionId transactionId, Comparable key) throws IOException, IllegalAccessException {
-		TransactionalMap ttm = getMap(key, transactionId);
+		TransactionalMap ttm = getMap(key.getClass(), transactionId);
 		Object o = ttm.get(transactionId, key);
 		if( o == null )
 			return null;
@@ -1086,7 +1365,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Object get(Alias alias, TransactionId transactionId, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, key, transactionId);
+		TransactionalMap ttm = getMap(alias, key.getClass(), transactionId);
 		Object o = ttm.get(transactionId, key);
 		if( o == null )
 			return null;
@@ -1265,7 +1544,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static boolean contains(Alias alias, TransactionId xid, Comparable obj) throws IOException, IllegalAccessException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias, obj, xid);
+		TransactionalMap ttm = getMap(alias, obj.getClass(), xid);
 		return ttm.containsKey(xid, obj);
 	}
 	/**
@@ -1343,7 +1622,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Object nearest(TransactionId xid, Comparable key) throws IllegalAccessException, IOException {
-		TransactionalMap ttm = getMap(key, xid);
+		TransactionalMap ttm = getMap(key.getClass(), xid);
 		return ttm.nearest(xid, key);
 	}
 	/**
@@ -1358,7 +1637,7 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static Object nearest(Alias alias, TransactionId xid, Comparable key) throws IllegalAccessException, IOException, NoSuchElementException {
-		TransactionalMap ttm = getMap(alias,key,xid);
+		TransactionalMap ttm = getMap(alias,key.getClass(),xid);
 		return ttm.nearest(xid, key);
 	}
 
