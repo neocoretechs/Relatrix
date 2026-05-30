@@ -47,7 +47,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 * @author Jonathan Groff (C) NeoCoreTechs 2026
 */
 public final class RelatrixKVJson {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	private static ConcurrentHashMap<String, BufferedMap> mapCache = new ConcurrentHashMap<String, BufferedMap>();
@@ -1142,7 +1142,7 @@ public final class RelatrixKVJson {
 	public static Object firstKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return getData(ttm.firstKey());
+		return ttm.firstKey();
 	}
 	/**
 	 * return lowest valued key.
@@ -1157,7 +1157,7 @@ public final class RelatrixKVJson {
 	public static Object firstKey(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return getData(ttm.firstKey());
+		return ttm.firstKey();
 	}
 	/**
 	 * Return the value for the key.
@@ -1233,7 +1233,7 @@ public final class RelatrixKVJson {
 	public static Object lastKey(Class<?> clazz) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return getData(ttm.lastKey());
+		return ttm.lastKey();
 	}
 	/**
 	 * Return instance having the highest valued key.
@@ -1248,7 +1248,7 @@ public final class RelatrixKVJson {
 	public static Object lastKey(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return getData(ttm.lastKey());
+		return ttm.lastKey();
 	}
 	/**
 	 * Return the instance having the value for  the greatest key.

@@ -1,11 +1,14 @@
-package com.neocoretechs.relatrix.iterator;
+package com.neocoretechs.relatrix.iterator.transaction;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapDomainRange;
+import com.neocoretechs.relatrix.iterator.FindSetMode2;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
@@ -18,45 +21,41 @@ import com.neocoretechs.relatrix.MapDomainRange;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
-public class FindSetMode2 extends IteratorFactory {
+public class FindSetMode2Transaction extends FindSetMode2 {
 	// mode 2
-	char dop,rop;
-	protected Object marg;
-	protected short[] dmr_return = new short[4];
-    public FindSetMode2(char dop, Object marg, char rop) { 	
-    	this.dop = dop;
-    	this.rop = rop;
-    	this.marg = marg;
-	    // see if its ? or * operator
-    	dmr_return[1] = checkOp(dop);
-    	// 'map' object
-    	dmr_return[2] = 0;
-    	// range, see if its ? or * operator
-    	dmr_return[3] = checkOp(rop);
+	TransactionId xid;
+    public FindSetMode2Transaction(TransactionId transactionId, char dop, Object marg, char rop) { 	
+    	super(dop, marg, rop);
+    	this.xid = transactionId;
     }
+    
     /**
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
-		AbstractRelation dmr = new MapDomainRange(true, null, (Comparable)marg, null);
+		AbstractRelation dmr = new MapDomainRange(true, null, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(dmr);
 	}
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-		return new RelatrixIterator( tdmr, dmr_return);	
-	}
 	
-	/**
+    @Override
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);	
+	}
+    
+    /**
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException {
-		AbstractRelation dmr = new MapDomainRange(true, alias, null, (Comparable)marg, null);
+	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
+		AbstractRelation dmr = new MapDomainRange(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
 		return createRelatrixIterator(alias, dmr);
 	}
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException {
-		return new RelatrixIterator(alias, tdmr, dmr_return);	
+	
+    @Override
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);	
 	}
 }

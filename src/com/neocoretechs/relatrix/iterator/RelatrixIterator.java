@@ -21,8 +21,8 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;
  * The N return tuple '?' elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} in next(), since 1 full tuple element at an iteration is returned, 
- * that being the identity morphism.<p/>
- * For tuples the array size is relative to the '?' query predicates. <br/>
+ * that being the identity morphism.<p>
+ * For tuples the array size is relative to the '?' query predicates. <br>
  * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a RelatrixIterator is dependent on the number of '?' operators in a 'findSet'. For example,
  * if we declare findHeadSet('*','?','*') we get back a  of one element. For findSet('?',object,'?') we
@@ -35,7 +35,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * findSet('?','?',object) = {@link Result2} return all domain and map objects for a given range object <br>
  * findSet('?','*','?') = {@link Result2} return all elements of domain and range <br>
  * etc.
- * <p/>
+ * <p>
  * findHeadSet works in the same fashion but returns elements strictly less than the target element. <p>
  * A special case is the subset, where the number of returned elements includes the target range object(s).<br>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017
@@ -227,15 +227,15 @@ public class RelatrixIterator implements Iterator<Result> {
 		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
 	}
 	/**
-	 * Checks to see if our dmr_return array has any return tuple ? values.<br/>
-	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p/>
-	 * For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
+	 * Checks to see if our dmr_return array has any return tuple ? values.<br>
+	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p>
+	 * For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br>
 	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 (object), or 2 (wildcard)
 	 * then we say its an identity, and we will return a {@link Result1} on each iteration with a {@link com.neocoretechs.relatrix.Relation} relationship object.
 	 * @param dmr_return our 4 element array of element 0 counter, and element 1-3 of 0 (object), 1 (? return tuple) or 2 (wildcard)
 	 * @return true if element 0 is -1, or any element 1-3 is 1. We then consider it an identity {@link com.neocoretechs.relatrix.AbstractRelation}
 	 */
-	protected static boolean isIdentity(short[] dmr_return) {
+	public static boolean isIdentity(short[] dmr_return) {
 		if( dmr_return[0] == (-1) ) return true;
 		for(int i = 1; i < 4; i++) {
 			if( dmr_return[i] == 1 ) return false; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *

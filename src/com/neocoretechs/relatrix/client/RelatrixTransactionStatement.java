@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIteratorTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIteratorTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixIteratorTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixKeysetIteratorTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixSubsetIteratorTransaction;
-import com.neocoretechs.relatrix.iterator.RelatrixTailsetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.transaction.RelatrixEntrysetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.transaction.RelatrixHeadsetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.transaction.RelatrixIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.transaction.RelatrixKeysetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.transaction.RelatrixSubsetIteratorTransaction;
+import com.neocoretechs.relatrix.iterator.transaction.RelatrixTailsetIteratorTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
