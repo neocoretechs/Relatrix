@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
@@ -24,16 +24,17 @@ import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteKVIteratorJson
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of ServerInvokeMethod and populating that at construction of this class.
+ * another static instance of {@link ServerInvokeMethod} and populating that at construction of this class.
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
  * and if the remote call is linked to an object instance on the server, as it is 
  * for non-serializable iterators and streams, then you must maintain 
- * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
+ * a mapping from session GUID to an instance of the object you are invoking on the server side.<p>
  * Static methods need no server side object in residence.
- * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<br/>
- * WorkerRequestProcessor takes requests and processes them.<br/>
+ * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<br>
+ * WorkerRequestProcessor takes requests and processes them.<br>
  * @see TCPJsonKVWorker
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2021
+ * @see RelatrixKVJson
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2021,2026
  *
  */
 public final class RelatrixKVJsonServer extends RelatrixKVServer {
@@ -70,7 +71,7 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVJson.getTableSpace());
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
@@ -83,14 +84,14 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 	
 	public RelatrixKVJsonServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixKVJsonServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		RelatrixKVJsonServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVJson", 0);
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		if(port == 9999) {
 			isThisBytecodeRepository = true;
 			System.out.println("NOTE: This server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
 			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKV.getTableSpace());
+				HandlerClassLoader.connectToLocalRepository(RelatrixKVJson.getTableSpace());
 			} catch (IllegalAccessException | IOException e) {
 				e.printStackTrace();
 			}
@@ -137,17 +138,17 @@ public final class RelatrixKVJsonServer extends RelatrixKVServer {
 		}
 	}
 	/**
-	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVServer.<p/>
+	 * Load the methods of main RelatrixKVJson class as remotely invokable then we instantiate RelatrixKVJsonServer.<p/>
 	 * @param args If length 1, then default port 9001, must specify tablespace or alias subsequently. Same for 2 arg: host, port. 3 args then arg 0 is to set default tablespace
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixKV.getInstance();
+		RelatrixKVJson.getInstance();
 		if(args.length == 3) {
 		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
 		        		(new File(args[0]).getName());
 		    System.out.println("Bringing up Relatrix tablespace:"+db);
-		    RelatrixKV.setTablespace(db);
+		    RelatrixKVJson.setTablespace(db);
 		    new RelatrixKVJsonServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {

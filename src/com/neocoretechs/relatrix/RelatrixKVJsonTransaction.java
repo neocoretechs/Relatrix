@@ -46,7 +46,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2022,2023,2024,2026
 */
 public final class RelatrixKVJsonTransaction {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	private static ConcurrentHashMap<String, TransactionalMap> mapCache = new ConcurrentHashMap<String, TransactionalMap>();
