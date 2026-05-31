@@ -17,6 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode0;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode1;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode2;
@@ -63,13 +65,18 @@ import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
+import com.neocoretechs.rocksack.session.BufferedMap;
+import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
 * Top-level class that imparts behavior to the {@link AbstractRelation} subclasses which contain references for domain, map, range.<p>
 * The lynch pin is the AbstractRelation and its subclasses indexed
 * by the 6 permutations of the domain,map,and range so we can retrieve instances in all
-* the potential sort orders.
+* the potential sort orders.<p>
+* The Json implementation creates a dynamic morphic class from the fields of an arbitrary Json payload.<p>
+* Various transformation methods are provided to turn the canonical CBOR of the generated class data into JSONObject or
+* Comparable String representations.<p>
 * The compareTo and fullCompareTo of AbstractRelation provide the comparison methods to drive the processes.
 * For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
 * in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
@@ -125,7 +132,6 @@ public final class RelatrixJson {
 		sftpm.init(new String[] {multiStoreX});
 	}
 	
-	private static HandlerClassLoader classLoader = null;
 	
 	private static Object mutex = new Object();
 	
@@ -140,9 +146,9 @@ public final class RelatrixJson {
 		synchronized(RelatrixJson.class) {
 			if(instance == null) {
 				instance = new RelatrixJson();
-				classLoader = new HandlerClassLoader();
-				Thread.currentThread().setContextClassLoader(classLoader);
-				SerializedComparatorFactory.setClassLoader(classLoader);
+				RelatrixKVJson.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKVJson.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKVJson.classLoader);
 				try {
 					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
 				} catch (IllegalAccessException | IOException e) {
@@ -248,22 +254,33 @@ public final class RelatrixJson {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		Relation identity = new Relation(); // form it as template for duplicate key search
+		JSONObject jsonod = new JSONObject(String.valueOf(d));
+		BufferedMap ttmd = RelatrixKVJson.getJsonClass(jsonod);
+		Comparable<?> jkeyd = RelatrixKVJson.getObject(ttmd);
+		//
+		JSONObject jsonom = new JSONObject(String.valueOf(m));
+		BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsonom);
+		Comparable<?> jkeym = RelatrixKVJson.getObject(ttmm);
+		//
+		JSONObject jsonor = new JSONObject(String.valueOf(r));
+		BufferedMap ttmr = RelatrixKVJson.getJsonClass(jsonor);
+		Comparable<?> jkeyr = RelatrixKVJson.getObject(ttmr);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		PrimaryKeySet pk = PrimaryKeySet.locate(d, m);
+		PrimaryKeySet pk = PrimaryKeySet.locate(jkeyd, jkeym);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
-			identity.setDomainResolved(d);
-			identity.setMapResolved(m);
-			DBKey rKey = AbstractRelation.checkMorphism(r);
+			identity.setDomainResolved(jkeyd);
+			identity.setMapResolved(jkeym);
+			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
 			if(rKey == null)
-				identity.setRange(r);
+				identity.setRange(jkeyr);
 			else {
 				identity.setRangeKey(rKey);
-				identity.setRangeResolved(r);
+				identity.setRangeResolved(jkeyr);
 			}
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey

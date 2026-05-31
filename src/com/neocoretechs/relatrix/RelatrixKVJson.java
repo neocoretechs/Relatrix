@@ -56,7 +56,7 @@ public final class RelatrixKVJson {
 	private RelatrixKVJson() {}
 	// 2.) volatile instance
 	private static volatile RelatrixKVJson instance = null;
-	private static HandlerClassLoader classLoader = null;
+	static HandlerClassLoader classLoader = null;
 	// 3.) lock class, assign instance if null
 	public static RelatrixKVJson getInstance() {
 		synchronized(RelatrixKVJson.class) {
@@ -106,7 +106,7 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
+	static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
 		Class<?> c;
 		try {
 			c = Class.forName(bm.getClassName(), false, classLoader);
@@ -323,7 +323,7 @@ public final class RelatrixKVJson {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	private static BufferedMap getJsonClass(JSONObject jsono) throws IllegalAccessException, IOException {
+	static BufferedMap getJsonClass(JSONObject jsono) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		BufferedMap t = mapCache.get(cjson);
 		byte[] ctype = null;
