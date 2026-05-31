@@ -241,13 +241,14 @@ public final class RelatrixJson {
 	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * @param d The Comparable representing the domain object for this morphism relationship.
-	 * @param m The Comparable representing the map object for this morphism relationship.
-	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
-	 * @throws IllegalAccessException
-	 * @throws IOException
+	 * @param d The Json payload representing the domain object for this morphism relationship.
+	 * @param m The Json payload representing the map object for this morphism relationship.
+	 * @param r The Json payload representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException if fields or methods are inaccessable
+	 * @throws IOException Underlying storage failure
+	 * @throws ClassNotFoundException if bytecode repository fails or generation of morphic class fails
+	 * @throws DuplicateKeyException if a duplicate key is attempted in any of the morphism elements
 	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
-	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
 	public static Relation store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
