@@ -8,7 +8,6 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
 
-
 /**
 * Find the set of objects in the relation via the specified predicate. 
 * Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.

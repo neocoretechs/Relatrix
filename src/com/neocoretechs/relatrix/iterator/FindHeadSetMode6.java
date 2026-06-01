@@ -11,9 +11,9 @@ import com.neocoretechs.relatrix.Relatrix;
 /**
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
 * Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
-* Legal permutations are:<br/>
-* [object],[object],* <br/>
-* [object],[object],? <br/>
+* Legal permutations are:<br>
+* [object],[object],* <br>
+* [object],[object],? <br>
 * Concrete domain and map
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *

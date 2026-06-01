@@ -8,13 +8,12 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
 
-
 /**
 * Find elements greater or equal to 'from' element.
 * Mode 5. Permutation with 2 objects.
-* Legal permutations are:<br/>
-* [object],*,[object],... <br/>
-* [object],?,[object],... <br/>
+* Legal permutations are:<br>
+* [object],*,[object],... <br>
+* [object],?,[object],... <br>
 * Concrete domain and range
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 

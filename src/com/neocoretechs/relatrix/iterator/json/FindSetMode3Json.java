@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.iterator;
+package com.neocoretechs.relatrix.iterator.json;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapRangeDomain;
+import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 3 = findSet("?|*",object,object)
@@ -18,16 +19,16 @@ Legal permutations are:<br>
 * *,?,[object],[object] <br/>
 * *,[TemplateClass],[TemplateClass] <br>
 * *,?,[TemplateClass],[TemplateClass] <br>
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 * 
 */
-public class FindSetMode3 extends IteratorFactory {
+public class FindSetMode3Json extends IteratorFactory {
 	// mode 3
 	char dop;
 	protected Object marg;
 	protected Object rarg;
 	protected short[] dmr_return = new short[4];
-    public FindSetMode3(char dop, Object marg, Object rarg) { 	
+    public FindSetMode3Json(char dop, Object marg, Object rarg) { 	
     	this.dop = dop;
     	this.rarg = rarg;
     	this.marg = marg;
@@ -54,7 +55,7 @@ public class FindSetMode3 extends IteratorFactory {
 	 * @throws IOException
 	 */
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator( tdmr, dmr_return);
+	    return new RelatrixIteratorJson( tdmr, dmr_return);
 	}
 	
 	   /**
@@ -73,6 +74,6 @@ public class FindSetMode3 extends IteratorFactory {
 	 * @throws IOException
 	 */
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIterator(alias, tdmr, dmr_return);
+	    return new RelatrixIteratorJson(alias, tdmr, dmr_return);
 	}
 }

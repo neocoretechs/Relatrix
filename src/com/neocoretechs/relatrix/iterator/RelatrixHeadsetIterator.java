@@ -14,7 +14,6 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
-
 /**                                                                                                                                                                                                                                                                                                                                                                       * Instances of this class deliver the set of identity {@link AbstractRelation}s, or
  * Post order the morphisms, which are stored in key order instead of the order of its instances. Find elements strictly less than 'to' target.
  * Populate a series of arrays with the partial ordered sets of classes
@@ -23,25 +22,25 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * and determine their index into each domain, map and range arraylist. Use those indexes to form a key using
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
- * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next().<p/>
+ * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next().<p>
  * Start by retrieving the instances in their natural order based on the suffix of the findSet predicate and build 3 tables of keys
  * that we can relate back to the morphisms. While we do this, gather the low and high key ranges of the potential eligible morphisms.
- * At conclusion, we have a low and high range of potential morphism keys formed from the keys of the instance ordering that we relate back to the morphisms.<p/>
+ * At conclusion, we have a low and high range of potential morphism keys formed from the keys of the instance ordering that we relate back to the morphisms.<p>
  * These 2 tables and key ranges represent the independent headset orders. At the conclusion of all this, call the 
  * FindSetUtil.getMorphismRange to attempt to match the actual morphisms to the acquired keys using the ranges we obtained and indexing into the
  * 3 tables we formed. In this way, storing only the keys as intermediate elements, we can post-order the morphisms as desired.
- * <p/>
- * For tuples the Result is relative to the '?' query predicates. <br/>
- * Here, the headset is retrieved.<p/>
+ * <p>
+ * For tuples the Result is relative to the '?' query predicates. <br>
+ * Here, the headset is retrieved.<p>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a {@link RelatrixIterator} is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare<br/> findHeadSet('*','?','*',[object | Class])<br/> we get back a {@link com.neocoretechs.relatrix.Result1} of one element. <br/>
- * For findHeadSet('?',object,'?',[object | Class],[object | Class])<br/> we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
+ * if we declare<br/> findHeadSet('*','?','*',[object | Class])<br/> we get back a {@link com.neocoretechs.relatrix.Result1} of one element. <br>
+ * For findHeadSet('?',object,'?',[object | Class],[object | Class])<br> we
+ * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
  * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
  * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
- * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.<p/>
+ * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.<p>
  * When replacing one of the first 3 selectors with a concrete instance, we perform an exact match on that field. 
  * 
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2024

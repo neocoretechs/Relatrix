@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.iterator;
+package com.neocoretechs.relatrix.iterator.json;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -6,19 +6,20 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixJson;
 
 /**
-* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br>
-* [object],*,* <br>
-* [object],*,?  <br>
-* [object],?,?  <br>
-* [object],?,* <br>
+* Find elements greater or equal to 'from' element.
+* Legal permutations are:<br>
+* [object],*,*,... <br>
+* [object],*,?,...  <br>
+* [object],?,?,...  <br>
+* [object],?,*,... <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
-public class FindHeadSetMode4 extends FindSetMode4 {
+public class FindTailSetMode4Json extends FindSetMode4Json {
 	Object endarg0,endarg1;
-    public FindHeadSetMode4(Object darg, char mop, char rop, Object arg1, Object arg2) { 	
+    public FindTailSetMode4Json(Object darg, char mop, char rop, Object arg1, Object arg2) { 	
     	super(darg, mop, rop);
 		endarg0 = arg1;
 		endarg1 = arg2;
@@ -34,7 +35,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg0 instanceof Class) {
-				xdmr.setMap((Comparable) Relatrix.lastKey((Class)endarg0));
+				xdmr.setMap((Comparable) RelatrixJson.firstKey((Class)endarg0));
 			} else {
 				xdmr.setMap((Comparable)endarg0);
 			}
@@ -42,13 +43,13 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
 			if(endarg1 instanceof Class) {
-				xdmr.setRange((Comparable) Relatrix.lastKey((Class)endarg1));
+				xdmr.setRange((Comparable) RelatrixJson.firstKey((Class)endarg1));
 			} else {
 				xdmr.setRange((Comparable)endarg1);
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIteratorJson(tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
@@ -59,7 +60,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getMap() == null) {
 			if(endarg0 instanceof Class) {
-				xdmr.setMap(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg0));
+				xdmr.setMap(alias,(Comparable) RelatrixJson.firstKey(alias,(Class)endarg0));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg0);
 			}
@@ -67,12 +68,12 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
 			if(endarg1 instanceof Class) {
-				xdmr.setRange(alias,(Comparable) Relatrix.lastKey(alias,(Class)endarg1));
+				xdmr.setRange(alias,(Comparable) RelatrixJson.firstKey(alias,(Class)endarg1));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg1);
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIteratorJson(alias, tdmr, xdmr, dmr_return);
 	}
 }

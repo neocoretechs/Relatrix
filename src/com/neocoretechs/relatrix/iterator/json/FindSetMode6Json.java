@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.iterator;
+package com.neocoretechs.relatrix.iterator.json;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 6 is for findSet(object,object,"?|*")
@@ -22,13 +23,13 @@ import com.neocoretechs.relatrix.Relation;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
-public class FindSetMode6 extends IteratorFactory {
+public class FindSetMode6Json extends IteratorFactory {
 	// mode 6
 	char rop;
 	protected Object darg;
 	protected Object marg;
 	protected short[] dmr_return = new short[4];
-    public FindSetMode6(Object darg, Object marg, char rop) { 	
+    public FindSetMode6Json(Object darg, Object marg, char rop) { 	
     	this.darg = darg;
     	this.marg = marg;
     	this.rop = rop;
@@ -49,7 +50,7 @@ public class FindSetMode6 extends IteratorFactory {
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr)throws IllegalAccessException, IOException {
-	    return new RelatrixIterator( tdmr, dmr_return);
+	    return new RelatrixIteratorJson( tdmr, dmr_return);
 	}
 	
     /**
@@ -62,6 +63,6 @@ public class FindSetMode6 extends IteratorFactory {
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIterator(alias, tdmr, dmr_return);
+	    return new RelatrixIteratorJson(alias, tdmr, dmr_return);
 	}
 }

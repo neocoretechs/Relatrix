@@ -10,7 +10,6 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
-
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
  * to set the lower bound of the correct range search for the properly ordered set of  subclasses;

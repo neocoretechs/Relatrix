@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.Relatrix;
 
 /**
  * Find elements greater or equal to 'from' element.
@@ -30,7 +30,7 @@ public class FindTailSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
-				xdmr.setDomain((Comparable) RelatrixKV.firstKey((Class)endarg0));
+				xdmr.setDomain((Comparable) Relatrix.firstKey((Class)endarg0));
 			} else {
 				xdmr.setDomain((Comparable)endarg0); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
@@ -38,7 +38,7 @@ public class FindTailSetMode1 extends FindSetMode1 {
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getMap() == null) {
 			if(endarg1 instanceof Class) {
-				xdmr.setMap((Comparable) RelatrixKV.firstKey((Class)endarg1));
+				xdmr.setMap((Comparable) Relatrix.firstKey((Class)endarg1));
 			} else {
 				xdmr.setMap((Comparable)endarg1);
 			}
@@ -55,7 +55,7 @@ public class FindTailSetMode1 extends FindSetMode1 {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
-				xdmr.setDomain(alias, (Comparable) RelatrixKV.firstKey(alias,(Class)endarg0));
+				xdmr.setDomain(alias, (Comparable) Relatrix.firstKey(alias,(Class)endarg0));
 			} else {
 				xdmr.setDomain(alias,(Comparable)endarg0); // same as concrete instance in domain, but we are returning, so for ranging no diff
 			}
@@ -63,7 +63,7 @@ public class FindTailSetMode1 extends FindSetMode1 {
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getMap() == null) {
 			if(endarg1 instanceof Class) {
-				xdmr.setMap(alias,(Comparable) RelatrixKV.firstKey(alias,(Class)endarg1));
+				xdmr.setMap(alias,(Comparable) Relatrix.firstKey(alias,(Class)endarg1));
 			} else {
 				xdmr.setMap(alias,(Comparable)endarg1);
 			}

@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.iterator;
+package com.neocoretechs.relatrix.iterator.json;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
+import com.neocoretechs.relatrix.iterator.IteratorFactory;
 
 
 /**
@@ -21,15 +22,15 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 * *,?,[TemplateClass] <br>
 * ?,?,[TemplateClass] <br>
 * ?,*,[TemplateClass] <br>
-* @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
+* @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 *
 */
-public class FindSetMode1 extends IteratorFactory {
+public class FindSetMode1Json extends IteratorFactory {
 	// mode 1
 	char dop,mop;
 	protected Object rarg;
 	protected short[] dmr_return = new short[4];
-    public FindSetMode1(char dop, char mop, Object rarg) { 	
+    public FindSetMode1Json(char dop, char mop, Object rarg) { 	
     	this.dop = dop;
     	this.mop = mop;
     	this.rarg = rarg;
@@ -48,7 +49,7 @@ public class FindSetMode1 extends IteratorFactory {
 	}
 	
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator( tdmr, dmr_return);
+	    return new RelatrixIteratorJson( tdmr, dmr_return);
 	}
 	
     /**
@@ -61,6 +62,6 @@ public class FindSetMode1 extends IteratorFactory {
 	}
 	
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIterator(alias, tdmr, dmr_return);
+	    return new RelatrixIteratorJson(alias, tdmr, dmr_return);
 	}
 }
