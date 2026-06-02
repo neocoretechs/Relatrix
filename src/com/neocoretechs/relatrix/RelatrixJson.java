@@ -252,20 +252,58 @@ public final class RelatrixJson {
 	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 */
 	@ServerMethod
-	public static Relation store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static Relation store(Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		if( d == null || m == null || r == null)
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+		JSONObject jsonod;
+		if(d instanceof JSONObject)
+			jsonod = (JSONObject)d;
+		else
+			if(d instanceof Comparable<?>)
+				jsonod = new JSONObject(String.valueOf(d));
+			else
+				jsonod = new JSONObject(d); // reflect methods and fields - object binding
+		JSONObject jsonom;
+		if(m instanceof JSONObject)
+			jsonom = (JSONObject)m;
+		else
+			if(m instanceof Comparable<?>)
+				jsonom = new JSONObject(String.valueOf(m));
+			else
+				jsonom = new JSONObject(m); // reflect methods and fields - object binding
+		JSONObject jsonor;
+		if(r instanceof JSONObject)
+			jsonor = (JSONObject)r;
+		else
+			if(r instanceof Comparable<?>)
+				jsonor = new JSONObject(String.valueOf(r));
+			else
+				jsonor = new JSONObject(r); // reflect methods and fields - object binding
+		return storeJson(jsonod, jsonom, jsonor);
+	}
+		
+	/**
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * @param d The Json payload representing the domain object for this morphism relationship.
+	 * @param m The Json payload representing the map object for this morphism relationship.
+	 * @param r The Json payload representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException if fields or methods are inaccessable
+	 * @throws IOException Underlying storage failure
+	 * @throws ClassNotFoundException if bytecode repository fails or generation of morphic class fails
+	 * @throws DuplicateKeyException if a duplicate key is attempted in any of the morphism elements
+	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
+	 */
+	private static Relation storeJson(JSONObject d, JSONObject m, JSONObject r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
 		Relation identity = new Relation(); // form it as template for duplicate key search
-		JSONObject jsonod = new JSONObject(String.valueOf(d));
-		BufferedMap ttmd = RelatrixKVJson.getJsonClass(jsonod);
+		BufferedMap ttmd = RelatrixKVJson.getJsonClass(d);
 		Comparable<?> jkeyd = RelatrixKVJson.getObject(ttmd);
 		//
-		JSONObject jsonom = new JSONObject(String.valueOf(m));
-		BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsonom);
+		BufferedMap ttmm = RelatrixKVJson.getJsonClass(m);
 		Comparable<?> jkeym = RelatrixKVJson.getObject(ttmm);
 		//
-		JSONObject jsonor = new JSONObject(String.valueOf(r));
-		BufferedMap ttmr = RelatrixKVJson.getJsonClass(jsonor);
+		BufferedMap ttmr = RelatrixKVJson.getJsonClass(r);
 		Comparable<?> jkeyr = RelatrixKVJson.getObject(ttmr);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
