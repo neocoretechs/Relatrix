@@ -1,19 +1,22 @@
 package com.neocoretechs.relatrix.iterator.json;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVJson;
-import com.neocoretechs.rocksack.Alias;
-
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
+
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p>                                                                                                                                                                                                                                                                                                                                                                      
@@ -98,15 +101,25 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				dkeyHi = dk;
     			}
     		} else
-    			if(templateo.getDomain() != null)
-    				RelatrixKVJson.findSubMapKVStream(templateo.getDomain(), templatep.getDomain()).forEach(e -> {
+    			if(templateo.getDomain() != null) {
+    				/*RelatrixKVJson.findSubMapKVStream(templateo.getDomain(), templatep.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(dkeys.compareTo(dkeyLo) < 0)
     						dkeyLo = dkeys;	
     					if(dkeys.compareTo(dkeyHi) > 0)
     						dkeyHi = dkeys;
     					dkey.add(dkeys);
-    				});
+    				});*/
+     				ConcurrentLinkedQueue<DBKey> q = RelatrixKVJson.findSubMapKVStream(templateo.getDomain(), templatep.getDomain())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				dkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(dkeyLo) < 0) dkeyLo = k;
+    					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
+    				}
+    			}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVJson.get(template.getMap());
     			if(mk != null) {
@@ -115,15 +128,25 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				mkeyHi = mk;
     			}
     		} else
-    			if(templateo.getMap() != null)
-    				RelatrixKVJson.findSubMapKVStream(templateo.getMap(), templatep.getMap()).forEach(e -> {
+    			if(templateo.getMap() != null) {
+    				/*RelatrixKVJson.findSubMapKVStream(templateo.getMap(), templatep.getMap()).forEach(e -> {
     					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(mkeys.compareTo(mkeyLo) < 0)
     						mkeyLo = mkeys;	
     					if(mkeys.compareTo(mkeyHi) > 0)
     						mkeyHi = mkeys;
     					mkey.add(mkeys);
-    				});
+    				});*/
+       				ConcurrentLinkedQueue<DBKey> q = RelatrixKVJson.findSubMapKVStream(templateo.getMap(), templatep.getMap())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				mkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(mkeyLo) < 0) mkeyLo = k;
+    					if (k.compareTo(mkeyHi) > 0) mkeyHi = k;
+    				}
+    			}
     		if(template.getRange() != null) {
     			DBKey rk = (DBKey) RelatrixKVJson.get(template.getRange());
     			if(rk != null) {
@@ -132,16 +155,25 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				rkeyHi = rk;
     			}
     		} else
-    			if(templateo.getRange() != null)
-    				RelatrixKVJson.findSubMapKVStream(templateo.getRange(), templatep.getRange()).forEach(e -> {
+    			if(templateo.getRange() != null) {
+    				/*RelatrixKVJson.findSubMapKVStream(templateo.getRange(), templatep.getRange()).forEach(e -> {
     					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(rkeys.compareTo(rkeyLo) < 0)
     						rkeyLo = rkeys;	
     					if(rkeys.compareTo(rkeyHi) > 0)
     						rkeyHi = rkeys;  				
     					rkey.add(rkeys);
-    				});
- 
+    				});*/
+     				ConcurrentLinkedQueue<DBKey> q = RelatrixKVJson.findSubMapKVStream(templateo.getRange(), templatep.getRange())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				rkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(rkeyLo) < 0) rkeyLo = k;
+    					if (k.compareTo(rkeyHi) > 0) rkeyHi = k;
+    				}
+    			}
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -205,15 +237,25 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				dkeyHi = dk;
     			}
     		} else
-    			if(templateo.getDomain() != null)
-    				RelatrixKVJson.findSubMapKVStream(alias, templateo.getDomain(), templatep.getDomain()).forEach(e -> {
+    			if(templateo.getDomain() != null) {
+    				/*RelatrixKVJson.findSubMapKVStream(alias, templateo.getDomain(), templatep.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(dkeys.compareTo(dkeyLo) < 0)
     						dkeyLo = dkeys;	
     					if(dkeys.compareTo(dkeyHi) > 0)
     						dkeyHi = dkeys;
     					dkey.add(dkeys);
-    				});
+    				});*/
+     				ConcurrentLinkedQueue<DBKey> q = RelatrixKVJson.findSubMapKVStream(alias, templateo.getDomain(), templatep.getDomain())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				dkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(dkeyLo) < 0) dkeyLo = k;
+    					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
+    				}
+    			}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVJson.get(alias, template.getMap());
     			if(mk != null) {
@@ -222,16 +264,25 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				mkeyHi = mk;
     			}
     		} else
-    			if(templateo.getMap() != null)
-    				RelatrixKVJson.findSubMapKVStream(alias, templateo.getMap(), templatep.getMap()).forEach(e -> {
+    			if(templateo.getMap() != null) {
+    				/*RelatrixKVJson.findSubMapKVStream(alias, templateo.getMap(), templatep.getMap()).forEach(e -> {
     					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(mkeys.compareTo(mkeyLo) < 0)
     						mkeyLo = mkeys;	
     					if(mkeys.compareTo(mkeyHi) > 0)
     						mkeyHi = mkeys;
     					mkey.add(mkeys);
-    				});
-
+    				});*/
+       				ConcurrentLinkedQueue<DBKey> q = RelatrixKVJson.findSubMapKVStream(alias, templateo.getMap(), templatep.getMap())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				mkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(mkeyLo) < 0) mkeyLo = k;
+    					if (k.compareTo(mkeyHi) > 0) mkeyHi = k;
+    				}
+    			}
     		if(template.getRange() != null) {
     			DBKey rk = (DBKey) RelatrixKVJson.get(alias, template.getRange());
     			if(rk != null) {
@@ -240,16 +291,25 @@ public class RelatrixSubsetIteratorJson implements Iterator<Result> {
     				rkeyHi = rk;
     			}
     		} else
-    			if(templateo.getRange() != null)
-    				RelatrixKVJson.findSubMapKVStream(alias, templateo.getRange(), templatep.getRange()).forEach(e -> {
+    			if(templateo.getRange() != null) {
+    				/*RelatrixKVJson.findSubMapKVStream(alias, templateo.getRange(), templatep.getRange()).forEach(e -> {
     					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(rkeys.compareTo(rkeyLo) < 0)
     						rkeyLo = rkeys;	
     					if(rkeys.compareTo(rkeyHi) > 0)
     						rkeyHi = rkeys;  				
     					rkey.add(rkeys);
-    				});
-
+    				});*/
+    				ConcurrentLinkedQueue<DBKey> q = RelatrixKVJson.findSubMapKVStream(alias, templateo.getRange(), templatep.getRange())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				rkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(rkeyLo) < 0) rkeyLo = k;
+    					if (k.compareTo(rkeyHi) > 0) rkeyHi = k;
+    				}
+    			}
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}

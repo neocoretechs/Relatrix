@@ -6,15 +6,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
+import com.neocoretechs.rocksack.Alias;
 /**
  *                                                                                                                                                                                                                                                                                                                                                                         * Instances of this class deliver the set of identity {@link AbstractRelation}s, or
  * Populate a series of arrays with the partial ordered sets of classes. Find elements greater or equal to 'from' element.
@@ -24,14 +26,14 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
- * <p/>
- * For tuples the Result is relative to the '?' query predicates. <br/>
- * Here, the tailset is retrieved.<p/>
+ * <p>
+ * For tuples the Result is relative to the '?' query predicates. <br>
+ * Here, the tailset is retrieved.<p>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a {@link RelatrixIterator} is dependent on the number of "?" operators in a 'findSet'. For example,
  * if we declare findTailSet("*","?","*",[object | Class]) we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
  * For findTailSet("?",object,"?",[object | Class],[object | Class]) we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br/>
+ * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
  * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
  * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
  * case of a concrete instance, the ordered tailset from that instance (inclusive) to the end is returned or simply used to order
@@ -95,16 +97,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				dkeyHi = dk;
     			}    		
     		} else
-    			if(templateo.getDomain() != null)
-    				RelatrixKV.findTailMapKVStream(templateo.getDomain()).forEach(e -> {
+    			if(templateo.getDomain() != null) {
+    				/*RelatrixKV.findTailMapKVStream(templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(dkeys.compareTo(dkeyLo) < 0)
     						dkeyLo = dkeys;	
     					if(dkeys.compareTo(dkeyHi) > 0)
     						dkeyHi = dkeys;
     					dkey.add(dkeys);
-    				});
-
+    				});*/
+    				ConcurrentLinkedQueue<DBKey> q = RelatrixKV.findTailMapKVStream(templateo.getDomain())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				dkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(dkeyLo) < 0) dkeyLo = k;
+    					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
+    				}
+    			}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKV.get(template.getMap());
     			if(mk != null) {
@@ -113,16 +124,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				mkeyHi = mk;
     			}    		
     		} else
-    			if(templateo.getMap() != null)
-    				RelatrixKV.findTailMapKVStream(templateo.getMap()).forEach(e -> {
+    			if(templateo.getMap() != null) {
+    				/*RelatrixKV.findTailMapKVStream(templateo.getMap()).forEach(e -> {
     					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(mkeys.compareTo(mkeyLo) < 0)
     						mkeyLo = mkeys;	
     					if(mkeys.compareTo(mkeyHi) > 0)
     						mkeyHi = mkeys;
     					mkey.add(mkeys);
-    				});
-
+    				});*/
+    				ConcurrentLinkedQueue<DBKey> q = RelatrixKV.findTailMapKVStream(templateo.getMap())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				mkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(mkeyLo) < 0) mkeyLo = k;
+    					if (k.compareTo(mkeyHi) > 0) mkeyHi = k;
+    				}
+    			}
     		if(template.getRange() != null) {
     			DBKey rk = (DBKey) RelatrixKV.get(template.getRange());
     			if(rk != null) {
@@ -131,16 +151,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				rkeyHi = rk;
     			}    		
     		} else
-    			if(templateo.getRange() != null)
-    				RelatrixKV.findTailMapKVStream(templateo.getRange()).forEach(e -> {
+    			if(templateo.getRange() != null) {
+    				/*RelatrixKV.findTailMapKVStream(templateo.getRange()).forEach(e -> {
     					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(rkeys.compareTo(rkeyLo) < 0)
     						rkeyLo = rkeys;	
     					if(rkeys.compareTo(rkeyHi) > 0)
     						rkeyHi = rkeys;  				
     					rkey.add(rkeys);
-    				});
-
+    				});*/
+    				ConcurrentLinkedQueue<DBKey> q = RelatrixKV.findTailMapKVStream(templateo.getRange())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				rkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(rkeyLo) < 0) rkeyLo = k;
+    					if (k.compareTo(rkeyHi) > 0) rkeyHi = k;
+    				}
+    			}
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -203,16 +232,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				dkeyHi = dk;
     			}    		
     		} else
-    			if(templateo.getDomain() != null)
-    				RelatrixKV.findTailMapKVStream(alias,templateo.getDomain()).forEach(e -> {
+    			if(templateo.getDomain() != null) {
+    				/*RelatrixKV.findTailMapKVStream(alias,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(dkeys.compareTo(dkeyLo) < 0)
     						dkeyLo = dkeys;	
     					if(dkeys.compareTo(dkeyHi) > 0)
     						dkeyHi = dkeys;
     					dkey.add(dkeys);
-    				});
-
+    				});*/
+    				ConcurrentLinkedQueue<DBKey> q = RelatrixKV.findTailMapKVStream(alias, templateo.getDomain())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				dkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(dkeyLo) < 0) dkeyLo = k;
+    					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
+    				}
+    			}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKV.get(alias,template.getMap());
     			if(mk != null) {
@@ -221,16 +259,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				mkeyHi = mk;
     			}    		
     		} else
-    			if(templateo.getMap() != null)
-    				RelatrixKV.findTailMapKVStream(alias,templateo.getMap()).forEach(e -> {
+    			if(templateo.getMap() != null) {
+    				/*RelatrixKV.findTailMapKVStream(alias,templateo.getMap()).forEach(e -> {
     					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(mkeys.compareTo(mkeyLo) < 0)
     						mkeyLo = mkeys;	
     					if(mkeys.compareTo(mkeyHi) > 0)
     						mkeyHi = mkeys;
     					mkey.add(mkeys);
-    				});
-
+    				});*/
+    				ConcurrentLinkedQueue<DBKey> q = RelatrixKV.findTailMapKVStream(alias, templateo.getMap())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				mkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(mkeyLo) < 0) mkeyLo = k;
+    					if (k.compareTo(mkeyHi) > 0) mkeyHi = k;
+    				}
+    			}
     		if(template.getRange() != null) {
     			DBKey rk = (DBKey) RelatrixKV.get(alias,template.getRange());
     			if(rk != null) {
@@ -239,16 +286,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				rkeyHi = rk;
     			}    		
     		} else
-    			if(templateo.getRange() != null)
-    				RelatrixKV.findTailMapKVStream(alias,templateo.getRange()).forEach(e -> {
+    			if(templateo.getRange() != null) {
+    				/*RelatrixKV.findTailMapKVStream(alias,templateo.getRange()).forEach(e -> {
     					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
     					if(rkeys.compareTo(rkeyLo) < 0)
     						rkeyLo = rkeys;	
     					if(rkeys.compareTo(rkeyHi) > 0)
     						rkeyHi = rkeys;  				
     					rkey.add(rkeys);
-    				});
-
+    				});*/
+      				ConcurrentLinkedQueue<DBKey> q = RelatrixKV.findTailMapKVStream(alias, templateo.getRange())
+    						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
+    						.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+    				rkey.addAll(q); // single-threaded merge
+    				// compute lo/hi
+    				for (DBKey k : q) {
+    					if (k.compareTo(rkeyLo) < 0) rkeyLo = k;
+    					if (k.compareTo(rkeyHi) > 0) rkeyHi = k;
+    				}
+    			}
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
