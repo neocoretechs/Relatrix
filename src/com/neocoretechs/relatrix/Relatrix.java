@@ -504,7 +504,7 @@ public final class Relatrix {
 						if(semaphore.get() == 0)
 							RelatrixKV.store(pk, identity.getIdentity());
 						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored primary:"+pk);
+							System.out.println("Relatrix.store stored primary:"+pk);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -618,7 +618,7 @@ public final class Relatrix {
 						if(semaphore.get() == 0)
 							RelatrixKV.store(alias, pk, identity.getIdentity());
 						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored primary:"+pk);
+							System.out.println("Relatrix.store stored primary:"+pk);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -3258,7 +3258,7 @@ public final class Relatrix {
 		UUID uuid = UUID.randomUUID();
 		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 		if(DEBUG)
-			System.out.printf("Returning NewKey=%s%n", nkey.toString());
+			System.out.printf("Relatrix.getNewKey Returning NewKey=%s%n", nkey.toString());
 		return nkey;
 	}
 

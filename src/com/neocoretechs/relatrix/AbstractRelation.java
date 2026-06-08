@@ -19,7 +19,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * ref's for relation datatype
 *
 * The permutations for our tuple are as follows
-* keyop:<p/><dd>
+* keyop:<p><dd>
 * 
 *              0       d,m,r                         <dd>
 *              1       d,r,m                         <dd>
@@ -27,7 +27,7 @@ import com.neocoretechs.rocksack.TransactionId;
 *              3       m,r,d                         <dd>
 *              4       r,d,m                         <dd>
 *              5       r,m,d                         <dd>
-* <p/>
+* <p>
 * we use this key for retrieval depending
 * on the desired traversal scenario, that is,
 * in what order do we want the values returned...    <dd>
@@ -36,7 +36,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2014,2015,2024
 */
 public abstract class AbstractRelation extends KeySet implements Comparable, Externalizable, Cloneable {
-		private static boolean DEBUG = false;
+		private static boolean DEBUG = true;
 
         static final long serialVersionUID = -9129948317265641091L;
         public static enum displayLevels {VERBOSE, BRIEF, MINIMAL};
@@ -51,7 +51,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         public AbstractRelation() {}
         
         /**
-         * Resolving constructor 1 <p/>
+         * Resolving constructor 1 <p>
          * Construct and establish key position for the elements of a morphism.
          * @param d domain instance object
          * @param m map instance object
@@ -64,7 +64,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         }
         
         /**
-         * Resolving constructor 2 <p/>
+         * Resolving constructor 2 <p>
          * Construct and establish key position for the elements of a morphism.
          * @param alias
          * @param d
@@ -91,7 +91,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
             setRange(r);
         }
     	/**
-    	 * Resolving constructor 4 <p/>
+    	 * Resolving constructor 4 <p>
     	 * We need transaction id first, so we cant call superclass constructor. When we dont yet have keys, we must resolve.
     	 * @param alias
     	 * @param transactionId
@@ -114,7 +114,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
     	}
     	
         /**
-         * Template constructor 1 <p/>
+         * Template constructor 1 <p>
          * Construct and establish key position for the elements of a morphism template. 
          * In a template, we dont create instances, merely resolve them leaving effective
          * null key for those without instances
@@ -130,7 +130,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         }
         
         /**
-         * Template constructor 2 <p/>
+         * Template constructor 2 <p>
          * Construct and establish key position for the elements of a morphism.
          * In a template, we dont create instances, merely resolve them leaving effective
          * null key for those without instances
@@ -146,7 +146,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
             setRangeTemplate(alias, r);
         } 
     	/**
-    	 * Template constructor 3 <p/>
+    	 * Template constructor 3 <p>
     	 * Construct and establish key position for the elements of a morphism template.
     	 * In a template, we dont create keys for instances that dont resolve, we use effective null key
     	 * @param d
@@ -204,7 +204,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         }
         
         /**
-         * Copy constructor 3, transaction id <p/>
+         * Copy constructor 3, transaction id <p>
          * @param transactionId
          * @param d
          * @param domainKey
@@ -262,7 +262,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
          * @param alias
          * @param d
          * @param domainkey
-         * @param m
+         * @param m                                                                                                
          * @param mapKey
          * @param r
          * @param rangeKey
@@ -346,11 +346,21 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
          */
         public Comparable getDomain() {
         	try {
-        		if(domain != null)
+        		if(domain != null) {
+        			if(DEBUG)
+        				System.out.printf("%s getDomain not null, returning domain:%s%n",this.getClass().getName(),domain);
         			return domain;
+        		}
         		if(DBKey.isValid(getDomainKey())) {
         			domain = resolveKey(getDomainKey());
+         			if(DEBUG)
+           				System.out.printf("%s getDomain valid key resolved, returning domain:%s%n",this.getClass().getName(),domain);
+        		} else {
+        			if(DEBUG)
+           				System.out.printf("%s getDomain DBKey %s not valid%n",this.getClass().getName(),getDomainKey());
         		}
+     			if(DEBUG)
+       				System.out.printf("%s getDomain returning domain:%s%n",this.getClass().getName(),domain);
         		return domain;
         	} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
         		throw new RuntimeException(e);
@@ -364,7 +374,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
          * performed to try and obtain a a domain DBKey. If this method call comes back null, then a new key is formed
          * using the domain instance value stored to the current index table using the IndexResolver.
          * If the method call to getByInstance for the domain instance comes back not null, then we simply set the domain key
-         * in the KeySet to the value retrieved from the IndexResolver.<p/>
+         * in the KeySet to the value retrieved from the IndexResolver.<p>
          * Recall that our tables are stored using an instance key and DBKey value for each database/class. 
          * {@link com.neocoretechs.relatrix.key.RelatrixIndex} .
          * @param domain
@@ -1077,44 +1087,6 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
     		return null;
     	}
     	
-        /**
-        * for relate cmpr, we return a value in the range 0-63
-        * in which the values for domain,map range : >,<,=,dont care = 0-3
-        * are encoded as three 0-3 values in the first six bit positions.
-        * a dont care is coded when a dmr value is zero.
-        * @param cmpdmr the AbstractRelation to compare to
-        * @return the 0-63 compare value
-        */
-        protected short cmpr(AbstractRelation cmpdmr) {
-        	short cmpres = 0;
-            if(getDomain() == null)
-        		cmpres = 48;
-        	else
-        		if( getDomain().compareTo(cmpdmr.getDomain()) < 0)
-        			cmpres = 16;
-        		else
-        			if(getDomain().equals(cmpdmr.getDomain()) )
-        				cmpres = 32;
-                //
-            if(getMap() == null)
-        		cmpres ^= 12;
-        	else
-        		if(getMap().compareTo(cmpdmr.getMap())  < 0)
-        			cmpres ^= 4;
-        		else
-        			if( getMap().equals(cmpdmr.getMap()) )
-        				cmpres ^= 8;
-                //
-           if(getRange() == null)
-        		cmpres ^= 3;
-        	else
-        		if( getRange().compareTo( cmpdmr.getRange() ) < 0)
-        			cmpres ^= 1;
-        		else
-        			if( getRange().equals(cmpdmr.getRange()) )
-        				cmpres ^= 2;
-        	return cmpres;
-        }
         
         /**
         * iterate_dmr - return proper domain, map, or range
@@ -1272,7 +1244,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
              
         @Override
         public String toString() {
-     		String s = String.format("Class:%s Key:%s%n",this.getClass().getName(),this.getIdentity());
+     		String s = String.format("Class:%s Identity Key:%s%n",this.getClass(),this.getIdentity());
     		StringBuffer sb = new StringBuffer(s);
     		if(alias != null) {
     			sb.append("Alias:");

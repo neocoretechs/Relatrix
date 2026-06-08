@@ -6,13 +6,15 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.json.JSONObject;
+
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.RelatrixJson;
+import com.neocoretechs.relatrix.RelatrixKVJson;
+import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
+import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -21,21 +23,21 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
- * The IndexInstanceTable is actually a combination of 2 K/V tables that allow retrieval of
+ * The IndexInstanceTable is actually a combination of 2 Json K/V tables that allow retrieval of
  * indexed instances via an integer index, for the instance, and the instance, for the reverse
  * lookup of the  index. We use the {@link DBKey} wrapper class to carry the index inside the {@link AbstractRelation}.
  * which also adds validation. A constructor carrying a transaction Id sets up methods for calls to the
  * transaction oriented classes.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022,2025
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2022,2025,2026
  *
  */
-public final class IndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+public final class IndexInstanceTableJson implements IndexInstanceTableInterface {
+	public static boolean DEBUG = true;
 	public static boolean ASSERTKEY = true; // on get resolving getKey verify DBKey instance
 	private static Object mutex = new Object();
 
 	/**
-	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store 
@@ -56,7 +58,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			if(DEBUG)
 				System.out.printf("%s.put new instance key=%s%n", this.getClass().getName(), retKey);
 			// no new instance exists. store both new entries
-			storeParallel(retKey, (Comparable) instance);
+			storeParallel(retKey, instance);
 		}
 		if(DEBUG)
 			System.out.printf("%s.put existing instance key=%s%n", this.getClass().getName(), retKey);
@@ -78,11 +80,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.put Index=%s class=%s instance=%s%n", this.getClass().getName(), index, instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		storeParallel(index, (Comparable) instance);
+		storeParallel(index, instance);
 	}
 	/**
 	 * Put the key to the proper tables using the database alias.
-	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
@@ -107,12 +109,12 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 			if(DEBUG)
 				System.out.printf("%s.putAlias alias=%s class=%s instance=%s getNewDBKey result=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance, retKey.toString());
 			// no new instance exists. store both new entries
-			storeParallel(alias, retKey, (Comparable)instance);
+			storeParallel(alias, retKey, instance);
 		}
 		return retKey;
 	}
 	/**
-	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
@@ -129,11 +131,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.putAlias alias=%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias.getAlias(), index.toString(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		storeParallel(alias, index, (Comparable)instance);
+		storeParallel(alias, index, instance);
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction.
-	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
@@ -151,14 +153,14 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		// did the instance exist?
 		if(retKey == null) {
 			retKey = getNewDBKey();
-			storeParallel(transactionId, retKey, (Comparable) instance);
+			storeParallel(transactionId, retKey, instance);
 		} 
 		if(DEBUG)
 			System.out.printf("%s.put returning key Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), transactionId, retKey, instance.getClass().getName(), instance);
 		return retKey;
 	}
 	/**
-	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * Put the key to the proper tables. The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store
@@ -174,11 +176,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(DEBUG)
 			System.out.printf("%s.put DBKey=%s class=%s instance=%s%n", this.getClass().getName(),index.toString(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
-		storeParallel(transactionId, index, (Comparable) instance);
+		storeParallel(transactionId, index, instance);
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
-	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
@@ -198,13 +200,13 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		// did the instance exist?
 		if(retKey == null) {
 			retKey = getNewDBKey();
-			storeParallel(alias, transactionId, retKey, (Comparable) instance);
+			storeParallel(alias, transactionId, retKey, instance);
 		}
 		return retKey;
 	}
 	/**
 	 * Put the key to the proper tables in the scope of this transaction using the database alias.
-	 * The operation is a simple K/V put using {@link RelatrixKV} since we
+	 * The operation is a simple K/V put using {@link RelatrixKVJson} since we
 	 * form the {@link DBKey} when we set the values of domain/map/range in the mutator methods of {@link AbstractRelation}, and
 	 * the proper instances are placed in their rightful databases at that time. Here we are just storing the
 	 * presumably fully formed DBKey indexes. getByInstance, if no instance exists store unless key exists and differ
@@ -221,10 +223,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public void put(Alias alias, TransactionId transactionId, DBKey index, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.putAlias Alias:%s Xid:%s DBKey=%s class=%s instance=%s%n", this.getClass().getName(), alias, transactionId,index.toString(), instance.getClass().getName(), instance);
-		storeParallel(alias, transactionId, index, (Comparable) instance);
+		storeParallel(alias, transactionId, index, instance);
 	}
 
-	public static void storeParallel(TransactionId transactionId, DBKey index, Comparable instance) throws IOException {
+	
+	public static void storeParallel(Alias alias, TransactionId transactionId, DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		Future<?>[] jobs = new Future[2];
@@ -235,34 +238,34 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVTransaction.store(transactionId, index, instance);
+							RelatrixKVJsonTransaction.storekv(alias, transactionId, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},RelatrixTransaction.storeITransaction);
+			},RelatrixJsonTransaction.storeITransaction);
 			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVTransaction.store(transactionId, instance, index);
+							RelatrixKVJsonTransaction.storekv(alias, transactionId, (Comparable<?>) instance, index);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},RelatrixTransaction.storeITransaction);
+			},RelatrixJsonTransaction.storeITransaction);
 			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
 	
-	public static void storeParallel(Alias alias, TransactionId transactionId, DBKey index, Comparable instance) throws IOException {
+	public static void storeParallel(TransactionId transactionId, DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		Future<?>[] jobs = new Future[2];
@@ -273,37 +276,38 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVTransaction.store(alias, transactionId, index, instance);
+							RelatrixKVJsonTransaction.storekv(transactionId, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},RelatrixTransaction.storeITransaction);
+			},RelatrixJsonTransaction.storeITransaction);
 			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVTransaction.store(alias, transactionId, instance, index);
+							RelatrixKVJsonTransaction.storekv(transactionId, (Comparable<?>) instance, index);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},RelatrixTransaction.storeITransaction);
+			},RelatrixJsonTransaction.storeITransaction);
 			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
 	
-	public static void storeParallel(DBKey index, Comparable instance) throws IOException {
+	public static void storeParallel(DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		Future<?>[] jobs = new Future[2];
+	
 		// no new instance exists. store both new entries
 		synchronized(mutex) {
 			jobs[0] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
@@ -311,34 +315,47 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKV.store(index, instance);
+							RelatrixKVJson.store(index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixJson.storeI);
 			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						if(semaphore.get() == 0)
-							RelatrixKV.store(instance, index);
+						if(semaphore.get() == 0) {
+							Comparable<?> jkey;
+							if(instance instanceof JSONObject) {
+								JSONObject jsonod = (JSONObject)instance;
+								BufferedMap ttm = RelatrixKVJson.getJsonClass(jsonod);
+								jkey = RelatrixKVJson.getObject(ttm);
+							} else {
+								if(instance instanceof Comparable<?>) {
+									jkey = (Comparable<?>) instance;
+								} else {
+									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+								}
+							}
+							RelatrixKVJson.store(jkey, index);
+						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixJson.storeI);
 			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
 	
-	public static void storeParallel(Alias alias, DBKey index, Comparable instance) throws IOException {
+	public static void storeParallel(Alias alias, DBKey index, Object instance) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
 		// no new instance exists. store both new entries
@@ -349,27 +366,27 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKV.store(alias, index, instance);
+							RelatrixKVJson.storekv(alias, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixJson.storeI);
 			jobs[1] = SynchronizedThreadManager.getInstance().submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKV.store(alias, instance, index);
+							RelatrixKVJson.storekv(alias, (Comparable<?>) instance, index);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
 						writeException.initCause(e);
 					}
 				}
-			},Relatrix.storeI);
+			},RelatrixJson.storeI);
 			SynchronizedThreadManager.waitForCompletion(jobs);
 		}
 		if(semaphore.get() > 0)
@@ -387,15 +404,23 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public Object get(DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s get for key:%s%n", this.getClass().getName(), index);
-		BufferedMap bm = RelatrixKV.getMap(DBKey.class);
+		BufferedMap bm = RelatrixKVJson.getMap(DBKey.class);
 		Object o =  bm.get(index);
-		if(DEBUG)
-			System.out.printf("%s get for key:%s returning:%s%n", this.getClass().getName(), index, o);
-		if(o == null)
+		if(o == null) {
+			if(DEBUG)
+				System.out.printf("%s get for DBKey:%s returning null for BufferedMap get%n", this.getClass().getName(), index);
 			return null;
+		}
+		if(DEBUG)
+			System.out.printf("%s get for DBKey:%s returning KeyValue:%s%n", this.getClass().getName(), index, o);
 		o = ((KeyValue)o).getmValue();
-		if(o instanceof PrimaryKeySet)
+		if(o instanceof PrimaryKeySet) {
+			if(DEBUG)
+				System.out.printf("%s get for DBKey:%s Setting primary key identity, returning PrimaryKeySet %s for getmValue%n", this.getClass().getName(), index, o);
 			((PrimaryKeySet)o).setIdentity(index);
+		}
+		if(DEBUG)
+			System.out.printf("%s get for DBKey:%s returning:%s%n", this.getClass().getName(), index, o);
 		return o;
 	}
 
@@ -403,7 +428,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	public Object get(Alias alias, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s get for Alias:%s index:%s%n", this.getClass().getName(), alias, index);
-		BufferedMap bm = RelatrixKV.getMap(alias, DBKey.class);
+		BufferedMap bm = RelatrixKVJson.getMap(alias, DBKey.class);
 		Object o =  bm.get(index);
 		if(DEBUG)
 			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
@@ -427,7 +452,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public Object get(TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
-		TransactionalMap tm = RelatrixKVTransaction.getMap(DBKey.class, transactionId);
+		TransactionalMap tm = RelatrixKVJsonTransaction.getMap(DBKey.class, transactionId);
 		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
@@ -442,7 +467,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public Object get(Alias alias, TransactionId transactionId, DBKey index) throws IllegalAccessException, IOException, ClassNotFoundException {
 		//synchronized(mutex) {
-		TransactionalMap tm = RelatrixKVTransaction.getMap(alias, DBKey.class, transactionId);
+		TransactionalMap tm = RelatrixKVJsonTransaction.getMap(alias, DBKey.class, transactionId);
 		Object o =  tm.get(transactionId, index);
 		if(o == null)
 			return null;
@@ -456,7 +481,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	}
 	/**
 	 * Get the index of the instance by retrieving the key for the instance present in the passed object.
-	 * Merely does a RelatrixKV.get on instance, whose payload is presumed to be a {@link DBKey}.
+	 * Translates the passed object to Json as key, whose payload is presumed to be a {@link DBKey}.
 	 * Cast will fail if not a DBKey.
 	 * @param instance the DBKey containing the instance
 	 * @return The index contained in the retrieved Instance
@@ -466,12 +491,24 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey getKey(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+		Comparable<?> jkey;
+		if(instance instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)instance;
+			BufferedMap ttm = RelatrixKVJson.getJsonClass(jsonod);
+			jkey = RelatrixKVJson.getObject(ttm);
+		} else {
+			if(instance instanceof Comparable<?>) {
+				jkey = (Comparable<?>) instance;
+			} else {
+				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+			}
+		}
 		if(DEBUG) {
-			DBKey dbkey = (DBKey) RelatrixKV.get((Comparable) instance);
-			System.out.printf("%s getKey:%s produces key:%s%n", this.getClass().getName(), instance, dbkey);
+			DBKey dbkey = (DBKey) RelatrixKVJson.get(jkey);
+			System.out.printf("%s getKey:%s produces key:%s%n", this.getClass().getName(), jkey, dbkey);
 			return dbkey;
 		}
-		return (DBKey) RelatrixKV.get((Comparable) instance);
+		return (DBKey) RelatrixKVJson.get(jkey);
 	}
 
 	/**
@@ -487,11 +524,11 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG) {
-			DBKey dbkey = (DBKey) RelatrixKV.get((Comparable) instance);
+			DBKey dbkey = (DBKey) RelatrixKVJson.get((Comparable) instance);
 			System.out.printf("%s getKey:%s Alias:%s produces key:%s%n", this.getClass().getName(), instance, alias, dbkey);
 			return dbkey;
 		}
-		return (DBKey) RelatrixKV.get(alias, (Comparable) instance);
+		return (DBKey) RelatrixKVJson.get(alias, (Comparable) instance);
 	}
 
 	/**
@@ -505,7 +542,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	 */
 	@Override
 	public DBKey getKey(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return (DBKey) RelatrixKVTransaction.get(transactionId, (Comparable) instance);
+		return (DBKey) RelatrixKVJsonTransaction.get(transactionId, (Comparable) instance);
 	}
 
 	/**
@@ -522,23 +559,23 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public DBKey getKey(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(ASSERTKEY) {
-			Object o = RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
+			Object o = RelatrixKVJsonTransaction.get(alias, transactionId, (Comparable) instance);
 			if(o != null && !(o instanceof DBKey))
 				System.out.println("Error getting "+o+" instance:"+instance+" alias:"+alias+" xid:"+transactionId);
 			return (DBKey) o;
 		}
-		return (DBKey) RelatrixKVTransaction.get(alias, transactionId, (Comparable) instance);
+		return (DBKey) RelatrixKVJsonTransaction.get(alias, transactionId, (Comparable) instance);
 	}
 
 	@Override
 	public DBKey getNewDBKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		return Relatrix.getNewKey();
+		return RelatrixJson.getNewKey();
 	}
 	
 	@Override
 	public void putKey(Alias alias2, DBKey dbKey, Object instance) {
 		try {
-			RelatrixKV.store(alias2, dbKey, instance);
+			RelatrixKVJson.storekv(alias2, dbKey, instance);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 			throw new RuntimeException(e);
 		}		
@@ -547,7 +584,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public void putKey(DBKey dbKey, Object instance) {
 		try {
-				RelatrixKV.store(dbKey, instance);
+				RelatrixKVJson.storekv(dbKey, instance);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 			throw new RuntimeException(e);
 		}	
@@ -556,7 +593,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public void putKey(Alias alias2, TransactionId transactionId, DBKey dbKey, Object instance) {
 		try {
-			RelatrixKVTransaction.store(alias2, transactionId, dbKey, instance);
+			RelatrixKVJsonTransaction.storekv(alias2, transactionId, dbKey, instance);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 			throw new RuntimeException(e);
 		}		
@@ -565,7 +602,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 	@Override
 	public void putKey(TransactionId transactionId, DBKey dbKey, Object instance) {
 		try {
-			RelatrixKVTransaction.store(transactionId, dbKey, instance);
+			RelatrixKVJsonTransaction.storekv(transactionId, dbKey, instance);
 		} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 			throw new RuntimeException(e);
 		}		

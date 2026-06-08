@@ -10,13 +10,13 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p/>
+ * Class to contain serialzable set of keys to maintain order of domain/map/range relationships in Relatrix.<p>
  * Since we are dealing with morphisms, basically an algebraic function mapping for f:x->y, or m:d->r, then
  * the primary key is composed of the domain and map components of the morphism. Since a function which takes a domain
  * object and maps it to a given range through a mapping object can result in only 1 mapping of a domain to range
  * through a particular mapping function. Consider as an extremely simplified example the domain integer object 1 
  * using the mapping function addOne results in a range object of 2, and only 2, and naturally composes with the
- * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.<p/>
+ * morphism domain 2 map addOne with a range of 3, producing functors 1 addOne 2 addOne 3 etc.<p>
  * As is stated by the annotation, this class functions as Relation in the database, and that class
  * is a subclass of this. 
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2022,2023,2024
@@ -25,7 +25,7 @@ import com.neocoretechs.rocksack.TransactionId;
 //@DatabaseClass(tablespace="com.neocoretechs.relatrix.Relation")
 public class PrimaryKeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	protected DBKey domainKey;
     protected DBKey mapKey;
     protected transient DBKey identity;
@@ -136,16 +136,26 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		// cannot be inserted
 		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
+			if(DEBUG)
+				System.out.println("PrimaryKeySet.locate DBKey for domain was null:"+skeyd);
 			dKey = IndexResolver.getIndexInstanceTable().getKey(skeyd);
-			if( dKey == null )
+			if( dKey == null ) {
 				dKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
+				if(DEBUG)
+					System.out.println("PrimaryKeySet.locate IndexResolver getKey for domain was null, created newKey:"+dKey);
+			}
 		}
 		pk.setDomainKey(dKey);
 		DBKey mKey = AbstractRelation.checkMorphism(skeym);
-		if(mKey == null)
+		if(mKey == null) {
+			if(DEBUG)
+				System.out.println("PrimaryKeySet.locate DBKey for map was null:"+skeym);
 			mKey = IndexResolver.getIndexInstanceTable().getKey(skeym);
 			if(mKey == null) {
 				mKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
+				if(DEBUG)
+					System.out.println("PrimaryKeySet.locate IndexResolver getKey for map was null, created newKey:"+mKey);
+			}
 		}
 		pk.setMapKey(mKey);
 		dKey = IndexResolver.getIndexInstanceTable().getKey(pk);
@@ -153,6 +163,12 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
 			pk.isIdentityImmutable = true;
+			if(DEBUG)
+				System.out.println("PrimaryKeySet.locate IndexResolver getKey for pk:"+pk+" returned "+dKey+" setting identity.");
+		}
+		if(DEBUG) {
+			if(dKey == null)
+				System.out.println("PrimaryKeySet.locate IndexResolver getKey for pk:"+pk+" returned null, Identity not set.");
 		}
 		return pk;	
 	}
@@ -285,16 +301,16 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	
 	@Override
 	public int compareTo(Object o) {
-		if(DEBUG)
-			System.out.println("PrimaryKeyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((PrimaryKeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((PrimaryKeySet)o).getMapKey());
+		//if(DEBUG)
+		//	System.out.println("PrimaryKeyset CompareTo "+this+", "+o+" domain this:"+this.getDomainKey()+" domain o:"+((PrimaryKeySet)o).getDomainKey()+" map this:"+getMapKey()+", map o:"+((PrimaryKeySet)o).getMapKey());
 		int i = getDomainKey().compareTo(((PrimaryKeySet)o).getDomainKey());
 		if(i != 0) {
-			if(DEBUG)
-				System.out.println("PrimaryKeyset CompareTo returning "+i+" at DomainKey");
+			//if(DEBUG)
+				//System.out.println("PrimaryKeyset CompareTo returning "+i+" at DomainKey");
 			return i;
 		}
-		if(DEBUG)
-			System.out.println("PrimaryKeyset CompareTo returning "+getMapKey().compareTo(((PrimaryKeySet)o).getMapKey())+" at MapKey");
+		//if(DEBUG)
+			//System.out.println("PrimaryKeyset CompareTo returning "+getMapKey().compareTo(((PrimaryKeySet)o).getMapKey())+" at MapKey");
 		return getMapKey().compareTo(((PrimaryKeySet)o).getMapKey());
 	}
 	

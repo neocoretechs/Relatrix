@@ -39,6 +39,12 @@ public class IndexResolver {
 			System.out.println("IndexResolver setLocal instance table:"+instanceTable);
 	}
 
+	public static void setLocalJson() {
+		instanceTable = new IndexInstanceTableJson();
+		if(DEBUG)
+			System.out.println("IndexResolver setLocalJson instance table:"+instanceTable);
+	}
+	
 	/**
 	 * Set the remote client to resolve the remote indexes.
 	 * @param remoteClient Implementations of ClientInterface may include transaction context information.

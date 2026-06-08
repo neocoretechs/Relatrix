@@ -41,7 +41,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey put(Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey put(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// instance index not valid, key not fully formed, we may have to add instance value to table and index it
@@ -50,7 +50,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			DBKey index = getNewDBKey();
 			try {
 				((ClientNonTransactionInterface)rc).storekv(index, instance);
-				((ClientNonTransactionInterface)rc).storekv(instance, index);
+				((ClientNonTransactionInterface)rc).storekv((Comparable) instance, index);
 			} catch (IOException e) {
 				throw new IOException(e);
 			}
@@ -67,7 +67,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 * @throws ClassNotFoundException
 	 */
 	@Override
-	public DBKey put(TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public DBKey put(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// instance index not valid, key not fully formed, we may have to add instance value to table and index it
@@ -75,13 +75,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(retKey == null) {
 			DBKey index = getNewDBKey();
 			((ClientTransactionInterface)rc).storekv(transactionId, index, instance);
-			((ClientTransactionInterface)rc).storekv(transactionId,  instance, index);
+			((ClientTransactionInterface)rc).storekv(transactionId,  (Comparable) instance, index);
 			return index;
 		}
 		return retKey;
 	}
 	@Override
-	public DBKey put(Alias alias, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public DBKey put(Alias alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
 		DBKey retKey = getKey(alias, instance);
@@ -104,7 +104,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						((ClientNonTransactionInterface)rc).storekv(alias, instance, index);
+						((ClientNonTransactionInterface)rc).storekv(alias, (Comparable) instance, index);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -116,7 +116,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public DBKey put(Alias alias, TransactionId transactionId, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public DBKey put(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.putAlias alias=%s class=%s instance=%s%n", this.getClass().getName(), alias, instance.getClass().getName(), instance);
 		DBKey retKey = getKey(alias, transactionId, instance);
@@ -139,7 +139,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				@Override
 				public void run() {
 					try {
-						((ClientTransactionInterface)rc).storekv(alias, transactionId, instance, index);
+						((ClientTransactionInterface)rc).storekv(alias, transactionId, (Comparable) instance, index);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -152,7 +152,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void put(DBKey dbKey, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException {
+	public void put(DBKey dbKey, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
@@ -171,7 +171,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					((ClientNonTransactionInterface)rc).storekv(instance, dbKey);
+					((ClientNonTransactionInterface)rc).storekv((Comparable) instance, dbKey);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -181,7 +181,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void put(Alias alias, DBKey index, Comparable instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+	public void put(Alias alias, DBKey index, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
 		// no new instance exists, based on primary check. store both new entries
@@ -200,7 +200,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					((ClientNonTransactionInterface)rc).storekv(alias, instance, index);
+					((ClientNonTransactionInterface)rc).storekv(alias, (Comparable) instance, index);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -210,7 +210,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void put(TransactionId transactionId, DBKey index, Comparable instance)
+	public void put(TransactionId transactionId, DBKey index, Object instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		if(DEBUG)
 			System.out.printf("%s.put class=%s instance=%s%n", this.getClass().getName(), instance.getClass().getName(), instance);
@@ -230,7 +230,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					((ClientTransactionInterface)rc).storekv(transactionId, instance, index);
+					((ClientTransactionInterface)rc).storekv(transactionId, (Comparable) instance, index);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -240,7 +240,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	}
 
 	@Override
-	public void put(Alias alias, TransactionId transactionId, DBKey index, Comparable instance)
+	public void put(Alias alias, TransactionId transactionId, DBKey index, Object instance)
 			throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
 		Future<?>[] jobs = new Future[2];
 		if(DEBUG)
@@ -259,7 +259,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			@Override
 			public void run() {
 				try {
-					((ClientTransactionInterface)rc).storekv(alias, transactionId, instance, index);
+					((ClientTransactionInterface)rc).storekv(alias, transactionId, (Comparable) instance, index);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -272,7 +272,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		UUID uuid = UUID.randomUUID();
 		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 		if(DEBUG)
-			System.out.printf("Returning NewKey=%s%n", nkey.toString());
+			System.out.printf("RemoteIndexInstanceTable.getNewKey Returning NewKey=%s%n", nkey.toString());
 		return nkey;
 	}
 	/**
@@ -288,12 +288,16 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		if(DEBUG)
 			System.out.printf("%s get for key:%s%n", this.getClass().getName(), index);
 		Object o = ((ClientNonTransactionInterface)rc).getByIndex(index);
-		if(DEBUG)
-			System.out.printf("%s get for key:%s returning:%s%n", this.getClass().getName(), index, o);
-		if(o == null)
+		if(o == null) {
+			if(DEBUG)
+				System.out.printf("%s get for DBKey:%s returning null for getByIndex%n", this.getClass().getName(), index);
 			return null;
-		if(o instanceof PrimaryKeySet)
+		}
+		if(o instanceof PrimaryKeySet) {
+			if(DEBUG)
+				System.out.printf("%s get for DBKey:%s Setting primary key identity, returning PrimaryKeySet %s for getByIndex%n", this.getClass().getName(), index, o);
 			((PrimaryKeySet)o).setIdentity(index);
+		}
 		return o;
 	}
 	/**

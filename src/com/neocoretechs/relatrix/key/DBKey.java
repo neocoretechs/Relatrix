@@ -89,7 +89,7 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws IOException
 	 */
 	public static DBKey newKey(IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-		return indexTable.put((Comparable) instance); // the passed key is updated
+		return indexTable.put(instance); // the passed key is updated
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws IOException
 	 */
 	public static DBKey newKey(Alias alias, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
-		return indexTable.put(alias, (Comparable) instance); // the passed key is updated
+		return indexTable.put(alias, instance); // the passed key is updated
 	}
 	
 	/**
@@ -119,7 +119,7 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws IOException
 	 */
 	public static DBKey newKey(TransactionId transactionId, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException {
-		return indexTable.put(transactionId, (Comparable) instance); // the passed key is updated
+		return indexTable.put(transactionId, instance); // the passed key is updated
 	}
 	
 	/**
@@ -135,7 +135,7 @@ public final class DBKey implements Comparable, Externalizable {
 	 * @throws IOException
 	 */
 	public static DBKey newKey(Alias alias, TransactionId transactionId, IndexInstanceTableInterface indexTable, Object instance) throws IllegalAccessException, ClassNotFoundException, IOException, NoSuchElementException {
-		return indexTable.put(alias, transactionId, (Comparable) instance); // the passed key is updated
+		return indexTable.put(alias, transactionId, instance); // the passed key is updated
 	}
 	/**
 	 * @return the msb

@@ -155,7 +155,7 @@ public final class RelatrixJson {
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
-				IndexResolver.setLocal();
+				IndexResolver.setLocalJson();
 			}
 		}
 		return instance;
@@ -242,9 +242,9 @@ public final class RelatrixJson {
 	}
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * @param d The Json payload representing the domain object for this morphism relationship.
-	 * @param m The Json payload representing the map object for this morphism relationship.
-	 * @param r The Json payload representing the range or codomain object for this morphism relationship.
+	 * @param d The payload representing the domain object for this morphism relationship.
+	 * @param m The payload representing the map object for this morphism relationship.
+	 * @param r The payload representing the range or codomain object for this morphism relationship.
 	 * @throws IllegalAccessException if fields or methods are inaccessable
 	 * @throws IOException Underlying storage failure
 	 * @throws ClassNotFoundException if bytecode repository fails or generation of morphic class fails
@@ -255,87 +255,83 @@ public final class RelatrixJson {
 	public static Relation store(Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
-		JSONObject jsonod;
-		if(d instanceof JSONObject)
-			jsonod = (JSONObject)d;
-		else
-			if(d instanceof Comparable<?>)
-				jsonod = new JSONObject(String.valueOf(d));
-			else
-				jsonod = new JSONObject(d); // reflect methods and fields - object binding
-		JSONObject jsonom;
-		if(m instanceof JSONObject)
-			jsonom = (JSONObject)m;
-		else
-			if(m instanceof Comparable<?>)
-				jsonom = new JSONObject(String.valueOf(m));
-			else
-				jsonom = new JSONObject(m); // reflect methods and fields - object binding
-		JSONObject jsonor;
-		if(r instanceof JSONObject)
-			jsonor = (JSONObject)r;
-		else
-			if(r instanceof Comparable<?>)
-				jsonor = new JSONObject(String.valueOf(r));
-			else
-				jsonor = new JSONObject(r); // reflect methods and fields - object binding
-		return storeJson(jsonod, jsonom, jsonor);
-	}
-		
-	/**
-	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * @param d The Json payload representing the domain object for this morphism relationship.
-	 * @param m The Json payload representing the map object for this morphism relationship.
-	 * @param r The Json payload representing the range or codomain object for this morphism relationship.
-	 * @throws IllegalAccessException if fields or methods are inaccessable
-	 * @throws IOException Underlying storage failure
-	 * @throws ClassNotFoundException if bytecode repository fails or generation of morphic class fails
-	 * @throws DuplicateKeyException if a duplicate key is attempted in any of the morphism elements
-	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
-	 */
-	private static Relation storeJson(JSONObject d, JSONObject m, JSONObject r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		if( d == null || m == null || r == null)
-			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+		JSONObject jsono;
+		Comparable<?> jkeyd, jkeym, jkeyr;
+		if(d instanceof JSONObject) {
+			jsono = (JSONObject)d;
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
+			jkeyd = RelatrixKVJson.getObject(ttmm);
+		} else {
+			if(d instanceof Comparable<?>) {
+				jkeyd = (Comparable<?>)d;
+			} else {
+				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
+			}
+		}
+		if(m instanceof JSONObject) {
+			jsono = (JSONObject)m;
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
+			jkeym = RelatrixKVJson.getObject(ttmm);
+		} else {
+			if(m instanceof Comparable<?>) {
+				jkeym = (Comparable<?>)m;
+			} else {
+				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
+			}
+		}
+		if(r instanceof JSONObject) {
+			jsono = (JSONObject)r;
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
+			jkeyr = RelatrixKVJson.getObject(ttmm);
+		} else {
+			if(r instanceof Comparable<?>) {
+				jkeyr = (Comparable<?>)m;
+			} else {
+				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
+			}
+		}
 		Relation identity = new Relation(); // form it as template for duplicate key search
-		BufferedMap ttmd = RelatrixKVJson.getJsonClass(d);
-		Comparable<?> jkeyd = RelatrixKVJson.getObject(ttmd);
-		//
-		BufferedMap ttmm = RelatrixKVJson.getJsonClass(m);
-		Comparable<?> jkeym = RelatrixKVJson.getObject(ttmm);
-		//
-		BufferedMap ttmr = RelatrixKVJson.getJsonClass(r);
-		Comparable<?> jkeyr = RelatrixKVJson.getObject(ttmr);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
 		PrimaryKeySet pk = PrimaryKeySet.locate(jkeyd, jkeym);
+		if(DEBUG)
+			System.out.println("RelatrixJson.store PrimaryKeySet:"+pk+" from domain key:"+jkeyd+" map key"+jkeym);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(jkeyd);
 			identity.setMapResolved(jkeym);
+			if(DEBUG)
+				System.out.println("RelatrixJson.store PrimaryKeySet identity was null, now set to:"+identity);
 			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
-			if(rKey == null)
+			if(rKey == null) {
 				identity.setRange(jkeyr);
-			else {
+				if(DEBUG)
+					System.out.println("RelatrixJson.store PrimaryKeySet identity rkey was null, identity set to:"+identity);
+			} else {
 				identity.setRangeKey(rKey);
 				identity.setRangeResolved(jkeyr);
+				if(DEBUG)
+					System.out.println("RelatrixJson.store PrimaryKeySet identity rkey was not null, identity set to:"+identity);
 			}
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
 			identity.setIdentity(identity.newKey(identity));
+			if(DEBUG)
+				System.out.println("RelatrixJson.storeJson setting identity from newKey:"+identity);
 		} else
 			throw new DuplicateKeyException("Relationship primary key ["+d+"->"+m+"] already exists.");
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+identity);
+			System.out.println("RelatrixJson.storeJson calling storeParallel with identity:"+identity+" and pk:"+pk);
 		// store the primary, but not in the DBKey table
 		storeParallel(identity, pk);
 		if(DEBUG)
-			System.out.println(identity);
+			System.out.println("RelatrixJson.storeJson returning identity:"+identity);
 		return identity;
 	}
 	
@@ -383,7 +379,7 @@ public final class RelatrixJson {
 		// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 		// and maintains the classes stores in IndexInstanceTable for future commit.
 		if( DEBUG  )
-			System.out.println("Relatrix.store stored :"+identity);
+			System.out.println("RelatrixJson.store stored :"+identity);
 		// store the primary, but not in the DBKey table
 		storeParallel(alias, identity, pk);
 		return identity;
@@ -561,7 +557,12 @@ public final class RelatrixJson {
 		   SynchronizedThreadManager.waitForCompletion(jobs);
 		   return returnList;
 	}
-	
+	/**
+	 * Invoke threads to store primary key and each index in parallel by calling back to RelatrixKVJson.storekv.
+	 * @param identity
+	 * @param pk
+	 * @throws IOException
+	 */
 	public static void storeParallel(Relation identity, PrimaryKeySet pk) throws IOException {
 		AtomicInteger semaphore = new AtomicInteger();
 		final IOException writeException = new IOException();
@@ -572,9 +573,9 @@ public final class RelatrixJson {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVJson.storekv(pk, identity.getIdentity());
+							RelatrixKVJson.store(pk, identity.getIdentity());
 						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored primary:"+pk);
+							System.out.println("RelatrixJson.store stored primary:"+pk);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -589,9 +590,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapDomainRange(identity);
-							RelatrixKVJson.storekv(dmr, identity.getIdentity());	
+							RelatrixKVJson.store(dmr, identity.getIdentity());	
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						semaphore.getAndIncrement();
@@ -606,9 +607,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new DomainRangeMap(identity);
-							RelatrixKVJson.storekv(dmr, identity.getIdentity());
+							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -623,9 +624,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapRangeDomain(identity);
-							RelatrixKVJson.storekv(dmr, identity.getIdentity());
+							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -640,9 +641,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeDomainMap(identity);
-							RelatrixKVJson.storekv(dmr, identity.getIdentity());
+							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -657,9 +658,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeMapDomain(identity);
-							RelatrixKVJson.storekv(dmr, identity.getIdentity());
+							RelatrixKVJson.store(dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -686,9 +687,9 @@ public final class RelatrixJson {
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVJson.storekv(alias, pk, identity.getIdentity());
+							RelatrixKVJson.store(alias, pk, identity.getIdentity());
 						if( DEBUG  )
-							System.out.println("RelatrixTransaction.store stored primary:"+pk);
+							System.out.println("RelatrixJson.store stored primary:"+pk);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -703,9 +704,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapDomainRange(identity);
-							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());	
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());	
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						semaphore.getAndIncrement();
@@ -720,9 +721,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new DomainRangeMap(identity);
-							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -737,9 +738,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new MapRangeDomain(identity);
-							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -754,9 +755,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeDomainMap(identity);
-							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -771,9 +772,9 @@ public final class RelatrixJson {
 					try {
 						if(semaphore.get() == 0) {
 							AbstractRelation dmr = new RangeMapDomain(identity);
-							RelatrixKVJson.storekv(alias, dmr, identity.getIdentity());
+							RelatrixKVJson.store(alias, dmr, identity.getIdentity());
 							if( DEBUG  )
-								System.out.println("Relatrix.store stored :"+dmr);
+								System.out.println("RelatrixJson.store stored index:"+dmr);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -3326,7 +3327,7 @@ public final class RelatrixJson {
 		UUID uuid = UUID.randomUUID();
 		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 		if(DEBUG)
-			System.out.printf("Returning NewKey=%s%n", nkey.toString());
+			System.out.printf("RelatrixJSon.getNewKey Returning NewKey=%s%n", nkey.toString());
 		return nkey;
 	}
 

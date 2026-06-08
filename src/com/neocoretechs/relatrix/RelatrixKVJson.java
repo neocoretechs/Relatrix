@@ -106,7 +106,7 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
+	public static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
 		Class<?> c;
 		try {
 			c = Class.forName(bm.getClassName(), false, classLoader);
@@ -323,7 +323,7 @@ public final class RelatrixKVJson {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	static BufferedMap getJsonClass(JSONObject jsono) throws IllegalAccessException, IOException {
+	public static BufferedMap getJsonClass(JSONObject jsono) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		BufferedMap t = mapCache.get(cjson);
 		byte[] ctype = null;
@@ -507,12 +507,36 @@ public final class RelatrixKVJson {
 	 */
 	@ServerMethod
 	public static void store(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		JSONObject jsono = new JSONObject(String.valueOf(key));
-		BufferedMap ttm = getJsonClass(jsono);
-		Comparable<?> jkey = getObject(ttm);
+		Comparable<?> jkey;
+		Object jvalue;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				BufferedMap ttm = getJsonClass(jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(value instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)value;
+			try {
+				BufferedMap ttm = getJsonClass(jsonod);
+				jvalue = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else
+			jvalue = value;
 		if( DEBUG  )
-			System.out.println("RelatrixKVJson.store storing key:"+jkey+" value:"+value+" in map:"+ttm);
-		ttm.put(jkey, value);
+			System.out.println("RelatrixKVJson.store storing key:"+jkey+" value:"+jvalue);
+		storekv(jkey, jvalue);
 	}
 	
 	@ServerMethod
@@ -532,12 +556,25 @@ public final class RelatrixKVJson {
 	 */
 	@ServerMethod
 	public static void store(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		JSONObject jsono = new JSONObject(key);
-		BufferedMap ttm = getJsonClass(alias, jsono);
-		Comparable<?> jkey = getObject(ttm);
+		Comparable<?> jkey;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				BufferedMap ttm = getJsonClass(alias, jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
 		if( DEBUG  )
-			System.out.println("RelatrixKVJson.store storing alias:"+alias+" key:"+jkey+" value:"+value+" in map:"+ttm);
-		ttm.put(jkey, value);
+			System.out.println("RelatrixKVJson.store storing alias:"+alias+" key:"+jkey+" value:"+value);
+		storekv(alias, jkey, value);
 	}
 	
 	@ServerMethod
