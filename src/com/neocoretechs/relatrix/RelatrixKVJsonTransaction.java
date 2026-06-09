@@ -108,7 +108,7 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private static Comparable<?> getObject(TransactionalMap tm) throws IllegalAccessException, IOException {
+	public static Comparable<?> getObject(TransactionalMap tm) throws IllegalAccessException, IOException {
 		Class<?> c;
 		try {
 			c = Class.forName(tm.getClassName(), false, classLoader);
@@ -326,7 +326,7 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	private static TransactionalMap getJsonClass(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
+	public static TransactionalMap getJsonClass(JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		TransactionalMap t = mapCache.get(cjson);
 		byte[] ctype = null;
@@ -363,7 +363,7 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IllegalAccessException If the class cannot be constructed
 	 * @throws IOException If the underlying storage subsystem fails
 	 */
-	private static TransactionalMap getJsonClass(Alias alias, JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
+	public static TransactionalMap getJsonClass(Alias alias, JSONObject jsono, TransactionId xid) throws IllegalAccessException, IOException {
 		String cjson = RelatrixTypeSynthesizer.generateMorphicClassName(jsono, JsonRecordClassGenerator.generatedJsonClassPrefix);
 		TransactionalMap t = mapCache.get(cjson+alias.getAlias());
 		byte[] ctype = null;
@@ -579,11 +579,36 @@ public final class RelatrixKVJsonTransaction {
 	@ServerMethod
 	public static void store(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		JSONObject jsono = new JSONObject(String.valueOf(key));
-		TransactionalMap ttm = getJsonClass(jsono, xid);
-		Comparable<?> jkey = getObject(ttm);
+		Comparable<?> jkey;
+		Object jvalue;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				TransactionalMap ttm = getJsonClass(jsonod, xid);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(value instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)value;
+			try {
+				TransactionalMap ttm = getJsonClass(jsonod, xid);
+				jvalue = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else
+			jvalue = value;
 		if( DEBUG  )
-			System.out.println("RelatrixKVJsonTransaction.store storing key:"+jkey+" value:"+value+" in map:"+ttm);
-		ttm.put(xid, jkey, value);
+			System.out.println("RelatrixKVJsonTransaction.store storing key:"+jkey+" value:"+value);
+		storekv(xid, jkey, value);
 	}
 	
 	@ServerMethod
@@ -603,12 +628,37 @@ public final class RelatrixKVJsonTransaction {
 	 */
 	@ServerMethod
 	public static void store(Alias alias, TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		JSONObject jsono = new JSONObject(key);
-		TransactionalMap ttm = getJsonClass(alias, jsono, xid);
-		Comparable<?> jkey = getObject(ttm);
+		JSONObject jsono = new JSONObject(String.valueOf(key));
+		Comparable<?> jkey;
+		Object jvalue;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				TransactionalMap ttm = getJsonClass(alias, jsonod, xid);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(value instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)value;
+			try {
+				TransactionalMap ttm = getJsonClass(alias, jsonod, xid);
+				jvalue = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else
+			jvalue = value;
 		if( DEBUG  )
-			System.out.println("RelatrixKVJsonTransaction.store storing alias:"+alias+" key:"+jkey+" value:"+value+" in map:"+ttm);
-		ttm.put(xid, jkey, value);
+			System.out.println("RelatrixKVJsonTransaction.store storing key:"+jkey+" value:"+value+" for alias "+alias);
+		storekv(alias, xid, jkey, value);
 	}
 	
 	@ServerMethod

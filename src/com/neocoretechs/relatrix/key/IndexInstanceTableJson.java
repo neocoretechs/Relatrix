@@ -19,7 +19,6 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.rocksack.KeyValue;
-
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 /**
@@ -238,7 +237,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVJsonTransaction.storekv(alias, transactionId, index, instance);
+							RelatrixKVJsonTransaction.store(alias, transactionId, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -250,8 +249,21 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				@Override
 				public void run() {
 					try {
-						if(semaphore.get() == 0)
-							RelatrixKVJsonTransaction.storekv(alias, transactionId, (Comparable<?>) instance, index);
+						if(semaphore.get() == 0) {
+							Comparable<?> jkey;
+							if(instance instanceof JSONObject) {
+								JSONObject jsonod = (JSONObject)instance;
+								TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(alias, jsonod, transactionId);
+								jkey = RelatrixKVJsonTransaction.getObject(ttm);
+							} else {
+								if(instance instanceof Comparable<?>) {
+									jkey = (Comparable<?>) instance;
+								} else {
+									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+								}
+							}
+							RelatrixKVJsonTransaction.store(alias, transactionId, jkey, index);
+						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -276,7 +288,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVJsonTransaction.storekv(transactionId, index, instance);
+							RelatrixKVJsonTransaction.store(transactionId, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -288,8 +300,21 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				@Override
 				public void run() {
 					try {
-						if(semaphore.get() == 0)
-							RelatrixKVJsonTransaction.storekv(transactionId, (Comparable<?>) instance, index);
+						if(semaphore.get() == 0) {
+							Comparable<?> jkey;
+							if(instance instanceof JSONObject) {
+								JSONObject jsonod = (JSONObject)instance;
+								TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(jsonod, transactionId);
+								jkey = RelatrixKVJsonTransaction.getObject(ttm);
+							} else {
+								if(instance instanceof Comparable<?>) {
+									jkey = (Comparable<?>) instance;
+								} else {
+									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+								}
+							}
+							RelatrixKVJsonTransaction.store(transactionId, jkey, index);
+						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -366,7 +391,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				public void run() {
 					try {
 						if(semaphore.get() == 0)
-							RelatrixKVJson.storekv(alias, index, instance);
+							RelatrixKVJson.store(alias, index, instance);
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -378,8 +403,21 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				@Override
 				public void run() {
 					try {
-						if(semaphore.get() == 0)
-							RelatrixKVJson.storekv(alias, (Comparable<?>) instance, index);
+						if(semaphore.get() == 0) {
+							Comparable<?> jkey;
+							if(instance instanceof JSONObject) {
+								JSONObject jsonod = (JSONObject)instance;
+								BufferedMap ttm = RelatrixKVJson.getJsonClass(alias, jsonod);
+								jkey = RelatrixKVJson.getObject(ttm);
+							} else {
+								if(instance instanceof Comparable<?>) {
+									jkey = (Comparable<?>) instance;
+								} else {
+									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+								}
+							}
+							RelatrixKVJson.store(alias, jkey, index);
+						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
 						semaphore.getAndIncrement();
@@ -523,12 +561,24 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
+		Comparable<?> jkey;
+		if(instance instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)instance;
+			BufferedMap ttm = RelatrixKVJson.getJsonClass(alias, jsonod);
+			jkey = RelatrixKVJson.getObject(ttm);
+		} else {
+			if(instance instanceof Comparable<?>) {
+				jkey = (Comparable<?>) instance;
+			} else {
+				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+			}
+		}
 		if(DEBUG) {
-			DBKey dbkey = (DBKey) RelatrixKVJson.get((Comparable) instance);
-			System.out.printf("%s getKey:%s Alias:%s produces key:%s%n", this.getClass().getName(), instance, alias, dbkey);
+			DBKey dbkey = (DBKey) RelatrixKVJson.get(alias, jkey);
+			System.out.printf("%s getKey:%s Alias:%s produces key:%s%n", this.getClass().getName(), jkey, alias, dbkey);
 			return dbkey;
 		}
-		return (DBKey) RelatrixKVJson.get(alias, (Comparable) instance);
+		return (DBKey) RelatrixKVJson.get(alias, jkey);
 	}
 
 	/**
@@ -542,7 +592,19 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return (DBKey) RelatrixKVJsonTransaction.get(transactionId, (Comparable) instance);
+		Comparable<?> jkey;
+		if(instance instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)instance;
+			TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(jsonod, transactionId);
+			jkey = RelatrixKVJsonTransaction.getObject(ttm);
+		} else {
+			if(instance instanceof Comparable<?>) {
+				jkey = (Comparable<?>) instance;
+			} else {
+				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+			}
+		}
+		return (DBKey) RelatrixKVJsonTransaction.get(transactionId, jkey);
 	}
 
 	/**
@@ -558,13 +620,19 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(Alias alias, TransactionId transactionId, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		if(ASSERTKEY) {
-			Object o = RelatrixKVJsonTransaction.get(alias, transactionId, (Comparable) instance);
-			if(o != null && !(o instanceof DBKey))
-				System.out.println("Error getting "+o+" instance:"+instance+" alias:"+alias+" xid:"+transactionId);
-			return (DBKey) o;
+		Comparable<?> jkey;
+		if(instance instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)instance;
+			TransactionalMap ttm = RelatrixKVJsonTransaction.getJsonClass(alias, jsonod, transactionId);
+			jkey = RelatrixKVJsonTransaction.getObject(ttm);
+		} else {
+			if(instance instanceof Comparable<?>) {
+				jkey = (Comparable<?>) instance;
+			} else {
+				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
+			}
 		}
-		return (DBKey) RelatrixKVJsonTransaction.get(alias, transactionId, (Comparable) instance);
+		return (DBKey) RelatrixKVJsonTransaction.get(alias, transactionId, jkey);
 	}
 
 	@Override
