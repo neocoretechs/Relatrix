@@ -31,7 +31,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
  *
  */
 public final class IndexInstanceTableJson implements IndexInstanceTableInterface {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	public static boolean ASSERTKEY = true; // on get resolving getKey verify DBKey instance
 	private static Object mutex = new Object();
 

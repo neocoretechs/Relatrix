@@ -101,7 +101,8 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
     				dkey.add(dk);
     				dkeyLo = dk;
     				dkeyHi = dk;
-    			}
+    			} else
+    				throw new RuntimeException("Cannot locate DBKey from reference "+template.getDomain());
     		} else
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVJson.findHeadMapKVStream(templateo.getDomain()).forEach(e -> {
@@ -118,6 +119,9 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
     			    .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
     				dkey.addAll(q); // single-threaded merge
     				// compute lo/hi
+    				if(DEBUG)
+    					if(dkey.isEmpty())
+    						System.out.printf("%s domain headmap keyrange yielded empty set for:%s%n", this.getClass().getName(), RelatrixKVJson.getData(templateo.getDomain()));
     				for (DBKey k : q) {
     					if (k.compareTo(dkeyLo) < 0) dkeyLo = k;
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
@@ -129,7 +133,8 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
     				mkey.add(mk);
     				mkeyLo = mk;
     				mkeyHi = mk;
-    			}
+    			} else
+    				throw new RuntimeException("Cannot locate DBKey from reference "+template.getMap());
     		} else
     			if(templateo.getMap() != null) {
     				/*RelatrixKVJson.findHeadMapKVStream(templateo.getMap()).forEach(e -> {
@@ -144,6 +149,9 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
   						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
 			    	.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
   					mkey.addAll(q); // single-threaded merge
+  					if(DEBUG)
+    					if(mkey.isEmpty())
+    						System.out.printf("%s map headmap keyrange yielded empty set for:%s%n", this.getClass().getName(), RelatrixKVJson.getData(templateo.getMap()));
 					// compute lo/hi
 					for (DBKey k : q) {
 						if (k.compareTo(mkeyLo) < 0) mkeyLo = k;
@@ -156,7 +164,8 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
     				rkey.add(rk);
     				rkeyLo = rk;
     				rkeyHi = rk;
-    			}
+    			} else
+    				throw new RuntimeException("Cannot locate DBKey from reference "+template.getRange());
 			} else
     			if(templateo.getRange() != null) {
     				/*RelatrixKVJson.findHeadMapKVStream(templateo.getRange()).forEach(e -> {
@@ -171,6 +180,9 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
       						.map(e -> ((Map.Entry<Comparable,DBKey>) e).getValue())
     			    	.collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
       					rkey.addAll(q); // single-threaded merge
+    					if(DEBUG)
+        					if(rkey.isEmpty())
+        						System.out.printf("%s range headmap keyrange yielded empty set for:%s%n", this.getClass().getName(), RelatrixKVJson.getData(templateo.getRange()));
     					// compute lo/hi
     					for (DBKey k : q) {
     						if (k.compareTo(rkeyLo) < 0) rkeyLo = k;
@@ -349,7 +361,7 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
 	@Override
 	@ServerMethod
 	public boolean hasNext() {
-		if( DEBUGITERATION )
+		if( DEBUG || DEBUGITERATION )
 			System.out.println(this.toString());
 		return needsIter;
 	}
@@ -359,7 +371,7 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
 	public Result next() {
 		try {
 		if( buffer == null || needsIter) {
-			if( DEBUGITERATION ) {
+			if( DEBUG || DEBUGITERATION ) {
 	    			System.out.println("RelatrixHeadsetIteratorJson.next() before iteration:"+this.toString());
 			}
 			if( nextit != null )
@@ -385,7 +397,7 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
 			}
 		}
 		// always return using this with non null buffer
-		if( DEBUGITERATION ) {
+		if( DEBUG || DEBUGITERATION ) {
 			System.out.println("RelatrixHeadsetIteratorJson.next() template match after iteration:"+this.toString());
 		}
 		return FindsetUtilJson.iterateDmr(buffer, identity, dmr_return);

@@ -233,7 +233,7 @@ public final class Relatrix {
 	@ServerMethod
 	public static Relation store(Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
-			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
@@ -284,7 +284,7 @@ public final class Relatrix {
 	@ServerMethod
 	public static Relation store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
-			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
 		// check for domain/map match

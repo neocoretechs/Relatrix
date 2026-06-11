@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixJson;
+import com.neocoretechs.relatrix.RelatrixKVJson;
 
 /**
  * Find elements strictly less than 'to' target.
@@ -14,6 +15,7 @@ import com.neocoretechs.relatrix.RelatrixJson;
  *
  */
 public class FindHeadSetMode0Json extends FindSetMode0Json {
+	public static boolean DEBUG = false;
 	Object endarg0,endarg1,endarg2;
 	public FindHeadSetMode0Json(char dop, char mop, char rop, Object arg1, Object arg2, Object arg3) { 	
 		super(dop,mop,rop);
@@ -31,24 +33,36 @@ public class FindHeadSetMode0Json extends FindSetMode0Json {
 		if(tdmr.getDomain() == null) {
 			if(endarg0 instanceof Class) {
 				xdmr.setDomain((Comparable) RelatrixJson.lastKey((Class)endarg0));
+				if(DEBUG)
+					System.out.printf("%s domain instanceof Class %s, lastKey=%s%n", this.getClass().getName(),endarg0,RelatrixKVJson.getData(xdmr.getDomain()));
 			} else {
 				xdmr.setDomain((Comparable)endarg0); // same as concrete type in d,m,r field, but we are returning relations with that value
+				if(DEBUG)
+					System.out.printf("%s domain is object=%s%n", this.getClass().getName(),RelatrixKVJson.getData(xdmr.getDomain()));
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
 		if(tdmr.getMap() == null) {
 			if(endarg1 instanceof Class) {
 				xdmr.setMap((Comparable) RelatrixJson.lastKey((Class)endarg1));
+				if(DEBUG)
+					System.out.printf("%s map instanceof Class %s, lastKey=%s%n", this.getClass().getName(),endarg1,RelatrixKVJson.getData(xdmr.getMap()));
 			} else {
 				xdmr.setMap((Comparable)endarg1);
+				if(DEBUG)
+					System.out.printf("%s map is object=%s%n", this.getClass().getName(),RelatrixKVJson.getData(xdmr.getMap()));
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
 		if(tdmr.getRange() == null) {
 			if(endarg2 instanceof Class) {
 				xdmr.setRange((Comparable) RelatrixJson.lastKey((Class)endarg2));
+				if(DEBUG)
+					System.out.printf("%s map instanceof Class %s, lastKey=%s%n", this.getClass().getName(),endarg2,RelatrixKVJson.getData(xdmr.getRange()));
 			} else {
 				xdmr.setRange((Comparable)endarg2);
+				if(DEBUG)
+					System.out.printf("%s range is object=%s%n", this.getClass().getName(),RelatrixKVJson.getData(xdmr.getRange()));
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");

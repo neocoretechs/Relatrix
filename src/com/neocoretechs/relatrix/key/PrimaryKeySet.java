@@ -25,7 +25,7 @@ import com.neocoretechs.rocksack.TransactionId;
 //@DatabaseClass(tablespace="com.neocoretechs.relatrix.Relation")
 public class PrimaryKeySet implements Externalizable, Comparable {
 	private static final long serialVersionUID = -2614468413972955193L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	protected DBKey domainKey;
     protected DBKey mapKey;
     protected transient DBKey identity;

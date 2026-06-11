@@ -283,7 +283,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Relation store(TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
-			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setTransactionId(xid);
 		// check for domain/map match
@@ -329,7 +329,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Relation store(Alias alias, TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
-			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a morphism");
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
 		identity.setTransactionId(xid);
