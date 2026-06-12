@@ -207,7 +207,7 @@ public class RelatrixIteratorJson implements Iterator<Result> {
 	}
 	/**
 	 * Return the number of tuple elements to be returned from specified query in each iteration
-	 * @param dmr_return For each element of the dmr_return array, element 0 is counter, for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
+	 * @param dmr_return For each element of the dmr_return array, element 0 is counter, for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br>
 	 * @return The {@link Result} object based on number of ? return tuples in dmr_return array and whether its considered an identity {@link AbstractRelation}
 	 */
 	protected static Result getReturnTuples(short[] dmr_return) {
@@ -228,9 +228,9 @@ public class RelatrixIteratorJson implements Iterator<Result> {
 		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
 	}
 	/**
-	 * Checks to see if our dmr_return array has any return tuple ? values.<br/>
-	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p/>
-	 * For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
+	 * Checks to see if our dmr_return array has any return tuple ? values.<br>
+	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p>
+	 * For each element of the dmr_return array elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br>
 	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 (object), or 2 (wildcard)
 	 * then we say its an identity, and we will return a {@link Result1} on each iteration with a {@link com.neocoretechs.relatrix.Relation} relationship object.
 	 * @param dmr_return our 4 element array of element 0 counter, and element 1-3 of 0 (object), 1 (? return tuple) or 2 (wildcard)
