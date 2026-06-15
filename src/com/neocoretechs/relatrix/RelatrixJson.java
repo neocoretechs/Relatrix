@@ -1318,7 +1318,7 @@ public final class RelatrixJson {
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException, DuplicateKeyException {
+	public static void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException {
 		Relation dmr = new Relation(d,m,null);
 		remove(dmr);
 	}
@@ -1333,7 +1333,7 @@ public final class RelatrixJson {
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException, DuplicateKeyException {
+	public static void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException {
 		Relation dmr = new Relation(alias,d,m,null);
 		remove(alias, dmr);
 	}
