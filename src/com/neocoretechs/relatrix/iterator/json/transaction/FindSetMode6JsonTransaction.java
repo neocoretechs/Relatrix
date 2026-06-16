@@ -1,11 +1,11 @@
-package com.neocoretechs.relatrix.iterator.transaction;
+package com.neocoretechs.relatrix.iterator.json.transaction;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.iterator.FindSetMode6;
+import com.neocoretechs.relatrix.iterator.json.FindSetMode6Json;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
@@ -24,10 +24,10 @@ import com.neocoretechs.rocksack.Alias;
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
-public class FindSetMode6Transaction extends FindSetMode6 {
+public class FindSetMode6JsonTransaction extends FindSetMode6Json {
 	// mode 6
 	TransactionId xid;
-    public FindSetMode6Transaction(TransactionId transactionId, Object darg, Object marg, char rop) { 	
+    public FindSetMode6JsonTransaction(TransactionId transactionId, Object darg, Object marg, char rop) { 	
     	super(darg, marg, rop);
     	this.xid = transactionId;
     }
@@ -43,7 +43,7 @@ public class FindSetMode6Transaction extends FindSetMode6 {
 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr)throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	    return new RelatrixIteratorJsonTransaction(xid, tdmr, dmr_return);
 	}
 	
 	 /**
@@ -57,6 +57,6 @@ public class FindSetMode6Transaction extends FindSetMode6 {
 	
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
+	    return new RelatrixIteratorJsonTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

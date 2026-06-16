@@ -33,7 +33,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * Here, the subset is retrieved.<p>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a {@link RelatrixIteratorJson} is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare<br/> findSubSet('*','?','*',[object | Class],[object]) <br>we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
+ * if we declare<br> findSubSet('*','?','*',[object | Class],[object]) <br>we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
  * For<br> findSubSet('?',object,'?',[object | Class],[object],[object | Class],[object])<br> we
  * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
  * For each * wildcard or ? return we need a corresponding Class or 2 concrete instance objects in the suffix arguments. These objects become the basis

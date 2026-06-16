@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.iterator.transaction;
+package com.neocoretechs.relatrix.iterator.json.transaction;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.relatrix.iterator.FindSetMode3;
+import com.neocoretechs.relatrix.iterator.json.FindSetMode3Json;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -23,10 +23,10 @@ Legal permutations are:<br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
-public class FindSetMode3Transaction extends FindSetMode3 {
+public class FindSetMode3JsonTransaction extends FindSetMode3Json {
 	// mode 3
 	TransactionId xid;
-    public FindSetMode3Transaction(TransactionId transactionId, char dop, Object marg, Object rarg) { 	
+    public FindSetMode3JsonTransaction(TransactionId transactionId, char dop, Object marg, Object rarg) { 	
     	super(dop, marg, rarg);
     	this.xid = transactionId;
     }
@@ -49,7 +49,7 @@ public class FindSetMode3Transaction extends FindSetMode3 {
 	 * @throws IOException
 	 */
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	    return new RelatrixIteratorJsonTransaction(xid, tdmr, dmr_return);
 	}
     
     /**
@@ -70,6 +70,6 @@ public class FindSetMode3Transaction extends FindSetMode3 {
 	 * @throws IOException
 	 */
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
+	    return new RelatrixIteratorJsonTransaction(alias, xid, tdmr, dmr_return);
 	}
 }

@@ -28,12 +28,12 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
- * <p/>
+ * <p>
  * For tuples the Result is relative to the '?' query predicates. <br>
- * Here, the headset is retrieved.<p/>
+ * Here, the headset is retrieved.<p>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a {@link RelatrixIteratorJson} is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare findHeadSet('*','?','*',[object | Class])<br/> we get back a {@link com.neocoretechs.relatrix.Result1} of one element.<br> 
+ * if we declare findHeadSet('*','?','*',[object | Class])<br> we get back a {@link com.neocoretechs.relatrix.Result1} of one element.<br> 
  * For findHeadSet('?',object,'?',[object | Class],[object | Class]) <br>we
  * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
  * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis

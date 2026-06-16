@@ -1,27 +1,27 @@
-package com.neocoretechs.relatrix.iterator.transaction;
+package com.neocoretechs.relatrix.iterator.json.transaction;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.TransactionId;
 
-
 /**
-* Find elements greater or equal to 'from' element. 
-* Mode 6 = findTailSet(object,object,"*|?",[class | object]) return identity or 1 element tuple.
+* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
+* Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
 * Legal permutations are:<br>
-* [object],[object],*,... <br>
-* [object],[object],?,... <br>
-* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
+* [object],[object],* <br>
+* [object],[object],? <br>
+* Concrete domain and map
+* @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 *
 */
-public class FindTailSetMode6Transaction extends FindSetMode6Transaction {
+public class FindHeadSetMode6JsonTransaction extends FindSetMode6JsonTransaction {
 	Object endarg0;
-    public FindTailSetMode6Transaction(TransactionId xid, Object darg, Object marg, char rop, Object arg1) { 	
+    public FindHeadSetMode6JsonTransaction(TransactionId xid, Object darg, Object marg, char rop, Object arg1) { 	
     	super(xid, darg, marg, rop);
 		endarg0 = arg1;
     }
@@ -34,13 +34,13 @@ public class FindTailSetMode6Transaction extends FindSetMode6Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg0 instanceof Class) {
-				xdmr.setRange((Comparable) RelatrixTransaction.firstKey(xid,(Class)endarg0));
+				xdmr.setRange((Comparable) RelatrixJsonTransaction.lastKey(xid, (Class)endarg0));
 			} else {
 				xdmr.setRange((Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-	    return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
+	    return new RelatrixHeadsetIteratorJsonTransaction(xid, tdmr, xdmr, dmr_return);
 	}
 	
 	@Override
@@ -51,12 +51,12 @@ public class FindTailSetMode6Transaction extends FindSetMode6Transaction {
 		} catch (CloneNotSupportedException e) {}
 		if(tdmr.getRange() == null) {
 			if(endarg0 instanceof Class) {
-				xdmr.setRange(alias,(Comparable) RelatrixTransaction.firstKey(alias,xid,(Class)endarg0));
+				xdmr.setRange(alias,(Comparable) RelatrixJsonTransaction.lastKey(alias, xid, (Class)endarg0));
 			} else {
 				xdmr.setRange(alias,(Comparable)endarg0);
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-	    return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
+	    return new RelatrixHeadsetIteratorJsonTransaction(alias, xid, tdmr, xdmr, dmr_return);
 	}
 }

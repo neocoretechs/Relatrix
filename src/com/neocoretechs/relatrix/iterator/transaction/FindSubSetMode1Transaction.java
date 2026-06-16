@@ -16,16 +16,16 @@ import com.neocoretechs.rocksack.TransactionId;
  * To get the subSet iterator from the RockSack we need 2 arguments, start and end range. We use the overridden 
  * clone method to render an instance for our template that we fill in with the arguments from the additional semantics.
  * It takes the form of a variable parameter argument to the findSet method at the highest levels of the Relatrix
- * API. <p/>
+ * API. <p>
  * * Legal permutations are:
- * *,*,[object],... <br/>
- * *,?,[object],... <br/>
- * ?,?,[object],... <br/>
- * ?,*,[object],... <br/>
+ * *,*,[object],... <br>
+ * *,?,[object],... <br>
+ * ?,?,[object],... <br>
+ * ?,*,[object],... <br>
  * The number of objects returned is the sum of the number of "?" PLUS the number of concrete object instances
  * specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
  * these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
- * @author Jonathan Copyright (C) 2015 NeoCoreTechs
+ * @author Jonathan Groff Copyright (C) 2015 NeoCoreTechs
  *
  */
 public class FindSubSetMode1Transaction extends FindSetMode1Transaction {

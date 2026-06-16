@@ -11,12 +11,12 @@ import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 4.
-* Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
-* [object],*,*,... <br/>
-* [object],*,?,...  <br/>
-* [object],?,?,...  <br/>
-* [object],?,*,... <br/>
-* [TemplateClass],*,* <br/>
+* Find the set of objects in the relation via the specified predicate. Legal permutations are:<br>
+* [object],*,*,... <br>
+* [object],*,?,...  <br>
+* [object],?,?,...  <br>
+* [object],?,*,... <br>
+* [TemplateClass],*,* <br>
 * The number of objects returned is the sum of the number of "?" PLUS the number of concrete object instances
 * specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
 * these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
