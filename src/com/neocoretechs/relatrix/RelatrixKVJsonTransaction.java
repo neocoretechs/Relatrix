@@ -50,7 +50,7 @@ public final class RelatrixKVJsonTransaction {
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	private static ConcurrentHashMap<String, TransactionalMap> mapCache = new ConcurrentHashMap<String, TransactionalMap>();
-	private static HandlerClassLoader classLoader = null;
+	static HandlerClassLoader classLoader = null;
 	public static boolean optimisticConcurrency = true;
 	
 	// Multithreaded double check Singleton setups:

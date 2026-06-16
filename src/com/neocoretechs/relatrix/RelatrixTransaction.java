@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
-import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode0Transaction;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode1Transaction;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode2Transaction;
@@ -65,35 +64,34 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 
-
 /**
-* Top-level class that imparts behavior to the AbstractRelation subclasses which contain references for domain, map, range.<p/>
+* Top-level class that imparts behavior to the AbstractRelation subclasses which contain references for domain, map, range.<p>
 * The lynch pin is the AbstractRelation and its subclasses indexed
 * in the 6 permutations of the domain,map,and range so we can retrieve instances in all
-* the potential sort orders.<b/>
+* the potential sort orders.<b>
 * The compareTo and fullCompareTo of AbstractRelation provide the comparison methods to drive the processes.
 * For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
 * in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
-* order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p/>
+* order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p>
 * The critical concept about retrieving relationships is to remember that the number of elements from each passed
 * stream element or iteration of a Stream or Iterator is dependent on the number of '?' operators in a 'findSet'. For example,
 * if we declare findHeadSet('*','?','*') we get back a {@link Result} of one element, for findSet('?',object,'?') we
-* would get back a {@link Result2} array, with each element of the relationship returned.<br/>
-* If we findHeadStream('*','?','*') we return a stream where one Comparable array element can be mapped, reduced, consumed, etc.<br/>
+* would get back a {@link Result2} array, with each element of the relationship returned.<br>
+* If we findHeadStream('*','?','*') we return a stream where one Comparable array element can be mapped, reduced, consumed, etc.<br>
 * In the special case of the all wildcard specification: findSet('*','*','*'), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'.<p/>
+* the requirement to be 'categorical'.<p>
 * In general, all Streams or '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
 * since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p/>
 * A given domain run through a 'map function' always yields the same range, 
-* as any function that processes an element yields one consistent result.<p/>
+* as any function that processes an element yields one consistent result.<p>
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism and the works of
-* Mac Lane<p/>
-* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
+* Mac Lane<p>
+* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2026
 */
 public final class RelatrixTransaction {
 	private static boolean DEBUG = false;
