@@ -500,13 +500,13 @@ public final class RelatrixKVJson {
 	}
 	/**
 	 * Store our permutations of the key/value
-	 * @param key of comparable
+	 * @param key
 	 * @param value
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static void store(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+	public static void store(Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		Comparable<?> jkey;
 		Object jvalue;
 		if(key instanceof JSONObject) {
@@ -549,13 +549,13 @@ public final class RelatrixKVJson {
 	/**
 	 * Store our permutations of the key/value
 	 * @param alias The database alias
-	 * @param key of comparable
+	 * @param key 
 	 * @param value
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static void store(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
+	public static void store(Alias alias, Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		Comparable<?> jkey;
 		Object jvalue;
 		if(key instanceof JSONObject) {

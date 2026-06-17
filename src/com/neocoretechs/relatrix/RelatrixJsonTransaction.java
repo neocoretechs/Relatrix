@@ -301,16 +301,16 @@ public final class RelatrixJsonTransaction {
 	 * Here, we can control the transaction explicitly, in fact, we must call commit at the end of processing
 	 * to prevent a recovery on the next operation.
 	 * @param xid the transaction id
-	 * @param d The Comparable representing the domain object for this morphism relationship.
-	 * @param m The Comparable representing the map object for this morphism relationship.
-	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @param d The Object representing the domain object for this morphism relationship as JSONObject or Comparable.
+	 * @param m The Object representing the map object for this relationship.
+	 * @param r The OBject representing the range or codomain object for this relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static Relation store(TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static Relation store(TransactionId xid, Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
@@ -359,7 +359,7 @@ public final class RelatrixJsonTransaction {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(jkeyd);
 			identity.setMapResolved(jkeym);
-			DBKey rKey = AbstractRelation.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
 			if(rKey == null)
 				identity.setRange(jkeyr);
 			else {
@@ -382,16 +382,16 @@ public final class RelatrixJsonTransaction {
 	 * to prevent a recovery on the next operation.
 	 * @param alias the database alias
 	 * @param xid the transaction id
-	 * @param d The Comparable representing the domain object for this morphism relationship.
-	 * @param m The Comparable representing the map object for this morphism relationship.
-	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @param d The Object representing the domain object for this relationship as JSONObject or Comparable.
+	 * @param m The Object representing the map object for this relationship.
+	 * @param r The Object representing the range or codomain object for this relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static Relation store(Alias alias, TransactionId xid, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+	public static Relation store(Alias alias, TransactionId xid, Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
@@ -442,7 +442,7 @@ public final class RelatrixJsonTransaction {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(jkeyd);
 			identity.setMapResolved(jkeym);
-			DBKey rKey = AbstractRelation.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
 			if(rKey == null)
 				identity.setRange(alias, jkeyr);
 			else {

@@ -417,7 +417,7 @@ public final class RelatrixJson {
 			identity.setMapKey(pk.getMapKey());
 			identity.setDomainResolved(jkeyd);
 			identity.setMapResolved(jkeym);
-			DBKey rKey = AbstractRelation.checkMorphism(r);
+			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
 			if(rKey == null)
 				identity.setRange(alias, jkeyr);
 			else {
@@ -493,7 +493,7 @@ public final class RelatrixJson {
 		PrimaryKeySet pk = PrimaryKeySet.locate(jkeyd, jkeym);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
-		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
+		DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
 		if(rKey == null)
 			identity.setRange(jkeyr);
 		else {
@@ -598,7 +598,7 @@ public final class RelatrixJson {
 		PrimaryKeySet pk = PrimaryKeySet.locate(alias, jkeyd, jkeym);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
-		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
+		DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
 		if(rKey == null)
 			identity.setRange(jkeyr);
 		else {

@@ -27,6 +27,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
@@ -571,14 +572,13 @@ public final class RelatrixKVJsonTransaction {
 	/**
 	 * Store our permutations of the key/value
 	 * @param xid transaction id
-	 * @param key of comparable
+	 * @param key
 	 * @param value
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static void store(TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		JSONObject jsono = new JSONObject(String.valueOf(key));
+	public static void store(TransactionId xid, Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {	
 		Comparable<?> jkey;
 		Object jvalue;
 		if(key instanceof JSONObject) {
@@ -608,7 +608,7 @@ public final class RelatrixKVJsonTransaction {
 			jvalue = value;
 		if( DEBUG  )
 			System.out.println("RelatrixKVJsonTransaction.store storing key:"+jkey+" value:"+value);
-		storekv(xid, jkey, value);
+		storekv(xid, jkey, jvalue);
 	}
 	
 	@ServerMethod
@@ -627,8 +627,7 @@ public final class RelatrixKVJsonTransaction {
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static void store(Alias alias, TransactionId xid, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		JSONObject jsono = new JSONObject(String.valueOf(key));
+	public static void store(Alias alias, TransactionId xid, Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
 		Comparable<?> jkey;
 		Object jvalue;
 		if(key instanceof JSONObject) {
@@ -658,7 +657,7 @@ public final class RelatrixKVJsonTransaction {
 			jvalue = value;
 		if( DEBUG  )
 			System.out.println("RelatrixKVJsonTransaction.store storing key:"+jkey+" value:"+value+" for alias "+alias);
-		storekv(alias, xid, jkey, value);
+		storekv(alias, xid, jkey, jvalue);
 	}
 	
 	@ServerMethod
