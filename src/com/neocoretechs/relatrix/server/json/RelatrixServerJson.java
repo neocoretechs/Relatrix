@@ -188,29 +188,21 @@ public class RelatrixServerJson extends TCPServer {
 
 	/**
 	 * Load the methods of main RelatrixJson class as remotely invokable then we instantiate RelatrixServerJson.<p/>
-	 * @param args If length 1, then default port 9000
+	 * @param args If length 1, then set port, args 2 server bind address, port. Sets the default tablespace to cmdl property
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
 		RelatrixJson.getInstance();
-		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up RelatrixJson tablespace:"+db);
-		    RelatrixJson.setTablespace(db);
-		    new RelatrixServerJson(args[1], Integer.parseInt(args[2]));
-		} else {
 			if( args.length == 2) {
-			    System.out.println("Bringing up RelatrixJson default tablespace.");
+			    System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
 				new RelatrixServerJson(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
-					System.out.println("Bringing up RelatrixJson default tablespace.");
+					System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
 					new RelatrixServerJson(Integer.parseInt(args[0]));
 				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.json.RelatrixServerJson [/path/to/database/databasename] [address] <port>");
+					System.out.println("usage: java com.neocoretechs.relatrix.server.json.RelatrixServerJson [address] <port>");
 				}
 			}
 		}
-	}
 }

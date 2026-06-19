@@ -357,9 +357,9 @@ public final class RelatrixJson {
 	/**
 	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
 	 * @param alias the database alias
-	 * @param d The Comparable representing the domain object for this morphism relationship.
-	 * @param m The Comparable representing the map object for this morphism relationship.
-	 * @param r The Comparable representing the range or codomain object for this morphism relationship.
+	 * @param d The Object representing the domain object for this morphism relationship.
+	 * @param m The Object representing the map object for this morphism relationship.
+	 * @param r The Object representing the range or codomain object for this morphism relationship.
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 * @throws NoSuchElementException if the alias does not exist
@@ -367,7 +367,7 @@ public final class RelatrixJson {
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static Relation store(Alias alias, Comparable<?> d, Comparable<?> m, Comparable<?> r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
+	public static Relation store(Alias alias, Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		JSONObject jsono;
