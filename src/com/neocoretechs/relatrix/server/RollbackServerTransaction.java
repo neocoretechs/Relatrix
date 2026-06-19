@@ -4,7 +4,7 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 
 /**
- * Roll back selected transactiosn on the server. Use with caution.
+ * Roll back selected transaction on the server. Use with caution.
  * Exceptions likely to be thrown server side if active processes. use is mainly
  * for leftover zombie transactions.<p/>
  * According to docs states are:

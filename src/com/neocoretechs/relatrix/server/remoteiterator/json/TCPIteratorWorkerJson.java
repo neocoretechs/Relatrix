@@ -1,59 +1,62 @@
 package com.neocoretechs.relatrix.server.remoteiterator.json;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.StandardSocketOptions;
-import java.net.UnknownHostException;
+
 import java.nio.channels.SocketChannel;
+
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.json.JSONObject;
-
-import com.neocoretechs.relatrix.client.json.RemoteIteratorJsonClient;
-import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.client.ConnectionHandler;
+import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
-import com.neocoretechs.relatrix.server.json.RelatrixJsonServer;
+import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
 
 /**
  * This TCPWorker is spawned for servicing traffic from clients 
  * to support remote iterators. It processes requests directly, invoking the proper iterator
- * methods on instances of server side iterators.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
+ * methods on instances of server side iterators for the Json server.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021,2026
  *
  */
-public class TCPJsonIteratorWorker implements Runnable {
+public class TCPIteratorWorkerJson implements Runnable {
 	private static final boolean DEBUG = false;
 	private static boolean TEST = false;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
-	
+
 	protected SocketChannel workerSocket;
+	protected ConnectionHandler workerHandler;
 	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
-		
-    public TCPJsonIteratorWorker(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
+	
+    public TCPIteratorWorkerJson(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-     	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
+    	workerHandler = new ConnectionHandler(datasocket);
+       	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
     	if(relatrixIteratorMethod == null) {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
     		relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
     	}
-		if(DEBUG) {
-			System.out.printf("%s with params datasocket:%s%n", this.getClass().getName(), datasocket.toString()); 
+	
+		if(DEBUG)
+			System.out.printf("%s about to connect socket to SocketAddress IPAddress:%s%n", this.getClass().getName(), workerHandler);
+	
+		// spin the request processor thread for the worker
+		if( DEBUG ) {
+			System.out.println("Worker on port with "+workerHandler);
 		}
 	}
 	
@@ -67,19 +70,16 @@ public class TCPJsonIteratorWorker implements Runnable {
 	public void sendResponse(RemoteResponseInterface irf) {
 	
 		if( DEBUG ) {
-			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerSocket.toString());
+			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerHandler);
 		}
 		try {
 			// Write response to master for forwarding to client
-			String jirf = JSONObject.toJson(irf);
-			if(DEBUG)
-				System.out.println("Sending "+jirf+" to "+workerSocket);
-			RelatrixJsonServer.writeLineBlocking(workerSocket, jirf, null);
+			workerHandler.sendObject(irf);
 		} catch (SocketException e) {
 				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
 				//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Channel send error "+e+" to address "+workerSocket.toString());
+				System.out.println("Channel send error "+e+" to address "+workerHandler);
 				throw new RuntimeException(e);
 		}
 	}
@@ -91,28 +91,33 @@ public class TCPJsonIteratorWorker implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println(this.getClass().getName()+" waiting getInputStream "+workerSocket+" connected:"+workerSocket.isConnected());
-				String s = new String(RelatrixJsonServer.readUntil(workerSocket, (byte)'\n'));
-				JSONObject inJson = new JSONObject(s);
-				if(DEBUG)
-					System.out.println(this.getClass().getName()+" read "+inJson+" from "+workerSocket);
-				RemoteIteratorJsonClient iori = (RemoteIteratorJsonClient) inJson.toObject();//RemoteIteratorJsonClient.class);	
+					System.out.println(this.getClass().getName()+" attempt readObject "+workerHandler);
+				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
+				if(iori == null)
+					break;
 				if( iori.getMethodName().equals("close") ) {
-					RelatrixServer.sessionToObject.remove(iori.getSession());
+					RelatrixServerJson.sessionToObject.remove(iori.getSession());
 				} else {
 					// Get the iterator linked to this session
-					Object itInst = RelatrixServer.sessionToObject.get(iori.getSession());
+					Object itInst = RelatrixServerJson.sessionToObject.get(iori.getSession());
 					if( itInst == null ) {
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
+					if(result instanceof AbstractRelation) {
+						result = TransportMorphism.createTransport((Relation)result);
+					} else {
+						if(result instanceof Result) {
+							((Result) result).packForTransport();
+						}
+					}
 					iori.setObjectReturn(result);
 				}
 				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println("TCPJsonIteratorWorker FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println(this.getClass().getName()+" FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
@@ -126,9 +131,7 @@ public class TCPJsonIteratorWorker implements Runnable {
 		}
 		finally {
 			shouldRun = false;
-			try {
-				workerSocket.close();
-			} catch (IOException e) {}
+			workerHandler.close();
 			synchronized(waitHalt) {
 				waitHalt.notify();
 			}
@@ -144,9 +147,9 @@ public class TCPJsonIteratorWorker implements Runnable {
 		synchronized(waitHalt) {
 			shouldRun = false;
 			try {
-				workerSocket.close(); // if we get a socket close error we probably dont want to wait anyway
+				workerHandler.close(); // if we get a socket close error we probably dont want to wait anyway
 				waitHalt.wait();
-			} catch (InterruptedException | IOException e) {}
+			} catch (InterruptedException e) {}
 		}
 	}
 	/**
@@ -156,8 +159,8 @@ public class TCPJsonIteratorWorker implements Runnable {
      */
 	public static void main(String args[]) throws Exception {
 		if( args.length != 2 ) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPJsonIteratorWorker [remote master node] [remote master port] [class]");
+			System.out.println("Usage: java com.neocoretechs.relatrix.server.json.TCPIteratorWorkerJson [remote master node] [remote master port] [class]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPJsonIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2])); // master port, class
+		SynchronizedThreadManager.getInstance().spin(new TCPIteratorWorkerJson(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2]));
 	}
 }

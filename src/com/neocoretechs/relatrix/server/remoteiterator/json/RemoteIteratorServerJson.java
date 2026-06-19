@@ -1,15 +1,12 @@
-package com.neocoretechs.relatrix.server.remoteiterator;
+package com.neocoretechs.relatrix.server.remoteiterator.json;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.StandardSocketOptions;
+
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.TCPServer;
 
@@ -22,23 +19,18 @@ import com.neocoretechs.relatrix.server.TCPServer;
  * with the proper ServerSideIterator that receives each hasNext and next request. The process method of
  * a {@link com.neocoretechs.relatrix.client.RemoteCompletionInterface}, which is implemented
  * by each server side iterator, is called with the dequeued object.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025,2026
  *
  */
-public class RemoteKVIteratorTransactionServer extends TCPServer {
-	private ConcurrentHashMap<String, TCPKVIteratorTransactionWorker> dbToWorker = new ConcurrentHashMap<String, TCPKVIteratorTransactionWorker>();
+public class RemoteIteratorServerJson extends TCPServer {
+	private ConcurrentHashMap<String, TCPIteratorWorkerJson> dbToWorker = new ConcurrentHashMap<String, TCPIteratorWorkerJson>();
 	private static  boolean DEBUG = false;
 	private String iteratorClass;
 	
-	public RemoteKVIteratorTransactionServer(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {
+	public RemoteIteratorServerJson(String iteratorClass, InetAddress host, int port) throws IOException, ClassNotFoundException {
 		super();
 		this.iteratorClass = iteratorClass;
 		startServer(port, host, iteratorClass);
-	}
-	
-	@Override
-	public String toString() {
-		return super.toString();
 	}
 	
 	@Override
@@ -46,24 +38,22 @@ public class RemoteKVIteratorTransactionServer extends TCPServer {
 		while(!shouldStop) {
 			try {
 				SocketChannel datasocket = server.accept();
-				//
-				// if we get a command packet with no statement, assume it to start a new instance
-				TCPKVIteratorTransactionWorker uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
+				TCPIteratorWorkerJson uworker = dbToWorker.get(datasocket.getRemoteAddress().toString());
 				if( uworker != null ) {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPKVIteratorTransactionWorker(datasocket, iteratorClass);
+				uworker = new TCPIteratorWorkerJson(datasocket, iteratorClass);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 
-				if( DEBUG ) {
-					System.out.println(this.getClass().getName()+" starting new worker "+uworker);
-				}
+	            if( DEBUG ) {
+	                System.out.println(this.getClass().getName()+" starting new worker "+uworker);
+	            }
 
 			} catch(Exception e) {
-				System.out.println(this.getClass().getName()+" Server node configuration server socket accept exception "+e);
+				System.out.println("RemoteIteratorServerJson Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 			}

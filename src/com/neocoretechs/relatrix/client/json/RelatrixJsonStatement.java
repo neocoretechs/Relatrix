@@ -8,8 +8,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
-import org.json.JSONObject;
-
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relation;
@@ -18,11 +16,10 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteIteratorClient;
 
-import com.neocoretechs.relatrix.server.RelatrixServer;
-
+import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
-
 
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
@@ -200,7 +197,7 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 	@Override
 	public synchronized void process() throws Exception {
 		unpackParamArray();
-		Object result = RelatrixServer.relatrixMethods.invokeMethod(this);
+		Object result = RelatrixServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
@@ -215,46 +212,20 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 			if( DEBUG ) {
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
-			RemoteIteratorJsonClient ric = null;
-			if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixIterator.class) {	
-				ric = new RemoteIteratorJsonClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), 
-							RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixIterator"));
-			} else {
-				if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class ) {
-					ric = new RemoteIteratorJsonClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), 
-							RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator"));
-				} else {
-					if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class ) {
-						ric = new RemoteIteratorJsonClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), 
-								RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator"));
-					} else {
-						if(result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator.class ) {
-							ric = new RemoteIteratorJsonClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), 
-									RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator"));
-						} else {
-							if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class) {
-								ric = new RemoteIteratorJsonClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), 
-										RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator"));
-							} else {
-								if( result.getClass() == com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator.class) {
-									ric = new RemoteIteratorJsonClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), 
-											RelatrixServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator"));
-								} else {
-									throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-								}
-							}
-						}
-					}
+			RemoteIteratorClient ric = null;
+			for(int ic = 0; ic < RelatrixServerJson.iteratorServerClasses.length; ic++) {
+				if(result.getClass() == RelatrixServerJson.iteratorServerClasses[ic]) {	
+					ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixServerJson.address).getAddress().getHostName(), RelatrixServerJson.iteratorPorts[ic]);
 				}
 			}
+			if(ric == null)
+				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			// Link the object instance to session for later method invocation
-			RelatrixServer.sessionToObject.put(ric.getSession(), result);
-			JSONObject jric = new JSONObject(ric);
-			setReturnClass(RemoteIteratorJsonClient.class.getName());
-			setObjectReturn(jric);
-			signalCompletion(jric);
+			RelatrixServerJson.sessionToObject.put(ric.getSession(), result);
+			setReturnClass(RemoteIteratorClient.class.getName());
+			setObjectReturn(ric);
+			signalCompletion(ric);
 		} else {
-			result = new JSONObject(result);
 			setObjectReturn(result);
 			signalCompletion(result);
 		}
