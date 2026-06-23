@@ -30,6 +30,7 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
+import com.neocoretechs.rocksack.session.TransactionalMap;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
@@ -92,8 +93,22 @@ public final class RelatrixKVJson {
 		return c;
 	}
 	
+	public static Class<?> getClassType(Alias alias, JSONObject jsono) throws IllegalAccessException, IOException, ClassNotFoundException {
+		BufferedMap bm = getJsonClass(alias, jsono);
+		Class<?> c;
+		c = Class.forName(bm.getClassName(), false, classLoader);
+		if(DEBUG)
+			System.out.println("RelatrixKVJson.getClassType returning class:"+c+" for map "+bm);
+		return c;
+	}
+	
 	public static Comparable<?> getObject(JSONObject json) throws IllegalAccessException, IOException, ClassNotFoundException {
 		BufferedMap bm = getJsonClass(json);
+		return getObject(bm);
+	}
+	
+	public static Comparable<?> getObject(Alias alias, JSONObject json) throws IllegalAccessException, IOException, ClassNotFoundException {
+		BufferedMap bm = getJsonClass(alias, json);
 		return getObject(bm);
 	}
 	/**
@@ -106,7 +121,7 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
+	static Comparable<?> getObject(BufferedMap bm) throws IllegalAccessException, IOException {
 		Class<?> c;
 		try {
 			c = Class.forName(bm.getClassName(), false, classLoader);
@@ -163,6 +178,7 @@ public final class RelatrixKVJson {
 		}
 		return d.get(0).toString();
 	}
+	
 	/**
 	 * Transform a morphic class instance into a JSONObject by calling getData on the
 	 * morphic class to transform it into a String, then creating a JSONObject from that String.
@@ -172,12 +188,16 @@ public final class RelatrixKVJson {
 	public static JSONObject getJsonData(Comparable c) {
 		return new JSONObject(getData(c));
 	}
+	
+	public static JSONObject getJsonData(Alias alias, Comparable c) {
+		return new JSONObject(alias, getData(c));
+	}
 	/**
 	 * Transform a morphic keyed map into a String keyed map
 	 * @param c The original Map
 	 * @return The transformed Map
 	 */
-	public static Map.Entry<String,Object> getData(Map.Entry<Comparable,Object> c) {
+	public static Map.Entry<String,Object> decodeData(Map.Entry<Comparable,Object> c) {
 		Field f;
 		try {
 			f = c.getKey().getClass().getField("cbor");
@@ -204,7 +224,7 @@ public final class RelatrixKVJson {
 	 * @param c The original Map
 	 * @return The transformed Map
 	 */
-	public static Map.Entry<JSONObject,Object> getJsonData(Map.Entry<Comparable,Object> c) {
+	public static Map.Entry<JSONObject,Object> decodeJsonData(Map.Entry<Comparable,Object> c) {
 		Field f;
 		try {
 			f = c.getKey().getClass().getField("cbor");
@@ -258,7 +278,7 @@ public final class RelatrixKVJson {
 	 * @return The transformed Iterator
 	 */
 	public static Iterator<?> getStringIterator(Iterator<?> it) {
-		return new TransformingIterator<>(it,v -> RelatrixKVJson.getData((Comparable<?>) v));
+		return new TransformingIterator<>(it,v -> getData((Comparable<?>) v));
 	}
 	/**
 	 * Transform a morphic class iterator to a JSONObject iterator using TransformingIterator
@@ -266,7 +286,10 @@ public final class RelatrixKVJson {
 	 * @return The transformed Iterator
 	 */
 	public static Iterator<?> getJsonIterator(Iterator<?> it) {
-		return new TransformingIterator<>(it,v -> RelatrixKVJson.getJsonData((Comparable<?>) v));
+		return new TransformingIterator<>(it,v -> getJsonData((Comparable<?>) v));
+	}
+	public static Iterator<?> getJsonIterator(Alias alias, Iterator<?> it) {
+		return new TransformingIterator<>(it,v -> getJsonData(alias, (Comparable<?>) v));
 	}
 	/**
 	 * Transform a morphic class stream into a String stream using map and getData
@@ -274,15 +297,19 @@ public final class RelatrixKVJson {
 	 * @return The transformed Stream
 	 */
 	public static Stream<?> getStringStream(Stream<?> s) {
-		return s.map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		return s.map(e->getData((Comparable<?>)e));
 	}
+	
 	/**
 	 * Transform a morphic class stream into a Json stream using map and getData
 	 * @param s The original Stream
 	 * @return The transformed Stream
 	 */
 	public static Stream<?> getJsonStream(Stream<?> s) {
-		return s.map(e->RelatrixKVJson.getJsonData((Comparable<?>)e));
+		return s.map(e->getJsonData((Comparable<?>)e));
+	}
+	public static Stream<?> getJsonStream(Alias alias, Stream<?> s) {
+		return s.map(e->getJsonData(alias, (Comparable<?>)e));
 	}	
 	/**
 	 * Transform a morphic class iterator to a String key map iterator using TransformingIterator
@@ -290,7 +317,7 @@ public final class RelatrixKVJson {
 	 * @return The transformed iterator
 	 */
 	public static Iterator<?> getStringMapIterator(Iterator<?> it) {
-		return new TransformingIterator<>(it,e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
+		return new TransformingIterator<>(it,e->decodeData((Map.Entry<Comparable,Object>) e));
 	}
 	/**
 	 * Transform a morphic class iterator to a JSONObject iterator using TransformingIterator
@@ -298,7 +325,7 @@ public final class RelatrixKVJson {
 	 * @return The transformed iterator
 	 */
 	public static Iterator<?> getJsonMapIterator(Iterator<?> it) {
-		return new TransformingIterator<>(it,e->RelatrixKVJson.getJsonData((Map.Entry<Comparable,Object>) e));
+		return new TransformingIterator<>(it,e->decodeJsonData((Map.Entry<Comparable,Object>) e));
 	}
 	/**
 	 * Transform a morphic class stream into a String stream using map and getData
@@ -306,7 +333,7 @@ public final class RelatrixKVJson {
 	 * @return
 	 */
 	public static Stream<?> getStringMapStream(Stream<?> s) {
-		return s.map(e->RelatrixKVJson.getData((Map.Entry<Comparable,Object>) e));
+		return s.map(e->decodeData((Map.Entry<Comparable,Object>) e));
 	}
 	/**
 	 * Transform a morphic class stream into a Json stream using map and getData
@@ -314,7 +341,7 @@ public final class RelatrixKVJson {
 	 * @return The transformed Stream of JSONObject keyed maps 
 	 */
 	public static Stream<?> getJsonMapStream(Stream<?> s) {
-		return s.map(e->RelatrixKVJson.getJsonData((Map.Entry<Comparable,Object>) e));
+		return s.map(e->decodeJsonData((Map.Entry<Comparable,Object>) e));
 	}
 	/**
 	 * Obtain the BufferedMap for the morphic class represented by the JSONObject passed.
@@ -376,6 +403,215 @@ public final class RelatrixKVJson {
 		return t;
 	}
 	
+	public static Object[] getKeyValue(Object key, Object value) throws IOException {
+		Comparable<?> jkey;
+		Object jvalue;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				BufferedMap ttm = getJsonClass(jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(value instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)value;
+			try {
+				BufferedMap ttm = getJsonClass(jsonod);
+				jvalue = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else
+			jvalue = value;
+		return new Object[] {jkey, jvalue};
+	}
+	
+	public static Object[] getKeyValue(Alias alias, Object key, Object value) throws IOException {
+		Comparable<?> jkey;
+		Object jvalue;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				BufferedMap ttm = getJsonClass(alias, jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(value instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)value;
+			try {
+				BufferedMap ttm = getJsonClass(alias, jsonod);
+				jvalue = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else
+			jvalue = value;
+		return new Object[] {jkey, jvalue};
+	}
+	
+	static class WorkingSet {
+		BufferedMap bm;
+		Comparable<?> item; 
+	}
+	
+	public static WorkingSet getWorkingSet(Object key) throws IOException, IllegalAccessException {
+		WorkingSet ws = new WorkingSet();
+		Comparable<?> jkey;
+		BufferedMap ttm;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				ttm = getJsonClass(jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+				ttm = getMap(jkey.getClass());
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		ws.bm = ttm;
+		ws.item = jkey;
+		return ws;
+	}
+	public static WorkingSet getWorkingSet(Alias alias, Object key) throws IOException, IllegalAccessException {
+		WorkingSet ws = new WorkingSet();
+		Comparable<?> jkey;
+		BufferedMap ttm;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				ttm = getJsonClass(alias, jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+				ttm = getMap(alias, jkey.getClass());
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		ws.bm = ttm;
+		ws.item = jkey;
+		return ws;
+	}
+	
+	static class WorkingSet2 {
+		BufferedMap bm;
+		Comparable<?> item; 
+		Comparable<?> item2;
+	}
+	
+	public static WorkingSet2 getWorkingSet2(Object key, Object key2) throws IOException, IllegalAccessException {
+		WorkingSet2 ws = new WorkingSet2();
+		Comparable<?> jkey, jkey2;
+		BufferedMap ttm;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				ttm = getJsonClass(jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+				ttm = getMap(jkey.getClass());
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(key2 instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key2;
+			try {
+				ttm = getJsonClass(jsonod);
+				jkey2 = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key2 instanceof Comparable<?>) {
+				jkey2 = (Comparable<?>)key2;
+				ttm = getMap(jkey2.getClass());
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(jkey.getClass() != jkey2.getClass())
+			throw new IllegalAccessException("Classes differ in range specification:"+jkey.getClass()+" and "+jkey2.getClass());
+		ws.bm = ttm;
+		ws.item = jkey;
+		ws.item2 = jkey2;
+		return ws;
+	}
+	public static WorkingSet2 getWorkingSet2(Alias alias, Object key, Object key2) throws IOException, IllegalAccessException {
+		WorkingSet2 ws = new WorkingSet2();
+		Comparable<?> jkey, jkey2;
+		BufferedMap ttm;
+		if(key instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key;
+			try {
+				ttm = getJsonClass(alias, jsonod);
+				jkey = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key instanceof Comparable<?>) {
+				jkey = (Comparable<?>)key;
+				ttm = getMap(alias, jkey.getClass());
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(key2 instanceof JSONObject) {
+			JSONObject jsonod = (JSONObject)key2;
+			try {
+				ttm = getJsonClass(alias, jsonod);
+				jkey2 = getObject(ttm);
+			} catch (IllegalAccessException e) {
+				throw new IOException(e);
+			}
+		} else {
+			if(key2 instanceof Comparable<?>) {
+				jkey2 = (Comparable<?>)key2;
+				ttm = getMap(alias, jkey2.getClass());
+			} else {
+				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
+			}
+		}
+		if(jkey.getClass() != jkey2.getClass())
+			throw new IllegalAccessException("Classes differ in range specification:"+jkey.getClass()+" and "+jkey2.getClass());
+		ws.bm = ttm;
+		ws.item = jkey;
+		ws.item2 = jkey2;
+		return ws;
+	}
+
 	/**
 	 * Get a class definition and hence a BufferedMap from the JSON payload. The fields define the class via
 	 * the hashed representation. Assumes getClassName has previously been called. 
@@ -507,36 +743,10 @@ public final class RelatrixKVJson {
 	 */
 	@ServerMethod
 	public static void store(Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		Comparable<?> jkey;
-		Object jvalue;
-		if(key instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)key;
-			try {
-				BufferedMap ttm = getJsonClass(jsonod);
-				jkey = getObject(ttm);
-			} catch (IllegalAccessException e) {
-				throw new IOException(e);
-			}
-		} else {
-			if(key instanceof Comparable<?>) {
-				jkey = (Comparable<?>)key;
-			} else {
-				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
-			}
-		}
-		if(value instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)value;
-			try {
-				BufferedMap ttm = getJsonClass(jsonod);
-				jvalue = getObject(ttm);
-			} catch (IllegalAccessException e) {
-				throw new IOException(e);
-			}
-		} else
-			jvalue = value;
+		Object[] tuple = getKeyValue(key, value);
 		if( DEBUG  )
-			System.out.println("RelatrixKVJson.store storing key:"+jkey+" value:"+jvalue);
-		storekv(jkey, jvalue);
+			System.out.println("RelatrixKVJson.store storing key:"+tuple[0]+" value:"+tuple[1]);
+		storekv((Comparable<?>) tuple[0], tuple[1]);
 	}
 	
 	@ServerMethod
@@ -556,36 +766,10 @@ public final class RelatrixKVJson {
 	 */
 	@ServerMethod
 	public static void store(Alias alias, Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException {
-		Comparable<?> jkey;
-		Object jvalue;
-		if(key instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)key;
-			try {
-				BufferedMap ttm = getJsonClass(alias, jsonod);
-				jkey = getObject(ttm);
-			} catch (IllegalAccessException e) {
-				throw new IOException(e);
-			}
-		} else {
-			if(key instanceof Comparable<?>) {
-				jkey = (Comparable<?>)key;
-			} else {
-				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
-			}
-		}
-		if(value instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)value;
-			try {
-				BufferedMap ttm = getJsonClass(alias, jsonod);
-				jvalue = getObject(ttm);
-			} catch (IllegalAccessException e) {
-				throw new IOException(e);
-			}
-		} else
-			jvalue = value;
+		Object[] tuple = getKeyValue(alias, key, value);
 		if( DEBUG  )
-			System.out.println("RelatrixKVJson.store storing key:"+jkey+" value:"+jvalue+" alias:"+alias);
-		storekv(alias, jkey, jvalue);
+			System.out.println("RelatrixKVJson.store storing key:"+tuple[0]+" value:"+tuple[1]+" alias:"+alias);
+		storekv(alias, (Comparable<?>) tuple[0], tuple[1]);
 	}
 	
 	@ServerMethod
@@ -624,7 +808,7 @@ public final class RelatrixKVJson {
 	}
 	/**
 	 * Delete element with given key that this object participates in
-	 * @param c The Comparable key
+	 * @param c The key
 	 * @return the previous value for the removed key or null if no key was found
 	 * @exception IOException low-level access or problems modifying schema
 	 * @throws IllegalAccessException 
@@ -632,16 +816,16 @@ public final class RelatrixKVJson {
 	 * @throws IllegalArgumentException 
 	 */
 	@ServerMethod
-	public static Object remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Object remove(Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKVJson.remove prepping to remove:"+c);
-		BufferedMap ttm = getMap(c.getClass());
-		return ttm.remove(c);
+		WorkingSet ws = getWorkingSet(c);
+		return ws.bm.remove(ws.item);
 	}
 	/**
 	 * Delete element with given key that this object participates in
-	 * @param c The Comparable key
+	 * @param c The key
 	 * @return the previous value for removed key or null if no key was found to remove
 	 * @exception IOException low-level access or problems modifying schema
 	 * @throws IllegalAccessException 
@@ -649,12 +833,12 @@ public final class RelatrixKVJson {
 	 * @throws IllegalArgumentException 
 	 */
 	@ServerMethod
-	public static Object remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Object remove(Alias alias, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, c.getClass());
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("RelatrixKVJson.remove prepping to remove:"+c);
-		return ttm.remove(c);
+		WorkingSet ws = getWorkingSet(alias, c);
+		return ws.bm.remove(ws.item);
 	}
 
 	/**
@@ -668,10 +852,10 @@ public final class RelatrixKVJson {
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Iterator<?> findTailMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findTailMap(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.tailMap(darg);
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.tailMap(ws.item);
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
@@ -686,16 +870,16 @@ public final class RelatrixKVJson {
 	 * @return The Iterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Iterator<?> findTailMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findTailMap(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.tailMap(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.tailMap(ws.item);
 	}
 
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and returns the value elements
-	 * @param darg Comparable marking start of retrieval
+	 * @param darg Object marking start of retrieval
 	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
@@ -703,16 +887,16 @@ public final class RelatrixKVJson {
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
 	@ServerMethod
-	public static Stream<?> findTailMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailMapStream(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.tailMapStream(darg);//.map(e->RelatrixKVJson.getData((Comparable<?>)e));
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.tailMapStream(ws.item);//.map(e->RelatrixKVJson.getData((Comparable<?>)e));
 	}
 	/**
 	 * Retrieve from the targeted relationship. Essentially this is the default permutation which
 	 * retrieves the equivalent of a tailSet and returns the value elements
 	 * @param alias The database alias
-	 * @param darg Comparable marking start of retrieval
+	 * @param darg Object marking start of retrieval
 	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException the operator is invalid
 	 * @exception ClassNotFoundException if the Class of Object is invalid
@@ -720,10 +904,10 @@ public final class RelatrixKVJson {
 	 * @return The Stream from which the data may be retrieved. Follows java.util.stream interface, return Stream<Result>
 	 */
 	@ServerMethod
-	public static Stream<?> findTailMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailMapStream(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.tailMapStream(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.tailMapStream(ws.item);//.map(e->RelatrixKVJson.getData((Comparable<?>)e));
 	}
 	/**
 	 * Retrieve from the targeted Key/Value relationship from given key.
@@ -736,10 +920,10 @@ public final class RelatrixKVJson {
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Iterator<?> findTailMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findTailMapKV(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.tailMapKV(darg);
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.tailMapKV(ws.item);//.map(e->RelatrixKVJson.getData((Comparable<?>)e));
 	}
 	/**
 	 * Retrieve from the targeted Key/Value relationship from given key.
@@ -754,14 +938,14 @@ public final class RelatrixKVJson {
 	 * @return The RelatrixIterator from which the KV data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Iterator<?> findTailMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findTailMapKV(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.tailMapKV(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.tailMapKV(ws.item);//.map(e->RelatrixKVJson.getData((Comparable<?>)e));
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
-	 * @param darg Comparable for key
+	 * @param darg key
 	 * @exception IOException low-level access 
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
@@ -769,15 +953,15 @@ public final class RelatrixKVJson {
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
 	@ServerMethod
-	public static Stream<?> findTailMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findTailMapKVStream(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.tailMapKVStream(darg);
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.tailMapKVStream(ws.item);
 	}
 	/**
 	 * Returns a view of the portion of this set whose Key/Value elements are greater than or equal to key.
 	 * @param alias The database alias
-	 * @param darg Comparable for key
+	 * @param darg Object for key
 	 * @exception IOException low-level access
 	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @exception ClassNotFoundException if the Class of Object is invalid
@@ -786,25 +970,25 @@ public final class RelatrixKVJson {
 	 * @return The Stream from which the KV data may be retrieved. Follows Stream interface, return Stream<Result>
 	 */
 	@ServerMethod
-	public static Stream<?> findTailMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findTailMapKVStream(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.tailMapKVStream(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.tailMapKVStream(ws.item);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
-	 * @param darg The Comparable key
+	 * @param darg The key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
 	@ServerMethod
-	public static Iterator<?> findHeadMap(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findHeadMap(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
+		WorkingSet ws = getWorkingSet(darg);
 		// check for at least one object reference in our headset factory
-		return ttm.headMap(darg);
+		return ws.bm.headMap(ws.item);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
@@ -817,30 +1001,30 @@ public final class RelatrixKVJson {
 	 * @return The Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
 	@ServerMethod
-	public static Iterator<?> findHeadMap(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findHeadMap(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
+		WorkingSet ws = getWorkingSet(alias, darg);
 		// check for at least one object reference in our headset factory
-		return ttm.headMap(darg);
+		return ws.bm.headMap(ws.item);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
-	 * @param darg Comparable key
+	 * @param darg key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
 	@ServerMethod
-	public static Stream<?> findHeadMapStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findHeadMapStream(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.headMapStream(darg);
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.headMapStream(ws.item);
 	}
 	/**
 	 * Retrieve the given set of values from the start of the elements to the given key.
 	 * @param alias The database alias
-	 * @param darg Comparable key
+	 * @param darg key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -848,30 +1032,29 @@ public final class RelatrixKVJson {
 	 * @return Stream from which data may be consumed. Fulfills Stream interface.
 	 */
 	@ServerMethod
-	public static Stream<?> findHeadMapStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findHeadMapStream(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.headMapStream(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.headMapStream(ws.item);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
-	 * @param darg The comparable key
+	 * @param darg The key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
 	@ServerMethod
-	public static Iterator<?> findHeadMapKV(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findHeadMapKV(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		// check for at least one object reference in our headset factory
-		return ttm.headMapKV(darg);
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.headMapKV(ws.item);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
 	 * @param alias The database alias
-	 * @param darg The comparable key
+	 * @param darg The key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -879,30 +1062,29 @@ public final class RelatrixKVJson {
 	 * @return Iterator from which KV entry data may be retrieved. Fulfills Iterator interface.
 	 */
 	@ServerMethod
-	public static Iterator<?> findHeadMapKV(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findHeadMapKV(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		// check for at least one object reference in our headset factory
-		return ttm.headMapKV(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.headMapKV(ws.item);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
-	 * @param darg Comparable key
+	 * @param darg key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
 	@ServerMethod
-	public static Stream<?> findHeadMapKVStream(Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findHeadMapKVStream(Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.headMapKVStream(darg);
+		WorkingSet ws = getWorkingSet(darg);
+		return ws.bm.headMapKVStream(ws.item);
 	}
 	/**
 	 * Retrieve the given set of Key/Value relationships from the start of the elements to the given key
 	 * @param alias The database alias
-	 * @param darg Comparable key
+	 * @param darg key
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -910,11 +1092,10 @@ public final class RelatrixKVJson {
 	 * @return Stream from which KV data may be consumed. Fulfills Stream interface.
 	 */
 	@ServerMethod
-	public static Stream<?> findHeadMapKVStream(Alias alias, Comparable<?> darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findHeadMapKVStream(Alias alias, Object darg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		// check for at least one object reference in our headset factory
-		return ttm.headMapKVStream(darg);
+		WorkingSet ws = getWorkingSet(alias, darg);
+		return ws.bm.headMapKVStream(ws.item);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
@@ -928,10 +1109,10 @@ public final class RelatrixKVJson {
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
 	@ServerMethod
-	public static Iterator<?> findSubMap(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findSubMap(Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.subMap(darg,marg);
+		WorkingSet2 ws = getWorkingSet2(darg, marg);
+		return ws.bm.subMap(ws.item, ws.item2);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first 
@@ -947,10 +1128,10 @@ public final class RelatrixKVJson {
 	 * @return Iterator from which data may be retrieved. Fulfills Iterator interface.
 	 */
 	@ServerMethod
-	public static Iterator<?> findSubMap(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findSubMap(Alias alias, Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return new TransformingIterator<>(ttm.subMap(darg,marg),v -> RelatrixKVJson.getData((Comparable<?>) v));
+		WorkingSet2 ws = getWorkingSet2(alias, darg, marg);
+		return ws.bm.subMap(ws.item, ws.item2);
 	}
 
 	/**
@@ -965,10 +1146,10 @@ public final class RelatrixKVJson {
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
 	@ServerMethod
-	public static Stream<?> findSubMapStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findSubMapStream(Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.subMapStream(darg, marg);
+		WorkingSet2 ws = getWorkingSet2(darg, marg);
+		return ws.bm.subMapStream(ws.item, ws.item2);
 	}
 	/**
 	 * Retrieve the subset of the given set of keys from the point of the relationship of the first.
@@ -984,10 +1165,10 @@ public final class RelatrixKVJson {
 	 * @return Stream from which data may be retrieved. Fulfills Stream interface.
 	 */
 	@ServerMethod
-	public static Stream<?> findSubMapStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findSubMapStream(Alias alias, Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.subMapStream(darg, marg);
+		WorkingSet2 ws = getWorkingSet2(alias, darg, marg);
+		return ws.bm.subMapStream(ws.item, ws.item2);
 	}
 
 	/**
@@ -1002,11 +1183,10 @@ public final class RelatrixKVJson {
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Iterator<?> findSubMapKV(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Iterator<?> findSubMapKV(Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.subMapKV(darg,marg);
+		WorkingSet2 ws = getWorkingSet2(darg, marg);
+		return ws.bm.subMapKV(ws.item, ws.item2);
 	}
 	/**
 	 * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified<p/>
@@ -1022,11 +1202,10 @@ public final class RelatrixKVJson {
 	 * @return The RelatrixIterator from which the Key/Value data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Iterator<?> findSubMapKV(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Iterator<?> findSubMapKV(Alias alias, Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.subMapKV(darg,marg);
+		WorkingSet2 ws = getWorkingSet2(alias, darg, marg);
+		return ws.bm.subMapKV(ws.item, ws.item2);
 	}
 
 	/**
@@ -1041,11 +1220,10 @@ public final class RelatrixKVJson {
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Stream<Result>
 	 */
 	@ServerMethod
-	public static Stream<?> findSubMapKVStream(Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	public static Stream<?> findSubMapKVStream(Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
-		// check for at least one object reference
-		BufferedMap ttm = getMap(darg.getClass());
-		return ttm.subMapKVStream(darg, marg);
+		WorkingSet2 ws = getWorkingSet2(darg, marg);
+		return ws.bm.subMapKVStream(ws.item, ws.item2);
 	}
 	/**
 	 * Retrieve the subset of the given set of Key/Value pairs from the point of the  first key, to the end key.
@@ -1061,11 +1239,10 @@ public final class RelatrixKVJson {
 	 * @return The Stream from which the Key/Value data may be consumed. Follows Stream interface, return Iterator<Result>
 	 */
 	@ServerMethod
-	public static Stream<?> findSubMapKVStream(Alias alias, Comparable<?> darg, Comparable<?> marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
+	public static Stream<?> findSubMapKVStream(Alias alias, Object darg, Object marg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException
 	{
-		// check for at least one object reference
-		BufferedMap ttm = getMap(alias, darg.getClass());
-		return ttm.subMapKVStream(darg, marg);
+		WorkingSet2 ws = getWorkingSet2(alias, darg, marg);
+		return ws.bm.subMapKVStream(ws.item, ws.item2);
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -1215,10 +1392,10 @@ public final class RelatrixKVJson {
 	 * @throws IllegalAccessException 
 	 */
 	@ServerMethod
-	public static Object get(Comparable<?> key) throws IOException, IllegalAccessException
+	public static Object get(Object key) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(key.getClass());
-		Object o = ttm.get(key);
+		WorkingSet ws = getWorkingSet(key);
+		Object o = ws.bm.get(ws.item);
 		if( o == null )
 			return null;
 		return ((KeyValue)o).getmValue();
@@ -1233,10 +1410,10 @@ public final class RelatrixKVJson {
 	 * @throws NoSuchElementException If the alias is not found
 	 */
 	@ServerMethod
-	public static Object get(Alias alias, Comparable<?> key) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object get(Alias alias, Object key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		BufferedMap ttm = getMap(alias, key.getClass());
-		Object o = ttm.get(key);
+		WorkingSet ws = getWorkingSet(alias, key);
+		Object o = ws.bm.get(ws.item);
 		if( o == null )
 			return null;
 		return ((KeyValue)o).getmValue();
@@ -1356,45 +1533,47 @@ public final class RelatrixKVJson {
 	}
 	/**
 	 * Is the key contained in the dataset
-	 * @param obj The Comparable key to search for
+	 * @param obj The key to search for
 	 * @return true if key is found
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
 	@ServerMethod
-	public static boolean contains(Comparable<?> obj) throws IOException, IllegalAccessException
+	public static boolean contains(Object obj) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(obj.getClass());
-		return ttm.containsKey(obj);
+		WorkingSet ws = getWorkingSet(obj);
+		return ws.bm.containsKey(ws.item);
 	}
 	/**
 	 * Is the key contained in the dataset
 	 * @param alias The database alias
-	 * @param obj The Comparable key to search for
+	 * @param obj The key to search for
 	 * @return true if key is found
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 * @throws NoSuchElementException If the alias is not found
 	 */
 	@ServerMethod
-	public static boolean contains(Alias alias, Comparable<?> obj) throws IOException, IllegalAccessException
+	public static boolean contains(Alias alias, Object obj) throws IOException, IllegalAccessException
 	{
-		BufferedMap ttm = getMap(alias, obj.getClass());
-		return ttm.containsKey(obj);
+		WorkingSet ws = getWorkingSet(alias, obj);
+		return ws.bm.containsKey(ws.item);
 	}
 
 	/**
 	 * Is the value object present
-	 * @param obj the object with equals
+	 * @param clazz The class of the key portion
+	 * @param obj the object with equals to match value
 	 * @return boolean true if found
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
 	@ServerMethod
-	public static boolean containsValue(Class<?> clazz, Comparable obj) throws IOException, IllegalAccessException
+	public static boolean containsValue(Class<?> clazz, Object obj) throws IOException, IllegalAccessException
 	{
 		BufferedMap ttm = getMap(clazz);
-		return ttm.containsValue(obj);
+		WorkingSet ws = getWorkingSet(obj);
+		return ttm.containsValue(ws.item);
 	}
 
 	/**
@@ -1411,7 +1590,8 @@ public final class RelatrixKVJson {
 	public static boolean containsValue(Alias alias, Class<?> clazz, Comparable obj) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		BufferedMap ttm = getMap(alias, clazz);
-		return ttm.containsValue(obj);
+		WorkingSet ws = getWorkingSet(obj);
+		return ttm.containsValue(ws.item);
 	}
 	/**
 	 * Return the key/value pair of Map.Entry implementation of the closest key to the passed key template.
@@ -1422,9 +1602,9 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static Object nearest(Comparable<?> key) throws IllegalAccessException, IOException {
-		BufferedMap ttm = getMap(key.getClass());
-		return ttm.nearest(key);
+	public static Object nearest(Object key) throws IllegalAccessException, IOException {
+		WorkingSet ws = getWorkingSet(key);
+		return ws.bm.nearest(ws.item);
 	}
 	/**
 	 * Return the key/value pair of Map.Entry implementation of the closest key to the passed key template.
@@ -1436,9 +1616,9 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static Object nearest(Alias alias, Comparable<?> key) throws IllegalAccessException, IOException, NoSuchElementException {
-		BufferedMap ttm = getMap(alias,key.getClass());
-		return ttm.nearest(key);
+	public static Object nearest(Alias alias, Object key) throws IllegalAccessException, IOException, NoSuchElementException {
+		WorkingSet ws = getWorkingSet(alias, key);
+		return ws.bm.nearest(ws.item);
 	}
 
 	/**

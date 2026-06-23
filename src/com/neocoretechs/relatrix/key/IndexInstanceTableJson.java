@@ -353,19 +353,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				public void run() {
 					try {
 						if(semaphore.get() == 0) {
-							Comparable<?> jkey;
-							if(instance instanceof JSONObject) {
-								JSONObject jsonod = (JSONObject)instance;
-								BufferedMap ttm = RelatrixKVJson.getJsonClass(jsonod);
-								jkey = RelatrixKVJson.getObject(ttm);
-							} else {
-								if(instance instanceof Comparable<?>) {
-									jkey = (Comparable<?>) instance;
-								} else {
-									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-								}
-							}
-							RelatrixKVJson.store(jkey, index);
+							RelatrixKVJson.store(instance, index);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -404,19 +392,7 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 				public void run() {
 					try {
 						if(semaphore.get() == 0) {
-							Comparable<?> jkey;
-							if(instance instanceof JSONObject) {
-								JSONObject jsonod = (JSONObject)instance;
-								BufferedMap ttm = RelatrixKVJson.getJsonClass(alias, jsonod);
-								jkey = RelatrixKVJson.getObject(ttm);
-							} else {
-								if(instance instanceof Comparable<?>) {
-									jkey = (Comparable<?>) instance;
-								} else {
-									throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-								}
-							}
-							RelatrixKVJson.store(alias, jkey, index);
+							RelatrixKVJson.store(alias, instance, index);
 						}
 					} catch (IllegalAccessException | IOException | DuplicateKeyException e) {
 						//throw new RuntimeException(e);
@@ -529,24 +505,12 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		Comparable<?> jkey;
-		if(instance instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)instance;
-			BufferedMap ttm = RelatrixKVJson.getJsonClass(jsonod);
-			jkey = RelatrixKVJson.getObject(ttm);
-		} else {
-			if(instance instanceof Comparable<?>) {
-				jkey = (Comparable<?>) instance;
-			} else {
-				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-			}
-		}
 		if(DEBUG) {
-			DBKey dbkey = (DBKey) RelatrixKVJson.get(jkey);
-			System.out.printf("%s getKey:%s produces key:%s%n", this.getClass().getName(), jkey, dbkey);
+			DBKey dbkey = (DBKey) RelatrixKVJson.get(instance);
+			System.out.printf("%s getKey:%s produces key:%s%n", this.getClass().getName(), instance, dbkey);
 			return dbkey;
 		}
-		return (DBKey) RelatrixKVJson.get(jkey);
+		return (DBKey) RelatrixKVJson.get(instance);
 	}
 
 	/**
@@ -561,24 +525,12 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 	 */
 	@Override
 	public DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, ClassNotFoundException, NoSuchElementException {
-		Comparable<?> jkey;
-		if(instance instanceof JSONObject) {
-			JSONObject jsonod = (JSONObject)instance;
-			BufferedMap ttm = RelatrixKVJson.getJsonClass(alias, jsonod);
-			jkey = RelatrixKVJson.getObject(ttm);
-		} else {
-			if(instance instanceof Comparable<?>) {
-				jkey = (Comparable<?>) instance;
-			} else {
-				throw new IllegalAccessException("Instance must be JSONOBject or Comparable:"+instance+" type:"+instance.getClass());
-			}
-		}
 		if(DEBUG) {
-			DBKey dbkey = (DBKey) RelatrixKVJson.get(alias, jkey);
-			System.out.printf("%s getKey:%s Alias:%s produces key:%s%n", this.getClass().getName(), jkey, alias, dbkey);
+			DBKey dbkey = (DBKey) RelatrixKVJson.get(alias, instance);
+			System.out.printf("%s getKey:%s Alias:%s produces key:%s%n", this.getClass().getName(), instance, alias, dbkey);
 			return dbkey;
 		}
-		return (DBKey) RelatrixKVJson.get(alias, jkey);
+		return (DBKey) RelatrixKVJson.get(alias, instance);
 	}
 
 	/**

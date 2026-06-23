@@ -260,20 +260,15 @@ public final class RelatrixJson {
 		}
 	}
 	/**
-	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
-	 * @param d The payload representing the domain object for this morphism relationship.
-	 * @param m The payload representing the map object for this morphism relationship.
-	 * @param r The payload representing the range or codomain object for this morphism relationship.
-	 * @throws IllegalAccessException if fields or methods are inaccessable
-	 * @throws IOException Underlying storage failure
-	 * @throws ClassNotFoundException if bytecode repository fails or generation of morphic class fails
-	 * @throws DuplicateKeyException if a duplicate key is attempted in any of the morphism elements
-	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
+	 * Get a tuple for the triplet specified, translating JSONObjects to morphic classes if necessary
+	 * @param d domain
+	 * @param m map
+	 * @param r range
+	 * @return translated tuple
+	 * @throws IOException problem getting BufferedMap
+	 * @throws IllegalAccessException problem creating morphic class
 	 */
-	@ServerMethod
-	public static Relation store(Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
-		if( d == null || m == null || r == null)
-			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
+	public static Comparable<?>[] getTuple(Object d, Object m, Object r)  throws IOException, IllegalAccessException {
 		JSONObject jsono;
 		Comparable<?> jkeyd, jkeym, jkeyr;
 		if(d instanceof JSONObject) {
@@ -309,29 +304,95 @@ public final class RelatrixJson {
 				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
 			}
 		}
+		return new Comparable<?>[] {jkeyd, jkeym, jkeyr};
+	}
+	/**
+	 * Get a tuple for the triplet specified, translating JSONObjects to morphic classes if necessary
+	 * @param alias alias for database
+	 * @param d domain
+	 * @param m map
+	 * @param r range
+	 * @return translated tuple
+	 * @throws IOException problem getting BufferedMap
+	 * @throws IllegalAccessException problem creating morphic class
+	 */
+	public static Comparable<?>[] getTuple(Alias alias, Object d, Object m, Object r)  throws IOException, IllegalAccessException {
+		JSONObject jsono;
+		Comparable<?> jkeyd, jkeym, jkeyr;
+		if(d instanceof JSONObject) {
+			jsono = (JSONObject)d;
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
+			jkeyd = RelatrixKVJson.getObject(ttmm);
+		} else {
+			if(d instanceof Comparable<?>) {
+				jkeyd = (Comparable<?>)d;
+			} else {
+				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
+			}
+		}
+		if(m instanceof JSONObject) {
+			jsono = (JSONObject)m;
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
+			jkeym = RelatrixKVJson.getObject(ttmm);
+		} else {
+			if(m instanceof Comparable<?>) {
+				jkeym = (Comparable<?>)m;
+			} else {
+				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+m+" found:"+m.getClass());
+			}
+		}
+		if(r instanceof JSONObject) {
+			jsono = (JSONObject)r;
+			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
+			jkeyr = RelatrixKVJson.getObject(ttmm);
+		} else {
+			if(r instanceof Comparable<?>) {
+				jkeyr = (Comparable<?>)m;
+			} else {
+				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
+			}
+		}
+		return new Comparable<?>[] {jkeyd, jkeym, jkeyr};
+	}
+	/**
+	 * Store our permutations of the identity morphism d,m,r each to its own index via tables of specific classes.
+	 * @param d The payload representing the domain object for this morphism relationship.
+	 * @param m The payload representing the map object for this morphism relationship.
+	 * @param r The payload representing the range or codomain object for this morphism relationship.
+	 * @throws IllegalAccessException if fields or methods are inaccessable
+	 * @throws IOException Underlying storage failure
+	 * @throws ClassNotFoundException if bytecode repository fails or generation of morphic class fails
+	 * @throws DuplicateKeyException if a duplicate key is attempted in any of the morphism elements
+	 * @return The identity element of the set - The Relation of stored object composed of d,m,r
+	 */
+	@ServerMethod
+	public static Relation store(Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, ClassNotFoundException {
+		if( d == null || m == null || r == null)
+			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
+		Comparable<?>[] tuple = getTuple(d,m,r);
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		PrimaryKeySet pk = PrimaryKeySet.locate(jkeyd, jkeym);
+		PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1]);
 		if(DEBUG)
-			System.out.println("RelatrixJson.store PrimaryKeySet:"+pk+" from domain key:"+jkeyd+" map key"+jkeym);
+			System.out.println("RelatrixJson.store PrimaryKeySet:"+pk+" from domain key:"+tuple[0]+" map key"+tuple[1]);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
+			identity.setDomainResolved(tuple[0]);
+			identity.setMapResolved(tuple[1]);
 			if(DEBUG)
 				System.out.println("RelatrixJson.store PrimaryKeySet identity was null, now set to:"+identity);
-			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+			DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
 			if(rKey == null) {
-				identity.setRange(jkeyr);
+				identity.setRange(tuple[2]);
 				if(DEBUG)
 					System.out.println("RelatrixJson.store PrimaryKeySet identity rkey was null, identity set to:"+identity);
 			} else {
 				identity.setRangeKey(rKey);
-				identity.setRangeResolved(jkeyr);
+				identity.setRangeResolved(tuple[2]);
 				if(DEBUG)
 					System.out.println("RelatrixJson.store PrimaryKeySet identity rkey was not null, identity set to:"+identity);
 			}
@@ -370,59 +431,25 @@ public final class RelatrixJson {
 	public static Relation store(Alias alias, Object d, Object m, Object r) throws IllegalAccessException, IOException, DuplicateKeyException, NoSuchElementException, ClassNotFoundException {
 		if( d == null || m == null || r == null)
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
-		JSONObject jsono;
-		Comparable<?> jkeyd, jkeym, jkeyr;
-		if(d instanceof JSONObject) {
-			jsono = (JSONObject)d;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeyd = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(d instanceof Comparable<?>) {
-				jkeyd = (Comparable<?>)d;
-			} else {
-				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+d+" found:"+d.getClass());
-			}
-		}
-		if(m instanceof JSONObject) {
-			jsono = (JSONObject)m;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeym = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(m instanceof Comparable<?>) {
-				jkeym = (Comparable<?>)m;
-			} else {
-				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+m+" found:"+m.getClass());
-			}
-		}
-		if(r instanceof JSONObject) {
-			jsono = (JSONObject)r;
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeyr = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(r instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)m;
-			} else {
-				throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+r+" found:"+r.getClass());
-			}
-		}
+		Comparable<?>[] tuple = getTuple(alias, d, m, r);
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		PrimaryKeySet pk = PrimaryKeySet.locate(alias, jkeyd, jkeym);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1]);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
-			DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+			identity.setDomainResolved(tuple[0]);
+			identity.setMapResolved(tuple[1]);
+			DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
 			if(rKey == null)
-				identity.setRange(alias, jkeyr);
+				identity.setRange(alias, tuple[2]);
 			else {
 				identity.setRangeKey(rKey);
-				identity.setRangeResolved(jkeyr);
+				identity.setRangeResolved(tuple[2]);
 			}
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
@@ -441,10 +468,10 @@ public final class RelatrixJson {
 
 	/**
 	 * Designed to interoperate with {@link Tuple}<p>
-	 * Store the set of prepared tuples. Expectes the first tuple to have d, m, r. The remaining tuples
+	 * Store the set of prepared tuples. Expects the first tuple to have d, m, r. The remaining tuples
 	 * have m, r and the relation of the first tuple will be used as domain. If any duplicate keys occur, a null will be 
 	 * returned in the array position of the returned tuple. 
-	 * @param tuples the set of prepared tuples, domain, map, range, for first tuple, map range for remaining
+	 * @param tuples the set of prepared tuples, domain, map, range, for first tuple, map, range for remaining
 	 * @return the set of stored tuples with identity key set and null for duplicates
 	 * @throws IOException
 	 * @throws IllegalAccessException
@@ -455,54 +482,23 @@ public final class RelatrixJson {
 		List<Comparable> identities = new RelationList();
 		Comparable[] tuple = tuples.get(0);
 		Relation identity = new Relation();
+		Comparable<?>[] translatedTuple = getTuple(tuple[0],tuple[1],tuple[2]);
 		JSONObject jsono;
-		Comparable<?> jkeyd, jkeym, jkeyr;
-		if(tuple[0] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[0];
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-			jkeyd = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(tuple[0] instanceof Comparable<?>) {
-				jkeyd = (Comparable<?>)tuple[0];
-			} else {
-				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
-			}
-		}
-		if(tuple[1] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[1];
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-			jkeym = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(tuple[1] instanceof Comparable<?>) {
-				jkeym = (Comparable<?>)tuple[1];
-			} else {
-				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
-			}
-		}
-		if(tuple[2] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[2];
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-			jkeyr = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(tuple[2] instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)tuple[2];
-			} else {
-				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[2]+" found:"+tuple[2].getClass());
-			}
-		}
-		PrimaryKeySet pk = PrimaryKeySet.locate(jkeyd, jkeym);
+		Comparable<?> jkeym, jkeyr;
+	
+		PrimaryKeySet pk = PrimaryKeySet.locate(translatedTuple[0], translatedTuple[1]);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
-		DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+		DBKey rKey = AbstractRelation.checkMorphism(translatedTuple[2]);
 		if(rKey == null)
-			identity.setRange(jkeyr);
+			identity.setRange(translatedTuple[2]);
 		else {
 			identity.setRangeKey(rKey);
-			identity.setRangeResolved(jkeyr);
+			identity.setRangeResolved(translatedTuple[2]);
 		}
 		if(pk.getIdentity() == null) {
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
+			identity.setDomainResolved(translatedTuple[0]);
+			identity.setMapResolved(translatedTuple[1]);
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
@@ -517,27 +513,27 @@ public final class RelatrixJson {
 			if(tuple[0] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[0];
 				BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-				jkeyd = RelatrixKVJson.getObject(ttmm);
+				jkeym = RelatrixKVJson.getObject(ttmm);
 			} else {
 				if(tuple[0] instanceof Comparable<?>) {
-					jkeyd = (Comparable<?>)tuple[0];
+					jkeym = (Comparable<?>)tuple[0];
 				} else {
-					throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
+					throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
 				}
 			}
 			if(tuple[1] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[1];
 				BufferedMap ttmm = RelatrixKVJson.getJsonClass(jsono);
-				jkeym = RelatrixKVJson.getObject(ttmm);
+				jkeyr = RelatrixKVJson.getObject(ttmm);
 			} else {
 				if(tuple[1] instanceof Comparable<?>) {
-					jkeym = (Comparable<?>)tuple[1];
+					jkeyr = (Comparable<?>)tuple[1];
 				} else {
-					throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
+					throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
 				}
 			}
 			try {
-				identities.add(store(identity, jkeyd, jkeym));
+				identities.add(store(identity, jkeym, jkeyr));
 			} catch(DuplicateKeyException dke) {}
 		}
 		return identities;
@@ -560,54 +556,23 @@ public final class RelatrixJson {
 		Comparable[] tuple = tuples.get(0);
 		Relation identity = new Relation();
 		identity.setAlias(alias);
+		Comparable<?>[] translatedTuple = getTuple(alias,tuple[0],tuple[1],tuple[2]);
 		JSONObject jsono;
-		Comparable<?> jkeyd, jkeym, jkeyr;
-		if(tuple[0] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[0];
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeyd = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(tuple[0] instanceof Comparable<?>) {
-				jkeyd = (Comparable<?>)tuple[0];
-			} else {
-				throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
-			}
-		}
-		if(tuple[1] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[1];
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeym = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(tuple[1] instanceof Comparable<?>) {
-				jkeym = (Comparable<?>)tuple[1];
-			} else {
-				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
-			}
-		}
-		if(tuple[2] instanceof JSONObject) {
-			jsono = (JSONObject)tuple[2];
-			BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-			jkeyr = RelatrixKVJson.getObject(ttmm);
-		} else {
-			if(tuple[2] instanceof Comparable<?>) {
-				jkeyr = (Comparable<?>)tuple[2];
-			} else {
-				throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[2]+" found:"+tuple[2].getClass());
-			}
-		}
-		PrimaryKeySet pk = PrimaryKeySet.locate(alias, jkeyd, jkeym);
+		Comparable<?> jkeym, jkeyr;
+	
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, translatedTuple[0], translatedTuple[1]);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
-		DBKey rKey = AbstractRelation.checkMorphism(jkeyr);
+		DBKey rKey = AbstractRelation.checkMorphism(translatedTuple[2]);
 		if(rKey == null)
-			identity.setRange(jkeyr);
+			identity.setRange(translatedTuple[2]);
 		else {
 			identity.setRangeKey(rKey);
-			identity.setRangeResolved(jkeyr);
+			identity.setRangeResolved(translatedTuple[2]);
 		}
 		if(pk.getIdentity() == null) {
-			identity.setDomainResolved(jkeyd);
-			identity.setMapResolved(jkeym);
+			identity.setDomainResolved(translatedTuple[0]);
+			identity.setMapResolved(translatedTuple[1]);
 			// newKey will call into DBKey.newKey with proper transactionId and alias
 			// and then call proper indexInstanceTable.put(instance) to place the DBKey/instance instance/DBKey
 			// and return the new DBKey reference
@@ -622,27 +587,27 @@ public final class RelatrixJson {
 			if(tuple[0] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[0];
 				BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-				jkeyd = RelatrixKVJson.getObject(ttmm);
+				jkeym = RelatrixKVJson.getObject(ttmm);
 			} else {
 				if(tuple[0] instanceof Comparable<?>) {
-					jkeyd = (Comparable<?>)tuple[0];
+					jkeym = (Comparable<?>)tuple[0];
 				} else {
-					throw new IllegalAccessException("Domain type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
+					throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[0]+" found:"+tuple[0].getClass());
 				}
 			}
 			if(tuple[1] instanceof JSONObject) {
 				jsono = (JSONObject)tuple[1];
 				BufferedMap ttmm = RelatrixKVJson.getJsonClass(alias, jsono);
-				jkeym = RelatrixKVJson.getObject(ttmm);
+				jkeyr = RelatrixKVJson.getObject(ttmm);
 			} else {
 				if(tuple[1] instanceof Comparable<?>) {
-					jkeym = (Comparable<?>)tuple[1];
+					jkeyr = (Comparable<?>)tuple[1];
 				} else {
-					throw new IllegalAccessException("Map type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
+					throw new IllegalAccessException("Range type must be JSONObject or Comparable for:"+tuple[1]+" found:"+tuple[1].getClass());
 				}
 			}
 			try {
-				identities.add(store(alias, identity, jkeyd, jkeym));
+				identities.add(store(alias, identity, jkeym, jkeyr));
 			} catch(DuplicateKeyException dke) {}
 		}
 		return identities;
