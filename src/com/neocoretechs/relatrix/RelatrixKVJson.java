@@ -30,7 +30,7 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.rocksack.session.TransactionalMap;
+
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
@@ -131,7 +131,7 @@ public final class RelatrixKVJson {
 	   	CborBuilder cb = new CborBuilder();
     	byte[] encodedBytes;
 		try {
-			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(RelatrixTypeSynthesizer.structuralTokens, RelatrixTypeSynthesizer.elements, cb);
+			encodedBytes = RelatrixTypeSynthesizer.generateMorphicPayload(cb);
 		} catch (CborException e) {
 			throw new IOException(e);
 		}
@@ -189,9 +189,6 @@ public final class RelatrixKVJson {
 		return new JSONObject(getData(c));
 	}
 	
-	public static JSONObject getJsonData(Alias alias, Comparable c) {
-		return new JSONObject(alias, getData(c));
-	}
 	/**
 	 * Transform a morphic keyed map into a String keyed map
 	 * @param c The original Map
@@ -288,9 +285,7 @@ public final class RelatrixKVJson {
 	public static Iterator<?> getJsonIterator(Iterator<?> it) {
 		return new TransformingIterator<>(it,v -> getJsonData((Comparable<?>) v));
 	}
-	public static Iterator<?> getJsonIterator(Alias alias, Iterator<?> it) {
-		return new TransformingIterator<>(it,v -> getJsonData(alias, (Comparable<?>) v));
-	}
+
 	/**
 	 * Transform a morphic class stream into a String stream using map and getData
 	 * @param s The original Stream
@@ -308,9 +303,7 @@ public final class RelatrixKVJson {
 	public static Stream<?> getJsonStream(Stream<?> s) {
 		return s.map(e->getJsonData((Comparable<?>)e));
 	}
-	public static Stream<?> getJsonStream(Alias alias, Stream<?> s) {
-		return s.map(e->getJsonData(alias, (Comparable<?>)e));
-	}	
+
 	/**
 	 * Transform a morphic class iterator to a String key map iterator using TransformingIterator
 	 * @param it The original iterator
@@ -652,7 +645,7 @@ public final class RelatrixKVJson {
 	
 	public static BufferedMap getMap(Alias alias, Class<?> json) throws IllegalAccessException, IOException {
 		String cjson = json.getName();
-		BufferedMap t = mapCache.get(cjson);
+		BufferedMap t = mapCache.get(cjson+alias.getAlias());
 		byte[] ctype = null;
 		if(t == null) {
 			Class<?> c;
@@ -668,7 +661,7 @@ public final class RelatrixKVJson {
 				c = classLoader.defineAClass(cjson,ctype,0,ctype.length);
 			}
 			t = DatabaseManager.getMap(alias, c);
-			mapCache.put(cjson, t);
+			mapCache.put(cjson+alias.getAlias(), t);
 		}
 		return t;
 	}

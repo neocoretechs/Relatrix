@@ -2,13 +2,11 @@ package com.neocoretechs.relatrix.client.json.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
+
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -36,26 +34,29 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  */
 public class RelatrixTypeSynthesizer {
     private static boolean DEBUG = false;
-    public static List<Object> elements;
-    public static List<String> structuralTokens;
+    public static List<Object> elements = new ArrayList<>();
+    public static List<String> structuralTokens = new ArrayList<>();
+    private static Object mutex = new Object();
 	/**
      * Generates a deterministic class name based on the unique structure of an ad-hoc node.
      * @param node The JSON object holding the data fields
      * @param classPrefix The constant string that will prefix the final generated class name
      */
     public static String generateMorphicClassName(JSONObject node, String classPrefix) {
-        structuralTokens = new ArrayList<>();
-        elements = new ArrayList<Object>();
-        extractStructuralTokens("", node, structuralTokens, elements);
-    
-        // Create the canonical signature string
-        String canonicalSignature = String.join(";", structuralTokens);
-        
-        // Hash the signature using a standard deterministic fingerprint
-        String structureHash = computeFastHash(canonicalSignature);
-        
-        // Return a clean, safe Java class name identifier
-        return classPrefix + "_" + structureHash;
+    	synchronized(mutex) {
+    		structuralTokens.clear();
+    		elements.clear();
+    		extractStructuralTokens("", node, structuralTokens, elements);
+
+    		// Create the canonical signature string
+    		String canonicalSignature = String.join(";", structuralTokens);
+
+    		// Hash the signature using a standard deterministic fingerprint
+    		String structureHash = computeFastHash(canonicalSignature);
+
+    		// Return a clean, safe Java class name identifier
+    		return classPrefix + "_" + structureHash;
+    	}
     }
     /**
      * CborBuilder creates the payload
@@ -64,11 +65,13 @@ public class RelatrixTypeSynthesizer {
      * @throws CborException If parsing fails
      */
     public static byte[] generateCborPayload(JSONObject node) throws CborException {
-        structuralTokens = new ArrayList<>();
-        elements = new ArrayList<Object>();
-        extractStructuralTokens("", node, structuralTokens, elements);
-    	CborBuilder cb = new CborBuilder();
-    	return generateMorphicPayload(structuralTokens, elements, cb);
+    	synchronized(mutex) {
+    		structuralTokens.clear();
+    		elements.clear();
+    		extractStructuralTokens("", node, structuralTokens, elements);
+    		CborBuilder cb = new CborBuilder();
+    		return generateMorphicPayload(cb);
+    	}
     }
     /**
      * Recursively traverse the node structure  populating the tokens and values lists
@@ -118,11 +121,13 @@ public class RelatrixTypeSynthesizer {
      * @return The constructed byte array
      * @throws CborException
      */
-    public static byte[] generateMorphicPayload(List<String> structuralTokens, List<Object> elements, CborBuilder cb) throws CborException {
-        extractStructuralTokensAndBuildCBOR(structuralTokens, elements, cb);
-    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      	new CborEncoder(baos).encode(cb.build());
-    	return baos.toByteArray();
+    public static byte[] generateMorphicPayload(CborBuilder cb) throws CborException {
+    	synchronized(mutex) {
+    		buildCBOR(structuralTokens, elements, cb);
+    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    		new CborEncoder(baos).encode(cb.build());
+    		return baos.toByteArray();
+    	}
     }
     /**
      * Used by generateMorphicPayload 
@@ -130,7 +135,7 @@ public class RelatrixTypeSynthesizer {
      * @param elements
      * @param cbuild
      */
-    private static void extractStructuralTokensAndBuildCBOR(List<String> tokens, List<Object> elements, CborBuilder cbuild) {
+    private static void buildCBOR(List<String> tokens, List<Object> elements, CborBuilder cbuild) {
    		MapBuilder<CborBuilder> mb = cbuild.addMap();
     	for(int i = 0; i < tokens.size(); i++) {
     		String fieldName = tokens.get(i);
@@ -221,7 +226,7 @@ public class RelatrixTypeSynthesizer {
     		c = hcl.defineAClass(className, b);
       	}
       	CborBuilder cb = new CborBuilder();
-    	byte[] encodedBytes = generateMorphicPayload(structuralTokens, elements, cb);
+    	byte[] encodedBytes = generateMorphicPayload(cb);
     	Constructor ctor = c.getConstructor(byte[].class);
     	Object o = ctor.newInstance(encodedBytes);
         System.out.println("nanos="+(System.nanoTime()-tim));
