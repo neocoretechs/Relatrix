@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl implements ClientInterface, Runnable {
+public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl implements ClientInterface, Runnable {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
@@ -53,7 +53,7 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl implemen
 	 * @param remotePort The remote Port
 	 * @throws IOException if connect fail
 	 */
-	public RelatrixClientJson(String remoteNode, int remotePort)  throws IOException {
+	public RelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemote((RelatrixClientInterface) this);
@@ -218,7 +218,7 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl implemen
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClientJson rc = new RelatrixClientJson(args[1],Integer.parseInt(args[2]));
+		RelatrixKVClientJson rc = new RelatrixKVClientJson(args[1],Integer.parseInt(args[2]));
 		RelatrixStatementJson rs = null;
 		switch(args.length) {
 		case 4:

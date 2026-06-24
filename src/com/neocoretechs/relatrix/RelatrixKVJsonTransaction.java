@@ -585,7 +585,7 @@ public final class RelatrixKVJsonTransaction {
 	public static WorkingSet2 getWorkingSet2(TransactionId xid, Object key, Object key2) throws IOException, IllegalAccessException {
 		WorkingSet2 ws = new WorkingSet2();
 		Comparable<?> jkey, jkey2;
-		TransactionalMap ttm;
+		TransactionalMap ttm,ttn;
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
@@ -605,21 +605,19 @@ public final class RelatrixKVJsonTransaction {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttm = getJsonClass(jsonod, xid);
-				jkey2 = getObject(ttm);
+				ttn = getJsonClass(jsonod, xid);
+				jkey2 = getObject(ttn);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
 		} else {
 			if(key2 instanceof Comparable<?>) {
 				jkey2 = (Comparable<?>)key2;
-				ttm = getMap(jkey2.getClass(), xid);
+				ttn = getMap(jkey2.getClass(), xid);
 			} else {
 				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
 			}
 		}
-		if(jkey.getClass() != jkey2.getClass())
-			throw new IllegalAccessException("Classes differ in range specification:"+jkey.getClass()+" and "+jkey2.getClass());
 		ws.bm = ttm;
 		ws.item = jkey;
 		ws.item2 = jkey2;
@@ -629,7 +627,7 @@ public final class RelatrixKVJsonTransaction {
 	public static WorkingSet2 getWorkingSet2(Alias alias, TransactionId xid, Object key, Object key2) throws IOException, IllegalAccessException {
 		WorkingSet2 ws = new WorkingSet2();
 		Comparable<?> jkey, jkey2;
-		TransactionalMap ttm;
+		TransactionalMap ttm, ttn;
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
@@ -649,21 +647,19 @@ public final class RelatrixKVJsonTransaction {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttm = getJsonClass(alias, jsonod, xid);
-				jkey2 = getObject(ttm);
+				ttn = getJsonClass(alias, jsonod, xid);
+				jkey2 = getObject(ttn);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
 		} else {
 			if(key2 instanceof Comparable<?>) {
 				jkey2 = (Comparable<?>)key2;
-				ttm = getMap(alias, jkey2.getClass(), xid);
+				ttn = getMap(alias, jkey2.getClass(), xid);
 			} else {
 				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
 			}
 		}
-		if(jkey.getClass() != jkey2.getClass())
-			throw new IllegalAccessException("Classes differ in range specification:"+jkey.getClass()+" and "+jkey2.getClass());
 		ws.bm = ttm;
 		ws.item = jkey;
 		ws.item2 = jkey2;
@@ -1591,8 +1587,6 @@ public final class RelatrixKVJsonTransaction {
 	{
 		WorkingSet ws = getWorkingSet(xid, key);
 		TransactionalMap ttm = getMap(mainClass, xid);
-		if(ttm != ws.bm)
-			throw new IllegalAccessException("key and value classes differ:"+ttm.getClassName()+" and "+ws.bm.getClassName());
 		Object o = ttm.get(xid, ws.item);
 		if( o == null )
 			return null;
@@ -1613,8 +1607,6 @@ public final class RelatrixKVJsonTransaction {
 	{
 		WorkingSet ws = getWorkingSet(alias, xid, key);
 		TransactionalMap ttm = getMap(alias, mainClass, xid);
-		if(ttm != ws.bm)
-			throw new IllegalAccessException("key and value classes differ:"+ttm.getClassName()+" and "+ws.bm.getClassName());
 		Object o = ttm.get(xid, ws.item);
 		if( o == null )
 			return null;
@@ -1775,8 +1767,6 @@ public final class RelatrixKVJsonTransaction {
 	{
 		WorkingSet ws = getWorkingSet(xid, subClass);
 		TransactionalMap ttm = getMap(mainClass, xid);
-		if(ttm != ws.bm)
-			throw new IllegalAccessException("key and value classes differ:"+ttm.getClassName()+" and "+ws.bm.getClassName());
 		return ttm.containsKey(xid, ws.item);
 	}
 	/**
@@ -1796,8 +1786,6 @@ public final class RelatrixKVJsonTransaction {
 	{
 		WorkingSet ws = getWorkingSet(alias, xid, subClass);
 		TransactionalMap ttm = getMap(mainClass, xid);
-		if(ttm != ws.bm)
-			throw new IllegalAccessException("key and value classes differ:"+ttm.getClassName()+" and "+ws.bm.getClassName());
 		return ttm.containsKey(xid, ws.item);
 	}
 	/**
@@ -1813,8 +1801,6 @@ public final class RelatrixKVJsonTransaction {
 	public static boolean containsValue(TransactionId xid, Class keyType, Object obj) throws IOException, IllegalAccessException {
 		WorkingSet ws = getWorkingSet(xid, obj);
 		TransactionalMap ttm = getMap(keyType, xid);
-		if(ttm != ws.bm)
-			throw new IllegalAccessException("key and value classes differ:"+ttm.getClassName()+" and "+ws.bm.getClassName());
 		return ttm.containsKey(xid, ws.item);
 	}
 	/**
@@ -1832,8 +1818,6 @@ public final class RelatrixKVJsonTransaction {
 	public static boolean containsValue(Alias alias, TransactionId xid, Class keyType, Object obj) throws IOException, IllegalAccessException, NoSuchElementException {
 		WorkingSet ws = getWorkingSet(alias, xid, obj);
 		TransactionalMap ttm = getMap(alias, keyType, xid);
-		if(ttm != ws.bm)
-			throw new IllegalAccessException("key and value classes differ:"+ttm.getClassName()+" and "+ws.bm.getClassName());
 		return ttm.containsValue(xid, ws.item);
 	}
 	/**

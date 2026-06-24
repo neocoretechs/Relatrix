@@ -75,8 +75,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
-		
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
@@ -129,8 +128,7 @@ public class RelatrixTransactionServer extends TCPServer {
 		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
-		
+			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
@@ -188,14 +186,14 @@ public class RelatrixTransactionServer extends TCPServer {
 	public static void main(String args[]) throws Exception {
 		RelatrixTransaction.getInstance();
 		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix tablespace:"+db);
-		    RelatrixTransaction.setTablespace(db);
-		    new RelatrixTransactionServer(args[1], Integer.parseInt(args[2]));
+			String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+					(new File(args[0]).getName());
+			System.out.println("Bringing up Relatrix tablespace:"+db);
+			RelatrixTransaction.setTablespace(db);
+			new RelatrixTransactionServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {
-			    System.out.println("Bringing up Relatrix default tablespace.");
+				System.out.println("Bringing up Relatrix default tablespace.");
 				new RelatrixTransactionServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
@@ -206,6 +204,7 @@ public class RelatrixTransactionServer extends TCPServer {
 				}
 			}
 		}
+		System.out.println(address);
 	}
 
 }

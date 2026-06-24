@@ -2242,7 +2242,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 		return queueCommand(s).thenApply(result -> (Boolean) result);
 	}
 	@Override
-	public Object get(Comparable arg1) {
+	public Object get(Object arg1) {
 		RelatrixStatement s = new RelatrixStatement("get", arg1);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
@@ -2252,7 +2252,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
           }
 	}
 	@Override
-	public Object get(Alias arg1,Comparable arg2) {
+	public Object get(Alias arg1,Object arg2) {
 		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {

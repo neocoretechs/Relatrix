@@ -501,9 +501,9 @@ public interface AsynchRelatrixClientInterface extends com.neocoretechs.relatrix
 
 	public CompletableFuture<Boolean> contains(Comparable arg1);
 
-	public Object get(Comparable arg1);
+	public Object get(Object arg1);
 
-	public Object get(Alias arg1,Comparable arg2);
+	public Object get(Alias arg1,Object arg2);
 
 	public CompletableFuture<Void> remove(Alias arg1,Comparable arg2);
 

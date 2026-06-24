@@ -941,7 +941,7 @@ public final class RelatrixJson {
 	}
 	/**
 	 * Delete all relationships that this object participates in
-	 * @param c The Comparable key to remove
+	 * @param c The key to remove
 	 * @throws IOException low-level access or problems modifiying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
@@ -949,7 +949,7 @@ public final class RelatrixJson {
 	 * @throws DuplicateKeyException 
 	 */
 	@ServerMethod
-	public static void remove(Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
+	public static void remove(Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);// Remove main entry, which is possibly Relation
 		DBKey primaryKey = (DBKey) RelatrixKVJson.remove(c);
@@ -982,7 +982,7 @@ public final class RelatrixJson {
 	/**
 	 * Delete all relationships that this object participates in
 	 * @param alias the database alias
-	 * @param c the Comparable key
+	 * @param c the key
 	 * @throws IOException low-level access or problems modifiying schema
 	 * @throws IllegalAccessException 
 	 * @throws ClassNotFoundException 
@@ -991,7 +991,7 @@ public final class RelatrixJson {
 	 * @throws DuplicateKeyException 
 	 */
 	@ServerMethod
-	public static void remove(Alias alias, Comparable<?> c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
+	public static void remove(Alias alias, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException, NoSuchElementException {
 		if( DEBUG || DEBUGREMOVE )
 			System.out.println("Relatrix.remove prepping to remove:"+c);
 		// Remove main entry, which is possibly Relation
@@ -1283,8 +1283,9 @@ public final class RelatrixJson {
 	 * @throws ClassNotFoundException 
 	 */
 	@ServerMethod
-	public static void remove(Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, ClassNotFoundException {
-		Relation dmr = new Relation(d,m,null);
+	public static void remove(Object d, Object m) throws IOException, IllegalAccessException, ClassNotFoundException {
+		RelatrixKVJson.WorkingSet2 ws = RelatrixKVJson.getWorkingSet2(d, m);
+		Relation dmr = new Relation(ws.item,ws.item2,null);
 		remove(dmr);
 	}
 
@@ -1299,7 +1300,8 @@ public final class RelatrixJson {
 	 */
 	@ServerMethod
 	public static void remove(Alias alias, Comparable<?> d, Comparable<?> m) throws IOException, IllegalAccessException, NoSuchElementException, ClassNotFoundException {
-		Relation dmr = new Relation(alias,d,m,null);
+		RelatrixKVJson.WorkingSet2 ws = RelatrixKVJson.getWorkingSet2(alias, d, m);
+		Relation dmr = new Relation(alias, ws.item, ws.item2, null);
 		remove(alias, dmr);
 	}
 
@@ -1344,7 +1346,7 @@ public final class RelatrixJson {
 					}
 				}
 			} else {
-				dbk = (DBKey) get((Comparable) c);
+				dbk = (DBKey) get(c);
 				if(dbk == null)
 					return located;
 			}
@@ -3431,7 +3433,7 @@ public final class RelatrixJson {
 	 * @throws IOException
 	 */
 	@ServerMethod
-	public static boolean contains(Comparable obj) throws IOException
+	public static boolean contains(Object  obj) throws IOException
 	{
 		try {
 			return RelatrixKVJson.contains(obj);
@@ -3440,7 +3442,7 @@ public final class RelatrixJson {
 		}
 	}
 	@ServerMethod
-	public static boolean contains(Alias alias, Comparable obj) throws IOException, NoSuchElementException
+	public static boolean contains(Alias alias, Object obj) throws IOException, NoSuchElementException
 	{
 		try {
 			return RelatrixKVJson.contains(alias, obj);
@@ -3483,18 +3485,18 @@ public final class RelatrixJson {
 	}
 	/**
 	 * Return the value for the key.
-	 * @param key the key to retrieve
+	 * @param c the key to retrieve
 	 * @return The value for the key.
 	 * @throws IOException
 	 * @throws IllegalAccessException 
 	 */
 	@ServerMethod
-	public static Object get(Comparable key) throws IOException, IllegalAccessException
+	public static Object get(Object c) throws IOException, IllegalAccessException
 	{
-		return RelatrixKVJson.get(key);
+		return RelatrixKVJson.get(c);
 	}
 	@ServerMethod
-	public static Object get(Alias alias, Comparable key) throws IOException, IllegalAccessException, NoSuchElementException
+	public static Object get(Alias alias, Object key) throws IOException, IllegalAccessException, NoSuchElementException
 	{
 		return RelatrixKVJson.get(alias, key);
 	}

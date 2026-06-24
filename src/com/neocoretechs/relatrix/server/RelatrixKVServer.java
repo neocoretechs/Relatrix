@@ -207,14 +207,14 @@ public class RelatrixKVServer extends TCPServer {
 	public static void main(String args[]) throws Exception {
 		RelatrixKV.getInstance();
 		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix tablespace:"+db);
-		    RelatrixKV.setTablespace(db);
-		    new RelatrixKVServer(args[1], Integer.parseInt(args[2]));
+			String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+					(new File(args[0]).getName());
+			System.out.println("Bringing up Relatrix tablespace:"+db);
+			RelatrixKV.setTablespace(db);
+			new RelatrixKVServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {
-			    System.out.println("Bringing up Relatrix default tablespace.");
+				System.out.println("Bringing up Relatrix default tablespace.");
 				new RelatrixKVServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
@@ -225,8 +225,7 @@ public class RelatrixKVServer extends TCPServer {
 				}
 			}
 		}
- 
+		System.out.println(address);
 	}
-	
 
 }

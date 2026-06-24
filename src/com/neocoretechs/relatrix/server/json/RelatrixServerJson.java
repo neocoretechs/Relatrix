@@ -43,6 +43,7 @@ public class RelatrixServerJson extends TCPServer {
 	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
+	public static final String relatrixJson = "com.neocoretechs.relatrix.RelatrixJson";
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 	
@@ -97,7 +98,7 @@ public class RelatrixServerJson extends TCPServer {
 	public RelatrixServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServerJson.port = port;
-		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixJson", 0);
+		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -114,7 +115,7 @@ public class RelatrixServerJson extends TCPServer {
 	public RelatrixServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServerJson.port = port;
-		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixJson", 0);
+		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -132,7 +133,7 @@ public class RelatrixServerJson extends TCPServer {
 	public RelatrixServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServerJson.port = port;
-		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixJson", 0);
+		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress,port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
@@ -193,16 +194,17 @@ public class RelatrixServerJson extends TCPServer {
 	 */
 	public static void main(String args[]) throws Exception {
 		RelatrixJson.getInstance();
-			if( args.length == 2) {
-			    System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
-				new RelatrixServerJson(args[0], Integer.parseInt(args[1]));
+		if( args.length == 2) {
+			System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
+			new RelatrixServerJson(args[0], Integer.parseInt(args[1]));
+		} else {
+			if(args.length == 1) {
+				System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
+				new RelatrixServerJson(Integer.parseInt(args[0]));
 			} else {
-				if(args.length == 1) {
-					System.out.println("Bringing up RelatrixJson tablespace "+System.getProperty("tablespace"));
-					new RelatrixServerJson(Integer.parseInt(args[0]));
-				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.json.RelatrixServerJson [address] <port>");
-				}
+				System.out.println("usage: java com.neocoretechs.relatrix.server.json.RelatrixServerJson [address] <port>");
 			}
 		}
+		System.out.println(address);
+	}
 }

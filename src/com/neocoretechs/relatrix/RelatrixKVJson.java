@@ -33,6 +33,7 @@ import com.neocoretechs.rocksack.session.DatabaseManager;
 
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -513,7 +514,7 @@ public final class RelatrixKVJson {
 	}
 	
 	static class WorkingSet2 {
-		BufferedMap bm;
+		BufferedMap bm, bm2;
 		Comparable<?> item; 
 		Comparable<?> item2;
 	}
@@ -521,7 +522,7 @@ public final class RelatrixKVJson {
 	public static WorkingSet2 getWorkingSet2(Object key, Object key2) throws IOException, IllegalAccessException {
 		WorkingSet2 ws = new WorkingSet2();
 		Comparable<?> jkey, jkey2;
-		BufferedMap ttm;
+		BufferedMap ttm, ttn;
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
@@ -541,30 +542,29 @@ public final class RelatrixKVJson {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttm = getJsonClass(jsonod);
-				jkey2 = getObject(ttm);
+				ttn = getJsonClass(jsonod);
+				jkey2 = getObject(ttn);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
 		} else {
 			if(key2 instanceof Comparable<?>) {
 				jkey2 = (Comparable<?>)key2;
-				ttm = getMap(jkey2.getClass());
+				ttn = getMap(jkey2.getClass());
 			} else {
 				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
 			}
 		}
-		if(jkey.getClass() != jkey2.getClass())
-			throw new IllegalAccessException("Classes differ in range specification:"+jkey.getClass()+" and "+jkey2.getClass());
 		ws.bm = ttm;
 		ws.item = jkey;
+		ws.bm2 = ttn;
 		ws.item2 = jkey2;
 		return ws;
 	}
 	public static WorkingSet2 getWorkingSet2(Alias alias, Object key, Object key2) throws IOException, IllegalAccessException {
 		WorkingSet2 ws = new WorkingSet2();
 		Comparable<?> jkey, jkey2;
-		BufferedMap ttm;
+		BufferedMap ttm, ttn;
 		if(key instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key;
 			try {
@@ -584,22 +584,21 @@ public final class RelatrixKVJson {
 		if(key2 instanceof JSONObject) {
 			JSONObject jsonod = (JSONObject)key2;
 			try {
-				ttm = getJsonClass(alias, jsonod);
-				jkey2 = getObject(ttm);
+				ttn = getJsonClass(alias, jsonod);
+				jkey2 = getObject(ttn);
 			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
 		} else {
 			if(key2 instanceof Comparable<?>) {
 				jkey2 = (Comparable<?>)key2;
-				ttm = getMap(alias, jkey2.getClass());
+				ttn = getMap(alias, jkey2.getClass());
 			} else {
 				throw new IOException("Type must be JSONObject or Comparable, found:"+key+" of type:"+key.getClass());
 			}
 		}
-		if(jkey.getClass() != jkey2.getClass())
-			throw new IllegalAccessException("Classes differ in range specification:"+jkey.getClass()+" and "+jkey2.getClass());
 		ws.bm = ttm;
+		ws.bm2 = ttn;
 		ws.item = jkey;
 		ws.item2 = jkey2;
 		return ws;
@@ -1411,7 +1410,33 @@ public final class RelatrixKVJson {
 			return null;
 		return ((KeyValue)o).getmValue();
 	}
-
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return get(key);
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param alias the db alias
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return get(alias,key);
+	}
 	/**
 	 * The lowest key value object
 	 * @param clazz the class to retrieve

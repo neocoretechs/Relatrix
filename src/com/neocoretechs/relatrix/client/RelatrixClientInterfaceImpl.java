@@ -2183,7 +2183,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object get(Comparable arg1) throws java.io.IOException {
+	public Object get(Object arg1) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("get", arg1);
 		try {
 			return (Object)sendCommand(s);
@@ -2192,7 +2192,7 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public Object get(Alias arg1,Comparable arg2) throws java.io.IOException {
+	public Object get(Alias arg1,Object arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);

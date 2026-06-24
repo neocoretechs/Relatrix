@@ -1,1 +1,1 @@
-generateclientbindings java.io.IOException com.neocoretechs.relatrix.RelatrixJson RelatrixClientInterfaceJson client.json.RelatrixJsonStatement 
+generateclientbindings java.io.IOException com.neocoretechs.relatrix.RelatrixJson RelatrixClientInterfaceJson RelatrixStatementJson

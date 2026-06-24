@@ -479,7 +479,7 @@ public abstract class AsynchRelatrixKVClientInterfaceImpl implements AsynchRelat
 		return queueCommand(s).thenApply(result -> (Boolean) result);
 	}
 	@Override
-	public Object get(Alias arg1,Comparable arg2) {
+	public Object get(Alias arg1,Object arg2) {
 		RelatrixKVStatement s = new RelatrixKVStatement("get", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
@@ -489,7 +489,7 @@ public abstract class AsynchRelatrixKVClientInterfaceImpl implements AsynchRelat
           }
 	}
 	@Override
-	public Object get(Comparable arg1) {
+	public Object get(Object arg1) {
 		RelatrixKVStatement s = new RelatrixKVStatement("get", arg1);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {

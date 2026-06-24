@@ -171,14 +171,14 @@ public class RelatrixServer extends TCPServer {
 	public static void main(String args[]) throws Exception {
 		Relatrix.getInstance();
 		if(args.length == 3) {
-		    String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-		        		(new File(args[0]).getName());
-		    System.out.println("Bringing up Relatrix tablespace:"+db);
-		    Relatrix.setTablespace(db);
-		    new RelatrixServer(args[1], Integer.parseInt(args[2]));
+			String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
+					(new File(args[0]).getName());
+			System.out.println("Bringing up Relatrix tablespace:"+db);
+			Relatrix.setTablespace(db);
+			new RelatrixServer(args[1], Integer.parseInt(args[2]));
 		} else {
 			if( args.length == 2) {
-			    System.out.println("Bringing up Relatrix default tablespace.");
+				System.out.println("Bringing up Relatrix default tablespace.");
 				new RelatrixServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
@@ -189,5 +189,6 @@ public class RelatrixServer extends TCPServer {
 				}
 			}
 		}
+		System.out.println(address);
 	}
 }

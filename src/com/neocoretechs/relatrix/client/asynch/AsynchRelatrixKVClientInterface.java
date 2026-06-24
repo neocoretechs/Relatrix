@@ -127,9 +127,9 @@ public interface AsynchRelatrixKVClientInterface extends com.neocoretechs.relatr
 
 	public CompletableFuture<Boolean> contains(Alias arg1,Comparable arg2);
 
-	public Object get(Alias arg1,Comparable arg2);
+	public Object get(Alias arg1,Object arg2);
 
-	public Object get(Comparable arg1);
+	public Object get(Object arg1);
 
 	public CompletableFuture<Object> remove(Comparable arg1);
 

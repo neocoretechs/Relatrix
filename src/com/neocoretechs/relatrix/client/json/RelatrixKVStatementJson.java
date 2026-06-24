@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorClient;
 
-import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
+import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  * @author Jonathan Groff (C) NeoCoreTechs 2021
  *
  */
-public class RelatrixJsonStatement extends RelatrixStatement implements RelatrixStatementInterface, Serializable {
+public class RelatrixKVStatementJson extends RelatrixStatement implements RelatrixStatementInterface, Serializable {
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
@@ -43,10 +43,10 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
     protected transient Class<?>[] params = null;
     private transient Object completionObject;
 
-    public RelatrixJsonStatement() {
+    public RelatrixKVStatementJson() {
     }
     
-    public RelatrixJsonStatement(String session) {
+    public RelatrixKVStatementJson(String session) {
     	this.session = session;
     	this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
@@ -57,7 +57,7 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
      * @param tmeth
      * @param o1
      */
-    public RelatrixJsonStatement(String tmeth, Object ... o1) {
+    public RelatrixKVStatementJson(String tmeth, Object ... o1) {
     	this.methodName = tmeth;
     	this.paramArray = o1;
     	this.session = UUID.randomUUID().toString();
@@ -144,6 +144,7 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 			else
 				throw new RuntimeException("Unknown completion object type:"+completionObject.getClass());
 	}
+	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof AbstractRelation) {
@@ -197,7 +198,7 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 	@Override
 	public synchronized void process() throws Exception {
 		unpackParamArray();
-		Object result = RelatrixServerJson.relatrixMethods.invokeMethod(this);
+		Object result = RelatrixKVServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
@@ -213,15 +214,15 @@ public class RelatrixJsonStatement extends RelatrixStatement implements Relatrix
 				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			RemoteIteratorClient ric = null;
-			for(int ic = 0; ic < RelatrixServerJson.iteratorServerClasses.length; ic++) {
-				if(result.getClass() == RelatrixServerJson.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixServerJson.address).getAddress().getHostName(), RelatrixServerJson.iteratorPorts[ic]);
+			for(int ic = 0; ic < RelatrixKVServerJson.iteratorServerClasses.length; ic++) {
+				if(result.getClass() == RelatrixKVServerJson.iteratorServerClasses[ic]) {	
+					ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic]);
 				}
 			}
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			// Link the object instance to session for later method invocation
-			RelatrixServerJson.sessionToObject.put(ric.getSession(), result);
+			RelatrixKVServerJson.sessionToObject.put(ric.getSession(), result);
 			setReturnClass(RemoteIteratorClient.class.getName());
 			setObjectReturn(ric);
 			signalCompletion(ric);

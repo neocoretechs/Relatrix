@@ -19,8 +19,8 @@ public interface ClientNonTransactionInterface extends ClientInterface{
 	
 	public Object getByIndex(Alias alias, DBKey index) throws IOException;
 
-	public Object get(Comparable instance) throws IOException;
+	public Object get(Object instance) throws IOException;
 
-	public Object get(Alias alias, Comparable instance) throws IOException;
+	public Object get(Alias alias, Object instance) throws IOException;
 
 }
