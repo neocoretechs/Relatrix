@@ -506,9 +506,9 @@ public interface RelatrixClientInterfaceJson extends ClientNonTransactionInterfa
 
 	public void remove(Alias arg1,Comparable arg2,Comparable arg3) throws java.io.IOException;
 
-	public void remove(Comparable arg1,Comparable arg2) throws java.io.IOException;
+	public void remove(Object arg1,Object arg2) throws java.io.IOException;
 
-	public void remove(Comparable arg1) throws java.io.IOException;
+	public Object remove(Object arg1) throws java.io.IOException;
 
 }
 

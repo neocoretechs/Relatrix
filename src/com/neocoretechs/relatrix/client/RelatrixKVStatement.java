@@ -2,12 +2,13 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+
 import java.net.InetSocketAddress;
+
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -16,7 +17,6 @@ import com.neocoretechs.rocksack.KeyValue;
 
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 
 /**
  * The following class allows the transport of RelatrixKV method calls to the server.
@@ -26,7 +26,7 @@ import com.neocoretechs.relatrix.server.RelatrixServer;
  *
  */
 public class RelatrixKVStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected String session = null;
     protected String methodName;
@@ -202,19 +202,24 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 				}
 			}
 			if( DEBUG ) {
-				System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+				System.out.printf("%s Storing nonserializable object reference for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 			}
 			// put it in the array and send our intermediary back
 			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
+				if( DEBUG ) {
+					System.out.printf("%s setting kev/value object return for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+				}
 				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
 				signalCompletion(getObjectReturn());
 				return;
 			}
 			RelatrixKVServer.sessionToObject.put(getSession(), result);
-			RemoteIteratorKVClient ric = null;
-			if(result.getClass() == IteratorWrapper.class) {	
-				ric = new RemoteIteratorKVClient(((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), 
-							RelatrixKVServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
+			RemoteIteratorClient ric = null;
+			if(result.getClass() == IteratorWrapper.class) {
+				if( DEBUG ) {
+					System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+				}
+				ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0]);
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}

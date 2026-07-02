@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private ClientInterface rc = null;
 	private Object mutex = new Object();
 
@@ -375,7 +375,9 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	 */
 	@Override
 	public DBKey getKey(Object instance) throws IllegalAccessException, IOException, ClassNotFoundException {
-		return (DBKey)((ClientNonTransactionInterface)rc).get((Comparable) instance);
+		if(DEBUG)
+			System.out.printf("%s get for key:%s returns %s%n", this.getClass().getName(), instance, ((ClientNonTransactionInterface)rc).get(instance));
+		return (DBKey)((ClientNonTransactionInterface)rc).get(instance);
 	}
 
 	/**
@@ -398,7 +400,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 
 	@Override
 	public DBKey getKey(Alias alias, Object instance) throws IllegalAccessException, IOException, NoSuchElementException, ClassNotFoundException {
-		return (DBKey) ((ClientNonTransactionInterface)rc).get(alias, (Comparable) instance);
+		return (DBKey) ((ClientNonTransactionInterface)rc).get(alias, instance);
 	}
 
 	@Override

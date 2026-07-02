@@ -107,9 +107,9 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 				return;
 			}
 			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);
-			RemoteIteratorKVClientTransaction ric = null;
+			RemoteIteratorClientTransaction ric = null;
 			if(result.getClass() == IteratorWrapper.class) {	
-				ric = new RemoteIteratorKVClientTransaction(xid, ((InetSocketAddress)RelatrixKVTransactionServer.address).getAddress().getHostName(), 
+				ric = new RemoteIteratorClientTransaction(xid, ((InetSocketAddress)RelatrixKVTransactionServer.address).getAddress().getHostName(), 
 							RelatrixKVTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);

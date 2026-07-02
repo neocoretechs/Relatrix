@@ -13,14 +13,13 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
- * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
- * has been sent from client to WORKBOOTPORT. A WorkerRequestProcessor handles the actual processing of the
+ * This TCPWorker is spawned for servicing traffic from clients. A {@link WorkerRequestProcessor} handles the actual processing of the
  * request after it has been acquired and extracted here. Creates a {@link ConnectionHandler}
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
  */
 public class TCPWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -30,6 +29,8 @@ public class TCPWorker implements Runnable {
 	protected ConnectionHandler workerHandler;
 	
 	protected WorkerRequestProcessor workerRequestProcessor;
+	
+	public TCPWorker() {}
 	
     public TCPWorker(SocketChannel workerSocket) throws IOException {
     	this.workerSocket = workerSocket;
@@ -82,7 +83,9 @@ public class TCPWorker implements Runnable {
 				workerRequestProcessor.getQueue().put(iori);
 			}
 		// Call to shut down has been received from stopWorker
-		} catch (InterruptedException ie) {}
+		} catch (InterruptedException | ClassNotFoundException | IOException ie) {
+			ie.printStackTrace();
+		}
 		finally {
 			shouldRun = false;
 			workerHandler.close();

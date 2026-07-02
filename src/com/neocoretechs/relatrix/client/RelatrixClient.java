@@ -49,7 +49,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	public RelatrixClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote((RelatrixClientInterface) this);
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
@@ -126,7 +125,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl implements Clien
 	}
 
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
-		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCompletionObject(cdl);
 		send(rs);

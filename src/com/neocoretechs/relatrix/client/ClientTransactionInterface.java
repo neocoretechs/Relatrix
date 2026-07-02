@@ -9,10 +9,18 @@ import com.neocoretechs.rocksack.TransactionId;
  * Marker interface that allows a client to be assigned to a remote service
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
-public interface ClientTransactionInterface extends ClientInterface{
+public interface ClientTransactionInterface extends ClientInterface {
 	
 	public TransactionId getTransactionId() throws IOException;
-
+	
+	public void commit(TransactionId transactionId) throws IOException;
+	
+	public void rollback(TransactionId transactionId) throws IOException;
+	
+	public void commit(Alias alias, TransactionId transactionId) throws IOException;
+	
+	public void rollback(Alias alias, TransactionId transactionId) throws IOException;
+	
 	public void storekv(TransactionId transactionId, Comparable index, Object instance) throws IOException;
 
 	public void storekv(Alias alias, TransactionId transactionId, Comparable instance, Object index) throws IOException;
@@ -24,5 +32,9 @@ public interface ClientTransactionInterface extends ClientInterface{
 	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws IOException;
 	
 	public Object getByIndex(TransactionId transactionId, Comparable index) throws IOException;
+	
+	public void remove(TransactionId transactionId, Comparable instance) throws IOException;
+	
+	public void remove(Alias alias, TransactionId transactionId, Comparable instance) throws IOException;
 
 }

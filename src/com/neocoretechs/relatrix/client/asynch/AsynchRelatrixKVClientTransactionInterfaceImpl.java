@@ -106,15 +106,27 @@ public abstract class AsynchRelatrixKVClientTransactionInterfaceImpl implements 
 
 	}
 	@Override
-	public CompletableFuture<Void> rollback(Alias arg1,TransactionId arg2) {
+	public void rollback(Alias arg1,TransactionId arg2) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement("rollback", arg1, arg2);
-		return queueCommand(s).thenApply(result -> (Void) result);
+		//return queueCommand(s).thenApply(result -> (Void) result);
+		CompletableFuture<Object> cf = queueCommand(s);
+        try {
+                  cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+        }
 
 	}
 	@Override
-	public CompletableFuture<Void> rollback(TransactionId arg1) {
+	public void rollback(TransactionId arg1) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement("rollback", arg1);
-		return queueCommand(s).thenApply(result -> (Void) result);
+		//return queueCommand(s).thenApply(result -> (Void) result);
+		CompletableFuture<Object> cf = queueCommand(s);
+        try {
+                  cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+        }
 
 	}
 	@Override
@@ -444,15 +456,27 @@ public abstract class AsynchRelatrixKVClientTransactionInterfaceImpl implements 
 
 	}
 	@Override
-	public CompletableFuture<Void> commit(Alias arg1,TransactionId arg2) {
+	public void commit(Alias arg1,TransactionId arg2) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement("commit", arg1, arg2);
-		return queueCommand(s).thenApply(result -> (Void) result);
+		//return queueCommand(s).thenApply(result -> (Void) result);
+		CompletableFuture<Object> cf = queueCommand(s);
+        try {
+                  cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+        }
 
 	}
 	@Override
-	public CompletableFuture<Void> commit(TransactionId arg1) {
+	public void commit(TransactionId arg1) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement("commit", arg1);
-		return queueCommand(s).thenApply(result -> (Void) result);
+		//return queueCommand(s).thenApply(result -> (Void) result);
+		CompletableFuture<Object> cf = queueCommand(s);
+        try {
+                  cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+        }
 
 	}
 	@Override
@@ -620,14 +644,26 @@ public abstract class AsynchRelatrixKVClientTransactionInterfaceImpl implements 
           }
 	}
 	@Override
-	public CompletableFuture<Object> remove(Alias arg1,TransactionId arg2,Comparable arg3) {
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement("remove", arg1, arg2, arg3);
-		return queueCommand(s);
+		//return queueCommand(s);
+		CompletableFuture<Object> cf = queueCommand(s);
+        try {
+                  cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+        }
 	}
 	@Override
-	public CompletableFuture<Object> remove(TransactionId arg1,Comparable arg2) {
+	public void remove(TransactionId arg1,Comparable arg2) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement("remove", arg1, arg2);
-		return queueCommand(s);
+		//return queueCommand(s);
+		CompletableFuture<Object> cf = queueCommand(s);
+        try {
+                  cf.get();
+        } catch (InterruptedException | ExecutionException e) {
+                  throw new RuntimeException(e);
+        }
 	}
 }
 

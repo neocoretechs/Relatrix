@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.server;
+package com.neocoretechs.relatrix.server.json;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,26 +12,30 @@ import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.relatrix.server.ServerInvokeMethod;
+import com.neocoretechs.relatrix.server.TCPServer;
+import com.neocoretechs.relatrix.server.TCPWorker;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
 
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of ServerInvokeMethod and populating that at construction of this class.<p/>
+ * another static instance of ServerInvokeMethod and populating that at construction of this class.<p>
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
  * and if the remote call is linked to an object instance on the server, as it 
  * is for non-serializable iterators, then you must maintain 
- * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
- * Static methods need no server side object in residence.<br/>
+ * a mapping from session GUID to an instance of the object you are invoking on the server side.<p>
+ * Static methods need no server side object in residence.<br>
  * Functionally this class Extends TCPServer, 
- * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p/>
- * WorkerRequestProcessor takes requests and processes them.<br/>
+ * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p>
+ * WorkerRequestProcessor takes requests and processes them.<br>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2022, 2024
  *
  */
-public class RelatrixTransactionServer extends TCPServer {
+public class RelatrixTransactionServerJson extends TCPServer {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGCOMMAND = false;
 	
@@ -45,45 +49,44 @@ public class RelatrixTransactionServer extends TCPServer {
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
-
 	
-	public static final Class<?> relatrixIteratorClass = com.neocoretechs.relatrix.iterator.transaction.RelatrixIteratorTransaction.class; 
-	public static final Class<?> relatrixSubsetIteratorClass = com.neocoretechs.relatrix.iterator.transaction.RelatrixSubsetIteratorTransaction.class;
-	public static final Class<?> relatrixHeadsetIteratorClass = com.neocoretechs.relatrix.iterator.transaction.RelatrixHeadsetIteratorTransaction.class;
-	public static final Class<?> relatrixTailsetIteratorClass =  com.neocoretechs.relatrix.iterator.transaction.RelatrixTailsetIteratorTransaction.class;
-	public static final Class<?> relatrixEntrysetIteratorClass = com.neocoretechs.relatrix.iterator.transaction.RelatrixEntrysetIteratorTransaction.class;				
-	public static final Class<?> relatrixKeysetIteratorClass =  com.neocoretechs.relatrix.iterator.transaction.RelatrixKeysetIteratorTransaction.class;
+	public static final Class<?> relatrixIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.transaction.RelatrixIteratorJsonTransaction.class; 
+	public static final Class<?> relatrixSubsetIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.transaction.RelatrixSubsetIteratorJsonTransaction.class;
+	public static final Class<?> relatrixHeadsetIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.transaction.RelatrixHeadsetIteratorJsonTransaction.class;
+	public static final Class<?> relatrixTailsetIteratorJsonClass =  com.neocoretechs.relatrix.iterator.json.transaction.RelatrixTailsetIteratorJsonTransaction.class;
+	public static final Class<?> relatrixEntrysetIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.transaction.RelatrixEntrysetIteratorJsonTransaction.class;				
+	public static final Class<?> relatrixKeysetIteratorJsonClass =  com.neocoretechs.relatrix.iterator.json.transaction.RelatrixKeysetIteratorJsonTransaction.class;
 	
-	public static final String relatrixIterator = relatrixIteratorClass.getName();
-	public static final String relatrixSubsetIterator = relatrixSubsetIteratorClass.getName();
-	public static final String relatrixHeadsetIterator = relatrixHeadsetIteratorClass.getName();
-	public static final String relatrixTailsetIterator =  relatrixTailsetIteratorClass.getName();
-	public static final String relatrixEntrysetIterator = relatrixEntrysetIteratorClass.getName();				
-	public static final String relatrixKeysetIterator =  relatrixKeysetIteratorClass.getName();
+	public static final String relatrixIteratorJson = relatrixIteratorJsonClass.getName();
+	public static final String relatrixSubsetIteratorJson = relatrixSubsetIteratorJsonClass.getName();
+	public static final String relatrixHeadsetIteratorJson = relatrixHeadsetIteratorJsonClass.getName();
+	public static final String relatrixTailsetIteratorJson =  relatrixTailsetIteratorJsonClass.getName();
+	public static final String relatrixEntrysetIteratorJson = relatrixEntrysetIteratorJsonClass.getName();				
+	public static final String relatrixKeysetIteratorJson =  relatrixKeysetIteratorJsonClass.getName();
 	
 	public static String[] iteratorServers = new String[]{
-	 relatrixIterator,
-	 relatrixSubsetIterator,
-	 relatrixHeadsetIterator,
-	 relatrixTailsetIterator,
-	 relatrixEntrysetIterator,				
-	 relatrixKeysetIterator
+	 relatrixIteratorJson,
+	 relatrixSubsetIteratorJson,
+	 relatrixHeadsetIteratorJson,
+	 relatrixTailsetIteratorJson,
+	 relatrixEntrysetIteratorJson,				
+	 relatrixKeysetIteratorJson
 	};
 	
 	public static Class[] iteratorServerClasses = new Class[]{
-	 relatrixIteratorClass,
-	 relatrixSubsetIteratorClass,
-	 relatrixHeadsetIteratorClass,
-	 relatrixTailsetIteratorClass,
-	 relatrixEntrysetIteratorClass,				
-	 relatrixKeysetIteratorClass
+	 relatrixIteratorJsonClass,
+	 relatrixSubsetIteratorJsonClass,
+	 relatrixHeadsetIteratorJsonClass,
+	 relatrixTailsetIteratorJsonClass,
+	 relatrixEntrysetIteratorJsonClass,				
+	 relatrixKeysetIteratorJsonClass
 	};
 	
 	public static int[] iteratorPorts = new int[] {
 			9080,9081,9082,9083,9084,9085
 	};
 	
-	public RelatrixTransactionServer() {}
+	public RelatrixTransactionServerJson() {}
 	
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -91,10 +94,10 @@ public class RelatrixTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException If one of the Relatrix classes reflected is missing, most likely missing jar
 	 */
-	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
+	public RelatrixTransactionServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.port = port;
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
@@ -108,10 +111,10 @@ public class RelatrixTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public RelatrixTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
+	public RelatrixTransactionServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.port = port;
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -126,10 +129,10 @@ public class RelatrixTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public RelatrixTransactionServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
+	public RelatrixTransactionServerJson(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.port = port;
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -144,10 +147,10 @@ public class RelatrixTransactionServer extends TCPServer {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public RelatrixTransactionServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
+	public RelatrixTransactionServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
-		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServerJson.port = port;
+		RelatrixTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
@@ -201,23 +204,23 @@ public class RelatrixTransactionServer extends TCPServer {
 		}
 	}
 	/**
-	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p>
+	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
 	 * @param args If length 1, then default port 9000, else parent path of directory descriptor in arg 0 and file name part as database.
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
-		RelatrixTransaction.getInstance();
-			if( args.length == 2) {
-				System.out.println("Bringing up RelatrixTransaction tablespace "+System.getProperty("tablespace"));
-				new RelatrixTransactionServer(args[0], Integer.parseInt(args[1]));
+		RelatrixJsonTransaction.getInstance();
+		if( args.length == 2) {
+			System.out.println("Bringing up RelatrixJsonTransaction default tablespace "+System.getProperty("tablespace"));
+			new RelatrixTransactionServerJson(args[0], Integer.parseInt(args[1]));
+		} else {
+			if(args.length == 1) {
+				System.out.println("Bringing up RelatrixJsonTransaction default tablespace "+System.getProperty("tablespace"));
+				new RelatrixTransactionServerJson(Integer.parseInt(args[0]));
 			} else {
-				if(args.length == 1) {
-					System.out.println("Bringing up RelatrixTransaction tablespace "+System.getProperty("tablespace"));
-					new RelatrixTransactionServer(Integer.parseInt(args[0]));
-				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixTransactionServer [address] <port>");
-				}
+				System.out.println("usage: java com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson [address] <port>");
 			}
+		}
 		System.out.println(address);
 	}
 

@@ -1,5 +1,7 @@
 package com.neocoretechs.relatrix.server;
-import java.io.*;
+
+import java.io.Serializable;
+
 /**
  * Manifestation by which we can store a class name and its associated bytecode payload in an object database.
  * @author Groff Copyright (C) NeoCoreTechs 4/2000, 5/2020
@@ -20,6 +22,10 @@ public class ClassNameAndBytes implements Serializable, Comparable {
         public void setBytes(byte[] tbytes) { bytes = tbytes; }
         public void setName(String tname) { name = tname; }
         
+        @Override
+        public String toString() {
+        	return this.getClass().getName()+" name:"+name+" number bytes:"+(bytes == null ? "NULL" : bytes.length);
+        }
         @Override
         public int compareTo(Object o) {
         		ClassNameAndBytes tcb = (ClassNameAndBytes)o;

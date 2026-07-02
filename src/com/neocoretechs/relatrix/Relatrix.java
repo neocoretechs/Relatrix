@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode0;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode1;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode2;
@@ -54,12 +55,14 @@ import com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 
@@ -136,11 +139,41 @@ public final class Relatrix {
 			if(instance == null) {
 				instance = new Relatrix();
 				IndexResolver.setLocal();
+				RelatrixKV.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKV.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKV.classLoader);
+				try {
+					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
+				} catch (IllegalAccessException | IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		return instance;
 	}	
-	
+	/**
+	 * Create an instance of the server as a remote client, in effect. The client process
+	 * become the conduit to the remote bytecode repository.
+	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
+	 * @return The instance of this client process.
+	 */
+	public static Relatrix getInstance(ClientNonTransactionInterface cnti) {
+		synchronized(Relatrix.class) {
+			if(instance == null) {
+				instance = new Relatrix();
+				RelatrixKV.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKV.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKV.classLoader);
+				try {
+					HandlerClassLoader.connectToRemoteRepository(cnti);
+					IndexResolver.setRemote(cnti);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return instance;
+	}
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -3405,7 +3438,11 @@ public final class Relatrix {
 	 * @throws IOException
 	 */
 	public static void removePackageFromRepository(String pack) throws IOException {
-		HandlerClassLoader.removeBytesInRepository(pack);
+		try {
+			HandlerClassLoader.removeBytesInRepository(pack);
+		} catch (BytecodeNotFoundInRepositoryException e) {
+			throw new IOException(e);
+		}
 	}
 
 

@@ -12,9 +12,13 @@ import org.rocksdb.RocksDBException;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -39,16 +43,48 @@ public final class RelatrixKVTransaction {
 	}
 	// 2.) volatile instance
 	private static volatile RelatrixKVTransaction instance = null;
+	static HandlerClassLoader classLoader = null;
 	// 3.) lock class, assign instance if null
 	public static RelatrixKVTransaction getInstance() {
 		synchronized(RelatrixKVTransaction.class) {
 			if(instance == null) {
 				instance = new RelatrixKVTransaction();
+				classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(classLoader);
+				SerializedComparatorFactory.setClassLoader(classLoader);
+				try {
+					HandlerClassLoader.connectToLocalRepository(null);
+					IndexResolver.setLocal();
+				} catch (IllegalAccessException | IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		return instance;
 	}	
-	
+	/**
+	 * Create an instance of the server as a remote client, in effect. The client process
+	 * become the conduit to the remote bytecode repository.
+	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
+	 * @return The instance of this client process.
+	 */
+	public static RelatrixKVTransaction getInstance(ClientTransactionInterface cnti) {
+		synchronized(RelatrixKVTransaction.class) {
+			if(instance == null) {
+				instance = new RelatrixKVTransaction();
+				classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(classLoader);
+				SerializedComparatorFactory.setClassLoader(classLoader);
+				try {
+					HandlerClassLoader.connectToRemoteRepository(cnti);
+					IndexResolver.setRemote(cnti);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return instance;
+	}
 	public static TransactionalMap getMap(Class type, TransactionId xid) throws IllegalAccessException, IOException {
 		TransactionalMap t = mapCache.get(type.getName());
 		if(DEBUG)
@@ -365,7 +401,11 @@ public final class RelatrixKVTransaction {
 	 * @throws IOException
 	 */
 	public static void removePackageFromRepository(String pack) throws IOException {
-		HandlerClassLoader.removeBytesInRepository(pack);
+		try {
+			HandlerClassLoader.removeBytesInRepository(pack);
+		} catch (BytecodeNotFoundInRepositoryException e) {
+			throw new IOException(e);
+		}
 	}
 	/**
 	 * Delete element with given key that this object participates in

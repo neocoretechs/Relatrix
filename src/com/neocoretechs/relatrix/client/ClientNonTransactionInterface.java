@@ -6,7 +6,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 
 /**
- * Marker interface that allows a client to be assigned to a remote service
+ * Interface that allows a client to be assigned to a remote service
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
 public interface ClientNonTransactionInterface extends ClientInterface{
@@ -22,5 +22,9 @@ public interface ClientNonTransactionInterface extends ClientInterface{
 	public Object get(Object instance) throws IOException;
 
 	public Object get(Alias alias, Object instance) throws IOException;
+	
+	public Object remove(Object instance) throws IOException;
+
+	public Object remove(Alias alias, Object instance) throws IOException;
 
 }

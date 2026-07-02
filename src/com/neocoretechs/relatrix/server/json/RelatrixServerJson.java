@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
 
@@ -23,7 +22,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteIteratorServer
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of {@link ServerInvokeMethod} and populating that at construction of this class.<p>
+ * another static instance of {@link ServerInvokeMethodJson} and populating that at construction of this class.<p>
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
  * and if the remote call is linked to an object instance on the server, as it 
  * is for non-serializable iterators, then you must maintain 
@@ -42,7 +41,7 @@ public class RelatrixServerJson extends TCPServer {
 	public static SocketAddress address;
 	public static int port;
 	
-	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
+	public static ServerInvokeMethodJson relatrixMethods = null; // Main Relatrix class methods
 	public static final String relatrixJson = "com.neocoretechs.relatrix.RelatrixJson";
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
@@ -51,19 +50,19 @@ public class RelatrixServerJson extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
 	
-	public static final String relatrixIteratorJson = "com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson"; 
-	public static final String relatrixSubsetIteratorJson = "com.neocoretechs.relatrix.iterator.json.RelatrixSubsetIteratorJson";
-	public static final String relatrixHeadsetIteratorJson = "com.neocoretechs.relatrix.iterator.json.RelatrixHeadsetIteratorJson";
-	public static final String relatrixTailsetIteratorJson =  "com.neocoretechs.relatrix.iterator.json.RelatrixTailsetIteratorJson";
-	public static final String relatrixEntrysetIteratorJson = "com.neocoretechs.relatrix.iterator.json.RelatrixEntrysetIteratorJson";				
-	public static final String relatrixKeysetIteratorJson =  "com.neocoretechs.relatrix.iterator.json.RelatrixKeysetIteratorJson";
-	
 	public static final Class<?> relatrixIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson.class; 
 	public static final Class<?> relatrixSubsetIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.RelatrixSubsetIteratorJson.class;
 	public static final Class<?> relatrixHeadsetIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.RelatrixHeadsetIteratorJson.class;
 	public static final Class<?> relatrixTailsetIteratorJsonClass =  com.neocoretechs.relatrix.iterator.json.RelatrixTailsetIteratorJson.class;
 	public static final Class<?> relatrixEntrysetIteratorJsonClass = com.neocoretechs.relatrix.iterator.json.RelatrixEntrysetIteratorJson.class;				
 	public static final Class<?> relatrixKeysetIteratorJsonClass =  com.neocoretechs.relatrix.iterator.json.RelatrixKeysetIteratorJson.class;
+	
+	public static final String relatrixIteratorJson = relatrixIteratorJsonClass.getName();
+	public static final String relatrixSubsetIteratorJson = relatrixSubsetIteratorJsonClass.getName();
+	public static final String relatrixHeadsetIteratorJson = relatrixHeadsetIteratorJsonClass.getName();
+	public static final String relatrixTailsetIteratorJson =  relatrixTailsetIteratorJsonClass.getName();
+	public static final String relatrixEntrysetIteratorJson = relatrixEntrysetIteratorJsonClass.getName();				
+	public static final String relatrixKeysetIteratorJson =  relatrixKeysetIteratorJsonClass.getName();
 	
 	public static String[] iteratorServers = new String[]{
 	 relatrixIteratorJson,
@@ -98,7 +97,7 @@ public class RelatrixServerJson extends TCPServer {
 	public RelatrixServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServerJson.port = port;
-		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
+		RelatrixServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixJson, 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -115,7 +114,7 @@ public class RelatrixServerJson extends TCPServer {
 	public RelatrixServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServerJson.port = port;
-		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
+		RelatrixServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -133,7 +132,7 @@ public class RelatrixServerJson extends TCPServer {
 	public RelatrixServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServerJson.port = port;
-		RelatrixServerJson.relatrixMethods = new ServerInvokeMethod(relatrixJson, 0);
+		RelatrixServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixJson, 0);
 		address = new InetSocketAddress(iaddress,port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	

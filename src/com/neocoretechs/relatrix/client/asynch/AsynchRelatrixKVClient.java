@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
@@ -65,7 +66,6 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote(this);
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
@@ -184,7 +184,26 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
-
+	@Override
+	public Object remove(Alias arg1,Object arg2) {
+		RelatrixKVStatement s = new RelatrixKVStatement("remove", arg1, arg2);
+		CompletableFuture<Object> cf = queueCommand(s);
+          try {
+                    return cf.get();
+          } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+          }
+	}
+	@Override
+	public Object remove(Object arg1) {
+		RelatrixKVStatement s = new RelatrixKVStatement("remove", arg1);
+		CompletableFuture<Object> cf = queueCommand(s);
+          try {
+                    return cf.get();
+          } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+          }
+	}
 	/**
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii

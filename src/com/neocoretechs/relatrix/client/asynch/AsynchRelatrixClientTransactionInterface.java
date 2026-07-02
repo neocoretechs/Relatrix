@@ -58,9 +58,9 @@ public interface AsynchRelatrixClientTransactionInterface extends com.neocoretec
 
 	public CompletableFuture<Stream> findTailStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8);
 
-	public CompletableFuture<Void> rollback(TransactionId arg1);
+	public void rollback(TransactionId arg1);
 
-	public CompletableFuture<Void> rollback(Alias arg1,TransactionId arg2);
+	public void rollback(Alias arg1,TransactionId arg2);
 
 	public TransactionId getTransactionId();
 
@@ -434,9 +434,9 @@ public interface AsynchRelatrixClientTransactionInterface extends com.neocoretec
 
 	public CompletableFuture<Object> removekv(TransactionId arg1,Comparable arg2);
 
-	public CompletableFuture<Void> commit(Alias arg1,TransactionId arg2);
+	public void commit(Alias arg1,TransactionId arg2);
 
-	public CompletableFuture<Void> commit(TransactionId arg1);
+	public void commit(TransactionId arg1);
 
 	public CompletableFuture<Void> endTransaction(TransactionId arg1);
 
@@ -524,9 +524,9 @@ public interface AsynchRelatrixClientTransactionInterface extends com.neocoretec
 
 	public CompletableFuture<Void> remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4);
 
-	public CompletableFuture<Void> remove(Alias arg1,TransactionId arg2,Comparable arg3);
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3);
 
-	public CompletableFuture<Void> remove(TransactionId arg1,Comparable arg2);
+	public void remove(TransactionId arg1,Comparable arg2);
 
 	public CompletableFuture<Void> remove(TransactionId arg1,Comparable arg2,Comparable arg3);
 

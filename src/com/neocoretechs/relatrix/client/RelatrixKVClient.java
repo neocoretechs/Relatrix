@@ -14,7 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.rocksack.Alias;
 
 /**
  * This class functions as client to the RelatrixKVServer Worker threads located on a remote node.<p/>
@@ -177,7 +179,6 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		return null;
 	}
 	
-	
 	/**
 	 * Call the remote iterator from the various 'findSet' methods and return the result.
 	 * The original request is preserved according to session GUID and upon return of
@@ -212,7 +213,83 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		sendCommand(rii);
 	}
 	
+	@Override
+	public void storekv(Comparable index, Object instance) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("storekv", new Object[] {index, instance});
+		try {
+			sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
 
+	@Override
+	public void storekv(Alias alias, Comparable index, Object instance) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("storekv", new Object[] {alias, index, instance});
+		try {
+			sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
+
+	@Override
+	public Object getByIndex(DBKey index) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getByIndex", new Object[] {index});
+		try {
+			return sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
+
+	@Override
+	public Object getByIndex(Alias alias, DBKey index) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("getByIndex", new Object[] {alias, index});
+		try {
+			return sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
+
+	@Override
+	public Object get(Object instance) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("get", new Object[] {instance});
+		try {
+			return sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
+
+	@Override
+	public Object get(Alias alias, Object instance) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("get", new Object[] {alias, instance});
+		try {
+			return sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
+	@Override
+	public Object remove(Alias alias, Object instance) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("remove", new Object[] {alias, instance});
+		try {
+			return sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
+	@Override
+	public Object remove(Object instance) throws IOException {
+		RelatrixKVStatement rs = new RelatrixKVStatement("remove", new Object[] {instance});
+		try {
+			return sendCommand(rs);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}	
+	}
 	@Override
 	public String toString() {
 		return String.format("%s handler::%s%n",this.getClass().getName(),workerHandler);

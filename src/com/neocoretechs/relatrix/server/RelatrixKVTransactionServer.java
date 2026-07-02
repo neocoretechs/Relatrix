@@ -28,9 +28,7 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
  * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<br>
  * WorkerRequestProcessor takes requests and processes them.<br>
  * Use this class when transaction context is required.
- * Note: If we start the server on port 9999 it is designated a bytecode server.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015,2021,2022
- *
  */
 public class RelatrixKVTransactionServer extends TCPServer {
 	private static boolean DEBUG = false;
@@ -74,15 +72,6 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
 		address = startServer(port);
-		if(port == 9999) {
-			isThisBytecodeRepository = true;
-			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
-			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
-			} catch (IllegalAccessException | IOException e) {
-				e.printStackTrace();
-			}
-		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
@@ -100,21 +89,11 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
-		if(port == 9999) {
-			isThisBytecodeRepository = true;
-			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
-			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
-			} catch (IllegalAccessException | IOException e) {
-				e.printStackTrace();
-			}
-		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
-
 
 	/**
 	 * Construct the Server, populate the target classes for remote invocation, which is local invocation here.
@@ -128,15 +107,6 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
 		address = iaddress;
 		startServer(address);
-		if(port == 9999) {
-			isThisBytecodeRepository = true;
-			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
-			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
-			} catch (IllegalAccessException | IOException e) {
-				e.printStackTrace();
-			}
-		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
@@ -154,15 +124,6 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		RelatrixKVTransactionServer.port = port;
 		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
 		address = iaddress;
-		if(port == 9999) {
-			isThisBytecodeRepository = true;
-			System.out.println("NOTE: This transaction server now Serving bytecode, port "+port+" is reserved for bytecode repository!");
-			try {
-				HandlerClassLoader.connectToLocalRepository(RelatrixKVTransaction.getTableSpace()); // use default path
-			} catch (IllegalAccessException | IOException e) {
-				e.printStackTrace();
-			}
-		}
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
@@ -215,31 +176,23 @@ public class RelatrixKVTransactionServer extends TCPServer {
 		}
 	}
 	/**
-	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVTransactionServer.<p/>
-	 * @param args If length 1, then default port 9000,  If port 9999, start as transactional byte code repository server.
+	 * Load the methods of main RelatrixKV class as remotely invokable then we instantiate RelatrixKVTransactionServer.<p>
+	 * @param args If length 1, then default port 9000, 
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
 		RelatrixKVTransaction.getInstance();
-		if(args.length == 3) {
-			String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-					(new File(args[0]).getName());
-			System.out.println("Bringing up Relatrix tablespace:"+db);
-			RelatrixKVTransaction.setTablespace(db);
-			new RelatrixKVTransactionServer(args[1], Integer.parseInt(args[2]));
-		} else {
 			if( args.length == 2) {
-				System.out.println("Bringing up Relatrix default tablespace.");
+				System.out.println("Bringing up RelatrixKVTransaction tablespace "+System.getProperty("tablespace"));
 				new RelatrixKVTransactionServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
-					System.out.println("Bringing up Relatrix default tablespace.");
+					System.out.println("Bringing up RelatrixKVTransaction tablespace "+System.getProperty("tablespace"));
 					new RelatrixKVTransactionServer(Integer.parseInt(args[0]));
 				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer [/path/to/database/databasename] [address] <port>");
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer [address] <port>");
 				}
 			}
-		}
 		System.out.println(address);
 	}	
 

@@ -1,7 +1,7 @@
 package com.neocoretechs.relatrix.client;
 import com.neocoretechs.relatrix.server.GenerateClientBindings;
 /**
- * Part of the toolset including {@link ServerInvokeMethod}, {@link RemoteResponseInterface}, {@link GenerateClientBindings}
+ * Part of the toolset including {@link ServerInvokeMethodJson}, {@link RemoteResponseInterface}, {@link GenerateClientBindings}
  * to affect the creation of maintenance of 2 tier client/server models using established infrastructure.<p/>
  * Defines a contract for a request to a remote server that provides baseline parameters necessary to invoke
  * a remote method using an established session. The baseline data includes method name, session Id, and the

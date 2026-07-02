@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer} 
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the {@link RelatrixTransactionServer}. this client has a worker thread that handles traffic back from the server.
+ * which is the {@link RelatrixTransactionServerJson}. this client has a worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
  *
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>

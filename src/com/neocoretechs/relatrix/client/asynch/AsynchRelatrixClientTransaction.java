@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
  * 
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is the {@link RelatrixTransactionServer}. The client contacts the boot time server port, the desired database
+ * which is the {@link RelatrixTransactionServerJson}. The client contacts the boot time server port, the desired database
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.

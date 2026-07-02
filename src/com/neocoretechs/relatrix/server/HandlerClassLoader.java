@@ -13,10 +13,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -24,9 +21,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.neocoretechs.rocksack.KeyValue;
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
+import com.neocoretechs.relatrix.client.ClientInterface;
+import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
+
 
 /**
  * This is a generic ClassLoader of which many examples abound.
@@ -39,23 +41,25 @@ import com.neocoretechs.relatrix.client.RelatrixKVClient;
  * Set the command line properties i.e. -Dtablespace=/default or -DRemoteClassLoader=192.168.1.10
  * or allow defaults to remain in effect. We use a wrapper class {@link Bytecodes} to disambiguate
  * the bytecode repository.
+ * Access to remote repositories is via {@link ClientNonTransactionInterface}
  * @author Jonathan Groff (C) NeoCoreTechs 1999, 2000, 2020, 2026
  */
 public class HandlerClassLoader extends ClassLoader {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGSETREPOSITORY = true;
 	private static ConcurrentHashMap<String,Class> cache = new ConcurrentHashMap<String,Class>();
 	private static ConcurrentHashMap<String, byte[]> classNameAndBytecodes = new ConcurrentHashMap<String, byte[]>();
 	private static boolean useEmbedded = false;
 	public static String defaultPath = "/etc/"; // bytecode repository path and default tablespace
-	public static RelatrixKVClient remoteRepository = null;
+	public static ClientInterface remoteRepository = null;
 	private ClassLoader parent = null;
 	static int size;
 
 	public HandlerClassLoader() { }
 	/**
 	 * Variation when specified on command line as -Djava.system.class.loader=com.neocoretechs.relatrix.server.HandlerClassLoader 
-	 * System environment variable RemoteClassLoader is set as remote node name, port is assumed default of 9999
+	 * System environment variable RemoteClassLoader is set as remote node name, port is assumed default of 9999. <p>
+	 * The JSON server embeds one of these by default.
 	 * @param parent
 	 */
 	public HandlerClassLoader(ClassLoader parent) {
@@ -97,6 +101,8 @@ public class HandlerClassLoader extends ClassLoader {
 		useEmbedded = false;
 		String hostName = InetAddress.getLocalHost().getHostName();
 		remoteRepository = new RelatrixKVClient(hostName, 9999);
+		if(DEBUG)
+			System.out.println("HandlerClassLoader.connectToRemoteRepository "+remoteRepository);
 	} 
 	/**
 	 * Variation when remote is located on a different node, port is still assumed the default of 9999
@@ -108,6 +114,8 @@ public class HandlerClassLoader extends ClassLoader {
 		useEmbedded = false;
 		//String hostName = InetAddress.getLocalHost().getHostName();
 		remoteRepository = new RelatrixKVClient(remote, 9999);
+		if(DEBUG)
+			System.out.println("HandlerClassLoader.connectToRemoteRepository "+remoteRepository);
 	} 
 	/**
 	 * Variation when remote is different node, and port has been set to something other than standard default
@@ -120,6 +128,8 @@ public class HandlerClassLoader extends ClassLoader {
 		useEmbedded = false;
 		//String hostName = InetAddress.getLocalHost().getHostName();
 		remoteRepository = new RelatrixKVClient(remote, port);
+		if(DEBUG)
+			System.out.println("HandlerClassLoader.connectToRemoteRepository "+remoteRepository);
 	} 
 	/**
 	 * Variation when everything is different, somehow
@@ -132,6 +142,8 @@ public class HandlerClassLoader extends ClassLoader {
 	public static void connectToRemoteRepository(String local, String remote, int port) throws IOException, IllegalAccessException {
 		useEmbedded = false;
 		remoteRepository = new RelatrixKVClient(remote, port);
+		if(DEBUG)
+			System.out.println("HandlerClassLoader.connectToRemoteRepository "+remoteRepository);
 	}
 	/**
 	 * Local repository for embedded mode, no remote server.<p>
@@ -151,8 +163,22 @@ public class HandlerClassLoader extends ClassLoader {
 				defaultPath=p;
 		}
 		DatabaseManager.setTableSpaceDir(defaultPath);
+		if(DEBUG)
+			System.out.println("HandlerClassLoader.connectToLocalRepository "+defaultPath);
 	}
-
+	/**
+	 * Connect to the remote repository using base {@link ClientInterface} whose implementations can be a transaction
+	 * or non transaction interface. it is up to the runtime methods to determine which. Connection merely
+	 * implies setting useEmbedded to false and setting the remoteRepository field to the param.
+	 * @param cnti The client interface
+	 */
+	public static void connectToRemoteRepository(ClientInterface cnti) {
+		useEmbedded = false;
+		remoteRepository = cnti;
+		if(DEBUG)
+			System.out.println("HandlerClassLoader.connectToRemoteRepository "+remoteRepository);
+	}
+	
 	@Override
 	/**
 	 * Find a class by the given name
@@ -183,6 +209,9 @@ public class HandlerClassLoader extends ClassLoader {
 		Class c = null;
 		try {
 			c = Class.forName(name); // can it be loaded by normal means? and initialized?
+			if(DEBUG) {
+				System.out.println("DEBUG:"+this+".loadClass Class.forName("+name+") loaded class and exiting.");
+			}
 			return c;
 		} catch(Exception e) {
 			if(DEBUG) {
@@ -368,9 +397,8 @@ public class HandlerClassLoader extends ClassLoader {
 	 * @return The byte array or null
 	 */
 	public static byte[] getBytesFromRepository(String name) throws BytecodeNotFoundInRepositoryException {
-		byte[] retBytes = null;
 		Bytecodes bname = new Bytecodes(name);
-		ClassNameAndBytes cnab = new ClassNameAndBytes(name, retBytes);
+		Object repositoryObject = null;
 		if(DEBUG)
 			System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get for "+name);
 		if(useEmbedded) {
@@ -383,12 +411,12 @@ public class HandlerClassLoader extends ClassLoader {
 			if(DEBUG)
 				System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from local repository "+localRepository);
 			try {
-				Object o = localRepository.get(bname);
-				if(o == null)
+				repositoryObject = localRepository.get(bname);
+				if(repositoryObject == null)
 					throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
 				if(DEBUG)
-					System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository name="+name+" get(name)="+localRepository.get(name));
-				cnab = (ClassNameAndBytes)(((KeyValue)o).getValue());
+					System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository name="+name+" get(name)="+localRepository.get(bname));
+				return ((ClassNameAndBytes)(((KeyValue)repositoryObject).getValue())).getBytes();
 			} catch (IOException e) {
 				throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
 			}	
@@ -396,19 +424,26 @@ public class HandlerClassLoader extends ClassLoader {
 			if(DEBUG)
 				System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Attempting get from remote repository "+remoteRepository);
 			try {
-				cnab = (ClassNameAndBytes) remoteRepository.get(bname);
+				if(remoteRepository instanceof ClientTransactionInterface) {
+					TransactionId xid = ((ClientTransactionInterface)remoteRepository).getTransactionId();
+					repositoryObject = ((ClientTransactionInterface)remoteRepository).get(xid,bname);
+				} else {
+					repositoryObject = ((ClientNonTransactionInterface)remoteRepository).get(bname);
+				}
 			} catch (IOException e) {
+				if(DEBUG)
+					System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload from remote repository "+remoteRepository+" threw exception:"+e);
 				throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
 			}
-		}
-		if(cnab == null || cnab.getBytes() == null) {
+			if(repositoryObject == null) {
+				if(DEBUG)
+					System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload from remote repository "+remoteRepository+" came back null");
+				throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+			}
 			if(DEBUG)
-				System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload from remote repository "+remoteRepository+" came back null");
-			throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+				System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload returned "+repositoryObject+" from remote repository "+remoteRepository);
+			return ((ClassNameAndBytes)repositoryObject).getBytes();
 		}
-		if(DEBUG)
-			System.out.println("DEBUG: HandlerClassLoader.getBytesFromRepository Bytecode payload returned "+cnab.getBytes().length+" bytes from remote repository "+remoteRepository);
-		return cnab.getBytes();
 	}
 	/**
 	 * Put the bytecodes to BigSack repository.  This function to be
@@ -431,8 +466,13 @@ public class HandlerClassLoader extends ClassLoader {
 					System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in local repository for class:"+name);
 			} else {
 				if(remoteRepository != null) {
-					remoteRepository.store(bname, cnab);
-					//remoteRepository.transactionCommit(String.class);
+					if(remoteRepository instanceof ClientTransactionInterface) {
+						TransactionId xid = ((ClientTransactionInterface)remoteRepository).getTransactionId();
+						((ClientTransactionInterface)remoteRepository).storekv(xid, bname, cnab);
+						((ClientTransactionInterface)remoteRepository).commit(xid);
+					} else {
+						((ClientNonTransactionInterface)remoteRepository).storekv(bname, cnab);
+					}
 					if(DEBUG || DEBUGSETREPOSITORY)
 						System.out.println("DEBUG: HandlerClassLoader.setBytesInRepository Stored and committed bytecode in remote repository for class:"+name);
 				} else {
@@ -457,69 +497,47 @@ public class HandlerClassLoader extends ClassLoader {
 		}
 	}
 	/**
-	 * Remove all classes STARTING WITH the given name, use caution.
-	 * @param name The value that the class STARTS WITH, to remove packages at any level desired
+	 * Remove all classes WITH the given name, use caution.
+	 * @param name The value to remove
+	 * @throws BytecodeNotFoundInRepositoryException 
 	 */
-	public static void removeBytesInRepository(String name) {
+	public static void removeBytesInRepository(String name) throws BytecodeNotFoundInRepositoryException {
 		BufferedMap localRepository = null;
+		Bytecodes bname = new Bytecodes(name);
 		if(DEBUG || DEBUGSETREPOSITORY)
 			System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository for "+name);
 		try {
 			if(useEmbedded) {
-				ArrayList<Bytecodes> remo = new ArrayList<Bytecodes>();
-				localRepository = DatabaseManager.getMap(Bytecodes.class); // class type of key
-				Iterator<?> it = localRepository.keySet();
-				while(it.hasNext()) {
-					Comparable key = (Comparable) it.next();
-					if( ((Bytecodes)key).toString().startsWith(name))
-						remo.add((Bytecodes) key);
-				}
-				for(Bytecodes s: remo) {
-					localRepository.remove(s);
-					classNameAndBytecodes.remove(s.toString());
-					cache.remove(s.toString());
-					if(DEBUG || DEBUGSETREPOSITORY)
-						System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+s);
-				}
-				//localRepository.Commit();
+				try {
+					localRepository = DatabaseManager.getMap(Bytecodes.class);
+				} catch (IllegalAccessException | IOException e) {
+					throw new BytecodeNotFoundInRepositoryException("Failed to return bytecodes from remote repository "+remoteRepository);
+				} // class type of key
+				localRepository.remove(bname);
+				classNameAndBytecodes.remove(name);
+				cache.remove(name);
+				if(DEBUG || DEBUGSETREPOSITORY)
+					System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+name);
 			} else {
 				if(remoteRepository != null) {
-					ArrayList<Bytecodes> remo = new ArrayList<Bytecodes>();
-					Iterator<?> it = remoteRepository.keySet(Bytecodes.class);
-					try {
-						while(it.hasNext()) {
-							Comparable key = (Comparable) it.next();
-							if( ((Bytecodes)key).toString().startsWith(name))
-								remo.add((Bytecodes) key);
-						}
-					} catch(Exception e) {}
-					for(Bytecodes s: remo) {
-						remoteRepository.remove(s);
-						classNameAndBytecodes.remove(s.toString());
-						cache.remove(s.toString());
+					if(remoteRepository instanceof ClientTransactionInterface) {
+						TransactionId xid = ((ClientTransactionInterface)remoteRepository).getTransactionId();
+						((ClientTransactionInterface)remoteRepository).remove(xid, bname);
+						classNameAndBytecodes.remove(name);
+						cache.remove(name);
+						((ClientTransactionInterface)remoteRepository).commit(xid);
 						if(DEBUG || DEBUGSETREPOSITORY)
-							System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+s);
+							System.out.println("DEBUG: HandlerClassLoader.removeBytesInRepository Removed bytecode for class:"+name);
+					} else {
+						((ClientNonTransactionInterface)remoteRepository).remove(bname);
+						classNameAndBytecodes.remove(name);
+						cache.remove(name);
 					}
-					//remoteRepository.transactionCommit(String.class);
-
 				} else
-					System.out.println("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
+					throw new RuntimeException("REMOTE REPOSITORY HAS NOT BEEN DEFINED!, NO REMOVAL POSSIBLE!");
 			}
-		} catch(IOException | IllegalAccessException e ) {
-			System.out.println(e);
-			e.printStackTrace();
-			//if( useEmbedded )
-				//try {
-			//localRepository.Rollback();
-			//} catch (IOException e1) {
-			//e1.printStackTrace();
-			//}
-			//else
-			//try {
-			//	remoteRepository.transactionRollback(String.class);
-			//} catch (IOException e1) {
-			//		e1.printStackTrace();
-			//}
+		} catch(IOException e ) {
+			throw new RuntimeException(e);
 		}
 	}
 	/**
@@ -640,12 +658,12 @@ public class HandlerClassLoader extends ClassLoader {
 			connectToRemoteRepository(args[0], args[1], Integer.parseInt(args[2]));
 			break;
 		}
-		remoteRepository.entrySetStream(String.class).forEach(e-> {
+		/*remoteRepository.entrySetStream(String.class).forEach(e-> {
 			System.out.printf("Class: %s size:%d%n",((ClassNameAndBytes)((Map.Entry)e).getValue()).getName(),
 					((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length);
 			size += ((ClassNameAndBytes)((Map.Entry)e).getValue()).getBytes().length;
 		});
 		System.out.printf("Total size=%d%n",size);
-		remoteRepository.close();
+		remoteRepository.close();*/
 	}
 }

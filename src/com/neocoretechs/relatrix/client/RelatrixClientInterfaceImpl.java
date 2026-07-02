@@ -1446,6 +1446,24 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
+	public Object remove(Alias arg1,Object arg2) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object remove(Object arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement("removekv", arg1);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Object removekv(Alias arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2);
 		try {

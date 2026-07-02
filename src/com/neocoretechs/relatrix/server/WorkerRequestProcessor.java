@@ -9,9 +9,9 @@ import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
 /**
- * Once requests from master are queued we extract them here and process them.<p/>
+ * Once requests from master are queued we extract them here and process them.<p>
  * This class functions as a generic threaded request processor for entries on a BlockingQueue of 
- * RemoteCompletionInterface implementors.<br/>
+ * RemoteCompletionInterface implementors.<br>
  * This request processor is spun up in conjunction with IO workers such as TCPMaster. 
  * The intent is to separate the processing of requests and the maintenance of latches, etc from the communication
  * processing. In addition, increased parallelism can be achieved by separation of these tasks.
@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  *
  */
 public final class WorkerRequestProcessor implements Runnable {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	//public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private static int QUEUESIZE = 1024;
 	private BlockingQueue<RemoteCompletionInterface> requestQueue;
@@ -54,6 +54,8 @@ public final class WorkerRequestProcessor implements Runnable {
 	  while(shouldRun || !requestQueue.isEmpty()) {
 		RemoteResponseInterface iori = null;
 		try {
+			if(DEBUG)
+				System.out.printf("%s wait for queue...%n",this.getClass().getName());
 			iori = (RemoteResponseInterface) requestQueue.take();
 		} catch (InterruptedException e1) {
 			// Executor has requested shutdown during take
@@ -66,19 +68,17 @@ public final class WorkerRequestProcessor implements Runnable {
 		CountDownLatch cdl = new CountDownLatch(1);
 		((RemoteCompletionInterface)iori).setCompletionObject(cdl);
 		if( DEBUG  ) {
-			System.out.println("WorkerRequestProcessor preparing to process:"+iori);
+			System.out.printf("%s preparing to process:%s%n",this.getClass().getName(),iori);
 		}
-		
 		try {
 			//
 			// invoke the designated method on the server, wait for countdown latch to signal finish
 			// The result is placed in the return object or other property of the request/response/completion object
 			//
-			((RemoteCompletionInterface)iori).process();
-			
+			((RemoteCompletionInterface)iori).process();		
 			try {
 				if( DEBUG )
-					System.out.println(" avaiting countdown latch...");
+					System.out.printf("%s awaiting countdown latch%n",this.getClass().getName());
 				cdl.await();
 			} catch (InterruptedException e) {
 				// most likely executor shutdown request during latching, be good and bail
@@ -88,12 +88,12 @@ public final class WorkerRequestProcessor implements Runnable {
 			// we have flipped the latch from the request to the thread waiting here, so send an outbound response
 			// with the result of our work if a response is required
 			if( DEBUG ) {
-				System.out.println("WorkerRequestProcessor processing complete, queuing response:"+iori);
+				System.out.printf("%s processing complete, queuing response:%s%n",this.getClass().getName(),iori);
 			}
 			// And finally, send the package back up the line
 			responseWorker.sendResponse(iori);
 			if( DEBUG ) {
-				System.out.println("Response queued:"+iori);
+				System.out.printf("%s response queued:%s Object:%s%n",this.getClass().getName(),iori,iori.getObjectReturn());
 			}
 		} catch (Exception e1) {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
@@ -103,6 +103,9 @@ public final class WorkerRequestProcessor implements Runnable {
 			responseWorker.sendResponse(iori);
 		}
 	  } //shouldRun
+	  if( DEBUG  ) {
+			System.out.printf("%s exiting processing loop%n",this.getClass().getName());
+	  }
 	  synchronized(waitHalt) {
 		  waitHalt.notify();
 	  }  

@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
  *
  */
 public class IndexResolver {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	static IndexInstanceTableInterface instanceTable = null;
 	/**
 	 * REturn the instance table; the table that translates indexes to object instances
@@ -34,12 +34,16 @@ public class IndexResolver {
 	 * By calling this, local is set to true, by default, it is also true. A new IndexInstanceTable is constructed with default ctor.
 	 */
 	public static void setLocal() {
+		if(instanceTable != null)
+			throw new RuntimeException("Instance table previously set");
 		instanceTable = new IndexInstanceTable();
 		if(DEBUG)
 			System.out.println("IndexResolver setLocal instance table:"+instanceTable);
 	}
 
 	public static void setLocalJson() {
+		if(instanceTable != null)
+			throw new RuntimeException("Instance table previously set");
 		instanceTable = new IndexInstanceTableJson();
 		if(DEBUG)
 			System.out.println("IndexResolver setLocalJson instance table:"+instanceTable);
@@ -51,6 +55,8 @@ public class IndexResolver {
 	 * @throws IOException if low level problem 
 	 */
 	public static void setRemote(ClientInterface remoteClient) throws IOException {
+		if(instanceTable != null)
+			throw new RuntimeException("Instance table previously set");
 		instanceTable = new RemoteIndexInstanceTable(remoteClient);
 		if(DEBUG)
 			System.out.println("IndexResolver setRemote instance table:"+instanceTable);
@@ -64,6 +70,8 @@ public class IndexResolver {
 	public static void setRemoteTransaction(ClientInterface remoteClient) throws IOException {
 		if(!(remoteClient instanceof ClientTransactionInterface))
 			throw new IOException("Remote Client not instance of ClientTransactionInterface:"+remoteClient.getClass());
+		if(instanceTable != null)
+			throw new RuntimeException("Instance table previously set");
 		instanceTable = new RemoteIndexInstanceTable(remoteClient);
 		if(DEBUG)
 			System.out.println("IndexResolver setRemote instance table:"+instanceTable);	

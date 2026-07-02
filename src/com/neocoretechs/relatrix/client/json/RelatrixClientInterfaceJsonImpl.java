@@ -2221,7 +2221,16 @@ public abstract class RelatrixClientInterfaceJsonImpl implements RelatrixClientI
 		}
 	}
 	@Override
-	public void remove(Comparable arg1,Comparable arg2) throws java.io.IOException {
+	public Object remove(Alias arg1,Object arg2) throws java.io.IOException {
+		RelatrixStatementJson s = new RelatrixStatementJson("remove", arg1, arg2);
+		try {
+			return sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public void remove(Object arg1,Object arg2) throws java.io.IOException {
 		RelatrixStatementJson s = new RelatrixStatementJson("remove", arg1, arg2);
 		try {
 			sendCommand(s);
@@ -2230,10 +2239,10 @@ public abstract class RelatrixClientInterfaceJsonImpl implements RelatrixClientI
 		}
 	}
 	@Override
-	public void remove(Comparable arg1) throws java.io.IOException {
+	public Object remove(Object arg1) throws java.io.IOException {
 		RelatrixStatementJson s = new RelatrixStatementJson("remove", arg1);
 		try {
-			sendCommand(s);
+			return sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

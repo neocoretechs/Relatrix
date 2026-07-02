@@ -7,15 +7,15 @@ import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
 
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.ServerInvokeMethod;
+
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
+
+import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteKVIteratorServerJson;
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -39,22 +39,25 @@ public class RelatrixKVServerJson extends TCPServer {
 	public static SocketAddress address;
 	public static int port;
 	
-	public static ServerInvokeMethod relatrixMethods = null; // Main RelatrixKVJson class methods
-	public static final String relatrixKVJson = "com.neocoretechs.relatrix.RelatrixKVJson";
+	public static ServerInvokeMethodJson relatrixMethods = null; // Main RelatrixKVJson class methods
+	
+	public static final Class<?> relatrixKVJsonClass = com.neocoretechs.relatrix.RelatrixKVJson.class;
+	
+	public static final String relatrixKVJson = relatrixKVJsonClass.getName();
 	
 	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
-	
-	public static final String relatrixIteratorJson = "com.neocoretechs.relatrix.iterator.IteratorWrapper"; 
-	
-	public static String[] iteratorServers = new String[]{relatrixIteratorJson};
 					
 	public static int[] iteratorPorts = new int[] {9130};
 	
 	public static final Class<?> relatrixIteratorJsonClass = com.neocoretechs.relatrix.iterator.IteratorWrapper.class; 
+	
+	public static final String relatrixIteratorJson = relatrixIteratorJsonClass.getName();
+	
+	public static String[] iteratorServers = new String[]{relatrixIteratorJson};
 	
 	public static Class[] iteratorServerClasses = new Class[]{relatrixIteratorJsonClass};
 	
@@ -69,43 +72,43 @@ public class RelatrixKVServerJson extends TCPServer {
 	public RelatrixKVServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServerJson.port = port;
-		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);
+		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServerJson.port = port;
-		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);
+		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVServerJson(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServerJson.port = port;
-		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);
+		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
 	public RelatrixKVServerJson(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServerJson.port = port;
-		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);
+		RelatrixKVServerJson.relatrixMethods = new ServerInvokeMethodJson(relatrixKVJson, 0);
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServerJson(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
 		SynchronizedThreadManager.startSupervisorThread();
 	}
 	
@@ -151,15 +154,13 @@ public class RelatrixKVServerJson extends TCPServer {
                     }
                     
 				} catch(Exception e) {
-                    System.out.println("Relatrix K/V Server node configuration server socket accept exception "+e);
-                    System.out.println(e.getMessage());
                     e.printStackTrace();
                }
 		}
 	}
 	
 	/**
-	 * Load the methods of main RelatrixKVJson class as remotely invokable then we instantiate RelatrixKVServerJson.<p/>
+	 * Load the methods of main RelatrixKVJson class as remotely invokable then we instantiate RelatrixKVServerJson.<p>
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {

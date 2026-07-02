@@ -15,6 +15,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode0Transaction;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode1Transaction;
@@ -61,6 +63,7 @@ import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
 
 
@@ -134,10 +137,41 @@ public final class RelatrixTransaction {
 			if(instance == null) {
 				instance = new RelatrixTransaction();
 				IndexResolver.setLocal();
+				RelatrixKVTransaction.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKVTransaction.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKVTransaction.classLoader);
+				try {
+					HandlerClassLoader.connectToLocalRepository(null);
+				} catch (IllegalAccessException | IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		return instance;
-	}	
+	}
+	/**
+	 * Create an instance of the server as a remote client, in effect. The client process
+	 * become the conduit to the remote bytecode repository.
+	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
+	 * @return The instance of this client process.
+	 */
+	public static RelatrixTransaction getInstance(ClientTransactionInterface cnti) {
+		synchronized(RelatrixTransaction.class) {
+			if(instance == null) {
+				instance = new RelatrixTransaction();
+				RelatrixKVTransaction.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKVTransaction.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKVTransaction.classLoader);
+				try {
+					HandlerClassLoader.connectToRemoteRepository(cnti);
+					IndexResolver.setRemote(cnti);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return instance;
+	}
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely

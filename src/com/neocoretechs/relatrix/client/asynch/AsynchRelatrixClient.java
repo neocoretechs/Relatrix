@@ -61,7 +61,6 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		this.bootNode = bootNode;
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote(this);
 		// send message to spin connection
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {

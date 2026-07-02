@@ -33,9 +33,9 @@ public interface AsynchRelatrixKVClientTransactionInterface extends com.neocoret
 
 	public CompletableFuture<Void> rollbackAllTransactions();
 
-	public CompletableFuture<Void> rollback(Alias arg1,TransactionId arg2);
+	public void rollback(Alias arg1,TransactionId arg2);
 
-	public CompletableFuture<Void> rollback(TransactionId arg1);
+	public void rollback(TransactionId arg1);
 
 	public CompletableFuture<Object> nearest(TransactionId arg1,Comparable arg2);
 
@@ -109,9 +109,9 @@ public interface AsynchRelatrixKVClientTransactionInterface extends com.neocoret
 
 	public CompletableFuture<Iterator> findTailMapKV(Alias arg1,TransactionId arg2,Comparable arg3);
 
-	public CompletableFuture<Void> commit(Alias arg1,TransactionId arg2);
+	public void commit(Alias arg1,TransactionId arg2);
 
-	public CompletableFuture<Void> commit(TransactionId arg1);
+	public void commit(TransactionId arg1);
 
 	public CompletableFuture<Void> removeAlias(Alias arg1);
 
@@ -167,9 +167,9 @@ public interface AsynchRelatrixKVClientTransactionInterface extends com.neocoret
 
 	public Object get(TransactionId arg1,Comparable arg2);
 
-	public CompletableFuture<Object> remove(Alias arg1,TransactionId arg2,Comparable arg3);
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3);
 
-	public CompletableFuture<Object> remove(TransactionId arg1,Comparable arg2);
+	public void remove(TransactionId arg1,Comparable arg2);
 
 }
 

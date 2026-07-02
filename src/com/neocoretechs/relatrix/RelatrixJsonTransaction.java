@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
+import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode0JsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode1JsonTransaction;
@@ -149,7 +150,30 @@ public final class RelatrixJsonTransaction {
 			}
 		}
 		return instance;
-	}	
+	}
+	/**
+	 * Create an instance of the server as a remote client, in effect. The client process
+	 * become the conduit to the remote bytecode repository.
+	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
+	 * @return The instance of this client process.
+	 */
+	public static RelatrixJsonTransaction getInstance(ClientTransactionInterface cnti) {
+		synchronized(RelatrixJsonTransaction.class) {
+			if(instance == null) {
+				instance = new RelatrixJsonTransaction();
+				RelatrixKVJsonTransaction.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKVJsonTransaction.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKVJsonTransaction.classLoader);
+				try {
+					HandlerClassLoader.connectToRemoteRepository(cnti);
+					IndexResolver.setRemote(cnti);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return instance;
+	}
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely

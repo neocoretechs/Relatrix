@@ -1,11 +1,16 @@
 package com.neocoretechs.relatrix;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-
+import java.lang.reflect.Proxy;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
@@ -26,16 +31,22 @@ import org.json.cbor.CborException;
 import org.json.cbor.model.DataItem;
 
 import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.DirectByteArrayOutputStream;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
+
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-
+import com.neocoretechs.relatrix.client.ClientInterface;
+import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.server.ClassNameAndBytes;
+import com.neocoretechs.relatrix.server.Bytecodes;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -58,7 +69,7 @@ public final class RelatrixKVJson {
 	private RelatrixKVJson() {}
 	// 2.) volatile instance
 	private static volatile RelatrixKVJson instance = null;
-	static HandlerClassLoader classLoader = null;
+	public static HandlerClassLoader classLoader = null;
 	// 3.) lock class, assign instance if null
 	public static RelatrixKVJson getInstance() {
 		synchronized(RelatrixKVJson.class) {
@@ -69,6 +80,7 @@ public final class RelatrixKVJson {
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
 					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
+					IndexResolver.setLocal();
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -76,6 +88,93 @@ public final class RelatrixKVJson {
 		}
 		return instance;
 	}
+	/**
+	 * Create an instance of the server as a remote client, in effect. The client process
+	 * become the conduit to the remote bytecode repository.
+	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
+	 * @return The instance of this client process.
+	 */
+	public static RelatrixKVJson getInstance(ClientNonTransactionInterface cnti) {
+		synchronized(RelatrixKVJson.class) {
+			if(instance == null) {
+				instance = new RelatrixKVJson();
+				classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(classLoader);
+				SerializedComparatorFactory.setClassLoader(classLoader);
+				try {
+					HandlerClassLoader.connectToRemoteRepository(cnti);
+					IndexResolver.setRemote(cnti);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return instance;
+	}
+	
+	// ... compare() unchanged except it calls deserializeObject(b, loader)
+	public static Object deserializeObject(byte[] obuf) throws IOException {
+		try (ByteArrayInputStream bais = new ByteArrayInputStream(obuf);
+				ObjectInputStream ois = new ClassLoaderObjectInputStream(bais, classLoader)) {
+			return ois.readObject();
+		} catch (ClassNotFoundException cnf) {
+			throw new IOException(cnf.toString() + ":Class Not found, may have been modified beyond version compatibility");
+		} catch (IOException ioe) {
+			throw new IOException("deserializeObject: " + ioe.toString() + ": from buffer of length " + obuf.length);
+		}
+	}
+
+	/**
+	 * Static method for object to serialized byte conversion.
+	 * Uses DirectByteArrayOutputStream, which allows underlying buffer to be retrieved without
+	 * copying entire backing store
+	 * @param Ob the user object
+	 * @return byte buffer containing serialized data
+	 * @exception IOException cannot convert
+	 */
+	public static byte[] serializeObject(Object Ob) throws IOException {
+		byte[] retbytes;
+		DirectByteArrayOutputStream baos = new DirectByteArrayOutputStream();
+		ObjectOutput s = new ObjectOutputStream(baos);
+		s.writeObject(Ob);
+		s.flush();
+		baos.flush();
+		retbytes = baos.getBuf();
+		s.close();
+		baos.close();
+		return retbytes;
+	}
+
+	// inner static helper
+	public static final class ClassLoaderObjectInputStream extends ObjectInputStream {
+		private final ClassLoader loader;
+		public ClassLoaderObjectInputStream(InputStream in, ClassLoader loader) throws IOException {
+			super(in);
+			this.loader = loader;
+		}
+		@Override
+		protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+			String name = desc.getName();
+			try {
+				return Class.forName(name, false, loader);
+			} catch (ClassNotFoundException ex) {
+				return super.resolveClass(desc);
+			}
+		}
+        @Override
+        protected Class<?> resolveProxyClass(String[] interfaces) throws IOException, ClassNotFoundException {
+            Class<?>[] intfs = new Class<?>[interfaces.length];
+            for (int i = 0; i < interfaces.length; i++) {
+                intfs[i] = Class.forName(interfaces[i], false, classLoader);
+            }
+            try {
+                return Proxy.getProxyClass(classLoader, intfs);
+            } catch (IllegalArgumentException e) {
+                return super.resolveProxyClass(interfaces);
+            }
+        }
+	}
+
 	/**
 	 * Generate a class name from a JSONObject
 	 * @param jsono the JSONObject with the fields
@@ -459,9 +558,9 @@ public final class RelatrixKVJson {
 		return new Object[] {jkey, jvalue};
 	}
 	
-	static class WorkingSet {
+	public static class WorkingSet {
 		BufferedMap bm;
-		Comparable<?> item; 
+		public Comparable<?> item; 
 	}
 	
 	public static WorkingSet getWorkingSet(Object key) throws IOException, IllegalAccessException {
@@ -513,10 +612,10 @@ public final class RelatrixKVJson {
 		return ws;
 	}
 	
-	static class WorkingSet2 {
+	public static class WorkingSet2 {
 		BufferedMap bm, bm2;
-		Comparable<?> item; 
-		Comparable<?> item2;
+		public Comparable<?> item; 
+		public Comparable<?> item2;
 	}
 	
 	public static WorkingSet2 getWorkingSet2(Object key, Object key2) throws IOException, IllegalAccessException {
@@ -736,18 +835,12 @@ public final class RelatrixKVJson {
 	@ServerMethod
 	public static void store(Object key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
 		Object[] tuple = getKeyValue(key, value);
+		BufferedMap ttm = getMap(tuple[0].getClass());
 		if( DEBUG  )
 			System.out.println("RelatrixKVJson.store storing key:"+tuple[0]+" value:"+tuple[1]);
-		storekv((Comparable<?>) tuple[0], tuple[1]);
+		ttm.put((Comparable<?>)tuple[0], tuple[1]);
 	}
 	
-	@ServerMethod
-	public static void storekv(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
-		BufferedMap ttm = getMap(key.getClass());
-		if( DEBUG  )
-			System.out.println("RelatrixKVJson.storekv storing key:"+key+" value:"+value+" in map:"+ttm);
-		ttm.put(key, value);
-	}
 	/**
 	 * Store our permutations of the key/value
 	 * @param alias The database alias
@@ -761,14 +854,31 @@ public final class RelatrixKVJson {
 		Object[] tuple = getKeyValue(alias, key, value);
 		if( DEBUG  )
 			System.out.println("RelatrixKVJson.store storing key:"+tuple[0]+" value:"+tuple[1]+" alias:"+alias);
-		storekv(alias, (Comparable<?>) tuple[0], tuple[1]);
+		BufferedMap ttm = getMap(alias, tuple[0].getClass());
+		ttm.put((Comparable<?>)tuple[0], tuple[1]);
 	}
 	
 	@ServerMethod
 	public static void storekv(Alias alias, Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		if(key instanceof Bytecodes && value instanceof ClassNameAndBytes) {
+			classLoader.setBytesInRepository(((Bytecodes)key).toString(),((ClassNameAndBytes)value).getBytes());
+			return;
+		}
 		BufferedMap ttm = getMap(alias, key.getClass());
 		if( DEBUG  )
 			System.out.println("RelatrixKVJson.storekv storing key:"+key+" value:"+value+" in map:"+ttm+" for alias "+alias);
+		ttm.put(key, value);
+	}
+	
+	@ServerMethod
+	public static void storekv(Comparable<?> key, Object value) throws IllegalAccessException, IOException, DuplicateKeyException {
+		if(key instanceof Bytecodes && value instanceof ClassNameAndBytes) {
+			classLoader.setBytesInRepository(((Bytecodes)key).toString(),((ClassNameAndBytes)value).getBytes());
+			return;
+		}
+		BufferedMap ttm = getMap(key.getClass());
+		if( DEBUG  )
+			System.out.println("RelatrixKVJson.storekv storing key:"+key+" value:"+value+" in map:"+ttm);
 		ttm.put(key, value);
 	}
 	/**
@@ -796,7 +906,11 @@ public final class RelatrixKVJson {
 	 * @throws IOException
 	 */
 	public static void removePackageFromRepository(String pack) throws IOException {
-		HandlerClassLoader.removeBytesInRepository(pack);
+		try {
+			HandlerClassLoader.removeBytesInRepository(pack);
+		} catch (BytecodeNotFoundInRepositoryException e) {
+			throw new IOException(e);
+		}
 	}
 	/**
 	 * Delete element with given key that this object participates in

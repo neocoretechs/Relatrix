@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
+import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode0Json;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode1Json;
@@ -59,6 +60,7 @@ import com.neocoretechs.relatrix.iterator.json.RelatrixKeysetIteratorJson;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.json.RelatrixStreamJson;
@@ -159,7 +161,29 @@ public final class RelatrixJson {
 		}
 		return instance;
 	}	
-	
+	/**
+	 * Create an instance of the server as a remote client, in effect. The client process
+	 * become the conduit to the remote bytecode repository.
+	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
+	 * @return The instance of this client process.
+	 */
+	public static RelatrixJson getInstance(ClientNonTransactionInterface cnti) {
+		synchronized(RelatrixJson.class) {
+			if(instance == null) {
+				instance = new RelatrixJson();
+				RelatrixKVJson.classLoader = new HandlerClassLoader();
+				Thread.currentThread().setContextClassLoader(RelatrixKVJson.classLoader);
+				SerializedComparatorFactory.setClassLoader(RelatrixKVJson.classLoader);
+				try {
+					HandlerClassLoader.connectToRemoteRepository(cnti);
+					IndexResolver.setRemote(cnti);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return instance;
+	}
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -3609,7 +3633,11 @@ public final class RelatrixJson {
 	 * @throws IOException
 	 */
 	public static void removePackageFromRepository(String pack) throws IOException {
-		HandlerClassLoader.removeBytesInRepository(pack);
+		try {
+			HandlerClassLoader.removeBytesInRepository(pack);
+		} catch (BytecodeNotFoundInRepositoryException e) {
+			throw new IOException(e);
+		}
 	}
 
 

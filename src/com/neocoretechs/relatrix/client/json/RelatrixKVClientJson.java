@@ -12,13 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
-import com.neocoretechs.relatrix.client.RelatrixClientInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -28,10 +29,10 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
  * The client thread initiates with a CommandPacketInterface.<p/>
  *
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2026
  */
 public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl implements ClientInterface, Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
 
@@ -44,7 +45,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 
-	protected ConcurrentHashMap<String, RelatrixStatementJson> outstandingRequests = new ConcurrentHashMap<String,RelatrixStatementJson>();
+	protected ConcurrentHashMap<String, RelatrixKVStatementJson> outstandingRequests = new ConcurrentHashMap<String,RelatrixKVStatementJson>();
 
 	/**
 	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
@@ -56,7 +57,8 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	public RelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemote((RelatrixClientInterface) this);
+		RelatrixKVJson.getInstance(this);
+		
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		try {
 			workerHandler = new ConnectionHandler(workerSocket);
@@ -77,43 +79,47 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 		//SocketChannel sock;
 		try {
 			while(shouldRun) {
+				if( DEBUG )
+					System.out.printf("%s WAIT on read from %s remote node:%s remote port:%s%n",this.getClass().getName(),workerHandler,remoteNode,String.valueOf(remotePort));
 				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
 				// get the original request from the stored table
 				if( DEBUG )
-					System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
+					System.out.printf("%s read %s FROM remote node:%s remote port:%s%n",this.getClass().getName(),iori,remoteNode,String.valueOf(remotePort));
 				Object o = iori.getObjectReturn();
 				if( DEBUG )
-					System.out.println("FROM Remote, returned object from response:"+o+" remote Node:"+remoteNode+" slave:"+remotePort);
+					System.out.printf("%s return object:%s remote node:%s remote port:%s%n",this.getClass().getName(),o,remoteNode,String.valueOf(remotePort));
 				if( o instanceof Throwable ) {
 					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
 						System.out.println("RelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
 					o = ((Throwable)o).getCause();
 				}
-				RelatrixStatementJson rs = outstandingRequests.get(iori.getSession());
+				RelatrixKVStatementJson rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
 					throw new RuntimeException("REQUEST/RESPONSE MISMATCH, statement:"+iori);
-				} else {
-					if(o instanceof Iterator)
-						try {
-							((RemoteCompletionInterface)o).process();
-						} catch (Exception e) {
-							e.printStackTrace();
-							o = e;
-						}
-					// We have the request after its session round trip, get it from outstanding waiters and signal
-					// set it with the response object
-					rs.setObjectReturn(o);
-					// and signal the latch we have finished
-					rs.signalCompletion(null);
-					if( DEBUG ) {
-						System.out.println(this.getClass().getName()+" got connection "+workerHandler);
-					}  
+				} 
+				if(o instanceof Iterator) {
+					try {
+						if( DEBUG )
+							System.out.printf("%s processing iterator return:%s remote node:%s remote port:%s%n",this.getClass().getName(),o,remoteNode,String.valueOf(remotePort));
+						((RemoteCompletionInterface)o).process();
+					} catch (Exception e) {
+						e.printStackTrace();
+						o = e;
+					}
+				}
+				// We have the request after its session round trip, get it from outstanding waiters and signal
+				// set it with the response object
+				rs.setObjectReturn(o);
+				// and signal the latch we have finished
+				rs.signalCompletion(null);
+				if( DEBUG ) {
+					System.out.printf("%s signal completion for:%s remote node:%s remote port:%s%n",this.getClass().getName(),rs,remoteNode,String.valueOf(remotePort));
 				}
 			}
 		} catch(Exception e) {
 			// we lost the remote master, try to close worker and wait for reconnect
 			e.printStackTrace();
-			System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
+			System.out.printf("%s FROM workerHandler:%s remote node:%s remote port:%s%n",this.getClass().getName(),workerHandler,remoteNode,String.valueOf(remotePort));
 			//}
 		} finally {
 			shutdown();
@@ -128,12 +134,11 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	 * @param iori
 	 */
 	public void send(RemoteRequestInterface iori) throws Exception {
-		outstandingRequests.put(iori.getSession(), (RelatrixStatementJson) iori);
+		outstandingRequests.put(iori.getSession(), (RelatrixKVStatementJson) iori);
 		workerHandler.sendObject(iori);
 	}
 
 	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
-		IndexResolver.setRemote((RelatrixClientInterface) this);
 		CountDownLatch cdl = new CountDownLatch(1);
 		rs.setCompletionObject(cdl);
 		send(rs);
@@ -151,7 +156,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	 * @param rii RelatrixStatement
 	 * @return The next iterated object or null
 	 */
-	public Object next(RelatrixStatementJson rii) throws Exception {
+	public Object next(RelatrixKVStatementJson rii) throws Exception {
 		rii.methodName = "next";
 		rii.paramArray = new Object[0];
 		return sendCommand(rii);
@@ -164,7 +169,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	 * @param rii RelatrixStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public boolean hasNext(RelatrixStatementJson rii) throws Exception {
+	public boolean hasNext(RelatrixKVStatementJson rii) throws Exception {
 		rii.methodName = "hasNext";
 		rii.paramArray = new Object[0];
 		return (boolean) sendCommand(rii);
@@ -172,7 +177,6 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 
 	public void close() {
 		shouldRun = false;
-
 		synchronized(waitHalt) {
 			try {
 				waitHalt.wait();
@@ -197,12 +201,12 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	}
 
 	public void closeDb(Class clazz) throws Exception {
-		RelatrixStatementJson rs = new RelatrixStatementJson("close", clazz);
+		RelatrixKVStatementJson rs = new RelatrixKVStatementJson("close", clazz);
 		sendCommand(rs);
 	}
 
 	public void closeDb(String alias, Class clazz) throws Exception {
-		RelatrixStatementJson rs = new RelatrixStatementJson("close", alias, clazz);
+		RelatrixKVStatementJson rs = new RelatrixKVStatementJson("close", alias, clazz);
 		sendCommand(rs);
 	}
 
@@ -219,7 +223,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 	 */
 	public static void main(String[] args) throws Exception {
 		RelatrixKVClientJson rc = new RelatrixKVClientJson(args[1],Integer.parseInt(args[2]));
-		RelatrixStatementJson rs = null;
+		RelatrixKVStatementJson rs = null;
 		switch(args.length) {
 		case 4:
 			Iterator it = rc.entrySet(Class.forName(args[3]));
@@ -228,16 +232,16 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl impl
 			});
 			System.exit(0);
 		case 5:
-			rs = new RelatrixStatementJson(args[3],args[4]);
+			rs = new RelatrixKVStatementJson(args[3],args[4]);
 			break;
 		case 6:
-			rs = new RelatrixStatementJson(args[3],args[4],args[5]);
+			rs = new RelatrixKVStatementJson(args[3],args[4],args[5]);
 			break;
 		case 7:
-			rs = new RelatrixStatementJson(args[3],args[4],args[5],args[6]);
+			rs = new RelatrixKVStatementJson(args[3],args[4],args[5],args[6]);
 			break;
 		case 8:
-			rs = new RelatrixStatementJson(args[3],args[4],args[5],args[6],args[7]);
+			rs = new RelatrixKVStatementJson(args[3],args[4],args[5],args[6],args[7]);
 			break;
 		default:
 			System.out.println("Cant process argument list of length:"+args.length);

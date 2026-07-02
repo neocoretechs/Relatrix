@@ -47,21 +47,42 @@ public class RelatrixServer extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
 	
+	public static final Class<?> relatrixIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixIterator.class; 
+	public static final Class<?> relatrixSubsetIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class;
+	public static final Class<?> relatrixHeadsetIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class;
+	public static final Class<?> relatrixTailsetIteratorClass =  com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator.class;
+	public static final Class<?> relatrixEntrysetIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator.class;				
+	public static final Class<?> relatrixKeysetIteratorClass =  com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator.class;
+	
+	public static final String relatrixIterator = relatrixIteratorClass.getName();
+	public static final String relatrixSubsetIterator = relatrixSubsetIteratorClass.getName();
+	public static final String relatrixHeadsetIterator = relatrixHeadsetIteratorClass.getName();
+	public static final String relatrixTailsetIterator =  relatrixTailsetIteratorClass.getName();
+	public static final String relatrixEntrysetIterator = relatrixEntrysetIteratorClass.getName();				
+	public static final String relatrixKeysetIterator =  relatrixKeysetIteratorClass.getName();
+	
 	public static String[] iteratorServers = new String[]{
-	 "com.neocoretechs.relatrix.iterator.RelatrixIterator",
-	 "com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator",
-	 "com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator",
-	 "com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator",
-	 "com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator",				
-	 "com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator"
-	};				
+	 relatrixIterator,
+	 relatrixSubsetIterator,
+	 relatrixHeadsetIterator,
+	 relatrixTailsetIterator,
+	 relatrixEntrysetIterator,				
+	 relatrixKeysetIterator
+	};
+	
+	public static Class[] iteratorServerClasses = new Class[]{
+	 relatrixIteratorClass,
+	 relatrixSubsetIteratorClass,
+	 relatrixHeadsetIteratorClass,
+	 relatrixTailsetIteratorClass,
+	 relatrixEntrysetIteratorClass,				
+	 relatrixKeysetIteratorClass
+	};
+	
 	public static int[] iteratorPorts = new int[] {
 			9090,9091,9092,9093,9094,9095
 	};
-	public static int findIteratorServerPort(String clazz) {
-		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
-	}
-	
+
 	public RelatrixServer() {}
 	
 	/**
@@ -164,31 +185,23 @@ public class RelatrixServer extends TCPServer {
 	}
 
 	/**
-	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p/>
+	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p>
 	 * @param args If length 1, then default port 9000
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
 		Relatrix.getInstance();
-		if(args.length == 3) {
-			String db = (new File(args[0])).toPath().getParent().toString() + File.separator +
-					(new File(args[0]).getName());
-			System.out.println("Bringing up Relatrix tablespace:"+db);
-			Relatrix.setTablespace(db);
-			new RelatrixServer(args[1], Integer.parseInt(args[2]));
-		} else {
 			if( args.length == 2) {
-				System.out.println("Bringing up Relatrix default tablespace.");
+				System.out.println("Bringing up Relatrix tablespace "+System.getProperty("tablespace"));
 				new RelatrixServer(args[0], Integer.parseInt(args[1]));
 			} else {
 				if(args.length == 1) {
-					System.out.println("Bringing up Relatrix default tablespace.");
+					System.out.println("Bringing up Relatrix default tablespace "+System.getProperty("tablespace"));
 					new RelatrixServer(Integer.parseInt(args[0]));
 				} else {
-					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [/path/to/database/databasename] [address] <port>");
+					System.out.println("usage: java com.neocoretechs.relatrix.server.RelatrixServer [address] <port>");
 				}
 			}
-		}
 		System.out.println(address);
 	}
 }
