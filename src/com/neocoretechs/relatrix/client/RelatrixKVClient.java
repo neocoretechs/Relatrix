@@ -10,10 +10,15 @@ import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.rocksack.Alias;
@@ -24,21 +29,12 @@ import com.neocoretechs.rocksack.Alias;
  * A worker thread that handles traffic back from the server.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
-public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements ClientInterface, Runnable {
+public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
-	
-	private String remoteNode;
-	private int remotePort;
-
-	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandler workerHandler;
-	
-	private volatile boolean shouldRun = true; // master service thread control
-	private Object waitHalt = new Object(); 
-	
-	protected ConcurrentHashMap<String, RelatrixKVStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixKVStatement>();
+	private Object mutex = new Object();
+	private AsynchRelatrixKVClient asynchClient;
 
 	/**
 	 * Start a Relatrix client to a remote server.  A WorkerRequestProcessor
@@ -48,262 +44,64 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 	 * @throws IOException
 	 */
 	public RelatrixKVClient(String remoteNode, int remotePort)  throws IOException {
-		this.remoteNode = remoteNode;
-		this.remotePort = remotePort;
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		try {
-			workerHandler = new ConnectionHandler(workerSocket);
-			if(DEBUG)
-				System.out.println("Channel created to "+workerHandler);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		SynchronizedThreadManager.getInstance().spin(this);
+		RelatrixKV.getInstance(this);
+		asynchClient = new AsynchRelatrixKVClient(remoteNode, remotePort);
 	}
 	
-	public String getRemoteNode() {
-		return remoteNode;
-	}
-	
-	public int getRemotePort( ) {
-		return remotePort;
-	}
-	/**
-	* Set up the socket 
-	 */
 	@Override
-	public void run() {
-  	    try {
-		  while(shouldRun ) {
-				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
-				// get the original request from the stored table
-				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
-				Object o = iori.getObjectReturn();
-				if( o instanceof Throwable ) {
-					if( !(((Throwable)o).getCause() instanceof DuplicateKeyException) || SHOWDUPEKEYEXCEPTION )
-						System.out.println("RelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
-					 o = ((Throwable)o).getCause();
-				}
-				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
-				if( rs == null ) {
-					System.out.println("REQUEST/RESPONSE MISMATCH, failed to get session from outstandingRequests for statement:"+iori);
-					shouldRun = false;
-					break;
-				} else {
-					// We have the request after its session round trip, get it from outstanding waiters and signal
-					// set it with the response object
-					if(o instanceof Iterator)
-							((RemoteCompletionInterface)o).process();
-					rs.setObjectReturn(o);
-					// and signal the latch we have finished
-					rs.signalCompletion(o);
-				}
-		  }
-		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
-				// we lost the remote master, try to close worker and wait for reconnect
-				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
-			}
-		} finally {
-			shutdown();
-  	    }
-  	    synchronized(waitHalt) {
-  	    	waitHalt.notifyAll();
-  	    }
-	}
-	/**
-	 * Send request to remote worker, if workerSocket is null open connection to remote master
-	 * @param iori
-	 */
-	public void send(RemoteRequestInterface iori) throws Exception {
-		if(DEBUG) {
-			System.out.println("Attempting to send "+iori+" to "+workerHandler);
-			if(workerSocket != null)
-				System.out.println("Channel connected:"+workerSocket.isConnected());
-			else
-				System.out.println("Socket NULL!");
+	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
+		synchronized(mutex) {
+		if(DEBUG)
+			System.out.printf("%s.sendCommand statement=%s%n", this.getClass().getName(), s);
+		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
+		//if(DEBUG)
+			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
+		return cf.get();
 		}
-		outstandingRequests.put(iori.getSession(), (RelatrixKVStatement) iori);
-		workerHandler.sendObject(iori);
 	}
-	
-	public void close() {
-		shouldRun = false;
-		synchronized(waitHalt) {
-			try {
-				waitHalt.wait();
-			} catch (InterruptedException ie) {}
-		}
-		SynchronizedThreadManager.getInstance().shutdown(); // client threads
-	}
-	
-	protected void shutdown() {
-		if( workerHandler != null ) {
-			workerHandler.close();
-		}
-		shouldRun = false;
-	}
-	
-	/**
-	 * Call the remote server method to send a manually constructed command
-	 * @param rs The RelatrixKvStatement manually constructed
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 * @return 
-	 */
-	@Override
-	public Object sendCommand(RelatrixStatementInterface rs) throws Exception {
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCompletionObject(cdl);
-		send(rs);
-		cdl.await();
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof Exception)
-			throw (Exception)o;
-		return o;
-	}
-	
-	//-------------------------------------------------------------------
-	// Start of remote command sequence
-	//-------------------------------------------------------------------
-	
-	public String getTablespace() {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getTableSpace",(Object[])null);
-		try {
-			return (String) sendCommand(rs);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	/**
-	 * Call the remote iterator from the various 'findSet' methods and return the result.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii
-	 * @return Object of iteration, depends on iterator being used, typically, Map.Entry derived serializable instance of next element
-	 */
-	public Object next(RelatrixKVStatement rii) throws Exception {
-		rii.methodName = "next";
-		rii.paramArray = new Object[0];
-		return sendCommand(rii);
-	}
-	
-	public boolean hasNext(RelatrixKVStatement rii) throws Exception {
-		rii.methodName = "hasNext";
-		rii.paramArray = new Object[0];
-		return (boolean) sendCommand(rii);
-	}
-	
-	public void remove(RelatrixKVStatement rii) throws Exception{
-		rii.methodName = "remove";
-		rii.paramArray = new Object[]{ rii.getObjectReturn() };
-		sendCommand(rii);
-	}
-	/**
-	 * Issue a close which will merely remove the request resident object here and on the server
-	 * @param rii
-	 */
-	public void close(RelatrixKVStatement rii) throws Exception {
-		rii.methodName = "close";
-		rii.paramArray = new Object[0];
-		sendCommand(rii);
-	}
-	
 	@Override
 	public void storekv(Comparable index, Object instance) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("storekv", new Object[] {index, instance});
-		try {
-			sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		asynchClient.storekv(index, instance);	
 	}
-
 	@Override
 	public void storekv(Alias alias, Comparable index, Object instance) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("storekv", new Object[] {alias, index, instance});
-		try {
-			sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		asynchClient.storekv(alias, index, instance);;
 	}
-
 	@Override
 	public Object getByIndex(DBKey index) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getByIndex", new Object[] {index});
-		try {
-			return sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		return asynchClient.getByIndex(index);
 	}
-
 	@Override
 	public Object getByIndex(Alias alias, DBKey index) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("getByIndex", new Object[] {alias, index});
-		try {
-			return sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		return asynchClient.getByIndex(alias, index);
 	}
-
 	@Override
 	public Object get(Object instance) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("get", new Object[] {instance});
-		try {
-			return sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		return asynchClient.get(instance);
 	}
-
 	@Override
 	public Object get(Alias alias, Object instance) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("get", new Object[] {alias, instance});
-		try {
-			return sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
-	}
-	@Override
-	public Object remove(Alias alias, Object instance) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("remove", new Object[] {alias, instance});
-		try {
-			return sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		return asynchClient.get(alias, instance);
 	}
 	@Override
 	public Object remove(Object instance) throws IOException {
-		RelatrixKVStatement rs = new RelatrixKVStatement("remove", new Object[] {instance});
-		try {
-			return sendCommand(rs);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}	
+		return asynchClient.remove(instance);
 	}
 	@Override
-	public String toString() {
-		return String.format("%s handler::%s%n",this.getClass().getName(),workerHandler);
+	public Object remove(Alias alias, Object instance) throws IOException {
+		return asynchClient.remove(alias, instance);
 	}
-	
+
+	public void close() throws IOException {
+		asynchClient.close();
+	}
 	static int i = 0;
 	/**
 	 * case 4:
-	 * <dd>Generic call to server: localaddr, remote addr, port, class
+	 * <dd>Generic call to server: remote addr, port, class
 	 * <dd>Displays entry set stream of class from database running on addr and port
 	 * <dd>case 5-8:
-	 * <dd>Call to server method: localaddr, remote addr, port, server_method arg1, arg2 ... 
+	 * <dd>Call to server method: remote addr, port, server_method arg1, arg2 ... 
 	 * <dd>Invokes named method on the server at host and port using the given string arguments.<p/>
 	 * Note that method must accept the number of string arguments provided, such as loadClassFromJar jar
 	 * and loadClassFromPath package path and removePackageFromRepository package.<p/>
@@ -315,11 +113,11 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 		RelatrixKVStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		//rc.send(rs);
 		i = 0;
-		RelatrixKVClient rc = new RelatrixKVClient(args[1],Integer.parseInt(args[2]));
+		RelatrixKVClient rc = new RelatrixKVClient(args[0],Integer.parseInt(args[1]));
 
 		switch(args.length) {
 			case 4:
-				Iterator it = (Iterator) rc.entrySet(Class.forName(args[3]));
+				Iterator it = (Iterator) rc.entrySet(Class.forName(args[2]));
 				new RemoteStream(it).forEach(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
@@ -330,24 +128,23 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 				*/
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVStatement(args[3],args[4]);
+				rs = new RelatrixKVStatement(args[2],args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5]);
+				rs = new RelatrixKVStatement(args[2],args[3],args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6]);
+				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
 				return;
 		}
-		rc.sendCommand(rs);
+		System.out.println(rc.sendCommand(rs));
 		rc.close();
 	}
 
-	
 }

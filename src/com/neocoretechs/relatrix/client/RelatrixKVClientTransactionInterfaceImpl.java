@@ -696,19 +696,19 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
-	public Object remove(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("remove", arg1, arg2);
 		try {
-			return (Object)sendCommand(s);
+			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}
 	}
 	@Override
-	public Object remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement("remove", arg1, arg2, arg3);
 		try {
-			return (Object)sendCommand(s);
+			sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

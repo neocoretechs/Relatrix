@@ -119,7 +119,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 	/**
 	 * Queue a command to the blocking deque. Its a circular deque, so once capacity is reach, oldest requests are overwritten
 	 */
-	//@Override
+	@Override
 	public CompletableFuture<Object> queueCommand(RelatrixKVTransactionStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
 		rs.setCompletionObject(cf);

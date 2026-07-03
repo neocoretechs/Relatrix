@@ -80,36 +80,37 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	
 	static int i = 0;
 	/**
-	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
+	 * Generic call to server remote addr, port, method, arg1 to method, arg2 to method...
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClient rc = new RelatrixClient(args[1],Integer.parseInt(args[2]));
+		RelatrixClient rc = new RelatrixClient(args[0],Integer.parseInt(args[1]));
 		RelatrixStatement rs = null;
 		switch(args.length) {
 		case 4:
-			Iterator it = rc.entrySet(Class.forName(args[3]));
+			Iterator it = rc.entrySet(Class.forName(args[2]));
 			it.forEachRemaining(e ->{	
 				System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 			});
 			System.exit(0);
 		case 5:
-			rs = new RelatrixStatement(args[3],args[4]);
+			rs = new RelatrixStatement(args[2],args[3]);
 			break;
 		case 6:
-			rs = new RelatrixStatement(args[3],args[4],args[5]);
+			rs = new RelatrixStatement(args[2],args[3],args[4]);
 			break;
 		case 7:
-			rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
+			rs = new RelatrixStatement(args[2],args[3],args[4],args[5]);
 			break;
 		case 8:
-			rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
+			rs = new RelatrixStatement(args[2],args[3],args[4],args[5],args[6]);
 			break;
 		default:
 			System.out.println("Cant process argument list of length:"+args.length);
 			return;
 		}
+		System.out.println(rc.sendCommand(rs));
 		rc.close(rs);
 	}
 

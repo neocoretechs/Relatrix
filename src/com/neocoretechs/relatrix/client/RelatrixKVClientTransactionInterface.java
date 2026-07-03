@@ -9,7 +9,7 @@ import java.util.List;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
-public interface RelatrixKVClientTransactionInterface{
+public interface RelatrixKVClientTransactionInterface extends ClientTransactionInterface{
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
 
@@ -163,9 +163,9 @@ public interface RelatrixKVClientTransactionInterface{
 
 	public Object get(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
-	public Object remove(TransactionId arg1,Comparable arg2) throws java.io.IOException;
+	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException;
 
-	public Object remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
+	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException;
 
 }
 

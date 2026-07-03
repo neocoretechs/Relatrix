@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.RelatrixJson;
+
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 
 /**
@@ -16,11 +19,11 @@ import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2026
  */
-public class RelatrixClientJson extends AsynchRelatrixClient {
+public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
-
+	AsynchRelatrixClient asynchClient;
 	/**
 	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
@@ -29,9 +32,46 @@ public class RelatrixClientJson extends AsynchRelatrixClient {
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixClientJson(String remoteNode, int remotePort)  throws IOException {
-		super(remoteNode, remotePort);
+		RelatrixJson.getInstance(this);
+		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort);
+	}
+	/**
+	 * Called for the various 'findSet' methods.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param rii RelatrixStatement
+	 * @return The next iterated object or null
+	 */
+	public Object next(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
+		return sendCommand(rii);
 	}
 
+	/**
+	 * Called for the various 'findSet' methods.
+	 * The original request is preserved according to session GUID and upon return of
+	 * object the value is transferred
+	 * @param rii RelatrixStatement
+	 * @return The boolean result of hasNext on server
+	 */	
+	public boolean hasNext(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("hasNext");
+		rii.setParamArray(new Object[0]);
+		return (boolean) sendCommand(rii);
+	}
+
+	public void close(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
+		sendCommand(rii);
+	}
+	
+	@Override
+	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
+		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
+		return cf.get();
+	}
 	static int i = 0;
 	/**
 	 * Generic call to server localaddr, remotes addr, port, method, arg1 to method, arg2 to method...
@@ -40,34 +80,34 @@ public class RelatrixClientJson extends AsynchRelatrixClient {
 	 */
 	public static void main(String[] args) throws Exception {
 		RelatrixClientJson rc = new RelatrixClientJson(args[1],Integer.parseInt(args[2]));
-		RelatrixKVStatementJson rs = null;
+		RelatrixStatementJson rs = null;
 		switch(args.length) {
 		case 4:
-			CompletableFuture<Iterator> it = rc.entrySet(Class.forName(args[3]));
-			it.get().forEachRemaining(e ->{	
+			Iterator<?> it = rc.entrySet(Class.forName(args[3]));
+			it.forEachRemaining(e ->{	
 				System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 			});
 			System.exit(0);
 		case 5:
-			rs = new RelatrixKVStatementJson(args[3],args[4]);
+			rs = new RelatrixStatementJson(args[3],args[4]);
 			break;
 		case 6:
-			rs = new RelatrixKVStatementJson(args[3],args[4],args[5]);
+			rs = new RelatrixStatementJson(args[3],args[4],args[5]);
 			break;
 		case 7:
-			rs = new RelatrixKVStatementJson(args[3],args[4],args[5],args[6]);
+			rs = new RelatrixStatementJson(args[3],args[4],args[5],args[6]);
 			break;
 		case 8:
-			rs = new RelatrixKVStatementJson(args[3],args[4],args[5],args[6],args[7]);
+			rs = new RelatrixStatementJson(args[3],args[4],args[5],args[6],args[7]);
 			break;
 		default:
 			System.out.println("Cant process argument list of length:"+args.length);
 			return;
 		}
-		CompletableFuture<Object> cf = rc.queueCommand(rs);
-		System.out.println(cf.get());
-		//rc.send(rs);
-		rc.close();
+		Object cf = rc.sendCommand(rs);
+		System.out.println(cf);
+		rc.close(rs);
 	}
+
 
 }

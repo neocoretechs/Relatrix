@@ -326,6 +326,6 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		}
 		System.out.println(rc.sendCommand(rs));
 		rc.endTransaction(xid);
-		rc.close();
+		rc.close(rs);
 	}
 }

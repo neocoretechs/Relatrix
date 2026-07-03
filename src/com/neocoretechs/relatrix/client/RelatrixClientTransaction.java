@@ -10,10 +10,16 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -26,21 +32,12 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface, ClientTransactionInterface,Runnable {
+public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
+	private Object mutex = new Object();
+	private AsynchRelatrixClientTransaction asynchClient;	
 	
-	private String remoteNode;
-	private int remotePort;
-	
-	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandler workerHandler;
-	
-	private volatile boolean shouldRun = true; // master service thread control
-	private Object waitHalt = new Object(); 
-	
-	protected ConcurrentHashMap<String, RelatrixTransactionStatement> outstandingRequests = new ConcurrentHashMap<String,RelatrixTransactionStatement>();
-
 	public RelatrixClientTransaction() { }
 	
 	/**
@@ -51,182 +48,82 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @throws IOException
 	 */
 	public RelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
-		this.remoteNode = remoteNode;
-		this.remotePort = remotePort;
-		IndexResolver.setRemoteTransaction((ClientInterface) this);
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		try {
-			workerHandler = new ConnectionHandler(workerSocket);
-			if(DEBUG)
-				System.out.println("Channel created to "+workerHandler);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		SynchronizedThreadManager.getInstance().spin(this);
+		RelatrixTransaction.getInstance(this);
+		asynchClient = new AsynchRelatrixClientTransaction(remoteNode, remotePort);	
 	}
-
-	/**
-	* Set up the socket 
-	 */
 	@Override
-	public void run() {
-  	    try {
-		  while(shouldRun ) {
-				RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
-				// get the original request from the stored table
-				if( DEBUG )
-					 System.out.println("FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
-				Object o = iori.getObjectReturn();
-				if( o instanceof Throwable ) {
-					System.out.println("RelatrixClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
-					o = ((Throwable)o).getCause();
-				}
-				RelatrixTransactionStatement rs = outstandingRequests.get(iori.getSession());
-				if( rs == null ) {
-					System.out.println("REQUEST/RESPONSE MISMATCH, failed to get session from outstandingRequests for statement:"+iori);
-					shouldRun = false;
-					break;
-				} else {
-					if(o instanceof Iterator)
-						((RemoteCompletionInterface)o).process();
-					// We have the request after its session round trip, get it from outstanding waiters and signal
-					// set it with the response object
-					rs.setObjectReturn(o);
-					// and signal the latch we have finished
-					rs.signalCompletion(null);
-				}
-		  }
-		} catch(Exception e) {
-			if(!(e instanceof SocketException)) {
-				// we lost the remote master, try to close worker and wait for reconnect
-				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" slave:"+remotePort);
-			}
-		} finally {
-			shutdown();
-  	    }
-  	    synchronized(waitHalt) {
-  	    	waitHalt.notifyAll();
-  	    }
-	}
-	/**
-	 * Send request to remote worker via workerSocket
-	 * @param iori
-	 */
-	public void send(RemoteRequestInterface iori) throws Exception {
-		outstandingRequests.put(iori.getSession(), (RelatrixTransactionStatement) iori);
-		workerHandler.sendObject(iori);
-	}
-	
-	@Override
-	public Object sendCommand(RelatrixTransactionStatementInterface rs) throws Exception {
-		CountDownLatch cdl = new CountDownLatch(1);
-		rs.setCompletionObject(cdl);
-		send(rs);
-		cdl.await();
-		Object o = rs.getObjectReturn();
-		outstandingRequests.remove(rs.getSession());
-		if(o instanceof Exception)
-			throw (Exception)o;
-		return o;
-	}
-
-	public void close() {
-		shouldRun = false;
-		synchronized(waitHalt) {
-			try {
-				waitHalt.wait();
-			} catch (InterruptedException ie) {}
+	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
+		synchronized(mutex) {
+		if(DEBUG)
+			System.out.printf("%s.sendCommand statement=%s%n", this.getClass().getName(), s);
+		CompletableFuture<Object> cf = asynchClient.queueCommand((RelatrixTransactionStatementInterface) s);
+		//if(DEBUG)
+			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
+		return cf.get();
 		}
-		SynchronizedThreadManager.getInstance().shutdown(); // client threads
-	}
-	
-	protected void shutdown() {
-		if( workerHandler != null ) {
-			workerHandler.close();
-		}
-		shouldRun = false;
-	}
-	
-	public String getRemoteNode() {
-		return remoteNode;
-	}
-	
-	public int getRemotePort( ) {
-		return remotePort;
 	}
 
 	/**
-	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
+	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param xid Transaction Id
-	 * @param rii RelatrixTransactionStatement
+	 * @param rii RelatrixStatement
 	 * @return The next iterated object or null
 	 */
-	public Object next(RelatrixTransactionStatement rii) throws Exception {
-		rii.methodName = "next";
-		rii.paramArray = new Object[0];
+	public Object next(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
 		return sendCommand(rii);
 	}
+
 	/**
-	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
+	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param xid Transaction Id
-	 * @param rii RelatrixTransactionStatement
+	 * @param rii RelatrixStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public boolean hasNext(RelatrixTransactionStatement rii) throws Exception {
-		rii.methodName = "hasNext";
-		rii.paramArray = new Object[0];
+	public boolean hasNext(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("hasNext");
+		rii.setParamArray(new Object[0]);
 		return (boolean) sendCommand(rii);
 	}
 
-	/**
-	 * Issue a close which will merely remove the request resident object here and on the server
-	 * @param rii
-	 */
-	public void close(RelatrixTransactionStatement rii) throws Exception {
-		rii.methodName = "close";
-		rii.paramArray = new Object[0];
+	public void close(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
 		sendCommand(rii);
 	}
 	
-	@Override
-	public String toString() {
-		return String.format("%s BootNode:%s RemoteNode:%s RemotePort:%d output socket%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket);
-	}
 	static int i = 0;
 	/**
-	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
+	 * Generic call to server remote addr, port, server method, arg1 to method, arg2 to method...
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[1],Integer.parseInt(args[2]));
+		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[0],Integer.parseInt(args[1]));
 		TransactionId xid = rc.getTransactionId();
 		RelatrixTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
-				Iterator it = rc.entrySet(xid,Class.forName(args[3]));
+				Iterator it = rc.entrySet(xid,Class.forName(args[2]));
 				it.forEachRemaining(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
@@ -234,7 +131,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		}
 		System.out.println(rc.sendCommand(rs));
 		rc.endTransaction(xid);
-		rc.close();
+		rc.close(rs);
 	}
 
 }

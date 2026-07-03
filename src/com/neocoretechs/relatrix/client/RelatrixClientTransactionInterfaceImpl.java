@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.type.RelationList;
 
 public abstract class RelatrixClientTransactionInterfaceImpl implements RelatrixClientTransactionInterface{
 
-	public abstract Object sendCommand(RelatrixTransactionStatementInterface s) throws Exception;
+	public abstract Object sendCommand(RelatrixStatementInterface s) throws Exception;
 	@Override
 	public void rollbackToCheckpoint(Alias arg1,TransactionId arg2) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement("rollbackToCheckpoint", arg1, arg2);
