@@ -1,1 +1,0 @@
-startkvserver C:/etc/BytecodeRepository/Bytecode VOLVATRON 9999

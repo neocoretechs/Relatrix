@@ -41,7 +41,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	public static final int REQUEST_QUEUE = 1024;
 	
 	protected CircularBlockingDeque<RelatrixStatementInterface> queuedRequests = new CircularBlockingDeque<RelatrixStatementInterface>(REQUEST_QUEUE);
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
@@ -53,28 +53,19 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	public AsynchRelatrixKVClient() { }
 	
 	/**
-	 * Start a Relatrix K/V client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix K/V client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public AsynchRelatrixKVClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public AsynchRelatrixKVClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		try {
-			workerHandler = new ConnectionHandler(workerSocket);
-			if(DEBUG)
-				System.out.println("Channel created to "+workerHandler);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		//masterSocket.bind(masterSocketAddress);
+		workerHandler = new ConnectionHandler(workerSocket);
+		if(DEBUG)
+			System.out.println("Channel created to "+workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -148,10 +139,6 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		shouldRun = false;
 	}
 	
-	public String getLocalNode() {
-		return bootNode;
-	}
-	
 	public String getRemoteNode() {
 		return remoteNode;
 	}
@@ -167,7 +154,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	 * @param rii RelatrixTransactionStatement
 	 * @return The next iterated object or null
 	 */
-	public CompletableFuture<Object> next(RelatrixKVStatement rii) throws Exception {
+	public CompletableFuture<Object> next(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("next");
 		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
@@ -179,7 +166,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	 * @param rii RelatrixTransactionStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public CompletableFuture<Object> hasNext(RelatrixKVStatement rii) throws Exception {
+	public CompletableFuture<Object> hasNext(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("hasNext");
 		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
@@ -208,7 +195,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(RelatrixKVStatement rii) throws Exception {
+	public void close(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("close");
 		rii.setParamArray(new Object[0]);
 		queueCommand(rii);
@@ -253,17 +240,17 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	
 	static int i = 0;
 	/**
-	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
-	 * @param args local node, remote server, remote server port, className for entrySet or (method, argument, argument, argument...) 
+	 * Generic call to server remote addr, port, server method, arg1 to method, arg2 to method...
+	 * @param args remote server, remote server port, className for entrySet or (method, argument, argument, argument...) 
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		AsynchRelatrixKVClient rc = new AsynchRelatrixKVClient(args[0],args[1],Integer.parseInt(args[2]));
+		AsynchRelatrixKVClient rc = new AsynchRelatrixKVClient(args[0],Integer.parseInt(args[1]));
 		RelatrixKVStatement rs = null;
 		switch(args.length) {
 			case 4:
 				System.out.println("queueing..");
-				CompletableFuture<Iterator> cit = rc.entrySet(Class.forName(args[3]));
+				CompletableFuture<Iterator> cit = rc.entrySet(Class.forName(args[2]));
 				long tim = System.nanoTime();
 				Iterator<?> it = cit.get();
 				System.out.println("Iterator return from future took:"+(System.nanoTime()-tim)+"ns.");
@@ -273,16 +260,16 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixKVStatement(args[3],args[4]);
+				rs = new RelatrixKVStatement(args[2],args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5]);
+				rs = new RelatrixKVStatement(args[2],args[3],args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6]);
+				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVStatement(args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

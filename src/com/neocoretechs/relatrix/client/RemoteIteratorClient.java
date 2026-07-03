@@ -33,7 +33,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	protected transient ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
-	private transient Object waitHalt;
+	private transient Object waitHalt = new Object();
 	private transient Object waitPayload = new Object();
 	private transient Object waitSocket = new Object();
 	
@@ -76,11 +76,13 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	public void process() throws Exception {
 		waitPayload = new Object();
 		waitSocket = new Object();
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		workerHandler = new ConnectionHandler(workerSocket);
-		SynchronizedThreadManager.getInstance().spin(this);
-		if(DEBUG)
-			System.out.printf("%s process() called for %s%n",this.getClass().getName(), this.toString());
+		if(workerSocket == null) {
+			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
+			workerHandler = new ConnectionHandler(workerSocket);
+			SynchronizedThreadManager.getInstance().spin(this);
+			if(DEBUG)
+				System.out.printf("%s process() called for %s%n",this.getClass().getName(), this.toString());
+		}
 	}
 	
 	@Override
@@ -98,7 +100,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 					if(objectReturn instanceof Result)
 						((Result)objectReturn).unpackFromTransport();
 				if( DEBUG )
-					System.out.printf("%s FROM Remote, returned object %s from remote node:%s remote port:%s%n",this.getClass().getName(),objectReturn,remoteNode,remotePort);
+					System.out.printf("%s FROM Remote, from remote node:%s remote port:%s%n",this.getClass().getName(),remoteNode,String.valueOf(remotePort));
 				if( objectReturn instanceof Exception ) {
 						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
 						objectReturn = ((Throwable)objectReturn).getCause();
@@ -260,6 +262,16 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	@Override
 	public void setObjectReturn(Object o) {
 		objectReturn = o;
+	}
+
+	@Override
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;	
+	}
+
+	@Override
+	public void setParamArray(Object[] params) {
+		this.paramArray = params;	
 	}
 
 }

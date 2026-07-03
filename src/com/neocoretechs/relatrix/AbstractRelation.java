@@ -1241,7 +1241,12 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         	if(DEBUG)
         		System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
         }
-             
+        /**
+         * Allow a subclassed index type to present itsef as a Relation with as amuch resolved information as possible
+         * @return the Relation as domain, map, range
+         */
+        protected abstract Relation asRelation();
+        
         @Override
         public String toString() {
      		String s = String.format("Class:%s Identity Key:%s%n",this.getClass(),this.getIdentity());

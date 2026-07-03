@@ -88,7 +88,9 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl implements C
 				}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
+					System.out.println("REQUEST/RESPONSE MISMATCH, failed to get session from outstandingRequests for statement:"+iori);
+					shouldRun = false;
+					break;
 				} else {
 					// We have the request after its session round trip, get it from outstanding waiters and signal
 					// set it with the response object

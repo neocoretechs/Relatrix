@@ -90,7 +90,9 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 				}
 				RelatrixKVStatement rs = outstandingRequests.get(iori.getSession());
 				if( rs == null ) {
-					throw new Exception("REQUEST/RESPONSE MISMATCH, statement:"+iori);
+					System.out.println("REQUEST/RESPONSE MISMATCH, failed to get session from outstandingRequests for statement:"+iori);
+					shouldRun = false;
+					break;
 				} else {
 					if(o instanceof Iterator)
 						((RemoteCompletionInterface)o).process();

@@ -197,5 +197,10 @@ public class RangeMapDomain extends AbstractRelation {
 		out.writeLong(domainKey.getMsb());
 		out.writeLong(domainKey.getLsb());
   	}
+
+	@Override
+	protected Relation asRelation() {
+		return new Relation(templateFlag, alias, transactionId, domain, domainKey, map, mapKey, range, rangeKey);
+	}
   	
 }

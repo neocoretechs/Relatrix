@@ -406,7 +406,7 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		BufferedMap bm = RelatrixKV.getMap(alias, DBKey.class);
 		Object o =  bm.get(index);
 		if(DEBUG)
-			System.out.printf("%s getByIndex for key:%s returning:%s%n", this.getClass().getName(), index, o);
+			System.out.printf("%s get for key:%s returning:%s%n", this.getClass().getName(), index, o);
 		if(o == null)
 			return null;
 		o = ((KeyValue)o).getmValue();

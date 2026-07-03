@@ -47,7 +47,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	public static final int REQUEST_QUEUE = 1024;
 	
 	protected CircularBlockingDeque<RelatrixTransactionStatementInterface> queuedRequests = new CircularBlockingDeque<RelatrixTransactionStatementInterface>(REQUEST_QUEUE);
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
@@ -59,17 +59,13 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	public AsynchRelatrixClientTransaction() { }
 	
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix client to a remote server.   A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public AsynchRelatrixClientTransaction(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public AsynchRelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		IndexResolver.setRemoteTransaction((AsynchRelatrixClientTransactionInterface) this);
@@ -81,13 +77,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 		//
 		// send message to spin connection
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		try {
-			workerHandler = new ConnectionHandler(workerSocket);
-			if(DEBUG)
-				System.out.println("Channel created to "+workerHandler);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		workerHandler = new ConnectionHandler(workerSocket);
 		if( DEBUG ) {
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}
@@ -166,10 +156,6 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 		shouldRun = false;
 	}
 	
-	public String getLocalNode() {
-		return bootNode;
-	}
-	
 	public String getRemoteNode() {
 		return remoteNode;
 	}
@@ -186,9 +172,9 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	 * @param rii RelatrixTransactionStatement
 	 * @return The next iterated object or null
 	 */
-	public CompletableFuture<Object> next(RelatrixTransactionStatement rii) throws Exception {
-		rii.methodName = "next";
-		rii.paramArray = new Object[0];
+	public CompletableFuture<Object> next(RelatrixTransactionStatementInterface rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
 	/**
@@ -199,9 +185,9 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	 * @param rii RelatrixTransactionStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public CompletableFuture<Object> hasNext(RelatrixTransactionStatement rii) throws Exception {
-		rii.methodName = "hasNext";
-		rii.paramArray = new Object[0];
+	public CompletableFuture<Object> hasNext(RelatrixTransactionStatementInterface rii) throws Exception {
+		rii.setMethodName("hasNext");
+		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
 
@@ -209,9 +195,9 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(RelatrixTransactionStatement rii) throws Exception {
-		rii.methodName = "close";
-		rii.paramArray = new Object[0];
+	public void close(RelatrixTransactionStatementInterface rii) throws Exception {
+		rii.setMethodName("close");
+		rii.setParamArray(new Object[0]);
 		queueCommand(rii);
 	}
 	
@@ -227,13 +213,13 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		AsynchRelatrixClientTransaction rc = new AsynchRelatrixClientTransaction(args[0],args[1],Integer.parseInt(args[2]));
+		AsynchRelatrixClientTransaction rc = new AsynchRelatrixClientTransaction(args[0],Integer.parseInt(args[1]));
 		TransactionId xid = rc.getTransactionId();
 		RelatrixTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
 				System.out.println("queueing..");
-				CompletableFuture<Iterator> cit = rc.entrySet(xid,Class.forName(args[3]));
+				CompletableFuture<Iterator> cit = rc.entrySet(xid,Class.forName(args[2]));
 				long tim = System.nanoTime();
 				Iterator it = cit.get();
 				System.out.println("Iterator return from future took:"+(System.nanoTime()-tim)+"ns.");
@@ -243,16 +229,16 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatement(args[2],xid,args[3]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

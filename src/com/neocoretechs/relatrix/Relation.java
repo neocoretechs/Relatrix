@@ -140,5 +140,10 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
     public Object clone() throws CloneNotSupportedException {
     	return new Relation(this);
     }
+
+	@Override
+	protected Relation asRelation() {
+		return this;
+	}
     
 }

@@ -79,17 +79,14 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		waitHalt = new Object();
 		waitPayload = new Object();
 		waitSocket = new Object();
-	
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		try {
+		if(workerSocket == null) {
+			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 			workerHandler = new ConnectionHandler(workerSocket);
 			if(DEBUG)
 				System.out.println("Channel created to "+workerHandler);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
+			SynchronizedThreadManager.getInstance().spin(this);
 		}
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
 	@Override
@@ -281,6 +278,16 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 	@Override
 	public TransactionId getTransactionId() {
 		return transactionId;
+	}
+	
+	@Override
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;	
+	}
+
+	@Override
+	public void setParamArray(Object[] params) {
+		this.paramArray = params;	
 	}
 	/**
 	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...

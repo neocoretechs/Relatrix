@@ -31,6 +31,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 
 	public RemoteIndexInstanceTable(ClientInterface rc) throws IOException {
 		this.rc = rc;
+		if(DEBUG)
+			System.out.printf("%s c'tor setting ClientInterface=%s%n", this.getClass().getName(), rc);
 	}	
 
 	/**
@@ -298,6 +300,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 				System.out.printf("%s get for DBKey:%s Setting primary key identity, returning PrimaryKeySet %s for getByIndex%n", this.getClass().getName(), index, o);
 			((PrimaryKeySet)o).setIdentity(index);
 		}
+		if(DEBUG)
+			System.out.printf("%s get for key:%s returning %s%n", this.getClass().getName(), index, o);
 		return o;
 	}
 	/**
@@ -320,6 +324,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			((PrimaryKeySet)o).setIdentity(index);
 			((PrimaryKeySet)o).setAlias(alias);
 		}
+		if(DEBUG)
+			System.out.printf("%s get for key:%s returning %s%n", this.getClass().getName(), index, o);
 		return o;
 	}
 	/**
@@ -342,6 +348,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			((PrimaryKeySet)o).setAlias(alias);
 			((PrimaryKeySet)o).setTransactionId(transactionId);
 		}
+		if(DEBUG)
+			System.out.printf("%s get for key:%s returning %s%n", this.getClass().getName(), index, o);
 		return o;
 	}
 	/**
@@ -363,6 +371,8 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			((PrimaryKeySet)o).setIdentity(index);
 			((PrimaryKeySet)o).setTransactionId(transactionId);
 		}
+		if(DEBUG)
+			System.out.printf("%s get for key:%s returning %s%n", this.getClass().getName(), index, o);
 		return o;
 	}
 	/**

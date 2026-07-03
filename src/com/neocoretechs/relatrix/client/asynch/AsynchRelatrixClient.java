@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -31,12 +31,12 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface, ClientNonTransactionInterface, Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	
 	protected CircularBlockingDeque<RelatrixStatementInterface> queuedRequests = new CircularBlockingDeque<RelatrixStatementInterface>(REQUEST_QUEUE);
-	private String bootNode, remoteNode;
+	private String remoteNode;
 	private int remotePort;
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
@@ -48,28 +48,20 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public AsynchRelatrixClient() { }
 	
 	/**
-	 * Start a Relatrix client to a remote server. Contact the boot time portion of server and queue a CommandPacket to open the desired
-	 * database and get back the master and slave ports of the remote server. The main client thread then
-	 * contacts the server master port, and the remote slave port contacts the master of the client. A WorkerRequestProcessor
+	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public AsynchRelatrixClient(String bootNode, String remoteNode, int remotePort)  throws IOException {
-		this.bootNode = bootNode;
+	public AsynchRelatrixClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
 		// send message to spin connection
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		try {
-			workerHandler = new ConnectionHandler(workerSocket);
-			if(DEBUG)
-				System.out.println("Channel created to "+workerHandler);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		workerHandler = new ConnectionHandler(workerSocket);
+		if(DEBUG)
+			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -87,10 +79,10 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
   	    		if( DEBUG )
-  	    			System.out.println("Asynch FROM Remote, response:"+iori+" remote:"+remoteNode+" slave:"+remotePort);
+  	    			System.out.printf("%s Asynch FROM Remote, response:%s remote:%s slave:%s%n",this.getClass().getName(),iori,remoteNode,String.valueOf(remotePort));
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println("AsynchRelatrixClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    			cf.completeExceptionally((Throwable) o);
   	    		} else {
@@ -102,13 +94,15 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    		// set it with the response object
   	    		rs.setObjectReturn(o);
   	    		// and signal the latch we have finished
+  	    		if( DEBUG )
+  	    			System.out.printf("%s Asynch signaling completion%n",this.getClass().getName());
   	    		rs.signalCompletion(o);
   	    	}
 		} catch(Exception e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
-				System.out.println(this.getClass().getName()+": receive IO error "+e+" remote Node:"+remoteNode+" port:"+remotePort);
+  	    		System.out.printf("%s Asynch exception:%s remote:%s slave:%s%n",this.getClass().getName(),e,remoteNode,String.valueOf(remotePort));
 			}
 		} finally {
 			shutdown();
@@ -144,9 +138,6 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		shouldRun = false;
 	}
 	
-	public String getLocalNode() {
-		return bootNode;
-	}
 	
 	public String getRemoteNode() {
 		return remoteNode;
@@ -163,9 +154,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * @param rii RelatrixTransactionStatement
 	 * @return The next iterated object or null
 	 */
-	public CompletableFuture<Object> next(RelatrixStatement rii) throws Exception {
-		rii.methodName = "next";
-		rii.paramArray = new Object[0];
+	public CompletableFuture<Object> next(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("next");
+		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
 	/**
@@ -175,9 +166,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * @param rii RelatrixTransactionStatement
 	 * @return The boolean result of hasNext on server
 	 */	
-	public CompletableFuture<Object> hasNext(RelatrixStatement rii) throws Exception {
-		rii.methodName = "hasNext";
-		rii.paramArray = new Object[0];
+	public CompletableFuture<Object> hasNext(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("hasNext");
+		rii.setParamArray(new Object[0]);
 		return queueCommand(rii);
 	}
 
@@ -185,9 +176,9 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
-	public void close(RelatrixStatement rii) throws Exception {
-		rii.methodName = "close";
-		rii.paramArray = new Object[0];
+	public void close(RelatrixStatementInterface rii) throws Exception {
+		rii.setMethodName("close");
+		rii.setParamArray(new Object[0]);
 		queueCommand(rii);
 	}
 	
@@ -198,17 +189,17 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 
 	static int i = 0;
 	/**
-	 * Generic call to server localaddr, remote addr, port, server method, arg1 to method, arg2 to method...
-	 * @param args local node, remote server, remote server port, className for entrySet or (method, argument, argument, argument...) 
+	 * Generic call to server remote addr, port, server method, arg1 to method, arg2 to method...
+	 * @param args  remote server, remote server port, className for entrySet or (method, argument, argument, argument...) 
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		AsynchRelatrixClient rc = new AsynchRelatrixClient(args[0],args[1],Integer.parseInt(args[2]));
+		AsynchRelatrixClient rc = new AsynchRelatrixClient(args[0],Integer.parseInt(args[1]));
 		RelatrixStatement rs = null;
 		switch(args.length) {
 			case 4:
 				System.out.println("queueing..");
-				CompletableFuture<Iterator> cit = rc.entrySet(Class.forName(args[3]));
+				CompletableFuture<Iterator> cit = rc.entrySet(Class.forName(args[2]));
 				long tim = System.nanoTime();
 				Iterator<?> it = cit.get();
 				System.out.println("Iterator return from future took:"+(System.nanoTime()-tim)+"ns.");
@@ -218,16 +209,16 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixStatement(args[3],args[4]);
+				rs = new RelatrixStatement(args[2],args[3]);
 				break;
 			case 6:
-				rs = new RelatrixStatement(args[3],args[4],args[5]);
+				rs = new RelatrixStatement(args[2],args[3],args[4]);
 				break;
 			case 7:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6]);
+				rs = new RelatrixStatement(args[2],args[3],args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixStatement(args[3],args[4],args[5],args[6],args[7]);
+				rs = new RelatrixStatement(args[2],args[3],args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
