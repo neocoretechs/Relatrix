@@ -16,7 +16,10 @@ import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
+
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
@@ -73,11 +76,18 @@ public final class RelatrixKVTransaction {
 			if(instance == null) {
 				instance = new RelatrixKVTransaction();
 				classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClientTransaction cntx;
+				try {
+					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository(cntx);
+					IndexResolver.setRemote(cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

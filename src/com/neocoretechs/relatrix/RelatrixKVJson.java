@@ -37,8 +37,10 @@ import com.neocoretechs.rocksack.SerializedComparatorFactory;
 
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-import com.neocoretechs.relatrix.client.ClientInterface;
+
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
+
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -99,11 +101,18 @@ public final class RelatrixKVJson {
 			if(instance == null) {
 				instance = new RelatrixKVJson();
 				classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClient cntx;
+				try {
+					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository(cntx);
+					IndexResolver.setRemote(cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

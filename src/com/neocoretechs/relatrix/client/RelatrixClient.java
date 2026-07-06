@@ -30,7 +30,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixClient(String remoteNode, int remotePort)  throws IOException {
-		Relatrix.getInstance(this);
 		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort);
 	}
 	

@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
+
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode0JsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode1JsonTransaction;
@@ -54,6 +56,7 @@ import com.neocoretechs.relatrix.iterator.json.transaction.FindTailSetMode7JsonT
 import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixEntrysetIteratorJsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixIteratorJsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixKeysetIteratorJsonTransaction;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
@@ -63,10 +66,10 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
 /**
@@ -162,11 +165,18 @@ public final class RelatrixJsonTransaction {
 			if(instance == null) {
 				instance = new RelatrixJsonTransaction();
 				RelatrixKVJsonTransaction.classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClientTransaction cntx;
+				try {
+					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(RelatrixKVJsonTransaction.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKVJsonTransaction.classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository((ClientTransactionInterface)cntx);
+					IndexResolver.setRemote((ClientTransactionInterface)cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

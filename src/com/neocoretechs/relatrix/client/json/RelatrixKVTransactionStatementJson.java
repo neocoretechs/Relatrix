@@ -1,8 +1,8 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
 import java.io.Serializable;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -11,8 +11,12 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
+import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+import com.neocoretechs.relatrix.server.json.RelatrixKVTransactionServerJson;
 
 /**
  * The following class allows the transport of method calls to the server {@link RelatrixKVTransactionServer} using a transaction context.
@@ -21,23 +25,23 @@ import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
  * @author Jonathan Groff (C) NeoCoreTechs 2022
  *
  */
-public class RelatrixKVTransactionStatement extends RelatrixKVStatement implements RelatrixKVTransactionStatementInterface, Serializable {
+public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionStatement implements RelatrixKVTransactionStatementInterface, Serializable {
 	private static final long serialVersionUID = 1452088222610286234L;
 	private static boolean DEBUG = false;
     protected TransactionId xid;
     
-    public RelatrixKVTransactionStatement() {
+    public RelatrixKVTransactionStatementJson() {
     	super();
     	if(DEBUG)
     		System.out.println("Default Constructor:"+this);
     }
     
-	public RelatrixKVTransactionStatement(TransactionId xid, String session) {
+	public RelatrixKVTransactionStatementJson(TransactionId xid, String session) {
 		super(session);
 		this.xid = xid;
 	}
 	
-	public RelatrixKVTransactionStatement(String tmeth, Object ... o1) {
+	public RelatrixKVTransactionStatementJson(String tmeth, Object ... o1) {
 		super(tmeth, o1);
 		if(o1.length > 1) {
 			if(o1[0].getClass().equals(TransactionId.class)) {
@@ -68,7 +72,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
     	return "Xid:"+xid+" "+s;
     }
 	/**
-	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p>
+	 * Call methods of the main RelatrixKVJson class, which will return an instance or an object that is not Serializable.<p>
 	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p>
 	 * In the case if non-Serializable return type of Iterator or Stream, we save it server side and link it to the session for later retrieval.<br>
 	 * We create an intermediary that proxies the functionality back to the server and client, and is Serializable and contains 
@@ -81,7 +85,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
-		Object result = RelatrixKVTransactionServer.relatrixMethods.invokeMethod(this);
+		Object result = RelatrixKVTransactionServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
@@ -106,16 +110,16 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 				signalCompletion(getObjectReturn());
 				return;
 			}
-			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);
+			RelatrixKVTransactionServerJson.sessionToObject.put(getSession(), result);
 			RemoteIteratorClientTransaction ric = null;
 			if(result.getClass() == IteratorWrapper.class) {	
-				ric = new RemoteIteratorClientTransaction(xid, ((InetSocketAddress)RelatrixKVTransactionServer.address).getAddress().getHostName(), 
-							RelatrixKVTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
+				ric = new RemoteIteratorClientTransaction(xid, ((InetSocketAddress)RelatrixKVTransactionServerJson.address).getAddress().getHostName(), 
+							RelatrixKVTransactionServerJson.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"));
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
 			// Link the object instance to session for later method invocation
-			RelatrixKVTransactionServer.sessionToObject.put(ric.getSession(), result);
+			RelatrixKVTransactionServerJson.sessionToObject.put(ric.getSession(), result);
 			setObjectReturn(ric);
 			signalCompletion(ric);
 		} else {

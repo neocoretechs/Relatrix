@@ -12,10 +12,15 @@ import java.util.stream.Stream;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
+
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
+
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -66,11 +71,18 @@ public final class RelatrixKV {
 			if(instance == null) {
 				instance = new RelatrixKV();
 				classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClient cntx;
+				try {
+					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository(cntx);
+					IndexResolver.setRemote(cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

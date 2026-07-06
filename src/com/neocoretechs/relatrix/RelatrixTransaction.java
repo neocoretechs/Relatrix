@@ -15,8 +15,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
+
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode0Transaction;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode1Transaction;
@@ -53,19 +54,24 @@ import com.neocoretechs.relatrix.iterator.transaction.FindTailSetMode7Transactio
 import com.neocoretechs.relatrix.iterator.transaction.RelatrixEntrysetIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.transaction.RelatrixIteratorTransaction;
 import com.neocoretechs.relatrix.iterator.transaction.RelatrixKeysetIteratorTransaction;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
+
 import com.neocoretechs.relatrix.stream.RelatrixStream;
+
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
-
 
 /**
 * Top-level class that imparts behavior to the AbstractRelation subclasses which contain references for domain, map, range.<p>
@@ -87,7 +93,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * the requirement to be 'categorical'.<p>
 * In general, all Streams or '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
-* since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p/>
+* since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p>
 * A given domain run through a 'map function' always yields the same range, 
 * as any function that processes an element yields one consistent result.<p>
 * Some of this work is based on a DBMS described by Alfonso F. Cardenas and Dennis McLeod (1990). Research Foundations 
@@ -160,11 +166,18 @@ public final class RelatrixTransaction {
 			if(instance == null) {
 				instance = new RelatrixTransaction();
 				RelatrixKVTransaction.classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClientTransaction cntx;
+				try {
+					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(RelatrixKVTransaction.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKVTransaction.classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository(cntx);
+					IndexResolver.setRemote(cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
+
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode0;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode1;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode2;
@@ -52,12 +54,15 @@ import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
+
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
@@ -162,11 +167,18 @@ public final class Relatrix {
 			if(instance == null) {
 				instance = new Relatrix();
 				RelatrixKV.classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClient cntx;
+				try {
+					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(RelatrixKV.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKV.classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository(cntx);
+					IndexResolver.setRemote(cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

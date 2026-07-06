@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.IOException;
 
@@ -9,7 +9,9 @@ import java.util.concurrent.CompletableFuture;
 import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
-
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
 
 /**
@@ -21,13 +23,13 @@ import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
-public class RelatrixClientTransaction extends RelatrixClientTransactionInterfaceImpl {
+public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTransactionImpl {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	private Object mutex = new Object();
 	private AsynchRelatrixClientTransaction asynchClient;
 	
-	public RelatrixClientTransaction() { }
+	public RelatrixClientJsonTransaction() { }
 	
 	/**
 	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
@@ -36,12 +38,12 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
-		RelatrixTransaction.getInstance(this);
+	public RelatrixClientJsonTransaction(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixClientTransaction(remoteNode, remotePort);	
 	}
+	
 	@Override
-	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
+	public Object sendCommand(RelatrixTransactionStatementInterface s) throws Exception {
 		synchronized(mutex) {
 		if(DEBUG)
 			System.out.printf("%s.sendCommand statement=%s%n", this.getClass().getName(), s);
@@ -62,7 +64,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	public Object next(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("next");
 		rii.setParamArray(new Object[0]);
-		return sendCommand(rii);
+		return sendCommand((RelatrixTransactionStatementInterface) rii);
 	}
 
 	/**
@@ -75,13 +77,13 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	public boolean hasNext(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("hasNext");
 		rii.setParamArray(new Object[0]);
-		return (boolean) sendCommand(rii);
+		return (boolean) sendCommand((RelatrixTransactionStatementInterface) rii);
 	}
 
 	public void close(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("next");
 		rii.setParamArray(new Object[0]);
-		sendCommand(rii);
+		sendCommand((RelatrixTransactionStatementInterface) rii);
 	}
 	
 	static int i = 0;
@@ -91,12 +93,12 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixClientTransaction rc = new RelatrixClientTransaction(args[0],Integer.parseInt(args[1]));
+		RelatrixClientJsonTransaction rc = new RelatrixClientJsonTransaction(args[0],Integer.parseInt(args[1]));
 		TransactionId xid = rc.getTransactionId();
 		RelatrixTransactionStatement rs = null;
 		switch(args.length) {
 			case 4:
-				Iterator it = rc.entrySet(xid,Class.forName(args[2]));
+				Iterator it = null;//rc.entrySet(xid,Class.forName(args[2]));
 				it.forEachRemaining(e ->{	
 					System.out.println(++i+"="+((Map.Entry)(e)).getKey()+" / "+((Map.Entry)(e)).getValue());
 				});
@@ -119,7 +121,7 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 				return;
 		}
 		System.out.println(rc.sendCommand(rs));
-		rc.endTransaction(xid);
+		//rc.endTransaction(xid);
 		rc.close(rs);
 	}
 

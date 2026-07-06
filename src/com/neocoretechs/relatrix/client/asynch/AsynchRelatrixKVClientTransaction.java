@@ -13,15 +13,17 @@ import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
+
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
+
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
-
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -30,9 +32,9 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
  * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
  * which is the {@link RelatrixTransactionServerJson}. this client has a worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.<p/>
+ * The client thread initiates with a CommandPacketInterface.<p>
  *
- * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
+ * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
@@ -64,7 +66,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 	public AsynchRelatrixKVClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemoteTransaction((AsynchRelatrixClientTransactionInterface) this);
+		RelatrixKVTransaction.getInstance(this);
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		workerHandler = new ConnectionHandler(workerSocket);
 		if(DEBUG)

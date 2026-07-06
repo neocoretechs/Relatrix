@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
 import java.io.Serializable;
@@ -6,24 +6,26 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import com.neocoretechs.rocksack.TransactionId;
-
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
- * The following class extends {@link RelatrixStatement} and allows the transport of transaction method calls to the server {@link RelatrixTransactionServer} and
+ * The following class extends {@link RelatrixStatementJson} and allows the transport of transaction method calls to the server {@link RelatrixTransactionServerJson} and
  * contains the main process method to invoke the reflected methods marked with the {@link com.neocoretechs.relatrix.server.ServerMethod} annotation.
  * The process method calls setObjectReturn with the result of the invoked method, and in the case of an Iterator,
  *  to install a persistent Iterator to receive calls to deliver iterated objects.
  * @author Jonathan Groff (C) NeoCoreTechs 2021,2022
  *
  */
-public class RelatrixTransactionStatement extends RelatrixStatement implements RelatrixTransactionStatementInterface, Serializable {
+public class RelatrixTransactionStatementJson extends RelatrixStatementJson implements RelatrixTransactionStatementInterface, Serializable {
 	private static final long serialVersionUID = -503217108835099285L;
 	private static boolean DEBUG = false;
 	private TransactionId transactionId;
     
-    public RelatrixTransactionStatement() {
+    public RelatrixTransactionStatementJson() {
     	super();
     }
     
@@ -37,7 +39,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
     	this.setObjectReturn(rts.getObjectReturn());
     }
     */
-    public RelatrixTransactionStatement(String tmeth, Object ... o1) {
+    public RelatrixTransactionStatementJson(String tmeth, Object ... o1) {
     	super(tmeth, o1);
     	if(o1.length > 1) {
 			if(o1[0].getClass().equals(TransactionId.class)) {
@@ -54,7 +56,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 		}
     }
     
-	public RelatrixTransactionStatement(TransactionId transactionId, String session) {
+	public RelatrixTransactionStatementJson(TransactionId transactionId, String session) {
 		super(session);
 		this.transactionId = transactionId;
 	}
@@ -73,7 +75,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 		if(DEBUG)
 			System.out.println(this);
 		unpackParamArray();
-		Object result = RelatrixTransactionServer.relatrixMethods.invokeMethod(this);
+		Object result = RelatrixTransactionServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
@@ -91,14 +93,14 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			// put it in the array and send our intermediary back
 			RemoteIteratorClientTransaction ric = null;
 			for(int ic = 0; ic < RelatrixTransactionServer.iteratorServerClasses.length; ic++) {
-				if(result.getClass() == RelatrixTransactionServer.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), RelatrixTransactionServer.iteratorPorts[ic]);
+				if(result.getClass() == RelatrixTransactionServerJson.iteratorServerClasses[ic]) {	
+					ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServerJson.address).getAddress().getHostName(), RelatrixTransactionServerJson.iteratorPorts[ic]);
 					break;
 				}
 			}
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-			RelatrixTransactionServer.sessionToObject.put(ric.getSession(), result);
+			RelatrixTransactionServerJson.sessionToObject.put(ric.getSession(), result);
 			setObjectReturn(ric);
 			signalCompletion(ric);
 		} else {

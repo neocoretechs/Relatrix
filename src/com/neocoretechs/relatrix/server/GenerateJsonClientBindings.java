@@ -31,17 +31,17 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * local object is null, a static method is assumed. These requests come in the form of an encapsulated {@link RemoteRequestInterface}.<p>
  * Of course, the hardcoded params are specific to the Relatrix package, but can be changed to any code that uses the ServerInvokeMethod
  * reflection paradigm.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2026
  *
  */
-public class GenerateClientBindings {
-	public static String outputClass = "RelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
+public class GenerateJsonClientBindings {
+	public static String outputClass = "RelatrixClientInterfaceJson"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
 	public static String extend = "ClientNonTransactionInterface"; // extends this interface
-	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
+	public static String inputClass = "com.neocoretechs.relatrix.RelatrixJson"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
-	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
+	public static String statement = "RelatrixStatementJson"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
 	public static String command = "sendCommand"; // method used for wire transport in the client that extends generated bindings, will be abstract method: public abstract Object
-	public static String packageDecl = "com.neocoretechs.relatrix.client"; // fully qualified name to be formed into package decl
+	public static String packageDecl = "com.neocoretechs.relatrix.client.json"; // fully qualified name to be formed into package decl
 	public static String[] imports = new String[] {	// prime this with best guess, system will fill in required fully qualified class names for import
 		"java.io.IOException",
 		"java.util.Iterator",
@@ -54,15 +54,15 @@ public class GenerateClientBindings {
 	public static boolean exceptionOverride = false;
 	public static String simplifiedException = "java.io.IOException";
 	
-	public GenerateClientBindings() {}
+	public GenerateJsonClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
 		if(args.length > 0 && args[0].equals("--help")) {
-			System.out.println("java com.neocoretechs.relatrix.server.GenerateClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatement queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch com.neocoretechs.relatrix.client.ClientTransactionInterface");
+			System.out.println("java com.neocoretechs.relatrix.server.GenerateJsonClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatement queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch com.neocoretechs.relatrix.client.ClientTransactionInterface");
 			System.exit(0);
 		}
 		if(args.length < 1 || args.length > 8)
-			throw new Exception("usage: java --help or GenerateClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl] [extends interface]");
+			throw new Exception("usage: java --help  or GenerateJsonClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl] [extends interface]");
 		if(!args[0].equals("false")) {
 			exceptionOverride = true;
 			simplifiedException = args[0];
@@ -111,7 +111,7 @@ public class GenerateClientBindings {
 		// statement and command are passed from command line
 		FileOutputStream fos = new FileOutputStream(outputClass+"Impl.java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateClientBindings ");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateJsonClientBindings ");
 		outStream.writeBytes((new Date()).toString());
 		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");
@@ -316,7 +316,7 @@ public class GenerateClientBindings {
 		//}
 		FileOutputStream fos = new FileOutputStream(outputClass+".java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateClientBindings ");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateJsonClientBindings ");
 		outStream.writeBytes((new Date()).toString());
 		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");

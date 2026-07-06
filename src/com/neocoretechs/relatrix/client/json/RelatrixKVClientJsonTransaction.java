@@ -1,26 +1,19 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.json;
 
 import java.io.IOException;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
+import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
+import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
-
-/**
- * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixKVTransactionServer}
- * Worker threads located on a remote node.<p/>
- * 
- * In the current context, this client node functions as 'master' to the remote 'worker' or 'slave' node
- * which is on the RelatrixKVTransactionServer that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
- */
-public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInterfaceImpl {
+public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJsonTransactionImpl{
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	private Object mutex = new Object();
@@ -33,7 +26,7 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RelatrixKVClientTransaction(String remoteNode, int remotePort)  throws IOException {
+	public RelatrixKVClientJsonTransaction(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixKVClientTransaction(remoteNode, remotePort);
 	}
 
@@ -49,6 +42,34 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 		}
 	}
 	@Override
+	public Object get(TransactionId transactionId, Comparable instance) throws IOException {
+		return asynchClient.get(transactionId, instance);
+	}
+
+	@Override
+	public Object get(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
+		return asynchClient.get(alias, transactionId, instance);
+	}
+
+	@Override
+	public Object getByIndex(Alias alias, TransactionId transactionId, Comparable index) throws IOException {
+		return asynchClient.getByIndex(transactionId, index);
+	}
+
+	@Override
+	public Object getByIndex(TransactionId transactionId, Comparable index) throws IOException {
+		return asynchClient.getByIndex(transactionId, index);
+	}
+
+	@Override
+	public void remove(TransactionId transactionId, Comparable instance) throws IOException {
+		asynchClient.remove(transactionId, instance);
+	}
+	@Override
+	public void remove(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
+		asynchClient.remove(alias, transactionId, instance);
+	}
+	@Override
 	public void storekv(TransactionId xid, Comparable index, Object instance) throws IOException {
 		asynchClient.storekv(xid, index, instance);	
 	}
@@ -56,30 +77,23 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	public void storekv(Alias alias, TransactionId xid, Comparable index, Object instance) throws IOException {
 		asynchClient.storekv(alias, xid, index, instance);;
 	}
-	@Override
-	public Object getByIndex(TransactionId xid, Comparable index) throws IOException {
-		return asynchClient.getByIndex(xid, index);
+	
+	public Object getByIndex(TransactionId xid, Object index) throws IOException {
+		return asynchClient.getByIndex(xid, (Comparable) index);
+	}
+
+	public Object getByIndex(Alias alias, TransactionId xid, Object index) throws IOException {
+		return asynchClient.getByIndex(alias, xid, (Comparable) index);
 	}
 	@Override
-	public Object getByIndex(Alias alias, TransactionId xid, Comparable index) throws IOException {
-		return asynchClient.getByIndex(alias, xid, index);
+	public Object get(TransactionId xid, Object instance) throws IOException {
+		return asynchClient.get(xid, (Comparable) instance);
 	}
 	@Override
-	public Object get(TransactionId xid, Comparable instance) throws IOException {
-		return asynchClient.get(xid, instance);
+	public Object get(Alias alias, TransactionId xid, Object instance) throws IOException {
+		return asynchClient.get(alias, xid, (Comparable)instance);
 	}
-	@Override
-	public Object get(Alias alias, TransactionId xid, Comparable instance) throws IOException {
-		return asynchClient.get(alias, xid, instance);
-	}
-	@Override
-	public void remove(TransactionId xid, Comparable instance) throws IOException {
-		asynchClient.remove(xid, instance);
-	}
-	@Override
-	public void remove(Alias alias, TransactionId xid, Comparable instance) throws IOException {
-		asynchClient.remove(alias, xid, instance);
-	}
+
 	public void close() throws IOException {
 		asynchClient.close();
 	}

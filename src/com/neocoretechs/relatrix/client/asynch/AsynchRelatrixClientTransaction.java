@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.client.asynch;
 
 import java.io.IOException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -13,17 +12,16 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.rocksack.TransactionId;
+
+import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
-
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -34,9 +32,9 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * is opened or the context of an open DB is passed back, and the client is handed the addresses of the master 
  * and slave ports that correspond to the sockets that the server thread uses to service the traffic
  * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.<p/>
+ * The client thread initiates with a CommandPacketInterface.<p>
  *
- * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
+ * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
  * The {@link RelatrixTransactionStatement} contains the transaction Id.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
@@ -68,7 +66,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	public AsynchRelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		IndexResolver.setRemoteTransaction((AsynchRelatrixClientTransactionInterface) this);
+		RelatrixTransaction.getInstance(this);
 		if( DEBUG ) {
 			System.out.printf("%s constructed with remote Node:%s remotePort:%s %n",this.getClass().getName(),remoteNode,remotePort);
 		}

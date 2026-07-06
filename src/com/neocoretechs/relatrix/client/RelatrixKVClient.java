@@ -44,10 +44,9 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
 	 * @throws IOException
 	 */
 	public RelatrixKVClient(String remoteNode, int remotePort)  throws IOException {
-		RelatrixKV.getInstance(this);
 		asynchClient = new AsynchRelatrixKVClient(remoteNode, remotePort);
 	}
-	
+
 	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		synchronized(mutex) {

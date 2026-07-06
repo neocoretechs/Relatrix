@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
@@ -57,6 +58,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public AsynchRelatrixClient(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
+		Relatrix.getInstance(this);
 		// send message to spin connection
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		workerHandler = new ConnectionHandler(workerSocket);

@@ -19,7 +19,7 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
  * Server-side socket accept connection handler
  */
 public class ConnectionHandler {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	protected SocketChannel channel;
 	private Object mutexWrite = new Object();
 	private Object mutexRead = new Object();

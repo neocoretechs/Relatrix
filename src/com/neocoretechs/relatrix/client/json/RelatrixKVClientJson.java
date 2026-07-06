@@ -2,27 +2,14 @@ package com.neocoretechs.relatrix.client.json;
 
 import java.io.IOException;
 
-import java.net.InetSocketAddress;
-
-import java.nio.channels.SocketChannel;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKVJson;
-import com.neocoretechs.relatrix.client.ClientInterface;
-import com.neocoretechs.relatrix.client.ConnectionHandler;
+
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
-import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
-import com.neocoretechs.relatrix.client.RemoteRequestInterface;
-import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -37,6 +24,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
 	AsynchRelatrixKVClient asynchClient;
+
 	/**
 	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
@@ -45,7 +33,6 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
-		RelatrixKVJson.getInstance(this);
 		asynchClient = new AsynchRelatrixKVClient(remoteNode, remotePort);
 	}
 
@@ -54,7 +41,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
 		return cf.get();
 	}
-
+	
 	/**
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of

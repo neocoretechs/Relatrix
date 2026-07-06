@@ -1,0 +1,1 @@
+generateclientbindingsjson java.io.IOException com.neocoretechs.relatrix.RelatrixKVJsonTransaction RelatrixKVClientInterfaceJsonTransaction RelatrixKVTransactionStatementJson

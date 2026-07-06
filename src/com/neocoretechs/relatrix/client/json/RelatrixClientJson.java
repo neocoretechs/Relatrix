@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import com.neocoretechs.relatrix.RelatrixJson;
-
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 
@@ -32,9 +30,9 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixClientJson(String remoteNode, int remotePort)  throws IOException {
-		RelatrixJson.getInstance(this);
 		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort);
 	}
+
 	/**
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of

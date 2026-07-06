@@ -20,6 +20,8 @@ import java.util.stream.Stream;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
+
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode0Json;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode1Json;
@@ -172,11 +174,18 @@ public final class RelatrixJson {
 			if(instance == null) {
 				instance = new RelatrixJson();
 				RelatrixKVJson.classLoader = new HandlerClassLoader();
+				AsynchRelatrixKVClient cntx;
+				try {
+					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				}
 				Thread.currentThread().setContextClassLoader(RelatrixKVJson.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKVJson.classLoader);
 				try {
-					HandlerClassLoader.connectToRemoteRepository(cnti);
-					IndexResolver.setRemote(cnti);
+					HandlerClassLoader.connectToRemoteRepository(cntx);
+					IndexResolver.setRemote(cntx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

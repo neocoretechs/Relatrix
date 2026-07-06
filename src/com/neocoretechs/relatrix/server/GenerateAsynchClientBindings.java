@@ -89,8 +89,12 @@ public class GenerateAsynchClientBindings {
 	public GenerateAsynchClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
+		if(args.length > 0 && args[0].equals("--help")) {
+			System.out.println("java com.neocoretechs.relatrix.server.GenerateAsynchClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatement queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch com.neocoretechs.relatrix.client.ClientTransactionInterface");
+			System.exit(0);
+		}
 		if(args.length < 1 || args.length > 8)
-			throw new Exception("usage: java GenerateAsynchClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl] [extends interface]");
+			throw new Exception("usage: java --help or GenerateAsynchClientBindings <simplified exception name or false> [fully qualified input class name] [output interface/class and file names] [statement transport method name] [transport command method name] [transport command parameter statement superclass] [package decl] [extends interface]");
 		if(!args[0].equals("false")) {
 			try {
 				Class c = Class.forName(args[0]);
