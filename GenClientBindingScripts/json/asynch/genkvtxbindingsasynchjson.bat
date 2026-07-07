@@ -1,0 +1,1 @@
+generateclientbindingsasynchjson java.io.IOException com.neocoretechs.relatrix.RelatrixKVJsonTransaction AsynchRelatrixKVClientTransactionInterfaceJson RelatrixKVTransactionStatementJson queueCommand com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface com.neocoretechs.relatrix.client.asynch.json  com.neocoretechs.relatrix.client.ClientTransactionInterface  
