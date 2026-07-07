@@ -36,7 +36,7 @@ import com.neocoretechs.rocksack.Alias;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl implements AsynchRelatrixKVClientInterface, ClientNonTransactionInterface, Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	
@@ -78,16 +78,22 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	public void run() {
   	    try {
   	    	while(shouldRun ) {
+  	    		if( DEBUG )
+  	    			System.out.printf("%s wait for queue in %s%n",this.getClass().getName(),this);
   	    		RelatrixStatementInterface rs = queuedRequests.takeFirstNotify();
+  	    		if( DEBUG )
+  	    			System.out.printf("%s %s queue take %s%n",this.getClass().getName(),this,rs);
   	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
+	    		if( DEBUG )
+  	    			System.out.printf("%s %s send using %s%n",this.getClass().getName(),this,workerHandler);
   	    		workerHandler.sendObject(rs);
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
-  	    		// get the original request from the stored table
   	    		if( DEBUG )
-  	    			System.out.println("Asynch FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
+  	    			System.out.printf("%s %s got response %s%n",this.getClass().getName(),this,iori);
+  	    		// get the original request from the stored table
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println("AsynchRelatrixKVClient: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    			cf.completeExceptionally((Throwable) o);
   	    		} else {
@@ -99,6 +105,9 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
   	    		// set it with the response object
   	    		rs.setObjectReturn(o);
   	    		// and signal the latch we have finished
+	    		if( DEBUG )
+  	    			System.out.printf("%s %s signal completion %s%n",this.getClass().getName(),this,o);
+  	    		// get the original request from the stored table
   	    		rs.signalCompletion(o);
   	    	}
 		} catch(Exception e) {
@@ -152,7 +161,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	 * Called from the {@link RemoteIterator} for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
 	 * object the value is transferred
-	 * @param rii RelatrixTransactionStatement
+	 * @param rii RelatrixKVStatementJson
 	 * @return The next iterated object or null
 	 */
 	public CompletableFuture<Object> next(RelatrixStatementInterface rii) throws Exception {
@@ -204,7 +213,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	
 	@Override
 	public String toString() {
-		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s%n",this.getClass().getName(), remoteNode, remotePort, workerSocket);
+		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s queue:%d%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, queuedRequests.length());
 	}
 	/**
 	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 

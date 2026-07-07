@@ -91,7 +91,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
   	    			System.out.println("Asynch FROM Remote, response:"+iori+" remote Node:"+remoteNode+" slave:"+remotePort);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println("AsynchRelatrixKVClientTransaction: ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    			cf.completeExceptionally((Throwable) o);
   	    		} else {

@@ -17,6 +17,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
+
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.TransportMorphism;
@@ -25,10 +26,10 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorClient;
+
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
-import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
-import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
+
 
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
@@ -77,6 +78,8 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 				jo1[i] = ws.item;
 				paramTypes[i] = ws.item.getClass().getName();
 	 			params[i] = ws.item.getClass();
+				if(DEBUG)
+					System.out.printf("%s c'tor setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, jo1[i], paramTypes[i], params[i]);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -111,8 +114,23 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
     @Override
 	public synchronized Object[] getParamArray() { return paramArray; }
     
-    public synchronized void setParamArray(Object[] params) {
-    	this.paramArray = params;
+    public synchronized void setParamArray(Object[] o1) {
+    	Object[] jo1 = new Object[o1.length];
+    	this.paramTypes = new String[o1.length];
+    	this.params = new Class<?>[o1.length];
+    	for(int i = 0; i < o1.length; i++) {
+    		try {
+    			RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o1[i]);
+    			jo1[i] = ws.item;
+    			paramTypes[i] = ws.item.getClass().getName();
+    			params[i] = ws.item.getClass();
+				if(DEBUG)
+					System.out.printf("%s.setParamArray setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, jo1[i], paramTypes[i], params[i]);
+    		} catch (IllegalAccessException | IOException e) {
+    			throw new RuntimeException(e);
+    		}
+    	}
+    	this.paramArray = jo1;
     }
 
     /**
@@ -163,12 +181,25 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
-		if(o instanceof AbstractRelation) {
-			objectReturn = TransportMorphism.createTransport((Relation) o);
+		Comparable<?> jo1;
+		String paramType;
+		Class<?> params;
+    		try {
+    			RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o);
+    			jo1 = ws.item;
+    			paramType = ws.item.getClass().getName();
+    			params = ws.item.getClass();
+				if(DEBUG)
+					System.out.printf("%s c'tor setting object return item:%s type:%s class:%s%n", this.getClass().getName(), jo1, paramTypes, params);
+    		} catch (IllegalAccessException | IOException e) {
+    			throw new RuntimeException(e);
+    		}
+		if(jo1 instanceof AbstractRelation) {
+			objectReturn = TransportMorphism.createTransport((Relation) jo1);
 		} else {
-			if(o instanceof TransportMorphismInterface)
-				((TransportMorphismInterface)o).packForTransport();
-			objectReturn = o;
+			if(jo1 instanceof TransportMorphismInterface)
+				((TransportMorphismInterface)jo1).packForTransport();
+			objectReturn = jo1;
 		}
 		if(DEBUG)
 			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), objectReturn);

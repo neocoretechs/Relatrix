@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.MethodNamesAndParams;
-import com.neocoretechs.relatrix.client.RemoteRequestInterface;
 
 /**
  * Call with args: classname, output interface name, statement and transport method names,and desired package declaration.<p>
  * This is an adjunct to the {@link ServerInvokeMethod} class that generates the server side callable method bindings
- * for a given class, such that a remote client side transport can invoke those methods and receive returned responses asynchronously.<p>
+ * for a given class, such that a remote client side transport can invoke those methods and receive returned Json responses asynchronously.<p>
  * The methods will specified via the {@link ServerMethod} annotation in the server-side source class.<p>
  * Combinations of these tools simplifies the process of building and maintaining 2 tier client/server models from existing
  * class files.<p>
@@ -27,18 +26,18 @@ import com.neocoretechs.relatrix.client.RemoteRequestInterface;
  * local object is null, a static method is assumed. These requests come in the form of an encapsulated {@link RemoteRequestInterface}.<p>
  * Of course, the hardcoded params are specific to the Relatrix package, but can be changed to any code that uses the ServerInvokeMethod
  * reflection paradigm.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2026
  *
  */
-public class GenerateAsynchClientBindings {
+public class GenerateJsonAsynchClientBindings {
 	private static boolean DEBUG = true;
-	public static String outputClass = "AsynchRelatrixClientInterface"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
+	public static String outputClass = "AsynchRelatrixClientInterfaceJson"; //RelatrixClientTransactionInterface (will add Impl to class in code processing)
 	public static String extend = "com.neocoretechs.relatrix.client.ClientNonTransactionInterface"; // extends this interface
-	public static String inputClass = "com.neocoretechs.relatrix.Relatrix"; //com.neocoretechs.relatrix.RelatrixTransaction
+	public static String inputClass = "com.neocoretechs.relatrix.RelatrixJson"; //com.neocoretechs.relatrix.RelatrixTransaction
 	public static String statementInterface = "RelatrixStatementInterface"; //parameter of sendCommand abstract declaration, superclass of all statement that provides encapsulated method and parameter container class
-	public static String statement = "RelatrixStatement"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
+	public static String statement = "RelatrixStatementJson"; //parameter of sendCommand concrete instance, statement that provides encapsulated method and parameter container class
 	public static String command = "queueCommand"; // method used for wire transport in the client that extends generated bindings, will be abstract method: public abstract Object
-	public static String packageDecl = "com.neocoretechs.relatrix.client.asynch"; // fully qualified name to be formed into package decl
+	public static String packageDecl = "com.neocoretechs.relatrix.client.asynch.json"; // fully qualified name to be formed into package decl
 	public static String[] imports = new String[] {	// prime this with best guess, system will fill in required fully qualified class names for import
 		"java.io.IOException",
 		"java.util.Iterator",
@@ -49,7 +48,7 @@ public class GenerateAsynchClientBindings {
 		"java.util.concurrent.CompletionException",
 		"com.neocoretechs.rocksack.Alias",
 		"com.neocoretechs.rocksack.TransactionId",
-		"com.neocoretechs.relatrix.client.*"
+		"com.neocoretechs.relatrix.client.json.*"
 	};
 	// append to return [command] for stream type
 	public static String streamDecl = ".thenApply(result -> {\r\n"
@@ -86,11 +85,11 @@ public class GenerateAsynchClientBindings {
 	// with an object rather than CompletableFuture
 	private static MethodNamesAndParams excludedMethods = null;
 
-	public GenerateAsynchClientBindings() {}
+	public GenerateJsonAsynchClientBindings() {}
 	
 	public static void main(String[] args) throws Exception {
 		if(args.length > 0 && args[0].equals("--help")) {
-			System.out.println("java com.neocoretechs.relatrix.server.GenerateAsynchClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixTransaction AsynchRelatrixClientTransactionInterface RelatrixTransactionStatement queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch com.neocoretechs.relatrix.client.ClientTransactionInterface");
+			System.out.println("java com.neocoretechs.relatrix.server.GenerateAsynchJsonClientBindings java.io.IOException com.neocoretechs.relatrix.RelatrixJsonTransaction AsynchRelatrixClientTransactionInterfaceJson RelatrixTransactionStatementJson queueCommand RelatrixTransactionStatementInterface com.neocoretechs.relatrix.client.asynch.json com.neocoretechs.relatrix.client.ClientTransactionInterface");
 			System.exit(0);
 		}
 		if(args.length < 1 || args.length > 8)
@@ -142,7 +141,7 @@ public class GenerateAsynchClientBindings {
 		// statement and command are passed from command line
 		FileOutputStream fos = new FileOutputStream(outputClass+"Impl.java");
 		DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(fos));
-		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateAsynchClientBindings ");
+		outStream.writeBytes("// auto generated from com.neocoretechs.relatrix.server.GenerateJsonAsynchClientBindings ");
 		outStream.writeBytes((new Date()).toString());
 		outStream.writeBytes("\r\n");
 		outStream.writeBytes("package ");
