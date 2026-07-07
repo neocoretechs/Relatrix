@@ -39,10 +39,10 @@ import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
-
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
@@ -101,9 +101,9 @@ public final class RelatrixKVJson {
 			if(instance == null) {
 				instance = new RelatrixKVJson();
 				classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClient cntx;
+				AsynchRelatrixKVClientJson cntx;
 				try {
-					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
+					cntx = new AsynchRelatrixKVClientJson(((AsynchRelatrixKVClientJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientJson)cnti).getRemotePort());
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
