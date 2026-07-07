@@ -5,29 +5,33 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientTransactionJson;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-
+/**
+ * Extends the generated bindings to the client side KV Json API. Performs comms through an encapsulated {@link AsynchRelatrixKVClientTransaction}.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2026
+ */
 public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJsonTransactionImpl{
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	private Object mutex = new Object();
-	private AsynchRelatrixKVClientTransaction asynchClient;
+	private AsynchRelatrixKVClientTransactionJson asynchClient;
 
 	/**
-	 * Start a Relatrix client to a remote server.  A WorkerRequestProcessor
-	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
+	 * Start a Relatrix client to a remote server.  A {@link AsynchRelatrixKVClientTransaction}
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
 	public RelatrixKVClientJsonTransaction(String remoteNode, int remotePort)  throws IOException {
-		asynchClient = new AsynchRelatrixKVClientTransaction(remoteNode, remotePort);
+		asynchClient = new AsynchRelatrixKVClientTransactionJson(remoteNode, remotePort);
 	}
 
 	@Override
@@ -104,16 +108,16 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 	 * <dd>Displays entry set stream of class from database running on addr and port
 	 * <dd>case 5-8:
 	 * <dd>Call to server method: remote addr, port, server_method <arg1> <arg2> ... 
-	 * <dd>Invokes named method on the server at host and port using the given string arguments.<p/>
+	 * <dd>Invokes named method on the server at host and port using the given string arguments.<p>
 	 * Note that method must accept the number of string arguments provided, such as loadClassFromJar <jar>
-	 * and loadClassFromPath <package> <path> and removePackageFromRepository <package>.<p/>
+	 * and loadClassFromPath <package> <path> and removePackageFromRepository <package>.<p>
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		RelatrixKVTransactionStatement rs = null;//new RelatrixKVStatement("toString",(Object[])null);
+		RelatrixKVTransactionStatementJson rs = null;//new RelatrixKVStatement("toString",(Object[])null);
 		i = 0;
-		RelatrixKVClientTransaction rc = new RelatrixKVClientTransaction(args[0],Integer.parseInt(args[1]));
+		RelatrixKVClientJsonTransaction rc = new RelatrixKVClientJsonTransaction(args[0],Integer.parseInt(args[1]));
 		TransactionId xid = null;
 		switch(args.length) {
 			case 4:
@@ -131,16 +135,16 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 				rc.endTransaction(xid);
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVTransactionStatement(args[2],xid,args[3]);
+				rs = new RelatrixKVTransactionStatementJson(args[2],xid,args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVTransactionStatement(args[2],args[3],xid,args[4]);
+				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVTransactionStatement(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVTransactionStatement(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

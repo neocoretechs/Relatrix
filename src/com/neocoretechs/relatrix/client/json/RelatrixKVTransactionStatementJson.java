@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
+import java.io.IOException;
 import java.io.Serializable;
 
 import java.net.InetSocketAddress;
@@ -11,6 +12,8 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.RelatrixKVJson;
+import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorClientTransaction;
@@ -56,16 +59,45 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 					this.xid = (TransactionId) o1[0];
 			}
 		}
+		Object[] jo1 = new Object[o1.length];
+		this.paramTypes = new String[o1.length];
+		this.params = new Class<?>[o1.length];
+		for(int i = 0; i < o1.length; i++) {
+			try {
+				RelatrixKVJsonTransaction.WorkingSet ws = RelatrixKVJsonTransaction.getWorkingSet(this.xid,o1[i]);
+				jo1[i] = ws.item;
+				paramTypes[i] = ws.item.getClass().getName();
+				params[i] = ws.item.getClass();
+				if(DEBUG)
+					System.out.printf("%s c'tor setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, jo1[i], paramTypes[i], params[i]);
+			} catch (IllegalAccessException | IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		this.paramArray = jo1;
 	}
 
-	public TransactionId getTransactionId() {
-    	return xid;
-    }
-	
-	public void setTransactionId(TransactionId transactionId) {
-		this.xid = transactionId;
-	}
-	
+
+	@Override
+	   public synchronized void setParamArray(Object[] o1) {
+	    	Object[] jo1 = new Object[o1.length];
+	    	this.paramTypes = new String[o1.length];
+	    	this.params = new Class<?>[o1.length];
+	    	for(int i = 0; i < o1.length; i++) {
+	    		try {
+	    			RelatrixKVJsonTransaction.WorkingSet ws = RelatrixKVJsonTransaction.getWorkingSet(xid,o1[i]);
+	    			jo1[i] = ws.item;
+	    			paramTypes[i] = ws.item.getClass().getName();
+	    			params[i] = ws.item.getClass();
+					if(DEBUG)
+						System.out.printf("%s.setParamArray setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, jo1[i], paramTypes[i], params[i]);
+	    		} catch (IllegalAccessException | IOException e) {
+	    			throw new RuntimeException(e);
+	    		}
+	    	}
+	    	this.paramArray = jo1;
+	    }
+	   
     @Override
     public synchronized String toString() { 
     	String s = super.toString();
@@ -73,7 +105,7 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
     }
 	/**
 	 * Call methods of the main RelatrixKVJson class, which will return an instance or an object that is not Serializable.<p>
-	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p>
+	 * RealtrixKVTransaction invokes to original retrieval or storage method, possibly returning an iterator or stream.<p>
 	 * In the case if non-Serializable return type of Iterator or Stream, we save it server side and link it to the session for later retrieval.<br>
 	 * We create an intermediary that proxies the functionality back to the server and client, and is Serializable and contains 
 	 * the necessary infrastructure to encapsulate the iterator or stream.<p>

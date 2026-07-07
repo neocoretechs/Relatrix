@@ -11,7 +11,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CompletionException;
 
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteStream;

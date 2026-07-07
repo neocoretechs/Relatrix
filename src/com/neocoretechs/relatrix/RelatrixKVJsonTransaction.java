@@ -32,6 +32,7 @@ import com.neocoretechs.rocksack.session.TransactionalMap;
 
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientTransactionJson;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 
@@ -91,9 +92,9 @@ public final class RelatrixKVJsonTransaction {
 			if(instance == null) {
 				instance = new RelatrixKVJsonTransaction();
 				classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClientTransaction cntx;
+				AsynchRelatrixKVClientTransactionJson cntx;
 				try {
-					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
+					cntx = new AsynchRelatrixKVClientTransactionJson(((AsynchRelatrixKVClientTransactionJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransactionJson)cnti).getRemotePort());
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
@@ -555,9 +556,9 @@ public final class RelatrixKVJsonTransaction {
 		return new Object[] {jkey, jvalue};
 	}
 	
-	static class WorkingSet {
+	public static class WorkingSet {
 		TransactionalMap bm;
-		Comparable<?> item; 
+		public Comparable<?> item; 
 	}
 	
 	public static WorkingSet getWorkingSet(TransactionId xid, Object key) throws IOException, IllegalAccessException {

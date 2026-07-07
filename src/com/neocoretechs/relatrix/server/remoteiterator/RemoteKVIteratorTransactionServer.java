@@ -11,10 +11,8 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.TCPServer;
 
 /**
- * When an iterator is created for remote delivery of objects, the address of the remote server
- * is sent back to the requesting client. The client then issues the handshake connection. The client
- * connects to waiting serversocket for each type of iterator. The serversocket then connects back to the client
- * and creates a {@link com.neocoretechs.relatrix.server.TCPWorker} that creates a 
+ * When an iterator is created for remote delivery of objects, the client
+ * connects to waiting Socketchannel for each type of iterator. The SocketChannel uses a {@link TCPKVIteratorTransactionWorker} that creates a 
  * {@link com.neocoretechs.relatrix.server.WorkerRequestProcessor} that dequeues requests
  * with the proper ServerSideIterator that receives each hasNext and next request. The process method of
  * a {@link com.neocoretechs.relatrix.client.RemoteCompletionInterface}, which is implemented

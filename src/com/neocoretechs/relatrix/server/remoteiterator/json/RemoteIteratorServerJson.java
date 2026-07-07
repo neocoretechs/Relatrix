@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.server.TCPServer;
 
 /**
  * When an iterator is created for remote delivery of objects, The client
- * connects to waiting ServerSocketChannel for each type of iterator. The run method
+ * connects to waiting SocketChannel for each type of iterator. The run method
  * creates a {@link com.neocoretechs.relatrix.server.remoteiterator.json.TCPIteratorWorkerJson}  that dequeues requests
  * with the proper ServerSideIterator that receives each hasNext and next request. The process method of
  * a {@link com.neocoretechs.relatrix.client.RemoteCompletionInterface}, which is implemented

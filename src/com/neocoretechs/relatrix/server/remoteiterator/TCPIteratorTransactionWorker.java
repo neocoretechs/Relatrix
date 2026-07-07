@@ -23,8 +23,8 @@ import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
- * This TCPWorker is spawned for servicing traffic from clients after an initial CommandPacketInterface
- * has been sent from client to support remote iterators. It processes requests directly, invoking the proper iterator
+ * This iterator transaction worker is spawned for servicing traffic from clients after to support remote iterators. 
+ * It processes requests directly, invoking the proper iterator
  * methods on instances of server side iterators.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  *
@@ -39,7 +39,6 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	protected SocketChannel workerSocket;
 	protected ConnectionHandler workerHandler;
 
-	
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
 	

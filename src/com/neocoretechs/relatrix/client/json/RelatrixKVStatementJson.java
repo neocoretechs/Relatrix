@@ -43,24 +43,12 @@ import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 public class RelatrixKVStatementJson extends RelatrixStatement implements RelatrixStatementInterface, Serializable {
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
-    protected String session = null;
-    protected Alias alias = null;
-    public String methodName;
-    public Object[] paramArray;
-    protected String[] paramTypes;
-    private Object objectReturn;
-    protected String returnClass;
-    protected transient Class<?>[] params = null;
-    private transient Object completionObject;
 
     public RelatrixKVStatementJson() {
     }
     
     public RelatrixKVStatementJson(String session) {
-    	this.session = session;
-    	this.paramArray = new Object[0];
- 		this.paramTypes = new String[0];
- 		this.params = new Class[0];
+    	super(session);
     }
     /**
      * Prep the statement for a remote call. Set our types to the actual class types for now..
@@ -89,31 +77,8 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
     	packParamArray();
     }
    
-    @Override
-	public synchronized String getSession() {
-    	return session; 
-    }
-    
-    public synchronized void setSession(String session) { this.session = session; }
     
     @Override
-	public synchronized String getMethodName() { return methodName; }
-    
-    public synchronized void setMethodName(String methodName) {
-    	this.methodName = methodName;
-    }
-    
-    public String getReturnClass() {
-    	return returnClass;
-    }
-    
-    public void setReturnClass(String returnClass) {
-    	this.returnClass = returnClass;
-    }
-    
-    @Override
-	public synchronized Object[] getParamArray() { return paramArray; }
-    
     public synchronized void setParamArray(Object[] o1) {
     	Object[] jo1 = new Object[o1.length];
     	this.paramTypes = new String[o1.length];
@@ -132,68 +97,26 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
     	}
     	this.paramArray = jo1;
     }
-
-    /**
-     * Get the parameters based on the paramTypes array using class.forName, if an exception is 
-     * thrown in that process, use getClass of the actual instance. We have to override any
-     * deserialization process that may have convoluted the original types in the parameter array
-     */
-    @Override
-    public synchronized Class<?>[] getParams() {
-    	if(params == null) {
-    		params = new Class<?>[paramArray.length];
-    		for(int i = 0; i < paramArray.length; i++) {
-    			try {
-    				params[i] = Class.forName(paramTypes[i]); // set deserialization to rights
-    			} catch (ClassNotFoundException e) {
-    				params[i] = paramArray[i].getClass(); // default, may not be relevant
-    			}
-    		}
-    	}
-    	return params;
-    }
-    
-    @Override
-    public synchronized String toString() { return String.format("%s for Session:%s Method:%s params:%s return class:%s%n",
-             this.getClass().getName(),session,methodName,
-             (paramArray == null ? "nil" : Arrays.toString(paramArray)), returnClass); }
-    
-	@Override
-	public synchronized Object getCompletionObject() {
-		return completionObject;
-	}
-    
-	@Override
-	public synchronized void setCompletionObject(Object cdl) {
-		completionObject = cdl;	
-	}
-
-	@Override
-	public synchronized void signalCompletion(Object o) {
-		if(completionObject.getClass() == CountDownLatch.class)
-			((CountDownLatch)completionObject).countDown();
-		else
-			if(completionObject.getClass() == CompletableFuture.class)
-				((CompletableFuture)completionObject).complete(o);
-			else
-				throw new RuntimeException("Unknown completion object type:"+completionObject.getClass());
-	}
 	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		Comparable<?> jo1;
 		String paramType;
 		Class<?> params;
-    		try {
-    			RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o);
-    			jo1 = ws.item;
-    			paramType = ws.item.getClass().getName();
-    			params = ws.item.getClass();
-				if(DEBUG)
-					System.out.printf("%s c'tor setting object return item:%s type:%s class:%s%n", this.getClass().getName(), jo1, paramTypes, params);
-    		} catch (IllegalAccessException | IOException e) {
-    			throw new RuntimeException(e);
-    		}
+		if(o == null) {
+			objectReturn = null;
+			return;
+		}
+		try {
+			RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o);
+			jo1 = ws.item;
+			paramType = ws.item.getClass().getName();
+			params = ws.item.getClass();
+			if(DEBUG)
+				System.out.printf("%s setting object return item:%s type:%s class:%s%n", this.getClass().getName(), jo1, paramTypes, params);
+		} catch (IllegalAccessException | IOException e) {
+			throw new RuntimeException(e);
+		}
 		if(jo1 instanceof AbstractRelation) {
 			objectReturn = TransportMorphism.createTransport((Relation) jo1);
 		} else {
@@ -215,32 +138,11 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 					objectReturn = TransportMorphism.createMorphism((TransportMorphism)objectReturn);
 			if(DEBUG)
 				System.out.printf("%s.getObjectReturn returning class %s: %s%n", this.getClass().getName(), objectReturn.getClass().getName(), objectReturn);
-			return objectReturn;
 		}
 		if(DEBUG)
-			System.out.printf("%s.getObjectReturn returning Optional.empty()%n", this.getClass().getName());
-		return Optional.empty();
-	}
-	
-	protected void packParamArray() {
-    	for(int i = 0; i < paramArray.length; i++) {
-    		if(paramArray[i] instanceof AbstractRelation) {
-    			paramArray[i] = TransportMorphism.createTransport((Relation) paramArray[i]);
-    		} else {
-    			if(paramArray[i] instanceof TransportMorphismInterface)
-        			((TransportMorphismInterface)paramArray[i]).packForTransport();;
-    		}
-    	}
-	}
-	
-	protected void unpackParamArray() {
-		for(int i = 0; i < paramArray.length; i++)
-			if(paramArray[i] != null && paramArray[i].getClass() == TransportMorphism.class) {
-				paramArray[i] = TransportMorphism.createMorphism((TransportMorphism)paramArray[i]);
-			} else {
-				if(paramArray[i] instanceof TransportMorphismInterface)
-					((TransportMorphismInterface)paramArray[i]).unpackFromTransport();
-			}		
+			if(objectReturn == null)
+				System.out.printf("%s.getObjectReturn returning null%n", this.getClass().getName());
+		return objectReturn;
 	}
 	
 	/**

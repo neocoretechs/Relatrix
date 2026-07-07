@@ -7,13 +7,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
+
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientJson;
 
 /**
- * This class functions as client to the RelatrixServer Worker threads located on a remote node.
- * that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.<p>
+ * This class functions as client to the RelatrixServerJson Worker on a remote node.
+ * This client has a {@link AsynchRelatrixClientJson} that handles traffic.<p>
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2026
  */
@@ -21,7 +20,7 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static boolean SHOWDUPEKEYEXCEPTION = true;
-	AsynchRelatrixClient asynchClient;
+	AsynchRelatrixClientJson asynchClient;
 	/**
 	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
@@ -30,7 +29,7 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixClientJson(String remoteNode, int remotePort)  throws IOException {
-		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort);
+		asynchClient = new AsynchRelatrixClientJson(remoteNode, remotePort);
 	}
 
 	/**

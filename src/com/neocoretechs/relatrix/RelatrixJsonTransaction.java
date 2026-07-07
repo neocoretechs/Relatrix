@@ -19,7 +19,7 @@ import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
-
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientTransactionJson;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode0JsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode1JsonTransaction;
@@ -165,9 +165,9 @@ public final class RelatrixJsonTransaction {
 			if(instance == null) {
 				instance = new RelatrixJsonTransaction();
 				RelatrixKVJsonTransaction.classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClientTransaction cntx;
+				AsynchRelatrixKVClientTransactionJson cntx;
 				try {
-					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
+					cntx = new AsynchRelatrixKVClientTransactionJson(((AsynchRelatrixKVClientTransactionJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransactionJson)cnti).getRemotePort());
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);

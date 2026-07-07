@@ -33,24 +33,25 @@ import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 
 /**
- * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p/>
+ * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p>
  * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;
  * The N return tuple '?' elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, 
- * that being the identity morphism.<p/>
- * For tuples the array size is relative to the '?' query predicates. <br/>
+ * that being the identity morphism.<p>
+ * For tuples the array size is relative to the '?' query predicates. <br>
  * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each
  * RelatrixStream is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSetStream("*","?","*") we get back a  {@link Result} of one element. For findSetStream("?",object,"?") we
- * would get back a  {@link Result2}, with each element of the array containing the relationship returned.<br/>
- * findSetStream("*","*","*") = {@link Result1} containing identity in [0] of instance Relation<br/>
- * findSetStream("*","*",object) =  {@link Result1} identity in [0] of RangeDomainMap where 'object' is range<br/>
- * findSetStream("*",object,object) =  {@link Result1} identity in [0] of MapRangeDomain matching the 2 concrete objects<br/>
- * findSetStream(object,object,object) =  {@link Result1} identity in [0] of Relation matching 3 objects<br/>
- * and the findHeadSeStreamt and findSubSetStream work the same way.<p/>
- * findSet("?","?","?") =  {@link Result3} return all, for each element in the database.<br/>
- * findSet("?","?",object) =  {@link Result2} return all domain and map objects for a given range object<br/>
- * findSet("?","*","?") =  {@link Result2} return all elements of domain and range<br/>
+ * if we declare findHeadSetStream("*","?","*") we get back a {@link Result} of one element.<br>
+ * For findSetStream("?",object,"?") we
+ * would get back a  {@link Result2}, with each element of the array containing the relationship returned.<br>
+ * findSetStream("*","*","*") = {@link Result1} containing identity in [0] of instance Relation<br>
+ * findSetStream("*","*",object) =  {@link Result1} identity in [0] of RangeDomainMap where 'object' is range<br>
+ * findSetStream("*",object,object) =  {@link Result1} identity in [0] of MapRangeDomain matching the 2 concrete objects<br>
+ * findSetStream(object,object,object) =  {@link Result1} identity in [0] of Relation matching 3 objects<br>
+ * and the findHeadSeStreamt and findSubSetStream work the same way.<p>
+ * findSet("?","?","?") =  {@link Result3} return all, for each element in the database.<br>
+ * findSet("?","?",object) =  {@link Result2} return all domain and map objects for a given range object<br>
+ * findSet("?","*","?") =  {@link Result2} return all elements of domain and range<br>
  * etc.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021,2024
  *

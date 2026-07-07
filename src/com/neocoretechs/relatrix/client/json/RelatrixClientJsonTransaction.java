@@ -13,10 +13,11 @@ import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientTransactionJson;
 
 /**
- * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
- * Worker threads located on a remote node. It carries the transaction identifier to maintain transaction context.
+ * This class functions as client to the {@link RelatrixTransactionServerJson} 
+ * It carries the transaction identifier to maintain transaction context.
  *
  * In a transaction context, we must obtain a transaction Id from the server for the lifecycle of the transaction.<p/>
  * The transaction Id may outlive the session, as the session is transitory for communication purposes.
@@ -27,7 +28,7 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	private Object mutex = new Object();
-	private AsynchRelatrixClientTransaction asynchClient;
+	private AsynchRelatrixClientTransactionJson asynchClient;
 	
 	public RelatrixClientJsonTransaction() { }
 	
@@ -39,7 +40,7 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 	 * @throws IOException
 	 */
 	public RelatrixClientJsonTransaction(String remoteNode, int remotePort)  throws IOException {
-		asynchClient = new AsynchRelatrixClientTransaction(remoteNode, remotePort);	
+		asynchClient = new AsynchRelatrixClientTransactionJson(remoteNode, remotePort);	
 	}
 	
 	@Override
@@ -95,7 +96,7 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 	public static void main(String[] args) throws Exception {
 		RelatrixClientJsonTransaction rc = new RelatrixClientJsonTransaction(args[0],Integer.parseInt(args[1]));
 		TransactionId xid = rc.getTransactionId();
-		RelatrixTransactionStatement rs = null;
+		RelatrixTransactionStatementJson rs = null;
 		switch(args.length) {
 			case 4:
 				Iterator it = null;//rc.entrySet(xid,Class.forName(args[2]));
@@ -105,16 +106,16 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

@@ -12,8 +12,8 @@ import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
  * that correspond to the sockets that the server thread uses to service the traffic
- * from this client. Likewise this client has a master worker thread that handles traffic back from the server.
- * The client thread initiates with a CommandPacketInterface.<p/>
+ * from this client. This client has a {@link AsynchRelatrixKVClientJson} that handles traffic.
+ * <p/>
  *
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2026
  */
