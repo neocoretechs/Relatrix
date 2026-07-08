@@ -39,8 +39,7 @@ public class TCPWorker implements Runnable {
 		workerRequestProcessor = new WorkerRequestProcessor(this);
 		SynchronizedThreadManager.getInstance().spin(workerRequestProcessor);
 		if( DEBUG ) {
-			System.out.printf("%s Worker %s connected:%b%n",
-					this.getClass().getName(),workerSocket,workerSocket.isConnected());
+			System.out.printf("%s%n",this);
 			if(!workerSocket.isConnected())
 				System.out.println("Worker Not connected, pending:"+workerSocket.isConnectionPending());
 		}
@@ -55,7 +54,7 @@ public class TCPWorker implements Runnable {
 	 */
     public void sendResponse(RemoteResponseInterface irf) {	
     	if( DEBUG ) {
-    		System.out.println(this.getClass().getName()+" Adding response "+irf+" to outbound from "+this.getClass().getName());
+    		System.out.println(this+" Adding response "+irf);
     	}
     	try {
     		// Write response to master for forwarding to client
@@ -72,12 +71,12 @@ public class TCPWorker implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println(this.getClass().getName()+" waiting getInputStream "+workerSocket+" connected:"+workerSocket.isConnected());
+					System.out.println(this+" waiting getInputStream ");
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
 				if(iori == null)
 					break;
 				if( DEBUG ) {
-					System.out.println(this.getClass().getName()+" FROM REMOTE on port:"+workerSocket+" "+iori);
+					System.out.println(this+" FROM REMOTE got:"+iori);
 				}
 				// put the received request on the processing stack
 				workerRequestProcessor.getQueue().put(iori);
@@ -110,7 +109,7 @@ public class TCPWorker implements Runnable {
 	
 	@Override
 	public String toString() {
-		return String.format("%s worker=%s%n",this.getClass().getName(),workerSocket);
+		return String.format("%s worker=%s%n",this.getClass().getName(),workerHandler);
 	}
 	/**
      * Spin the worker from command line

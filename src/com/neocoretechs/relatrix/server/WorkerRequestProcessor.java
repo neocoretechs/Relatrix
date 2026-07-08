@@ -15,7 +15,8 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  * This request processor is spun up in conjunction with IO workers such as TCPMaster. 
  * The intent is to separate the processing of requests and the maintenance of latches, etc from the communication
  * processing. In addition, increased parallelism can be achieved by separation of these tasks.
- * The WorkerRequestProcessors are responsible for setting the fields for the countdownlatch.
+ * The WorkerRequestProcessors are responsible for setting the fields for the countdownlatch.<p>
+ * This WorkerRequestProcessor is created with a {@link TCPWorker}, which has a {@link ConnectionHandler}.
  * @author Jonathan Groff  Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */

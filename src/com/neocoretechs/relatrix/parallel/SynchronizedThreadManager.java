@@ -35,6 +35,10 @@ public class SynchronizedThreadManager {
 	public static SynchronizedThreadManager getInstance() {
 		if( threadManager == null )
 			synchronized(SynchronizedThreadManager.class) {
+				Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+				    System.out.println("Uncaught in thread " + t + ": " + e);
+				    e.printStackTrace();
+				});
 				if(threadManager == null) {
 					threadManager = new SynchronizedThreadManager();
 					threadManager.init();

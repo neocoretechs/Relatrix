@@ -68,7 +68,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		workerHandler = new ConnectionHandler(workerSocket);
 		if(DEBUG)
-			System.out.println("Channel created to "+workerHandler);
+			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
@@ -217,7 +217,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	
 	@Override
 	public String toString() {
-		return String.format("%s RemoteNode:%s RemotePort:%d output socket%s queue:%d%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, queuedRequests.length());
+		return String.format("%s RemoteNode:%s RemotePort:%d output socket:%s handler:%s queue:%d%n",this.getClass().getName(), remoteNode, remotePort, workerSocket, workerHandler, queuedRequests.length());
 	}
 	/**
 	 * This method is for compatibility with Relation types were resolution of index is necessary so we can conform to the 

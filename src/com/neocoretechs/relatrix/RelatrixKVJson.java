@@ -102,8 +102,10 @@ public final class RelatrixKVJson {
 				instance = new RelatrixKVJson();
 				classLoader = new HandlerClassLoader();
 				AsynchRelatrixKVClientJson cntx;
+				AsynchRelatrixKVClientJson indx;
 				try {
 					cntx = new AsynchRelatrixKVClientJson(((AsynchRelatrixKVClientJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientJson)cnti).getRemotePort());
+					indx = new AsynchRelatrixKVClientJson(((AsynchRelatrixKVClientJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientJson)cnti).getRemotePort());
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
@@ -112,7 +114,7 @@ public final class RelatrixKVJson {
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
 					HandlerClassLoader.connectToRemoteRepository(cntx);
-					IndexResolver.setRemote(cntx);
+					IndexResolver.setRemote(indx);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -125,7 +127,9 @@ public final class RelatrixKVJson {
 	public static Object deserializeObject(byte[] obuf) throws IOException {
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(obuf);
 				ObjectInputStream ois = new ClassLoaderObjectInputStream(bais, classLoader)) {
-			return ois.readObject();
+			Object o = ois.readObject();
+			System.out.println("Deserialize object:"+o);
+			return o;
 		} catch (ClassNotFoundException cnf) {
 			throw new IOException(cnf.toString() + ":Class Not found, may have been modified beyond version compatibility");
 		} catch (IOException ioe) {
@@ -151,6 +155,7 @@ public final class RelatrixKVJson {
 		retbytes = baos.getBuf();
 		s.close();
 		baos.close();
+		System.out.println("serializeObject len:"+retbytes.length);
 		return retbytes;
 	}
 
