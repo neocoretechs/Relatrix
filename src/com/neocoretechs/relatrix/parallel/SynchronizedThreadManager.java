@@ -1,9 +1,11 @@
 package com.neocoretechs.relatrix.parallel;
 
+import java.lang.ScopedValue.CallableOp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -168,13 +170,84 @@ public class SynchronizedThreadManager {
 	    ftl.execute(r);
 	}
 	/**
-	 * Execute runnable in default group name SYSTEMSYNC
+	 * Execute runnable in default group name
 	 * @param r the Runnable
 	 */
 	public void spin(Runnable r) {
 		ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
 	    ftl.execute(r);
 	}
+	/**
+	 * Executes a Runnable within a specific ParallelExecutionContext on a virtual thread.
+	 */
+	public void spinWithContext(Runnable r, ParallelExecutionContext context) {
+		ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
+	    if (ftl == null) {
+	       return;
+	    }
+	    // Bind the context dynamically to the scope of this virtual thread task
+	    ftl.execute(() -> ScopedValue.where(ExecutionContextHolder.CONTEXT, context).run(r));
+	}
+	/**
+	 * Executes a Runnable within a specific ParallelExecutionContext on a virtual thread.
+	 */
+	public void spinWithContext(Runnable r, String group, ParallelExecutionContext context) {
+	    ExtendedExecutor ftl = executor.get(group);
+	    if (ftl == null) {
+	        throw new RuntimeException("Executor Group " + group + " not initialized");
+	    }
+	    // Bind the context dynamically to the scope of this virtual thread task
+	    ftl.execute(() -> ScopedValue.where(ExecutionContextHolder.CONTEXT, context).run(r));
+	}
+	 /**
+     * Submit a Callable with a ScopedValue context to default group.
+     * @param r The Callable task
+     * @param context The parallel execution context containing your IndexResolver
+     * @return The Future containing the result
+     */
+    public Future<Object> submitWithContext(Callable<Object> r, ParallelExecutionContext context) {
+    	ExtendedExecutor ftl = executor.get(DEFAULT_THREAD_POOL);
+    	CallableOp<Object, Throwable> op = () -> r.call();
+    	return submitWithContext(ftl, op, context);
+    }
+	 /**
+     * Submit a Callable with a ScopedValue context to a named group.
+     * @param r The Callable task
+     * @param group The group name
+     * @param context The parallel execution context containing your IndexResolver
+     * @return The Future containing the result
+     */
+    public Future<Object> submitWithContext(Callable<Object> r, String group, ParallelExecutionContext context) {
+    	ExtendedExecutor ftl = executor.get(group);
+       	if (ftl == null) {
+    		throw new RuntimeException("Executor Group " + group + " not initialized");
+    	}
+    	CallableOp<Object, Throwable> op = () -> r.call();
+    	return submitWithContext(ftl, op, context);
+    }
+    
+    /**
+     * Submit a Callable with a ScopedValue context to a named group.
+     * @param ftl executor
+     * @param r The CallableOp task
+     * @param context The parallel execution context containing your IndexResolver
+     * @return The Future containing the result
+     */
+    private Future<Object> submitWithContext(ExtendedExecutor ftl, CallableOp<Object, ?> r, ParallelExecutionContext context) {
+    	return ftl.submit(() -> {
+    		try {
+    			return ScopedValue.where(ExecutionContextHolder.CONTEXT, context).call(r);
+    		} catch (Error e) {
+    			throw e;
+    		} catch (Throwable t) {
+    			if (t instanceof InterruptedException) {
+    				Thread.currentThread().interrupt();
+    			}
+    			throw new RuntimeException(t);
+    		}
+    	});
+    }
+
 	/**
 	 * Get the Future via executor submit for default SYSTEMSYNC
 	 * @param r The Runnable

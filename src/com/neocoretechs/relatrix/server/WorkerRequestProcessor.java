@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
 /**
  * Once requests from master are queued we extract them here and process them.<p>
@@ -16,7 +17,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
  * The intent is to separate the processing of requests and the maintenance of latches, etc from the communication
  * processing. In addition, increased parallelism can be achieved by separation of these tasks.
  * The WorkerRequestProcessors are responsible for setting the fields for the countdownlatch.<p>
- * This WorkerRequestProcessor is created with a {@link TCPWorker}, which has a {@link ConnectionHandler}.
+ * This WorkerRequestProcessor is created with a {@link TCPWorker}, which has a {@link ConnectionHandlerJson}.
  * @author Jonathan Groff  Copyright (C) NeoCoreTechs 2014,2015,2021
  *
  */
@@ -98,7 +99,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			}
 		} catch (Exception e1) {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
-			iori.setObjectReturn(e1);
+			iori.setObjectReturn(RelatrixKVServerJson.formatError(e1, ""));
 			iori.setReturnClass("java.lang.Throwable");
 			// And finally, send the package back up the line
 			responseWorker.sendResponse(iori);

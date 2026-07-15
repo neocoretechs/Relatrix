@@ -3,6 +3,8 @@ package com.neocoretechs.relatrix.client.json;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -12,10 +14,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 
+import org.json.JSONObject;
+import org.json.cbor.CborBuilder;
+import org.json.cbor.CborException;
+
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.iterator.Entry;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.stream.SackStream;
 
 import com.neocoretechs.relatrix.Relation;
@@ -26,8 +33,11 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteIteratorClient;
-
+import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
+import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
+import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
 
@@ -56,78 +66,50 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
      * @param o1
      */
     public RelatrixKVStatementJson(String tmeth, Object ... o1) {
-    	this.methodName = tmeth;
-    	Object[] jo1 = new Object[o1.length];
-		this.paramTypes = new String[o1.length];
- 		this.params = new Class<?>[o1.length];
-    	for(int i = 0; i < o1.length; i++) {
-    		try {
-				RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o1[i]);
-				jo1[i] = ws.item;
-				paramTypes[i] = ws.item.getClass().getName();
-	 			params[i] = ws.item.getClass();
-				if(DEBUG)
-					System.out.printf("%s c'tor setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, jo1[i], paramTypes[i], params[i]);
-			} catch (IllegalAccessException | IOException e) {
-				throw new RuntimeException(e);
-			}
- 		}
-    	this.paramArray = jo1;
-    	this.session = UUID.randomUUID().toString();
-    	packParamArray();
+    	super(tmeth,o1);
     }
-   
-    
+     
     @Override
     public synchronized void setParamArray(Object[] o1) {
-    	Object[] jo1 = new Object[o1.length];
+    	this.paramArray = o1;
     	this.paramTypes = new String[o1.length];
     	this.params = new Class<?>[o1.length];
     	for(int i = 0; i < o1.length; i++) {
-    		try {
-    			RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o1[i]);
-    			jo1[i] = ws.item;
-    			paramTypes[i] = ws.item.getClass().getName();
-    			params[i] = ws.item.getClass();
-				if(DEBUG)
-					System.out.printf("%s.setParamArray setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, jo1[i], paramTypes[i], params[i]);
-    		} catch (IllegalAccessException | IOException e) {
-    			throw new RuntimeException(e);
-    		}
+    			paramTypes[i] = o1[i].getClass().getName();//ws.item.getClass().getName();
+    			params[i] = o1[i].getClass();//ws.item.getClass();
+    			if(DEBUG)
+    				System.out.printf("%s.setParamArray setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, paramArray[i], paramTypes[i], params[i]);
     	}
-    	this.paramArray = jo1;
     }
 	
 	@Override
 	public synchronized void setObjectReturn(Object o) {
-		Comparable<?> jo1;
-		String paramType;
-		Class<?> params;
 		if(o == null) {
 			objectReturn = null;
 			return;
 		}
-		try {
-			RelatrixKVJson.WorkingSet ws = RelatrixKVJson.getWorkingSet(o);
-			jo1 = ws.item;
-			paramType = ws.item.getClass().getName();
-			params = ws.item.getClass();
-			if(DEBUG)
-				System.out.printf("%s setting object return item:%s type:%s class:%s%n", this.getClass().getName(), jo1, paramTypes, params);
-		} catch (IllegalAccessException | IOException e) {
-			throw new RuntimeException(e);
-		}
-		if(jo1 instanceof AbstractRelation) {
-			objectReturn = TransportMorphism.createTransport((Relation) jo1);
+		if(o instanceof AbstractRelation) {
+			objectReturn = TransportMorphism.createTransport((Relation) o);
 		} else {
-			if(jo1 instanceof TransportMorphismInterface)
-				((TransportMorphismInterface)jo1).packForTransport();
-			objectReturn = jo1;
+			if(o instanceof TransportMorphismInterface)
+				((TransportMorphismInterface)o).packForTransport();
+			objectReturn = o;
 		}
+		setParamArray(new Object[] {objectReturn});
 		if(DEBUG)
 			System.out.printf("%s.setObjectReturn %s%n", this.getClass().getName(), objectReturn);
 	}
-
+			
+	public void setJsonParams() {
+	   	for(int i = 0; i < params.length; i++) {
+    			paramArray[i] = new JSONObject(params[i]);
+    			paramTypes[i] = JSONObject.class.getName();
+    			params[i] = JSONObject.class;
+				if(DEBUG)
+					System.out.printf("%s.setJsonParams setting param %d item:%s type:%s class:%s%n", this.getClass().getName(), i, paramArray[i], paramTypes[i], params[i]);
+	   	}
+	}
+	
 	@Override
 	public synchronized Object getObjectReturn() {
 		if(objectReturn != null) {
@@ -152,6 +134,7 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 	@Override
 	public synchronized void process() throws Exception {
 		unpackParamArray();
+		setJsonParams();
 		Object result = RelatrixKVServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it

@@ -56,8 +56,11 @@ public final class RelatrixKVTransaction {
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
+					String tablespace = System.getProperty("tablespace");
+					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
+						throw new RuntimeException("tablespace property undefined or root path does not exist");
+					DatabaseManager.setTableSpaceDir(tablespace);
 					HandlerClassLoader.connectToLocalRepository(null);
-					IndexResolver.setLocal();
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -65,36 +68,7 @@ public final class RelatrixKVTransaction {
 		}
 		return instance;
 	}	
-	/**
-	 * Create an instance of the server as a remote client, in effect. The client process
-	 * become the conduit to the remote bytecode repository.
-	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
-	 * @return The instance of this client process.
-	 */
-	public static RelatrixKVTransaction getInstance(ClientTransactionInterface cnti) {
-		synchronized(RelatrixKVTransaction.class) {
-			if(instance == null) {
-				instance = new RelatrixKVTransaction();
-				classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClientTransaction cntx;
-				try {
-					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-				Thread.currentThread().setContextClassLoader(classLoader);
-				SerializedComparatorFactory.setClassLoader(classLoader);
-				try {
-					HandlerClassLoader.connectToRemoteRepository(cntx);
-					IndexResolver.setRemote(cntx);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return instance;
-	}
+
 	public static TransactionalMap getMap(Class type, TransactionId xid) throws IllegalAccessException, IOException {
 		TransactionalMap t = mapCache.get(type.getName());
 		if(DEBUG)
@@ -131,15 +105,6 @@ public final class RelatrixKVTransaction {
 
 	public static void setOptimisticConcurrency(boolean optimistic) {
 		optimisticConcurrency = optimistic;
-	}
-	
-	/**
-	 * Verify that we are specifying a directory, then set that as top level file structure and database name
-	 * @param path
-	 * @throws IOException
-	 */
-	public static void setTablespace(String path) throws IOException {
-		DatabaseManager.setTableSpaceDir(path);
 	}
 	
 	/**

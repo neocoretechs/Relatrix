@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKV;
-
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
 
@@ -142,8 +143,11 @@ public class RelatrixKVServer extends TCPServer {
                     if( DEBUG | DEBUGCOMMAND )
                     	System.out.printf("%s created worker worker:%s%n",this.getClass().getName(),uworker);
                     uworker = new TCPWorker(datasocket);
-                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-                    SynchronizedThreadManager.getInstance().spin(uworker);
+                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);
+                	IndexResolver indexResolver = new IndexResolver();
+            		indexResolver.setLocal();
+            		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+            		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
                     
                     if( DEBUG ) {
                     	System.out.println(this.getClass().getName()+" starting new worker "+uworker);

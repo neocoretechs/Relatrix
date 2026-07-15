@@ -70,6 +70,7 @@ import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
 /**
@@ -145,45 +146,19 @@ public final class RelatrixJsonTransaction {
 				Thread.currentThread().setContextClassLoader(RelatrixKVJsonTransaction.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKVJsonTransaction.classLoader);
 				try {
+					String tablespace = System.getProperty("tablespace");
+					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
+						throw new RuntimeException("tablespace property undefined or root path does not exist");
+					DatabaseManager.setTableSpaceDir(tablespace);
 					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
-				IndexResolver.setLocalJson();
 			}
 		}
 		return instance;
 	}
-	/**
-	 * Create an instance of the server as a remote client, in effect. The client process
-	 * become the conduit to the remote bytecode repository.
-	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
-	 * @return The instance of this client process.
-	 */
-	public static RelatrixJsonTransaction getInstance(ClientTransactionInterface cnti) {
-		synchronized(RelatrixJsonTransaction.class) {
-			if(instance == null) {
-				instance = new RelatrixJsonTransaction();
-				RelatrixKVJsonTransaction.classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClientTransactionJson cntx;
-				try {
-					cntx = new AsynchRelatrixKVClientTransactionJson(((AsynchRelatrixKVClientTransactionJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransactionJson)cnti).getRemotePort());
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-				Thread.currentThread().setContextClassLoader(RelatrixKVJsonTransaction.classLoader);
-				SerializedComparatorFactory.setClassLoader(RelatrixKVJsonTransaction.classLoader);
-				try {
-					HandlerClassLoader.connectToRemoteRepository((ClientTransactionInterface)cntx);
-					IndexResolver.setRemote((ClientTransactionInterface)cntx);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return instance;
-	}
+
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -203,17 +178,7 @@ public final class RelatrixJsonTransaction {
 	public static void setOptimisticConcurrency(boolean optimistic) {
 		RelatrixKVJsonTransaction.setOptimisticConcurrency(optimistic);
 	}
-	
-	/**
-	 * Verify that we are specifying a directory, then set that as top level file structure and database name
-	 * @param path
-	 * @throws IOException
-	 */
-	public static void setTablespace(String path) throws IOException {
-		getInstance();
-		RelatrixKVJsonTransaction.setTablespace(path);
-	}
-	
+		
 	/**
 	 * Get the default tablespace directory
 	 * @return the path/dbname of current default tablespace
@@ -3993,11 +3958,5 @@ public final class RelatrixJsonTransaction {
 		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
 	}
 	
-	public static void main(String[] args) throws Exception {
-		setTablespace(args[0]);
-		RelatrixJsonTransaction.findStream(new TransactionId(args[1]), '*', '*', '*').forEach((s) -> {
-			System.out.println(s.toString());
-		});
-	}
  
 }

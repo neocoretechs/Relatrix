@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
@@ -19,10 +20,13 @@ import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
 import com.neocoretechs.relatrix.client.json.RelatrixKVStatementJson;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -47,7 +51,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	private int remotePort;
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandler workerHandler;
+	protected ConnectionHandlerJson workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -64,13 +68,15 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	public AsynchRelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		RelatrixKVJson.getInstance(this);
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		workerHandler = new ConnectionHandler(workerSocket);
+		workerHandler = new ConnectionHandlerJson(workerSocket);
 		if(DEBUG)
 			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		SynchronizedThreadManager.getInstance().spin(this);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setRemote(this);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
 	}
 
 	/**

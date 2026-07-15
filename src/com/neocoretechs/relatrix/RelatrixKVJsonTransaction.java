@@ -72,8 +72,11 @@ public final class RelatrixKVJsonTransaction {
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
+					String tablespace = System.getProperty("tablespace");
+					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
+						throw new RuntimeException("tablespace property undefined or root path does not exist");
+					DatabaseManager.setTableSpaceDir(tablespace);
 					HandlerClassLoader.connectToLocalRepository(null);
-					IndexResolver.setLocal();
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -81,36 +84,7 @@ public final class RelatrixKVJsonTransaction {
 		}
 		return instance;
 	}
-	/**
-	 * Create an instance of the server as a remote client, in effect. The client process
-	 * become the conduit to the remote bytecode repository.
-	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
-	 * @return The instance of this client process.
-	 */
-	public static RelatrixKVJsonTransaction getInstance(ClientTransactionInterface cnti) {
-		synchronized(RelatrixKVJsonTransaction.class) {
-			if(instance == null) {
-				instance = new RelatrixKVJsonTransaction();
-				classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClientTransactionJson cntx;
-				try {
-					cntx = new AsynchRelatrixKVClientTransactionJson(((AsynchRelatrixKVClientTransactionJson)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransactionJson)cnti).getRemotePort());
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-				Thread.currentThread().setContextClassLoader(classLoader);
-				SerializedComparatorFactory.setClassLoader(classLoader);
-				try {
-					HandlerClassLoader.connectToRemoteRepository((ClientTransactionInterface)cntx);
-					IndexResolver.setRemote((ClientTransactionInterface)cntx);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return instance;
-	}
+
 	/**
 	 * Generate a class name from a JSONObject
 	 * @param jsono the JSONObject with the fields
@@ -703,15 +677,6 @@ public final class RelatrixKVJsonTransaction {
 
 	public static void setOptimisticConcurrency(boolean optimistic) {
 		optimisticConcurrency = optimistic;
-	}
-	
-	/**
-	 * Verify that we are specifying a directory, then set that as top level file structure and database name
-	 * @param path
-	 * @throws IOException
-	 */
-	public static void setTablespace(String path) throws IOException {
-		DatabaseManager.setTableSpaceDir(path);
 	}
 	
 	/**

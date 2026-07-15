@@ -6,6 +6,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -130,6 +132,13 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 */
 	public static PrimaryKeySet locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
+		IndexResolver resolver = null;
+		if (ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			throw new IOException("IndexResolver is not bound to context.");
+		}
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -138,9 +147,9 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		if(dKey == null) {
 			if(DEBUG)
 				System.out.println("PrimaryKeySet.locate DBKey for domain was null:"+skeyd);
-			dKey = IndexResolver.getIndexInstanceTable().getKey(skeyd);
+			dKey = resolver.getIndexInstanceTable().getKey(skeyd);
 			if( dKey == null ) {
-				dKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
+				dKey = DBKey.newKey(resolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 				if(DEBUG)
 					System.out.println("PrimaryKeySet.locate IndexResolver getKey for domain was null, created newKey:"+dKey);
 			}
@@ -150,15 +159,15 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 		if(mKey == null) {
 			if(DEBUG)
 				System.out.println("PrimaryKeySet.locate DBKey for map was null:"+skeym);
-			mKey = IndexResolver.getIndexInstanceTable().getKey(skeym);
+			mKey = resolver.getIndexInstanceTable().getKey(skeym);
 			if(mKey == null) {
-				mKey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
+				mKey = DBKey.newKey(resolver.getIndexInstanceTable(), skeym); // puts to index and instance
 				if(DEBUG)
 					System.out.println("PrimaryKeySet.locate IndexResolver getKey for map was null, created newKey:"+mKey);
 			}
 		}
 		pk.setMapKey(mKey);
-		dKey = IndexResolver.getIndexInstanceTable().getKey(pk);
+		dKey = resolver.getIndexInstanceTable().getKey(pk);
 		// is it found, hence not unique?
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
@@ -186,23 +195,30 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 */
 	public static PrimaryKeySet locate(Alias alias, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
+		IndexResolver resolver = null;
+		if (ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			throw new IOException("IndexResolver is not bound to context.");
+		}
 		//
 		pk.setAlias(alias);
 		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
-			dKey = IndexResolver.getIndexInstanceTable().getKey(alias, skeyd);
+			dKey = resolver.getIndexInstanceTable().getKey(alias, skeyd);
 			if( dKey == null )
-				dKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
+				dKey = DBKey.newKey(alias, resolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
 		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
-			mKey = IndexResolver.getIndexInstanceTable().getKey(alias, skeym);
+			mKey = resolver.getIndexInstanceTable().getKey(alias, skeym);
 			if(mKey == null) {
-				mKey = DBKey.newKey(alias, IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
+				mKey = DBKey.newKey(alias, resolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
 		pk.setMapKey(mKey);
-		dKey = IndexResolver.getIndexInstanceTable().getKey(alias, pk);
+		dKey = resolver.getIndexInstanceTable().getKey(alias, pk);
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
 			pk.isIdentityImmutable = true;
@@ -223,22 +239,29 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 */
 	public static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
+		IndexResolver resolver = null;
+		if (ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			throw new IOException("IndexResolver is not bound to context.");
+		}
 		pk.transactionId = transactionId;
 		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
-			dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeyd);
+			dKey = resolver.getIndexInstanceTable().getKey(transactionId, skeyd);
 			if( dKey == null )
-				dKey = DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
+				dKey = DBKey.newKey(transactionId, resolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
 		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
-			mKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, skeym);
+			mKey = resolver.getIndexInstanceTable().getKey(transactionId, skeym);
 			if(mKey == null) {
-				mKey = DBKey.newKey(transactionId, IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
+				mKey = DBKey.newKey(transactionId, resolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
 		pk.setMapKey(mKey);
-		dKey = IndexResolver.getIndexInstanceTable().getKey(transactionId, pk);
+		dKey = resolver.getIndexInstanceTable().getKey(transactionId, pk);
 		if(dKey != null) {
 			pk.identity = (DBKey) dKey;
 			pk.isIdentityImmutable = true;
@@ -260,24 +283,31 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 */
 	public static PrimaryKeySet locate(Alias alias, TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
+		IndexResolver resolver = null;
+		if (ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			throw new IOException("IndexResolver is not bound to context.");
+		}
 		pk.setAlias(alias);
 		pk.transactionId = transactionId;
 		// transaction id and alias not null
 		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
-			dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeyd);
+			dKey = resolver.getIndexInstanceTable().getKey(alias, transactionId, skeyd);
 			if( dKey == null )
-				dKey = DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeyd); // puts to index and instance
+				dKey = DBKey.newKey(alias, transactionId, resolver.getIndexInstanceTable(), skeyd); // puts to index and instance
 		}
 		pk.setDomainKey(dKey);
 		DBKey mKey = AbstractRelation.checkMorphism(skeym);
 		if(mKey == null)
-			mKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, skeym);
+			mKey = resolver.getIndexInstanceTable().getKey(alias, transactionId, skeym);
 			if(mKey == null) {
-				mKey = DBKey.newKey(alias, transactionId, IndexResolver.getIndexInstanceTable(), skeym); // puts to index and instance
+				mKey = DBKey.newKey(alias, transactionId, resolver.getIndexInstanceTable(), skeym); // puts to index and instance
 		}
 		pk.setMapKey(mKey);
-		dKey = IndexResolver.getIndexInstanceTable().getKey(alias, transactionId, pk);
+		dKey = resolver.getIndexInstanceTable().getKey(alias, transactionId, pk);
 		if(dKey != null) {
 			pk.identity = dKey;
 			pk.isIdentityImmutable = true;

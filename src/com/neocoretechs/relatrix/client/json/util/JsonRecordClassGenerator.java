@@ -15,14 +15,14 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
  * Use the java.lang.classfile JDK25 tooling to generate a class from the hashed fields of a JSON payload.<p>
- * The class will implement Serializable and COmparable interfaces to faciltate storage and indexing int he RocksDb/RockSack/Relatrix
+ * The class will implement Serializable and COmparable interfaces to facilitate storage and indexing int he RocksDb/RockSack/Relatrix
  * subsystems. The bytes will be stored in a CBOR representation.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2026
  */
 public final class JsonRecordClassGenerator {
 	public static final String generatedJsonClassPrefix = "com.neocoretechs.relatrix.Relatrix_";
     /**
-     * Build class bytes for className suing JDK25 ClassDesc java.lang.classfile tooling.
+     * Build class bytes for className using JDK25 ClassDesc java.lang.classfile tooling.
      * <pre>
      * - implements Serializable and Comparable
      * - fields: private final long hash; private final byte[] cbor;

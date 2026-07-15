@@ -17,13 +17,13 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
  */
 public class IndexResolver {
 	public static boolean DEBUG = true;
-	static IndexInstanceTableInterface instanceTable = null;
+	IndexInstanceTableInterface instanceTable = null;
 	/**
 	 * REturn the instance table; the table that translates indexes to object instances
 	 * @return
 	 * @throws IOException
 	 */
-	public static IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
+	public IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
 		if(DEBUG)
 			System.out.println("Returning instance table:"+instanceTable);
 		return instanceTable;
@@ -33,7 +33,7 @@ public class IndexResolver {
 	 * Determine if the instance of this class will be operating on a local or remote resolver table.
 	 * By calling this, local is set to true, by default, it is also true. A new IndexInstanceTable is constructed with default ctor.
 	 */
-	public static void setLocal() {
+	public void setLocal() {
 		if(instanceTable != null)
 			throw new RuntimeException("Instance table previously set");
 		instanceTable = new IndexInstanceTable();
@@ -41,7 +41,7 @@ public class IndexResolver {
 			System.out.println("IndexResolver setLocal instance table:"+instanceTable);
 	}
 
-	public static void setLocalJson() {
+	public void setLocalJson() {
 		if(instanceTable != null)
 			throw new RuntimeException("Instance table previously set");
 		instanceTable = new IndexInstanceTableJson();
@@ -54,7 +54,7 @@ public class IndexResolver {
 	 * @param remoteClient Implementations of ClientInterface may include transaction context information.
 	 * @throws IOException if low level problem 
 	 */
-	public static void setRemote(ClientInterface remoteClient) throws IOException {
+	public void setRemote(ClientInterface remoteClient) throws IOException {
 		if(instanceTable != null)
 			throw new RuntimeException("Instance table previously set");
 		instanceTable = new RemoteIndexInstanceTable(remoteClient);
@@ -67,7 +67,7 @@ public class IndexResolver {
 	 * @param remoteClient Implementations of ClientInterface may include transaction context information.
 	 * @throws IOException if low level problem
 	 */
-	public static void setRemoteTransaction(ClientInterface remoteClient) throws IOException {
+	public void setRemoteTransaction(ClientInterface remoteClient) throws IOException {
 		if(!(remoteClient instanceof ClientTransactionInterface))
 			throw new IOException("Remote Client not instance of ClientTransactionInterface:"+remoteClient.getClass());
 		if(instanceTable != null)

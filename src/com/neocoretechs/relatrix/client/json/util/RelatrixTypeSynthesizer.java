@@ -10,9 +10,9 @@ import java.io.ObjectStreamClass;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -23,9 +23,10 @@ import org.json.cbor.CborEncoder;
 import org.json.cbor.CborException;
 import org.json.cbor.builder.MapBuilder;
 import org.json.cbor.model.DataItem;
+import org.json.reflect.HandlerClassLoader;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
-import com.neocoretechs.relatrix.server.HandlerClassLoader;
+
 
 /**
  * Class to generate hashed class names from JSON field names to create ersatz 
@@ -37,8 +38,9 @@ public class RelatrixTypeSynthesizer {
     public static List<Object> elements = new ArrayList<>();
     public static List<String> structuralTokens = new ArrayList<>();
     private static Object mutex = new Object();
+    public static final String morphicClassPrefix = "Relatrix_";
 	/**
-     * Generates a deterministic class name based on the unique structure of an ad-hoc node.
+     * Generates a deterministic class name based on the unique structure of an ad-hoc node. Calls extractStructuralTokens to setup generateMorphicPayload.
      * @param node The JSON object holding the data fields
      * @param classPrefix The constant string that will prefix the final generated class name
      */
@@ -64,7 +66,7 @@ public class RelatrixTypeSynthesizer {
      * @return The byte array that has the payload
      * @throws CborException If parsing fails
      */
-    public static byte[] generateCborPayload(JSONObject node) throws CborException {
+    public static byte[] encodeCborPayload(JSONObject node) throws CborException {
     	synchronized(mutex) {
     		structuralTokens.clear();
     		elements.clear();
@@ -114,6 +116,7 @@ public class RelatrixTypeSynthesizer {
             }
     }
     /**
+     * Must call extractStructuralTokens first!
      * Create the byte array final payload from the list of tokens and elements using the supplied builder
      * @param structuralTokens List of field names
      * @param elements List of field objects
@@ -154,7 +157,7 @@ public class RelatrixTypeSynthesizer {
      * @return
      * @throws CborException
      */
-    private static String decode(byte[] encodedBytes) throws CborException {
+    public static String decodeCborPayload(byte[] encodedBytes) throws CborException {
     	ByteArrayInputStream bais = new ByteArrayInputStream(encodedBytes);
     	List<DataItem> dataItems = new CborDecoder(bais).decode();
     	if(DEBUG)
@@ -217,7 +220,7 @@ public class RelatrixTypeSynthesizer {
     	JSONObject jo = new JSONObject(x);
     	HandlerClassLoader hcl = new HandlerClassLoader();
     	long tim = System.nanoTime();
-    	String className = generateMorphicClassName(jo,"Relatrix_");
+    	String className = generateMorphicClassName(jo,RelatrixTypeSynthesizer.morphicClassPrefix);
        	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   	
       	Class<?> c;
       	try {
@@ -232,20 +235,20 @@ public class RelatrixTypeSynthesizer {
         System.out.println("nanos="+(System.nanoTime()-tim));
         System.out.println(c);
     	System.out.println(Arrays.toString(encodedBytes)+" length="+encodedBytes.length);
-    	decode(encodedBytes);
+    	decodeCborPayload(encodedBytes);
     	// try another instance
     	String y = "{\"timestamp\":1779166000302,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
     	JSONObject jo2 = new JSONObject(y);
-    	Object o2 = ctor.newInstance(generateCborPayload(jo2));
+    	Object o2 = ctor.newInstance(encodeCborPayload(jo2));
     	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
     	jo2 = new JSONObject(x);
-    	o2 = ctor.newInstance(generateCborPayload(jo2));
+    	o2 = ctor.newInstance(encodeCborPayload(jo2));
       	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
     	String z = "{\"timestamp\":1779166000300,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
     	jo2 = new JSONObject(z);
-    	o2 = ctor.newInstance(generateCborPayload(jo2));
+    	o2 = ctor.newInstance(encodeCborPayload(jo2));
       	System.out.println("equals="+o.equals(o2));
     	System.out.println("compareTo="+((Comparable)o).compareTo((Comparable)o2));
     	//File f = new File("C:/Users/jg/workspace/relatrix/build/test.ser");

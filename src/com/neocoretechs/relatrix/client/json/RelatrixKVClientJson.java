@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
+import com.neocoretechs.relatrix.client.json.util.Converter;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -32,6 +34,7 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 	 */
 	public RelatrixKVClientJson(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixKVClientJson(remoteNode, remotePort);
+		Converter.setClassLoader(RelatrixKV.classLoader);
 	}
 
 	@Override

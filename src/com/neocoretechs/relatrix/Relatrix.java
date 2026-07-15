@@ -15,9 +15,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
-
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode0;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode1;
 import com.neocoretechs.relatrix.iterator.FindHeadSetMode2;
@@ -56,7 +53,6 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
@@ -66,8 +62,10 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 import com.neocoretechs.relatrix.stream.RelatrixStream;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 
@@ -143,11 +141,14 @@ public final class Relatrix {
 		synchronized(Relatrix.class) {
 			if(instance == null) {
 				instance = new Relatrix();
-				IndexResolver.setLocal();
 				RelatrixKV.classLoader = new HandlerClassLoader();
 				Thread.currentThread().setContextClassLoader(RelatrixKV.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKV.classLoader);
 				try {
+					String tablespace = System.getProperty("tablespace");
+					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
+						throw new RuntimeException("tablespace property undefined or root path does not exist");
+					DatabaseManager.setTableSpaceDir(tablespace);
 					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
@@ -156,36 +157,7 @@ public final class Relatrix {
 		}
 		return instance;
 	}	
-	/**
-	 * Create an instance of the server as a remote client, in effect. The client process
-	 * become the conduit to the remote bytecode repository.
-	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
-	 * @return The instance of this client process.
-	 */
-	public static Relatrix getInstance(ClientNonTransactionInterface cnti) {
-		synchronized(Relatrix.class) {
-			if(instance == null) {
-				instance = new Relatrix();
-				RelatrixKV.classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClient cntx;
-				try {
-					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-				Thread.currentThread().setContextClassLoader(RelatrixKV.classLoader);
-				SerializedComparatorFactory.setClassLoader(RelatrixKV.classLoader);
-				try {
-					HandlerClassLoader.connectToRemoteRepository(cntx);
-					IndexResolver.setRemote(cntx);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return instance;
-	}
+
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -200,15 +172,6 @@ public final class Relatrix {
 	public static void setTuple(Character tp) {
 		OPERATOR_TUPLE_CHAR = tp;
 		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
-	}
-	/**
-	 * Verify that we are specifying a directory, then set that as top level file structure and database name
-	 * @param path
-	 * @throws IOException
-	 */
-	public static void setTablespace(String path) throws IOException {
-		getInstance();
-		RelatrixKV.setTablespace(path);
 	}
 	
 	@ServerMethod

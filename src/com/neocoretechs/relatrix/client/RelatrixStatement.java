@@ -36,7 +36,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected String[] paramTypes;
     protected Object objectReturn;
     protected String returnClass;
-    protected transient Class<?>[] params = null;
+    protected transient Class[] params = null;
     private transient Object completionObject;
 
     public RelatrixStatement() {

@@ -15,6 +15,8 @@ import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
@@ -93,7 +95,6 @@ public class TCPKVIteratorWorker implements Runnable {
 					// Get the iterator linked to this session
 					Object itInst = RelatrixKVServer.sessionToObject.get(iori.getSession());
 					if( itInst == null ) {
-
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}
 					// invoke the desired method on this concrete server side iterator, let boxing take result
@@ -155,6 +156,9 @@ public class TCPKVIteratorWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPKVIteratorWorker [remote master node] [remote master port] [class]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPKVIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2])); // master port, class
+     	IndexResolver indexResolver = new IndexResolver();
+    	indexResolver.setLocal();
+    	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPKVIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2]),pec); // master port, class
 	}
 }

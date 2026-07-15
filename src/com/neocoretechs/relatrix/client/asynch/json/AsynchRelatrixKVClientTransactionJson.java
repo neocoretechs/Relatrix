@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import com.neocoretechs.rocksack.Alias;
@@ -22,9 +23,11 @@ import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
 import com.neocoretechs.relatrix.client.json.RelatrixKVTransactionStatementJson;
-
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -46,7 +49,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 	private int remotePort;
 	
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
-	protected ConnectionHandler workerHandler;
+	protected ConnectionHandlerJson workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -63,13 +66,15 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 	public AsynchRelatrixKVClientTransactionJson(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		RelatrixKVJsonTransaction.getInstance(this);
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		workerHandler = new ConnectionHandler(workerSocket);
+		workerHandler = new ConnectionHandlerJson(workerSocket);
 		if(DEBUG)
 			System.out.println("Channel created to "+workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		SynchronizedThreadManager.getInstance().spin(this);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setRemoteTransaction(this);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
 	}
 
 	/**

@@ -17,6 +17,8 @@ import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.relatrix.server.RelatrixServer;
@@ -161,6 +163,9 @@ public class TCPIteratorWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorWorker [remote master node] [remote master port] [class]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2]));
+     	IndexResolver indexResolver = new IndexResolver();
+    	indexResolver.setLocal();
+    	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2]), pec);
 	}
 }

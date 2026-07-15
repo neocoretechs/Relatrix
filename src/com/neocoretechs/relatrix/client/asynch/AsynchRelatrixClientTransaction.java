@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -20,7 +21,10 @@ import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -66,7 +70,6 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	public AsynchRelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		RelatrixTransaction.getInstance(this);
 		if( DEBUG ) {
 			System.out.printf("%s constructed with remote Node:%s remotePort:%s %n",this.getClass().getName(),remoteNode,remotePort);
 		}
@@ -80,7 +83,10 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		SynchronizedThreadManager.getInstance().spin(this);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setRemoteTransaction(this);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
 	}
 
 	/**

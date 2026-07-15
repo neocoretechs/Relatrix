@@ -172,12 +172,12 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 		return objectReturn;
 	}
 	/**
-	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p/>
-	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p/>
-	 * In the case if non-Serializable return type of Iterator ro Stream, we save it server side and link it to the session for later retrieval.<br/>
+	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p>
+	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p>
+	 * In the case if non-Serializable return type of Iterator or Stream, we save it server side and link it to the session for later retrieval.<br>
 	 * We create an intermediary that proxies the functionality back to the server and client, and is Serializable and contains 
-	 * the necessary infrastructure to encapsulate the iterator or stream.<p/>
-	 * Note that here we are returning RockSack iterators and streams rather than Relatrix Factory iterators and streams.<br/>
+	 * the necessary infrastructure to encapsulate the iterator or stream.<p>
+	 * Note that here we are returning RockSack iterators and streams rather than Relatrix Factory iterators and streams.<br>
 	 * We can use the native iterators and streams here
 	 * because the functionality is available in whole, and we dont have to add the morphism processing aspect.
 	 */

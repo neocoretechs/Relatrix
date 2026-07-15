@@ -9,8 +9,9 @@ import java.util.concurrent.CompletableFuture;
 import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
-
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
+import com.neocoretechs.relatrix.key.IndexResolver;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -37,8 +38,8 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 * @throws IOException
 	 */
 	public RelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
-		RelatrixTransaction.getInstance(this);
-		asynchClient = new AsynchRelatrixClientTransaction(remoteNode, remotePort);	
+		super();
+		asynchClient = new AsynchRelatrixClientTransaction(remoteNode, remotePort);
 	}
 	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {

@@ -26,8 +26,8 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 public class ConnectionHandler {
 	private static boolean DEBUG = true;
 	protected SocketChannel channel;
-	private Object mutexWrite = new Object();
-	private Object mutexRead = new Object();
+	protected Object mutexWrite = new Object();
+	protected Object mutexRead = new Object();
 	public Object readMx = new Object();
 	public Object writeMx = new Object();
 	private static int QUEUESIZE = 32;
@@ -93,8 +93,6 @@ public class ConnectionHandler {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while queuing object", ie);
 		}
-		if(DEBUG)
-			System.out.printf("%s queued object %s channel:%s%n",this.getClass().getName(), obj, this.toString());
 	}
 
 	public Object readObject() throws IOException, ClassNotFoundException {

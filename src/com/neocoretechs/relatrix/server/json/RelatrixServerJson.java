@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixJson;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
@@ -172,12 +174,13 @@ public class RelatrixServerJson extends TCPServer {
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPWorker(datasocket);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-				SynchronizedThreadManager.getInstance().spin(uworker);
-
+             	IndexResolver indexResolver = new IndexResolver();
+            	indexResolver.setLocalJson();
+            	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+            	SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
                 if( DEBUG ) {
                 	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                 }
-
 			} catch(Exception e) {
 				System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());

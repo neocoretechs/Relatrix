@@ -15,9 +15,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
-
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode0Transaction;
 import com.neocoretechs.relatrix.iterator.transaction.FindHeadSetMode1Transaction;
@@ -56,7 +53,6 @@ import com.neocoretechs.relatrix.iterator.transaction.RelatrixIteratorTransactio
 import com.neocoretechs.relatrix.iterator.transaction.RelatrixKeysetIteratorTransaction;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
@@ -72,6 +68,7 @@ import com.neocoretechs.relatrix.type.Tuple;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.rocksack.session.DatabaseManager;
 
 /**
 * Top-level class that imparts behavior to the AbstractRelation subclasses which contain references for domain, map, range.<p>
@@ -142,11 +139,14 @@ public final class RelatrixTransaction {
 		synchronized(RelatrixTransaction.class) {
 			if(instance == null) {
 				instance = new RelatrixTransaction();
-				IndexResolver.setLocal();
 				RelatrixKVTransaction.classLoader = new HandlerClassLoader();
 				Thread.currentThread().setContextClassLoader(RelatrixKVTransaction.classLoader);
 				SerializedComparatorFactory.setClassLoader(RelatrixKVTransaction.classLoader);
 				try {
+					String tablespace = System.getProperty("tablespace");
+					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
+						throw new RuntimeException("tablespace property undefined or root path does not exist");
+					DatabaseManager.setTableSpaceDir(tablespace);
 					HandlerClassLoader.connectToLocalRepository(null);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
@@ -155,36 +155,7 @@ public final class RelatrixTransaction {
 		}
 		return instance;
 	}
-	/**
-	 * Create an instance of the server as a remote client, in effect. The client process
-	 * become the conduit to the remote bytecode repository.
-	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
-	 * @return The instance of this client process.
-	 */
-	public static RelatrixTransaction getInstance(ClientTransactionInterface cnti) {
-		synchronized(RelatrixTransaction.class) {
-			if(instance == null) {
-				instance = new RelatrixTransaction();
-				RelatrixKVTransaction.classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClientTransaction cntx;
-				try {
-					cntx = new AsynchRelatrixKVClientTransaction(((AsynchRelatrixKVClientTransaction)cnti).getRemoteNode(), ((AsynchRelatrixKVClientTransaction)cnti).getRemotePort());
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-				Thread.currentThread().setContextClassLoader(RelatrixKVTransaction.classLoader);
-				SerializedComparatorFactory.setClassLoader(RelatrixKVTransaction.classLoader);
-				try {
-					HandlerClassLoader.connectToRemoteRepository(cntx);
-					IndexResolver.setRemote(cntx);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return instance;
-	}
+
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
@@ -203,16 +174,6 @@ public final class RelatrixTransaction {
 	
 	public static void setOptimisticConcurrency(boolean optimistic) {
 		RelatrixKVTransaction.setOptimisticConcurrency(optimistic);
-	}
-	
-	/**
-	 * Verify that we are specifying a directory, then set that as top level file structure and database name
-	 * @param path
-	 * @throws IOException
-	 */
-	public static void setTablespace(String path) throws IOException {
-		getInstance();
-		RelatrixKVTransaction.setTablespace(path);
 	}
 	
 	/**
@@ -3794,11 +3755,5 @@ public final class RelatrixTransaction {
 		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
 	}
 	
-	public static void main(String[] args) throws Exception {
-		setTablespace(args[0]);
-		RelatrixTransaction.findStream(new TransactionId(args[1]), '*', '*', '*').forEach((s) -> {
-			System.out.println(s.toString());
-		});
-	}
  
 }

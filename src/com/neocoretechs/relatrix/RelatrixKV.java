@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -51,8 +52,11 @@ public final class RelatrixKV {
 				Thread.currentThread().setContextClassLoader(classLoader);
 				SerializedComparatorFactory.setClassLoader(classLoader);
 				try {
+					String tablespace = System.getProperty("tablespace");
+					if(tablespace == null || !Path.of(tablespace).getParent().toFile().exists())
+						throw new RuntimeException("tablespace property undefined or root path does not exist");
+					DatabaseManager.setTableSpaceDir(tablespace);
 					HandlerClassLoader.connectToLocalRepository(null); // tablespace property
-					IndexResolver.setLocal();
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -60,36 +64,7 @@ public final class RelatrixKV {
 		}
 		return instance;
 	}
-	/**
-	 * Create an instance of the server as a remote client, in effect. The client process
-	 * become the conduit to the remote bytecode repository.
-	 * @param cnti The client we have spun up in an application, it will stay pinned as our pipeline
-	 * @return The instance of this client process.
-	 */
-	public static RelatrixKV getInstance(ClientNonTransactionInterface cnti) {
-		synchronized(RelatrixKV.class) {
-			if(instance == null) {
-				instance = new RelatrixKV();
-				classLoader = new HandlerClassLoader();
-				AsynchRelatrixKVClient cntx;
-				try {
-					cntx = new AsynchRelatrixKVClient(((AsynchRelatrixKVClient)cnti).getRemoteNode(), ((AsynchRelatrixKVClient)cnti).getRemotePort());
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-				Thread.currentThread().setContextClassLoader(classLoader);
-				SerializedComparatorFactory.setClassLoader(classLoader);
-				try {
-					HandlerClassLoader.connectToRemoteRepository(cntx);
-					IndexResolver.setRemote(cntx);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return instance;
-	}
+
 	public static BufferedMap getMap(Comparable type) throws IllegalAccessException, IOException {
 		return getMap(type.getClass());
 	}
@@ -113,14 +88,6 @@ public final class RelatrixKV {
 			mapCache.put(type.getName()+alias.getAlias(), t);
 		}
 		return t;
-	}
-	/**
-	 * Verify that we are specifying a directory, then set that as top level file structure and database name
-	 * @param path
-	 * @throws IOException
-	 */
-	public static void setTablespace(String path) throws IOException {
-		DatabaseManager.setTableSpaceDir(path);
 	}
 	
 	public static String getTableSpace() {

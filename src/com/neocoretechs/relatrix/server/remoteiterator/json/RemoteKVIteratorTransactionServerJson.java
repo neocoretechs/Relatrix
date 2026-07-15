@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.TCPServer;
 
@@ -52,12 +54,13 @@ public class RemoteKVIteratorTransactionServerJson extends TCPServer {
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPKVIteratorTransactionWorkerJson(datasocket, iteratorClass);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-				SynchronizedThreadManager.getInstance().spin(uworker);
-
+             	IndexResolver indexResolver = new IndexResolver();
+            	indexResolver.setLocalJson();
+            	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+            	SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);      
 				if( DEBUG ) {
 					System.out.println(this.getClass().getName()+" starting new worker "+uworker);
 				}
-
 			} catch(Exception e) {
 				System.out.println(this.getClass().getName()+" Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());

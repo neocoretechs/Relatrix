@@ -13,7 +13,8 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relatrix;
-
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorServer;
 
@@ -170,12 +171,13 @@ public class RelatrixServer extends TCPServer {
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPWorker(datasocket);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-				SynchronizedThreadManager.getInstance().spin(uworker);
-
+	           	IndexResolver indexResolver = new IndexResolver();
+        		indexResolver.setLocal();
+        		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+        		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
                 if( DEBUG ) {
                 	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                 }
-
 			} catch(Exception e) {
 				System.out.println("Relatrix Server node configuration server socket accept exception "+e);
 				System.out.println(e.getMessage());
@@ -186,7 +188,7 @@ public class RelatrixServer extends TCPServer {
 
 	/**
 	 * Load the methods of main Relatrix class as remotely invokable then we instantiate RelatrixServer.<p>
-	 * @param args If length 1, then default port 9000
+	 * @param args If length 1, then default port 9000, args 2 = server, port
 	 * @throws Exception If problem starting server.
 	 */
 	public static void main(String args[]) throws Exception {
