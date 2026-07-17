@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -32,12 +34,12 @@ public class TCPWorker implements Runnable {
 	
 	public TCPWorker() {}
 	
-    public TCPWorker(SocketChannel workerSocket) throws IOException {
+    public TCPWorker(SocketChannel workerSocket, ParallelExecutionContext context, ClassLoader classLoader) throws IOException {
     	this.workerSocket = workerSocket;
-		workerHandler = new ConnectionHandler(workerSocket);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		// spin the request processor thread for the worker
 		workerRequestProcessor = new WorkerRequestProcessor(this);
-		SynchronizedThreadManager.getInstance().spin(workerRequestProcessor);
+		SynchronizedThreadManager.getInstance().spinWithContext(workerRequestProcessor, context);
 		if( DEBUG ) {
 			System.out.printf("%s%n",this);
 			if(!workerSocket.isConnected())
@@ -120,6 +122,10 @@ public class TCPWorker implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPWorker [remote master node] [remote master port]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))))); // master port
+      	IndexResolver indexResolver = new IndexResolver();
+    	indexResolver.setLocal();
+    	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+    	HandlerClassLoader hcl = new HandlerClassLoader();
+		SynchronizedThreadManager.getInstance().spin(new TCPWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))), pec, hcl));
 	}
 }

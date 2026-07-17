@@ -1059,6 +1059,17 @@ public final class RelatrixKV {
 		BufferedMap ttm = getMap(clazz);
 		DatabaseManager.removeMap(ttm);
 	}
-
+	@ServerMethod
+	public static void flushAndCompactDB(Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		BufferedMap ttm = getMap(clazz);
+		ttm.flushAndCompactDB();
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		BufferedMap ttm = getMap(alias, clazz);
+		ttm.flushAndCompactDB();
+	}
 }
 

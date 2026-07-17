@@ -14,6 +14,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
@@ -46,7 +47,7 @@ public final class RelatrixKVTransaction {
 	}
 	// 2.) volatile instance
 	private static volatile RelatrixKVTransaction instance = null;
-	static HandlerClassLoader classLoader = null;
+	public static HandlerClassLoader classLoader = null;
 	// 3.) lock class, assign instance if null
 	public static RelatrixKVTransaction getInstance() {
 		synchronized(RelatrixKVTransaction.class) {
@@ -1309,7 +1310,18 @@ public final class RelatrixKVTransaction {
 		DatabaseManager.removeTransactionalMap(xid, ttm);
 		mapCache.remove(clazz.getName());
 	}
-
+	@ServerMethod
+	public static void flushAndCompactDB(TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		TransactionalMap ttm = getMap(clazz, xid);
+		ttm.flushAndCompactDB();
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(TransactionId xid, Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		TransactionalMap ttm = getMap(alias, clazz, xid);
+		ttm.flushAndCompactDB();
+	}
 
 }
 

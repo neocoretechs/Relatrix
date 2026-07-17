@@ -9,12 +9,10 @@ import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -81,7 +79,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		waitSocket = new Object();
 		if(workerSocket == null) {
 			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-			workerHandler = new ConnectionHandler(workerSocket);
+			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader());
 			if(DEBUG)
 				System.out.printf("%s process() called for %s%n",this.getClass().getName(), this.toString());
 		}

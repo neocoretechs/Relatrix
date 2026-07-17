@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
@@ -44,9 +44,9 @@ public class TCPIteratorWorker implements Runnable {
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
 	
-    public TCPIteratorWorker(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
+    public TCPIteratorWorker(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader);
        	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
     	if(relatrixIteratorMethod == null) {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
@@ -166,6 +166,6 @@ public class TCPIteratorWorker implements Runnable {
      	IndexResolver indexResolver = new IndexResolver();
     	indexResolver.setLocal();
     	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2]), pec);
+    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2], new HandlerClassLoader()), pec);
 	}
 }

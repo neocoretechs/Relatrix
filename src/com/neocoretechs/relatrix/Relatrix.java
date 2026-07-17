@@ -65,6 +65,7 @@ import com.neocoretechs.relatrix.type.Tuple;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
+import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -3375,7 +3376,16 @@ public final class Relatrix {
 	{
 		return new RelatrixStream(new RelatrixEntrysetIterator(alias,clazz));
 	}
-
+	@ServerMethod
+	public static void flushAndCompactDB(Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		RelatrixKV.flushAndCompactDB(clazz);
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		RelatrixKV.flushAndCompactDB(alias, clazz);
+	}
 	/**
 	 * Generate the recursively resolved list of relationships in the given AbstractRelation. If none of the components
 	 * of the relationship are themselves relationships, the original set of related objects in the tuple is returned as a list.

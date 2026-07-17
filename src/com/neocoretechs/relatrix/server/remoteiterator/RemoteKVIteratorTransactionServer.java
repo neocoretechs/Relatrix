@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.TCPServer;
 
@@ -49,7 +50,7 @@ public class RemoteKVIteratorTransactionServer extends TCPServer {
 							uworker.stopWorker();
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPKVIteratorTransactionWorker(datasocket, iteratorClass);
+				uworker = new TCPKVIteratorTransactionWorker(datasocket, iteratorClass, RelatrixKVTransaction.classLoader);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 				SynchronizedThreadManager.getInstance().spin(uworker);
 

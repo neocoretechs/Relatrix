@@ -24,12 +24,12 @@ import com.neocoretechs.relatrix.client.json.util.Converter;
 public class ConnectionHandlerJson extends ConnectionHandler {
 	private static boolean DEBUG = true;
 
-	public ConnectionHandlerJson() {
-		super();
+	public ConnectionHandlerJson(ClassLoader classLoader) {
+		super(classLoader);
 	}
 
-	public ConnectionHandlerJson(SocketChannel ch) throws IOException {
-		super(ch);
+	public ConnectionHandlerJson(SocketChannel ch, ClassLoader classLoader) throws IOException {
+		super(ch, classLoader);
 	}
 
 	@Override

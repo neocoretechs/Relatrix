@@ -161,15 +161,15 @@ public class RelatrixKVTransactionServer extends TCPServer {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
                     }
-                    uworker = new TCPWorker(datasocket);
-                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);
                 	IndexResolver indexResolver = new IndexResolver();
             		indexResolver.setLocal();
             		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-            		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);              
+                    uworker = new TCPWorker(datasocket, pec, RelatrixKVTransaction.classLoader);
+                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);
                     if( DEBUG ) {
                     	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                     }
+            		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
                     
 				} catch(Exception e) {
                     System.out.println("Relatrix K/V Transaction Server node configuration server socket accept exception "+e);

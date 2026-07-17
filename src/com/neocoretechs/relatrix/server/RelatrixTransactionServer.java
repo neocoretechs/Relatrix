@@ -12,6 +12,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -186,12 +187,12 @@ public class RelatrixTransactionServer extends TCPServer {
 						if( uworker.shouldRun )
 							uworker.stopWorker();
 				}              
-				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPWorker(datasocket);
-				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
 	           	IndexResolver indexResolver = new IndexResolver();
         		indexResolver.setLocal();
         		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+    			// Create the worker, it in turn creates a WorkerRequestProcessor
+				uworker = new TCPWorker(datasocket, pec, RelatrixKVTransaction.classLoader);
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
         		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
 
                 if( DEBUG ) {

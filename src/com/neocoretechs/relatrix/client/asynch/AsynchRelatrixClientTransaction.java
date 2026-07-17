@@ -26,6 +26,7 @@ import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer} 
@@ -51,7 +52,8 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	protected CircularBlockingDeque<RelatrixTransactionStatementInterface> queuedRequests = new CircularBlockingDeque<RelatrixTransactionStatementInterface>(REQUEST_QUEUE);
 	private String remoteNode;
 	private int remotePort;
-
+	private HandlerClassLoader classLoader;
+	
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
 	
@@ -78,7 +80,9 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 		//
 		// send message to spin connection
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		workerHandler = new ConnectionHandler(workerSocket);
+		classLoader = new HandlerClassLoader();
+		Thread.currentThread().setContextClassLoader(classLoader);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if( DEBUG ) {
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}

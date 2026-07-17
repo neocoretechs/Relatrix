@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
@@ -39,9 +39,9 @@ public class TCPKVIteratorWorkerJson implements Runnable {
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixKVIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixKVIteratorMethod = null;
 	
-    public TCPKVIteratorWorkerJson(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
+    public TCPKVIteratorWorkerJson(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader);
     	relatrixKVIteratorMethod = relatrixKVIteratorMethods.get(iteratorClass);
     	if(relatrixKVIteratorMethod == null) {
     		relatrixKVIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
@@ -156,6 +156,6 @@ public class TCPKVIteratorWorkerJson implements Runnable {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.remoteiterator.json.TCPKVIteratorWorkerJson [remote master node] [remote master port] [class]");
 		}
-		SynchronizedThreadManager.getInstance().spin(new TCPKVIteratorWorkerJson(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2])); // master port, class
+		SynchronizedThreadManager.getInstance().spin(new TCPKVIteratorWorkerJson(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2],new HandlerClassLoader())); // master port, class
 	}
 }

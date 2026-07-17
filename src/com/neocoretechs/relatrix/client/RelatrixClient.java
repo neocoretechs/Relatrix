@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.

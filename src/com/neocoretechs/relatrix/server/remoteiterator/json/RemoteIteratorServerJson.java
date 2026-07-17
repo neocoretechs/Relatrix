@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
@@ -44,7 +45,7 @@ public class RemoteIteratorServerJson extends TCPServer {
 							uworker.stopWorker();
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPIteratorWorkerJson(datasocket, iteratorClass);
+				uworker = new TCPIteratorWorkerJson(datasocket, iteratorClass, RelatrixKVJson.classLoader);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
              	IndexResolver indexResolver = new IndexResolver();
             	indexResolver.setLocalJson();

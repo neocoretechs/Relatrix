@@ -24,8 +24,8 @@ public class IndexResolver {
 	 * @throws IOException
 	 */
 	public IndexInstanceTableInterface getIndexInstanceTable() throws IOException {
-		if(DEBUG)
-			System.out.println("Returning instance table:"+instanceTable);
+		//if(DEBUG)
+		//	System.out.println("Returning instance table:"+instanceTable);
 		return instanceTable;
 	}
 	

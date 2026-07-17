@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
+import com.neocoretechs.relatrix.Serializer;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -40,16 +41,19 @@ public class ConnectionHandler {
 	// writer/reader threads state
 	protected final Reader reader;
 	protected final Writer writer;
+	protected ClassLoader classLoader;
 
-	public ConnectionHandler() {
+	public ConnectionHandler(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 		this.readQueue = new ArrayBlockingQueue<>(QUEUESIZE, true);
 		this.writeQueue = new ArrayBlockingQueue<>(QUEUESIZE, true);
 		this.reader = new Reader(this);
 		this.writer = new Writer(this);
 	}
 
-	public ConnectionHandler(SocketChannel ch) throws IOException {
+	public ConnectionHandler(SocketChannel ch, ClassLoader classLoader) throws IOException {
 		this.channel = ch;
+		this.classLoader = classLoader;
 		ch.configureBlocking(true);
 		ch.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		ch.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
@@ -137,7 +141,7 @@ public class ConnectionHandler {
 	}
     
 	public void sendObjectFramed(Object obj) throws IOException {
-		byte[] payload = RelatrixKVJson.serializeObject(obj);
+		byte[] payload = Serializer.serializeObject(obj);
 		synchronized(mutexWrite) {
 			OutputStream os = Channels.newOutputStream(channel);
 			DataOutputStream dos = new DataOutputStream(os);
@@ -167,7 +171,7 @@ public class ConnectionHandler {
 			dis.readFully(payload); // blocks until payload read or throws EOFException
 		}
 		// Deserialize from the frame bytes (fresh OIS per message)
-		return RelatrixKVJson.deserializeObject(payload);
+		return Serializer.deserializeObject(payload, classLoader);
 	}
 
 	@Override

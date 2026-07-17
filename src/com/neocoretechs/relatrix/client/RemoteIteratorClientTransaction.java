@@ -81,7 +81,7 @@ public class RemoteIteratorClientTransaction implements Runnable, RelatrixTransa
 		waitSocket = new Object();
 		if(workerSocket == null) {
 			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-			workerHandler = new ConnectionHandler(workerSocket);
+			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader());
 			if(DEBUG)
 				System.out.println("Channel created to "+workerHandler);
 			// spin up 'this' to receive connection request from remote server 'slave' to our 'master'

@@ -168,11 +168,11 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
                     }
-                    uworker = new TCPWorker(datasocket);
-                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
                  	IndexResolver indexResolver = new IndexResolver();
                 	indexResolver.setLocalJson();
                 	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+                    uworker = new TCPWorker(datasocket, pec, RelatrixKVJsonTransaction.classLoader);
+                    dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
                 	SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec); 
                     if( DEBUG ) {
                     	System.out.println(this.getClass().getName()+" starting new worker "+uworker);

@@ -19,9 +19,6 @@ import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
-import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode0Json;
 import com.neocoretechs.relatrix.iterator.json.FindHeadSetMode1Json;
@@ -60,18 +57,21 @@ import com.neocoretechs.relatrix.iterator.json.RelatrixEntrysetIteratorJson;
 import com.neocoretechs.relatrix.iterator.json.RelatrixKeysetIteratorJson;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
+
 import com.neocoretechs.relatrix.stream.json.RelatrixStreamJson;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.type.Tuple;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -3613,6 +3613,15 @@ public final class RelatrixJson {
 			throw new IOException(e);
 		}
 	}
-
+	@ServerMethod
+	public static void flushAndCompactDB(Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		RelatrixKVJson.flushAndCompactDB(clazz);
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		RelatrixKVJson.flushAndCompactDB(alias, clazz);
+	}
 
 }

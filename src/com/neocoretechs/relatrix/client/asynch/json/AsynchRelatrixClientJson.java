@@ -25,6 +25,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
 /**
  * This class functions as client to the {@link com.neocoretechs.relatrix.server.RelatrixServerJson} 
@@ -42,6 +43,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	protected CircularBlockingDeque<RelatrixStatementInterface> queuedRequests = new CircularBlockingDeque<RelatrixStatementInterface>(REQUEST_QUEUE);
 	private String remoteNode;
 	private int remotePort;
+	private HandlerClassLoader classLoader;
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandlerJson workerHandler;
@@ -63,7 +65,9 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 		this.remotePort = remotePort;
 		// send message to spin connection
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		workerHandler = new ConnectionHandlerJson(workerSocket);
+		classLoader = new HandlerClassLoader();
+		Thread.currentThread().setContextClassLoader(classLoader);
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'

@@ -54,7 +54,7 @@ public final class RelatrixKVJsonTransaction {
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	private static ConcurrentHashMap<String, TransactionalMap> mapCache = new ConcurrentHashMap<String, TransactionalMap>();
-	static HandlerClassLoader classLoader = null;
+	public static HandlerClassLoader classLoader = null;
 	public static boolean optimisticConcurrency = true;
 	
 	// Multithreaded double check Singleton setups:
@@ -1879,6 +1879,18 @@ public final class RelatrixKVJsonTransaction {
 		TransactionalMap ttm = getMap(clazz, xid);
 		DatabaseManager.removeTransactionalMap(xid, ttm);
 		mapCache.remove(clazz.getName());
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		TransactionalMap ttm = getMap(clazz, xid);
+		ttm.flushAndCompactDB();
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(TransactionId xid, Alias alias, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		TransactionalMap ttm = getMap(alias, clazz, xid);
+		ttm.flushAndCompactDB();
 	}
 }
 

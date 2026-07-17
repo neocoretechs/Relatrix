@@ -3957,6 +3957,14 @@ public final class RelatrixJsonTransaction {
 	public static void loadClassFromJar(String jar) throws IOException {
 		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
 	}
-	
- 
+	@ServerMethod
+	public static void flushAndCompactDB(TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		RelatrixKVJsonTransaction.flushAndCompactDB(xid,clazz);
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(Alias alias, TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		RelatrixKVJsonTransaction.flushAndCompactDB(xid,alias,clazz);
+	}
 }

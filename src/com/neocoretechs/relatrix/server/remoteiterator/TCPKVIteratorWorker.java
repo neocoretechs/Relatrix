@@ -18,6 +18,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
@@ -40,9 +41,9 @@ public class TCPKVIteratorWorker implements Runnable {
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixKVIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixKVIteratorMethod = null;
 	
-    public TCPKVIteratorWorker(SocketChannel datasocket, String iteratorClass) throws IOException, ClassNotFoundException {
+    public TCPKVIteratorWorker(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader);
     	relatrixKVIteratorMethod = relatrixKVIteratorMethods.get(iteratorClass);
     	if(relatrixKVIteratorMethod == null) {
     		relatrixKVIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
@@ -159,6 +160,6 @@ public class TCPKVIteratorWorker implements Runnable {
      	IndexResolver indexResolver = new IndexResolver();
     	indexResolver.setLocal();
     	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPKVIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2]),pec); // master port, class
+    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPKVIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))),args[2],new HandlerClassLoader()), pec); // master port, class
 	}
 }

@@ -3754,6 +3754,15 @@ public final class RelatrixTransaction {
 	public static void loadClassFromJar(String jar) throws IOException {
 		HandlerClassLoader.setBytesInRepositoryFromJar(jar);
 	}
-	
+	@ServerMethod
+	public static void flushAndCompactDB(TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException
+	{
+		RelatrixKVTransaction.flushAndCompactDB(xid,clazz);
+	}
+	@ServerMethod
+	public static void flushAndCompactDB(Alias alias, TransactionId xid, Class<?> clazz) throws IOException, IllegalAccessException, NoSuchElementException
+	{
+		RelatrixKVTransaction.flushAndCompactDB(xid,alias,clazz);
+	}
  
 }
