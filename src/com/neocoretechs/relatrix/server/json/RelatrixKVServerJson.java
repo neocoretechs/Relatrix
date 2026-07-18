@@ -162,46 +162,6 @@ public class RelatrixKVServerJson extends TCPServer {
                }
 		}
 	}
-	private static String safeMessage(String msg) {
-	    if (msg == null) return "unexpected error";
-	    String cleaned = msg.replaceAll("[\\r\\n]+", " ");
-	    cleaned = cleaned.replaceAll("(/[^\\s]{20,})", "[redacted]");
-	    cleaned = cleaned.replaceAll("\\s{2,}", " ").trim();
-	    return cleaned.length() > 200 ? cleaned.substring(0, 200) + "…" : cleaned;
-	}
-
-	private static String mapToErrorCode(Throwable t) {
-	    if (t == null) return "SERVER_ERROR";
-	    // Example mappings, adapt to your domain
-	    if (t instanceof IllegalArgumentException) return "BAD_REQUEST";
-	    if (t instanceof java.nio.channels.ClosedChannelException) return "CONNECTION_CLOSED";
-	    if (t.getClass().getSimpleName().contains("Index")) return "INDEX_ERROR";
-	    return "SERVER_ERROR";
-	}
-	
-	public static Throwable formatError(Throwable t, String correlationId) {
-	    String errorCode = mapToErrorCode(t);
-	    String message = safeMessage(t == null ? null : t.getMessage());
-	    String causeClass = t == null ? "Unknown" : t.getClass().getSimpleName();
-	    String serverTime = java.time.Instant.now().toString();
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("errorCode:");
-	    sb.append(errorCode);
-	    sb.append(" cause:");
-	    sb.append(safeMessage(t.getCause() == null ? null : t.getCause().toString()));
-	    sb.append("\r\n");
-	    sb.append("message:");
-	    sb.append(message);
-	    sb.append("\r\n");
-	    sb.append("correlationId:");
-	    sb.append(correlationId);
-	    sb.append(" serverTime");
-	    sb.append(serverTime);
-	    sb.append(" causeClass");
-	    sb.append(causeClass);
-	    sb.append("\r\n");
-	    return new Throwable(sb.toString());
-	}
 
 	/**
 	 * Load the methods of main RelatrixKVJson class as remotely invokable then we instantiate RelatrixKVServerJson.<p>

@@ -30,7 +30,7 @@ import com.neocoretechs.relatrix.server.ServerInvokeMethod;
  *
  */
 public class TCPKVIteratorWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static boolean TEST = false;
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -49,7 +49,6 @@ public class TCPKVIteratorWorker implements Runnable {
     		relatrixKVIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
     		relatrixKVIteratorMethods.put(iteratorClass,relatrixKVIteratorMethod);
     	}
-
 		if(DEBUG) {
 			System.out.printf("%s with handler:%s%n", this.getClass().getName(), workerHandler.toString()); 
 		}
@@ -63,7 +62,6 @@ public class TCPKVIteratorWorker implements Runnable {
 	 * @param irf
 	 */
 	public void sendResponse(RemoteResponseInterface irf) {
-	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerHandler.toString());
 		}

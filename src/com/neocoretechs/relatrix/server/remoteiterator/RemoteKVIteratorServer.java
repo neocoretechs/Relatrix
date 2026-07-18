@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.server.TCPServer;
  */
 public class RemoteKVIteratorServer extends TCPServer {
 	private ConcurrentHashMap<String, TCPKVIteratorWorker> dbToWorker = new ConcurrentHashMap<String, TCPKVIteratorWorker>();
-	private static  boolean DEBUG = false;
+	private static  boolean DEBUG = true;
 	private String iteratorClass;
 	
 	public RemoteKVIteratorServer(String iteratorClass, InetAddress address, int port) throws IOException, ClassNotFoundException {

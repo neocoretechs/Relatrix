@@ -7,7 +7,6 @@ import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
 /**
  * Once requests from master are queued we extract them here and process them.<p>
@@ -99,7 +98,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			}
 		} catch (Exception e1) {
 			System.out.println("***Local processing EXCEPTION "+e1+", queuing fault to response");
-			iori.setObjectReturn(RelatrixKVServerJson.formatError(e1, ""));
+			iori.setObjectReturn(ErrorUtil.formatError(e1, ""));
 			iori.setReturnClass("java.lang.Throwable");
 			// And finally, send the package back up the line
 			responseWorker.sendResponse(iori);

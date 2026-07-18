@@ -55,31 +55,6 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 		}
 	}
 
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The next iterated object or null
-	 */
-	public Object next(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		return sendCommand((RelatrixTransactionStatementInterface) rii);
-	}
-
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The boolean result of hasNext on server
-	 */	
-	public boolean hasNext(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("hasNext");
-		rii.setParamArray(new Object[0]);
-		return (boolean) sendCommand((RelatrixTransactionStatementInterface) rii);
-	}
 
 	public void close(RelatrixStatementInterface rii) throws Exception {
 		rii.setMethodName("next");

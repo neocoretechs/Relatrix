@@ -9,7 +9,9 @@ import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * Set a transport object for Morphisms, which contain transient objects.
- * At the destination, recover the transient instances and set them in the abstractRelation.
+ * At the destination, recover the transient instances and set them in the {@link AbstractRelation}.<p>
+ * We are careful to maintain references to fields only as we dont want to resolve keys, and hence no
+ * reliance on the IndexResolver or IndexInstanceTables.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */

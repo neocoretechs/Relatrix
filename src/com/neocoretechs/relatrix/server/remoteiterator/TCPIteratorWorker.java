@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.server.ServerInvokeMethod;
  *
  */
 public class TCPIteratorWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static boolean TEST = false;
 	
 	public volatile boolean shouldRun = true;
@@ -52,7 +52,6 @@ public class TCPIteratorWorker implements Runnable {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
     		relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
     	}
-	
 		if(DEBUG)
 			System.out.printf("%s about to connect socket to SocketAddress IPAddress:%s%n", this.getClass().getName(), workerHandler);
 	
@@ -70,7 +69,6 @@ public class TCPIteratorWorker implements Runnable {
 	 * @param irf
 	 */
 	public void sendResponse(RemoteResponseInterface irf) {
-	
 		if( DEBUG ) {
 			System.out.println("Adding response "+irf+" to outbound from "+this.getClass().getName()+" to "+workerHandler);
 		}

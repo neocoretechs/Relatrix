@@ -17,7 +17,7 @@ import com.neocoretechs.rocksack.Alias;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2021
  */
 public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // remoteNode is ignored and get getLocalHost is used
 	public static boolean SHOWDUPEKEYEXCEPTION = false;
 	private Object mutex = new Object();

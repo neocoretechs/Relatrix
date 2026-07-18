@@ -35,8 +35,6 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt = new Object();
-	private transient Object waitPayload = new Object();
-	private transient Object waitSocket = new Object();
 	
 	private String session;
 	private Object objectReturn;
@@ -47,11 +45,11 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	private String returnClass;
 	
 	private transient RemoteIteratorClient returnPayload;
+	private transient Object waitPayload = new Object();
 
 	/**
 	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket 
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
@@ -75,13 +73,15 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	 */
 	@Override
 	public void process() throws Exception {
-		waitPayload = new Object();
-		waitSocket = new Object();
 		if(workerSocket == null) {
 			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader());
+			waitPayload = new Object();
+			SynchronizedThreadManager.getInstance().spin(this);
 			if(DEBUG)
 				System.out.printf("%s process() called for %s%n",this.getClass().getName(), this.toString());
+		} else {
+			throw new IOException(String.format("%s process() called for existing workerSocket %s%n",this.getClass().getName(), this.toString()));
 		}
 	}
 	
@@ -89,22 +89,20 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	public void run() {
 		try {
 			while(shouldRun) {
-				synchronized(waitSocket) {
-					waitSocket.wait();
-				}
 				returnPayload = (RemoteIteratorClient) workerHandler.readObject();
 				objectReturn = returnPayload.getObjectReturn();
+				if( DEBUG )
+					System.out.printf("%s FROM Remote, from remote node:%s remote port:%s return object:%s%n",this.getClass().getName(),remoteNode,String.valueOf(remotePort),objectReturn);
 				if(objectReturn == TransportMorphism.class)
 					objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
 				else
 					if(objectReturn instanceof Result)
 						((Result)objectReturn).unpackFromTransport();
-				if( DEBUG )
-					System.out.printf("%s FROM Remote, from remote node:%s remote port:%s%n",this.getClass().getName(),remoteNode,String.valueOf(remotePort));
-				if( objectReturn instanceof Exception ) {
-						System.out.println("RemoteIteratorClient: ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
-						objectReturn = ((Throwable)objectReturn).getCause();
-				}
+					else
+						if(objectReturn instanceof Exception ) {
+							System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
+							objectReturn = ((Throwable)objectReturn).getCause();
+						}
 				synchronized(waitPayload) {
 					waitPayload.notifyAll();
 				}
@@ -125,8 +123,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	 */
 	public void sendCommand() throws Exception {
 		workerHandler.sendObject(this);
-		synchronized(waitSocket) {
-			waitSocket.notify();
+		synchronized(waitPayload) {
+			waitPayload.wait();
 		}
 	}
 	/**
@@ -144,11 +142,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		synchronized(waitPayload) {
-			try {
-				waitPayload.wait();
-			} catch (InterruptedException e) {}
-		}
+		if(DEBUG)
+			System.out.printf("%s waitsocket return next %s%n",this.getClass().getName(), this.toString());
 		return objectReturn;
 	}
 	/**
@@ -166,11 +161,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		synchronized(waitPayload) {
-			try {
-				waitPayload.wait();
-			} catch (InterruptedException e) {}
-		}
+		if(DEBUG)
+			System.out.printf("%s waitsocket return hasNext %s%n",this.getClass().getName(), this.toString());
 		return (boolean) objectReturn;
 	}
 	/**

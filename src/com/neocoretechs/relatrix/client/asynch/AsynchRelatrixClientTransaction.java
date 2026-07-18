@@ -173,33 +173,6 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 	}
 
 	/**
-	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param xid Transaction Id
-	 * @param rii RelatrixTransactionStatement
-	 * @return The next iterated object or null
-	 */
-	public CompletableFuture<Object> next(RelatrixTransactionStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		return queueCommand(rii);
-	}
-	/**
-	 * Called from the {@link RemoteIteratorTransaction} for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param xid Transaction Id
-	 * @param rii RelatrixTransactionStatement
-	 * @return The boolean result of hasNext on server
-	 */	
-	public CompletableFuture<Object> hasNext(RelatrixTransactionStatementInterface rii) throws Exception {
-		rii.setMethodName("hasNext");
-		rii.setParamArray(new Object[0]);
-		return queueCommand(rii);
-	}
-
-	/**
 	 * Issue a close which will merely remove the request resident object here and on the server
 	 * @param rii
 	 */
