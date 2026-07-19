@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.server;
 
-import java.io.File;
 import java.io.IOException;
 
 import java.net.InetAddress;
@@ -8,7 +7,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -49,6 +47,8 @@ public class RelatrixKVServer extends TCPServer {
 	
 	public static Class<?> iteratorServerClass = com.neocoretechs.relatrix.iterator.IteratorWrapper.class;
 	
+	public static Class<?> relatrixClass = com.neocoretechs.relatrix.RelatrixKV.class;
+	
 	public static String[] iteratorServers = new String[]{
 			iteratorServerClass.getName()
 	};		
@@ -68,7 +68,7 @@ public class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.port = port;
-		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	
@@ -78,7 +78,7 @@ public class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.port = port;
-		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress,port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -89,7 +89,7 @@ public class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.port = port;
-		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -100,7 +100,7 @@ public class RelatrixKVServer extends TCPServer {
 	public RelatrixKVServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVServer.port = port;
-		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKV", 0);
+		RelatrixKVServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)

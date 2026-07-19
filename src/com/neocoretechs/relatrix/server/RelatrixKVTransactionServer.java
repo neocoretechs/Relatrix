@@ -14,7 +14,8 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
-import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorServer;
+
+import com.neocoretechs.relatrix.server.remoteiterator.RemoteKVIteratorTransactionServer;
 
 /**
  * Key/Value Remote invocation of methods consists of providing reflected classes here which are invoked via simple
@@ -50,9 +51,14 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
 	
+	public static Class<?> iteratorServerClass = com.neocoretechs.relatrix.iterator.IteratorWrapper.class;
+	
+	public static Class<?> relatrixClass = com.neocoretechs.relatrix.RelatrixKVTransaction.class;
+
 	public static String[] iteratorServers = new String[]{
-			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
-	};				
+			iteratorServerClass.getName()
+	};		
+		
 	public static int[] iteratorPorts = new int[] {
 			9020
 	};
@@ -71,10 +77,10 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.port = port;
-		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -87,11 +93,11 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.port = port;
-		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);	
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -105,11 +111,11 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(SocketAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.port = port;
-		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);	
 		address = iaddress;
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -123,10 +129,10 @@ public class RelatrixKVTransactionServer extends TCPServer {
 	public RelatrixKVTransactionServer(SocketAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServer.port = port;
-		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		RelatrixKVTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);	
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
-			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
+			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
 		
 		SynchronizedThreadManager.startSupervisorThread();
 	}
@@ -172,7 +178,7 @@ public class RelatrixKVTransactionServer extends TCPServer {
             		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
                     
 				} catch(Exception e) {
-                    System.out.println("Relatrix K/V Transaction Server node configuration server socket accept exception "+e);
+                    System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                }
