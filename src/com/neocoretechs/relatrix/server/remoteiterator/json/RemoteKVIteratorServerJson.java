@@ -9,6 +9,8 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.TCPServer;
 
@@ -45,9 +47,11 @@ public class RemoteKVIteratorServerJson extends TCPServer {
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPKVIteratorWorkerJson(datasocket, iteratorClass, RelatrixKVJson.classLoader);
-				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-				SynchronizedThreadManager.getInstance().spin(uworker);
-
+				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);
+	           	IndexResolver indexResolver = new IndexResolver();
+            	indexResolver.setLocal();
+            	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+            	SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
 				if( DEBUG ) {
 					System.out.println(this.getClass().getName()+" starting new worker "+uworker);
 				}

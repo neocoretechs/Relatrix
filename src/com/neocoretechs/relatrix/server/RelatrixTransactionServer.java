@@ -22,15 +22,15 @@ import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransaction
 /**
  * Remote invocation of methods consists of providing reflected classes here which are invoked via simple
  * serializable descriptions of the method and parameters. Providing additional resources involves adding
- * another static instance of ServerInvokeMethod and populating that at construction of this class.<p/>
+ * another static instance of ServerInvokeMethod and populating that at construction of this class.<p>
  * In the processing pipeline you must provide a 'process' implementation which will call 'invokeMethod'
  * and if the remote call is linked to an object instance on the server, as it 
  * is for non-serializable iterators, then you must maintain 
- * a mapping from session GUID to an instance of the object you are invoking on the server side.<p/>
- * Static methods need no server side object in residence.<br/>
+ * a mapping from session GUID to an instance of the object you are invoking on the server side.<p>
+ * Static methods need no server side object in residence.<br>
  * Functionally this class Extends TCPServer, 
- * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p/>
- * WorkerRequestProcessor takes requests and processes them.<br/>
+ * Starts a TCPWorker, which spawns a WorkerRequestProcessor.<p>
+ * WorkerRequestProcessor takes requests and processes them.<br>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2015, 2021, 2022, 2024
  *
  */
@@ -48,7 +48,8 @@ public class RelatrixTransactionServer extends TCPServer {
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
-
+	
+	public static Class<?> relatrixClass = com.neocoretechs.relatrix.RelatrixTransaction.class;
 	
 	public static final Class<?> relatrixIteratorClass = com.neocoretechs.relatrix.iterator.transaction.RelatrixIteratorTransaction.class; 
 	public static final Class<?> relatrixSubsetIteratorClass = com.neocoretechs.relatrix.iterator.transaction.RelatrixSubsetIteratorTransaction.class;
@@ -97,7 +98,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));		
@@ -114,7 +115,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -132,7 +133,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(InetAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -150,7 +151,7 @@ public class RelatrixTransactionServer extends TCPServer {
 	public RelatrixTransactionServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixTransactionServer.port = port;
-		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixTransaction", 0);
+		RelatrixTransactionServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorTransactionServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));	

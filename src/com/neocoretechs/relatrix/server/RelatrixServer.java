@@ -49,6 +49,8 @@ public class RelatrixServer extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
 	
+	public static Class<?> relatrixClass = com.neocoretechs.relatrix.Relatrix.class;
+	
 	public static final Class<?> relatrixIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixIterator.class; 
 	public static final Class<?> relatrixSubsetIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator.class;
 	public static final Class<?> relatrixHeadsetIteratorClass = com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator.class;
@@ -96,7 +98,7 @@ public class RelatrixServer extends TCPServer {
 	public RelatrixServer(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServer.port = port;
-		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -113,7 +115,7 @@ public class RelatrixServer extends TCPServer {
 	public RelatrixServer(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServer.port = port;
-		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress, port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -131,7 +133,7 @@ public class RelatrixServer extends TCPServer {
 	public RelatrixServer(InetAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixServer.port = port;
-		RelatrixServer.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.Relatrix", 0);
+		RelatrixServer.relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0);
 		address = new InetSocketAddress(iaddress,port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
