@@ -25,7 +25,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	private ClientInterface rc = null;
 	private Object mutex = new Object();
 

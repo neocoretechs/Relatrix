@@ -21,7 +21,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  */
 public class TCPWorker implements Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();

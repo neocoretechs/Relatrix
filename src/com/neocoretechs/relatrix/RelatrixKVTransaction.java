@@ -14,14 +14,9 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
-
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -31,7 +26,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 * The methods here are all performed in a transaction context and require a transaction id.
 * The transaction id is returned through a method call to the RockSackAdapter that returns a standard UUID.
 * The compareTo and fullCompareTo provide the comparison methods to drive the processes.
-* The retrieval operators allow us to form the partially ordered result sets that are returned.<br/>
+* The retrieval operators allow us to form the partially ordered result sets that are returned.<br>
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2022,2023,2024
 */
 public final class RelatrixKVTransaction {

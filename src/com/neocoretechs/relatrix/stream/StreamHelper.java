@@ -23,6 +23,8 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.neocoretechs.relatrix.parallel.SpliteratorsUtil;
+
 /**
  * Stream helper such that we can retrieve the original base iterator rather than the Spliterator adapter from the Iterator method
  * @author Jonathan Groff Copy (C) NeoCoreTechs 2024
@@ -36,18 +38,26 @@ public class StreamHelper<T> implements Stream<T>, BaseIteratorAccessInterface {
 
 	@SuppressWarnings("unchecked")
 	public StreamHelper(Iterator<?> iterator) {
-		this.iterator = iterator;
-    	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
-    	stream = (Stream<T>) StreamSupport.stream(spliterator, true);
+		//this.iterator = iterator;
+    	//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
+    	//stream = (Stream<T>) StreamSupport.stream(spliterator, true);
+		this(iterator, true, 128);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public StreamHelper(Iterator<?> iterator, boolean parallel) {
-		this.iterator = iterator;
-    	Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
-    	stream = (Stream<T>) StreamSupport.stream(spliterator, parallel);
+		//this.iterator = iterator;
+    	//Spliterator<?> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
+    	//stream = (Stream<T>) StreamSupport.stream(spliterator, parallel);
+		this(iterator, parallel, 128);
 	}
 	
+	public StreamHelper(Iterator<?> iterator, boolean parallel, int batchSize) {
+	    this.iterator = iterator;
+	    Spliterator<?> spl = SpliteratorsUtil.spliteratorFromIteratorWithBatching(iterator, batchSize);
+	    stream = (Stream<T>) StreamSupport.stream(spl, parallel);
+	}
+
 	@Override
 	public Iterator<?> getBaseIterator() {
 		return iterator;

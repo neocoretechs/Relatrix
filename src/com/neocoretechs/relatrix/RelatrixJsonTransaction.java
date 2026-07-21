@@ -1,10 +1,11 @@
 package com.neocoretechs.relatrix;
 
 import java.io.IOException;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -17,9 +18,6 @@ import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientTransactionJson;
 import com.neocoretechs.relatrix.iterator.IteratorFactory;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode0JsonTransaction;
 import com.neocoretechs.relatrix.iterator.json.transaction.FindHeadSetMode1JsonTransaction;
@@ -58,7 +56,6 @@ import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixIteratorJsonT
 import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixKeysetIteratorJsonTransaction;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;

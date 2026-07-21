@@ -17,7 +17,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Serializer;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
@@ -25,7 +24,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * Server-side socket accept connection handler
  */
 public class ConnectionHandler {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	protected SocketChannel channel;
 	protected Object mutexWrite = new Object();
 	protected Object mutexRead = new Object();

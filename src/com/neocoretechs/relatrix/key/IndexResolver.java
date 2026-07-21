@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
  *
  */
 public class IndexResolver {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	IndexInstanceTableInterface instanceTable = null;
 	/**
 	 * REturn the instance table; the table that translates indexes to object instances
