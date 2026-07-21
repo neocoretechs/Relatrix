@@ -14,6 +14,9 @@ import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -52,6 +55,7 @@ public class RelatrixIterator implements Iterator<Result> {
 
     protected boolean needsIter = true;
     protected boolean identity = false;
+    private IndexResolver indexResolver;
     
     public RelatrixIterator() {}
 	/**
@@ -61,8 +65,14 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * @throws IOException
 	 */
     public RelatrixIterator(AbstractRelation template, short[] dmr_return) throws IOException {
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			indexResolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context");
     	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.base.setResolver(indexResolver);
     	identity = isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKV.findTailMapKV(template);
@@ -92,8 +102,14 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * @throws IOException
 	 */
 	public RelatrixIterator(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException {
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			indexResolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context");
 	   	this.dmr_return = dmr_return;
     	this.base = template;
+       	this.base.setResolver(indexResolver);
     	this.alias = alias;
     	identity = isIdentity(this.dmr_return);
     	try {
@@ -105,6 +121,7 @@ public class RelatrixIterator implements Iterator<Result> {
       		Map.Entry me = (Entry) iter.next();
 			buffer = (AbstractRelation)me.getKey();
 			buffer.setIdentity((DBKey)me.getValue());
+			buffer.setResolver(indexResolver);
 			buffer.setAlias(alias);
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
@@ -141,6 +158,7 @@ public class RelatrixIterator implements Iterator<Result> {
 				Map.Entry me = (Entry) iter.next();
 				nextit = (AbstractRelation)me.getKey();
 				nextit.setIdentity((DBKey) me.getValue());
+				nextit.setResolver(indexResolver);
 				if(alias != null)
 					nextit.setAlias(alias);
 				if( !templateMatches(base, nextit, dmr_return) ) {

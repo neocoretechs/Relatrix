@@ -49,6 +49,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         protected transient Comparable  range;        // range
         
         protected transient boolean templateFlag = false;
+        private transient IndexResolver mainResolver;
         
         public AbstractRelation() {}
         
@@ -338,7 +339,9 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         	this.keyCompare = keyCompare;
         }
       	*/
-    	
+    	public void setResolver(IndexResolver indexResolver) {
+    		mainResolver = indexResolver;
+    	}
         /**
          * Transparently process DBKey, returning actual instance. If the domain is already deserialized as an instance
          * it will be returned without further processing. If the domain is null and the key in the {@link KeySet} is
@@ -682,11 +685,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         		if(range instanceof NoIndex) {
         			if(resolveKeyNoIndex(((NoIndex)range).getDBKey()) == null) {
         				IndexResolver resolver = null;
-        				if(ExecutionContextHolder.CONTEXT.isBound()) {
+        				if(mainResolver != null)
+        					resolver = mainResolver;
+        				else
+        					if(ExecutionContextHolder.CONTEXT.isBound()) {
         				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
         				        resolver = ctx.resolver();
-        				} else
-        					throw new RuntimeException("IndexResolver not bound to context");
+        					} else
+        						throw new RuntimeException("IndexResolver not bound to context");
         				if(transactionId != null)
         					resolver.getIndexInstanceTable().putKey(transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
         				else
@@ -719,11 +725,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         		if(range instanceof NoIndex) {
         			if(resolveKeyNoIndex(alias2,((NoIndex)range).getDBKey()) == null) {
           				IndexResolver resolver = null;
-        				if(ExecutionContextHolder.CONTEXT.isBound()) {
+           				if(mainResolver != null)
+        					resolver = mainResolver;
+        				else
+        					if(ExecutionContextHolder.CONTEXT.isBound()) {
         				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
         				        resolver = ctx.resolver();
-        				} else
-        					throw new RuntimeException("IndexResolver not bound to context");
+        					} else
+        						throw new RuntimeException("IndexResolver not bound to context");
         				if(transactionId != null)
         					resolver.getIndexInstanceTable().putKey(alias2, transactionId, ((NoIndex)range).getDBKey(), ((NoIndex)range).getInstance());
         				else
@@ -828,11 +837,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		protected DBKey newKey(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			if(alias == null) {
   				IndexResolver resolver = null;
-				if(ExecutionContextHolder.CONTEXT.isBound()) {
+   				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
 				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
 				        resolver = ctx.resolver();
-				} else
-					throw new RuntimeException("IndexResolver not bound to context");
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 				if(transactionId == null)
 					return DBKey.newKey(resolver.getIndexInstanceTable(), instance);
 				return DBKey.newKey(transactionId, resolver.getIndexInstanceTable(), instance);
@@ -850,11 +862,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		DBKey newKey(Alias aliasOther, Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(transactionId == null) {
 				return DBKey.newKey(aliasOther, resolver.getIndexInstanceTable(), instance);
 			} 
@@ -870,11 +885,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		protected Comparable resolveKey(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(DEBUG) {
 				System.out.printf("%s.resolveKey for id=%s xid=%s%n",this.getClass().getName(),this.getIdentity(),transactionId);
 				if(alias != null)
@@ -905,11 +923,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		private Comparable resolveKey(Alias alias2, DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(DEBUG) {
 				if(transactionId == null) {
 					Comparable c = (Comparable) resolver.getIndexInstanceTable().get(alias2,key);
@@ -936,11 +957,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		private Comparable resolveKeyNoIndex(Alias alias2, DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(DEBUG) {
 				if(transactionId == null) {
 					Object o = (Comparable) resolver.getIndexInstanceTable().get(alias2,key);
@@ -986,11 +1010,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		protected Comparable resolveKeyNoIndex(DBKey key) throws IllegalAccessException, ClassNotFoundException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(DEBUG) {
 				System.out.printf("%s.resolveKey for id=%s xid=%s%n",this.getClass().getName(),this.getIdentity(),transactionId);
 				if(alias != null)
@@ -1042,11 +1069,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		protected DBKey resolveInstance(Comparable instance) throws IllegalAccessException, ClassNotFoundException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(DEBUG) {
 				if(alias != null)
 					return resolveInstance(alias, instance);
@@ -1079,11 +1109,14 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
 		 */
 		private DBKey resolveInstance(Alias alias2, Comparable instance) throws IllegalAccessException, ClassNotFoundException, NoSuchElementException, IOException {
 			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context");
+				if(mainResolver != null)
+					resolver = mainResolver;
+				else
+					if(ExecutionContextHolder.CONTEXT.isBound()) {
+						ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+						resolver = ctx.resolver();
+					} else
+						throw new RuntimeException("IndexResolver not bound to context");
 			if(DEBUG) {
 				if(transactionId == null) {
 					DBKey c = (DBKey) resolver.getIndexInstanceTable().getKey(alias2, instance);
