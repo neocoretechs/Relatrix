@@ -7,7 +7,10 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-
+/**
+ * Used by StreamHelper to provide batched Spliterator for parallel streams created from Iterators.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2026
+ */
 public final class SpliteratorsUtil {
     public static <T> Spliterator<T> spliteratorFromIteratorWithBatching(Iterator<T> it, int batchSize) {
         Objects.requireNonNull(it);
