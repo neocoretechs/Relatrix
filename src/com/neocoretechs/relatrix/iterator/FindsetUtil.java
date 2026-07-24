@@ -34,9 +34,9 @@ public class FindsetUtil {
 	
 	/**
 	 * populate the TreeMap with DBKeys ordered by indexes in 
-	 * three arraylists designated dkey, mkey and rkey for domain key, map key and range key, from a range of Morphisms.<p/>
+	 * three arraylists designated dkey, mkey and rkey for domain key, map key and range key, from a range of Morphisms.<p>
 	 * The Morphisms are passed in the m0 parameter. The order is created by using the
-	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each {@link AbstractRelation} component
 	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap. Process
 	 * the m0 AbstractRelation to create the entry. The TreeMap then
 	 * becomes the basis for the iterator or stream that delivers the results.
@@ -100,9 +100,9 @@ public class FindsetUtil {
     /**
      * Populate the TreeMap with the Relation morphisms in the range of the DBKey low and hi ranges provided.
      * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
-	 * <p/>
+	 * <p>
 	 * The low range AbstractRelation template is formed from the 3 low keys. The order is created by using the
-	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each {@link AbstractRelation} component
 	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
 	 * each morphism in range is streamed to the createResultSet method.
      * @param dkeyLo
@@ -155,9 +155,9 @@ public class FindsetUtil {
     /**
      * Populate the TreeMap with the Relation morphisms in the range of the DBKey low and hi ranges provided.
      * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
-	 * <p/>
+	 * <p>
 	 * The low range AbstractRelation template is formed from the 3 low keys. The order is created by using the
-	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each {@link AbstractRelation} component
 	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
 	 * each morphism in range is streamed to the createResultSet method.
      * @param alias
@@ -193,9 +193,9 @@ public class FindsetUtil {
     /**
      * Populate the TreeMap with the Relation morphisms in the range of the DBKey low and hi ranges provided.
      * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
-	 * <p/>
+	 * <p>
 	 * The low range AbstractRelation template is formed from the 3 low keys. The order is created by using the
-	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
+	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each {@link AbstractRelation} component
 	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
 	 * each morphism in range is streamed to the createResultSet method.
      * @param xid
@@ -231,7 +231,7 @@ public class FindsetUtil {
     /**
      * Populate the TreeMap param with DBKeys ordered by indexes in dkey, mkey and rkey from the range of Morphisms
      * designated by xdmr bound . The order is created by using the
-     * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
+     * ordered positions in the 3 domain, map and range key arrays based on indexOf each {@link AbstractRelation} component
      * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap.
      * @param alias the database alias
      * @param xid the transaction id
@@ -262,9 +262,12 @@ public class FindsetUtil {
     }
        
 	/**
-	 * iterate_dmr - return proper domain, map, or range
+	 * iterateDmr - return proper domain, map, or range in {@link Result}
 	 * based on dmr_return values.  In dmr_return, value 0
 	 * is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
+	 * @param buffer The {@link AbstractRelation} buffer holding the result set precursors.
+	 * @param identity Is this an identity {@link Relation}
+	 * @param dmr_return The array that holds the number and characteristic of the tuple return values.
 	 * @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
 	 * @throws IOException 
 	 * @throws IllegalAccessException 

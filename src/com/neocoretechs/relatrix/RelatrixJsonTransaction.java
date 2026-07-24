@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,7 +57,10 @@ import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixIteratorJsonT
 import com.neocoretechs.relatrix.iterator.json.transaction.RelatrixKeysetIteratorJsonTransaction;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -1416,9 +1420,18 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static List<Result> findSetParallel(TransactionId transactionId, List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
+		IndexResolver resolver;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			resolver = new IndexResolver();
+			resolver.setLocal();
+		}
+		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1450,7 +1463,7 @@ public final class RelatrixJsonTransaction {
 					}
 					return res;
 				}
-			},searchXTransaction));
+			}, searchXTransaction, pec));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1477,9 +1490,18 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static List<Result> findSetParallel(TransactionId transactionId, Character d, List<Object> m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
+		IndexResolver resolver;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			resolver = new IndexResolver();
+			resolver.setLocal();
+		}
+		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1511,7 +1533,7 @@ public final class RelatrixJsonTransaction {
 					}
 					return res;
 				}
-			},searchXTransaction));
+			}, searchXTransaction, pec));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1538,9 +1560,18 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static List<Result> findSetParallel(TransactionId transactionId, Character d, Character m, List<Object> r) {
 		List<Future<Object>> futures = new ArrayList<>();
+		IndexResolver resolver;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			resolver = new IndexResolver();
+			resolver.setLocal();
+		}
+		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1572,7 +1603,7 @@ public final class RelatrixJsonTransaction {
 					}
 					return res;
 				}
-			},searchXTransaction));
+			}, searchXTransaction, pec));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1600,9 +1631,18 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId, List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
+		IndexResolver resolver;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			resolver = new IndexResolver();
+			resolver.setLocal();
+		}
+		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1634,7 +1674,7 @@ public final class RelatrixJsonTransaction {
 					}
 					return res;
 				}
-			},searchXTransaction));
+			}, searchXTransaction, pec));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1662,9 +1702,18 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId,  Character d, List<Object> m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
+		IndexResolver resolver;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			resolver = new IndexResolver();
+			resolver.setLocal();
+		}
+		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1696,7 +1745,7 @@ public final class RelatrixJsonTransaction {
 					}
 					return res;
 				}
-			},searchXTransaction));
+			}, searchXTransaction, pec));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1724,9 +1773,18 @@ public final class RelatrixJsonTransaction {
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId, Character d, Character m, List<Object> r) {
 		List<Future<Object>> futures = new ArrayList<>();
+		IndexResolver resolver;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			resolver = ctx.resolver();
+		} else {
+			resolver = new IndexResolver();
+			resolver.setLocal();
+		}
+		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1758,7 +1816,7 @@ public final class RelatrixJsonTransaction {
 					}
 					return res;
 				}
-			},searchXTransaction));
+			}, searchXTransaction, pec));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1774,7 +1832,7 @@ public final class RelatrixJsonTransaction {
 		return results;
 	}
 	/**
-	 * 
+	 * Helper to facilitate removal
 	 * @param itd
 	 * @param itm
 	 * @param itr
