@@ -1,20 +1,26 @@
 package com.neocoretechs.relatrix;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Objects;
 /**
- * Top level abstract class of hierarchy returned by iterators or streams of retrieval of relationships from the Relatrix.<p/>
- * Depending on the type of set retrieval, a class hierarchy consisting of Result can consist of {@link Result1}, {@link Result2} or {@link Result3}.
- * Variations of 'get' methods can be used retrieve the elements from the hierarchy. A total order is imposed consisting of
- * Result1, Result2, and Result3. For instance, if we call<br/> findSet('?','*','?') we would receive iterators or streams of Result2 since
- * we have specified 2 return elements from the retrieval as denoted by the ? directive.<br/> For retrievals of identity elements such as
- * <br/>findSet('*','*','*') or <br/>findSet(object, object, object) or <br/>findSet('*',object, object) we get an instance of Result1 with the
- * identity element. Should we request <br/>findSet('?',object,'?') or <br/>findSet('?','?','*')<br/> we would get an instance of Result2.
- * A Result3 is returned when we ask for <br/>findSet('?','?','?') exclusively.<br/> Keep in mind that any object participating in a relationship
- * can itself be a relationship.
- * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
- *
- */
+* Top level abstract class of hierarchy returned by iterators or streams of retrieval of relationships from the Relatrix.<p>
+* Depending on the type of set retrieval, a class hierarchy consisting of Result can consist of {@link Result}, For retrievals of identity elements such as
+* findSet('*','*','*') or<br> findSet(object, object, object) or<br> findSet ('*',object, object)<br> we get an instance of Result with the
+* identity element.<br> 
+* Keep in mind that any object participating in a relationship can itself be a relationship.<p>
+* The queries that can produce a Result instance include:<br>
+* findSet('*','*','*') - iterator or stream of all identities (instances of Relation relationship objects) <br>
+* findSet(object,object,object) - iterator or stream of a single identity Relation object composed of the 3 object instances<br>
+* findSet('*',object,object)- iterator or stream of all identities (relationship objects) containing map and range of the indicated objects <br>
+* findSet('*','*',object)- iterator or stream of all identities (relationship objects) containing range of the indicated object <br>
+* findSet('*',object,'*')- iterator or stream of all identities (relationship objects) containing map of the indicated object <br>
+* findSet(object,'*','*')- iterator or stream of all identities (relationship objects) containing domain of the indicated object <br>
+* findSet(object,object,'*')- iterator or stream of all identities (relationship objects) containing domain and map of the indicated objects <br>
+* findSet(object,'*',object)- iterator or stream of all identities (relationship objects) containing domain and range of the indicated objects <br>
+* @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2026
+*
+*/
 public abstract class Result implements TransportMorphismInterface, Comparable, Serializable, Cloneable {
 	private static final long serialVersionUID = -3876100246517492961L;
 	private static boolean DEBUG;
@@ -25,13 +31,11 @@ public abstract class Result implements TransportMorphismInterface, Comparable, 
 	
 	public Result() {}
 	
-	public Result(Comparable one) {
-		this.one = one;
-	}
 	public Result(Result r) {
-		one = r.one;
+		this.one = r.one;
 	}
-    /**
+
+	/**
      * If true, enforces type checking for components of relationships. If classes are incompatible,
      * an attempt is made to use a string representation as a default method of providing ordering. If false, STRICT_SCHEMA ignored.
      * If false, User is responsible for providing compareTo in every class used in relationships that is compatible
@@ -83,7 +87,6 @@ public abstract class Result implements TransportMorphismInterface, Comparable, 
 	public abstract Comparable get(int res);
 	public abstract Comparable get();
 	public abstract void set(int res, Comparable elem);
-	public abstract void set(Comparable elem);
 	public abstract Comparable[] toArray();
 	public abstract int length();
 	public abstract void packForTransport();

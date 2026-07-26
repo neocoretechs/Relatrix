@@ -51,7 +51,7 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  	@Override
  	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
  		AbstractRelation dmr = null;
- 		switch(AbstractRelation.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+ 		switch(AbstractRelation.form_template_keyop(dmr_return)) {
  			case 0: // dmr
  				dmr = new Relation(true, null, xid, null, null, null);
  				break;
@@ -82,7 +82,7 @@ public class FindSetMode0Transaction extends FindSetMode0 {
  	@Override
  	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
  		AbstractRelation dmr = null;
- 		switch(AbstractRelation.form_template_keyop(new Result3(null,null,null), dmr_return)) {
+ 		switch(AbstractRelation.form_template_keyop(dmr_return)) {
  			case 0: // dmr
  				dmr = new Relation(true, alias, xid, null, null, null);
  				break;

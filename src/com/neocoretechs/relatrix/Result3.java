@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 /**
@@ -15,11 +16,6 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 	private Comparable three;
 
 	public Result3() {}
-	
-	public Result3(Comparable one, Comparable two, Comparable three) {
-		super(one, two);
-		this.three = three;
-	}
 	
 	public Result3(Result3 r) {
 		super(r);
@@ -61,11 +57,6 @@ public class Result3 extends Result2 implements Cloneable, Comparable, Serializa
 		}
 	}
 
-	@Override
-	public void set(Comparable elem) {
-		this.three = elem;
-	}
-	
 	@Override
 	public Comparable[] toArray() {
 		return new Comparable[] {one,two,three};

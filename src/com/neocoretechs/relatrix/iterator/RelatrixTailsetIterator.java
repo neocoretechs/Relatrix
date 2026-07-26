@@ -14,6 +14,9 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 import com.neocoretechs.rocksack.Alias;
@@ -56,6 +59,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     protected boolean needsIter = true;
 	protected AbstractRelation template;
     protected boolean identity = false;
+    protected IndexResolver indexResolver;
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
     protected ArrayList<DBKey> mkey = new ArrayList<DBKey>();
@@ -79,16 +83,23 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
      * @throws IOException 
      */
     public RelatrixTailsetIterator(AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
-       	if(DEBUG)
+    	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
-       	this.base = template;
+    	this.base = template;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	if(ExecutionContextHolder.CONTEXT.isBound()) {
+    		ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+    		indexResolver = ctx.resolver();
+    	} else {
+    		indexResolver = new IndexResolver();
+    		indexResolver.setLocal();
+    	}
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
-
+    		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKV.get(template.getDomain());
     			if(dk != null) {
@@ -96,7 +107,8 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}    		
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKV.findTailMapKVStream(templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -116,6 +128,8 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
+    		template.setResolver(indexResolver);
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKV.get(template.getMap());
     			if(mk != null) {
@@ -123,7 +137,8 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     				mkeyLo = mk;
     				mkeyHi = mk;
     			}    		
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getMap() != null) {
     				/*RelatrixKV.findTailMapKVStream(templateo.getMap()).forEach(e -> {
     					DBKey mkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -143,6 +158,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     					if (k.compareTo(mkeyHi) > 0) mkeyHi = k;
     				}
     			}
+    		}
     		if(template.getRange() != null) {
     			DBKey rk = (DBKey) RelatrixKV.get(template.getRange());
     			if(rk != null) {
@@ -195,6 +211,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKV.get(dbkey); // primary DBKey for AbstractRelation
 				buffer.setIdentity(dbkey);
+				buffer.setResolver(indexResolver);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -222,16 +239,25 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     	this.base = template;
     	this.dmr_return = dmr_return;
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
+       	if(ExecutionContextHolder.CONTEXT.isBound()) {
+    		ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+    		indexResolver = ctx.resolver();
+    	} else {
+    		indexResolver = new IndexResolver();
+    		indexResolver.setLocal();
+    	}
     	try {
     		Stream<?> dstream = null;
     		if(template.getDomain() != null) {
+    			template.setResolver(indexResolver);
     			DBKey dk = (DBKey) RelatrixKV.get(alias,template.getDomain());
     			if(dk != null) {
     				dkey.add(dk);
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}    		
-    		} else
+    		} else {
+    			templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKV.findTailMapKVStream(alias,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -251,6 +277,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKV.get(alias,template.getMap());
     			if(mk != null) {
@@ -329,6 +356,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
 				buffer = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
 				buffer.setAlias(alias);
 				buffer.setIdentity(dbkey);
+				buffer.setResolver(indexResolver);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -370,6 +398,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
 	    				nextit.setAlias(alias);
 	    			}
 	    			nextit.setIdentity(dbkey);
+	    			nextit.setResolver(indexResolver);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}

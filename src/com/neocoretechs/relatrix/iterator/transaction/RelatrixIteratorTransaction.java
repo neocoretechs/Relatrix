@@ -10,6 +10,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -158,9 +159,9 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 		if( DEBUG ) {
 			System.out.println("RelatrixIteratorTransaction.next() template match after iteration "+this.toString());
 		}
-		return iterateDmr();
+		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
 		
-		} catch (IllegalAccessException | IOException | ClassNotFoundException e) {
+		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}

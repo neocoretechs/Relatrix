@@ -13,6 +13,8 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -31,6 +33,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 public class FindsetUtil {
 	private static boolean DEBUG = false;
 	private static boolean DEBUGITERATION = false;
+	private static Object mutex = new Object();
 	
 	/**
 	 * populate the TreeMap with DBKeys ordered by indexes in 
@@ -261,32 +264,27 @@ public class FindsetUtil {
 		}
     }
        
-	/**
-	 * iterateDmr - return proper domain, map, or range in {@link Result}
-	 * based on dmr_return values.  In dmr_return, value 0
-	 * is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
-	 * @param buffer The {@link AbstractRelation} buffer holding the result set precursors.
-	 * @param identity Is this an identity {@link Relation}
-	 * @param dmr_return The array that holds the number and characteristic of the tuple return values.
-	 * @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
-	 */
-	public static Result iterateDmr(AbstractRelation buffer, boolean identity, short[] dmr_return) throws IllegalAccessException, IOException {
-	    Result tuples = RelatrixIterator.getReturnTuples(dmr_return);
-		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-	    // no return vals? send back Relate location
-	    if( identity ) {
-	    	tuples.set(0, buffer);
-	    	if(DEBUGITERATION)
-				System.out.println("RelatrixHeadSetIterator iterateDmr returning identity tuples:"+tuples);
-	    	return tuples;
-	    }
-	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length(); i++)
-	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
-		if(DEBUGITERATION)
-			System.out.println("RelatrixHeadSetIterator iterateDmr returning tuples:"+tuples);
-		return tuples;
-	}
+    /**
+     * iterateDmr - return proper domain, map, or range in {@link Result}
+     * based on dmr_return values.  In dmr_return, element 0 is counter iterator for the rest of the array: 
+     * ?,*, 1-3 flags boolean for d,m,r return yes/no<br>
+     * value 0 means an object occupies that spot in the triple. <br>
+     * value 1 indicates 'return a tuple - ?'.<br>
+     * value 2 represents a 'wildcard - *'.<br>
+     * Element 0 contains a running counter  1-3.<br>
+     * These function as d,m,r return yes/no for each retrieved tuple and for concrete objects whether to compare set.
+     * Also determine whether it is an identity, then just put it in return and iterate.
+     * @param buffer The {@link AbstractRelation} buffer holding the result set precursors.
+     * @param identity Is this an identity {@link Relation}
+     * @param dmr_return The array that holds the number and characteristic of the tuple return values.
+     * @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
+     * @throws IOException 
+     * @throws IllegalAccessException 
+     */
+    public static Result iterateDmr(AbstractRelation buffer, boolean identity, short[] dmr_return) throws IllegalAccessException, IOException {
+    	//synchronized(mutex) {
+		Result1 r = new Result1();
+		r.set(0,buffer);
+		return r;
+    }
 }

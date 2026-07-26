@@ -8,6 +8,9 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -23,6 +26,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
     protected Comparable nextit = null;
     protected boolean needsIter = true;
     protected Alias alias = null;
+    private IndexResolver indexResolver;
     
     public RelatrixEntrysetIterator() {}
     /**
@@ -40,6 +44,14 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+					ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+					indexResolver = ctx.resolver();
+				} else {
+					indexResolver = new IndexResolver();
+					indexResolver.setLocal();
+				}
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 			}
     	if( DEBUG )
 			System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
@@ -64,6 +76,14 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+					ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+					indexResolver = ctx.resolver();
+				} else {
+					indexResolver = new IndexResolver();
+					indexResolver.setLocal();
+				}
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 			}
     	if( DEBUG )
     		System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
@@ -101,6 +121,7 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
+					((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				}
 			} else {
 				nextit = null;

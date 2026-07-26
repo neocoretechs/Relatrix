@@ -1,17 +1,14 @@
 package com.neocoretechs.relatrix;
 
+import java.io.IOException;
 import java.io.Serializable;
 /**
 * Top level abstract class of hierarchy returned by iterators or streams of retrieval of relationships from the Relatrix.<p>
-* Depending on the type of set retrieval, a class hierarchy consisting of Result can consist of {@link Result1}, {@link Result2} or {@link Result3}.
-* Variations of 'get' methods can be used retrieve the elements from the hierarchy. A total order is imposed consisting of
-* Result1, Result2, and Result3. For instance, if we call findSet('?','*','?')<br> we would receive iterators or streams of Result2 since
-* we have specified 2 return elements from the retrieval as denoted by the ? directive.<br> For retrievals of identity elements such as
-* findSet('*','*','*') or<br> findSet(object, object, object) or<br> findSet ('*',object, object)<br> we get an instance of Result1 with the
-* identity element.<br> Should we request findSet('?',object,'?') or<br> findSet ('?','?','*')<br> we would get an instance of Result2.<br>
-* A Result3 is returned when we ask for findSet('?','?','?') exclusively.<p>
+* Depending on the type of set retrieval, a class hierarchy consisting of Result can consist of {@link Result}, For retrievals of identity elements such as
+* findSet('*','*','*') or<br> findSet(object, object, object) or<br> findSet ('*',object, object)<br> we get an instance of Result with the
+* identity element.<br> 
 * Keep in mind that any object participating in a relationship can itself be a relationship.<p>
-* Some of the queries that can produce a Result1 instance include:<br>
+* The queries that can produce a Result instance include:<br>
 * findSet('*','*','*') - iterator or stream of all identities (instances of Relation relationship objects) <br>
 * findSet(object,object,object) - iterator or stream of a single identity Relation object composed of the 3 object instances<br>
 * findSet('*',object,object)- iterator or stream of all identities (relationship objects) containing map and range of the indicated objects <br>
@@ -20,17 +17,7 @@ import java.io.Serializable;
 * findSet(object,'*','*')- iterator or stream of all identities (relationship objects) containing domain of the indicated object <br>
 * findSet(object,object,'*')- iterator or stream of all identities (relationship objects) containing domain and map of the indicated objects <br>
 * findSet(object,'*',object)- iterator or stream of all identities (relationship objects) containing domain and range of the indicated objects <br>
-* findSet('?','*','*')- iterator or stream of all domain objects (Comparable object component of relationship) of all relationships<br>
-* findSet('*','*','?')- iterator or stream of all range objects (Comparable object component of relationship) of all relationships<br>
-* findSet('*','?','*')- iterator or stream of all map objects (Comparable object component of relationship) of all relationships<br>
-* findSet('?',object,object)- iterator or stream of all domain objects (Comparable object component of relationship) of relationships with given map and range objects<br>
-* findSet('*','?',object)- iterator or stream of all map objects (Comparable object component of relationship) of relationships with given range object<br>
-* findSet('*',object,'?')- iterator or stream of all range objects (Comparable object component of relationship) of relationships with given map object<br>
-* findSet(object,'?','*')- iterator or stream of all map objects (Comparable object component of relationship) of relationships with given domain object<br>
-* findSet(object,'*','?')- iterator or stream of all range objects (Comparable object component of relationship) of relationships with given domain object<br>
-* findSet(object,object,'?')- iterator or stream of all range objects (Comparable object component of relationship) of relationships with given domain and map objects<br>
-* findSet(object,'?',object)- iterator or stream of all map objects (Comparable object component of relationship) of relationships with given domain and range objects<br>
-* @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2024
+* @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2026
 *
 */
 public class Result1 extends Result implements Comparable, Serializable, Cloneable{
@@ -38,14 +25,10 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 
 	public Result1() {}
 	
-	public Result1(Comparable r) {
-		super(r);
-	}
-	
 	public Result1(Result r) {
 		super(r);	
 	}
-
+	
 	@Override
 	public Comparable get(int res) {
 		switch(res) {
@@ -61,6 +44,7 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 		return one;
 	}
 	
+     
 	@Override
 	public void set(int res, Comparable elem) {
 		switch(res) {
@@ -69,11 +53,6 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 				this.one = elem;
 				break;
 		}
-	}
-
-	@Override
-	public void set(Comparable elem) {
-		this.one = elem;
 	}
 
 	@Override

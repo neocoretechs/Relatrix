@@ -49,7 +49,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         protected transient Comparable  range;        // range
         
         protected transient boolean templateFlag = false;
-        private transient IndexResolver mainResolver;
+        protected transient IndexResolver mainResolver;
         
         public AbstractRelation() {}
         
@@ -1219,64 +1219,53 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
         * @param dret the return value flag array with iterator at 0
         * @return the keyop
         */
-        public static short form_template_keyop(Result3 result3, short[] dret) {
-            short dmr_prec[] = {2,1,0};
-            Comparable[] result = result3.toArray();
-            if( result[0] != null ) // domain not null
-                        dmr_prec[0] += 6; // RGuid
-        	else
-                        if( dret[1] == 1 ) dmr_prec[0] += 3; // '?'
-                // if '*' leave alone, this gets all
-            if( result[1] != null ) // map not null
-                        dmr_prec[1] += 6; // RGuid
-        	else
-                        if( dret[2] == 1 ) dmr_prec[1] += 3; // '?'
-                //
-            if( result[2] != null ) // range not null
-                        dmr_prec[2] += 6;
-        	else    
-                        if( dret[3] == 1 ) dmr_prec[2] += 3;
-                //
-                // we have precedents, now find order
+        public static short form_template_keyop(short[] dret) {
+        	short dmr_prec[] = {2,1,0};
+        	if( dret[1] == 1 ) dmr_prec[0] += 3; // '?'
+        	// if '*' leave alone, this gets all
+        	if( dret[2] == 1 ) dmr_prec[1] += 3; // '?'
+        	if( dret[3] == 1 ) dmr_prec[2] += 3;
+        	//
+        	// we have precedents, now find order
         	if( dmr_prec[0] > dmr_prec[1] && dmr_prec[0] > dmr_prec[2] ) {
         		// domain > map,range
         		if( dmr_prec[1] > dmr_prec[2] )
-        		// domain > (map > range)
-                                return (short)0; // dmr
+        			// domain > (map > range)
+        			return (short)0; // dmr
         		else
-        		// domain > (map < range)
-                                return (short)1; // drm
+        			// domain > (map < range)
+        			return (short)1; // drm
         	}
         	if( dmr_prec[1] > dmr_prec[0] && dmr_prec[1] > dmr_prec[2] ) {
         		// map > domain,range
         		if( dmr_prec[0] > dmr_prec[2] )
-        		// map > (domain > range)
-                                return (short)2; // mdr
+        			// map > (domain > range)
+        			return (short)2; // mdr
         		else
-        		// map > (domain < range)
-                                return (short)3; // mrd
+        			// map > (domain < range)
+        			return (short)3; // mrd
         	}
         	if( dmr_prec[2] > dmr_prec[0] && dmr_prec[2] > dmr_prec[1] ) {
         		// range > domain,map
         		if( dmr_prec[0] > dmr_prec[1] )
-        		// range > (domain > map)
-                                return (short)4; // rdm
+        			// range > (domain > map)
+        			return (short)4; // rdm
         		else
-        		// range > (domain < map)
-                                return (short)5; // rmd
+        			// range > (domain < map)
+        			return (short)5; // rmd
         	}
-            // this method is internal and this should not happen
-            throw new RuntimeException("Invalid keyop in form_keyop ");
+        	// this method is internal and this should not happen
+        	throw new RuntimeException("Invalid keyop in form_keyop ");
         }
-        
+
         /**
          * When participating in a retrieval we want to return the proper part of the tuple
          * depending on the operation so 'n' equates to the position in the findset semantics (?,*,<object>)
          * above, ? is in position 1, so n would be 1. In a subclass the order is different depending on the sort index
-         * @param n
-         * @return
+         * @param n the tuple 1-3
+         * @return the comparable of the tuple
          */
-        public Comparable<?> returnTupleOrder(int n) {
+        Comparable<?> returnTupleOrder(int n) {
         	// default dmr
         	switch(n) {
         		case 1:

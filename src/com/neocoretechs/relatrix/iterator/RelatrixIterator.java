@@ -68,8 +68,10 @@ public class RelatrixIterator implements Iterator<Result> {
 		if(ExecutionContextHolder.CONTEXT.isBound()) {
 			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
 			indexResolver = ctx.resolver();
-		} else
-			throw new RuntimeException("IndexResolver not bound to context");
+		} else {
+			indexResolver = new IndexResolver();
+			indexResolver.setLocal();
+		}
     	this.dmr_return = dmr_return;
     	this.base = template;
     	this.base.setResolver(indexResolver);
@@ -83,6 +85,7 @@ public class RelatrixIterator implements Iterator<Result> {
     		Map.Entry me = (Entry) iter.next();
 			buffer = (AbstractRelation)me.getKey();
 			buffer.setIdentity((DBKey) me.getValue());
+			buffer.setResolver(indexResolver);
 			if( !templateMatches(base, buffer, dmr_return) ) {
 				buffer = null;
 				needsIter = false;
@@ -105,8 +108,10 @@ public class RelatrixIterator implements Iterator<Result> {
 		if(ExecutionContextHolder.CONTEXT.isBound()) {
 			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
 			indexResolver = ctx.resolver();
-		} else
-			throw new RuntimeException("IndexResolver not bound to context");
+		} else {
+			indexResolver = new IndexResolver();
+			indexResolver.setLocal();
+		}
 	   	this.dmr_return = dmr_return;
     	this.base = template;
        	this.base.setResolver(indexResolver);
@@ -174,9 +179,9 @@ public class RelatrixIterator implements Iterator<Result> {
 		if( DEBUG ) {
 			System.out.println("RelatrixIterator.next() template match after iteration "+this.toString());
 		}
-		return iterateDmr();
+		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
 		
-		} catch (IllegalAccessException | IOException | ClassNotFoundException e) {
+		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
@@ -185,65 +190,9 @@ public class RelatrixIterator implements Iterator<Result> {
 	@Override
 	@ServerMethod
 	public void remove() {
-		throw new RuntimeException("Remove not supported for this iterator");
-		
+		throw new RuntimeException("Remove not supported for this iterator");		
 	}
-	/**
-	* iterate_dmr - return proper domain, map, or range
-	* based on dmr_return values.  In dmr_return, element 0 is counter, 1-3 flags
-	* value 0 means an object occupies that spot in the triple. 
-	* value 1 indicates 'return a tuple - ?'.
-	* value 2 represents a 'wildcard - *'.
-	* Element 0 contains a running counter for the rest of the array 1-3.
-	* These function as d,m,r return yes/no for each retrieved tuple and for concrete objects whether to compare tailset.
-	* Also determine whether its identity, then just put it in return and iterate.
-	* @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	* @throws IOException 
-	* @throws IllegalAccessException 
-	* @throws ClassNotFoundException 
-	*/
-	protected Result iterateDmr() throws IllegalAccessException, IOException, ClassNotFoundException {
-	    Result tuples = getReturnTuples(dmr_return);
-		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-	    // no return vals? send back Relate location
-	    if( identity ) {
-	    	tuples.set(0, buffer);
-	    } else {
-	    	dmr_return[0] = 0;
-	    	for(int i = 0; i < tuples.length(); i++) {
-	    		if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.iterateDmr() before iteration of "+i+" tuple:"+tuples.get(i));
-	    		}
-	    		tuples.set(i, buffer.iterate_dmr(dmr_return));
-	    		if( DEBUG ) {
-	    			System.out.println("RelatrixIterator.iterateDmr() after iteration of "+i+" tuple:"+tuples.get(i));
-	    		}
-	    	}
-	    }
-		return tuples;
-	}
-	/**
-	 * Return the number of tuple elements to be returned from specified query in each iteration
-	 * @param dmr_return For each element of the dmr_return array, element 0 is counter, for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *<br/>
-	 * @return The {@link Result} object based on number of ? return tuples in dmr_return array and whether its considered an identity {@link AbstractRelation}
-	 */
-	protected static Result getReturnTuples(short[] dmr_return) {
-		short cnt = 0;
-		if( isIdentity(dmr_return) ) // return all relationship types, 1 tuple special case
-			return new Result1();
-		for(int i = 1; i < 4; i++) {
-			if( dmr_return[i] == 1 ) ++cnt; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
-		}
-		switch(cnt) {
-			case 1:
-				return new Result1();
-			case 2:
-				return new Result2();
-			case 3:
-				return new Result3();
-		}
-		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
-	}
+
 	/**
 	 * Checks to see if our dmr_return array has any return tuple ? values.<br>
 	 * if any element of our dmr_return array is 1, we have return ? tuple present.<p>

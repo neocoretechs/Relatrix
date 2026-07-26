@@ -7,7 +7,7 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * This class represents a {@link AbstractRelation} stored in its natural retrieval order.<p/>
+ * This class represents a {@link AbstractRelation} stored in its natural retrieval order.<p>
  * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.
  * By storing these indexes with all their possible retrieval combinations for the morphisms,
  * which turns out to be 6 indexes, we facilitate the retrieval of ordered sets from our categories
@@ -26,6 +26,7 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
     	this.alias = identity.getAlias();
     	this.transactionId = identity.getTransactionId();
     	this.identity = identity.getIdentity();
+    	this.mainResolver = identity.mainResolver;
     	//if(!identity.isDomainKeyValid())
     	//	throw new IOException("Domain key of identity is invalid: "+DBKey.whyInvalid(identity.getDomainKey())+".");
     	setDomainKey(identity.getDomainKey());

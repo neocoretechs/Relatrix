@@ -308,28 +308,6 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
 		return stream.findAny();
 	}
 	
-	/**
-	 * Return the number of tuple elements to be returned from specified query in each iteration
-	 * @param dmr_return
-	 * @return
-	 */
-	protected static Result getReturnTuples(short[] dmr_return) {
-		short cnt = 0;
-		if( isIdentity(dmr_return) ) // return all relationship types, 1 tuple special case
-			return new Result1();
-		for(int i = 1; i < 4; i++) {
-			if( dmr_return[i] == 1 ) ++cnt; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
-		}
-		switch(cnt) {
-			case 1:
-				return new Result1();
-			case 2:
-				return new Result2();
-			case 3:
-				return new Result3();
-		}
-		throw new RuntimeException("Bad parameter to getReturnTuples:"+cnt);
-	}
 
 	/**
 	 * Checks to see if our dmr_return array has any return tuple ? values, which = 1
