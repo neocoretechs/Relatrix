@@ -11,8 +11,6 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
@@ -22,26 +20,18 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 /**
  * Implementation of the standard Iterator interface which operates on {@link com.neocoretechs.relatrix.AbstractRelation}s formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;
- * The N return tuple '?' elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
+ * If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link com.neocoretechs.relatrix.Result} in next(), since 1 full tuple element at an iteration is returned, 
  * that being the identity morphism.<p>
- * For tuples the array size is relative to the '?' query predicates. <br>
- * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a RelatrixIterator is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare findHeadSet('*','?','*') we get back a  of one element. For findSet('?',object,'?') we
- * would get back a Result2, with each object of the Result hierarchy containing the relationship returned.<br>
  * findSet('*','*','*') = {@link Result1} containing identity of instance Relation <br>
  * findSet('*','*',object) =  {@link Result1} identity of RangeDomainMap where 'object' is range <br>
  * findSet('*',object,object) = {@link Result1} identity of MapRangeDomain matching the 2 concrete objects <br>
  * findSet(object,object,object) = {@link Result1} identity of Relation matching 3 objects <br>
- * findSet('?','?','?') = {@link Result3} return all, for each element in the database.<br>
- * findSet('?','?',object) = {@link Result2} return all domain and map objects for a given range object <br>
- * findSet('?','*','?') = {@link Result2} return all elements of domain and range <br>
  * etc.
  * <p>
  * findHeadSet works in the same fashion but returns elements strictly less than the target element. <p>
  * A special case is the subset, where the number of returned elements includes the target range object(s).<br>
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2026
  *
  */
 public class RelatrixIterator implements Iterator<Result> {
@@ -179,7 +169,7 @@ public class RelatrixIterator implements Iterator<Result> {
 		if( DEBUG ) {
 			System.out.println("RelatrixIterator.next() template match after iteration "+this.toString());
 		}
-		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
+		return FindsetUtil.setResult(buffer);
 		
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
@@ -214,7 +204,7 @@ public class RelatrixIterator implements Iterator<Result> {
 	 * to check our iterator to keep it in range for concrete object keys.
 	 * @param template The template {@link com.neocoretechs.relatrix.AbstractRelation} to match with the record
 	 * @param record The record AbstractRelation matched against the template
-	 * @param dmr_return For each element of the array, 0 is counter,for elements 1-3, 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
+	 * @param dmr_return For each element of the array, 0 is counter,for elements 1-3, 0 means object, 2 means its a wildcard *
 	 * @return true if for each template domain, map, range key that is not null, dmr_return 1-3 is 0 for domain, map, range, and template key matches record key
 	 */
 	protected static boolean templateMatches(AbstractRelation template, AbstractRelation record, short[] dmr_return) {

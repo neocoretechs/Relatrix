@@ -24,7 +24,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 /**
 * Top-level class that imparts behavior to the Key/Value subclasses which contain references for key/value.
 * The compareTo and fullCompareTo provide the comparison methods to drive the processes.
-* The retrieval operators allow us to form the partially ordered result sets that are returned.<br/>
+* The retrieval operators allow us to form the partially ordered result sets that are returned.<br>
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class RelatrixKV {

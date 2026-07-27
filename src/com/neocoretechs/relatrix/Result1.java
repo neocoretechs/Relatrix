@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix;
 
-import java.io.IOException;
 import java.io.Serializable;
 /**
 * Top level abstract class of hierarchy returned by iterators or streams of retrieval of relationships from the Relatrix.<p>

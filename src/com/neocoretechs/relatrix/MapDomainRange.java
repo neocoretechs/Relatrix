@@ -198,7 +198,7 @@ public class MapDomainRange extends AbstractRelation {
 	}
 
 	@Override
-	protected Relation asRelation() {
+	public Relation asRelation() {
 		return new Relation(templateFlag, alias, transactionId, domain, domainKey, map, mapKey, range, rangeKey);
 	}
 	

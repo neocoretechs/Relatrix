@@ -15,7 +15,8 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result3;
+
+import com.neocoretechs.relatrix.iterator.FindsetUtil.Result3;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
 
@@ -263,29 +264,5 @@ public class FindsetUtilJson {
 		}
     }
        
-	/**
-	 * iterate_dmr - return proper domain, map, or range
-	 * based on dmr_return values.  In dmr_return, value 0
-	 * is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
-	 * @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
-	 * @throws IOException 
-	 * @throws IllegalAccessException 
-	 */
-	public static Result iterateDmr(AbstractRelation buffer, boolean identity, short[] dmr_return) throws IllegalAccessException, IOException {
-	    Result tuples = RelatrixIteratorJson.getReturnTuples(dmr_return);
-		//System.out.println("IterateDmr "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-	    // no return vals? send back Relate location
-	    if( identity ) {
-	    	tuples.set(0, buffer);
-	    	if(DEBUGITERATION)
-				System.out.println("Findsetutil iterateDmr returning identity tuples:"+tuples);
-	    	return tuples;
-	    }
-	    dmr_return[0] = 0;
-	    for(int i = 0; i < tuples.length(); i++)
-	    	tuples.set(i, buffer.iterate_dmr(dmr_return));
-		if(DEBUGITERATION)
-			System.out.println("FindsetUtil iterateDmr returning tuples:"+tuples);
-		return tuples;
-	}
+
 }

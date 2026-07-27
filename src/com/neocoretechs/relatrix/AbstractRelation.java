@@ -1181,87 +1181,11 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
     		}
     		return null;
     	}
-    	
-        
-        /**
-        * iterate_dmr - return proper domain, map, or range
-        * based on dmr_return values.  In dmr_return, value 0
-        * is iterator for ?,*.  1-3 BOOLean for d,m,r return yes/no
-        * @return the next location to retrieve
-        * @throws IOException 
-        * @throws IllegalAccessException 
-        */
-        public Comparable<?> iterate_dmr(short[] dmr_return) throws IllegalAccessException, IOException {
-                if(dmr_return[0] >= 3) 
-                	return null;
-                // no return vals? send back relation location
-                if( dmr_return[0] == (-1)  || (dmr_return[1] == 0 && dmr_return[2] == 0 && dmr_return[3] == 0) ) 
-                	return this;
-                do {
-                  dmr_return[0]++;
-                  // If the element of the tuple needs returning based on formation of our dmr_return, do so
-                  if( dmr_return[dmr_return[0]] == 1)
-                	  return returnTupleOrder(dmr_return[0]);
-                } while( dmr_return[0] < 3 );
-                return null;
-        }
-        
-        /**
-        * form_template_keyop - Passed Comparable array is functioning as template for search
-        * depending on the values in domain,map,range (object=0, ?=1 or *=2, !0 or object)
-        * and the ones we care about returning (boolean true in dret)
-        * construct the proper index to key array (keyop) and return it
-        * (see form_dmrkey for keyop descr)
-        * method: construct a little weighting value for each one based
-        * on a base val of position domain=2,map=1,range=0
-        * and modified by args to findset object=6,?=3,*=0
-        * this establishes a precedent for our return values
-        * @param dret the return value flag array with iterator at 0
-        * @return the keyop
-        */
-        public static short form_template_keyop(short[] dret) {
-        	short dmr_prec[] = {2,1,0};
-        	if( dret[1] == 1 ) dmr_prec[0] += 3; // '?'
-        	// if '*' leave alone, this gets all
-        	if( dret[2] == 1 ) dmr_prec[1] += 3; // '?'
-        	if( dret[3] == 1 ) dmr_prec[2] += 3;
-        	//
-        	// we have precedents, now find order
-        	if( dmr_prec[0] > dmr_prec[1] && dmr_prec[0] > dmr_prec[2] ) {
-        		// domain > map,range
-        		if( dmr_prec[1] > dmr_prec[2] )
-        			// domain > (map > range)
-        			return (short)0; // dmr
-        		else
-        			// domain > (map < range)
-        			return (short)1; // drm
-        	}
-        	if( dmr_prec[1] > dmr_prec[0] && dmr_prec[1] > dmr_prec[2] ) {
-        		// map > domain,range
-        		if( dmr_prec[0] > dmr_prec[2] )
-        			// map > (domain > range)
-        			return (short)2; // mdr
-        		else
-        			// map > (domain < range)
-        			return (short)3; // mrd
-        	}
-        	if( dmr_prec[2] > dmr_prec[0] && dmr_prec[2] > dmr_prec[1] ) {
-        		// range > domain,map
-        		if( dmr_prec[0] > dmr_prec[1] )
-        			// range > (domain > map)
-        			return (short)4; // rdm
-        		else
-        			// range > (domain < map)
-        			return (short)5; // rmd
-        	}
-        	// this method is internal and this should not happen
-        	throw new RuntimeException("Invalid keyop in form_keyop ");
-        }
-
+  
         /**
          * When participating in a retrieval we want to return the proper part of the tuple
-         * depending on the operation so 'n' equates to the position in the findset semantics (?,*,<object>)
-         * above, ? is in position 1, so n would be 1. In a subclass the order is different depending on the sort index
+         * depending on the operation so 'n' equates to the position in the findset semantics (*,<object>)
+         * above. In a subclass the order is different depending on the sort index
          * @param n the tuple 1-3
          * @return the comparable of the tuple
          */
@@ -1329,7 +1253,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
          * Allow a subclassed index type to present itsef as a Relation with as amuch resolved information as possible
          * @return the Relation as domain, map, range
          */
-        protected abstract Relation asRelation();
+        public abstract Relation asRelation();
         
         @Override
         public String toString() {

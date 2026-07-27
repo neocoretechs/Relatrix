@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -34,15 +35,9 @@ import com.neocoretechs.rocksack.Alias;
  * FindSetUtil.getMorphismRange to attempt to match the actual morphisms to the acquired keys using the ranges we obtained and indexing into the
  * 3 tables we formed. In this way, storing only the keys as intermediate elements, we can post-order the morphisms as desired.
  * <p>
- * For tuples the Result is relative to the '?' query predicates. <br>
  * Here, the headset is retrieved.<p>
- * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a {@link RelatrixIteratorJson} is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare<br> findHeadSet('*','?','*',[object | Class])<br> we get back a {@link com.neocoretechs.relatrix.Result1} of one element. <br>
- * For findHeadSet('?',object,'?',[object | Class],[object | Class])<br> we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
- * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * For each * wildcard we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
+ * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the *, in the
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard.<p>
  * When replacing one of the first 3 selectors with a concrete instance, we perform an exact match on that field. 
@@ -61,7 +56,6 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
 
     protected boolean needsIter = true;
 	protected AbstractRelation template;
-    protected boolean identity = false;
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
     protected ArrayList<DBKey> mkey = new ArrayList<DBKey>();
@@ -89,7 +83,6 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
     		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
        	this.base = template;
-    	identity = RelatrixIteratorJson.isIdentity(this.dmr_return);
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -238,7 +231,6 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
     		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));
     	this.base = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIteratorJson.isIdentity(this.dmr_return);
     	try {
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVJson.get(alias, template.getDomain());
@@ -400,7 +392,7 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
 		if( DEBUG || DEBUGITERATION ) {
 			System.out.println("RelatrixHeadsetIteratorJson.next() template match after iteration:"+this.toString());
 		}
-		return FindsetUtilJson.iterateDmr(buffer, identity, dmr_return);
+		return FindsetUtil.setResult(buffer);
 		
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
@@ -423,8 +415,6 @@ public class RelatrixHeadsetIteratorJson implements Iterator<Result> {
 	    sb.append(alias);
 		sb.append(" needsIter:");
 		sb.append(needsIter);
-		sb.append(" Identity:");
-		sb.append(identity);
 		sb.append(" buffer:");
 		sb.append(buffer);
 		sb.append(" base:");

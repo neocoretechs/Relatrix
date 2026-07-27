@@ -23,35 +23,25 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
+
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKV;
-import com.neocoretechs.relatrix.Result;
+
 import com.neocoretechs.relatrix.Result1;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p>
  * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;
- * The N return tuple '?' elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
+ * If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
  * then N = 1 for returned Comparable elements in next(), since 1 full tuple element at an iteration is returned, 
  * that being the identity morphism.<p>
- * For tuples the array size is relative to the '?' query predicates. <br>
- * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each
- * RelatrixStream is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findHeadSetStream("*","?","*") we get back a {@link Result} of one element.<br>
- * For findSetStream("?",object,"?") we
- * would get back a  {@link Result2}, with each element of the array containing the relationship returned.<br>
  * findSetStream("*","*","*") = {@link Result1} containing identity in [0] of instance Relation<br>
  * findSetStream("*","*",object) =  {@link Result1} identity in [0] of RangeDomainMap where 'object' is range<br>
  * findSetStream("*",object,object) =  {@link Result1} identity in [0] of MapRangeDomain matching the 2 concrete objects<br>
  * findSetStream(object,object,object) =  {@link Result1} identity in [0] of Relation matching 3 objects<br>
- * and the findHeadSeStreamt and findSubSetStream work the same way.<p>
- * findSet("?","?","?") =  {@link Result3} return all, for each element in the database.<br>
- * findSet("?","?",object) =  {@link Result2} return all domain and map objects for a given range object<br>
- * findSet("?","*","?") =  {@link Result2} return all elements of domain and range<br>
+ * and the findHeadSetStream and findSubSetStream work the same way.<p>
  * etc.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2017,2021,2024
  *
@@ -65,7 +55,6 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
     protected short dmr_return[] = new short[4];
 
     protected boolean needsIter = true;
-    protected boolean identity = false;
     
     public RelatrixStream() {}
     /**
@@ -77,7 +66,6 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
     public RelatrixStream(AbstractRelation template, short[] dmr_return) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	identity = isIdentity(this.dmr_return);
     	stream = new StreamHelper<T>(new RelatrixIterator(template, dmr_return));
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
@@ -97,7 +85,6 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
     public RelatrixStream(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	identity = isIdentity(this.dmr_return);
     	stream = new StreamHelper<T>(new RelatrixIterator(alias, template, dmr_return));
     	if( DEBUG )
 			System.out.println("RelatrixStream alias:"+alias+" stream:"+stream+" template:"+base);
@@ -308,20 +295,4 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
 		return stream.findAny();
 	}
 	
-
-	/**
-	 * Checks to see if our dmr_return array has any return tuple ? values, which = 1
-	 * If the 0 element (the iterator over the array) is -1 or all elements are either 0 or 2 (object or wildcard)
-	 * then we say its an identity, and we will return a 1 element Comparable array on each iteration.
-	 * @param dmr_return
-	 * @return
-	 */
-	protected static boolean isIdentity(short[] dmr_return) {
-		if( dmr_return[0] == (-1) ) return true;
-		for(int i = 1; i < 4; i++) {
-			if( dmr_return[i] == 1 ) return false; // 0 means object, 1 means its a return tuple ?, 2 means its a wildcard *
-		}
-	    return true;
-	}
-
 }

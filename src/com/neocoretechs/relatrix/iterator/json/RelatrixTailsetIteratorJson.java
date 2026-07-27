@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -29,15 +30,9 @@ import com.neocoretechs.rocksack.Alias;
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p/>
- * For tuples the Result is relative to the '?' query predicates. <br>
  * Here, the tailset is retrieved.<p>
- * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a {@link RelatrixIteratorJson} is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findTailSet("*","?","*",[object | Class]) we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
- * For findTailSet("?",object,"?",[object | Class],[object | Class]) we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
- * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * For each * wildcard return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
+ * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the *, in the
  * case of a concrete instance, the ordered tailset from that instance (inclusive) to the end is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard. If a concrete instance 
  * occurs in one of the first 3 selectors, it indicates an exact match is desired. This is the Json context.
@@ -57,7 +52,6 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
 
     protected boolean needsIter = true;
 	protected AbstractRelation template;
-    protected boolean identity = false;
     
     protected ArrayList<DBKey> dkey = new ArrayList<DBKey>();
     protected ArrayList<DBKey> mkey = new ArrayList<DBKey>();
@@ -85,7 +79,6 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
     		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
        	this.base = template;
-    	identity = RelatrixIteratorJson.isIdentity(this.dmr_return);
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -223,7 +216,6 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
     		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));
     	this.base = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIteratorJson.isIdentity(this.dmr_return);
     	try {
     		Stream<?> dstream = null;
     		if(template.getDomain() != null) {
@@ -385,7 +377,7 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
 		if( DEBUGITERATION ) {
 			System.out.println("RelatrixIteratorJson.next() template match after iteration:"+this.toString());
 		}
-		return FindsetUtilJson.iterateDmr(buffer, identity, dmr_return);
+		return FindsetUtil.setResult(buffer);
 		
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
@@ -408,8 +400,6 @@ public class RelatrixTailsetIteratorJson implements Iterator<Result> {
 	    sb.append(alias);
 		sb.append(" needsIter:");
 		sb.append(needsIter);
-		sb.append(" Identity:");
-		sb.append(identity);
 		sb.append(" buffer:");
 		sb.append(buffer);
 		sb.append(" base:");

@@ -12,17 +12,11 @@ import com.neocoretechs.rocksack.Alias;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
-* This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
+* This variation accommodates findSet(object,"*","*") which returns a Result
 * for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
 * Legal permutations are:<br>
 * [object],*,* <br>
-* [object],*,?  <br>
-* [object],?,?  <br>
-* [object],?,* <br>
 * [TemplateClass],*,* <br>
-* [TemplateClass],*,? <br>
-* [TemplateClass],?,? <br>
-* [TemplateClass],?,* <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -35,7 +29,7 @@ public class FindSetMode4Transaction extends FindSetMode4 {
     }
     
     /**
-     *  @return The iterator for the returned set, each iterator return is a Comparable array of tuples of arity n=?'s
+     *  @return The iterator for the returned set, each iterator return is {@link Result}
      */
 	@Override
 	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
@@ -48,8 +42,8 @@ public class FindSetMode4Transaction extends FindSetMode4 {
 		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
 	}
 	
-	   /**
-     *  @return The iterator for the returned set, each iterator return is a Comparable array of tuples of arity n=?'s
+	/**
+     *  @return The iterator for the returned set, each iterator return is a Result
      */
 	@Override
 	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {

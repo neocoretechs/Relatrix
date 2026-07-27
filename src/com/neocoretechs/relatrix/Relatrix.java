@@ -83,11 +83,6 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 * For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
 * in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
 * order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p>
-* The critical concept about retrieving relationships is to remember that the number of elements from each passed
-* stream element or iteration of a Stream or Iterator is dependent on the number of "?" operators in a 'findSet'. For example,
-* if we declare findHeadSet("*","?","*") we get back a {@link Result} of one element, for findSet("?",object,"?") we
-* would get back a {@link Result2}, with each element of the relationship returned.<br>
-* If we findHeadStream("*","?","*") we return a stream where one  {@link Result} element can be mapped, reduced, consumed, etc.<br>
 * In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
 * domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
 * relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
@@ -111,9 +106,7 @@ public final class Relatrix {
 	private static boolean TRACE = true;
 	
 	public static Character OPERATOR_WILDCARD_CHAR = '*';
-	public static Character OPERATOR_TUPLE_CHAR = '?';
 	public static String OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
-	public static String OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
   
 	private static SynchronizedThreadManager sftpm;
 	public static final String storeX = "STOREXTX";
@@ -166,17 +159,12 @@ public final class Relatrix {
 	/**
 	* Calling these methods allows the user to substitute their own
 	* symbology for the usual Findset semantics. If you absolutely
-	* need to store values confusing to the standard findset *,? semantics.
+	* need to store values confusing to the standard findset * semantics.
 	*/
 	@ServerMethod
 	public static void setWildcard(Character wc) {
 		OPERATOR_WILDCARD_CHAR = wc;
 		OPERATOR_WILDCARD = String.valueOf(OPERATOR_WILDCARD_CHAR);
-	}
-	@ServerMethod
-	public static void setTuple(Character tp) {
-		OPERATOR_TUPLE_CHAR = tp;
-		OPERATOR_TUPLE = String.valueOf(OPERATOR_TUPLE_CHAR);
 	}
 	
 	@ServerMethod
@@ -856,7 +844,7 @@ public final class Relatrix {
 		sequentialSearch(itd, itm, itr, deleted);
 	}
 	/**
-	 * 
+	 * Helper for remove search process
 	 * @param alias
 	 * @param c
 	 * @param deleted
@@ -1495,25 +1483,8 @@ public final class Relatrix {
 					try {
 						Iterator<?> it = findSet(d.get(taskId), m, r);
 						while(it.hasNext()) {
-							Result r3;
 							Result r2 = (Result) it.next();
-							Comparable[] c1 = r2.toArray();
-							switch(c1.length) {
-								case 1:
-									r3 = new Result2();
-									r3.set(0,(Comparable)d.get(taskId));
-									r3.set(1,c1[0]);
-									break;
-								case 2:
-									r3 = new Result3();
-									r3.set(0,(Comparable)d.get(taskId));
-									r3.set(1,c1[0]);
-									r3.set(2,c1[1]);
-									break;
-								default:
-									throw new RuntimeException("Invalid array length");
-							}
-							res.add(r3);
+							res.add(r2);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1564,25 +1535,8 @@ public final class Relatrix {
 					try {
 						Iterator<?> it = findSet(d, m.get(taskId), r);
 						while(it.hasNext()) {
-							Result r3;
 							Result r2 = (Result) it.next();
-							Comparable[] c1 = r2.toArray();
-							switch(c1.length) {
-							case 1:
-								r3 = new Result2();
-								r3.set(0,(Comparable)m.get(taskId));
-								r3.set(1,c1[0]);
-								break;
-							case 2:
-								r3 = new Result3();
-								r3.set(0,(Comparable)m.get(taskId));
-								r3.set(1,c1[0]);
-								r3.set(2,c1[1]);
-								break;
-							default:
-								throw new RuntimeException("Invalid array length");
-							}
-							res.add(r3);
+							res.add(r2);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1633,25 +1587,8 @@ public final class Relatrix {
 					try {
 						Iterator<?> it = findSet(d, m, r.get(taskId));
 						while(it.hasNext()) {
-							Result r3;
 							Result r2 = (Result) it.next();
-							Comparable[] c1 = r2.toArray();
-							switch(c1.length) {
-							case 1:
-								r3 = new Result2();
-								r3.set(0,(Comparable)r.get(taskId));
-								r3.set(1,c1[0]);
-								break;
-							case 2:
-								r3 = new Result3();
-								r3.set(0,(Comparable)r.get(taskId));
-								r3.set(1,c1[0]);
-								r3.set(2,c1[1]);
-								break;
-							default:
-								throw new RuntimeException("Invalid array length");
-							}
-							res.add(r3);
+							res.add(r2);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1703,25 +1640,8 @@ public final class Relatrix {
 					try {
 						Iterator<?> it = findSet(alias, d.get(taskId), m, r);
 						while(it.hasNext()) {
-							Result r3;
 							Result r2 = (Result) it.next();
-							Comparable[] c1 = r2.toArray();
-							switch(c1.length) {
-							case 1:
-								r3 = new Result2();
-								r3.set(0,(Comparable)d.get(taskId));
-								r3.set(1,c1[0]);
-								break;
-							case 2:
-								r3 = new Result3();
-								r3.set(0,(Comparable)d.get(taskId));
-								r3.set(1,c1[0]);
-								r3.set(2,c1[1]);
-								break;
-							default:
-								throw new RuntimeException("Invalid array length");
-							}
-							res.add(r3);
+							res.add(r2);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1773,25 +1693,8 @@ public final class Relatrix {
 					try {
 						Iterator<?> it = findSet(alias, d, m.get(taskId), r);
 						while(it.hasNext()) {
-							Result r3;
 							Result r2 = (Result) it.next();
-							Comparable[] c1 = r2.toArray();
-							switch(c1.length) {
-							case 1:
-								r3 = new Result2();
-								r3.set(0,(Comparable)m.get(taskId));
-								r3.set(1,c1[0]);
-								break;
-							case 2:
-								r3 = new Result3();
-								r3.set(0,(Comparable)m.get(taskId));
-								r3.set(1,c1[0]);
-								r3.set(2,c1[1]);
-								break;
-							default:
-								throw new RuntimeException("Invalid array length");
-							}
-							res.add(r3);
+							res.add(r2);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1843,25 +1746,8 @@ public final class Relatrix {
 					try {
 						Iterator<?> it = findSet(alias, d, m, r.get(taskId));
 						while(it.hasNext()) {
-							Result r3;
 							Result r2 = (Result) it.next();
-							Comparable[] c1 = r2.toArray();
-							switch(c1.length) {
-							case 1:
-								r3 = new Result2();
-								r3.set(0,(Comparable)r.get(taskId));
-								r3.set(1,c1[0]);
-								break;
-							case 2:
-								r3 = new Result3();
-								r3.set(0,(Comparable)r.get(taskId));
-								r3.set(1,c1[0]);
-								r3.set(2,c1[1]);
-								break;
-							default:
-								throw new RuntimeException("Invalid array length");
-							}
-							res.add(r3);
+							res.add(r2);
 						}
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
@@ -1987,15 +1873,14 @@ public final class Relatrix {
 
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	 * matching the given set of operators and/or objects.
+	 * matching the given set objects.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
-	 * The parameters can be objects and/or operators.
-	 * @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
-	 * @param marg Object for the map of relationship , a dont-care wildcard "*", a return-object "?", or a class template
-	 * @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
-	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
+	 * The parameters are objects.
+	 * @param darg Object for domain of relationship, or class template
+	 * @param marg Object for the map of relationship, or a class template
+	 * @param rarg Object for the range of the relationship, or a class template
 	 * @exception IOException low-level access or problems modifiying schema
-	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+	 * @exception IllegalArgumentException argument must be a valid object reference 
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
@@ -2098,15 +1983,14 @@ public final class Relatrix {
 	}
 	/**
 	 * Retrieve from the targeted relationship those elements from the relationship to the end of relationships
-	 * matching the given set of operators and/or objects.
+	 * matching the given set of objects.
 	 * Returns a view of the portion of this set whose elements are greater than or equal to fromElement.
-	 * The parameters can be objects and/or operators.
-	 * @param darg Object for domain of relationship, a dont-care wildcard "*", a return-object "?", or class template
-	 * @param marg Object for the map of relationship , a dont-care wildcard "*", a return-object "?", or a class template
-	 * @param rarg Object for the range of the relationship, a dont-care wildcard "*", a return-object "?", or a class template
-	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
+	 * The parameters must be objects .
+	 * @param darg Object for domain of relationship, or class template
+	 * @param marg Object for the map of relationship , or a class template
+	 * @param rarg Object for the range of the relationship,  or a class template
 	 * @exception IOException low-level access or problems modifiying schema
-	 * @exception IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
+	 * @exception IllegalArgumentException argument must be a valid object reference 
 	 * @exception ClassNotFoundException if the Class of Object is invalid
 	 * @throws IllegalAccessException 
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
@@ -2210,16 +2094,15 @@ public final class Relatrix {
 
 
 	/**
-	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
-	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
+	 * Retrieve the given set of relationships from the start of the elements matching the objects
+	 * passed, to the given relationship, should the relationship contain object components.
 	 * Returns a view of the portion of this set whose elements are strictly less than toElement.
 	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
 	 * work against, so in this method that check is performed in the createHeadsetFactory method. If you are going to anchor a set
 	 * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
-	 * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
-	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
+	 * @param darg Domain of morphism, or class
+	 * @param marg Map of morphism relationship, or class
+	 * @param rarg Range or codomain or morphism relationship, or class
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
@@ -2233,14 +2116,14 @@ public final class Relatrix {
 		return ifact.createIterator();
 	}
 	/**
-	 * 
-	 * @param dop
-	 * @param mop
-	 * @param rop
-	 * @param arg1
-	 * @param arg2
-	 * @param arg3
-	 * @return
+	 * Wildcard query with the range qualifiers for elements strictly less than 'to' the object qualifiers
+	 * @param dop wildcard
+	 * @param mop wildcard
+	 * @param rop wildcard
+	 * @param arg1 domain strictly less than 'to' object
+	 * @param arg2 map range limiter
+	 * @param arg3 range limiter
+	 * @return The iterator for the set
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
@@ -2252,6 +2135,19 @@ public final class Relatrix {
 		IteratorFactory ifact = new FindHeadSetMode0(dop, mop, rop, arg1, arg2, arg3);
 		return ifact.createIterator();
 	}
+	/**
+	 * Wildcard query with the range qualifiers for elements strictly less than 'to' the object qualifiers
+	 * @param dop domain wildcard
+	 * @param mop map wildcard
+	 * @param rarg range object to match
+	 * @param arg1 domain strictly less than 'to' object
+	 * @param arg2 map range limiter
+	 * @return The iterator for the set
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
 	@ServerMethod
 	public static Iterator<?> findHeadSet(Character dop, Character mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -2340,14 +2236,13 @@ public final class Relatrix {
 	/**
 	 * Retrieve the given set of relationships from the start of the elements matching the operators and/or objects
 	 * passed, to the given relationship, should the relationship contain an object as at least one of its components.
-	 * Returns a view of the portion of this set whose elements are strictly less than toElement.
+	 * Returns a view of the portion of this set whose elements are strictly less than toElements.
 	 * Semantically,this set-based retrieval makes no sense without at least one object to supply a value to
 	 * work against, so in this method that check is performed in the createHeadsetFactory method. If you are going to anchor a set
 	 * retrieval and declare it a 'head' or 'tail' relative to an object, you need a concrete object to assert that retrieval.
-	 * @param darg Domain of morphism, a dont-care wildcard "*", a return-object "?", or class
-	 * @param marg Map of morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param rarg Range or codomain or morphism relationship, a dont-care wildcard "*", a return-object "?", or class
-	 * @param endarg variable length set of parameters qualifying the non-concrete (wildcard or return-object) parameters. Either of Class or instance type.
+	 * @param darg Domain of morphism, or class
+	 * @param marg Map of morphism relationship, or class
+	 * @param rarg Range or codomain of morphism relationship, or class
 	 * @return The RelatrixIterator from which the data may be retrieved. Follows Iterator interface, return Iterator<Result>
 	 * @throws IOException
 	 * @throws IllegalArgumentException At least one argument must be a valid object reference instead of a wildcard * or ?
@@ -2360,6 +2255,20 @@ public final class Relatrix {
 		IteratorFactory ifact = new FindHeadSetMode7(darg, marg, rarg);
 		return new RelatrixStream(ifact.createIterator());
 	}
+	/**
+	 * Heastream with 3 wildcards and 3 range limiter objects for strictly less than 'to' elements
+	 * @param dop wildcard '*' domain
+	 * @param mop wildcard '*' map
+	 * @param rop wilcard '*' range
+	 * @param arg1 domain strictly less than
+	 * @param arg2 map strictly less than
+	 * @param arg3 range strictle less than
+	 * @return The parallel stream
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 */
 	@ServerMethod
 	public static Stream<?> findHeadStream(Character dop, Character mop, Character rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -2451,7 +2360,7 @@ public final class Relatrix {
 		return new RelatrixStream(ifact.createIterator(alias));
 	}
 	/**
-	 * 
+	 * Subset of objects
 	 * @param darg
 	 * @param marg
 	 * @param rarg

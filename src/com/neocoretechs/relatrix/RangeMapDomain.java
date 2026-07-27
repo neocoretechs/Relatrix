@@ -199,7 +199,7 @@ public class RangeMapDomain extends AbstractRelation {
   	}
 
 	@Override
-	protected Relation asRelation() {
+	public Relation asRelation() {
 		return new Relation(templateFlag, alias, transactionId, domain, domainKey, map, mapKey, range, rangeKey);
 	}
   	

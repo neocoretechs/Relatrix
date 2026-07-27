@@ -1,24 +1,25 @@
 package com.neocoretechs.relatrix.iterator;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.TreeMap;
+
+import com.neocoretechs.rocksack.Alias;
+import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.key.DBKey;
-
 
 /**
  * Helper routines to be used with headset, subset, tailset to populate a TreeMap with DBKeys ordered by indexes in 
@@ -265,26 +266,228 @@ public class FindsetUtil {
     }
        
     /**
-     * iterateDmr - return proper domain, map, or range in {@link Result}
-     * based on dmr_return values.  In dmr_return, element 0 is counter iterator for the rest of the array: 
-     * ?,*, 1-3 flags boolean for d,m,r return yes/no<br>
-     * value 0 means an object occupies that spot in the triple. <br>
-     * value 1 indicates 'return a tuple - ?'.<br>
-     * value 2 represents a 'wildcard - *'.<br>
-     * Element 0 contains a running counter  1-3.<br>
-     * These function as d,m,r return yes/no for each retrieved tuple and for concrete objects whether to compare set.
-     * Also determine whether it is an identity, then just put it in return and iterate.
+     * Create the result set from a query buffer.
      * @param buffer The {@link AbstractRelation} buffer holding the result set precursors.
-     * @param identity Is this an identity {@link Relation}
-     * @param dmr_return The array that holds the number and characteristic of the tuple return values.
      * @return the next location to retrieve or null, the only time its null is when we exhaust the buffered tuples
      * @throws IOException 
      * @throws IllegalAccessException 
      */
-    public static Result iterateDmr(AbstractRelation buffer, boolean identity, short[] dmr_return) throws IllegalAccessException, IOException {
+    public static Result setResult(AbstractRelation buffer) throws IllegalAccessException, IOException {
     	//synchronized(mutex) {
 		Result1 r = new Result1();
 		r.set(0,buffer);
 		return r;
     }
+    
+	public static class Result2 extends Result1 implements Comparable, Serializable, Cloneable{
+		private static final long serialVersionUID = 3809564271332319041L;
+		protected Comparable two;	
+		public Result2() {}	
+		public Result2(Result2 r) {
+			super(r);
+			this.two = r.two;
+		}	
+		@Override
+		public Comparable get(int res) {
+			switch(res) {
+				case 0:
+					return one;
+				case 1:
+					return two;
+				default:
+					return two;
+			}
+		}		
+		@Override
+		public Comparable get() {
+			return two;
+		}	
+		@Override
+		public void set(int res, Comparable elem) {
+			switch(res) {
+				case 0:
+					this.one = elem;
+					break;
+				case 1:
+				default:
+					this.two = elem;
+					break;
+			}
+		}     
+		@Override
+		public Comparable[] toArray() {
+			return new Comparable[] {one,two};
+		}	
+		@Override
+		public int length() {
+			return 2;
+		}	
+		@Override
+		public Object clone() {
+			return new Result2(this);
+		}	
+		@Override
+		public void packForTransport() {
+			if(one instanceof AbstractRelation)
+				one = createTransport((Relation) ((AbstractRelation) one).asRelation());
+			if(two instanceof AbstractRelation)
+				two = createTransport((Relation) ((AbstractRelation) two).asRelation());
+		}
+		@Override
+		public void unpackFromTransport() {
+			if(one != null && one.getClass() == TransportMorphism.class)
+				one = createRelation((TransportMorphism)one);	
+			if(two != null && two.getClass() == TransportMorphism.class)
+				two = createRelation((TransportMorphism)two);	
+		}	
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Objects.hash(two);
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj)) {
+				return false;
+			}
+			if (!(obj instanceof Result2)) {
+				return false;
+			}
+			Result2 other = (Result2) obj;
+			return fullEquals(two, other.two);
+		}
+		@Override
+		public int compareTo(Object o) {
+			int n = super.compareTo(o);
+			if(n != 0)
+				return n;
+			return fullCompareTo(two, ((Result2)o).two);
+		}
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			builder.append(one);
+			builder.append(", ");
+			builder.append(two);
+			builder.append("]");
+			return builder.toString();
+		}	
+	}
+	public static class Result3 extends Result2 implements Cloneable, Comparable, Serializable {
+		private static final long serialVersionUID = -8927948682023792282L;
+		private Comparable three;
+		public Result3() {}	
+		public Result3(Result3 r) {
+			super(r);
+			this.three = r.three;
+		}	
+		@Override
+		public Comparable get(int res) {
+			switch(res) {
+				case 0:
+					return one;
+				case 1:
+					return two;
+				case 2:
+					return three;
+				default:
+					return three;
+			}
+		}	
+		@Override
+		public Comparable get() {
+			return three;
+		}	
+		@Override
+		public void set(int res, Comparable elem) {
+			switch(res) {
+				case 0:
+					this.one = elem;
+					break;
+				case 1:
+					this.two = elem;
+					break;
+				case 2:
+				default:
+					this.three = elem;
+					break;
+			}
+		}
+		@Override
+		public Comparable[] toArray() {
+			return new Comparable[] {one,two,three};
+		}	
+		@Override
+		public int length() {
+			return 3;
+		}	
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Objects.hash(three);
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj)) {
+				return false;
+			}
+			if (!(obj instanceof Result3)) {
+				return false;
+			}
+			Result3 other = (Result3) obj;
+			return fullEquals(three, other.three);
+		}	
+		@Override
+		public int compareTo(Object o) {
+			int n = super.compareTo(o);
+			if(n != 0)
+				return n;
+			return fullCompareTo(three, ((Result3)o).three);
+		}	
+		@Override
+		public Object clone() {
+			return new Result3(this);
+		}	
+		@Override
+		public void packForTransport() {
+			if(one instanceof AbstractRelation)
+				one = createTransport((Relation) ((AbstractRelation) one).asRelation());
+			if(two instanceof AbstractRelation)
+				two = createTransport((Relation) ((AbstractRelation) two).asRelation());	
+			if(three instanceof AbstractRelation)
+				three = createTransport((Relation) ((AbstractRelation) three).asRelation());	
+		}	
+		@Override
+		public void unpackFromTransport() {
+			if(one != null && one.getClass() == TransportMorphism.class)
+				one = createRelation((TransportMorphism)one);
+			if(two != null && two.getClass() == TransportMorphism.class)
+				two = createRelation((TransportMorphism)two);
+			if(three != null && three.getClass() == TransportMorphism.class)
+				three = createRelation((TransportMorphism)three);
+		}		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			builder.append(one);
+			builder.append(", ");
+			builder.append(two);
+			builder.append(", ");
+			builder.append(three);
+			builder.append("]");
+			return builder.toString();
+		}
+	}
 }

@@ -30,9 +30,6 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
 
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
-import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientTransactionJson;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 

@@ -11,6 +11,7 @@ import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
@@ -19,21 +20,13 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 /**
  * Implementation of the standard Iterator interface which operates on Morphisms formed into a template
  * to set the lower bound of the correct range search for the properly ordered set of AbstractRelation subclasses;
- * The N return tuple '?' elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
+ * The N elements of the query. If its an identity morphism (instance of AbstractRelation) of three keys (as in the *,*,* query)
  * then N = 1 for returned {@link Result} elements in next(), since 1 full tuple element at an iteration is returned, 
  * that being the identity morphism.<p>
- * For tuples the array size is relative to the '?' query predicates. <br>
- * Stated again, The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a RelatrixIterator is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare findHeadSet('*','?','*') we get back a Result1 of one element. For findSet('?',object,'?') we
- * would get back a {@link Result2}, with each element containing the relationship returned.<br>
  * findSet('*','*','*') = {@link Result1} containing identity of instance Relation <br>
  * findSet('*','*',object) = {@link Result1} identity of RangeDomainMap where 'object' is range <br>
  * findSet('*',object,object) = {@link Result1} identity of MapRangeDomain matching the 2 concrete objects <br>
  * findSet(object,object,object) = {@link Result1} identity of Relation matching 3 objects <br>
- * findSet('?','?','?') = {@link Result3} return all, for each element in the database.<br>
- * findSet('?','?',object) = {@link Result2} return all domain and map objects for a given range object <br>
- * findSet('?','*','?') = {@link Result2}] return all elements of domain and range <br>
  * etc.
  * <p/>
  * findHeadSet works in the same fashion but returns elements strictly less than the target element. <p>
@@ -59,7 +52,6 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
     	this.xid = xid;
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	identity = isIdentity(this.dmr_return);
     	if(DEBUG)
     		System.out.printf("%s ctor xid:%s template:%s dmr_return:%s%n",this.getClass().getName(),xid,template,Arrays.toString(dmr_return));
     	try {
@@ -96,7 +88,6 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
     	this.xid = xid;
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	identity = isIdentity(this.dmr_return);
     	try {
 			iter = RelatrixKVJsonTransaction.findTailMapKV(alias, xid, template);
 		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
@@ -158,9 +149,9 @@ public class RelatrixIteratorJsonTransaction extends RelatrixIteratorJson {
 		if( DEBUG ) {
 			System.out.println("RelatrixIteratorTransaction.next() template match after iteration "+this.toString());
 		}
-		return iterateDmr();
+		return FindsetUtil.setResult(buffer);
 		
-		} catch (IllegalAccessException | IOException | ClassNotFoundException e) {
+		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}

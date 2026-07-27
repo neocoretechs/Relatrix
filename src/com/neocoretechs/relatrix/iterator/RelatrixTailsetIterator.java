@@ -30,7 +30,6 @@ import com.neocoretechs.rocksack.Alias;
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p>
- * For tuples the Result is relative to the '?' query predicates. <br>
  * Here, the tailset is retrieved.<p>
  * The critical element about retrieving relationships is to remember that the number of elements from each passed
  * iteration of a {@link RelatrixIterator} is dependent on the number of "?" operators in a 'findSet'. For example,
@@ -412,7 +411,7 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
 		if( DEBUGITERATION ) {
 			System.out.println("RelatrixIterator.next() template match after iteration:"+this.toString());
 		}
-		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
+		return FindsetUtil.setResult(buffer);
 		
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();

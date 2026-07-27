@@ -10,9 +10,7 @@ import com.neocoretechs.relatrix.Relatrix;
 	/**
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors
 	 * of findSet: HeadSet from selected result set,SubSet from result set, or tailSet from findSet return ordered set.
-	 * The iterator will, in general, return an array of Comparable corresponding to the number of elements specified 
-	 * in the findSet retrieval indicated by the '?' parameter. 
-	 * {@link Relatrix.OPERATOR_TUPLE_CHAR} {@link Relatrix.OPERATOR_WILDCARD_CHAR} <br>
+	 * {@link Relatrix.OPERATOR_WILDCARD_CHAR} <br>
 	 * This factory generates the proper iterator based on our findSet semantics.<p>
 	 * Overloaded methods support transaction context.
 	 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2022
@@ -65,18 +63,15 @@ import com.neocoretechs.relatrix.Relatrix;
 		
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure
-		* @param marg the char operator that specifies a wildcard or tuple return (* or ?)
+		* @param marg the char operator that specifies a wildcard or object (*)
 		* @return the translated ordinal, either 1 for ? {@link Relatrix.OPERATOR_TUPLE_CHAR} or 2 for * {@link Relatrix.OPERATOR_WILDCARD_CHAR} 
 		* @exception IllegalArgumentException the operator is invalid
 		*/
 		protected static short checkOp(char marg) throws IllegalArgumentException
 		{
-		        if( marg == Relatrix.OPERATOR_TUPLE_CHAR )
-		                return 1;
-		        else
-		        	if( marg == Relatrix.OPERATOR_WILDCARD_CHAR)
-		                	return 2;
-		        throw new IllegalArgumentException("findSet takes only objects, '?' or '*' for Relatrix operators");
+		        if( marg == Relatrix.OPERATOR_WILDCARD_CHAR)
+		                return 2;
+		        throw new IllegalArgumentException("findSet takes only objects or '*' for Relatrix operators");
 		}
 		/**
 		 * Determine if we are returning identity relationship {@link AbstractRelation}s. {@link Relatrix.OPERATOR_WILDCARD_CHAR} 

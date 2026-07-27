@@ -143,7 +143,7 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
     }
 
 	@Override
-	protected Relation asRelation() {
+	public Relation asRelation() {
 		return this;
 	}
     

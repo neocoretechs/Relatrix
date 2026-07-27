@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.relatrix.RelatrixKV;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.Result;
@@ -28,15 +28,9 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p>
- * For tuples the Result is relative to the '?' query predicates. <br>
  * Here, the headset is retrieved.<p>
- * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a {@link RelatrixIterator} is dependent on the number of '?' operators in a 'findSet'. For example,
- * if we declare findHeadSet('*','?','*',[object | Class])<br> we get back a {@link com.neocoretechs.relatrix.Result1} of one element.<br> 
- * For findHeadSet('?',object,'?',[object | Class],[object | Class]) <br>we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
- * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * For each * wildcard return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
+ * for the headset objects returned. As mentioned above, if a Class is specified the entire range of ordered instances is replaced by the *, in the
  * case of a concrete instance, the ordered headset from the beginning to that instance (exclusive) is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard. A concrete instance
  * in one of the first 3 selectors indicates an exact match is desired.
@@ -363,7 +357,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 		if( DEBUGITERATION ) {
 			System.out.println("RelatrixIteratorTransaction.next() template match after iteration hasNext:"+iter.hasNext()+", needsIter:"+needsIter+", buffer:"+buffer+", nextit:"+nextit);
 		}
-		return FindsetUtil.iterateDmr(buffer, identity, dmr_return);
+		return FindsetUtil.setResult(buffer);
 		
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();

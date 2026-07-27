@@ -10,6 +10,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.ServerMethod;
+import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.json.FindsetUtilJson;
 import com.neocoretechs.relatrix.iterator.json.RelatrixIteratorJson;
 import com.neocoretechs.relatrix.iterator.json.RelatrixTailsetIteratorJson;
@@ -28,15 +29,9 @@ import com.neocoretechs.relatrix.Result;
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p>
- * For tuples the Result is relative to the '?' query predicates. <br>
  * Here, the tailset is retrieved.<p>
- * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a {@link RelatrixIteratorJson} is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findTailSet("*","?","*",[object | Class]) we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
- * For findTailSet("?",object,"?",[object | Class],[object | Class]) we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
- * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * For each * wildcard return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
+ * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the *, in the
  * case of a concrete instance, the ordered tailset from that instance (inclusive) to the end is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard. The case of a concrete
  * instance in one of the first 3 selector positions indicates an exact match is desired.
@@ -61,7 +56,6 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIteratorJson.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -194,7 +188,6 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIteratorJson.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -366,7 +359,7 @@ public class RelatrixTailsetIteratorJsonTransaction extends RelatrixTailsetItera
 		if( DEBUGITERATION ) {
 			System.out.println("RelatrixIteratorJsonTransaction.next() template match after iteration xid:"+xid+" "+super.toString());
 		}
-		return FindsetUtilJson.iterateDmr(buffer, identity, dmr_return);
+		return FindsetUtil.setResult(buffer);
 		
 		} catch (IllegalAccessException | IOException e) {
 			e.printStackTrace();
