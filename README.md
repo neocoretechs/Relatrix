@@ -45,7 +45,7 @@ Stream<Result> stream = (Stream<Result>) Relatrix.findStream(('*','*','*'); // T
 public class VisualCortex {
 	public static void main(String[] args) throws Exception {
 		Relatrix.setTablespaceDirectory(args[0]);
-		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*', '*', '*', true);
+		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('\*', '\*', '\*', true);
 		Map<Object, Map<Object, Map<Object, Long>>> nameCount = stream.collect(Collectors.groupingBy(b -> b[0].toString(),
 		Collectors.groupingBy(d -> d[1].toString(),
 		Collectors.groupingBy(e -> e[2].toString(), Collectors.counting()))));
