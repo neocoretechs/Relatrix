@@ -12,12 +12,12 @@ Relatrix.store([fromObject],[mapObject],[toObject]); // This stores a functional
 </code>
 <i>and a query for that set is as simple as:</i><p/>
 <code>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream('?', '?', '?');<br/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*', '*', '*');<br/>
 stream.forEach(e -> Stream.of(e).forEach(g -> System.out.println("Element A:"+g)));<p/>
 </code>
 Or using the old Iterator model:<br/>
 <code>
-Iterator iterator = Relatrix.findSet('?',[mapObject],'?'); // This retrieves all domain objects and range objects mapped through [mapObject]<p/>
+Iterator iterator = Relatrix.findSet('*',[mapObject],'*'); // This retrieves all Relation objects mapped through [mapObject]<p/>
 </code>
 
 <b>Toward an easier, more flexible, data management paradigm</b><p/>
@@ -37,7 +37,7 @@ open up the data to perform analysis not possible with conventional databases.
 <i>To compose two relationships to an association:</i><br/>
 <code>
 Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObject2].[toObject2])); // This composes relationships<p/>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],'*','?', true); // This returns all range objects mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],'*','*', true); // This returns all relationships mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
 Stream<Result> stream = (Stream<Result>) Relatrix.findStream(('*','*','*'); // This makes ready for consumption by stream all relationships as identity objects<br/>
 </code>
 
@@ -45,7 +45,7 @@ Stream<Result> stream = (Stream<Result>) Relatrix.findStream(('*','*','*'); // T
 public class VisualCortex {
 	public static void main(String[] args) throws Exception {
 		Relatrix.setTablespaceDirectory(args[0]);
-		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('?', '?', '?', true);
+		Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*', '*', '*', true);
 		Map<Object, Map<Object, Map<Object, Long>>> nameCount = stream.collect(Collectors.groupingBy(b -> b[0].toString(),
 		Collectors.groupingBy(d -> d[1].toString(),
 		Collectors.groupingBy(e -> e[2].toString(), Collectors.counting()))));
@@ -106,13 +106,13 @@ Many semantic models (such as SDM or Vbase) treated databases as rich graphs of 
 
 1. The Geometry of the findset Poset Query
 
-In Relatrix, when you invoke, for example ,the query findset('?', '*', object), where object can be a literal or a composed morphism, '*' is a wildcard, and '?' means 'return the column', we are computing a Fiber (or Fiber Product) in the category of the data.
+In Relatrix, when you invoke, for example ,the query findSet('*', '*', object), where object can be a literal or a composed morphism, '*' is a wildcard, and we are computing a Fiber (or Fiber Product) in the category of the data.
 
 Because the data is stored sequentially in the underlying key/value engine from Meta called RocksDB, this query evaluates with clean physical execution:
 
 Prefix Alignment: The engine targets the storage boundaries based on the object coordinates.
 Wildcard Streaming: The * mapping parameter tells the iterator to accept any morphic relation.
-Poset Projection: The ? return token limits the resulting stream to a single-column poset representing the matching domains.
+Poset Projection: The object limits the resulting stream to a single-column poset representing the matching domains.
 
 Because everything is structured on a poset, your result isn't just a flat list of matching IDs. It inherits the Subtyping / Specialization Hierarchy intrinsic to the semantic model, preserving the structural order of the graph natively.
 
@@ -143,14 +143,14 @@ For example, to discover what structural type a keyless object (like a JPEG payl
  [ Universal Schema Poset Space ]
                                ▲
                                │ (Isomorphic Inverse Map)
-                      [ findset('?', '*', object) ]
+                      [ findSet('*', '*', object) ]
                                │
             ┌──────────────────┴──────────────────┐
             ▼                                     ▼
-   [ Domain Entity X ]                   [ Domain Entity Y ] 
+   [ Relation Entity X ]                   [ Relation Entity Y ] 
 ```
 
-By querying findset('?', '*', object), you pull the column of domains that map to it. Because that result is a poset, you can immediately compute the Least Upper Bound (LUB) of those domains.
+By querying findSet('*', '*', object), you pull the column of Relations that map to it. Because that result is a poset, you can immediately compute the Least Upper Bound (LUB) of those domains.
 
 That LUB is the mathematically precise, narrowest possible "Schema Class" or "Type" that the object can safely occupy.
 
@@ -167,8 +167,8 @@ public class PosetQueryEngine {
     public RocksIterator executeFindSet(Object domainPattern, Object mapPattern, Object rangeTarget) {
         ReadOptions ro = new ReadOptions().setPrefixSameAsStart(true);
         
-        if (domainPattern.equals("?") && mapPattern.equals("*")) {
-            // If the query is findset('?', '*', concrete_range)
+        if (domainPattern.equals("*") && mapPattern.equals("*")) {
+            // If the query is findSet('*', '*', concrete_range)
             // 1. Convert the rangeTarget object into its isomorphic reverse lookup prefix
             byte[] reversePrefix = convertToReverseLookupPrefix(rangeTarget);
             
