@@ -38,7 +38,7 @@ open up the data to perform analysis not possible with conventional databases.
 <code>
 Relatrix.store([fromObject1],[mapObject1],Relatrix.store([fromObject2],[mapObject2].[toObject2])); // This composes relationships<p/>
 Stream<Result> stream = (Stream<Result>) Relatrix.findStream([fromObject1],'*','*', true); // This returns all relationships mapped to [fromObject1] through ANY map object in parallel, including the relationship stored above<p/>
-Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*','*','*'); // This makes ready for consumption by stream all relationships as identity objects<br/>
+Stream<Result> stream = (Stream<Result>) Relatrix.findStream('*','*','*'); // This makes ready for consumption by stream all relationships as identity objects<p/>
 </code>
 
 ```
