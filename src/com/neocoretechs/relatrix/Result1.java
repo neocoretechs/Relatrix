@@ -29,33 +29,22 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	}
 	
 	@Override
-	public Comparable get(int res) {
-		switch(res) {
-			case 0:
-				return one;
-			default:
-				return one;
-		}
-	}
-	
-	@Override
 	public Comparable get() {
 		return one;
 	}
-	
-     
+	 
 	@Override
-	public void set(int res, Comparable elem) {
-		switch(res) {
-			case 0:
-			default:
-				this.one = elem;
-				break;
-		}
+	public void set(Comparable elem) {
+		this.one = elem;
 	}
-
+	/**
+	 * @return the Array of one unless its a Relation, then break out domain, map and range into 3 Comparable elements
+	 */
 	@Override
 	public Comparable[] toArray() {
+		if(one instanceof AbstractRelation) {
+			return new Comparable[] {((Relation)one).getDomain(),((Relation)one).getMap(),((Relation)one).getRange()};
+		}
 		return new Comparable[] {one};
 	}
 
@@ -99,5 +88,31 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 		builder.append("]");
 		return builder.toString();
 	}
+
+	@Override
+	public Comparable get(int res) {
+		switch(res) {
+			case 0:
+				return one;
+			case 1:
+				return one;
+			default:
+				return one;
+		}
+	}		
+	@Override
+	public void set(int res, Comparable elem) {
+		switch(res) {
+			case 0:
+				this.one = elem;
+				break;
+			case 1:
+				this.one = elem;
+				break;
+			default:
+				this.one = elem;
+				break;
+		}
+	}     
 
 }

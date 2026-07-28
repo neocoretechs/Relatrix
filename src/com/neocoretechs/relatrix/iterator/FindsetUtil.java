@@ -275,7 +275,7 @@ public class FindsetUtil {
     public static Result setResult(AbstractRelation buffer) throws IllegalAccessException, IOException {
     	//synchronized(mutex) {
 		Result1 r = new Result1();
-		r.set(0,buffer);
+		r.set(buffer);
 		return r;
     }
     
