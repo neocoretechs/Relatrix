@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
@@ -48,7 +49,7 @@ public class RelatrixKVServerJson extends TCPServer {
 	
 	public static final String relatrixKVJson = relatrixKVJsonClass.getName();
 	
-	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
+	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	

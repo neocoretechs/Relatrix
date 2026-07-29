@@ -36,7 +36,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	private volatile boolean shouldRun = true; // master service thread control
 	private transient Object waitHalt = new Object();
 	
-	private String session;
+	private UUID session;
 	private Object objectReturn;
 	
 	private String methodName;
@@ -50,14 +50,15 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	/**
 	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
+	 * @param session TODO
 	 * @param remoteNode
 	 * @param remotePort
 	 * @throws IOException
 	 */
-	public RemoteIteratorClient(String remoteNode, int remotePort)  throws IOException {
+	public RemoteIteratorClient(UUID session, String remoteNode, int remotePort)  throws IOException {
 		this.remoteNode = remoteNode;
 		this.remotePort = remotePort;
-		session = UUID.randomUUID().toString();
+		this.session = session;
 		if(DEBUG)
 			System.out.printf("%s ctor %s%n",this.getClass().getName(), this.toString());
 	}
@@ -75,7 +76,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	public void process() throws Exception {
 		if(workerSocket == null) {
 			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader());
+			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader(), null);
 			waitPayload = new Object();
 			SynchronizedThreadManager.getInstance().spin(this);
 			if(DEBUG)
@@ -204,7 +205,7 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	}
 
 	@Override
-	public String getSession() {
+	public UUID getSession() {
 		return session;
 	}
 

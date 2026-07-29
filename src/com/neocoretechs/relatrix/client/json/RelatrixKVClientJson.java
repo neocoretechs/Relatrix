@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.RelatrixKV;
@@ -36,7 +37,10 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		asynchClient = new AsynchRelatrixKVClientJson(remoteNode, remotePort);
 		Converter.setClassLoader(RelatrixKV.classLoader);
 	}
-
+	@Override
+	public UUID getSession() {
+		return asynchClient.getSession();
+	}
 	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
@@ -67,16 +71,16 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 			});
 			System.exit(0);
 		case 5:
-			rs = new RelatrixKVStatementJson(args[3],args[4]);
+			rs = new RelatrixKVStatementJson(null,args[3], args[4]);
 			break;
 		case 6:
-			rs = new RelatrixKVStatementJson(args[3],args[4],args[5]);
+			rs = new RelatrixKVStatementJson(null,args[3],args[4], args[5]);
 			break;
 		case 7:
-			rs = new RelatrixKVStatementJson(args[3],args[4],args[5],args[6]);
+			rs = new RelatrixKVStatementJson(null,args[3],args[4],args[5], args[6]);
 			break;
 		case 8:
-			rs = new RelatrixKVStatementJson(args[3],args[4],args[5],args[6],args[7]);
+			rs = new RelatrixKVStatementJson(null,args[3],args[4],args[5],args[6], args[7]);
 			break;
 		default:
 			System.out.println("Cant process argument list of length:"+args.length);

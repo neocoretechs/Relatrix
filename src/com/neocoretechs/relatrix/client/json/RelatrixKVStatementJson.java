@@ -57,16 +57,17 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
     public RelatrixKVStatementJson() {
     }
     
-    public RelatrixKVStatementJson(String session) {
+    public RelatrixKVStatementJson(UUID session) {
     	super(session);
     }
     /**
      * Prep the statement for a remote call. Set our types to the actual class types for now..
+     * @param session TODO
      * @param tmeth
      * @param o1
      */
-    public RelatrixKVStatementJson(String tmeth, Object ... o1) {
-    	super(tmeth,o1);
+    public RelatrixKVStatementJson(UUID session, String tmeth, Object ... o1) {
+    	super(session,tmeth, o1);
     }
      
     @Override
@@ -171,7 +172,7 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 				}
 				for(int ic = 0; ic < RelatrixKVServerJson.iteratorServerClasses.length; ic++) {
 					if(result.getClass() == RelatrixKVServerJson.iteratorServerClasses[ic]) {	
-						ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic]);
+						ric = new RemoteIteratorClient(null, ((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic]);
 					}
 				}
 			} else

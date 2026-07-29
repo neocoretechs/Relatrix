@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -27,18 +28,15 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
     protected TransactionId xid;
     
     public RelatrixKVTransactionStatement() {
-    	super();
-    	if(DEBUG)
-    		System.out.println("Default Constructor:"+this);
     }
     
-	public RelatrixKVTransactionStatement(TransactionId xid, String session) {
+	public RelatrixKVTransactionStatement(TransactionId xid, UUID session) {
 		super(session);
 		this.xid = xid;
 	}
 	
-	public RelatrixKVTransactionStatement(String tmeth, Object ... o1) {
-		super(tmeth, o1);
+	public RelatrixKVTransactionStatement(UUID session, String tmeth, Object ... o1) {
+		super(session, tmeth, o1);
 		if(o1.length > 1) {
 			if(o1[0].getClass().equals(TransactionId.class)) {
 				this.xid = (TransactionId) o1[0];

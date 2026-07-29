@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
@@ -30,6 +31,10 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 	 */
 	public RelatrixClientJson(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixClientJson(remoteNode, remotePort);
+	}
+	@Override
+	public UUID getSession() {
+		return asynchClient.getSession();
 	}
 
 	public void close(RelatrixStatementInterface rii) throws Exception {
@@ -60,16 +65,16 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 			});
 			System.exit(0);
 		case 5:
-			rs = new RelatrixStatementJson(args[3],args[4]);
+			rs = new RelatrixStatementJson(null,args[3], args[4]);
 			break;
 		case 6:
-			rs = new RelatrixStatementJson(args[3],args[4],args[5]);
+			rs = new RelatrixStatementJson(null,args[3],args[4], args[5]);
 			break;
 		case 7:
-			rs = new RelatrixStatementJson(args[3],args[4],args[5],args[6]);
+			rs = new RelatrixStatementJson(null,args[3],args[4],args[5], args[6]);
 			break;
 		case 8:
-			rs = new RelatrixStatementJson(args[3],args[4],args[5],args[6],args[7]);
+			rs = new RelatrixStatementJson(null,args[3],args[4],args[5],args[6], args[7]);
 			break;
 		default:
 			System.out.println("Cant process argument list of length:"+args.length);

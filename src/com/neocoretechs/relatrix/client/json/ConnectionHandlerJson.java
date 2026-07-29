@@ -1,12 +1,9 @@
 package com.neocoretechs.relatrix.client.json;
 
-
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
@@ -15,6 +12,7 @@ import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.json.util.Converter;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * Server-side socket accept connection handler that passes CBOR payloads instead of serialized objects.
@@ -28,8 +26,8 @@ public class ConnectionHandlerJson extends ConnectionHandler {
 		super(classLoader);
 	}
 
-	public ConnectionHandlerJson(SocketChannel ch, ClassLoader classLoader) throws IOException {
-		super(ch, classLoader);
+	public ConnectionHandlerJson(SocketChannel ch, ClassLoader classLoader, ParallelExecutionContext pec) throws IOException {
+		super(ch, classLoader, pec);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  */
 public class TCPWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
@@ -36,7 +36,7 @@ public class TCPWorker implements Runnable {
 	
     public TCPWorker(SocketChannel workerSocket, ParallelExecutionContext context, ClassLoader classLoader) throws IOException {
     	this.workerSocket = workerSocket;
-		workerHandler = new ConnectionHandler(workerSocket, classLoader);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader, null);
 		// spin the request processor thread for the worker
 		workerRequestProcessor = new WorkerRequestProcessor(this);
 		SynchronizedThreadManager.getInstance().spinWithContext(workerRequestProcessor, context);

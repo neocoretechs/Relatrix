@@ -31,7 +31,7 @@ public class RemoteIteratorClientTransaction extends RemoteIteratorClient implem
 	 * @throws IOException
 	 */
 	public RemoteIteratorClientTransaction(TransactionId transactionId, String remoteNode, int remotePort)  throws IOException {
-		super(remoteNode, remotePort);
+		super(null, remoteNode, remotePort);
 		this.transactionId = transactionId;
 	}
 	
@@ -69,16 +69,16 @@ public class RemoteIteratorClientTransaction extends RemoteIteratorClient implem
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[3],xid,args[4],args[5]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[3],xid,args[4],args[5],args[6]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[3],xid,args[4],args[5],args[6],args[7]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[3],xid,args[4],args[5],args[6],args[7]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

@@ -1,4 +1,7 @@
 package com.neocoretechs.relatrix.client;
+
+import java.util.UUID;
+
 /**
  * This interface expresses the contract with a response message coming from remote server
  * to the RelatrixClient. the baseline data includes session ID and return object.
@@ -6,6 +9,6 @@ package com.neocoretechs.relatrix.client;
  *
  */
 public interface RemoteResponseInterface extends RemoteCompletionInterface {
-	public String getSession();
+	public UUID getSession();
 	public Object getObjectReturn();
 }

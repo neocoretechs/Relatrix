@@ -10,6 +10,7 @@ import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixJson;
@@ -47,7 +48,7 @@ public class RelatrixServerJson extends TCPServer {
 	public static ServerInvokeMethodJson relatrixMethods = null; // Main Relatrix class methods
 	public static final String relatrixJson = "com.neocoretechs.relatrix.RelatrixJson";
 	
-	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
+	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	

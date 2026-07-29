@@ -9,11 +9,11 @@ import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
-import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
@@ -52,7 +52,8 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	protected ConnectionHandler workerHandler;
 	
 	private volatile boolean shouldRun = true; // master service thread control
-	private Object waitHalt = new Object(); 
+	private Object waitHalt = new Object();
+	private UUID session = UUID.randomUUID();
 
 	public AsynchRelatrixKVClient() { }
 	
@@ -69,13 +70,13 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandler(workerSocket, classLoader);
-		if(DEBUG)
-			System.out.println("Channel created to "+workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		IndexResolver indexResolver = new IndexResolver();
 		indexResolver.setRemote(this);
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
+		if(DEBUG)
+			System.out.println("Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
 	}
 
@@ -168,7 +169,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 
 	@Override
 	public Object remove(Alias arg1,Object arg2) {
-		RelatrixKVStatement s = new RelatrixKVStatement("remove", arg1, arg2);
+		RelatrixKVStatement s = new RelatrixKVStatement(null, "remove", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -178,7 +179,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	}
 	@Override
 	public Object remove(Object arg1) {
-		RelatrixKVStatement s = new RelatrixKVStatement("remove", arg1);
+		RelatrixKVStatement s = new RelatrixKVStatement(null, "remove", arg1);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -255,16 +256,16 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixKVStatement(args[2],args[3]);
+				rs = new RelatrixKVStatement(null,args[2], args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVStatement(args[2],args[3],args[4]);
+				rs = new RelatrixKVStatement(null,args[2],args[3], args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5]);
+				rs = new RelatrixKVStatement(null,args[2],args[3],args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5],args[6]);
+				rs = new RelatrixKVStatement(null,args[2],args[3],args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);
@@ -276,6 +277,10 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		long tim = System.nanoTime();
 		System.out.println("Return from future:"+cf.get()+" took:"+(System.nanoTime()-tim)+"ns.");
 		rc.close();
+	}
+
+	public UUID getSession() {
+		return session;
 	}
 
 

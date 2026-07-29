@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
@@ -33,7 +34,12 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
 	public RelatrixKVClient(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixKVClient(remoteNode, remotePort);
 	}
-
+	
+	@Override
+	public UUID getSession() {
+		return asynchClient.getSession();
+	}
+	
 	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		synchronized(mutex) {
@@ -114,16 +120,16 @@ public class RelatrixKVClient extends RelatrixKVClientInterfaceImpl {
 				*/
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVStatement(args[2],args[3]);
+				rs = new RelatrixKVStatement(rc.asynchClient.getSession(),args[2], args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVStatement(args[2],args[3],args[4]);
+				rs = new RelatrixKVStatement(rc.asynchClient.getSession(),args[2],args[3], args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5]);
+				rs = new RelatrixKVStatement(rc.asynchClient.getSession(),args[2],args[3],args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVStatement(args[2],args[3],args[4],args[5],args[6]);
+				rs = new RelatrixKVStatement(rc.asynchClient.getSession(),args[2],args[3],args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

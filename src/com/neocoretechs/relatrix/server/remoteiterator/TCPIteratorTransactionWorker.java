@@ -47,7 +47,7 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	
     public TCPIteratorTransactionWorker(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket, classLoader);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader, null);
     	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
     	if(relatrixIteratorMethod == null) {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);

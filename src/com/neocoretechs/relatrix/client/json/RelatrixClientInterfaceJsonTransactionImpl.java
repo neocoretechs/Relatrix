@@ -19,7 +19,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	public abstract Object sendCommand(RelatrixTransactionStatementInterface s) throws Exception;
 	@Override
 	public String getAlias(Alias arg1) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getAlias", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "getAlias", arg1);
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -28,7 +28,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -37,7 +37,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -46,7 +46,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -55,7 +55,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -64,7 +64,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -73,7 +73,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -82,7 +82,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -91,7 +91,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -100,7 +100,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -109,7 +109,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -118,7 +118,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -127,7 +127,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -136,7 +136,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -145,7 +145,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -154,7 +154,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -163,7 +163,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -172,7 +172,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -181,7 +181,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -190,7 +190,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -199,7 +199,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -208,7 +208,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -217,7 +217,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -226,7 +226,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -235,7 +235,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -244,7 +244,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -253,7 +253,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -262,7 +262,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -271,7 +271,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -280,7 +280,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -289,7 +289,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -298,7 +298,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -307,7 +307,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -316,7 +316,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -325,7 +325,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -334,7 +334,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -343,7 +343,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -352,7 +352,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -361,7 +361,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -370,7 +370,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -379,7 +379,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSubSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10,Object arg11) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -388,7 +388,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void rollback(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("rollback", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "rollback", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -397,7 +397,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void rollback(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("rollback", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "rollback", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -406,7 +406,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void checkpoint(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("checkpoint", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "checkpoint", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -415,7 +415,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void checkpoint(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("checkpoint", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "checkpoint", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -424,7 +424,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public RelationList multiStore(Alias arg1,TransactionId arg2,ArrayList arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("multiStore", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "multiStore", arg1, arg2, arg3);
 		try {
 			return (RelationList)sendCommand(s);
 		} catch(Exception e) {
@@ -433,7 +433,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public RelationList multiStore(TransactionId arg1,ArrayList arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("multiStore", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "multiStore", arg1, arg2);
 		try {
 			return (RelationList)sendCommand(s);
 		} catch(Exception e) {
@@ -442,7 +442,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void setTuple(Character arg1) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("setTuple", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "setTuple", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -450,7 +450,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastValue(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastValue", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastValue", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -459,7 +459,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastValue(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastValue", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastValue", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -468,7 +468,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastValue(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastValue", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastValue", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -477,7 +477,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastValue(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastValue", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastValue", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -486,7 +486,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public String[][] getAliases() {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getAliases",new Object[]{});
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null,"getAliases", new Object[]{});
 		try {
 			return (String[][])sendCommand(s);
 		} catch(Exception e) {
@@ -495,7 +495,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Object arg2,Object arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -504,7 +504,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -513,7 +513,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -522,7 +522,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -531,7 +531,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Character arg2,Character arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -540,7 +540,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Character arg2,Character arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -549,7 +549,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -558,7 +558,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Character arg2,Object arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -567,7 +567,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -576,7 +576,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSet(Alias arg1,TransactionId arg2,Object arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -585,7 +585,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -594,7 +594,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(TransactionId arg1,Object arg2,Character arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -603,7 +603,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -612,7 +612,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -621,7 +621,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSet(TransactionId arg1,Object arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -630,7 +630,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -639,7 +639,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -648,7 +648,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -657,7 +657,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object removekv(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("removekv", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "removekv", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -666,7 +666,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object removekv(TransactionId arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("removekv", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "removekv", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -675,7 +675,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Object arg2,Character arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -684,7 +684,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Object arg2,Character arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -693,7 +693,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Character arg2,Object arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -702,7 +702,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -711,7 +711,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -720,7 +720,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Character arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -729,7 +729,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Character arg2,Character arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -738,7 +738,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -747,7 +747,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -756,7 +756,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -765,7 +765,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -774,7 +774,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Character arg2,Character arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -783,7 +783,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -792,7 +792,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(TransactionId arg1,Object arg2,Object arg3,Character arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -801,7 +801,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -810,7 +810,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -819,7 +819,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void storekv(TransactionId arg1,Comparable arg2,Object arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("storekv", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "storekv", arg1, arg2, arg3);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -828,7 +828,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void storekv(Alias arg1,TransactionId arg2,Comparable arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("storekv", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "storekv", arg1, arg2, arg3, arg4);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -837,7 +837,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void rollbackToCheckpoint(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("rollbackToCheckpoint", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "rollbackToCheckpoint", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -846,7 +846,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void rollbackToCheckpoint(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("rollbackToCheckpoint", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "rollbackToCheckpoint", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -855,7 +855,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -864,7 +864,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -873,7 +873,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -882,7 +882,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -891,7 +891,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -900,7 +900,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -909,7 +909,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -918,7 +918,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -927,7 +927,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -936,7 +936,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -945,7 +945,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -954,7 +954,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -963,7 +963,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -972,7 +972,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -981,7 +981,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -990,7 +990,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findTailSet(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -999,7 +999,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1008,7 +1008,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1017,7 +1017,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1026,7 +1026,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1035,7 +1035,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1044,7 +1044,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1053,7 +1053,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1062,7 +1062,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1071,7 +1071,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1080,7 +1080,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1089,7 +1089,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1098,7 +1098,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1107,7 +1107,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1116,7 +1116,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1125,7 +1125,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1134,7 +1134,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findTailStream(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1143,7 +1143,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream entrySetStream(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("entrySetStream", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "entrySetStream", arg1, arg2);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1152,7 +1152,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream entrySetStream(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("entrySetStream", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "entrySetStream", arg1, arg2, arg3);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1161,7 +1161,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void setWildcard(Character arg1) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("setWildcard", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "setWildcard", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -1169,7 +1169,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1178,7 +1178,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1187,7 +1187,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1196,7 +1196,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1205,7 +1205,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1214,7 +1214,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10,Object arg11) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1223,7 +1223,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1232,7 +1232,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1241,7 +1241,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1250,7 +1250,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1259,7 +1259,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1268,7 +1268,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1277,7 +1277,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1286,7 +1286,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1295,7 +1295,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1304,7 +1304,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1313,7 +1313,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1322,7 +1322,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1331,7 +1331,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1340,7 +1340,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1349,7 +1349,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1358,7 +1358,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1367,7 +1367,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1376,7 +1376,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1385,7 +1385,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1394,7 +1394,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1403,7 +1403,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1412,7 +1412,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1421,7 +1421,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1430,7 +1430,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1439,7 +1439,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1448,7 +1448,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1457,7 +1457,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8,Object arg9) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1466,7 +1466,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1475,7 +1475,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1484,7 +1484,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1493,7 +1493,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1502,7 +1502,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1511,7 +1511,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1520,7 +1520,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findSubStream(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1529,7 +1529,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("setRelativeAlias", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "setRelativeAlias", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -1538,7 +1538,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1547,7 +1547,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1556,7 +1556,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1565,7 +1565,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1574,7 +1574,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1583,7 +1583,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1592,7 +1592,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1601,7 +1601,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1610,7 +1610,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1619,7 +1619,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1628,7 +1628,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1637,7 +1637,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1646,7 +1646,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1655,7 +1655,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1664,7 +1664,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1673,7 +1673,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator findHeadSet(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -1682,7 +1682,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1691,7 +1691,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1700,7 +1700,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Character arg3,Character arg4,Character arg5,Object arg6,Object arg7,Object arg8) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1709,7 +1709,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1718,7 +1718,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Character arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1727,7 +1727,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1736,7 +1736,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Object arg3,Character arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1745,7 +1745,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1754,7 +1754,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1763,7 +1763,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1772,7 +1772,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1781,7 +1781,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1790,7 +1790,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Object arg2,Object arg3,Character arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1799,7 +1799,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1808,7 +1808,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1817,7 +1817,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Stream findHeadStream(TransactionId arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {
 			return new RemoteStream((Iterator)sendCommand(s));
 		} catch(Exception e) {
@@ -1826,7 +1826,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSetParallel(TransactionId arg1,List arg2,Character arg3,Character arg4) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSetParallel", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSetParallel", arg1, arg2, arg3, arg4);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -1835,7 +1835,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSetParallel(TransactionId arg1,Character arg2,List arg3,Character arg4) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSetParallel", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSetParallel", arg1, arg2, arg3, arg4);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -1844,7 +1844,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSetParallel(TransactionId arg1,Character arg2,Character arg3,List arg4) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSetParallel", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSetParallel", arg1, arg2, arg3, arg4);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -1853,7 +1853,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSetParallel(Alias arg1,TransactionId arg2,Character arg3,Character arg4,List arg5) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSetParallel", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSetParallel", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -1862,7 +1862,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSetParallel(Alias arg1,TransactionId arg2,Character arg3,List arg4,Character arg5) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSetParallel", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSetParallel", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -1871,7 +1871,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List findSetParallel(Alias arg1,TransactionId arg2,List arg3,Character arg4,Character arg5) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("findSetParallel", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findSetParallel", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -1880,7 +1880,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public TransactionId getTransactionId(long arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getTransactionId", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "getTransactionId", arg1);
 		try {
 			return (TransactionId)sendCommand(s);
 		} catch(Exception e) {
@@ -1889,7 +1889,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public TransactionId getTransactionId() throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getTransactionId",new Object[]{});
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null,"getTransactionId", new Object[]{});
 		try {
 			return (TransactionId)sendCommand(s);
 		} catch(Exception e) {
@@ -1898,7 +1898,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void removeAlias(Alias arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("removeAlias", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "removeAlias", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -1907,7 +1907,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public String getTableSpace() {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getTableSpace",new Object[]{});
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null,"getTableSpace", new Object[]{});
 		try {
 			return (String)sendCommand(s);
 		} catch(Exception e) {
@@ -1916,7 +1916,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void endTransaction(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("endTransaction", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "endTransaction", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -1925,7 +1925,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastKey(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastKey", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastKey", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1934,7 +1934,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastKey(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastKey", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastKey", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1943,7 +1943,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastKey(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastKey", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1952,7 +1952,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object lastKey(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("lastKey", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "lastKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1961,7 +1961,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object getByIndex(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getByIndex", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "getByIndex", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1970,7 +1970,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object getByIndex(TransactionId arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("getByIndex", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "getByIndex", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1979,7 +1979,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstKey(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstKey", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstKey", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1988,7 +1988,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstKey(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstKey", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstKey", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -1997,7 +1997,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstKey(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstKey", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstKey", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2006,7 +2006,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstValue(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstValue", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstValue", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2015,7 +2015,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstValue(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstValue", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstValue", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2024,7 +2024,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstValue(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstValue", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstValue", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2033,7 +2033,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object firstValue(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("firstValue", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "firstValue", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2042,7 +2042,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator keySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("keySet", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "keySet", arg1, arg2, arg3);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -2051,7 +2051,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator keySet(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("keySet", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "keySet", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -2060,7 +2060,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List resolve(Comparable arg1) {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("resolve", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "resolve", arg1);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -2069,7 +2069,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object first(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("first", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "first", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2078,7 +2078,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object first(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("first", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "first", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2087,7 +2087,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object first(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("first", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "first", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2096,7 +2096,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object first(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("first", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "first", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2105,7 +2105,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator entrySet(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("entrySet", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "entrySet", arg1, arg2, arg3);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -2114,7 +2114,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Iterator entrySet(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("entrySet", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "entrySet", arg1, arg2);
 		try {
 			return (Iterator)sendCommand(s);
 		} catch(Exception e) {
@@ -2123,7 +2123,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object last(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("last", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "last", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2132,7 +2132,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object last(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("last", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "last", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2141,7 +2141,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object last(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("last", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "last", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2150,7 +2150,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object last(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("last", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "last", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2159,7 +2159,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public boolean contains(TransactionId arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("contains", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "contains", arg1, arg2);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -2168,7 +2168,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public boolean contains(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("contains", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "contains", arg1, arg2, arg3);
 		try {
 			return (boolean)sendCommand(s);
 		} catch(Exception e) {
@@ -2177,7 +2177,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void commit(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("commit", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "commit", arg1);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -2186,7 +2186,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void commit(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("commit", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "commit", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -2195,7 +2195,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List store(TransactionId arg1,ArrayList arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("store", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "store", arg1, arg2);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -2204,7 +2204,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public List store(Alias arg1,TransactionId arg2,ArrayList arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("store", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "store", arg1, arg2, arg3);
 		try {
 			return (List)sendCommand(s);
 		} catch(Exception e) {
@@ -2213,7 +2213,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Relation store(TransactionId arg1,Object arg2,Object arg3,Object arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("store", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "store", arg1, arg2, arg3, arg4);
 		try {
 			return (Relation)sendCommand(s);
 		} catch(Exception e) {
@@ -2222,7 +2222,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Relation store(Alias arg1,TransactionId arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("store", arg1, arg2, arg3, arg4, arg5);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "store", arg1, arg2, arg3, arg4, arg5);
 		try {
 			return (Relation)sendCommand(s);
 		} catch(Exception e) {
@@ -2231,7 +2231,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object get(TransactionId arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("get", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "get", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2240,7 +2240,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public Object get(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("get", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "get", arg1, arg2, arg3);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {
@@ -2249,7 +2249,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public long size(TransactionId arg1) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("size", arg1);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "size", arg1);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -2258,7 +2258,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public long size(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("size", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "size", arg1, arg2, arg3);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -2267,7 +2267,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public long size(Alias arg1,TransactionId arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("size", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "size", arg1, arg2);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -2276,7 +2276,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public long size(TransactionId arg1,Class arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("size", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "size", arg1, arg2);
 		try {
 			return (long)sendCommand(s);
 		} catch(Exception e) {
@@ -2285,7 +2285,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void remove(TransactionId arg1,Comparable arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("remove", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "remove", arg1, arg2, arg3);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -2294,7 +2294,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void remove(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("remove", arg1, arg2, arg3);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "remove", arg1, arg2, arg3);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -2303,7 +2303,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("remove", arg1, arg2);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "remove", arg1, arg2);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {
@@ -2312,7 +2312,7 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 	}
 	@Override
 	public void remove(Alias arg1,TransactionId arg2,Comparable arg3,Comparable arg4) throws java.io.IOException {
-		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson("remove", arg1, arg2, arg3, arg4);
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "remove", arg1, arg2, arg3, arg4);
 		try {
 			sendCommand(s);
 		} catch(Exception e) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.rocksack.TransactionId;
@@ -42,7 +43,10 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 	public RelatrixClientJsonTransaction(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixClientTransactionJson(remoteNode, remotePort);	
 	}
-	
+	@Override
+	public UUID getSession() {
+		return asynchClient.getSession();
+	}	
 	@Override
 	public Object sendCommand(RelatrixTransactionStatementInterface s) throws Exception {
 		synchronized(mutex) {
@@ -81,16 +85,16 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatementJson(null,args[2],args[3],xid, args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatementJson(null,args[2],args[3],xid, args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatementJson(null,args[2],args[3],xid,args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatementJson(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatementJson(null,args[2],args[3],xid,args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

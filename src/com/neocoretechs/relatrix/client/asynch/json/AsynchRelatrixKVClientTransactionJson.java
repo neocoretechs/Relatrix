@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -16,10 +17,7 @@ import java.util.concurrent.ExecutionException;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
-import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
-
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
@@ -49,6 +47,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 	private String remoteNode;
 	private int remotePort;
 	private HandlerClassLoader classLoader;
+	private UUID session = UUID.randomUUID();
 	
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandlerJson workerHandler;
@@ -71,14 +70,18 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
-		if(DEBUG)
-			System.out.println("Channel created to "+workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		IndexResolver indexResolver = new IndexResolver();
 		indexResolver.setRemoteTransaction(this);
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader, pec);
+		if(DEBUG)
+			System.out.println("Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+	}
+	@Override
+	public UUID getSession() {
+		return session;
 	}
 
 	/**
@@ -177,7 +180,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 	
 	@Override
 	public Object get(TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson("get", transactionId, instance);
+		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "get", transactionId, instance);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -188,7 +191,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 
 	@Override
 	public Object get(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson("get", alias, transactionId, instance);
+		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "get", alias, transactionId, instance);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -199,7 +202,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 
 	@Override
 	public void remove(TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson("remove", transactionId, instance);
+		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "remove", transactionId, instance);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     cf.get();
@@ -210,7 +213,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 
 	@Override
 	public void remove(Alias alias, TransactionId transactionId, Comparable instance) throws IOException {
-		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson("remove", alias, transactionId, instance);
+		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "remove", alias, transactionId, instance);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     cf.get();
@@ -279,16 +282,16 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixKVTransactionStatementJson(args[2],xid,args[3]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],xid, args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],args[3],xid, args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],args[3],xid,args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],args[3],xid,args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

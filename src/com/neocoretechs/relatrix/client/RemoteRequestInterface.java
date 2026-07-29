@@ -1,4 +1,6 @@
 package com.neocoretechs.relatrix.client;
+import java.util.UUID;
+
 import com.neocoretechs.relatrix.server.GenerateClientBindings;
 /**
  * Part of the toolset including {@link ServerInvokeMethodJson}, {@link RemoteResponseInterface}, {@link GenerateClientBindings}
@@ -12,7 +14,7 @@ import com.neocoretechs.relatrix.server.GenerateClientBindings;
  */
 public interface RemoteRequestInterface {
 
-	public String getSession();
+	public UUID getSession();
 
 	public String getMethodName();
 

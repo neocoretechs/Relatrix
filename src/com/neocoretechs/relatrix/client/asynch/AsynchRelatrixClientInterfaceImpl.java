@@ -8,31 +8,34 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CompletionException;
-import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.client.*;
 import java.util.ArrayList;
+
+import com.neocoretechs.rocksack.Alias;
+
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
 
+import com.neocoretechs.relatrix.client.RelatrixStatement;
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.client.RemoteStream;
 
 public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface{
 
 	public abstract CompletableFuture<Object> queueCommand(RelatrixStatementInterface s);
 	@Override
 	public CompletableFuture<RelationList> multiStore(ArrayList arg1) {
-		RelatrixStatement s = new RelatrixStatement("multiStore", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "multiStore", arg1);
 		return queueCommand(s).thenApply(result -> (RelationList) result);
 	}
 	@Override
 	public CompletableFuture<RelationList> multiStore(Alias arg1,ArrayList arg2) {
-		RelatrixStatement s = new RelatrixStatement("multiStore", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "multiStore", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (RelationList) result);
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -47,7 +50,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -62,7 +65,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -77,7 +80,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Object arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -92,7 +95,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -107,7 +110,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -122,7 +125,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -137,7 +140,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -152,7 +155,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -167,7 +170,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -182,7 +185,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -197,7 +200,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -212,7 +215,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Object arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -227,7 +230,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -242,7 +245,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Character arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -257,7 +260,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -272,7 +275,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -287,7 +290,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -302,7 +305,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -317,7 +320,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -332,7 +335,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -347,7 +350,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -362,7 +365,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -377,7 +380,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -392,7 +395,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -407,7 +410,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -422,7 +425,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -437,7 +440,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Object arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -452,7 +455,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Object arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -467,7 +470,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -482,7 +485,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Character arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -497,7 +500,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findHeadStream(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -512,250 +515,250 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<String> getAlias(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("getAlias", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "getAlias", arg1);
 		return queueCommand(s).thenApply(result -> (String) result);
 	}
 	@Override
 	public CompletableFuture<List> findSetParallel(Alias arg1,List arg2,Character arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> findSetParallel(Alias arg1,Character arg2,List arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> findSetParallel(Alias arg1,Character arg2,Character arg3,List arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSetParallel", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> findSetParallel(List arg1,Character arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSetParallel", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> findSetParallel(Character arg1,List arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSetParallel", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> findSetParallel(Character arg1,Character arg2,List arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSetParallel", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Object arg1,Object arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<List> findSet(Alias arg1,Object arg2) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> findSet(Object arg1) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Character arg2,Object arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Object arg2,Object arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Character arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Object arg2,Character arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Character arg2,Character arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Character arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Character arg1,Character arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Character arg1,Character arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Object arg1,Character arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Character arg1,Object arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSet(Object arg1,Character arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Void> removeAlias(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("removeAlias", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "removeAlias", arg1);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Object arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Character arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findHeadSet(Object arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findHeadSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findHeadSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public void storekv(Comparable arg1,Object arg2) {
-		RelatrixStatement s = new RelatrixStatement("storekv", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "storekv", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     cf.get();
@@ -765,7 +768,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public void storekv(Alias arg1,Comparable arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("storekv", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "storekv", arg1, arg2, arg3);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     cf.get();
@@ -775,33 +778,33 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Object> lastValue(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("lastValue", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "lastValue", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> lastValue() {
-		RelatrixStatement s = new RelatrixStatement("lastValue",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"lastValue", new Object[]{});
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> lastValue(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("lastValue", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "lastValue", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> lastValue(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("lastValue", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "lastValue", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Void> setTuple(Character arg1) {
-		RelatrixStatement s = new RelatrixStatement("setTuple", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "setTuple", arg1);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -816,7 +819,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -831,7 +834,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -846,7 +849,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Object arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -861,7 +864,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -876,7 +879,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -891,7 +894,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -906,7 +909,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -921,7 +924,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -936,7 +939,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -951,7 +954,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -966,7 +969,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -981,7 +984,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -996,7 +999,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1011,7 +1014,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1026,7 +1029,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1041,7 +1044,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1056,7 +1059,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1071,7 +1074,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1086,7 +1089,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1101,7 +1104,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1116,7 +1119,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1131,7 +1134,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1146,7 +1149,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1161,7 +1164,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1176,7 +1179,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1191,7 +1194,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1206,7 +1209,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1221,7 +1224,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1236,7 +1239,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1251,7 +1254,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1266,7 +1269,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1281,7 +1284,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1296,7 +1299,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1311,7 +1314,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1326,7 +1329,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1341,7 +1344,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1356,7 +1359,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1371,7 +1374,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1386,7 +1389,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findSubStream(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubStream", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1401,12 +1404,12 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<String[][]> getAliases() {
-		RelatrixStatement s = new RelatrixStatement("getAliases",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"getAliases", new Object[]{});
 		return queueCommand(s).thenApply(result -> (String[][]) result);
 	}
 	@Override
 	public Object getByIndex(Alias arg1,DBKey arg2) {
-		RelatrixStatement s = new RelatrixStatement("getByIndex", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "getByIndex", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -1416,7 +1419,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public Object getByIndex(DBKey arg1) {
-		RelatrixStatement s = new RelatrixStatement("getByIndex", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "getByIndex", arg1);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -1426,375 +1429,375 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("setRelativeAlias", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "setRelativeAlias", arg1);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9,Object arg10) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7,Object arg8,Object arg9) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Object arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findSubSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<String> getTableSpace() {
-		RelatrixStatement s = new RelatrixStatement("getTableSpace",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"getTableSpace", new Object[]{});
 		return queueCommand(s).thenApply(result -> (String) result);
 	}
 	@Override
 	public CompletableFuture<DBKey> getNewKey() {
-		RelatrixStatement s = new RelatrixStatement("getNewKey",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"getNewKey", new Object[]{});
 		return queueCommand(s).thenApply(result -> (DBKey) result);
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Character arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Character arg2,Character arg3,Character arg4,Object arg5,Object arg6,Object arg7) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Character arg2,Character arg3,Object arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Character arg2,Object arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Object arg2,Object arg3,Character arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Character arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Object arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4, arg5);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> findTailSet(Object arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findTailSet", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailSet", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Object> removekv(Alias arg1,Comparable arg2) {
-		RelatrixStatement s = new RelatrixStatement("removekv", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "removekv", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> removekv(Comparable arg1) {
-		RelatrixStatement s = new RelatrixStatement("removekv", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "removekv", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Void> setWildcard(Character arg1) {
-		RelatrixStatement s = new RelatrixStatement("setWildcard", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "setWildcard", arg1);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Character arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1809,7 +1812,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Character arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1824,7 +1827,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Object arg2,Object arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1839,7 +1842,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Character arg2,Object arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1854,7 +1857,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Object arg2,Character arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1869,7 +1872,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Object arg2,Character arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1884,7 +1887,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Character arg2,Character arg3,Character arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1899,7 +1902,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Character arg1,Character arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1914,7 +1917,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Character arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1929,7 +1932,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Object arg1,Object arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1944,7 +1947,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Object arg1,Object arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1959,7 +1962,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Alias arg1,Object arg2,Object arg3,Object arg4) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1974,7 +1977,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Character arg1,Object arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -1989,7 +1992,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Character arg1,Character arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -2004,7 +2007,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Object arg1,Character arg2,Object arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -2019,7 +2022,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> findStream(Object arg1,Character arg2,Character arg3) {
-		RelatrixStatement s = new RelatrixStatement("findStream", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "findStream", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -2034,7 +2037,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> entrySetStream(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "entrySetStream", arg1, arg2);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -2049,7 +2052,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Stream> entrySetStream(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("entrySetStream", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "entrySetStream", arg1);
 		return queueCommand(s).thenApply(result -> {
 	        try {
 	            return (Stream)(new RemoteStream((Iterator) result));
@@ -2064,186 +2067,186 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Object> lastKey(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "lastKey", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> lastKey(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("lastKey", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "lastKey", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> lastKey(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("lastKey", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "lastKey", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> lastKey() {
-		RelatrixStatement s = new RelatrixStatement("lastKey",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"lastKey", new Object[]{});
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstKey(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("firstKey", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "firstKey", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstKey(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("firstKey", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "firstKey", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstKey() {
-		RelatrixStatement s = new RelatrixStatement("firstKey",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"firstKey", new Object[]{});
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstKey(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("firstKey", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "firstKey", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstValue() {
-		RelatrixStatement s = new RelatrixStatement("firstValue",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"firstValue", new Object[]{});
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstValue(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("firstValue", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "firstValue", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstValue(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("firstValue", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "firstValue", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> firstValue(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("firstValue", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "firstValue", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Iterator> keySet(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("keySet", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "keySet", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> keySet(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("keySet", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "keySet", arg1);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<List> store(Alias arg1,ArrayList arg2) {
-		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "store", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<Relation> store(Comparable arg1,Comparable arg2,Comparable arg3) {
-		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "store", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Relation) result);
 	}
 	@Override
 	public CompletableFuture<Relation> store(Alias arg1,Comparable arg2,Comparable arg3,Comparable arg4) {
-		RelatrixStatement s = new RelatrixStatement("store", arg1, arg2, arg3, arg4);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "store", arg1, arg2, arg3, arg4);
 		return queueCommand(s).thenApply(result -> (Relation) result);
 	}
 	@Override
 	public CompletableFuture<List> store(ArrayList arg1) {
-		RelatrixStatement s = new RelatrixStatement("store", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "store", arg1);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<List> resolve(Comparable arg1) {
-		RelatrixStatement s = new RelatrixStatement("resolve", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "resolve", arg1);
 		return queueCommand(s).thenApply(result -> (List) result);
 	}
 	@Override
 	public CompletableFuture<Object> first(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("first", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "first", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> first(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("first", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "first", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> first(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("first", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "first", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> first() {
-		RelatrixStatement s = new RelatrixStatement("first",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"first", new Object[]{});
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Iterator> entrySet(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("entrySet", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "entrySet", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Iterator> entrySet(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("entrySet", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "entrySet", arg1);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
 
 	}
 	@Override
 	public CompletableFuture<Long> size() {
-		RelatrixStatement s = new RelatrixStatement("size",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"size", new Object[]{});
 		return queueCommand(s).thenApply(result -> (Long) result);
 	}
 	@Override
 	public CompletableFuture<Long> size(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("size", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "size", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Long) result);
 	}
 	@Override
 	public CompletableFuture<Long> size(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("size", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "size", arg1);
 		return queueCommand(s).thenApply(result -> (Long) result);
 	}
 	@Override
 	public CompletableFuture<Long> size(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("size", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "size", arg1);
 		return queueCommand(s).thenApply(result -> (Long) result);
 	}
 	@Override
 	public CompletableFuture<Object> last(Alias arg1,Class arg2) {
-		RelatrixStatement s = new RelatrixStatement("last", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "last", arg1, arg2);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> last(Class arg1) {
-		RelatrixStatement s = new RelatrixStatement("last", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "last", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> last(Alias arg1) {
-		RelatrixStatement s = new RelatrixStatement("last", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "last", arg1);
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Object> last() {
-		RelatrixStatement s = new RelatrixStatement("last",new Object[]{});
+		RelatrixStatement s = new RelatrixStatement(getSession(),"last", new Object[]{});
 		return queueCommand(s);
 	}
 	@Override
 	public CompletableFuture<Boolean> contains(Alias arg1,Comparable arg2) {
-		RelatrixStatement s = new RelatrixStatement("contains", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "contains", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Boolean) result);
 	}
 	@Override
 	public CompletableFuture<Boolean> contains(Comparable arg1) {
-		RelatrixStatement s = new RelatrixStatement("contains", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "contains", arg1);
 		return queueCommand(s).thenApply(result -> (Boolean) result);
 	}
 	@Override
 	public Object get(Object arg1) {
-		RelatrixStatement s = new RelatrixStatement("get", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "get", arg1);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -2253,7 +2256,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public Object remove(Alias arg1,Object arg2) {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -2263,7 +2266,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public Object remove(Object arg1) {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -2273,7 +2276,7 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public Object get(Alias arg1,Object arg2) {
-		RelatrixStatement s = new RelatrixStatement("get", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "get", arg1, arg2);
 		CompletableFuture<Object> cf = queueCommand(s);
           try {
                     return cf.get();
@@ -2283,25 +2286,25 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 	}
 	@Override
 	public CompletableFuture<Void> remove(Alias arg1,Comparable arg2) {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Void> remove(Comparable arg1) {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Void> remove(Comparable arg1,Comparable arg2) {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}
 	@Override
 	public CompletableFuture<Void> remove(Alias arg1,Comparable arg2,Comparable arg3) {
-		RelatrixStatement s = new RelatrixStatement("remove", arg1, arg2, arg3);
+		RelatrixStatement s = new RelatrixStatement(getSession(), "remove", arg1, arg2, arg3);
 		return queueCommand(s).thenApply(result -> (Void) result);
 
 	}

@@ -41,7 +41,7 @@ public class TCPKVIteratorWorkerJson implements Runnable {
 	
     public TCPKVIteratorWorkerJson(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket, classLoader);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader, null);
     	relatrixKVIteratorMethod = relatrixKVIteratorMethods.get(iteratorClass);
     	if(relatrixKVIteratorMethod == null) {
     		relatrixKVIteratorMethod = new ServerInvokeMethod(iteratorClass,0);

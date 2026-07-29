@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.neocoretechs.relatrix.Serializer;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -50,7 +51,7 @@ public class ConnectionHandler {
 		this.writer = new Writer(this);
 	}
 
-	public ConnectionHandler(SocketChannel ch, ClassLoader classLoader) throws IOException {
+	public ConnectionHandler(SocketChannel ch, ClassLoader classLoader, ParallelExecutionContext pec) throws IOException {
 		this.channel = ch;
 		this.classLoader = classLoader;
 		ch.configureBlocking(true);
@@ -62,8 +63,8 @@ public class ConnectionHandler {
 		this.writeQueue = new ArrayBlockingQueue<Object>(QUEUESIZE, true);
 		this.reader = new Reader(this);
 		this.writer = new Writer(this);
-		SynchronizedThreadManager.getInstance().spin(reader);
-		SynchronizedThreadManager.getInstance().spin(writer);
+		SynchronizedThreadManager.getInstance().spinWithContext(reader, pec);
+		SynchronizedThreadManager.getInstance().spinWithContext(writer, pec);
 		if(DEBUG)
 			System.out.printf("%s channel:%s%n",this.getClass().getName(), ch);	
 	}

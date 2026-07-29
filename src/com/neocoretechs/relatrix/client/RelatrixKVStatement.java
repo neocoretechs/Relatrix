@@ -28,7 +28,7 @@ import com.neocoretechs.relatrix.server.RelatrixKVServer;
 public class RelatrixKVStatement implements Serializable, RelatrixStatementInterface {
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
-    protected String session = null;
+    protected UUID session = null;
     protected String methodName;
     protected Object[] paramArray;
     protected String[] paramTypes;
@@ -40,7 +40,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     public RelatrixKVStatement() {
     }
     
-    public RelatrixKVStatement(String session) {
+    public RelatrixKVStatement(UUID session) {
     	this.session = session;
  		this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
@@ -48,11 +48,12 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     /**
      * Prep RelatrixStatement to send remote method call
+     * @param session TODO
      */
-    public RelatrixKVStatement(String tmeth, Object ... o1) {
+    public RelatrixKVStatement(UUID session, String tmeth, Object ... o1) {
     	this.methodName = tmeth;
     	this.paramArray = o1;
-    	this.session = UUID.randomUUID().toString();
+    	this.session = session;
 		this.paramTypes = new String[o1.length];
  		this.params = new Class<?>[o1.length];
  		for(int i = 0; i < o1.length; i++) {
@@ -62,11 +63,11 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
    
     @Override
-	public synchronized String getSession() {
+	public synchronized UUID getSession() {
     	return session; 
     }
     
-    public synchronized void setSession(String session) { this.session = session; }
+    public synchronized void setSession(UUID session) { this.session = session; }
     
     @Override
 	public synchronized String getMethodName() { return methodName; }
@@ -219,7 +220,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 				if( DEBUG ) {
 					System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 				}
-				ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0]);
+				ric = new RemoteIteratorClient(null, ((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0]);
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}

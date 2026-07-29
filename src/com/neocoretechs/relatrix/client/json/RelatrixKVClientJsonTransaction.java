@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.client.json;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.relatrix.client.ConnectionHandler;
@@ -33,7 +34,10 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 	public RelatrixKVClientJsonTransaction(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixKVClientTransactionJson(remoteNode, remotePort);
 	}
-
+	@Override
+	public UUID getSession() {
+		return asynchClient.getSession();
+	}
 	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		synchronized(mutex) {
@@ -135,16 +139,16 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 				rc.endTransaction(xid);
 				System.exit(0);
 			case 5:
-				rs = new RelatrixKVTransactionStatementJson(args[2],xid,args[3]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],xid, args[3]);
 				break;
 			case 6:
-				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],args[3],xid, args[4]);
 				break;
 			case 7:
-				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],args[3],xid,args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixKVTransactionStatementJson(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixKVTransactionStatementJson(null,args[2],args[3],xid,args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

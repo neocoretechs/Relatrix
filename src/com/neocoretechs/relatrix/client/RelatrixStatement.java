@@ -8,13 +8,15 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
-import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
+
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
+
 import com.neocoretechs.relatrix.server.RelatrixServer;
-import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
+
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -29,7 +31,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
 	private static boolean DEBUG = false;
     static final long serialVersionUID = 8649844374668828845L;
-    protected String session = null;
+    protected UUID session = null;
     protected Alias alias = null;
     public String methodName;
     public Object[] paramArray;
@@ -42,7 +44,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     public RelatrixStatement() {
     }
     
-    public RelatrixStatement(String session) {
+    public RelatrixStatement(UUID session) {
     	this.session = session;
     	this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
@@ -50,13 +52,14 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     }
     /**
      * Prep the statement for a remote call. Set our types to the actual class types for now..
+     * @param session TODO
      * @param tmeth
      * @param o1
      */
-    public RelatrixStatement(String tmeth, Object ... o1) {
+    public RelatrixStatement(UUID session, String tmeth, Object ... o1) {
     	this.methodName = tmeth;
     	this.paramArray = o1;
-    	this.session = UUID.randomUUID().toString();
+    	this.session = session;
  		this.paramTypes = new String[o1.length];
  		this.params = new Class<?>[o1.length];
  		for(int i = 0; i < o1.length; i++) {
@@ -67,11 +70,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     }
    
     @Override
-	public synchronized String getSession() {
+	public synchronized UUID getSession() {
     	return session; 
     }
     
-    public synchronized void setSession(String session) { this.session = session; }
+    public synchronized void setSession(UUID session) { this.session = session; }
     
     @Override
 	public synchronized String getMethodName() { return methodName; }
@@ -212,7 +215,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			RemoteIteratorClient ric = null;
 			for(int ic = 0; ic < RelatrixServer.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixServer.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), RelatrixServer.iteratorPorts[ic]);
+					ric = new RemoteIteratorClient(null, ((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), RelatrixServer.iteratorPorts[ic]);
 					break;
 				}
 			}

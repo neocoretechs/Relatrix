@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
@@ -39,13 +40,13 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
     		System.out.println("Default Constructor:"+this);
     }
     
-	public RelatrixKVTransactionStatementJson(TransactionId xid, String session) {
-		super(session);
+	public RelatrixKVTransactionStatementJson(TransactionId xid, UUID session) {
+		super(xid, session);
 		this.xid = xid;
 	}
 	
-	public RelatrixKVTransactionStatementJson(String tmeth, Object ... o1) {
-		super(tmeth, o1);
+	public RelatrixKVTransactionStatementJson(UUID session, String tmeth, Object ... o1) {
+		super(session, tmeth, o1);
 		if(o1.length > 1) {
 			if(o1[0].getClass().equals(TransactionId.class)) {
 				this.xid = (TransactionId) o1[0];

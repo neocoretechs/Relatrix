@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.neocoretechs.rocksack.TransactionId;
@@ -50,7 +51,12 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		return cf.get();
 		}
 	}
-
+	
+	@Override
+	public UUID getSession() {
+		return asynchClient.getSession();
+	}
+	
 	/**
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of
@@ -102,16 +108,16 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

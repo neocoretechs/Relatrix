@@ -8,6 +8,7 @@ import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
@@ -50,7 +51,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	// and that one will be located on port 9999
 	boolean isThisBytecodeRepository = false;
 	
-	public static ConcurrentHashMap<String, Object> sessionToObject = new ConcurrentHashMap<String,Object>();
+	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	

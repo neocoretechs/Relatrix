@@ -191,7 +191,7 @@ public class GenerateJsonClientBindings {
 				outStream.writeBytes(statement);
 				outStream.writeBytes(" s = new ");
 				outStream.writeBytes(statement);
-				outStream.writeBytes("(\"");
+				outStream.writeBytes("(getSession(),\"");
 				outStream.writeBytes(rmnap.methodNames.get(mnum));
 				outStream.writeBytes("\",");
 				if(rmnap.methodParams[mnum].length == 0) {

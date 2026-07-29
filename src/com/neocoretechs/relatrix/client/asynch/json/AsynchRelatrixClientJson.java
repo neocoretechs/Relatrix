@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +45,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	private String remoteNode;
 	private int remotePort;
 	private HandlerClassLoader classLoader;
-
+	private UUID session = UUID.randomUUID();
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandlerJson workerHandler;
 	
@@ -67,7 +68,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader, null);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
@@ -76,7 +77,10 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
 	}
-
+	@Override
+	public UUID getSession() {
+		return session;
+	}
 	/**
 	* Set up the socket 
 	 */
@@ -195,16 +199,16 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixStatement(args[2],args[3]);
+				rs = new RelatrixStatement(null,args[2], args[3]);
 				break;
 			case 6:
-				rs = new RelatrixStatement(args[2],args[3],args[4]);
+				rs = new RelatrixStatement(null,args[2],args[3], args[4]);
 				break;
 			case 7:
-				rs = new RelatrixStatement(args[2],args[3],args[4],args[5]);
+				rs = new RelatrixStatement(null,args[2],args[3],args[4], args[5]);
 				break;
 			case 8:
-				rs = new RelatrixStatement(args[2],args[3],args[4],args[5],args[6]);
+				rs = new RelatrixStatement(null,args[2],args[3],args[4],args[5], args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

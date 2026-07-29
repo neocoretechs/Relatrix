@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,6 +55,7 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 	private HandlerClassLoader classLoader;
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandlerJson workerHandler;
+	private UUID session = UUID.randomUUID();
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -80,15 +82,19 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
-		if( DEBUG ) {
-			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
-		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		IndexResolver indexResolver = new IndexResolver();
 		indexResolver.setRemoteTransaction(this);
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader, pec);
+		if( DEBUG ) {
+			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
+		}
 		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+	}
+	@Override
+	public UUID getSession() {
+		return session;
 	}
 
 	/**
@@ -208,16 +214,16 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 				System.exit(0);				
 				break;
 			case 5:
-				rs = new RelatrixTransactionStatement(args[2],xid,args[3]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],xid,args[3]);
 				break;
 			case 6:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4]);
+				rs = new RelatrixTransactionStatement(rs.getSession(),args[2],args[3],xid,args[4]);
 				break;
 			case 7:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4],args[5]);
 				break;
 			case 8:
-				rs = new RelatrixTransactionStatement(args[2],args[3],xid,args[4],args[5],args[6]);
+				rs = new RelatrixTransactionStatement(rc.getSession(),args[2],args[3],xid,args[4],args[5],args[6]);
 				break;
 			default:
 				System.out.println("Cant process argument list of length:"+args.length);

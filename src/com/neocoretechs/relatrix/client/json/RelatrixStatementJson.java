@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.client.json;
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.util.UUID;
 
 import com.neocoretechs.relatrix.client.RemoteIteratorClient;
 
@@ -25,16 +26,17 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
     public RelatrixStatementJson() {
     }
     
-    public RelatrixStatementJson(String session) {
+    public RelatrixStatementJson(UUID session) {
     	super(session);
     }
     /**
      * Prep the statement for a remote call. Set our types to the actual class types for now..
+     * @param session TODO
      * @param tmeth
      * @param o1
      */
-    public RelatrixStatementJson(String tmeth, Object ... o1) {
-    	super(tmeth, o1);
+    public RelatrixStatementJson(UUID session, String tmeth, Object ... o1) {
+    	super(session, tmeth, o1);
     }
    
 	/**
@@ -62,7 +64,7 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 			RemoteIteratorClient ric = null;
 			for(int ic = 0; ic < RelatrixServerJson.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixServerJson.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClient(((InetSocketAddress)RelatrixServerJson.address).getAddress().getHostName(), RelatrixServerJson.iteratorPorts[ic]);
+					ric = new RemoteIteratorClient(null, ((InetSocketAddress)RelatrixServerJson.address).getAddress().getHostName(), RelatrixServerJson.iteratorPorts[ic]);
 					break;
 				}
 			}

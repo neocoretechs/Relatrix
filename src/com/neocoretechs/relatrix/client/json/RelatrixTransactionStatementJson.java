@@ -4,6 +4,7 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
@@ -28,9 +29,14 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
     public RelatrixTransactionStatementJson() {
     	super();
     }
-    
-    public RelatrixTransactionStatementJson(String tmeth, Object ... o1) {
-    	super(tmeth, o1);
+    /**
+     * Transaction id is extracted from variable arg list
+     * @param session
+     * @param tmeth
+     * @param o1
+     */
+    public RelatrixTransactionStatementJson(UUID session, String tmeth, Object ... o1) {
+    	super(session, tmeth, o1);
     	if(o1.length > 1) {
 			if(o1[0].getClass().equals(TransactionId.class)) {
 				this.transactionId = (TransactionId) o1[0];
@@ -46,7 +52,7 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 		}
     }
     
-	public RelatrixTransactionStatementJson(TransactionId transactionId, String session) {
+	public RelatrixTransactionStatementJson(TransactionId transactionId, UUID session) {
 		super(session);
 		this.transactionId = transactionId;
 	}
