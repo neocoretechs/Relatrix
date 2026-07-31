@@ -57,7 +57,7 @@ public class IndexResolver {
 	public void setRemote(ClientInterface remoteClient) throws IOException {
 		if(instanceTable != null)
 			throw new RuntimeException("Instance table previously set");
-		instanceTable = new RemoteIndexInstanceTable(remoteClient);
+		instanceTable = new RemoteIndexInstanceTable(remoteClient, this);
 		if(DEBUG)
 			System.out.println("IndexResolver setRemote instance table:"+instanceTable);
 	}
@@ -72,7 +72,7 @@ public class IndexResolver {
 			throw new IOException("Remote Client not instance of ClientTransactionInterface:"+remoteClient.getClass());
 		if(instanceTable != null)
 			throw new RuntimeException("Instance table previously set");
-		instanceTable = new RemoteIndexInstanceTable(remoteClient);
+		instanceTable = new RemoteIndexInstanceTable(remoteClient, this);
 		if(DEBUG)
 			System.out.println("IndexResolver setRemote instance table:"+instanceTable);	
 	}

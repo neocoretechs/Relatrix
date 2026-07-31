@@ -63,11 +63,9 @@ public final class WorkerRequestProcessor implements Runnable {
 		    // quit the processing thread
 		    break;
 		}
-		// Down here at the worker level we only need to set the countdown latch to 1
+		// Down here at the worker level we only need to use the countdown latch thats set to 1 via RemoteResponseInterface implementation
 		// because all operations are taking place on 1 tablespace and thread with coordination
 		// at the Master level otherwise
-		CountDownLatch cdl = new CountDownLatch(1);
-		((RemoteCompletionInterface)iori).setCompletionObject(cdl);
 		if( DEBUG  ) {
 			System.out.printf("%s preparing to process:%s%n",this.getClass().getName(),iori);
 		}
@@ -80,7 +78,7 @@ public final class WorkerRequestProcessor implements Runnable {
 			try {
 				if( DEBUG )
 					System.out.printf("%s awaiting countdown latch%n",this.getClass().getName());
-				cdl.await();
+				iori.getCompletionObject().await();
 			} catch (InterruptedException e) {
 				// most likely executor shutdown request during latching, be good and bail
 			    // quit the processing thread

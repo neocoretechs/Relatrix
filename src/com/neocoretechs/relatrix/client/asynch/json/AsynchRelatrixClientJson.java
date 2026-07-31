@@ -89,7 +89,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
   	    try {
   	    	while(shouldRun ) {
   	    		RelatrixStatementInterface rs = queuedRequests.takeFirstNotify();
-  	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
+  	    		Object cf = rs.getCompletionObject();
   	    		workerHandler.sendObject(rs);
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
@@ -99,11 +99,9 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
   	    		if( o instanceof Throwable ) {
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
-  	    			cf.completeExceptionally((Throwable) o);
   	    		} else {
   	    			if(o instanceof Iterator)
   	    				((RemoteCompletionInterface)o).process();
-  		    		cf.complete(o);
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
@@ -111,9 +109,9 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
   	    		// and signal the latch we have finished
   	    		if( DEBUG )
   	    			System.out.printf("%s Asynch signaling completion%n",this.getClass().getName());
-  	    		rs.signalCompletion(o);
+  	    		rs.signalCompletion(cf);
   	    	}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
@@ -132,7 +130,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	//@Override
 	public CompletableFuture<Object> queueCommand(RelatrixStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
-		rs.setCompletionObject(cf);
+		rs.setCompletionObject();
 		try {
 			queuedRequests.addLastWait(rs);
 		} catch (InterruptedException e) {}

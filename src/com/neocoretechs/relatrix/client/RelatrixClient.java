@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
+import com.neocoretechs.relatrix.key.IndexResolver;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -32,7 +34,9 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	public RelatrixClient(String remoteNode, int remotePort)  throws IOException {
 		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort);
 	}
-	
+	public RelatrixClient(String remoteNode, int remotePort, IndexResolver resolver)  throws IOException {
+		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort, resolver);
+	}
 	@Override
 	public UUID getSession() {
 		return asynchClient.getSession();
@@ -40,16 +44,17 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	
 	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
-		synchronized(mutex) {
 		if(DEBUG)
 			System.out.printf("%s.sendCommand statement=%s%n", this.getClass().getName(), s);
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
-		//if(DEBUG)
-			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
-		return cf.get();
-		}
+		return cf.get(30, TimeUnit.SECONDS);
 	}
-
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
+	}
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
+	}
 	/**
 	 * Called for the various 'findSet' methods.
 	 * The original request is preserved according to session GUID and upon return of

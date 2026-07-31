@@ -96,7 +96,6 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
   	    try {
   	    	while(shouldRun ) {
   	    		RelatrixKVTransactionStatementInterface rs = queuedRequests.takeFirstNotify();
-  	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
   	    		workerHandler.sendObject(rs);
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
@@ -106,11 +105,9 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
   	    		if( o instanceof Throwable ) {
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
-  	    			cf.completeExceptionally((Throwable) o);
   	    		} else {
   	    			if(o instanceof Iterator)
   	    				((RemoteCompletionInterface)o).process();
-  		    		cf.complete(o);
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
@@ -118,7 +115,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
   	    		// and signal the latch we have finished
   	    		rs.signalCompletion(o);
   	    	}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
@@ -137,7 +134,7 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 	@Override
 	public CompletableFuture<Object> queueCommand(RelatrixKVTransactionStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
-		rs.setCompletionObject(cf);
+		rs.setCompletionObject();
 		try {
 			queuedRequests.addLastWait(rs);
 		} catch (InterruptedException e) {}

@@ -223,9 +223,9 @@ public class ErrorUtil {
 	    sb.append("\r\n");
 	    sb.append("correlationId:");
 	    sb.append(correlationId);
-	    sb.append(" serverTime");
+	    sb.append(" serverTime:");
 	    sb.append(serverTime);
-	    sb.append(" causeClass");
+	    sb.append(" causeClass:");
 	    sb.append(causeClass);
 	    sb.append("\r\n");
 	    return new Throwable(sb.toString());

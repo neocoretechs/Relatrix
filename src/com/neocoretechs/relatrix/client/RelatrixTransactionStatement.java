@@ -83,7 +83,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			RemoteIteratorClientTransaction ric = null;
 			for(int ic = 0; ic < RelatrixTransactionServer.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixTransactionServer.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClientTransaction(transactionId, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), RelatrixTransactionServer.iteratorPorts[ic]);
+					ric = new RemoteIteratorClientTransaction(transactionId, session, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), RelatrixTransactionServer.iteratorPorts[ic]);
 					break;
 				}
 			}

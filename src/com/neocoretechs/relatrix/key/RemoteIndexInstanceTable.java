@@ -12,7 +12,8 @@ import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
-
+import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -25,12 +26,12 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  *
  */
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	private ClientInterface rc = null;
 	private Object mutex = new Object();
 
-	public RemoteIndexInstanceTable(ClientInterface rc) throws IOException {
-		this.rc = rc;
+	public RemoteIndexInstanceTable(ClientInterface rc, IndexResolver resolver) throws IOException {
+		this.rc = new RelatrixClient(((AsynchRelatrixClient)rc).getRemoteNode(), ((AsynchRelatrixClient)rc).getRemotePort(), resolver);
 		if(DEBUG)
 			System.out.printf("%s c'tor setting ClientInterface=%s%n", this.getClass().getName(), rc);
 	}	

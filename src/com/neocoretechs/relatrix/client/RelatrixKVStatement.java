@@ -35,7 +35,8 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     protected transient Class<?>[] params = null;
     private Object objectReturn;
     private String returnClass;
-    private transient Object completionObject;
+    private transient CompletableFuture<Object> completionObject = new CompletableFuture<Object>();
+    private transient CountDownLatch completionLatch = new CountDownLatch(1);
     
     public RelatrixKVStatement() {
     }
@@ -143,24 +144,20 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     
 	@Override
-	public synchronized Object getCompletionObject() {
-		return completionObject;
+	public synchronized CountDownLatch getCompletionObject() {
+		return completionLatch;
 	}
     
 	@Override
-	public synchronized void setCompletionObject(Object cdl) {
-		completionObject = cdl;	
+	public synchronized void setCompletionObject() {
+		completionObject = new CompletableFuture<Object>();
+		completionLatch = new CountDownLatch(1);
 	}
 
 	@Override
 	public synchronized void signalCompletion(Object o) {
-		if(completionObject.getClass() == CountDownLatch.class)
-			((CountDownLatch)completionObject).countDown();
-		else
-			if(completionObject.getClass() == CompletableFuture.class)
-				((CompletableFuture)completionObject).complete(o);
-			else
-				throw new RuntimeException("Unknown completion object type:"+completionObject.getClass());
+		completionObject.complete(o);
+		completionLatch.countDown();
 	}
 	
 	@Override
@@ -172,6 +169,11 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	public synchronized Object getObjectReturn() {
 		return objectReturn;
 	}
+	@Override
+	public CompletableFuture<Object> getCompletionFuture() {
+		return completionObject;
+	}
+
 	/**
 	 * Call methods of the main RelatrixKV class, which will return an instance or an object that is not Serializable.<p>
 	 * RealtrixKV invokes to original retrieval or storage method, possibly returning an iterator or stream.<p>
@@ -220,7 +222,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 				if( DEBUG ) {
 					System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 				}
-				ric = new RemoteIteratorClient(null, ((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0]);
+				ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0]);
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}

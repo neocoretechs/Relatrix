@@ -96,7 +96,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
   	    		RelatrixStatementInterface rs = queuedRequests.takeFirstNotify();
   	    		if( DEBUG )
   	    			System.out.printf("%s %s queue take %s%n",this.getClass().getName(),this,rs);
-  	    		CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionObject();
+  	    		Object cf = rs.getCompletionObject();
 	    		if( DEBUG )
   	    			System.out.printf("%s %s send using %s%n",this.getClass().getName(),this,workerHandler);
   	    		workerHandler.sendObject(rs);
@@ -110,11 +110,9 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
   	    		if( o instanceof Throwable ) {
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
-  	    			cf.completeExceptionally((Throwable) o);
   	    		} else {
   	    			if(o instanceof Iterator)
   	    				((RemoteCompletionInterface)o).process();
-  		    		cf.complete(o);
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
@@ -123,9 +121,9 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	    		if( DEBUG )
   	    			System.out.printf("%s %s signal completion %s%n",this.getClass().getName(),this,o);
   	    		// get the original request from the stored table
-  	    		rs.signalCompletion(o);
+  	    		rs.signalCompletion(cf);
   	    	}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
 				// we lost the remote master, try to close worker and wait for reconnect
 				e.printStackTrace();
@@ -143,7 +141,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	*/ 
 	public CompletableFuture<Object> queueCommand(RelatrixStatementInterface rs) {
 		CompletableFuture<Object> cf = new CompletableFuture<>();
-		rs.setCompletionObject(cf);
+		rs.setCompletionObject();
 		try {
 			queuedRequests.addLastWait(rs);
 		} catch (InterruptedException e) {}

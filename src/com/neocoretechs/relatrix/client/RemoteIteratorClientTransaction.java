@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -25,13 +26,14 @@ public class RemoteIteratorClientTransaction extends RemoteIteratorClient implem
 	/**
 	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param bootNode Name of local master socket
 	 * @param remoteNode
 	 * @param remotePort
+	 * @param session TODO
+	 * @param bootNode Name of local master socket
 	 * @throws IOException
 	 */
-	public RemoteIteratorClientTransaction(TransactionId transactionId, String remoteNode, int remotePort)  throws IOException {
-		super(null, remoteNode, remotePort);
+	public RemoteIteratorClientTransaction(TransactionId transactionId,  UUID session, String remoteNode, int remotePort)  throws IOException {
+		super(session, remoteNode, remotePort);
 		this.transactionId = transactionId;
 	}
 	

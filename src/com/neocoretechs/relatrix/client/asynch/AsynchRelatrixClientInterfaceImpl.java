@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.type.RelationList;
 import com.neocoretechs.relatrix.Relation;
 

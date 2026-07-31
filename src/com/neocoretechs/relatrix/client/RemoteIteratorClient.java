@@ -9,6 +9,8 @@ import java.nio.channels.SocketChannel;
 
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
@@ -22,7 +24,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  */
 public class RemoteIteratorClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
 	private static final long serialVersionUID = 1L;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = false; // timing
 	private long tim;
@@ -240,12 +242,12 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	}
 
 	@Override
-	public Object getCompletionObject() {
+	public CountDownLatch getCompletionObject() {
 		return null;
 	}
 
 	@Override
-	public void setCompletionObject(Object cdl) {
+	public void setCompletionObject() {
 	}
 
 	@Override
@@ -265,6 +267,11 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	@Override
 	public void setParamArray(Object[] params) {
 		this.paramArray = params;	
+	}
+
+	@Override
+	public CompletableFuture<Object> getCompletionFuture() {
+		return null;
 	}
 
 }

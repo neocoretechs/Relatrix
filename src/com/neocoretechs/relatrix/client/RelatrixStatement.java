@@ -39,7 +39,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     protected Object objectReturn;
     protected String returnClass;
     protected transient Class[] params = null;
-    private transient Object completionObject;
+    private transient CompletableFuture<Object> completionObject = new CompletableFuture<Object>();
+    private transient CountDownLatch completionLatch = new CountDownLatch(1);
 
     public RelatrixStatement() {
     }
@@ -124,26 +125,75 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
              (paramArray == null ? "nil" : Arrays.toString(paramArray)), returnClass); }
     
 	@Override
-	public synchronized Object getCompletionObject() {
-		return completionObject;
+	public synchronized CountDownLatch getCompletionObject() {
+		return completionLatch;
 	}
-    
+    @Override 
+    public CompletableFuture<Object> getCompletionFuture() {
+    	return completionObject;
+    }
 	@Override
-	public synchronized void setCompletionObject(Object cdl) {
-		completionObject = cdl;	
+	public synchronized void setCompletionObject() {
+		completionLatch = new CountDownLatch(1);
+		completionObject = new CompletableFuture<Object>();
 	}
 
-	@Override
+	/*@Override
 	public synchronized void signalCompletion(Object o) {
-		if(completionObject.getClass() == CountDownLatch.class)
-			((CountDownLatch)completionObject).countDown();
-		else
-			if(completionObject.getClass() == CompletableFuture.class)
-				((CompletableFuture)completionObject).complete(o);
-			else
-				throw new RuntimeException("Unknown completion object type:"+completionObject.getClass());
+		if(o != null)
+	    	if (o instanceof Throwable) 
+	    		((CompletableFuture)completionObject).completeExceptionally((Throwable)o);
+	    	else
+	    		((CompletableFuture)completionObject).complete(o);
+		if(DEBUG)
+			System.out.printf("%s.signalCompletion%n", this.getClass().getName());
+	    completionLatch.countDown();
+	}*/
+	@Override
+	public void signalCompletion(Object o) {
+	    CompletableFuture<Object> cf = null;
+	    // Capture state under lock, but do not complete the CF while holding the lock
+	    synchronized (this) {
+	        Object maybe = completionObject;
+	        if (maybe instanceof CompletableFuture) {
+	            cf = (CompletableFuture<Object>) maybe;
+	        }
+	        // Keep the latch decrement inside the synchronized block if other code relies on it
+	        completionLatch.countDown();
+	    }
+	    // Log before attempting to complete
+	    if (DEBUG) {
+	        System.out.printf("%s.SIGNAL before complete rs=%x cf=%x oClass=%s%n",
+	            this.getClass().getName(),
+	            System.identityHashCode(this),
+	            cf == null ? 0 : System.identityHashCode(cf),
+	            o == null ? "null" : o.getClass().getName());
+	    }
+	    // Complete the CompletableFuture outside the synchronized block
+	    if (cf != null) {
+	        try {
+	            if (o instanceof Throwable) cf.completeExceptionally((Throwable) o);
+	            else cf.complete(o);
+	        } catch (Throwable t) {
+	            // Ensure caller doesn't hang if complete throws
+	            try { cf.completeExceptionally(t); } catch (Throwable ignore) {}
+	            System.err.printf("%s.signalCompletion: cf.complete threw for rs=%x: %s%n",
+	                this.getClass().getName(), System.identityHashCode(this), t);
+	        }
+	    } else {
+	        if (DEBUG) {
+	            System.out.printf("%s.SIGNAL no CompletableFuture present for rs=%x%n",
+	                this.getClass().getName(), System.identityHashCode(this));
+	        }
+	    }
+	    // Optional: final debug to show completion state
+	    if (DEBUG && cf != null) {
+	        System.out.printf("%s.SIGNAL after complete rs=%x cf=%x done=%b%n",
+	            this.getClass().getName(), System.identityHashCode(this),
+	            System.identityHashCode(cf), cf.isDone());
+	    }
 	}
-	
+
 	@Override
 	public synchronized void setObjectReturn(Object o) {
 		if(o instanceof AbstractRelation) {
@@ -165,11 +215,11 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			if(objectReturn != null && objectReturn.getClass() == TransportMorphism.class)
 				objectReturn = TransportMorphism.createMorphism((TransportMorphism)objectReturn);
 		if(DEBUG)
-			System.out.printf("%s.getObjectReturn returning class %s: %s%n", this.getClass().getName(), objectReturn.getClass().getName(), objectReturn);
+			System.out.printf("%s.getObjectReturn returning class %s%n", this.getClass().getName(), objectReturn.getClass().getName());
 		return objectReturn;
 	}
 	
-	protected void packParamArray() {
+	protected synchronized void packParamArray() {
     	for(int i = 0; i < paramArray.length; i++) {
     		if(paramArray[i] instanceof AbstractRelation) {
     			paramArray[i] = TransportMorphism.createTransport((Relation) paramArray[i]);
@@ -178,16 +228,20 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
         			((TransportMorphismInterface)paramArray[i]).packForTransport();;
     		}
     	}
+    	if(DEBUG)
+			System.out.printf("%s.packParamArray %s%n", this.getClass().getName(),Arrays.toString(paramArray));
 	}
 	
-	protected void unpackParamArray() {
+	protected synchronized void unpackParamArray() {
 		for(int i = 0; i < paramArray.length; i++)
 			if(paramArray[i] != null && paramArray[i].getClass() == TransportMorphism.class) {
 				paramArray[i] = TransportMorphism.createMorphism((TransportMorphism)paramArray[i]);
 			} else {
 				if(paramArray[i] instanceof TransportMorphismInterface)
 					((TransportMorphismInterface)paramArray[i]).unpackFromTransport();
-			}		
+			}
+	 	if(DEBUG)
+			System.out.printf("%s.unpackParamArray%n", this.getClass().getName());
 	}
 	
 	/**
@@ -197,6 +251,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	@Override
 	public synchronized void process() throws Exception {
 		unpackParamArray();
+		setCompletionObject();
 		Object result = RelatrixServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -215,7 +270,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			RemoteIteratorClient ric = null;
 			for(int ic = 0; ic < RelatrixServer.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixServer.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClient(null, ((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), RelatrixServer.iteratorPorts[ic]);
+					ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixServer.address).getAddress().getHostName(), RelatrixServer.iteratorPorts[ic]);
 					break;
 				}
 			}
