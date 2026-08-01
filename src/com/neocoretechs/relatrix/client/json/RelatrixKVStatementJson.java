@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
-import com.neocoretechs.relatrix.client.RemoteIteratorClient;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;

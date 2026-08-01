@@ -5,8 +5,7 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 
-import com.neocoretechs.relatrix.client.RemoteIteratorClient;
-
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 

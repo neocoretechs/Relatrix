@@ -34,7 +34,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface, ClientNonTransactionInterface, Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	
@@ -46,6 +46,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
+	protected ParallelExecutionContext pec;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -69,7 +70,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
 		IndexResolver indexResolver = new IndexResolver();
 		indexResolver.setRemote(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);	
@@ -83,7 +84,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
+		pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s using resolver%n",this.getClass().getName(),workerHandler);	
@@ -92,6 +93,17 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	@Override
 	public UUID getSession() {
 		return session;
+	}
+	@Override
+	public String getRemoteNode() {
+		return remoteNode;
+	}
+	@Override
+	public int getRemotePort( ) {
+		return remotePort;
+	}
+	public ParallelExecutionContext getContext() {
+		return pec;
 	}
 	/**
 	* Set up the socket 
@@ -174,26 +186,6 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 			workerHandler.close();
 		}
 		shouldRun = false;
-	}
-	
-	
-	public String getRemoteNode() {
-		return remoteNode;
-	}
-	
-	public int getRemotePort( ) {
-		return remotePort;
-	}
-
-
-	/**
-	 * Issue a close which will merely remove the request resident object here and on the server
-	 * @param rii
-	 */
-	public void close(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("close");
-		rii.setParamArray(new Object[0]);
-		queueCommand(rii);
 	}
 	
 	@Override

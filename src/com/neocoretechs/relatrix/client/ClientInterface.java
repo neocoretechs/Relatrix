@@ -8,4 +8,6 @@ import java.util.UUID;
  */
 public interface ClientInterface {
 	public UUID getSession();
+	public String getRemoteNode();
+	public int getRemotePort();
 }

@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -49,44 +50,18 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
 		return cf.get(30, TimeUnit.SECONDS);
 	}
+	@Override
 	public String getRemoteNode() {
 		return asynchClient.getRemoteNode();
 	}
+	@Override
 	public int getRemotePort() {
 		return asynchClient.getRemotePort();
 	}
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The next iterated object or null
-	 */
-	public Object next(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		return sendCommand(rii);
+	public ParallelExecutionContext getContext() {
+		return asynchClient.getContext();
 	}
 
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The boolean result of hasNext on server
-	 */	
-	public boolean hasNext(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("hasNext");
-		rii.setParamArray(new Object[0]);
-		return (boolean) sendCommand(rii);
-	}
-
-	public void close(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		sendCommand(rii);
-	}
-	
 	static int i = 0;
 	/**
 	 * Generic call to server remote addr, port, method, arg1 to method, arg2 to method...
@@ -120,7 +95,6 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 			return;
 		}
 		System.out.println(rc.sendCommand(rs));
-		rc.close(rs);
 	}
 
 

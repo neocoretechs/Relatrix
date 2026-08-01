@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.iterator;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -7,24 +7,28 @@ import java.net.InetSocketAddress;
 
 import java.nio.channels.SocketChannel;
 
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
-
+import com.neocoretechs.relatrix.client.ConnectionHandler;
+import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
  * Manages remote iterators via client that is serialized to remote iterator servers and returned as payload.
+ * Unlike the other client/server contracts, we are not using a statement, but sending this as a statement
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class RemoteIteratorClient implements Runnable, RelatrixStatementInterface, Serializable, Iterator {
+public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements Runnable, RelatrixStatementInterface {
 	private static final long serialVersionUID = 1L;
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = false; // timing
 	private long tim;
@@ -52,9 +56,9 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	/**
 	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
-	 * @param session TODO
-	 * @param remoteNode
-	 * @param remotePort
+	 * @param session the session UUID
+	 * @param remoteNode remote node of server
+	 * @param remotePort port of remote node
 	 * @throws IOException
 	 */
 	public RemoteIteratorClient(UUID session, String remoteNode, int remotePort)  throws IOException {
@@ -78,11 +82,15 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 	public void process() throws Exception {
 		if(workerSocket == null) {
 			workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader(), null);
+			IndexResolver indexResolver = new IndexResolver();
+			indexResolver.setRemote(this);
+			ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+			workerHandler = new ConnectionHandler(workerSocket, Thread.currentThread().getContextClassLoader(), pec);
 			waitPayload = new Object();
-			SynchronizedThreadManager.getInstance().spin(this);
+			waitHalt = new Object();
 			if(DEBUG)
-				System.out.printf("%s process() called for %s%n",this.getClass().getName(), this.toString());
+				System.out.printf("%s process() resolver and handler created, ready to spin with context for %s%n",this.getClass().getName(), this.toString());
+			SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
 		} else {
 			throw new IOException(String.format("%s process() called for existing workerSocket %s%n",this.getClass().getName(), this.toString()));
 		}
@@ -120,54 +128,20 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		}
 
 	}
+	@Override
 	/**
 	 * Send 'this' via workerSocket
 	 * @throws Exception
 	 */
-	public void sendCommand() throws Exception {
+	public Object sendCommand(String command) throws Exception {
+		this.methodName = command;
 		workerHandler.sendObject(this);
 		synchronized(waitPayload) {
 			waitPayload.wait();
 		}
-	}
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The next iterated object or null
-	 */
-	@Override
-	public Object next() {
-		this.methodName = "next";
-		try {
-			sendCommand();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		if(DEBUG)
-			System.out.printf("%s waitsocket return next %s%n",this.getClass().getName(), this.toString());
 		return objectReturn;
 	}
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The boolean result of hasNext on server
-	 */
 	@Override
-	public boolean hasNext() {
-		methodName = "hasNext";
-		try {
-			sendCommand();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		if(DEBUG)
-			System.out.printf("%s waitsocket return hasNext %s%n",this.getClass().getName(), this.toString());
-		return (boolean) objectReturn;
-	}
 	/**
 	 * set shouldRun to false to stop run loop, wait for loop to end, then call shutdown()
 	 */
@@ -182,8 +156,8 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		}
 		shutdown();
 	}
-
-	private void shutdown() {
+	@Override
+	public void shutdown() {
 		if(DEBUG)
 			System.out.println("Calling shutdown for RemoteIteratorClient");
 		if( workerHandler != null ) {
@@ -192,11 +166,11 @@ public class RemoteIteratorClient implements Runnable, RelatrixStatementInterfac
 		SynchronizedThreadManager.getInstance().shutdown(); // client threads
 	}
 
-
+	@Override
 	public String getRemoteNode() {
 		return remoteNode;
 	}
-
+	@Override
 	public int getRemotePort( ) {
 		return remotePort;
 	}

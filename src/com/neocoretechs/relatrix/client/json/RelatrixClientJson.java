@@ -36,11 +36,14 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 	public UUID getSession() {
 		return asynchClient.getSession();
 	}
+	@Override
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
+	}
 
-	public void close(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		sendCommand(rii);
+	@Override
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
 	}
 	
 	@Override
@@ -82,7 +85,6 @@ public class RelatrixClientJson extends RelatrixClientInterfaceJsonImpl {
 		}
 		Object cf = rc.sendCommand(rs);
 		System.out.println(cf);
-		rc.close(rs);
 	}
 
 

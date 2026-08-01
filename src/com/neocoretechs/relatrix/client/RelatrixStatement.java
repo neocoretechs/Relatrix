@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
-
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  *
  */
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected UUID session = null;
     protected Alias alias = null;

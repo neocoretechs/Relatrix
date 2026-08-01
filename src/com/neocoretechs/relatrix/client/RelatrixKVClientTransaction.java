@@ -54,7 +54,15 @@ public class RelatrixKVClientTransaction extends RelatrixKVClientTransactionInte
 	public UUID getSession() {
 		return asynchClient.getSession();
 	}
-	
+	@Override
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
+	}
+
+	@Override
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
+	}
 	@Override
 	public void storekv(TransactionId xid, Comparable index, Object instance) throws IOException {
 		asynchClient.storekv(xid, index, instance);	

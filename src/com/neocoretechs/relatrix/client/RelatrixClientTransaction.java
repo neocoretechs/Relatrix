@@ -57,37 +57,16 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		return asynchClient.getSession();
 	}
 	
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The next iterated object or null
-	 */
-	public Object next(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		return sendCommand(rii);
+	@Override
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
 	}
 
-	/**
-	 * Called for the various 'findSet' methods.
-	 * The original request is preserved according to session GUID and upon return of
-	 * object the value is transferred
-	 * @param rii RelatrixStatement
-	 * @return The boolean result of hasNext on server
-	 */	
-	public boolean hasNext(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("hasNext");
-		rii.setParamArray(new Object[0]);
-		return (boolean) sendCommand(rii);
+	@Override
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
 	}
 
-	public void close(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		sendCommand(rii);
-	}
 	
 	static int i = 0;
 	/**
@@ -125,7 +104,6 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 		}
 		System.out.println(rc.sendCommand(rs));
 		rc.endTransaction(xid);
-		rc.close(rs);
 	}
 
 }

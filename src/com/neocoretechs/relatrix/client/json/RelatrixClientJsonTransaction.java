@@ -46,7 +46,16 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 	@Override
 	public UUID getSession() {
 		return asynchClient.getSession();
-	}	
+	}
+	@Override
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
+	}
+
+	@Override
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
+	}
 	@Override
 	public Object sendCommand(RelatrixTransactionStatementInterface s) throws Exception {
 		synchronized(mutex) {
@@ -57,13 +66,6 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 			//System.out.printf("%s.sendCommand returned=%s%n", this.getClass().getName(), cf.get());
 		return cf.get();
 		}
-	}
-
-
-	public void close(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		sendCommand((RelatrixTransactionStatementInterface) rii);
 	}
 	
 	static int i = 0;
@@ -102,7 +104,6 @@ public class RelatrixClientJsonTransaction extends RelatrixClientInterfaceJsonTr
 		}
 		System.out.println(rc.sendCommand(rs));
 		//rc.endTransaction(xid);
-		rc.close(rs);
 	}
 
 }

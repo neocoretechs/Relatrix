@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.client;
+package com.neocoretechs.relatrix.client.iterator;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
+import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -14,7 +17,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class RemoteIteratorClientTransaction extends RemoteIteratorClient implements Runnable, RelatrixTransactionStatementInterface, Serializable, Iterator {
+public class RemoteIteratorClientTransaction extends RemoteIteratorClient implements Runnable, RelatrixTransactionStatementInterface, RemoteIteratorInterface {
 	private static final long serialVersionUID = 1L;
 	public static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
@@ -88,6 +91,5 @@ public class RemoteIteratorClientTransaction extends RemoteIteratorClient implem
 		}
 		System.out.println(rc.sendCommand(rs));
 		rc.endTransaction(xid);
-		rc.close(rs);
 	}
 }

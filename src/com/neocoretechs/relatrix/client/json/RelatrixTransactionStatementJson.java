@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
-import com.neocoretechs.relatrix.client.RemoteIteratorClientTransaction;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;

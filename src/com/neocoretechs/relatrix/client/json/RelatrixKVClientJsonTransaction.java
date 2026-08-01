@@ -39,6 +39,15 @@ public class RelatrixKVClientJsonTransaction extends RelatrixKVClientInterfaceJs
 		return asynchClient.getSession();
 	}
 	@Override
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
+	}
+
+	@Override
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
+	}
+	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		synchronized(mutex) {
 		if(DEBUG)

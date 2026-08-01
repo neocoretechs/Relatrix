@@ -17,7 +17,7 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
-import com.neocoretechs.relatrix.client.RemoteIteratorClientTransaction;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.json.RelatrixKVTransactionServerJson;

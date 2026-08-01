@@ -174,15 +174,6 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 		return remotePort;
 	}
 
-	/**
-	 * Issue a close which will merely remove the request resident object here and on the server
-	 * @param rii
-	 */
-	public void close(RelatrixTransactionStatementInterface rii) throws Exception {
-		rii.setMethodName("close");
-		rii.setParamArray(new Object[0]);
-		queueCommand(rii);
-	}
 	
 	@Override
 	public String toString() {

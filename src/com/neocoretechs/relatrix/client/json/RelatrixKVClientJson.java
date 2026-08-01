@@ -42,16 +42,18 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		return asynchClient.getSession();
 	}
 	@Override
+	public String getRemoteNode() {
+		return asynchClient.getRemoteNode();
+	}
+
+	@Override
+	public int getRemotePort() {
+		return asynchClient.getRemotePort();
+	}
+	@Override
 	public Object sendCommand(RelatrixStatementInterface s) throws Exception {
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
 		return cf.get();
-	}
-	
-
-	public void close(RelatrixStatementInterface rii) throws Exception {
-		rii.setMethodName("next");
-		rii.setParamArray(new Object[0]);
-		sendCommand(rii);
 	}
 	
 	static int i = 0;
@@ -88,7 +90,6 @@ public class RelatrixKVClientJson extends RelatrixKVClientInterfaceJsonImpl {
 		}
 		System.out.println(rc.sendCommand(rs));
 		//rc.send(rs);
-		rc.close(rs);
 	}
 
 }

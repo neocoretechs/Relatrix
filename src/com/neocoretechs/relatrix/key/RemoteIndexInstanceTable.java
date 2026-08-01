@@ -31,7 +31,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	private Object mutex = new Object();
 
 	public RemoteIndexInstanceTable(ClientInterface rc, IndexResolver resolver) throws IOException {
-		this.rc = new RelatrixClient(((AsynchRelatrixClient)rc).getRemoteNode(), ((AsynchRelatrixClient)rc).getRemotePort(), resolver);
+		this.rc = new RelatrixClient(rc.getRemoteNode(), rc.getRemotePort(), resolver);
 		if(DEBUG)
 			System.out.printf("%s c'tor setting ClientInterface=%s%n", this.getClass().getName(), rc);
 	}	
