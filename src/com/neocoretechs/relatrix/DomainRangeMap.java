@@ -137,23 +137,6 @@ public class DomainRangeMap extends AbstractRelation {
 	    return result;
 	}
 	
-
-    /*
-    public Comparable returnTupleOrder(int n) {
-    	// default dmr
-    	switch(n) {
-    		case 1:
-    			return domain;
-    		case 2:
-    			return range;
-    		case 3:
-    			return map;
-    		default:
-    			break;
-    	}
-    	throw new RuntimeException("returnTupleOrder invalid tuple "+n);
-    }
-    */
     @Override
     public Object clone() throws CloneNotSupportedException {
     	try {

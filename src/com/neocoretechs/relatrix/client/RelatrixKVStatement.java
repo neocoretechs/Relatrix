@@ -17,6 +17,8 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
+import com.neocoretechs.relatrix.server.RelatrixServer;
+import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
  * The following class allows the transport of RelatrixKV method calls to the server.
@@ -64,23 +66,23 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
    
     @Override
-	public synchronized UUID getSession() {
+	public UUID getSession() {
     	return session; 
     }
     
-    public synchronized void setSession(UUID session) { this.session = session; }
+    public void setSession(UUID session) { this.session = session; }
     
     @Override
-	public synchronized String getMethodName() { return methodName; }
+	public String getMethodName() { return methodName; }
     
-    public synchronized void setMethodName(String methodName) {
+    public void setMethodName(String methodName) {
     	this.methodName = methodName;
     }
   
     @Override
-	public synchronized Object[] getParamArray() { return paramArray; }
+	public Object[] getParamArray() { return paramArray; }
     
-    public synchronized void setParamArray(Object[] params) {
+    public void setParamArray(Object[] params) {
     	this.paramArray = params;
     }
     
@@ -97,7 +99,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
      * thrown in that process, use getClass of the actual instance
      */
     @Override
-	public synchronized Class<?>[] getParams() {
+	public Class<?>[] getParams() {
       	if(params == null) {
     		params = new Class<?>[paramArray.length];
     		for(int i = 0; i < paramArray.length; i++) {
@@ -112,7 +114,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     
     @Override
-    public synchronized String toString() { 
+    public String toString() { 
     	StringBuilder sb = new StringBuilder(String.format("<<<<<%s%n" ,this.getClass().getName()));
     	sb.append(String.format("for Session:%s%nMethod:%s",session,methodName));
     	if(paramArray == null || paramArray.length == 0) {
@@ -144,29 +146,55 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
     }
     
 	@Override
-	public synchronized CountDownLatch getCompletionObject() {
+	public CountDownLatch getCompletionObject() {
 		return completionLatch;
 	}
     
 	@Override
-	public synchronized void setCompletionObject() {
+	public void setCompletionObject() {
 		completionObject = new CompletableFuture<Object>();
 		completionLatch = new CountDownLatch(1);
 	}
 
 	@Override
-	public synchronized void signalCompletion(Object o) {
-		completionObject.complete(o);
-		completionLatch.countDown();
+	public void signalCompletion(Object o) {
+	    // Capture state under lock, but do not complete the CF while holding the lock
+		if(completionLatch == null)
+			System.err.printf("%s.signalCompletion: COMPLETION LATCH IS NULL for rs=%x:%n",this.getClass().getName(), System.identityHashCode(this));
+		else
+			completionLatch.countDown();
+	    // Log before attempting to complete
+	    if (DEBUG)
+	        System.out.printf("%s.SIGNAL before complete rs=%x cf=%x oClass=%s%n",this.getClass().getName(),System.identityHashCode(this), completionObject == null ? 0 : System.identityHashCode(completionObject), o == null ? "null" : o.getClass().getName());
+	    // Complete the CompletableFuture outside the synchronized block
+	    if (completionObject != null) {
+	        try {
+	            if (o instanceof Throwable) 
+	            	completionObject.completeExceptionally((Throwable) o);
+	            else 
+	            	completionObject.complete(o);
+	        } catch (Throwable t) {
+	            // Ensure caller doesn't hang if complete throws
+	            try { 
+	            	completionObject.completeExceptionally(t); 
+	            } catch (Throwable ignore) {}
+	            System.err.printf("%s.signalCompletion: cf.complete threw for rs=%x: %s%n",this.getClass().getName(), System.identityHashCode(this), t);
+	        }
+	    } else {
+	        if (DEBUG) 
+	            System.out.printf("%s.SIGNAL no CompletableFuture present for rs=%x%n",this.getClass().getName(), System.identityHashCode(this));
+	    }
+	    if(DEBUG)
+	        System.out.printf("%s.SIGNAL after complete rs=%x cf=%x done=%b%n",this.getClass().getName(), System.identityHashCode(this),(completionObject != null ? System.identityHashCode(completionObject) : 0), (completionObject != null ? completionObject.isDone() : false));
 	}
 	
 	@Override
-	public synchronized void setObjectReturn(Object o) {
+	public void setObjectReturn(Object o) {
 		objectReturn = o;		
 	}
 
 	@Override
-	public synchronized Object getObjectReturn() {
+	public Object getObjectReturn() {
 		return objectReturn;
 	}
 	@Override
@@ -185,55 +213,58 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	 * because the functionality is available in whole, and we dont have to add the morphism processing aspect.
 	 */
 	@Override
-	public synchronized void process() throws Exception {
+	public void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
+		setCompletionObject();
 		Object result = RelatrixKVServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
 		//if( !result.getClass().isAssignableFrom(Serializable.class) ) {
-		if( result != null && !((result instanceof Serializable) && !(result instanceof Externalizable))) {					
+		if( result != null && !(result instanceof Serializable) && !(result instanceof Externalizable)) {					
 			// Stream..? If so, we basically forego the local stream and
 			// preserve the underlying iterator, sending back the corresponding remote iterator.
 			// The client, being engaged in a steam operation, will create the local RemoteStream with returned
 			// remote iterator
-			if( result instanceof Stream) {
-				result = new IteratorWrapper(((SackStream)result).iterator());
-			} else {
-				if( result instanceof Iterator ) {
-					result = new IteratorWrapper((Iterator<?>) result);
-				}
-			}
-			if( DEBUG ) {
-				System.out.printf("%s Storing nonserializable object reference for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
-			}
-			// put it in the array and send our intermediary back
-			if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
+			if( result instanceof BaseIteratorAccessInterface) {
+				result = ((BaseIteratorAccessInterface)result).getBaseIterator();
 				if( DEBUG ) {
-					System.out.printf("%s setting kev/value object return for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+					System.out.printf("%s Storing nonserializable object reference for session:%s, Method:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
 				}
-				setObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
-				signalCompletion(getObjectReturn());
-				return;
-			}
-			RelatrixKVServer.sessionToObject.put(getSession(), result);
-			RemoteIteratorClient ric = null;
-			if(result.getClass() == IteratorWrapper.class) {
-				if( DEBUG ) {
-					System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+				RemoteIteratorClient ric = null;
+				if(result.getClass() == RelatrixKVServer.iteratorServerClass) {
+					if( DEBUG ) {
+						System.out.printf("%s setting RemoteIteratorClient for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+					}
+					ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0], RelatrixKVServer.port);
 				}
-				ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServer.address).getAddress().getHostName(), RelatrixKVServer.iteratorPorts[0]);
-			} else {
+				if(ric == null)
+					throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
+				// Link the object instance to session for later method invocation
+				RelatrixKVServer.sessionToObject.put(ric.getSession(), result);
+				setServerObjectReturn(ric);
+				signalCompletion(ric);
+			} else
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-			}
-			// Link the object instance to session for later method invocation
-			RelatrixKVServer.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
-			signalCompletion(ric);
-		} else {
-			setObjectReturn(result);
-			signalCompletion(result);
+			return;
 		}
+		// put it in the array and send our intermediary back
+		if( result.getClass() == com.neocoretechs.rocksack.KeyValue.class) {
+			if( DEBUG ) {
+				System.out.printf("%s setting kev/value object return for session:%s, this Statement:%s result:%s%n",this.getClass().getName(),getSession(),this,result);
+			}
+			setServerObjectReturn(new Entry(((KeyValue)result).getmKey(),((KeyValue)result).getmValue()));
+			signalCompletion(result);
+			return;
+		}
+		setServerObjectReturn(result);
+		signalCompletion(result);
 	}
 
+	@Override
+	public void setServerObjectReturn(Object o) {
+		objectReturn = 0;
+	}
 }
+
+

@@ -90,7 +90,7 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 			RemoteIteratorClientTransaction ric = null;
 			for(int ic = 0; ic < RelatrixTransactionServer.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixTransactionServerJson.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClientTransaction(transactionId, session, ((InetSocketAddress)RelatrixTransactionServerJson.address).getAddress().getHostName(), RelatrixTransactionServerJson.iteratorPorts[ic]);
+					ric = new RemoteIteratorClientTransaction(transactionId, session, ((InetSocketAddress)RelatrixTransactionServerJson.address).getAddress().getHostName(), RelatrixTransactionServerJson.iteratorPorts[ic], RelatrixTransactionServerJson.port);
 					break;
 				}
 			}

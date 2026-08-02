@@ -68,7 +68,23 @@ public class ConnectionHandler {
 		if(DEBUG)
 			System.out.printf("%s channel:%s%n",this.getClass().getName(), ch);	
 	}
-
+	public ConnectionHandler(SocketChannel ch, ClassLoader classLoader) throws IOException {
+		this.channel = ch;
+		this.classLoader = classLoader;
+		ch.configureBlocking(true);
+		ch.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		ch.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
+		ch.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
+		ch.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		this.readQueue = new ArrayBlockingQueue<Object>(QUEUESIZE, true);
+		this.writeQueue = new ArrayBlockingQueue<Object>(QUEUESIZE, true);
+		this.reader = new Reader(this);
+		this.writer = new Writer(this);
+		SynchronizedThreadManager.getInstance().spin(reader);
+		SynchronizedThreadManager.getInstance().spin(writer);
+		if(DEBUG)
+			System.out.printf("%s channel:%s%n",this.getClass().getName(), ch);	
+	}
 	// Single-threaded writer or synchronized
 	public void sendObject(Object obj) throws IOException {
 		if(DEBUG)
@@ -235,7 +251,8 @@ public class ConnectionHandler {
 				}
 			} catch (Throwable t) {
 				// top-level catch to avoid silent thread death
-				System.err.printf("Reader top-level failure on %s: %s%n", in.toString(), t);
+				System.err.printf("Reader top-level failure on %s: %s cause:%s%n", in.toString(), t, t.getCause());
+				t.printStackTrace();
 				//failOutstandingRequests(t);
 			} finally {
 				// ensure shutdown and notify writer

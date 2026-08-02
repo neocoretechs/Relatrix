@@ -1183,9 +1183,7 @@ public abstract class AbstractRelation extends KeySet implements Comparable, Ext
     	}
   
         /**
-         * When participating in a retrieval we want to return the proper part of the tuple
-         * depending on the operation so 'n' equates to the position in the findset semantics (*,<object>)
-         * above. In a subclass the order is different depending on the sort index
+ 		 * Return tuple from ordinal 1-3.<p>
          * @param n the tuple 1-3
          * @return the comparable of the tuple
          */

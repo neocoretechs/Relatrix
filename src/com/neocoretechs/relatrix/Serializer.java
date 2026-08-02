@@ -18,7 +18,7 @@ public class Serializer {
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(obuf);
 			ObjectInputStream ois = new ClassLoaderObjectInputStream(bais, classLoader)) {
 			Object o = ois.readObject();
-			System.out.println("Deserialize object:"+o);
+			System.out.println("Deserialize object len:"+obuf.length);
 			return o;
 		} catch (ClassNotFoundException cnf) {
 			throw new IOException(cnf.toString() + ":Class Not found, may have been modified beyond version compatibility");

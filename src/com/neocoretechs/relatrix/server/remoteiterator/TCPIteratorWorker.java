@@ -32,35 +32,30 @@ import com.neocoretechs.relatrix.server.ServerInvokeMethod;
  *
  */
 public class TCPIteratorWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static boolean TEST = false;
-	
+
 	public volatile boolean shouldRun = true;
 	protected Object waitHalt = new Object();
 
 	protected SocketChannel workerSocket;
 	protected ConnectionHandler workerHandler;
-	
+
 	public static ConcurrentHashMap<String,ServerInvokeMethod> relatrixIteratorMethods = new ConcurrentHashMap<String,ServerInvokeMethod>(); // hasNext and next iterator methods
 	private ServerInvokeMethod relatrixIteratorMethod = null;
-	
-    public TCPIteratorWorker(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
-    	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket, classLoader, null);
-       	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
-    	if(relatrixIteratorMethod == null) {
-    		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
-    		relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
-    	}
-		if(DEBUG)
-			System.out.printf("%s about to connect socket to SocketAddress IPAddress:%s%n", this.getClass().getName(), workerHandler);
-	
-		// spin the request processor thread for the worker
-		if( DEBUG ) {
-			System.out.println("Worker on port with "+workerHandler);
+
+	public TCPIteratorWorker(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader, ParallelExecutionContext pec) throws IOException, ClassNotFoundException {
+		workerSocket = datasocket;
+		workerHandler = new ConnectionHandler(datasocket, classLoader, pec);
+		relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
+		if(relatrixIteratorMethod == null) {
+			relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
+			relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
 		}
+		if(DEBUG)
+			System.out.printf("%s about to connect with handler:%s%n", this.getClass().getName(), workerHandler);
 	}
-	
+
 	/**
 	 * Send a request on this worker,
 	 * Instead of queuing to a running thread request queue, queue this for outbound message
@@ -76,11 +71,11 @@ public class TCPIteratorWorker implements Runnable {
 			// Write response to master for forwarding to client
 			workerHandler.sendObject(irf);
 		} catch (SocketException e) {
-				//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
-				//throw new RuntimeException(e);
+			//System.out.println("Exception setting up socket to remote master port "+MASTERPORT+e);
+			//throw new RuntimeException(e);
 		} catch (IOException e) {
-				System.out.println("Channel send error "+e+" to address "+workerHandler);
-				throw new RuntimeException(e);
+			System.out.println("Channel send error "+e+" to address "+workerHandler);
+			throw new RuntimeException(e);
 		}
 	}
 	/**
@@ -107,13 +102,19 @@ public class TCPIteratorWorker implements Runnable {
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
+						resolve((Relation) result);
 						result = TransportMorphism.createTransport((Relation)result);
 					} else {
 						if(result instanceof Result) {
+							if(((Result)result).get() instanceof AbstractRelation) {
+								Relation rel = (Relation) ((Result)result).get();
+								resolve(rel);
+								((Result)result).set(rel);
+							}
 							((Result) result).packForTransport();
 						}
 					}
-					iori.setObjectReturn(result);
+					iori.setServerObjectReturn(result);
 				}
 				// notify latch waiters
 				if( DEBUG ) {
@@ -122,7 +123,7 @@ public class TCPIteratorWorker implements Runnable {
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
 			}
-		// Call to shut down has been received from stopWorker
+			// Call to shut down has been received from stopWorker
 		} catch (Exception ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
@@ -136,6 +137,20 @@ public class TCPIteratorWorker implements Runnable {
 				waitHalt.notify();
 			}
 		}
+	}
+	public static void resolve(Relation target) {
+		Comparable tdomain, tmap, trange;
+		tdomain = (Comparable) ((AbstractRelation)target).getDomain();
+		tmap = (Comparable) ((AbstractRelation)target).getMap();
+		trange = (Comparable) ((AbstractRelation)target).getRange();
+		if(tdomain instanceof AbstractRelation)
+			resolve((Relation) tdomain);
+		if(tmap instanceof AbstractRelation)
+			resolve((Relation) tmap);
+		if(trange instanceof AbstractRelation)
+			resolve((Relation) trange);
+		if(DEBUG)
+			System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
 	}
 
 	public String getSlavePort() {
@@ -153,17 +168,17 @@ public class TCPIteratorWorker implements Runnable {
 		}
 	}
 	/**
-     * Spin the worker from command line
-     * @param args
-     * @throws Exception
-     */
+	 * Spin the worker from command line
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String args[]) throws Exception {
 		if( args.length != 2 ) {
 			System.out.println("Usage: java com.neocoretechs.relatrix.server.TCPIteratorWorker [remote master node] [remote master port] [class]");
 		}
-     	IndexResolver indexResolver = new IndexResolver();
-    	indexResolver.setLocal();
-    	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-    	SynchronizedThreadManager.getInstance().spinWithContext(new TCPIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2], new HandlerClassLoader()), pec);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		SynchronizedThreadManager.getInstance().spinWithContext(new TCPIteratorWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.valueOf(args[1]))),args[2], new HandlerClassLoader(), pec), pec);
 	}
 }

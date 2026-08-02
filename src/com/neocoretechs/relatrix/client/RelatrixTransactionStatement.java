@@ -83,17 +83,17 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			RemoteIteratorClientTransaction ric = null;
 			for(int ic = 0; ic < RelatrixTransactionServer.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixTransactionServer.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClientTransaction(transactionId, session, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), RelatrixTransactionServer.iteratorPorts[ic]);
+					ric = new RemoteIteratorClientTransaction(transactionId, session, ((InetSocketAddress)RelatrixTransactionServer.address).getAddress().getHostName(), RelatrixTransactionServer.iteratorPorts[ic], RelatrixTransactionServer.port);
 					break;
 				}
 			}
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			RelatrixTransactionServer.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
+			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
-			setObjectReturn(result);
+			setServerObjectReturn(result);
 			signalCompletion(result);
 		}
 	}

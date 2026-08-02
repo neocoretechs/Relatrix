@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 
 import java.util.List;
@@ -520,6 +521,33 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 	@Override
 	public Object get(Alias arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "get", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public DBKey getNewKey() throws java.io.IOException {
+		RelatrixKVStatement s = new RelatrixKVStatement(getSession(),"getNewKey", new Object[]{});
+		try {
+			return (DBKey)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object getByIndex(Alias arg1,DBKey arg2) throws java.io.IOException {
+		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "getByIndex", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object getByIndex(DBKey arg1) throws java.io.IOException {
+		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "getByIndex", arg1);
 		try {
 			return (Object)sendCommand(s);
 		} catch(Exception e) {

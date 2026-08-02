@@ -16,7 +16,7 @@ import com.neocoretechs.rocksack.SerializedComparatorFactory;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.rocksack.session.TransactionalMap;
-
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -1040,6 +1040,36 @@ public final class RelatrixKVTransaction {
 		if( o == null )
 			return null;
 		return ((KeyValue)o).getmValue();
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param xid the transaction id
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static Object getByIndex(TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return get(xid, (DBKey) key);
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param alias the database alias
+	 * @param xid the transaction id
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException
+	 * @throws NoSuchElementException if alias is not found 
+	 */
+	@ServerMethod
+	public static Object getByIndex(Alias alias, TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
+	{
+		return get(alias, xid, (DBKey) key);
 	}
 	/**
 	 * The lowest key value object

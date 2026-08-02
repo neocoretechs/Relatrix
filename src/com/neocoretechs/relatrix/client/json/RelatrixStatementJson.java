@@ -63,7 +63,7 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 			RemoteIteratorClient ric = null;
 			for(int ic = 0; ic < RelatrixServerJson.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixServerJson.iteratorServerClasses[ic]) {	
-					ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixServerJson.address).getAddress().getHostName(), RelatrixServerJson.iteratorPorts[ic]);
+					ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixServerJson.address).getAddress().getHostName(), RelatrixServerJson.iteratorPorts[ic], RelatrixServerJson.port);
 					break;
 				}
 			}

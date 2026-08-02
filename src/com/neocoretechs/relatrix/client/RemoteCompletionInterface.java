@@ -15,4 +15,5 @@ public interface RemoteCompletionInterface extends RemoteRequestInterface {
 		public void setObjectReturn(Object o);
 		public void process() throws Exception;
 		public CompletableFuture<Object> getCompletionFuture();
+		public void setServerObjectReturn(Object o);
 }

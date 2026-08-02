@@ -24,6 +24,8 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	private static final boolean DEBUG = true;
 	private Object mutex = new Object();
 	private AsynchRelatrixClient asynchClient;
+	private String remoteNode;
+	private int remotePort;
 
 	/**
 	 * Start a Relatrix client to a remote server. A WorkerRequestProcessor
@@ -33,11 +35,11 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	 * @throws IOException if connect fail
 	 */
 	public RelatrixClient(String remoteNode, int remotePort)  throws IOException {
+		this.remoteNode = remoteNode;
+		this.remotePort = remotePort;
 		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort);
 	}
-	public RelatrixClient(String remoteNode, int remotePort, IndexResolver resolver)  throws IOException {
-		asynchClient = new AsynchRelatrixClient(remoteNode, remotePort, resolver);
-	}
+	
 	@Override
 	public UUID getSession() {
 		return asynchClient.getSession();
@@ -48,19 +50,17 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 		if(DEBUG)
 			System.out.printf("%s.sendCommand statement=%s%n", this.getClass().getName(), s);
 		CompletableFuture<Object> cf = asynchClient.queueCommand(s);
-		return cf.get(30, TimeUnit.SECONDS);
+		return cf.orTimeout(30, TimeUnit.SECONDS).get();
 	}
 	@Override
 	public String getRemoteNode() {
-		return asynchClient.getRemoteNode();
+		return remoteNode;
 	}
 	@Override
 	public int getRemotePort() {
-		return asynchClient.getRemotePort();
+		return remotePort;
 	}
-	public ParallelExecutionContext getContext() {
-		return asynchClient.getContext();
-	}
+	
 
 	static int i = 0;
 	/**

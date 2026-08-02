@@ -49,32 +49,6 @@ public class IndexResolver {
 			System.out.println("IndexResolver setLocalJson instance table:"+instanceTable);
 	}
 	
-	/**
-	 * Set the remote client to resolve the remote indexes.
-	 * @param remoteClient Implementations of ClientInterface may include transaction context information.
-	 * @throws IOException if low level problem 
-	 */
-	public void setRemote(ClientInterface remoteClient) throws IOException {
-		if(instanceTable != null)
-			throw new RuntimeException("Instance table previously set");
-		instanceTable = new RemoteIndexInstanceTable(remoteClient, this);
-		if(DEBUG)
-			System.out.println("IndexResolver setRemote instance table:"+instanceTable);
-	}
 	
-	/**
-	 * Set the remote transaction client to resolve the remote indexes.
-	 * @param remoteClient Implementations of ClientInterface may include transaction context information.
-	 * @throws IOException if low level problem
-	 */
-	public void setRemoteTransaction(ClientInterface remoteClient) throws IOException {
-		if(!(remoteClient instanceof ClientTransactionInterface))
-			throw new IOException("Remote Client not instance of ClientTransactionInterface:"+remoteClient.getClass());
-		if(instanceTable != null)
-			throw new RuntimeException("Instance table previously set");
-		instanceTable = new RemoteIndexInstanceTable(remoteClient, this);
-		if(DEBUG)
-			System.out.println("IndexResolver setRemote instance table:"+instanceTable);	
-	}
 
 }

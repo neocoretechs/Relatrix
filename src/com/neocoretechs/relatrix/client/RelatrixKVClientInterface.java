@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
 
 import java.util.List;
@@ -130,6 +131,8 @@ public interface RelatrixKVClientInterface extends ClientNonTransactionInterface
 	public Object remove(Alias arg1,Comparable arg2) throws java.io.IOException;
 
 	public Object remove(Comparable arg1) throws java.io.IOException;
+
+	public DBKey getNewKey() throws IOException;
 
 }
 

@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.List;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CompletionException;
+
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.*;
+import com.neocoretechs.relatrix.key.DBKey;
 
 
 public abstract class AsynchRelatrixKVClientInterfaceImpl implements AsynchRelatrixKVClientInterface{
@@ -507,6 +509,11 @@ public abstract class AsynchRelatrixKVClientInterfaceImpl implements AsynchRelat
 	public CompletableFuture<Object> remove(Alias arg1,Comparable arg2) {
 		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "remove", arg1, arg2);
 		return queueCommand(s);
+	}
+	@Override
+	public CompletableFuture<DBKey> getNewKey() {
+		RelatrixKVStatement s = new RelatrixKVStatement(getSession(),"getNewKey", new Object[]{});
+		return queueCommand(s).thenApply(result -> (DBKey) result);
 	}
 }
 

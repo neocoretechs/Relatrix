@@ -2,7 +2,6 @@ package com.neocoretechs.relatrix.client.asynch;
 
 import java.io.IOException;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
@@ -20,9 +18,7 @@ import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 
@@ -34,7 +30,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl implements AsynchRelatrixClientInterface, ClientNonTransactionInterface, Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	
@@ -46,8 +42,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
-	protected ParallelExecutionContext pec;
-	
+
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
 
@@ -68,28 +63,12 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemote(this);
-		pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);	
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
-	public AsynchRelatrixClient(String remoteNode, int remotePort, IndexResolver resolver)  throws IOException {
-		this.remoteNode = remoteNode;
-		this.remotePort = remotePort;
-		// send message to spin connection
-		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
-		classLoader = new HandlerClassLoader();
-		Thread.currentThread().setContextClassLoader(classLoader);
-		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
-		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
-		if(DEBUG)
-			System.out.printf("%s Channel created to %s using resolver%n",this.getClass().getName(),workerHandler);	
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
-	}
+
 	@Override
 	public UUID getSession() {
 		return session;
@@ -102,9 +81,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public int getRemotePort( ) {
 		return remotePort;
 	}
-	public ParallelExecutionContext getContext() {
-		return pec;
-	}
+
 	/**
 	* Set up the socket 
 	 */
@@ -117,7 +94,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
   	    		if( DEBUG )
-  	    			System.out.printf("%s Asynch FROM Remote, response:%s remote:%s slave:%s%n",this.getClass().getName(),iori,remoteNode,String.valueOf(remotePort));
+  	    			System.out.printf("%s Asynch FROM Remote, response:%s remote:%s port:%d%n",this.getClass().getName(),iori,remoteNode,remotePort);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
@@ -128,18 +105,10 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
-  	    		synchronized(rs) {
-  	    			rs.setObjectReturn(o);
-  	    			rs.signalCompletion(o);
-  	    			if(DEBUG) {
-  	    				System.out.printf("DEQUEUE rs=%x thread=%s%n",System.identityHashCode(rs), Thread.currentThread().getName());
-  	    				CompletableFuture<Object> cf = (CompletableFuture<Object>) rs.getCompletionFuture();
-  	    				System.out.printf("ASYNC got cf=%x for rs=%x before complete, oClass=%s%n",System.identityHashCode(cf), System.identityHashCode(rs), o == null ? "null" : o.getClass().getName());
-  	    			}
-  	    		}
-  	    		if( DEBUG )
-  	    			System.out.printf("%s Asynch signaled completion%n",this.getClass().getName());
-  	    		// signal completion to the completion object of CompletableFuture. If its a CountDownLatch instead, flip it
+  	    		rs.setObjectReturn(o);
+  	    		rs.signalCompletion(o);
+  	    		if(DEBUG)
+  	    			System.out.printf("%s ASYNC got cf=%x for rs=%x after complete, oClass=%s%n",this.getClass().getName(),System.identityHashCode(rs.getCompletionFuture()), System.identityHashCode(rs), o == null ? "null" : o.getClass().getName());
   	    	}
 		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
@@ -162,16 +131,14 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	@Override
 	public CompletableFuture<Object> queueCommand(RelatrixStatementInterface rs) {
 		CompletableFuture<Object> cf = null;
-		synchronized(rs) {
-			rs.setCompletionObject();
-			try {
-				queuedRequests.addLastWait(rs);
-				cf = rs.getCompletionFuture();
-			} catch (InterruptedException e) {}
-			if(DEBUG)
-				System.out.printf("ENQUEUE rs=%x cf=%x thread=%s%n",System.identityHashCode(rs), System.identityHashCode(cf), Thread.currentThread().getName());
-			return cf;
-		}
+		rs.setCompletionObject();
+		try {
+			queuedRequests.addLastWait(rs);
+			cf = rs.getCompletionFuture();
+		} catch (InterruptedException e) {}
+		if(DEBUG)
+			System.out.printf("%s ENQUEUE rs=%x cf=%x thread=%s%n",this.getClass().getName(),System.identityHashCode(rs), System.identityHashCode(cf), Thread.currentThread().getName());
+		return cf;
 	}
 
 	public void close() {

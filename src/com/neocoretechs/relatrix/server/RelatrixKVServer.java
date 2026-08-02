@@ -38,8 +38,6 @@ public class RelatrixKVServer extends TCPServer {
 	public static SocketAddress address;
 	public static int port;
 	
-	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-	
 	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
@@ -49,6 +47,8 @@ public class RelatrixKVServer extends TCPServer {
 	public static Class<?> iteratorServerClass = com.neocoretechs.relatrix.iterator.IteratorWrapper.class;
 	
 	public static Class<?> relatrixClass = com.neocoretechs.relatrix.RelatrixKV.class;
+	
+	public static ServerInvokeMethod relatrixMethods = new ServerInvokeMethod(relatrixClass.getName(), 0); // Main Relatrix class methods
 	
 	public static String[] iteratorServers = new String[]{
 			iteratorServerClass.getName()

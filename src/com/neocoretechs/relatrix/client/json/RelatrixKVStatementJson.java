@@ -172,7 +172,7 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 				}
 				for(int ic = 0; ic < RelatrixKVServerJson.iteratorServerClasses.length; ic++) {
 					if(result.getClass() == RelatrixKVServerJson.iteratorServerClasses[ic]) {	
-						ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic]);
+						ric = new RemoteIteratorClient(session, ((InetSocketAddress)RelatrixKVServerJson.address).getAddress().getHostName(), RelatrixKVServerJson.iteratorPorts[ic], RelatrixKVServerJson.port);
 					}
 				}
 			} else

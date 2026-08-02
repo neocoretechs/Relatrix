@@ -12,7 +12,6 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.DatabaseClass;
 import com.neocoretechs.rocksack.TransactionId;
 
-
 /**
 * This class represents the morphisms stored in map,domain,range (codomain) order.
 * The concept behind these permutations are to allow the Relatrix to go from Cat to Set.

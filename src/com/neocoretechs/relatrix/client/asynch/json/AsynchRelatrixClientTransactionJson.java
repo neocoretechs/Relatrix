@@ -83,14 +83,11 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemoteTransaction(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader, pec);
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
 		if( DEBUG ) {
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	@Override
 	public UUID getSession() {
@@ -124,7 +121,7 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
   	    		// set it with the response object
   	    		rs.setObjectReturn(o);
   	    		// and signal the latch we have finished
-  	    		rs.signalCompletion(cf);
+  	    		rs.signalCompletion(o);
   	    	}
 		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {

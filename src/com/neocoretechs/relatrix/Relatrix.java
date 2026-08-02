@@ -3231,11 +3231,7 @@ public final class Relatrix {
 	 */
 	@ServerMethod
 	public static DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
-		UUID uuid = UUID.randomUUID();
-		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
-		if(DEBUG)
-			System.out.printf("Relatrix.getNewKey Returning NewKey=%s%n", nkey.toString());
-		return nkey;
+		return RelatrixKV.getNewKey();
 	}
 
 	/**

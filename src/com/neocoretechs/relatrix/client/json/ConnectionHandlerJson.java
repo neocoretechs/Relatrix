@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.json.util.Converter;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * Server-side socket accept connection handler that passes CBOR payloads instead of serialized objects.
@@ -26,8 +25,8 @@ public class ConnectionHandlerJson extends ConnectionHandler {
 		super(classLoader);
 	}
 
-	public ConnectionHandlerJson(SocketChannel ch, ClassLoader classLoader, ParallelExecutionContext pec) throws IOException {
-		super(ch, classLoader, pec);
+	public ConnectionHandlerJson(SocketChannel ch, ClassLoader classLoader) throws IOException {
+		super(ch, classLoader);
 	}
 
 	@Override

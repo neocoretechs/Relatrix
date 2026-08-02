@@ -88,10 +88,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemoteTransaction(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	
 	@Override
@@ -125,7 +122,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
   	    		// set it with the response object
   	    		rs.setObjectReturn(o);
   	    		// and signal the latch we have finished
-  	    		rs.signalCompletion(cf);
+  	    		rs.signalCompletion(o);
   	    	}
 		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {

@@ -3600,7 +3600,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Object getByIndex(Alias alias, TransactionId xid, Comparable key) throws IOException, IllegalAccessException, ClassNotFoundException, NoSuchElementException
 	{
-		return RelatrixKVTransaction.get(xid, (DBKey) key);
+		return RelatrixKVTransaction.get(alias, xid, (DBKey) key);
 	}
 	/**
 	 * Return the keyset for the given class

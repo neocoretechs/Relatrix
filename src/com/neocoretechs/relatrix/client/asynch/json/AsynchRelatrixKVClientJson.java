@@ -71,13 +71,10 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemote(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader, pec);
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.println(this.getClass().getName()+" Channel created to "+workerHandler);
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	@Override
 	public UUID getSession() {
@@ -121,7 +118,7 @@ public class AsynchRelatrixKVClientJson extends AsynchRelatrixKVClientInterfaceJ
 	    		if( DEBUG )
   	    			System.out.printf("%s %s signal completion %s%n",this.getClass().getName(),this,o);
   	    		// get the original request from the stored table
-  	    		rs.signalCompletion(cf);
+  	    		rs.signalCompletion(o);
   	    	}
 		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {

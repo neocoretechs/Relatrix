@@ -7,6 +7,7 @@ import java.nio.file.Path;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -16,7 +17,7 @@ import com.neocoretechs.rocksack.SerializedComparatorFactory;
 
 import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.session.DatabaseManager;
-
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -827,7 +828,48 @@ public final class RelatrixKV {
 			return null;
 		return ((KeyValue)o).getmValue();
 	}
-
+	/**
+	 * Get the new DBkey.
+	 * @return
+	 * @throws IOException 
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static DBKey getNewKey() throws ClassNotFoundException, IllegalAccessException, IOException {
+		UUID uuid = UUID.randomUUID();
+		DBKey nkey = new DBKey(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
+		if(DEBUG)
+			System.out.printf("RelatrixKV.getNewKey Returning NewKey=%s%n", nkey.toString());
+		return nkey;
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static Object getByIndex(DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return get(key);
+	}
+	/**
+	 * Return the Object pointed to by the DBKey. this is to support remote iterators.
+	 * @param alias the db alias
+	 * @param key the key to retrieve
+	 * @return The instance by DBKey
+	 * @throws IOException
+	 * @throws IllegalAccessException 
+	 * @throws ClassNotFoundException 
+	 */
+	@ServerMethod
+	public static Object getByIndex(Alias alias, DBKey key) throws IOException, IllegalAccessException, ClassNotFoundException
+	{
+		return get(alias,key);
+	}
 	/**
 	 * The lowest key value object
 	 * @param clazz the class to retrieve

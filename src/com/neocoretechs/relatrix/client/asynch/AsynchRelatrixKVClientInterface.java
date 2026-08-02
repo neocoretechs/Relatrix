@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.rocksack.TransactionId;
 
 public interface AsynchRelatrixKVClientInterface extends com.neocoretechs.relatrix.client.ClientInterface{
 
@@ -131,6 +131,8 @@ public interface AsynchRelatrixKVClientInterface extends com.neocoretechs.relatr
 	public CompletableFuture<Object> remove(Comparable arg1);
 
 	public CompletableFuture<Object> remove(Alias arg1,Comparable arg2);
+
+	public CompletableFuture<DBKey> getNewKey();
 
 }
 

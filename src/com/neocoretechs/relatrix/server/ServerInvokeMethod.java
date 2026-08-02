@@ -32,7 +32,7 @@ public class ServerInvokeMethod {
 
     public MethodNamesAndParams getMethodNamesAndParams() { return pkmnap; }
     
-    public ServerInvokeMethod(String tclass, int tskipArgs) throws ClassNotFoundException {
+    public ServerInvokeMethod(String tclass, int tskipArgs) {//throws ClassNotFoundException {
     	hcl = new HandlerClassLoader();
     	init(tclass, skipArgs);
     }
@@ -57,8 +57,12 @@ public class ServerInvokeMethod {
      * @param tskipArgs The number of arguments to skip in each method for invocation, this allows us to keep reserved arguments for special cases. 0 for none.
      * @throws ClassNotFoundException
      */
-    private void init(String tclass, int tskipArgs) throws ClassNotFoundException {
-    	pkmnap.classClass = hcl.loadClass(tclass, true);
+    private void init(String tclass, int tskipArgs) {//throws ClassNotFoundException {
+    	try {
+			pkmnap.classClass = hcl.loadClass(tclass, true);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
     	pkmnap.className = pkmnap.classClass.getName();
     	skipArgs = tskipArgs;
     	skipArgIndex = skipArgs;

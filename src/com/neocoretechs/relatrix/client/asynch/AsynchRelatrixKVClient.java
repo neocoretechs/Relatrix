@@ -71,13 +71,10 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemote(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.println("Channel created to "+workerHandler);
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 
 	/**
@@ -115,7 +112,7 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	    		if( DEBUG )
   	    			System.out.printf("%s %s signal completion %s%n",this.getClass().getName(),this,o);
   	    		// get the original request from the stored table
-  	    		rs.signalCompletion(cf);
+  	    		rs.signalCompletion(o);
   	    	}
 		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {
@@ -164,6 +161,9 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		return remotePort;
 	}
 
+	public UUID getSession() {
+		return session;
+	}
 
 	@Override
 	public Object remove(Alias arg1,Object arg2) {
@@ -267,10 +267,5 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 		System.out.println("Return from future:"+cf.get()+" took:"+(System.nanoTime()-tim)+"ns.");
 		rc.close();
 	}
-
-	public UUID getSession() {
-		return session;
-	}
-
 
 }

@@ -68,14 +68,11 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader, null);
+		workerHandler = new ConnectionHandlerJson(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.printf("%s Channel created to %s%n",this.getClass().getName(),workerHandler);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemote(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	@Override
 	public UUID getSession() {
@@ -109,7 +106,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
   	    		// and signal the latch we have finished
   	    		if( DEBUG )
   	    			System.out.printf("%s Asynch signaling completion%n",this.getClass().getName());
-  	    		rs.signalCompletion(cf);
+  	    		rs.signalCompletion(o);
   	    	}
 		} catch(Throwable e) {
 			if(!(e instanceof SocketException) && !(e instanceof InterruptedException)) {

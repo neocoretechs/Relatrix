@@ -17,7 +17,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
  *
  */
-public class RemoteIteratorClientTransaction extends RemoteIteratorClient implements Runnable, RelatrixTransactionStatementInterface, RemoteIteratorInterface {
+public class RemoteIteratorClientTransaction extends RemoteIteratorClient implements RelatrixTransactionStatementInterface, RemoteIteratorInterface {
 	private static final long serialVersionUID = 1L;
 	public static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
@@ -29,14 +29,15 @@ public class RemoteIteratorClientTransaction extends RemoteIteratorClient implem
 	/**
 	 * Start a client to a remote server. A WorkerRequestProcessor
 	 * thread is created to handle the processing of payloads and a comm thread handles the bidirectional traffic to server
+	 * @param session TODO
 	 * @param remoteNode
 	 * @param remotePort
-	 * @param session TODO
+	 * @param mainPort TODO
 	 * @param bootNode Name of local master socket
 	 * @throws IOException
 	 */
-	public RemoteIteratorClientTransaction(TransactionId transactionId,  UUID session, String remoteNode, int remotePort)  throws IOException {
-		super(session, remoteNode, remotePort);
+	public RemoteIteratorClientTransaction(TransactionId transactionId,  UUID session, String remoteNode, int remotePort, int mainPort)  throws IOException {
+		super(session, remoteNode, remotePort, mainPort);
 		this.transactionId = transactionId;
 	}
 	

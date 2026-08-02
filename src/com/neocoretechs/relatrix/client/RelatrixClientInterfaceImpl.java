@@ -719,15 +719,6 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
-	public DBKey getNewKey() throws java.io.IOException {
-		RelatrixStatement s = new RelatrixStatement(getSession(),"getNewKey", new Object[]{});
-		try {
-			return (DBKey)sendCommand(s);
-		} catch(Exception e) {
-			throw new java.io.IOException(e);
-		}
-	}
-	@Override
 	public List findSetParallel(Alias arg1,Character arg2,List arg3,Character arg4) {
 		RelatrixStatement s = new RelatrixStatement(getSession(), "findSetParallel", arg1, arg2, arg3, arg4);
 		try {
@@ -2215,6 +2206,15 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		RelatrixStatement s = new RelatrixStatement(getSession(), "get", arg1, arg2);
 		try {
 			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public DBKey getNewKey() throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement(getSession(),"getNewKey", new Object[]{});
+		try {
+			return (DBKey)sendCommand(s);
 		} catch(Exception e) {
 			throw new java.io.IOException(e);
 		}

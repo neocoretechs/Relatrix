@@ -76,13 +76,10 @@ public class AsynchRelatrixKVClientTransaction extends AsynchRelatrixKVClientTra
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
 		// spin up 'this' to receive connection request from remote server 'slave' to our 'master'
-		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setRemoteTransaction(this);
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		workerHandler = new ConnectionHandler(workerSocket, classLoader, pec);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if(DEBUG)
 			System.out.println("Channel created to "+workerHandler);
-		SynchronizedThreadManager.getInstance().spinWithContext(this, pec);
+		SynchronizedThreadManager.getInstance().spin(this);
 	}
 	@Override
 	public UUID getSession() {

@@ -7,13 +7,31 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.rocksack.TransactionId;
+
 import com.neocoretechs.relatrix.client.ClientInterface;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.RelatrixKVClient;
+import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClient;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixKVClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientJson;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixClientTransactionJson;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientJson;
+import com.neocoretechs.relatrix.client.asynch.json.AsynchRelatrixKVClientTransactionJson;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
+import com.neocoretechs.relatrix.client.json.RelatrixClientJson;
+import com.neocoretechs.relatrix.client.json.RelatrixClientJsonTransaction;
+import com.neocoretechs.relatrix.client.json.RelatrixKVClientJson;
+import com.neocoretechs.relatrix.client.json.RelatrixKVClientJsonTransaction;
+import com.neocoretechs.relatrix.Relatrix;
+
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
@@ -30,8 +48,47 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	private ClientInterface rc = null;
 	private Object mutex = new Object();
 
+	public static ClientInterface getClient(ClientInterface rc, IndexResolver resolver) throws IOException {
+		return switch(rc) {
+			case ClientTransactionInterface _ -> getTransactionClient((ClientTransactionInterface) rc, resolver);
+			case ClientNonTransactionInterface _ -> getNonTransactionClient((ClientNonTransactionInterface) rc, resolver);
+			case RemoteIteratorClient _ -> getIteratorClient((RemoteIteratorClient) rc, resolver);
+			default -> throw new IllegalArgumentException("Unexpected value: " + rc);
+		};
+	}
+	public static ClientInterface getTransactionClient(ClientTransactionInterface ctf, IndexResolver resolver) throws IOException {
+		return switch(ctf) {
+		case AsynchRelatrixKVClientTransaction _ -> new RelatrixKVClientTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixKVClientTransaction _ -> new RelatrixKVClientTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case AsynchRelatrixClientTransaction _ -> new RelatrixClientTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixClientTransaction _ -> new RelatrixClientTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case AsynchRelatrixKVClientTransactionJson _ -> new RelatrixKVClientJsonTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixKVClientJsonTransaction _ -> new RelatrixKVClientJsonTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case AsynchRelatrixClientTransactionJson _ -> new RelatrixClientJsonTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixClientJsonTransaction _ -> new RelatrixClientJsonTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
+		default -> throw new IllegalArgumentException("Unexpected value: " + ctf);
+		};	
+	}
+	public static ClientInterface getNonTransactionClient(ClientNonTransactionInterface ctf, IndexResolver resolver) throws IOException {
+		return switch(ctf) {
+		case AsynchRelatrixKVClient _ -> new IndexResolverClient(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixKVClient _ -> new IndexResolverClient(ctf.getRemoteNode(), ctf.getRemotePort());
+		case AsynchRelatrixClient _ -> new IndexResolverClient(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixClient _ -> new IndexResolverClient(ctf.getRemoteNode(), ctf.getRemotePort());
+		case AsynchRelatrixKVClientJson _ -> new RelatrixKVClientJson(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixKVClientJson _ -> new RelatrixKVClientJson(ctf.getRemoteNode(), ctf.getRemotePort());
+		case AsynchRelatrixClientJson _ -> new RelatrixClientJson(ctf.getRemoteNode(), ctf.getRemotePort());
+		case RelatrixClientJson _ -> new RelatrixClientJson(ctf.getRemoteNode(), ctf.getRemotePort());
+		default -> throw new IllegalArgumentException("Unexpected value: " + ctf);
+		};
+	}
+	public static ClientInterface getIteratorClient(RemoteIteratorClient ric, IndexResolver resolver) throws IOException {
+		if(ric instanceof RemoteIteratorClientTransaction)
+			return new RelatrixClientTransaction(ric.getRemoteNode(), ric.getRemotePort());
+		return new IndexResolverClient(ric.getRemoteNode(), ric.getRemotePort());
+	}
 	public RemoteIndexInstanceTable(ClientInterface rc, IndexResolver resolver) throws IOException {
-		this.rc = new RelatrixClient(rc.getRemoteNode(), rc.getRemotePort(), resolver);
+		this.rc = getClient(rc, resolver);
 		if(DEBUG)
 			System.out.printf("%s c'tor setting ClientInterface=%s%n", this.getClass().getName(), rc);
 	}	

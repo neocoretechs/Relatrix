@@ -8,11 +8,15 @@ import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * Set a transport object for Morphisms, which contain transient objects.
+ * Set a transport object for Morphisms, which contain transient objects. When we want to serialize objects to the
+ * database, we dont want the fields, just the keys, however, when we want to transport them over the wire, etc, we need those
+ * formerly transient fields to be serializable.<p>
  * At the destination, recover the transient instances and set them in the {@link AbstractRelation}.<p>
  * We are careful to maintain references to fields only as we dont want to resolve keys, and hence no
- * reliance on the IndexResolver or IndexInstanceTables.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025
+ * reliance on the IndexResolver or IndexInstanceTables. We assume all relations have been resolved.
+ * We dont want to transport a relation to the thats less than fully resolved as we disallow resolution from the client.
+ * Coming from the client we dont necessarily have access to the keys so again we wont try resolution from this class.
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2025,2026
  *
  */
 public class TransportMorphism implements Serializable, Comparable {
@@ -24,16 +28,22 @@ public class TransportMorphism implements Serializable, Comparable {
 	private TransactionId transactionId;
 	// Comparables are transient in AbstractRelation, so we need to store them here
 	protected Comparable domain;
+	protected DBKey domainKey;
 	protected Comparable map;
+	protected DBKey mapKey;
 	protected Comparable range;
+	protected DBKey rangeKey;
 	private TransportMorphism(Relation abstractRelation) {
 		this.abstractRelation = abstractRelation;
 		this.identity = abstractRelation.getIdentity();
 		this.alias = abstractRelation.getAlias();
 		this.transactionId = abstractRelation.getTransactionId();
 		this.domain = abstractRelation.domain;
+		this.domainKey = abstractRelation.getDomainKey();
 		this.map = abstractRelation.map;
+		this.mapKey = abstractRelation.getMapKey();
 		this.range = abstractRelation.range;
+		this.rangeKey = abstractRelation.getRangeKey();
 	}
 	
 	public TransportMorphism() {}
@@ -45,7 +55,11 @@ public class TransportMorphism implements Serializable, Comparable {
 		resolve(result,t);
 		return t;
 	}
-	
+	/**
+	 * Create a Relation from a TransportMorphism
+	 * @param t The TransportMorphism to 'deserialize'
+	 * @return The Relation reconstituted
+	 */
 	public static Relation createMorphism(TransportMorphism t) {
 		if(t == null)
 			return null;
@@ -53,19 +67,29 @@ public class TransportMorphism implements Serializable, Comparable {
 		resolve(t,m);
 		return m;
 	}
-	
+	/**
+	 * Set the field abstractRelation from TransportMorphism fields. This is part of 'deserialization'
+	 * helper when we 'create' or 'resolve' morphisms from constituent elements
+	 * @return The abstractRelation field once populated
+	 */
 	private Relation getMorphism() {
 		if(abstractRelation.getIdentity() == null && identity != null)
 			abstractRelation.setIdentity(identity);
 		if(abstractRelation.getAlias() == null && alias != null)
 			abstractRelation.setAlias(alias);
 		abstractRelation.setTransactionId(transactionId);
+		abstractRelation.setDomainResolved(domain);
+		abstractRelation.setDomainKey(domainKey);
+		abstractRelation.setMapResolved(map);
+		abstractRelation.setMapKey(mapKey);
+		abstractRelation.setRangeResolved(range);;
+		abstractRelation.setRangeKey(rangeKey);
 		return abstractRelation;
 	}
 	/**
-	 * Enter with target being the instance contained in newTransport
-	 * @param target
-	 * @param newTransport
+	 * Recursively resolve the relationships contained in the candidate target into new TransportMorphisms
+	 * @param target The Relation we are 'serializing'
+	 * @param newTransport The new TransportMorphism
 	 */
 	private static void resolve(AbstractRelation target, TransportMorphism newTransport) {
 		if(target.domain instanceof AbstractRelation) {
@@ -82,21 +106,24 @@ public class TransportMorphism implements Serializable, Comparable {
 		}
 	}
 	/**
-	 * Enter with target being the instance that contained newTransport
-	 * @param target
-	 * @param newTransport
+	 * Recursively create the Relation from the TransportMorphism target
+	 * @param target The TransportMorphism we are 'deserializing'
+	 * @param newTransport The new Relation
 	 */
 	private static void resolve(TransportMorphism target, AbstractRelation newTransport) {
 		if(target.domain instanceof TransportMorphism) {
-			newTransport.setDomainResolved( ((TransportMorphism)target.domain).getMorphism());
+			newTransport.setDomainResolved(((TransportMorphism)target.domain).getMorphism());
+			newTransport.setDomainKey(((TransportMorphism)target.domain).domainKey);
 			resolve((TransportMorphism) target.domain, newTransport);
 		}	
-		if(target.map instanceof AbstractRelation) {
-			newTransport.setMapResolved( ((TransportMorphism)target.map).getMap());
+		if(target.map instanceof TransportMorphism) {
+			newTransport.setMapResolved(((TransportMorphism)target.map).getMap());
+			newTransport.setMapKey(((TransportMorphism)target.map).mapKey);
 			resolve((TransportMorphism) target.map, newTransport);
 		}
-		if(target.range instanceof AbstractRelation) {
+		if(target.range instanceof TransportMorphism) {
 			newTransport.setRangeResolved( ((TransportMorphism)target.range).getRange());
+			newTransport.setRangeKey(((TransportMorphism)target.range).rangeKey);
 			resolve((TransportMorphism) target.range, newTransport);
 		}
 	}

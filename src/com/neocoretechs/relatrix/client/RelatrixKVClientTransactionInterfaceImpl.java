@@ -696,6 +696,24 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
+	public Object getByIndex(Alias arg1,TransactionId arg2,Comparable arg3) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement(getSession(),"getByIndex", arg1, arg2, arg3);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
+	public Object getByIndex(TransactionId arg1,Comparable arg2) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement(getSession(),"getByIndex", arg1, arg2);
+		try {
+			return (Object)sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public void remove(TransactionId arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement(getSession(), "remove", arg1, arg2);
 		try {
