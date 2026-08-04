@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+
 
 /**
  * This class functions as client to the RelatrixServer Worker threads located on a remote node.
@@ -61,7 +62,13 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 		return remotePort;
 	}
 	
-
+	public void setIterator(Iterator<?> it) {
+		asynchClient.setIterator(((RemoteIteratorClient)it));
+	}
+	
+	public void setStream(Stream st) {
+		asynchClient.setIterator((RemoteIteratorClient)(((Stream)st).iterator()));
+	}
 	static int i = 0;
 	/**
 	 * Generic call to server remote addr, port, method, arg1 to method, arg2 to method...

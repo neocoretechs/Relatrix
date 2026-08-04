@@ -7,7 +7,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 import java.nio.channels.SocketChannel;
-
+import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.AbstractRelation;
@@ -91,10 +92,10 @@ public class TCPIteratorWorker implements Runnable {
 				if(iori == null)
 					break;
 				if( iori.getMethodName().equals("close") ) {
-					RelatrixServer.sessionToObject.remove(iori.getSession());
+					RelatrixServer.IteratorServerProcesses.removeIterator(iori.getSession(), iori.getIteratorId());
 				} else {
 					// Get the iterator linked to this session
-					Object itInst = RelatrixServer.sessionToObject.get(iori.getSession());
+					Object itInst = RelatrixServer.IteratorServerProcesses.getIterator(iori.getSession(), iori.getIteratorId());
 					if( itInst == null ) {
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}

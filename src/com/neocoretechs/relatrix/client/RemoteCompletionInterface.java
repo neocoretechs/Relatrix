@@ -1,7 +1,10 @@
 package com.neocoretechs.relatrix.client;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 
 /**
  * Maintains the barriers and latches to facilitate waits for completion of remote operations on the servers.
@@ -16,4 +19,7 @@ public interface RemoteCompletionInterface extends RemoteRequestInterface {
 		public void process() throws Exception;
 		public CompletableFuture<Object> getCompletionFuture();
 		public void setServerObjectReturn(Object o);
+		public UUID getIteratorId();
+		public void setIteratorId(UUID itid);
+		public void setClient(RemoteIteratorClient iteratorClient);
 }

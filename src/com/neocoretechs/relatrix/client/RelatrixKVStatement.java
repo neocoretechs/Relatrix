@@ -5,19 +5,15 @@ import java.io.Serializable;
 
 import java.net.InetSocketAddress;
 
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
+
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -31,6 +27,7 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected UUID session = null;
+    protected UUID iteratorId;
     protected String methodName;
     protected Object[] paramArray;
     protected String[] paramTypes;
@@ -264,6 +261,20 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	@Override
 	public void setServerObjectReturn(Object o) {
 		objectReturn = 0;
+	}
+
+	@Override
+	public UUID getIteratorId() {
+		return iteratorId;
+	}
+
+	@Override
+	public void setIteratorId(UUID itid) {
+		this.iteratorId = itid;	
+	}
+
+	@Override
+	public void setClient(RemoteIteratorClient iteratorClient) {
 	}
 }
 

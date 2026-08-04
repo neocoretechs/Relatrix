@@ -18,6 +18,7 @@ import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
@@ -42,6 +43,8 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
+	
+	protected RemoteIteratorClient iteratorClient;
 
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -81,10 +84,17 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public int getRemotePort( ) {
 		return remotePort;
 	}
-
+	
+	public void setIterator(Iterator<?> client) {
+		this.iteratorClient = (RemoteIteratorClient)client;
+	}
 	/**
-	* Set up the socket 
-	 */
+	* Set up the socket. In the case of an iterator, if the iteratorClient is set to an existing client via setIterator from the main client,
+	* then set the existing client comm handler to that saved client. Otherwise call the 'process()' method of {@link RemoteCompletionInterface}
+	* which will spin a new connection to the remote iterator server, causing a new server handler thread to be created. To minimize the number
+	* of sockets and threads in large loop queries, call the setIterator() method of the client with the previous iterator obtained via findSet
+	* immediately before the call to findSet()
+	*/
 	@Override
 	public void run() {
   	    try {
@@ -100,8 +110,14 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    		} else {
-  	    			if(o instanceof Iterator)
-  	    				((RemoteCompletionInterface)o).process();
+  	    			if(o instanceof Iterator) {
+  	    				if(iteratorClient != null) {
+  	    					((RemoteCompletionInterface)o).setClient(iteratorClient);
+  	    					iteratorClient = null;
+  	    				} else {
+  	    					((RemoteCompletionInterface)o).process();
+  	    				}
+  	    			}
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object

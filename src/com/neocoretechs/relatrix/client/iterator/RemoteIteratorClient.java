@@ -31,13 +31,13 @@ public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements
 	private int remotePort;
 	private int mainPort;
 	private UUID session;
+	private UUID iteratorId;
 	
 	private String methodName;
 	private Object[] paramArray = new Object[0];
 	private Class<?>[] params = new Class<?>[0];
 	private String returnClass;
 
-	private transient RemoteIteratorClient returnPayload;
 	private Object objectReturn;
 
 	private transient CompletableFuture<Object> completionObject;
@@ -189,7 +189,7 @@ public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements
 	public void setObjectReturn(Object o) {
 		objectReturn = o;
 		if( DEBUG )
-			System.out.printf("%s.setObjectReturn FROM Remote, from remote node:%s remote port:%s return payload:%s return object:%s%n",this.getClass().getName(),remoteNode,String.valueOf(remotePort),returnPayload,objectReturn);
+			System.out.printf("%s.setObjectReturn FROM Remote, from remote node:%s remote port:%s return object:%s%n",this.getClass().getName(),remoteNode,String.valueOf(remotePort),objectReturn);
 		if(objectReturn == TransportMorphism.class)
 			objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
 		else
@@ -220,6 +220,21 @@ public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements
 	
 	public void shutdown() {
 		asynchClient.close();
+	}
+	@Override
+	public UUID getIteratorId() {
+		return iteratorId;
+	}
+	@Override
+	public void setIteratorId(UUID itid) {
+		this.iteratorId = itid;
+	}
+	public AsynchRelatrixClient getClient() {
+		return asynchClient;
+	}
+	@Override
+	public void setClient(RemoteIteratorClient iteratorClient) {
+		asynchClient = iteratorClient.asynchClient;
 	}
 	
 }

@@ -4,6 +4,7 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -35,6 +36,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected UUID session = null;
+    protected UUID iteratorId;
     protected Alias alias = null;
     public String methodName;
     public Object[] paramArray;
@@ -264,7 +266,8 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			// Link the object instance to session for later method invocation
-			RelatrixServer.sessionToObject.put(ric.getSession(), result);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixServer.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
@@ -302,5 +305,19 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
  		this.params = new Class[0];
+	}
+
+	@Override
+	public UUID getIteratorId() {
+		return iteratorId;
+	}
+
+	@Override
+	public void setIteratorId(UUID itid) {
+		this.iteratorId = itid;
+	}
+
+	@Override
+	public void setClient(RemoteIteratorClient iteratorClient) {
 	}
 }

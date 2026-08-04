@@ -8,8 +8,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,7 +45,7 @@ public class RelatrixServer extends TCPServer {
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
 	
-	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
+	private static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 	
 	private ConcurrentHashMap<String, TCPWorker> dbToWorker = new ConcurrentHashMap<String, TCPWorker>();
 	
@@ -88,6 +89,30 @@ public class RelatrixServer extends TCPServer {
 			9090,9091,9092,9093,9094,9095
 	};
 
+	public static class IteratorServerProcesses {
+		private ConcurrentHashMap<UUID, Iterator<?>> iterators = new ConcurrentHashMap<UUID, Iterator<?>>(iteratorServerClasses.length);
+		public static IteratorServerProcesses getIterators(UUID session) {
+			IteratorServerProcesses iteratorByUser = (IteratorServerProcesses) sessionToObject.get(session);
+			if(iteratorByUser == null) {
+				iteratorByUser = new IteratorServerProcesses();
+				sessionToObject.put(session, iteratorByUser);
+			}
+			return iteratorByUser;
+		}
+		public static Iterator<?> getIterator(UUID session, UUID iteratorId) {
+			IteratorServerProcesses its = getIterators(session);
+			return its.iterators.get(iteratorId);
+		}
+		public static void setIterator(UUID session, UUID iteratorId, Iterator<?> iterator) {
+			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
+			isp.iterators.put(iteratorId,iterator);
+		}
+		public static void removeIterator(UUID session, UUID iteratorId) {
+			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
+			isp.iterators.remove(iteratorId);
+		}
+	};
+	
 	public RelatrixServer() {}
 	
 	/**
