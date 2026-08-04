@@ -14,7 +14,6 @@ import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;

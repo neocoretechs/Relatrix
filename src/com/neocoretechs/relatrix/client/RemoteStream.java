@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 import com.neocoretechs.relatrix.stream.StreamHelper;
 
@@ -35,11 +36,17 @@ import com.neocoretechs.relatrix.stream.StreamHelper;
 public class RemoteStream<T> implements Stream<T>, BaseIteratorAccessInterface {
 	private static boolean DEBUG = false;
 	protected StreamHelper<T> stream;
+	private RemoteIteratorClient client;
 	
 	public RemoteStream() {}
 	
 	public RemoteStream(Iterator it) {
+		client = (RemoteIteratorClient)it;
 		stream = new StreamHelper<T>(it,false);
+	}
+	
+	public RemoteIteratorClient getClient() {
+		return client;
 	}
 	
 	@Override

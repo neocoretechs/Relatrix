@@ -65,9 +65,13 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	public void setIterator(Iterator<?> it) {
 		asynchClient.setIterator(((RemoteIteratorClient)it));
 	}
-	
+	/**
+	 * Get the RemoteStream from the Stream, then the RemoteIteratorClient from the RemoteStream, then the AsynchRelatrixClient from the RemoteIteratorClient
+	 * and finally the 
+	 * @param st
+	 */
 	public void setStream(Stream st) {
-		asynchClient.setIterator((RemoteIteratorClient)(((Stream)st).iterator()));
+		asynchClient.setIterator((((RemoteStream)st).getClient()));//.getClient().getIterator());
 	}
 	static int i = 0;
 	/**

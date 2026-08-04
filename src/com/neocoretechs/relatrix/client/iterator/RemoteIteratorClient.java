@@ -11,8 +11,6 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * Manages remote iterators via client that is serialized to remote iterator servers and returned as payload.

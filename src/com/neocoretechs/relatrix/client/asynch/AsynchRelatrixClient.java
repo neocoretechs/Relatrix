@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
@@ -84,9 +85,19 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public int getRemotePort( ) {
 		return remotePort;
 	}
-	
+	/**
+	 * Set the RemoteIteratorClient
+	 * @param client
+	 */
 	public void setIterator(Iterator<?> client) {
 		this.iteratorClient = (RemoteIteratorClient)client;
+	}
+	/**
+	 * Get the RemoteIteratorClient
+	 * @return
+	 */
+	public Iterator<?> getIterator() {
+		return this.iteratorClient;
 	}
 	/**
 	* Set up the socket. In the case of an iterator, if the iteratorClient is set to an existing client via setIterator from the main client,
@@ -110,7 +121,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    		} else {
-  	    			if(o instanceof Iterator) {
+  	    			if(o instanceof Iterator || o instanceof Stream) {
   	    				if(iteratorClient != null) {
   	    					((RemoteCompletionInterface)o).setClient(iteratorClient);
   	    					iteratorClient = null;
