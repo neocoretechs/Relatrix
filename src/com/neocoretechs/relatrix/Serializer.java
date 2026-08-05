@@ -12,13 +12,15 @@ import java.lang.reflect.Proxy;
 import com.neocoretechs.rocksack.DirectByteArrayOutputStream;
 
 public class Serializer {
-	
+	private static boolean DEBUG = false;;
+
 	// ... compare() unchanged except it calls deserializeObject(b, loader)
 	public static Object deserializeObject(byte[] obuf, ClassLoader classLoader) throws IOException {
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(obuf);
 			ObjectInputStream ois = new ClassLoaderObjectInputStream(bais, classLoader)) {
 			Object o = ois.readObject();
-			System.out.println("Deserialize object len:"+obuf.length);
+			if(DEBUG)
+				System.out.println("Deserialize object len:"+obuf.length);
 			return o;
 		} catch (ClassNotFoundException cnf) {
 			throw new IOException(cnf.toString() + ":Class Not found, may have been modified beyond version compatibility");
@@ -45,7 +47,8 @@ public class Serializer {
 		retbytes = baos.getBuf();
 		s.close();
 		baos.close();
-		System.out.println("serializeObject len:"+retbytes.length);
+		if(DEBUG)
+			System.out.println("serializeObject len:"+retbytes.length);
 		return retbytes;
 	}
 

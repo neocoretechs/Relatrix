@@ -9,7 +9,7 @@ import com.neocoretechs.rocksack.Alias;
 
 public abstract class IndexResolverClientInterfaceImpl implements IndexResolverClientInterface {
 	private static final long serialVersionUID = 1L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	
 	public abstract Object sendCommand(RelatrixStatementInterface command) throws Exception;
 	

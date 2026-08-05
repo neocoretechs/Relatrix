@@ -37,7 +37,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020
  */
 public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonImpl implements AsynchRelatrixClientInterfaceJson, ClientNonTransactionInterface, Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	public static final int REQUEST_QUEUE = 1024;
 	

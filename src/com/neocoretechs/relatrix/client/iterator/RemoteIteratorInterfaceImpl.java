@@ -9,7 +9,7 @@ import java.util.UUID;
  */
 public abstract class RemoteIteratorInterfaceImpl implements RemoteIteratorInterface {
 	private static final long serialVersionUID = 1L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	public abstract Object sendCommand(String command) throws Exception;
 	/**
 	 * iterator interface contract

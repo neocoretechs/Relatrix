@@ -22,7 +22,7 @@ import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2020,2026
  */
 public class RelatrixClient extends RelatrixClientInterfaceImpl {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private Object mutex = new Object();
 	private AsynchRelatrixClient asynchClient;
 	private String remoteNode;

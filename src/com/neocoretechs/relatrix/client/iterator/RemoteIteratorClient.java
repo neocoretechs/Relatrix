@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
  */
 public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements RelatrixStatementInterface {
 	private static final long serialVersionUID = 1L;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final boolean LOCALTEST = false; // use localhost as remote node
 	public static final boolean TEST = false; // timing
 	private transient long tim;
