@@ -11,8 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
@@ -20,13 +21,16 @@ import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixServer;
+
 import com.neocoretechs.rocksack.Alias;
 
 /**
@@ -51,6 +55,8 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandler workerHandler;
 	
+	protected RemoteIteratorClient iteratorClient;
+
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object();
 	private UUID session = UUID.randomUUID();
@@ -76,7 +82,20 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 			System.out.println("Channel created to "+workerHandler);
 		SynchronizedThreadManager.getInstance().spin(this);
 	}
-
+	/**
+	 * Set the RemoteIteratorClient
+	 * @param client
+	 */
+	public void setIterator(Iterator<?> client) {
+		this.iteratorClient = (RemoteIteratorClient)client;
+	}
+	/**
+	 * Get the RemoteIteratorClient
+	 * @return
+	 */
+	public Iterator<?> getIterator() {
+		return this.iteratorClient;
+	}
 	/**
 	* Set up the socket 
 	 */
@@ -102,8 +121,14 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    		} else {
-  	    			if(o instanceof Iterator)
-  	    				((RemoteCompletionInterface)o).process();
+	    			if(o instanceof Iterator || o instanceof Stream) {
+  	    				if(iteratorClient != null) {
+  	    					((RemoteCompletionInterface)o).setClient(iteratorClient);
+  	    					iteratorClient = null;
+  	    				} else {
+  	    					((RemoteCompletionInterface)o).process();
+  	    				}
+  	    			}
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
@@ -131,10 +156,11 @@ public class AsynchRelatrixKVClient extends AsynchRelatrixKVClientInterfaceImpl 
 	 * Queue a command to the blocking deque. Its a circular deque, so once capacity is reach, oldest requests are overwritten
 	*/ 
 	public CompletableFuture<Object> queueCommand(RelatrixStatementInterface rs) {
-		CompletableFuture<Object> cf = new CompletableFuture<>();
+		CompletableFuture<Object> cf = null;
 		rs.setCompletionObject();
 		try {
 			queuedRequests.addLastWait(rs);
+			cf = rs.getCompletionFuture();
 		} catch (InterruptedException e) {}
 		return cf;
 	}

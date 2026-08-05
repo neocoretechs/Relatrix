@@ -1,6 +1,5 @@
 package com.neocoretechs.relatrix.server.json;
 
-import java.io.File;
 import java.io.IOException;
 
 import java.net.InetSocketAddress;
@@ -8,14 +7,16 @@ import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
@@ -46,10 +47,10 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	public static int port;
 	
 	public static ServerInvokeMethod relatrixMethods = null; // Main Relatrix class methods
-
-	// in server, we are using local repository for handlerclassloader, but only one
-	// and that one will be located on port 9999
-	boolean isThisBytecodeRepository = false;
+	
+	public static final Class<?> relatrixKVJsonClass = com.neocoretechs.relatrix.RelatrixKVJsonTransaction.class;
+	
+	public static final String relatrixKVJson = relatrixKVJsonClass.getName();
 	
 	public static ConcurrentHashMap<UUID, Object> sessionToObject = new ConcurrentHashMap<UUID,Object>();
 
@@ -57,15 +58,41 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	
 	private ConcurrentHashMap<String, TCPServer> iteratorToServer = new ConcurrentHashMap<String, TCPServer>();
 	
-	public static String[] iteratorServers = new String[]{
-			"com.neocoretechs.relatrix.iterator.IteratorWrapper"
-	};				
+	public static final Class<?> relatrixIteratorJsonClass = com.neocoretechs.relatrix.iterator.IteratorWrapper.class; 
+	
+	public static final String relatrixIteratorJson = relatrixIteratorJsonClass.getName();
+	
+	public static String[] iteratorServers = new String[]{relatrixIteratorJson};
+	
+	public static Class[] iteratorServerClasses = new Class[]{relatrixIteratorJsonClass};
+				
 	public static int[] iteratorPorts = new int[] {
 			9020
 	};
-	public static int findIteratorServerPort(String clazz) {
-		return iteratorPorts[Arrays.asList(iteratorServers).indexOf(clazz)];
-	}
+	
+	public static class IteratorServerProcesses {
+		private ConcurrentHashMap<UUID, Iterator<?>> iterators = new ConcurrentHashMap<UUID, Iterator<?>>(iteratorServerClasses.length);
+		public static IteratorServerProcesses getIterators(UUID session) {
+			IteratorServerProcesses iteratorByUser = (IteratorServerProcesses) sessionToObject.get(session);
+			if(iteratorByUser == null) {
+				iteratorByUser = new IteratorServerProcesses();
+				sessionToObject.put(session, iteratorByUser);
+			}
+			return iteratorByUser;
+		}
+		public static Iterator<?> getIterator(UUID session, UUID iteratorId) {
+			IteratorServerProcesses its = getIterators(session);
+			return its.iterators.get(iteratorId);
+		}
+		public static void setIterator(UUID session, UUID iteratorId, Iterator<?> iterator) {
+			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
+			isp.iterators.put(iteratorId,iterator);
+		}
+		public static void removeIterator(UUID session, UUID iteratorId) {
+			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
+			isp.iterators.remove(iteratorId);
+		}
+	};
 	
 	protected RelatrixKVTransactionServerJson() {}
 	
@@ -78,7 +105,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	public RelatrixKVTransactionServerJson(int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServerJson.port = port;
-		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVJsonTransaction", 0);
+		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);
 		address = startServer(port);
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));
@@ -94,7 +121,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	public RelatrixKVTransactionServerJson(String iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServerJson.port = port;
-		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);	
 		address = new InetSocketAddress(iaddress, port);
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -113,7 +140,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	public RelatrixKVTransactionServerJson(SocketAddress iaddress, int port) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServerJson.port = port;
-		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);	
 		address = iaddress;
 		startServer(address);
 		for(int i = 0; i < iteratorServers.length; i++)
@@ -131,7 +158,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
 	public RelatrixKVTransactionServerJson(SocketAddress iaddress, int port, boolean wait) throws IOException, ClassNotFoundException {
 		super();
 		RelatrixKVTransactionServerJson.port = port;
-		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod("com.neocoretechs.relatrix.RelatrixKVTransaction", 0);	
+		RelatrixKVTransactionServerJson.relatrixMethods = new ServerInvokeMethod(relatrixKVJson, 0);	
 		address = iaddress;
 		for(int i = 0; i < iteratorServers.length; i++)
 			iteratorToServer.put(iteratorServers[i],new RemoteKVIteratorServer(iteratorServers[i], ((InetSocketAddress)address).getAddress(), iteratorPorts[i]));

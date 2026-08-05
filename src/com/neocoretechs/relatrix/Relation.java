@@ -146,5 +146,20 @@ public class Relation extends AbstractRelation implements Comparable, Serializab
 	public Relation asRelation() {
 		return this;
 	}
-    
+	
+	public static void resolve(Relation target) {
+		Comparable tdomain, tmap, trange;
+		tdomain = (Comparable) ((AbstractRelation)target).getDomain();
+		tmap = (Comparable) ((AbstractRelation)target).getMap();
+		trange = (Comparable) ((AbstractRelation)target).getRange();
+		if(tdomain instanceof AbstractRelation)
+			resolve((Relation) tdomain);
+		if(tmap instanceof AbstractRelation)
+			resolve((Relation) tmap);
+		if(trange instanceof AbstractRelation)
+			resolve((Relation) trange);
+		if(DEBUG)
+			System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
+	}
+
 }

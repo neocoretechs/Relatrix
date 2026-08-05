@@ -103,13 +103,13 @@ public class TCPIteratorWorker implements Runnable {
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
-						resolve((Relation) result);
+						Relation.resolve((Relation) result);
 						result = TransportMorphism.createTransport((Relation)result);
 					} else {
 						if(result instanceof Result) {
 							if(((Result)result).get() instanceof AbstractRelation) {
 								Relation rel = (Relation) ((Result)result).get();
-								resolve(rel);
+								Relation.resolve(rel);
 								((Result)result).set(rel);
 							}
 							((Result) result).packForTransport();
@@ -138,20 +138,6 @@ public class TCPIteratorWorker implements Runnable {
 				waitHalt.notify();
 			}
 		}
-	}
-	public static void resolve(Relation target) {
-		Comparable tdomain, tmap, trange;
-		tdomain = (Comparable) ((AbstractRelation)target).getDomain();
-		tmap = (Comparable) ((AbstractRelation)target).getMap();
-		trange = (Comparable) ((AbstractRelation)target).getRange();
-		if(tdomain instanceof AbstractRelation)
-			resolve((Relation) tdomain);
-		if(tmap instanceof AbstractRelation)
-			resolve((Relation) tmap);
-		if(trange instanceof AbstractRelation)
-			resolve((Relation) trange);
-		if(DEBUG)
-			System.out.printf("AbstractRelation.resolve %s %s %s%n", tdomain, tmap, trange);
 	}
 
 	public String getSlavePort() {

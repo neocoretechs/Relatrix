@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.client.ClientNonTransactionInterface;
@@ -21,6 +22,7 @@ import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.json.ConnectionHandlerJson;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
@@ -48,6 +50,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	private UUID session = UUID.randomUUID();
 	protected SocketChannel workerSocket = null; // socket assigned to slave port
 	protected ConnectionHandlerJson workerHandler;
+	protected RemoteIteratorClient iteratorClient;
 	
 	private volatile boolean shouldRun = true; // master service thread control
 	private Object waitHalt = new Object(); 
@@ -97,8 +100,14 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
   	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
   	    			o = ((Throwable)o).getCause();
   	    		} else {
-  	    			if(o instanceof Iterator)
-  	    				((RemoteCompletionInterface)o).process();
+  	    			if(o instanceof Iterator || o instanceof Stream) {
+  	    				if(iteratorClient != null) {
+  	    					((RemoteCompletionInterface)o).setClient(iteratorClient);
+  	    					iteratorClient = null;
+  	    				} else {
+  	    					((RemoteCompletionInterface)o).process();
+  	    				}
+  	    			}
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
@@ -126,10 +135,11 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	*/ 
 	//@Override
 	public CompletableFuture<Object> queueCommand(RelatrixStatementInterface rs) {
-		CompletableFuture<Object> cf = new CompletableFuture<>();
+		CompletableFuture<Object> cf = null;
 		rs.setCompletionObject();
 		try {
 			queuedRequests.addLastWait(rs);
+			cf = rs.getCompletionFuture();
 		} catch (InterruptedException e) {}
 		return cf;
 	}
@@ -148,6 +158,20 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 		shouldRun = false;
 	}
 	
+	/**
+	 * Set the RemoteIteratorClient
+	 * @param client
+	 */
+	public void setIterator(Iterator<?> client) {
+		this.iteratorClient = (RemoteIteratorClient)client;
+	}
+	/**
+	 * Get the RemoteIteratorClient
+	 * @return
+	 */
+	public Iterator<?> getIterator() {
+		return this.iteratorClient;
+	}
 	
 	public String getRemoteNode() {
 		return remoteNode;

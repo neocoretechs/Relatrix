@@ -109,7 +109,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 			RemoteIteratorClientTransaction ric = null;
 			if(result.getClass() == IteratorWrapper.class) {	
 				ric = new RemoteIteratorClientTransaction(xid, session, ((InetSocketAddress)RelatrixKVTransactionServer.address).getAddress().getHostName(), 
-							RelatrixKVTransactionServer.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"), RelatrixKVTransactionServer.port);
+							RelatrixKVTransactionServer.iteratorPorts[0], RelatrixKVTransactionServer.port);
 			} else {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}

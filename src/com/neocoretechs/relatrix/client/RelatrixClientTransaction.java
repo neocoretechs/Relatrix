@@ -6,10 +6,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 
 
 /**
@@ -26,6 +28,8 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	public static final boolean TEST = false; // true to run in local cluster test mode
 	private Object mutex = new Object();
 	private AsynchRelatrixClientTransaction asynchClient;
+	private String remoteNode;
+	private int remotePort;
 	
 	public RelatrixClientTransaction() { }
 	
@@ -38,6 +42,8 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	 */
 	public RelatrixClientTransaction(String remoteNode, int remotePort)  throws IOException {
 		super();
+		this.remoteNode = remoteNode;
+		this.remotePort = remotePort;
 		asynchClient = new AsynchRelatrixClientTransaction(remoteNode, remotePort);
 	}
 	@Override
@@ -59,15 +65,24 @@ public class RelatrixClientTransaction extends RelatrixClientTransactionInterfac
 	
 	@Override
 	public String getRemoteNode() {
-		return asynchClient.getRemoteNode();
+		return remoteNode;
 	}
-
 	@Override
 	public int getRemotePort() {
-		return asynchClient.getRemotePort();
+		return remotePort;
 	}
-
 	
+	public void setIterator(Iterator<?> it) {
+		asynchClient.setIterator(((RemoteIteratorClient)it));
+	}
+	/**
+	 * Get the RemoteStream from the Stream, then the RemoteIteratorClient from the RemoteStream, then the AsynchRelatrixClient from the RemoteIteratorClient
+	 * and finally the 
+	 * @param st
+	 */
+	public void setStream(Stream st) {
+		asynchClient.setIterator((((RemoteStream)st).getClient()));//.getClient().getIterator());
+	}	
 	static int i = 0;
 	/**
 	 * Generic call to server remote addr, port, server method, arg1 to method, arg2 to method...

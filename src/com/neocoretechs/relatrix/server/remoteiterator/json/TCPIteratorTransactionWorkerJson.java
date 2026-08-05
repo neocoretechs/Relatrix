@@ -21,6 +21,7 @@ import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson;
 
@@ -76,6 +77,7 @@ public class TCPIteratorTransactionWorkerJson implements Runnable {
 			throw new RuntimeException(e);
 		}
 	}
+
 	/**
 	 * Client (Slave port) sends data to our master in the following loop
 	 */
@@ -84,16 +86,15 @@ public class TCPIteratorTransactionWorkerJson implements Runnable {
 		try {
 			while(shouldRun) {
 				if(DEBUG)
-					System.out.println(this+" waiting on input."+" connected:"+workerSocket.isConnected());
+					System.out.println(this.getClass().getName()+" attempt readObject "+workerHandler);
 				RemoteCompletionInterface iori = (RemoteCompletionInterface)workerHandler.readObject();
-				if(iori == null) {
+				if(iori == null)
 					break;
-				}
 				if( iori.getMethodName().equals("close") ) {
-					RelatrixTransactionServerJson.sessionToObject.remove(iori.getSession());
+					RelatrixTransactionServerJson.IteratorServerProcesses.removeIterator(iori.getSession(), iori.getIteratorId());
 				} else {
 					// Get the iterator linked to this session
-					Object itInst = RelatrixTransactionServerJson.sessionToObject.get(iori.getSession());
+					Object itInst = RelatrixTransactionServerJson.IteratorServerProcesses.getIterator(iori.getSession(), iori.getIteratorId());
 					if( itInst == null ) {
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}
@@ -102,22 +103,28 @@ public class TCPIteratorTransactionWorkerJson implements Runnable {
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
+						Relation.resolve((Relation) result);
 						result = TransportMorphism.createTransport((Relation)result);
 					} else {
 						if(result instanceof Result) {
+							if(((Result)result).get() instanceof AbstractRelation) {
+								Relation rel = (Relation) ((Result)result).get();
+								Relation.resolve(rel);
+								((Result)result).set(rel);
+							}
 							((Result) result).packForTransport();
 						}
 					}
-					iori.setObjectReturn(result);
+					iori.setServerObjectReturn(result);
 				}
 				// notify latch waiters
 				if( DEBUG ) {
-					System.out.println(this+" recieved object:"+iori);
+					System.out.println(this.getClass().getName()+" FROM REMOTE on port:"+workerSocket+" "+iori);
 				}
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
 			}
-		// Call to shut down has been received from stopWorker
+			// Call to shut down has been received from stopWorker
 		} catch (Exception ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();
@@ -132,7 +139,6 @@ public class TCPIteratorTransactionWorkerJson implements Runnable {
 			}
 		}
 	}
-
 	public String getSlavePort() {
 		return String.valueOf(workerSocket);
 	}

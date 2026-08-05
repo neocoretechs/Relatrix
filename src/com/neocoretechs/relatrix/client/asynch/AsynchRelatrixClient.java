@@ -196,7 +196,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
 	public static void main(String[] args) throws Exception {
 		AsynchRelatrixClient rc = new AsynchRelatrixClient(args[0],Integer.parseInt(args[1]));
 		RelatrixStatement rs = null;
-		UUID session = UUID.randomUUID();
+		UUID session = rc.getSession();
 		switch(args.length) {
 			case 4:
 				System.out.println("queueing..");

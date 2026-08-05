@@ -23,6 +23,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.relatrix.server.json.ServerInvokeMethodJson;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
+import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
 
 /**
@@ -86,6 +87,7 @@ public class TCPIteratorWorkerJson implements Runnable {
 				throw new RuntimeException(e);
 		}
 	}
+	
 	/**
 	 * Client (Slave port) sends data to our master in the following loop
 	 */
@@ -99,10 +101,10 @@ public class TCPIteratorWorkerJson implements Runnable {
 				if(iori == null)
 					break;
 				if( iori.getMethodName().equals("close") ) {
-					RelatrixServerJson.sessionToObject.remove(iori.getSession());
+					RelatrixServerJson.IteratorServerProcesses.removeIterator(iori.getSession(), iori.getIteratorId());
 				} else {
 					// Get the iterator linked to this session
-					Object itInst = RelatrixServerJson.sessionToObject.get(iori.getSession());
+					Object itInst = RelatrixServerJson.IteratorServerProcesses.getIterator(iori.getSession(), iori.getIteratorId());
 					if( itInst == null ) {
 						throw new IOException("Requested iterator instance does not exist for session "+iori.getSession());
 					}
@@ -110,13 +112,19 @@ public class TCPIteratorWorkerJson implements Runnable {
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
+						Relation.resolve((Relation) result);
 						result = TransportMorphism.createTransport((Relation)result);
 					} else {
 						if(result instanceof Result) {
+							if(((Result)result).get() instanceof AbstractRelation) {
+								Relation rel = (Relation) ((Result)result).get();
+								Relation.resolve(rel);
+								((Result)result).set(rel);
+							}
 							((Result) result).packForTransport();
 						}
 					}
-					iori.setObjectReturn(result);
+					iori.setServerObjectReturn(result);
 				}
 				// notify latch waiters
 				if( DEBUG ) {
@@ -125,7 +133,7 @@ public class TCPIteratorWorkerJson implements Runnable {
 				// put the received request on the processing stack
 				sendResponse((RemoteResponseInterface) iori);
 			}
-		// Call to shut down has been received from stopWorker
+			// Call to shut down has been received from stopWorker
 		} catch (Exception ie) {
 			if(!(ie instanceof SocketException) && !(ie instanceof EOFException)) {
 				ie.printStackTrace();

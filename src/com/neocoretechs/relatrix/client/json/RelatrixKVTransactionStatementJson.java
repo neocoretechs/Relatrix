@@ -13,13 +13,13 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.RelatrixKVJson;
+
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
-import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
+
 import com.neocoretechs.relatrix.server.json.RelatrixKVTransactionServerJson;
 
 /**
@@ -145,10 +145,13 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 			}
 			RelatrixKVTransactionServerJson.sessionToObject.put(getSession(), result);
 			RemoteIteratorClientTransaction ric = null;
-			if(result.getClass() == IteratorWrapper.class) {	
-				ric = new RemoteIteratorClientTransaction(xid, session, ((InetSocketAddress)RelatrixKVTransactionServerJson.address).getAddress().getHostName(), 
-							RelatrixKVTransactionServerJson.findIteratorServerPort("com.neocoretechs.relatrix.iterator.IteratorWrapper"), RelatrixKVTransactionServerJson.port);
-			} else {
+			for(int ic = 0; ic < RelatrixKVTransactionServerJson.iteratorServerClasses.length; ic++) {
+				if(result.getClass() == RelatrixKVTransactionServerJson.iteratorServerClasses[ic]) {	
+					ric = new RemoteIteratorClientTransaction(xid, session, ((InetSocketAddress)RelatrixKVTransactionServerJson.address).getAddress().getHostName(), RelatrixKVTransactionServerJson.iteratorPorts[ic], RelatrixKVTransactionServerJson.port);
+					break;
+				}
+			}
+			if(ric == null) {
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
 			// Link the object instance to session for later method invocation

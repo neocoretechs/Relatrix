@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +19,6 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
-
 import com.neocoretechs.relatrix.server.remoteiterator.json.RemoteKVIteratorServerJson;
 
 /**
@@ -64,6 +64,30 @@ public class RelatrixKVServerJson extends TCPServer {
 	public static String[] iteratorServers = new String[]{relatrixIteratorJson};
 	
 	public static Class[] iteratorServerClasses = new Class[]{relatrixIteratorJsonClass};
+	
+	public static class IteratorServerProcesses {
+		private ConcurrentHashMap<UUID, Iterator<?>> iterators = new ConcurrentHashMap<UUID, Iterator<?>>(iteratorServerClasses.length);
+		public static IteratorServerProcesses getIterators(UUID session) {
+			IteratorServerProcesses iteratorByUser = (IteratorServerProcesses) sessionToObject.get(session);
+			if(iteratorByUser == null) {
+				iteratorByUser = new IteratorServerProcesses();
+				sessionToObject.put(session, iteratorByUser);
+			}
+			return iteratorByUser;
+		}
+		public static Iterator<?> getIterator(UUID session, UUID iteratorId) {
+			IteratorServerProcesses its = getIterators(session);
+			return its.iterators.get(iteratorId);
+		}
+		public static void setIterator(UUID session, UUID iteratorId, Iterator<?> iterator) {
+			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
+			isp.iterators.put(iteratorId,iterator);
+		}
+		public static void removeIterator(UUID session, UUID iteratorId) {
+			IteratorServerProcesses isp = IteratorServerProcesses.getIterators(session);
+			isp.iterators.remove(iteratorId);
+		}
+	};
 	
 	public RelatrixKVServerJson() {}
 	
