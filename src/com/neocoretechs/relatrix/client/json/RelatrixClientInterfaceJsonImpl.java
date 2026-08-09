@@ -1017,6 +1017,15 @@ public abstract class RelatrixClientInterfaceJsonImpl implements RelatrixClientI
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixStatementJson s = new RelatrixStatementJson(null, "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public void setWildcard(Character arg1) {
 		RelatrixStatementJson s = new RelatrixStatementJson(null, "setWildcard", arg1);
 		try {

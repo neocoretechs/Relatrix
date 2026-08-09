@@ -237,6 +237,8 @@ public interface RelatrixClientInterfaceJson extends ClientNonTransactionInterfa
 	public List findSetParallel(List arg1,Character arg2,Character arg3);
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public void setWildcard(Character arg1);
 

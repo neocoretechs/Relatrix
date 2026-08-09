@@ -47,7 +47,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 	public static boolean DEBUG = false;
 	private ClientInterface rc = null;
 	private Object mutex = new Object();
-
+	@Deprecated
 	public static ClientInterface getClient(ClientInterface rc, IndexResolver resolver) throws IOException {
 		return switch(rc) {
 			case ClientTransactionInterface _ -> getTransactionClient((ClientTransactionInterface) rc, resolver);
@@ -56,6 +56,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 			default -> throw new IllegalArgumentException("Unexpected value: " + rc);
 		};
 	}
+	@Deprecated
 	public static ClientInterface getTransactionClient(ClientTransactionInterface ctf, IndexResolver resolver) throws IOException {
 		return switch(ctf) {
 		case AsynchRelatrixKVClientTransaction _ -> new RelatrixKVClientTransaction(ctf.getRemoteNode(), ctf.getRemotePort());
@@ -69,6 +70,7 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		default -> throw new IllegalArgumentException("Unexpected value: " + ctf);
 		};	
 	}
+	@Deprecated
 	public static ClientInterface getNonTransactionClient(ClientNonTransactionInterface ctf, IndexResolver resolver) throws IOException {
 		return switch(ctf) {
 		case AsynchRelatrixKVClient _ -> new IndexResolverClient(ctf.getRemoteNode(), ctf.getRemotePort());
@@ -82,11 +84,13 @@ public final class RemoteIndexInstanceTable implements IndexInstanceTableInterfa
 		default -> throw new IllegalArgumentException("Unexpected value: " + ctf);
 		};
 	}
+	@Deprecated
 	public static ClientInterface getIteratorClient(RemoteIteratorClient ric, IndexResolver resolver) throws IOException {
 		if(ric instanceof RemoteIteratorClientTransaction)
 			return new RelatrixClientTransaction(ric.getRemoteNode(), ric.getRemotePort());
 		return new IndexResolverClient(ric.getRemoteNode(), ric.getRemotePort());
 	}
+	@Deprecated
 	public RemoteIndexInstanceTable(ClientInterface rc, IndexResolver resolver) throws IOException {
 		this.rc = getClient(rc, resolver);
 		if(DEBUG)

@@ -441,6 +441,8 @@ public interface AsynchRelatrixClientTransactionInterface extends com.neocoretec
 	public CompletableFuture<Void> endTransaction(TransactionId arg1);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<Void> rollbackToCheckpoint(Alias arg1,TransactionId arg2);
 

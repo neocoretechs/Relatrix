@@ -255,6 +255,11 @@ public abstract class AsynchRelatrixKVClientTransactionInterfaceJsonImpl impleme
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+	@Override
 	public CompletableFuture<Iterator> findTailMapKV(TransactionId arg1,Object arg2) {
 		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(getSession(), "findTailMapKV", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Iterator) result);

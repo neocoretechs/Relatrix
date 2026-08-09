@@ -40,6 +40,8 @@ public interface RelatrixKVClientInterfaceJson extends ClientNonTransactionInter
 	public Iterator findSubMapKV(Alias arg1,Object arg2,Object arg3) throws java.io.IOException;
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public Stream findSubMapKVStream(Object arg1,Object arg2) throws java.io.IOException;
 

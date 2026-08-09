@@ -352,6 +352,8 @@ public interface RelatrixClientInterfaceJsonTransaction extends ClientTransactio
 	public Stream findSubStream(TransactionId arg1,Character arg2,Object arg3,Object arg4,Object arg5) throws java.io.IOException;
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException;
 

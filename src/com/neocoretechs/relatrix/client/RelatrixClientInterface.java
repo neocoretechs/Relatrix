@@ -20,6 +20,8 @@ public interface RelatrixClientInterface extends ClientNonTransactionInterface{
 	public String[][] getAliases();
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public Stream findTailStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException;
 

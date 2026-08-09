@@ -22,6 +22,15 @@ public abstract class RelatrixKVClientTransactionInterfaceImpl implements Relatr
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement(getSession(), "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Stream entrySetStream(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException {
 		RelatrixKVTransactionStatement s = new RelatrixKVTransactionStatement(getSession(), "entrySetStream", arg1, arg2, arg3);
 		try {

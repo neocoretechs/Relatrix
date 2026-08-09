@@ -173,6 +173,11 @@ public abstract class AsynchRelatrixKVClientTransactionInterfaceImpl implements 
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+	@Override
 	public CompletableFuture<Stream> keySetStream(TransactionId arg1,Class arg2) {
 		com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement s = new com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement(getSession(), "keySetStream", arg1, arg2);
 		return queueCommand(s).thenApply(result -> {

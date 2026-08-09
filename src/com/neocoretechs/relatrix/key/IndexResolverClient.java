@@ -21,6 +21,7 @@ import com.neocoretechs.relatrix.server.HandlerClassLoader;
  * We want to avoid re-entrant deadlocks etc.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2026
  */
+@Deprecated
 public class IndexResolverClient extends IndexResolverClientInterfaceImpl implements Runnable {
 	private static final long serialVersionUID = 8377607548947015076L;
 	private static boolean DEBUG = false;
@@ -71,7 +72,7 @@ public class IndexResolverClient extends IndexResolverClientInterfaceImpl implem
   	    		// get the original request from the stored table
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
   	    			o = ((Throwable)o).getCause();
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal

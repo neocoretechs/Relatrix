@@ -196,6 +196,7 @@ public final class RelatrixTransaction {
 	 * @param path
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void setAlias(Alias alias, String path) throws IOException {
 		RelatrixKVTransaction.setAlias(alias, path);
 	}

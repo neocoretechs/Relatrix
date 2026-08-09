@@ -197,6 +197,7 @@ public final class RelatrixJsonTransaction {
 	 * @param path
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void setAlias(Alias alias, String path) throws IOException {
 		RelatrixKVJsonTransaction.setAlias(alias, path);
 	}

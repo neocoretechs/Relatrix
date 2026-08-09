@@ -253,6 +253,8 @@ public interface AsynchRelatrixClientJsonTransactionInterface extends com.neocor
 	public CompletableFuture<List> findSetParallel(Alias arg1,TransactionId arg2,Character arg3,List arg4,Character arg5);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<String> getTableSpace();
 

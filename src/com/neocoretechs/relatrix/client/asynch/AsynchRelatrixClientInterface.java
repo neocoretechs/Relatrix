@@ -270,6 +270,8 @@ public interface AsynchRelatrixClientInterface extends com.neocoretechs.relatrix
 	public Object getByIndex(DBKey arg1);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5);
 

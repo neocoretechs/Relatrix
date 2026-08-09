@@ -53,6 +53,8 @@ public interface AsynchRelatrixKVClientInterface extends com.neocoretechs.relatr
 	public CompletableFuture<Stream> findTailMapStream(Alias arg1,Comparable arg2);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<String[][]> getAliases();
 

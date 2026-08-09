@@ -53,6 +53,15 @@ public abstract class RelatrixClientInterfaceImpl implements RelatrixClientInter
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixStatement s = new RelatrixStatement(getSession(), "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Stream findTailStream(Object arg1,Character arg2,Character arg3,Object arg4,Object arg5) throws java.io.IOException {
 		RelatrixStatement s = new RelatrixStatement(getSession(), "findTailStream", arg1, arg2, arg3, arg4, arg5);
 		try {

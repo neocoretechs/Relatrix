@@ -57,6 +57,8 @@ public interface RelatrixKVClientInterface extends ClientNonTransactionInterface
 	public void removeAlias(Alias arg1) throws java.io.IOException;
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public Object nearest(Alias arg1,Comparable arg2) throws java.io.IOException;
 

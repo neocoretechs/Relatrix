@@ -12,6 +12,8 @@ import com.neocoretechs.rocksack.TransactionId;
 public interface RelatrixKVClientTransactionInterface extends ClientTransactionInterface{
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public Stream entrySetStream(Alias arg1,TransactionId arg2,Class arg3) throws java.io.IOException;
 

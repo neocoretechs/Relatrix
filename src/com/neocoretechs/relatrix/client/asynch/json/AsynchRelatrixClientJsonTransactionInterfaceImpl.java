@@ -1403,6 +1403,11 @@ public abstract class AsynchRelatrixClientJsonTransactionInterfaceImpl implement
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+	@Override
 	public CompletableFuture<String> getTableSpace() {
 		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(getSession(),"getTableSpace", new Object[]{});
 		return queueCommand(s).thenApply(result -> (String) result);

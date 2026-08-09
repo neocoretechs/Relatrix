@@ -66,6 +66,8 @@ public interface RelatrixKVClientInterfaceJsonTransaction extends ClientTransact
 	public Iterator findSubMapKV(Alias arg1,TransactionId arg2,Object arg3,Object arg4) throws java.io.IOException;
 
 	public void setRelativeAlias(Alias arg1) throws java.io.IOException;
+	
+	public void setAlias(Alias arg1) throws java.io.IOException;
 
 	public void rollbackAllTransactions();
 

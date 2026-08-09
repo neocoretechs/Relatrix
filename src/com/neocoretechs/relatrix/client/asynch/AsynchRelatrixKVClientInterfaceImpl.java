@@ -232,6 +232,12 @@ public abstract class AsynchRelatrixKVClientInterfaceImpl implements AsynchRelat
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+
+	}
+	@Override
 	public CompletableFuture<String[][]> getAliases() {
 		RelatrixKVStatement s = new RelatrixKVStatement(getSession(),"getAliases", new Object[]{});
 		return queueCommand(s).thenApply(result -> (String[][]) result);

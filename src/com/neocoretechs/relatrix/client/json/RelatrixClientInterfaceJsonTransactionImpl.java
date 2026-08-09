@@ -1537,6 +1537,15 @@ public abstract class RelatrixClientInterfaceJsonTransactionImpl implements Rela
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Iterator findHeadSet(Alias arg1,TransactionId arg2,Character arg3,Object arg4,Character arg5,Object arg6,Object arg7) throws java.io.IOException {
 		RelatrixTransactionStatementJson s = new RelatrixTransactionStatementJson(null, "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 		try {

@@ -815,13 +815,16 @@ public abstract class AsynchRelatrixClientInterfaceJsonImpl implements AsynchRel
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6) {
 		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "findHeadSet", arg1, arg2, arg3, arg4, arg5, arg6);
 		return queueCommand(s).thenApply(result -> (Iterator) result);
-
 	}
 	@Override
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1) {
 		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "setRelativeAlias", arg1);
 		return queueCommand(s).thenApply(result -> (Void) result);
-
+	}
+	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixStatementJson s = new RelatrixStatementJson(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5) {
@@ -836,7 +839,6 @@ public abstract class AsynchRelatrixClientInterfaceJsonImpl implements AsynchRel
 	        // Handle the exception, e.g., return an empty stream or throw a custom exception
 	        throw new RuntimeException(ex);
 	    });
-
 	}
 	@Override
 	public CompletableFuture<Stream> findTailStream(Character arg1,Object arg2,Object arg3,Object arg4) {

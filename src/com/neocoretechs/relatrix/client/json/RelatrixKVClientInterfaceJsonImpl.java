@@ -347,6 +347,15 @@ public abstract class RelatrixKVClientInterfaceJsonImpl implements RelatrixKVCli
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public void removeAlias(Alias arg1) throws java.io.IOException {
 		RelatrixKVStatementJson s = new RelatrixKVStatementJson(null, "removeAlias", arg1);
 		try {

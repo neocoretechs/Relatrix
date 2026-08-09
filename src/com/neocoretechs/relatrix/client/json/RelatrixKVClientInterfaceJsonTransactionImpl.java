@@ -133,6 +133,15 @@ public abstract class RelatrixKVClientInterfaceJsonTransactionImpl implements Re
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null, "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public void rollbackAllTransactions() {
 		RelatrixKVTransactionStatementJson s = new RelatrixKVTransactionStatementJson(null,"rollbackAllTransactions", new Object[]{});
 		try {

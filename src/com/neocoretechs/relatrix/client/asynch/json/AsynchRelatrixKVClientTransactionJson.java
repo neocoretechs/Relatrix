@@ -114,7 +114,7 @@ public class AsynchRelatrixKVClientTransactionJson extends AsynchRelatrixKVClien
   	    			System.out.printf("%s %s got response %s from %s%n",this.getClass().getName(),this,iori,workerHandler);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
   	    			o = ((Throwable)o).getCause();
   	    		} else {
   	    			if(o instanceof Iterator || o instanceof Stream) {

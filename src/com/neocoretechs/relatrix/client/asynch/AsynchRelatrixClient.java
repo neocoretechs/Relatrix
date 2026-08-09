@@ -118,7 +118,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    			System.out.printf("%s Asynch FROM Remote, response:%s remote:%s port:%d%n",this.getClass().getName(),iori,remoteNode,remotePort);
   	    		Object o = iori.getObjectReturn();
   	    		if( o instanceof Throwable ) {
-  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)o).getCause());
+  	    			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
   	    			o = ((Throwable)o).getCause();
   	    		} else {
   	    			if(o instanceof Iterator || o instanceof Stream) {

@@ -236,6 +236,8 @@ public interface AsynchRelatrixClientInterfaceJson extends com.neocoretechs.rela
 	public CompletableFuture<Iterator> findHeadSet(Alias arg1,Object arg2,Character arg3,Character arg4,Object arg5,Object arg6);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<Stream> findTailStream(Character arg1,Object arg2,Character arg3,Object arg4,Object arg5);
 

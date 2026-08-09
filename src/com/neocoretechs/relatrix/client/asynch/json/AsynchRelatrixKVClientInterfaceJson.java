@@ -53,6 +53,8 @@ public interface AsynchRelatrixKVClientInterfaceJson extends com.neocoretechs.re
 	public CompletableFuture<Iterator> findTailMap(Object arg1);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<Iterator> findHeadMap(Alias arg1,Object arg2);
 

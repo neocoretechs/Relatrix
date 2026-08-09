@@ -195,7 +195,7 @@ public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements
 				((Result)objectReturn).unpackFromTransport();
 			else
 				if(objectReturn instanceof Exception ) {
-					System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+((Throwable)objectReturn).getCause());
+					System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
 					objectReturn = ((Throwable)objectReturn).getCause();
 				}
 	}

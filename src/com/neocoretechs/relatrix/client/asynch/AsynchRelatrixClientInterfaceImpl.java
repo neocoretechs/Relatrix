@@ -1434,6 +1434,11 @@ public abstract class AsynchRelatrixClientInterfaceImpl implements AsynchRelatri
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixStatement s = new RelatrixStatement(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+	@Override
 	public CompletableFuture<Iterator> findSubSet(Character arg1,Character arg2,Object arg3,Object arg4,Object arg5) {
 		RelatrixStatement s = new RelatrixStatement(getSession(), "findSubSet", arg1, arg2, arg3, arg4, arg5);
 		return queueCommand(s).thenApply(result -> (Iterator) result);

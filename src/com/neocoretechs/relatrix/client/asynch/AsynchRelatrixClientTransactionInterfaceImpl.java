@@ -2108,6 +2108,11 @@ public abstract class AsynchRelatrixClientTransactionInterfaceImpl implements As
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement(getSession(),"setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+	@Override
 	public CompletableFuture<Void> rollbackToCheckpoint(Alias arg1,TransactionId arg2) {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement(getSession(),"rollbackToCheckpoint", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Void) result);

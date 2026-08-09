@@ -116,6 +116,7 @@ public final class RelatrixKVTransaction {
 	 * @param path
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void setAlias(Alias alias, String path) throws IOException {
 		DatabaseManager.setTableSpaceDir(alias, path);
 	}

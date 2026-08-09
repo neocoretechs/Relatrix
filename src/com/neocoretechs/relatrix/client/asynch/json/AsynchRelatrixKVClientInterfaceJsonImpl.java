@@ -202,6 +202,11 @@ public abstract class AsynchRelatrixKVClientInterfaceJsonImpl implements AsynchR
 
 	}
 	@Override
+	public CompletableFuture<Void> setAlias(Alias arg1) {
+		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "setAlias", arg1);
+		return queueCommand(s).thenApply(result -> (Void) result);
+	}
+	@Override
 	public CompletableFuture<Iterator> findHeadMap(Alias arg1,Object arg2) {
 		RelatrixKVStatementJson s = new RelatrixKVStatementJson(getSession(), "findHeadMap", arg1, arg2);
 		return queueCommand(s).thenApply(result -> (Iterator) result);

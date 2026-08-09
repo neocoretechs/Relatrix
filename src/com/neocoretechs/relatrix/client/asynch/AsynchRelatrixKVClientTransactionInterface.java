@@ -52,6 +52,8 @@ public interface AsynchRelatrixKVClientTransactionInterface extends com.neocoret
 	public CompletableFuture<Object> lastValue(TransactionId arg1,Class arg2);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<Stream> keySetStream(TransactionId arg1,Class arg2);
 

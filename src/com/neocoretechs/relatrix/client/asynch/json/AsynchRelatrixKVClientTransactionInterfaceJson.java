@@ -69,6 +69,8 @@ public interface AsynchRelatrixKVClientTransactionInterfaceJson extends com.neoc
 	public CompletableFuture<Stream> findSubMapStream(Alias arg1,TransactionId arg2,Object arg3,Object arg4);
 
 	public CompletableFuture<Void> setRelativeAlias(Alias arg1);
+	
+	public CompletableFuture<Void> setAlias(Alias arg1);
 
 	public CompletableFuture<Iterator> findTailMapKV(TransactionId arg1,Object arg2);
 

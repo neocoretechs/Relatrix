@@ -1690,6 +1690,15 @@ public abstract class RelatrixClientTransactionInterfaceImpl implements Relatrix
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixTransactionStatement s = new RelatrixTransactionStatement(getSession(),"setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Stream findSubStream(TransactionId arg1,Object arg2,Character arg3,Object arg4,Object arg5,Object arg6) throws java.io.IOException {
 		RelatrixTransactionStatement s = new RelatrixTransactionStatement(getSession(),"findSubStream", arg1, arg2, arg3, arg4, arg5, arg6);
 		try {

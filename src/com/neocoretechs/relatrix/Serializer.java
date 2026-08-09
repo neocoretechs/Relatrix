@@ -68,7 +68,8 @@ public class Serializer {
 				return super.resolveClass(desc);
 			}
 		}
-        @Override
+        @SuppressWarnings("deprecation")
+		@Override
         protected Class<?> resolveProxyClass(String[] interfaces) throws IOException, ClassNotFoundException {
             Class<?>[] intfs = new Class<?>[interfaces.length];
             for (int i = 0; i < interfaces.length; i++) {

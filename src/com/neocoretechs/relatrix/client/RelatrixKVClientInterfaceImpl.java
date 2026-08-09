@@ -222,6 +222,15 @@ public abstract class RelatrixKVClientInterfaceImpl implements RelatrixKVClientI
 		}
 	}
 	@Override
+	public void setAlias(Alias arg1) throws java.io.IOException {
+		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "setAlias", arg1);
+		try {
+			sendCommand(s);
+		} catch(Exception e) {
+			throw new java.io.IOException(e);
+		}
+	}
+	@Override
 	public Object nearest(Alias arg1,Comparable arg2) throws java.io.IOException {
 		RelatrixKVStatement s = new RelatrixKVStatement(getSession(), "nearest", arg1, arg2);
 		try {

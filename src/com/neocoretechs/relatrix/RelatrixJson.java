@@ -199,6 +199,7 @@ public final class RelatrixJson {
 	 * @param path
 	 * @throws IOException
 	 */
+	@ServerMethod
 	public static void setAlias(Alias alias, String path) throws IOException {
 		RelatrixKVJson.setAlias(alias, path);
 	}
