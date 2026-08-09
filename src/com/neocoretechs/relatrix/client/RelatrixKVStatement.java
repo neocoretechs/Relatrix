@@ -4,7 +4,7 @@ import java.io.Externalizable;
 import java.io.Serializable;
 
 import java.net.InetSocketAddress;
-
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -14,6 +14,7 @@ import com.neocoretechs.rocksack.KeyValue;
 
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
+
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -238,7 +239,8 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 				if(ric == null)
 					throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 				// Link the object instance to session for later method invocation
-				RelatrixKVServer.sessionToObject.put(ric.getSession(), result);
+				ric.setIteratorId(UUID.randomUUID());
+				RelatrixKVServer.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
 				setServerObjectReturn(ric);
 				signalCompletion(ric);
 			} else
@@ -261,6 +263,9 @@ public class RelatrixKVStatement implements Serializable, RelatrixStatementInter
 	@Override
 	public void setServerObjectReturn(Object o) {
 		objectReturn = 0;
+		this.paramArray = new Object[0];
+ 		this.paramTypes = new String[0];
+ 		this.params = new Class[0];
 	}
 
 	@Override

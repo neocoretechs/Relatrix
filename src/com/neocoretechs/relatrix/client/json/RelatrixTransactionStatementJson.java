@@ -4,12 +4,15 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.client.RelatrixTransactionStatementInterface;
+import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
+import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
 import com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
@@ -71,6 +74,7 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 		if(DEBUG)
 			System.out.println(this);
 		unpackParamArray();
+		setCompletionObject();
 		Object result = RelatrixTransactionServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -96,8 +100,10 @@ public class RelatrixTransactionStatementJson extends RelatrixStatementJson impl
 			}
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-			RelatrixTransactionServerJson.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixTransactionServerJson.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
+			setReturnClass(RemoteIteratorClient.class.getName());
+			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);

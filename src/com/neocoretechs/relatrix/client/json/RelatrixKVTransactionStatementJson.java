@@ -15,9 +15,11 @@ import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
 
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
+
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatement;
 import com.neocoretechs.relatrix.client.RelatrixKVTransactionStatementInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
+
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
 
 import com.neocoretechs.relatrix.server.json.RelatrixKVTransactionServerJson;
@@ -118,6 +120,7 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
+		setCompletionObject();
 		Object result = RelatrixKVTransactionServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -143,7 +146,6 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 				signalCompletion(getObjectReturn());
 				return;
 			}
-			RelatrixKVTransactionServerJson.sessionToObject.put(getSession(), result);
 			RemoteIteratorClientTransaction ric = null;
 			for(int ic = 0; ic < RelatrixKVTransactionServerJson.iteratorServerClasses.length; ic++) {
 				if(result.getClass() == RelatrixKVTransactionServerJson.iteratorServerClasses[ic]) {	
@@ -155,8 +157,9 @@ public class RelatrixKVTransactionStatementJson extends RelatrixKVTransactionSta
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
 			// Link the object instance to session for later method invocation
-			RelatrixKVTransactionServerJson.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixKVTransactionServerJson.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
+			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);

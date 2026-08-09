@@ -2,7 +2,7 @@ package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
 import java.io.Serializable;
-import java.net.InetAddress;
+
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.UUID;
@@ -12,8 +12,10 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.stream.SackStream;
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.TransactionId;
+
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
 import com.neocoretechs.relatrix.iterator.IteratorWrapper;
+
 import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 
 /**
@@ -80,6 +82,7 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 	public synchronized void process() throws Exception {
 		if(DEBUG)
 			System.out.println(this);
+		setCompletionObject();
 		Object result = RelatrixKVTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -105,7 +108,6 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 				signalCompletion(getObjectReturn());
 				return;
 			}
-			RelatrixKVTransactionServer.sessionToObject.put(getSession(), result);
 			RemoteIteratorClientTransaction ric = null;
 			if(result.getClass() == IteratorWrapper.class) {	
 				ric = new RemoteIteratorClientTransaction(xid, session, ((InetSocketAddress)RelatrixKVTransactionServer.address).getAddress().getHostName(), 
@@ -114,7 +116,8 @@ public class RelatrixKVTransactionStatement extends RelatrixKVStatement implemen
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			}
 			// Link the object instance to session for later method invocation
-			RelatrixKVTransactionServer.sessionToObject.put(ric.getSession(), result);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixKVTransactionServer.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {

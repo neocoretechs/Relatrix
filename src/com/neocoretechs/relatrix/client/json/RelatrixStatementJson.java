@@ -2,11 +2,16 @@ package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+
 import java.net.InetSocketAddress;
+
+import java.util.Iterator;
 import java.util.UUID;
 
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+
 import com.neocoretechs.relatrix.server.json.RelatrixServerJson;
+
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
 /**
@@ -45,6 +50,7 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 	@Override
 	public synchronized void process() throws Exception {
 		unpackParamArray();
+		setCompletionObject();
 		Object result = RelatrixServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -70,9 +76,10 @@ public class RelatrixStatementJson extends RelatrixKVStatementJson implements Se
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			// Link the object instance to session for later method invocation
-			RelatrixServerJson.sessionToObject.put(ric.getSession(), result);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixServerJson.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
 			setReturnClass(RemoteIteratorClient.class.getName());
-			setObjectReturn(ric);
+			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);

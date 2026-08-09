@@ -1,45 +1,34 @@
 package com.neocoretechs.relatrix.client.json;
 
 import java.io.Externalizable;
-import java.io.IOException;
+
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+
 import java.net.InetSocketAddress;
-import java.util.Arrays;
+
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
-import org.json.cbor.CborBuilder;
-import org.json.cbor.CborException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
-import com.neocoretechs.rocksack.Alias;
+
 import com.neocoretechs.rocksack.KeyValue;
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.rocksack.session.BufferedMap;
 import com.neocoretechs.rocksack.stream.SackStream;
 
 import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 
 import com.neocoretechs.relatrix.client.RelatrixStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
-import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
-import com.neocoretechs.relatrix.iterator.IteratorWrapper;
-import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
-import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
+import com.neocoretechs.relatrix.iterator.IteratorWrapper;
+
+import com.neocoretechs.relatrix.server.json.RelatrixKVServerJson;
 
 /**
  * The following class allows the transport of Relatrix method calls to the server, and on the server
@@ -136,6 +125,7 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 	public synchronized void process() throws Exception {
 		unpackParamArray();
 		setJsonParams();
+		setCompletionObject();
 		Object result = RelatrixKVServerJson.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -164,7 +154,6 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 				signalCompletion(getObjectReturn());
 				return;
 			}
-			RelatrixKVServerJson.sessionToObject.put(getSession(), result);
 			RemoteIteratorClient ric = null;
 			if(result.getClass() == IteratorWrapper.class) {
 				if( DEBUG ) {
@@ -178,8 +167,9 @@ public class RelatrixKVStatementJson extends RelatrixStatement implements Relatr
 			} else
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
 			// Link the object instance to session for later method invocation
-			RelatrixKVServerJson.sessionToObject.put(ric.getSession(), result);
-			setObjectReturn(ric);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixKVServerJson.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
+			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
 			setObjectReturn(result);

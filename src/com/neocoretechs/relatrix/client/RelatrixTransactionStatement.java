@@ -4,10 +4,16 @@ import java.io.Externalizable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.UUID;
 
 import com.neocoretechs.rocksack.TransactionId;
+
+import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.Relation;
+import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClientTransaction;
+
 import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
 
@@ -64,6 +70,7 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 		if(DEBUG)
 			System.out.println(this);
 		unpackParamArray();
+		setCompletionObject();
 		Object result = RelatrixTransactionServer.relatrixMethods.invokeMethod(this);
 		// See if we are dealing with an object that must be remotely maintained, e.g. iterator
 		// which does not serialize so we front it
@@ -89,10 +96,20 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			}
 			if(ric == null)
 				throw new Exception("Processing chain not set up to handle intermediary for non serializable object "+result);
-			RelatrixTransactionServer.sessionToObject.put(ric.getSession(), result);
+			ric.setIteratorId(UUID.randomUUID());
+			RelatrixTransactionServer.IteratorServerProcesses.setIterator(ric.getSession(), ric.getIteratorId(), (Iterator<?>) result);
 			setServerObjectReturn(ric);
 			signalCompletion(ric);
 		} else {
+			if(result instanceof AbstractRelation) {
+				resolve((Relation) result);
+			} else {
+				if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
+					Relation rel = (Relation) ((Result)result).get();
+					resolve(rel);
+					((Result)result).set(rel);
+				}
+			}
 			setServerObjectReturn(result);
 			signalCompletion(result);
 		}
