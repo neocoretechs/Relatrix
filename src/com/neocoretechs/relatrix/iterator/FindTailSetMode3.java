@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Find elements greater or equal to 'from' element.
@@ -31,7 +32,7 @@ public class FindTailSetMode3 extends FindSetMode3 {
 	 * @throws IOException
 	 */
     @Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
@@ -48,7 +49,7 @@ public class FindTailSetMode3 extends FindSetMode3 {
 	}
     
     @Override
- 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+ 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();

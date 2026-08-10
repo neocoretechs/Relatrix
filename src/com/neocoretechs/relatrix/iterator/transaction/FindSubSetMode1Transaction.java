@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 
@@ -19,12 +20,6 @@ import com.neocoretechs.rocksack.TransactionId;
  * API. <p>
  * * Legal permutations are:
  * *,*,[object],... <br>
- * *,?,[object],... <br>
- * ?,?,[object],... <br>
- * ?,*,[object],... <br>
- * The number of objects returned is the sum of the number of "?" PLUS the number of concrete object instances
- * specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
- * these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
  * @author Jonathan Groff Copyright (C) 2015 NeoCoreTechs
  *
  */
@@ -38,7 +33,7 @@ public class FindSubSetMode1Transaction extends FindSetMode1Transaction {
 	   }
 	   
 		@Override
-		protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+		protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 			AbstractRelation xdmr = null;
 			AbstractRelation ydmr = null;
 			try {
@@ -75,7 +70,7 @@ public class FindSubSetMode1Transaction extends FindSetMode1Transaction {
 		}
 
 		@Override
-		protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+		protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 			AbstractRelation xdmr = null;
 			AbstractRelation ydmr = null;
 			try {

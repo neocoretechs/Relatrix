@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 	/**
 	 * Abstract factory pattern to create the proper Relatrix iterator for set retrieval from the various flavors
@@ -24,42 +25,46 @@ import com.neocoretechs.relatrix.Relatrix;
 		 * Instantiates the proper subclass of {@link AbstractRelation}
 		 * to pass to the createRelatrixIterator method to act as a retrieval template for the proper sequence
 		 * of 'findSet' operators for each permutation.
+		 * @param ctx Context with IndexResolver
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		public abstract Iterator<?> createIterator() throws IllegalAccessException, IOException;
+		public abstract Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException;
 		
 		/**
 		* Create the iterator. Factory method, abstract. Instantiates the proper subclass of {@link AbstractRelation}
 		* to pass to the createRelatrixIterator method to act as a retrieval template for the proper sequence
 		* of 'findSet' operators for each permutation.
 		* @param alias the database alias
+		 * @param ctx Context with IndexResolver
 		* @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
 		* @throws IllegalAccessException
 		* @throws IOException
 		* @throws NoSuchElementException if the alias is not found
 		*/
-		public abstract Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException;
+		public abstract Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException;
 		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
 		 * @param tdmr the AbstractRelation template that defines the selection parameters for the iterator, created by createIterator
+		 * @param ctx Context with IndexResolver
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		protected abstract Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException;
+		protected abstract Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException;
 		
 		/**
 		 * Create the iterator. Factory method, abstract, subclass. Allows subclasses to create specific types of RelatrixIterator
 		 * @param alias the database alias
 		 * @param tdmr the AbstractRelation template that defines the selection parameters for the iterator
+		 * @param ctx Context with IndexResolver
 		 * @return RelatrixIterator subclass that returns {@link com.neocoretechs.relatrix.Result} tuples/morphisms
 		 * @throws IllegalAccessException
 		 * @throws IOException
 		 */
-		protected abstract Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException;
+		protected abstract Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException;
 		
 		/**
 		* Check operator for Relatrix Findset, determine legality return corresponding value for our dmr_return structure

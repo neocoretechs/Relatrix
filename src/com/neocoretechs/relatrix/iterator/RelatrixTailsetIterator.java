@@ -31,13 +31,10 @@ import com.neocoretechs.rocksack.Alias;
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
  * <p>
  * Here, the tailset is retrieved.<p>
- * The critical element about retrieving relationships is to remember that the number of elements from each passed
- * iteration of a {@link RelatrixIterator} is dependent on the number of "?" operators in a 'findSet'. For example,
- * if we declare findTailSet("*","?","*",[object | Class]) we get back a {@link com.neocoretechs.relatrix.Result1} of one element. 
- * For findTailSet("?",object,"?",[object | Class],[object | Class]) we
- * would get back a {@link com.neocoretechs.relatrix.Result2}, with each element containing the relationship returned.<br>
- * For each * wildcard or ? return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
- * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the ? or *, in the
+ * each passed
+ * iteration of a {@link RelatrixIterator} is dependent on a {@link com.neocoretechs.relatrix.Result1}. 
+ * For each * wildcard return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
+ * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the *, in the
  * case of a concrete instance, the ordered tailset from that instance (inclusive) to the end is returned or simply used to order
  * the proceeding element in the suffix as it pertains to the retrieved Morphisms in the case of an * wildcard. If a concrete instance 
  * occurs in one of the first 3 selectors, it indicates an exact match is desired.
@@ -86,13 +83,12 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
     	if(ExecutionContextHolder.CONTEXT.isBound()) {
     		ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
     		indexResolver = ctx.resolver();
     	} else {
     		indexResolver = new IndexResolver();
-    		indexResolver.setLocal();
     	}
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
@@ -243,7 +239,6 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     		indexResolver = ctx.resolver();
     	} else {
     		indexResolver = new IndexResolver();
-    		indexResolver.setLocal();
     	}
     	try {
     		Stream<?> dstream = null;

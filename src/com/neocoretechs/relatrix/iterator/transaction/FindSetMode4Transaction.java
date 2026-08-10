@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.iterator.FindSetMode4;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
@@ -32,27 +33,27 @@ public class FindSetMode4Transaction extends FindSetMode4 {
      *  @return The iterator for the returned set, each iterator return is {@link Result}
      */
 	@Override
-	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new Relation(true, null, xid, (Comparable)darg, null, null);
-		return createRelatrixIterator(dmr);
+		return createRelatrixIterator(dmr, ctx);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
+		return new RelatrixIteratorTransaction(xid, tdmr, dmr_return, ctx);
 	}
 	
 	/**
      *  @return The iterator for the returned set, each iterator return is a Result
      */
 	@Override
-	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new Relation(true, alias, xid, (Comparable)darg, null, null);
-		return createRelatrixIterator(alias, dmr);
+		return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-		return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
+		return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return, ctx);
 	}
 }

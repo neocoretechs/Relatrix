@@ -90,7 +90,6 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 			indexResolver = ctx.resolver();
 		} else {
 			indexResolver = new IndexResolver();
-			indexResolver.setLocal();
 		}
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
@@ -237,7 +236,6 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 			indexResolver = ctx.resolver();
 		} else {
 			indexResolver = new IndexResolver();
-			indexResolver.setLocal();
 		}
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,

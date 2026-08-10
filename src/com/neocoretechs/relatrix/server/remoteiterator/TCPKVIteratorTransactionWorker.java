@@ -106,12 +106,12 @@ public class TCPKVIteratorTransactionWorker implements Runnable {
 					Object result = relatrixKVIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixKVTransactionStatementInterface)iori).getTransactionId());
-						Relation.resolve((Relation) result);
-						result = TransportMorphism.createTransport((Relation)result);
+						Relation.resolve((AbstractRelation) result);
+						result = TransportMorphism.createTransport((AbstractRelation)result);
 					} else {
 						if(result instanceof Result) {
 							if(((Result)result).get() instanceof AbstractRelation) {
-								Relation rel = (Relation) ((Result)result).get();
+								AbstractRelation rel = (AbstractRelation) ((Result)result).get();
 								Relation.resolve(rel);
 								((Result)result).set(rel);
 							}

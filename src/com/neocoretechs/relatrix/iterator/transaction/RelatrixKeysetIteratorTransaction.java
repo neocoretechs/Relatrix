@@ -9,6 +9,9 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**
@@ -28,6 +31,12 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
      */
     public RelatrixKeysetIteratorTransaction(TransactionId xid, Class c) throws IOException {
     	this.xid = xid;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			indexResolver = ctx.resolver();
+		} else {
+			indexResolver = new IndexResolver();
+		}
     	try {
 			iter = RelatrixKVTransaction.entrySet(xid, c);
 		} catch (IllegalAccessException e) {
@@ -36,6 +45,7 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
@@ -61,6 +71,7 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
@@ -87,6 +98,7 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setResolver(indexResolver);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setTransactionId(xid);

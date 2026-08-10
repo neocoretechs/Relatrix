@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixJson;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
@@ -32,7 +33,7 @@ public class FindHeadSetMode2Json extends FindSetMode2Json {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
@@ -57,7 +58,7 @@ public class FindHeadSetMode2Json extends FindSetMode2Json {
 	}
 	
 	@Override
-	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();

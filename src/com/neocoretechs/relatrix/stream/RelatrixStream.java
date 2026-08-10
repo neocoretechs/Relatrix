@@ -30,6 +30,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * Implementation of the standard Stream interface which operates on Morphisms formed into a template.<p>
@@ -61,12 +62,13 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param template the {@link AbstractRelation} template
      * @param dmr_return the template {@link AbstractRelation} from which we extract the class to obtain a stream from {@link RelatrixKV}
+     * @param ctx Execution context with IndexResolver
      * @throws IOException 
      */
-    public RelatrixStream(AbstractRelation template, short[] dmr_return) throws IOException {
+    public RelatrixStream(AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	stream = new StreamHelper<T>(new RelatrixIterator(template, dmr_return));
+    	stream = new StreamHelper<T>(new RelatrixIterator(template, dmr_return, ctx));
     	if( DEBUG )
 			System.out.println("RelatrixStream "+stream+" BASELINE:"+base);
     }
@@ -79,13 +81,14 @@ public class RelatrixStream<T> implements Stream<T>, BaseIteratorAccessInterface
      * @param alias database alias
      * @param template the {@link AbstractRelation} template
      * @param dmr_return the template {@link AbstractRelation} from which we extract the class to obtain a stream from {@link RelatrixKV}
+     * @param ctx Execution context with IndexResolver
      * @throws IOException 
      * @throws NoSuchElementException if alias does not exist
      */
-    public RelatrixStream(Alias alias, AbstractRelation template, short[] dmr_return) throws IOException, NoSuchElementException {
+    public RelatrixStream(Alias alias, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException, NoSuchElementException {
     	this.dmr_return = dmr_return;
     	this.base = template;
-    	stream = new StreamHelper<T>(new RelatrixIterator(alias, template, dmr_return));
+    	stream = new StreamHelper<T>(new RelatrixIterator(alias, template, dmr_return, ctx));
     	if( DEBUG )
 			System.out.println("RelatrixStream alias:"+alias+" stream:"+stream+" template:"+base);
     }

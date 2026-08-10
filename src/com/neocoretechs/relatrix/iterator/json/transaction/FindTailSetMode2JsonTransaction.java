@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RelatrixJsonTransaction;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -33,7 +34,7 @@ public class FindTailSetMode2JsonTransaction extends FindSetMode2JsonTransaction
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
@@ -58,7 +59,7 @@ public class FindTailSetMode2JsonTransaction extends FindSetMode2JsonTransaction
 	}
 	
 	@Override
-	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();

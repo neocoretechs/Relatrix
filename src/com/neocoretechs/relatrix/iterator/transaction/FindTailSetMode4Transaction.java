@@ -7,15 +7,13 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 
 /**
 * Find the set of objects in the relation via the specified predicate greater or equal to 'from' element. Legal permutations are:<br>
 * [object],*,*,... <br>
-* [object],*,?,...  <br>
-* [object],?,?,...  <br>
-* [object],?,*,... <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindTailSetMode4Transaction extends FindSetMode4Transaction {
@@ -29,7 +27,7 @@ public class FindTailSetMode4Transaction extends FindSetMode4Transaction {
      *  @return The iterator for the returned set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	public Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
@@ -54,7 +52,7 @@ public class FindTailSetMode4Transaction extends FindSetMode4Transaction {
 	}
 	
 	@Override
-	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();

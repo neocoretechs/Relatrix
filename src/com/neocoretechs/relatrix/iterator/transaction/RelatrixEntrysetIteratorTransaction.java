@@ -9,9 +9,10 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
-
-
 
 /**
  * Implementation of the standard Iterator interface which operates on K/V keys
@@ -22,6 +23,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterator {
 	private static boolean DEBUG = false;
 	private TransactionId xid = null;
+	  private IndexResolver indexResolver;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param dmr_return
@@ -37,6 +39,13 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+					ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+					indexResolver = ctx.resolver();
+				} else {
+					indexResolver = new IndexResolver();
+				}
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
 			}
@@ -56,6 +65,13 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+					ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+					indexResolver = ctx.resolver();
+				} else {
+					indexResolver = new IndexResolver();
+				}
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
@@ -82,6 +98,7 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
+					((AbstractRelation)((Map.Entry)nextit).getKey()).setResolver(indexResolver);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setTransactionId(xid);

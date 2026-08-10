@@ -13,6 +13,9 @@ import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 import com.neocoretechs.rocksack.Alias;
@@ -55,12 +58,18 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			indexResolver = ctx.resolver();
+		} else {
+			indexResolver = new IndexResolver();
+		}
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
-
+       		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVTransaction.get(xid,template.getDomain());
     			if(dk != null) {
@@ -68,7 +77,8 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}    		
-    		} else
+    		} else {
+    	   		templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVTransaction.findTailMapKVStream(xid,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -88,6 +98,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVTransaction.get(xid,template.getMap());
     			if(mk != null) {
@@ -166,6 +177,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
+				buffer.setResolver(indexResolver);
 				buffer.setTransactionId(xid);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
@@ -187,11 +199,18 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+    	if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			indexResolver = ctx.resolver();
+		} else {
+			indexResolver = new IndexResolver();
+		}
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
+     		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVTransaction.get(alias,xid,template.getDomain());
     			if(dk != null) {
@@ -199,7 +218,8 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}    		
-    		} else
+    		} else {
+         		templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVTransaction.findTailMapKVStream(alias,xid,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -219,6 +239,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVTransaction.get(alias,xid,template.getMap());
     			if(mk != null) {
@@ -297,6 +318,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
+				buffer.setResolver(indexResolver);
 				buffer.setTransactionId(xid);
 				buffer.setAlias(alias);
 				buffer.setIdentity(dbkey);
@@ -344,6 +366,7 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 	    				nextit = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
+	    			nextit.setResolver(indexResolver);
     				nextit.setTransactionId(xid);
     				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {

@@ -20,8 +20,8 @@ import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.relatrix.server.RelatrixKVTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.json.RelatrixKVTransactionServerJson;
 
@@ -106,16 +106,16 @@ public class TCPKVIteratorTransactionWorkerJson implements Runnable {
 					Object result = relatrixKVIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixKVTransactionStatementInterface)iori).getTransactionId());
-						Relation.resolve((Relation) result);
-						result = TransportMorphism.createTransport((Relation)result);
+						Relation.resolve((AbstractRelation) result);
+						result = TransportMorphism.createTransport((AbstractRelation)result);
 					} else {
 						if(result instanceof Result) {
 							if(((Result)result).get() instanceof AbstractRelation) {
-								Relation rel = (Relation) ((Result)result).get();
+								AbstractRelation rel = (AbstractRelation) ((Result)result).get();
 								Relation.resolve(rel);
 								((Result)result).set(rel);
 							}
-							((Result) result).packForTransport();
+							((Result)result).packForTransport();
 						}
 					}
 					iori.setServerObjectReturn(result);

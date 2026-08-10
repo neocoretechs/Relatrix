@@ -49,7 +49,6 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 					indexResolver = ctx.resolver();
 				} else {
 					indexResolver = new IndexResolver();
-					indexResolver.setLocal();
 				}
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 			}
@@ -81,7 +80,6 @@ public class RelatrixEntrysetIterator implements Iterator<Comparable> {
 					indexResolver = ctx.resolver();
 				} else {
 					indexResolver = new IndexResolver();
-					indexResolver.setLocal();
 				}
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 			}

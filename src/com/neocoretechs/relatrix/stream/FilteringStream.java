@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.stream;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The attempt here is to provide a more customizable retrieval filter.
@@ -11,8 +12,8 @@ import com.neocoretechs.relatrix.AbstractRelation;
  */
 public abstract class FilteringStream<T> extends RelatrixStream<T> implements FilterInterface {
 	private AbstractRelation template;
-	public FilteringStream(AbstractRelation template, short[] dmr_return) throws IOException {
-		super(template, dmr_return);
+	public FilteringStream(AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
+		super(template, dmr_return, ctx);
 		this.template = template;
 	}
 

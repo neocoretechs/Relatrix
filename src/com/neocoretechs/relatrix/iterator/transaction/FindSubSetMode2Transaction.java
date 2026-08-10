@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RelatrixTransaction;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -14,13 +15,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * value. 
 * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br>
 * *,[object],*,... <br>
-* *,[object],?,... <br>
-* ?,[object],?,... <br>
-* ?,[object],*,... <br>
 *  <p>
-* The number of Comparable objects returned is the sum of the number of "?" PLUS the number of concrete object instances
-* specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
-* these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2022
 * 
 */
@@ -33,7 +28,7 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 		if(endarg.length < 2) throw new RuntimeException( "Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
     }
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		AbstractRelation ydmr = null;
 		try {
@@ -71,7 +66,7 @@ public class FindSubSetMode2Transaction extends FindSetMode2Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		AbstractRelation ydmr = null;
 		try {

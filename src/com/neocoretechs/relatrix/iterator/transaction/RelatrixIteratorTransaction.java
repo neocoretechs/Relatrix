@@ -14,6 +14,7 @@ import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 
@@ -46,118 +47,122 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
 	 * @param xid the transaction id
 	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
 	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+	 * @param ctx TODO
 	 * @throws IOException
 	 */
-    public RelatrixIteratorTransaction(TransactionId xid, AbstractRelation template, short[] dmr_return) throws IOException {
+    public RelatrixIteratorTransaction(TransactionId xid, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
+    	super(xid, template, dmr_return, ctx);
     	this.xid = xid;
-    	this.dmr_return = dmr_return;
-    	this.base = template;
-    	identity = isIdentity(this.dmr_return);
     	if(DEBUG)
     		System.out.printf("%s ctor xid:%s template:%s dmr_return:%s%n",this.getClass().getName(),xid,template,Arrays.toString(dmr_return));
+    }
+
+    @Override
+    protected void findTemplate(TransactionId xid, AbstractRelation template) throws IOException {
     	try {
-			iter = RelatrixKVTransaction.findTailMapKV(xid, template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
-			throw new IOException(e);
-		}
+    		iter = RelatrixKVTransaction.findTailMapKV(xid, template);
+    		if( iter.hasNext() ) {
+    			Map.Entry me = (Entry) iter.next();
+    			buffer = (AbstractRelation)me.getKey();
+    			buffer.setTransactionId(xid);
+    			buffer.setIdentity((DBKey) me.getValue());
+    			buffer.setResolver(indexResolver);
+    			if( !templateMatches(base, buffer, dmr_return) ) {
+    				buffer = null;
+    				needsIter = false;
+    			}
+    		} else {
+    			buffer = null;
+    			needsIter = false;
+    		}
+    	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+    		throw new IOException(e);
+    	}
+    }
+    /**
+     * Pass the array we use to indicate which values to return and element 0 counter
+     * @param alias
+     * @param xid the transaction id
+     * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
+     * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
+     * @param ctx TODO
+     * @throws IOException
+     */
+    public RelatrixIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
+    	super(alias, xid, template, dmr_return, ctx);
+    	this.xid = xid;
+    }
+
+    @Override
+    protected void findTemplate(Alias alias, TransactionId xid, AbstractRelation template) throws IOException {
+    	try {
+    		iter = RelatrixKVTransaction.findTailMapKV(alias, xid, template);
+    	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
+    		throw new IOException(e);
+    	}
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
-			buffer = (AbstractRelation) me.getKey();
-			buffer.setTransactionId(xid);
-			buffer.setIdentity((DBKey) me.getValue());
-			if( !templateMatches(base, buffer, dmr_return) ) {
-				buffer = null;
-				needsIter = false;
-			}
+    		buffer = (AbstractRelation)me.getKey();
+    		buffer.setTransactionId(xid);
+    		buffer.setAlias(alias);
+    		buffer.setIdentity((DBKey) me.getValue());
+    		buffer.setResolver(indexResolver);
+    		if( !templateMatches(base, buffer, dmr_return) ) {
+    			buffer = null;
+    			needsIter = false;
+    		}
     	} else {
     		buffer = null;
     		needsIter = false;
     	}
     	if( DEBUG )
-			System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
+    		System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
     }
-	/**
-	 * Pass the array we use to indicate which values to return and element 0 counter
-	 * @param alias
-	 * @param xid the transaction id
-	 * @param template the retrieval template with objects and nulls to fulfill initial retrieval parameters
-	 * @param dmr_return the retrieval template with operators indicating object, wildcard, tuple return
-	 * @throws IOException
-	 */
-    public RelatrixIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, short[] dmr_return) throws IOException {
-      	this.alias = alias;
-    	this.xid = xid;
-    	this.dmr_return = dmr_return;
-    	this.base = template;
-    	identity = isIdentity(this.dmr_return);
+    /**
+     * @return the xid
+     */
+    public TransactionId getTransactionId() {
+    	return xid;
+    }
+
+    @Override
+    @ServerMethod
+    public Result next() {
     	try {
-			iter = RelatrixKVTransaction.findTailMapKV(alias, xid, template);
-		} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
-			throw new IOException(e);
-		}
-    	if( iter.hasNext() ) {
-       		Map.Entry me = (Entry) iter.next();
-			buffer = (AbstractRelation)me.getKey();
-			buffer.setTransactionId(xid);
-			buffer.setAlias(alias);
-			buffer.setIdentity((DBKey) me.getValue());
-			if( !templateMatches(base, buffer, dmr_return) ) {
-				buffer = null;
-				needsIter = false;
-			}
-    	} else {
-    		buffer = null;
-    		needsIter = false;
+    		if( buffer == null || needsIter) {
+    			if( DEBUG ) {
+    				System.out.println(this.toString());
+    			}
+    			if( nextit != null )
+    				buffer = nextit;
+    			if( iter.hasNext()) {
+    				Map.Entry me = (Entry) iter.next();
+    				nextit = (AbstractRelation)me.getKey();
+    				nextit.setResolver(indexResolver);
+    				nextit.setIdentity((DBKey) me.getValue());
+    				nextit.setTransactionId(xid);
+    				if(alias != null)
+    					nextit.setAlias(alias);
+    				if( !templateMatches(base, nextit, dmr_return) ) {
+    					nextit = null;
+    					needsIter = false;
+    				}
+    			} else {
+    				nextit = null;
+    				needsIter = false;
+    			}
+    		}
+    		// always return using this with non null buffer
+    		if( DEBUG ) {
+    			System.out.println("RelatrixIteratorTransaction.next() template match after iteration "+this.toString());
+    		}
+    		return FindsetUtil.setResult(buffer);
+
+    	} catch (IllegalAccessException | IOException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
     	}
-    	if( DEBUG )
-			System.out.println("RelatrixIteratorTransaction Id:"+xid+" "+super.toString());
     }
-    
-	/**
-	 * @return the xid
-	 */
-	public TransactionId getTransactionId() {
-		return xid;
-	}
-	
-	@Override
-	@ServerMethod
-	public Result next() {
-		try {
-		if( buffer == null || needsIter) {
-			if( DEBUG ) {
-	    			System.out.println(this.toString());
-			}
-			if( nextit != null )
-				buffer = nextit;
-			
-			if( iter.hasNext()) {
-				Map.Entry me = (Entry) iter.next();
-				nextit = (AbstractRelation)me.getKey();
-				nextit.setIdentity((DBKey) me.getValue());
-				nextit.setTransactionId(xid);
-				if(alias != null)
-					nextit.setAlias(alias);
-				if( !templateMatches(base, nextit, dmr_return) ) {
-					nextit = null;
-					needsIter = false;
-				}
-			} else {
-				nextit = null;
-				needsIter = false;
-			}
-		}
-		// always return using this with non null buffer
-		if( DEBUG ) {
-			System.out.println("RelatrixIteratorTransaction.next() template match after iteration "+this.toString());
-		}
-		return FindsetUtil.setResult(buffer);
-		
-		} catch (IllegalAccessException | IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
     @Override
     public String toString() {
     	return this.getClass().getName()+":"+super.toString();

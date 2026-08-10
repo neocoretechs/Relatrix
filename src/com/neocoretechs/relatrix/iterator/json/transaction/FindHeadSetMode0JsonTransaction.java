@@ -9,6 +9,7 @@ import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * Find elements strictly less than 'to' target.
@@ -26,7 +27,7 @@ public class FindHeadSetMode0JsonTransaction extends FindSetMode0JsonTransaction
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
@@ -71,7 +72,7 @@ public class FindHeadSetMode0JsonTransaction extends FindSetMode0JsonTransaction
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();

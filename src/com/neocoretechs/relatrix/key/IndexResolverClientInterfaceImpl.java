@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.neocoretechs.relatrix.client.RelatrixKVStatement;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.rocksack.Alias;
-
+@Deprecated
 public abstract class IndexResolverClientInterfaceImpl implements IndexResolverClientInterface {
 	private static final long serialVersionUID = 1L;
 	private static boolean DEBUG = false;

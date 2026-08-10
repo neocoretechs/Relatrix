@@ -43,12 +43,12 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 	}
 
 	@Override
-	public TransportMorphism createTransport(Relation o) {
+	public TransportMorphism createTransport(AbstractRelation o) {
 		return TransportMorphism.createTransport(o);
 	}
 
 	@Override
-	public Relation createRelation(TransportMorphism o) {
+	public AbstractRelation createRelation(TransportMorphism o) {
 		return TransportMorphism.createMorphism(o);
 	}
 

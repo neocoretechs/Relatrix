@@ -216,7 +216,6 @@ public class RelatrixTransactionServer extends TCPServer {
 							uworker.stopWorker();
 				}              
 	           	IndexResolver indexResolver = new IndexResolver();
-        		indexResolver.setLocal();
         		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
     			// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPWorker(datasocket, pec, RelatrixKVTransaction.classLoader);

@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.iterator;
 import java.io.IOException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The attempt here is to provide a more customizable retrieval filter.
@@ -10,8 +11,8 @@ import com.neocoretechs.relatrix.AbstractRelation;
  */
 public abstract class FilteringIterator extends RelatrixIterator implements FilterInterface {
 	private AbstractRelation template;
-	public FilteringIterator(/*TransactionalTreeSet bts,*/ AbstractRelation template, short[] dmr_return) throws IOException {
-		super(/*bts,*/ template, dmr_return);
+	public FilteringIterator(/*TransactionalTreeSet bts,*/ AbstractRelation template, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
+		super(/*bts,*/ template, dmr_return, ctx);
 		this.template = template;
 	}
 	/**

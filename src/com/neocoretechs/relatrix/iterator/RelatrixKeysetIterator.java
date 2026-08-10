@@ -42,7 +42,6 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
 			indexResolver = ctx.resolver();
 		} else {
 			indexResolver = new IndexResolver();
-			indexResolver.setLocal();
 		}
     	try {
 			iter = RelatrixKV.entrySet(c);

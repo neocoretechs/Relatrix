@@ -43,6 +43,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
+@Deprecated
 public final class RemoteIndexInstanceTable implements IndexInstanceTableInterface {
 	public static boolean DEBUG = false;
 	private ClientInterface rc = null;

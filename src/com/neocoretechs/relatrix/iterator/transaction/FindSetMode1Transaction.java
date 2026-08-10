@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.iterator.FindSetMode1;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 
@@ -16,13 +17,7 @@ import com.neocoretechs.rocksack.TransactionId;
 * returning identity, 1 or 2 element Comparable array of tuples for each iteration of the retrieval.
 * Legal permutations are:
 * *,*,[object] <br>
-* *,?,[object] <br>
-* ?,?,[object] <br>
-* ?,*,[object] <br>
 * *,*,[TemplateClass] <br>
-* *,?,[TemplateClass] <br>
-* ?,?,[TemplateClass] <br>
-* ?,*,[TemplateClass] <br>
 * @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -38,25 +33,25 @@ public class FindSetMode1Transaction extends FindSetMode1 {
      *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new RangeDomainMap(true, null, xid, null, null, (Comparable)rarg);
-	    return createRelatrixIterator(dmr);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
+	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return, ctx);
 	}
 	
 	  /**
      *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new RangeDomainMap(true, alias, xid, null, null, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return, ctx);
 	}
 }

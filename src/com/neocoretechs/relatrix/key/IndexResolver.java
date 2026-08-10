@@ -29,6 +29,13 @@ public class IndexResolver {
 		return instanceTable;
 	}
 	
+	public IndexResolver() {
+		instanceTable = new IndexInstanceTable();
+	}
+	
+	public IndexResolver(boolean json) {
+		instanceTable = new IndexInstanceTableJson();
+	}
 	/**
 	 * Determine if the instance of this class will be operating on a local or remote resolver table.
 	 * By calling this, local is set to true, by default, it is also true. A new IndexInstanceTable is constructed with default ctor.
@@ -48,7 +55,5 @@ public class IndexResolver {
 		if(DEBUG)
 			System.out.println("IndexResolver setLocalJson instance table:"+instanceTable);
 	}
-	
-	
 
 }

@@ -13,15 +13,18 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
+
 import com.neocoretechs.relatrix.client.ConnectionHandler;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.RelatrixKVServer;
-import com.neocoretechs.relatrix.server.RelatrixServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 
 /**
@@ -103,12 +106,12 @@ public class TCPKVIteratorWorker implements Runnable {
 					//System.out.println(itInst+" class:"+itInst.getClass());
 					Object result = relatrixKVIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
-						Relation.resolve((Relation) result);
-						result = TransportMorphism.createTransport((Relation)result);
+						Relation.resolve((AbstractRelation) result);
+						result = TransportMorphism.createTransport((AbstractRelation)result);
 					} else {
 						if(result instanceof Result) {
 							if(((Result)result).get() instanceof AbstractRelation) {
-								Relation rel = (Relation) ((Result)result).get();
+								AbstractRelation rel = (AbstractRelation) ((Result)result).get();
 								Relation.resolve(rel);
 								((Result)result).set(rel);
 							}

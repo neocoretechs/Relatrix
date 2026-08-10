@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapRangeDomain;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Find the set of objects in the relation via the specified predicate. Mode 3 = findSet("?|*",object,object)
@@ -42,9 +43,9 @@ public class FindSetMode3 extends IteratorFactory {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new MapRangeDomain(true, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(dmr);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
@@ -53,17 +54,17 @@ public class FindSetMode3 extends IteratorFactory {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
-	    return new RelatrixIterator( tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
+	    return new RelatrixIterator( tdmr, dmr_return, ctx);
 	}
 	
 	   /**
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new MapRangeDomain(true, alias, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions
@@ -72,7 +73,7 @@ public class FindSetMode3 extends IteratorFactory {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIterator(alias, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixIterator(alias, tdmr, dmr_return, ctx);
 	}
 }

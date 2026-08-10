@@ -92,7 +92,6 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			indexResolver = ctx.resolver();
 		} else {
 			indexResolver = new IndexResolver();
-			indexResolver.setLocal();
 		}
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
@@ -238,7 +237,6 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 			indexResolver = ctx.resolver();
 		} else {
 			indexResolver = new IndexResolver();
-			indexResolver.setLocal();
 		}
     	try {
     		template.setResolver(indexResolver);
@@ -391,6 +389,7 @@ public class RelatrixHeadsetIterator implements Iterator<Result> {
 	    				nextit = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
+	    			nextit.setResolver(indexResolver);
     				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);

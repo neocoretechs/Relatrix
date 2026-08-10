@@ -1,7 +1,6 @@
 package com.neocoretechs.relatrix;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.rocksack.Alias;
@@ -22,7 +21,7 @@ import com.neocoretechs.rocksack.TransactionId;
 public class TransportMorphism implements Serializable, Comparable {
 	private static final long serialVersionUID = 654432956755099495L;
 	// AbstractRelation will store the keys to original AbstractRelation, domain, map, range instances are transient
-	private Relation abstractRelation;
+	private AbstractRelation abstractRelation;
 	private DBKey identity;
 	private Alias alias;
 	private TransactionId transactionId;
@@ -33,7 +32,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	protected DBKey mapKey;
 	protected Comparable range;
 	protected DBKey rangeKey;
-	private TransportMorphism(Relation abstractRelation) {
+	private TransportMorphism(AbstractRelation abstractRelation) {
 		this.abstractRelation = abstractRelation;
 		this.identity = abstractRelation.getIdentity();
 		this.alias = abstractRelation.getAlias();
@@ -48,7 +47,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	
 	public TransportMorphism() {}
 	
-	public static TransportMorphism createTransport(Relation result) {
+	public static TransportMorphism createTransport(AbstractRelation result) {
 		if(result == null)
 			return null;
 		TransportMorphism t = new TransportMorphism(result);
@@ -60,10 +59,10 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @param t The TransportMorphism to 'deserialize'
 	 * @return The Relation reconstituted
 	 */
-	public static Relation createMorphism(TransportMorphism t) {
+	public static AbstractRelation createMorphism(TransportMorphism t) {
 		if(t == null)
 			return null;
-		Relation m = t.getMorphism();
+		AbstractRelation m = t.getMorphism();
 		resolve(t,m);
 		return m;
 	}
@@ -72,7 +71,7 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * helper when we 'create' or 'resolve' morphisms from constituent elements
 	 * @return The abstractRelation field once populated
 	 */
-	private Relation getMorphism() {
+	private AbstractRelation getMorphism() {
 		if(abstractRelation.getIdentity() == null && identity != null)
 			abstractRelation.setIdentity(identity);
 		if(abstractRelation.getAlias() == null && alias != null)
@@ -93,15 +92,15 @@ public class TransportMorphism implements Serializable, Comparable {
 	 */
 	private static void resolve(AbstractRelation target, TransportMorphism newTransport) {
 		if(target.domain instanceof AbstractRelation) {
-			newTransport.setDomain(new TransportMorphism((Relation) target.domain));
+			newTransport.setDomain(new TransportMorphism((AbstractRelation) target.domain));
 			resolve((AbstractRelation) target.domain, newTransport);
 		}	
 		if(target.map instanceof AbstractRelation) {
-			newTransport.setMap(new TransportMorphism((Relation) target.map));
+			newTransport.setMap(new TransportMorphism((AbstractRelation) target.map));
 			resolve((AbstractRelation) target.map, newTransport);
 		}
 		if(target.range instanceof AbstractRelation) {
-			newTransport.setRange(new TransportMorphism((Relation) target.range));
+			newTransport.setRange(new TransportMorphism((AbstractRelation) target.range));
 			resolve((AbstractRelation) target.range, newTransport);
 		}
 	}

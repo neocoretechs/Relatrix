@@ -20,8 +20,8 @@ import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
-import com.neocoretechs.relatrix.server.RelatrixTransactionServer;
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.json.RelatrixTransactionServerJson;
 
@@ -103,12 +103,12 @@ public class TCPIteratorTransactionWorkerJson implements Runnable {
 					Object result = relatrixIteratorMethod.invokeMethod(iori, itInst);
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
-						Relation.resolve((Relation) result);
-						result = TransportMorphism.createTransport((Relation)result);
+						Relation.resolve((AbstractRelation) result);
+						result = TransportMorphism.createTransport((AbstractRelation)result);
 					} else {
 						if(result instanceof Result) {
 							if(((Result)result).get() instanceof AbstractRelation) {
-								Relation rel = (Relation) ((Result)result).get();
+								AbstractRelation rel = (AbstractRelation) ((Result)result).get();
 								Relation.resolve(rel);
 								((Result)result).set(rel);
 							}

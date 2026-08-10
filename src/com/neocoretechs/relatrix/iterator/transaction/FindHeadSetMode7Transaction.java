@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.AbstractRelation;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -12,7 +13,7 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
  * Mode 7, when all operators are present, equivalent of 'SELECT ALL', table scan etc.
  * We have an instance of 3 objects, we return the identity relationship objects from the beginning to this identity.
- * the argument acts as a wildcard (*) or a tuple (?) for instances of that
+ * the argument acts as a wildcard (*) for instances of that
  * class. The objects returned will be of type {@link Relation} subclass of {@link AbstractRelation}. 
  * Find elements strictly less than 'to' target.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021 
@@ -23,7 +24,7 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
@@ -32,7 +33,7 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();

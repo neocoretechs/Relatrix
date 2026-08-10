@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 public class Tuple implements TransportMorphismInterface, Serializable {
 	private static final long serialVersionUID = 1052848381620343834L;
 	private ArrayList<Comparable[]> tuples = new ArrayList<Comparable[]>();
-	private transient Relation relation = null;
+	private transient AbstractRelation relation = null;
 	private TransportMorphism transport = null;
 	/**
 	 * Prepare the initial primary relation for subsequent set of tuples
@@ -32,7 +32,7 @@ public class Tuple implements TransportMorphismInterface, Serializable {
 		tuples.add(tuple);
 	}
 	
-	public Tuple(Relation relation) {
+	public Tuple(AbstractRelation relation) {
 		this.relation = relation;
 	}
 	
@@ -51,7 +51,7 @@ public class Tuple implements TransportMorphismInterface, Serializable {
 	@Override
 	public void unpackFromTransport() {
 		if(transport != null)
-			relation = (Relation) createRelation(transport);
+			relation = (AbstractRelation) createRelation(transport);
 		for(Comparable[] c: tuples) {
 			for(int i = 0; i < c.length; i++) {
 				if(c[i].getClass() == TransportMorphism.class)
@@ -61,12 +61,12 @@ public class Tuple implements TransportMorphismInterface, Serializable {
 	}
 	
 	@Override
-	public TransportMorphism createTransport(Relation ar) {
+	public TransportMorphism createTransport(AbstractRelation ar) {
 		return TransportMorphism.createTransport(ar);
 	}
 	
 	@Override
-	public Relation createRelation(TransportMorphism tm) {
+	public AbstractRelation createRelation(TransportMorphism tm) {
 		return TransportMorphism.createMorphism(tm);
 	}
 	
@@ -84,7 +84,7 @@ public class Tuple implements TransportMorphismInterface, Serializable {
 		return tuples;
 	}
 	
-	public Relation getRelation() {
+	public AbstractRelation getRelation() {
 		return relation;
 	}
 }

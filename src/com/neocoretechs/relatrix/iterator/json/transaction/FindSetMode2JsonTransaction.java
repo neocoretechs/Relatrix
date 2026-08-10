@@ -8,6 +8,7 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.iterator.json.FindSetMode2Json;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -33,14 +34,14 @@ public class FindSetMode2JsonTransaction extends FindSetMode2Json {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new MapDomainRange(true, null, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		return createRelatrixIterator(dmr);
+		return createRelatrixIterator(dmr, null);
 	}
 	
     @Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		return new RelatrixIteratorJsonTransaction(xid, tdmr, dmr_return);	
 	}
     
@@ -48,14 +49,14 @@ public class FindSetMode2JsonTransaction extends FindSetMode2Json {
      * @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new MapDomainRange(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		return createRelatrixIterator(alias, dmr);
+		return createRelatrixIterator(alias, dmr, null);
 	}
 	
     @Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		return new RelatrixIteratorJsonTransaction(alias, xid, tdmr, dmr_return);	
 	}
 }

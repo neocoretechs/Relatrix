@@ -16,6 +16,9 @@ import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
 /**                                                                                                                                                                                                                                                                                                                                                                      
@@ -55,11 +58,18 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			indexResolver = ctx.resolver();
+		} else {
+			indexResolver = new IndexResolver();
+		}
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
     	try {
+    		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
        			DBKey dk = (DBKey) RelatrixKVTransaction.get(xid,template.getDomain());
     			if(dk != null) {
@@ -67,7 +77,8 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}
-    		} else
+    		} else {
+        		templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVTransaction.findHeadMapKVStream(xid,templateo.getDomain()).forEach(e -> {
     				DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -87,6 +98,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
        			DBKey mk = (DBKey) RelatrixKVTransaction.get(xid,template.getMap());
     			if(mk != null) {
@@ -164,6 +176,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(xid, dbkey); // primary DBKey for AbstractRelation
+				buffer.setResolver(indexResolver);
 				buffer.setTransactionId(xid);
 				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
@@ -189,7 +202,14 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
        	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
+      	if(ExecutionContextHolder.CONTEXT.isBound()) {
+    			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+    			indexResolver = ctx.resolver();
+    		} else {
+    			indexResolver = new IndexResolver();
+    		}
     	try {
+      		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
     			DBKey dk = (DBKey) RelatrixKVTransaction.get(alias,xid,template.getDomain());
     			if(dk != null) {
@@ -197,7 +217,8 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     				dkeyLo = dk;
     				dkeyHi = dk;
     			}
-    		} else
+    		} else {
+    	  		templateo.setResolver(indexResolver);
     			if(templateo.getDomain() != null) {
     				/*RelatrixKVTransaction.findHeadMapKVStream(alias,xid,templateo.getDomain()).forEach(e -> {
     					DBKey dkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -217,6 +238,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     					if (k.compareTo(dkeyHi) > 0) dkeyHi = k;
     				}
     			}
+    		}
     		if(template.getMap() != null) {
     			DBKey mk = (DBKey) RelatrixKVTransaction.get(alias,xid,template.getMap());
     			if(mk != null) {
@@ -251,7 +273,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     				rkeyLo = rk;
     				rkeyHi = rk;
     			}
-    		} else
+    		} else {
     			if(templateo.getRange() != null) {
     				/*RelatrixKVTransaction.findHeadMapKVStream(alias,xid,templateo.getRange()).forEach(e -> {
     					DBKey rkeys = ((Map.Entry<Comparable,DBKey>)e).getValue();
@@ -271,6 +293,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     					if (k.compareTo(rkeyHi) > 0) rkeyHi = k;
     				}
     			}
+    		}
     	} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException e) {
     		throw new IOException(e);
     	}
@@ -295,6 +318,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKVTransaction.get(alias, xid, dbkey); // primary DBKey for AbstractRelation
+				buffer.setResolver(indexResolver);
 				buffer.setAlias(alias);
 				buffer.setTransactionId(xid);
 				buffer.setIdentity(dbkey);
@@ -343,6 +367,7 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 	    				nextit.setAlias(alias);
 	    			}
     				nextit.setTransactionId(xid);
+    				nextit.setResolver(indexResolver);
     				nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);

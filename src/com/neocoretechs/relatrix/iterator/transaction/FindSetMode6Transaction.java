@@ -6,21 +6,20 @@ import java.util.NoSuchElementException;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.iterator.FindSetMode6;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 
 /**
-* Find the set of objects in the relation via the specified predicate. Mode 6 is for findSet(object,object,"?|*")
+* Find the set of objects in the relation via the specified predicate. 
 * where a 1 element Comparable array is returned from each iteration of the constructed iterator returned from findSet.
 * The array has either the identity where the first 2 objects are components of the relationship for each iterated element of the 
 * findSet, or the object functioning as the range (codomain) for each iteration where the first 2 objects are domain and
 * map.
 * Legal permutations are:<br>
 * [object],[object],* <br>
-* [object],[object],? <br>
 * [TemplateClass],[TemplateClass],* <br>
-* [TemplateClass],[TemplateClass],? <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -30,33 +29,32 @@ public class FindSetMode6Transaction extends FindSetMode6 {
     public FindSetMode6Transaction(TransactionId transactionId, Object darg, Object marg, char rop) { 	
     	super(darg, marg, rop);
     	this.xid = transactionId;
-    }
-    
+    }   
     /**
      *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator() throws IllegalAccessException, IOException {
+	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new Relation(true, null, xid, (Comparable)darg, (Comparable)marg, null);
-	    return createRelatrixIterator(dmr);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr)throws IllegalAccessException, IOException {
-	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx)throws IllegalAccessException, IOException {
+	    return new RelatrixIteratorTransaction(xid, tdmr, dmr_return, ctx);
 	}
 	
 	 /**
      *  @return Iterator for the set, each iterator return is a Comparable array of tuples of arity n=?'s
      */
 	@Override
-	public Iterator<?> createIterator(Alias alias) throws IllegalAccessException, IOException, NoSuchElementException {
+	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new Relation(true, alias, xid, (Comparable)darg, (Comparable)marg, null);
-	    return createRelatrixIterator(alias, dmr);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr)throws IllegalAccessException, IOException, NoSuchElementException {
-	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return);
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx)throws IllegalAccessException, IOException, NoSuchElementException {
+	    return new RelatrixIteratorTransaction(alias, xid, tdmr, dmr_return, ctx);
 	}
 }

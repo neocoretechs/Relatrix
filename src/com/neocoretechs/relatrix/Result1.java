@@ -71,12 +71,12 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	}
 	
 	@Override
-	public TransportMorphism createTransport(Relation ar) {
+	public TransportMorphism createTransport(AbstractRelation ar) {
 		return TransportMorphism.createTransport(ar);
 	}
 	
 	@Override
-	public Relation createRelation(TransportMorphism tm) {
+	public AbstractRelation createRelation(TransportMorphism tm) {
 		return TransportMorphism.createMorphism(tm);
 	}
 	

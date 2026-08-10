@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Mode 4.
@@ -30,7 +31,7 @@ public class FindSubSetMode4 extends FindSetMode4 {
 		if(endarg.length < 2) throw new RuntimeException("Wrong number of end range arguments for 'findSubSet', got "+endarg.length);
     }
 	@Override
-	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr) throws IllegalAccessException, IOException {
+	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation xdmr = null;
 		AbstractRelation ydmr = null;
 		try {
@@ -73,7 +74,7 @@ public class FindSubSetMode4 extends FindSetMode4 {
 	}
 
 	@Override
-	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr) throws IllegalAccessException, IOException, NoSuchElementException {
+	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation xdmr = null;
 		AbstractRelation ydmr = null;
 		try {

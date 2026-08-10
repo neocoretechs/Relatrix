@@ -199,7 +199,6 @@ public class RelatrixServer extends TCPServer {
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 	           	IndexResolver indexResolver = new IndexResolver();
-        		indexResolver.setLocal();
         		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
     			uworker = new TCPWorker(datasocket, pec, RelatrixKV.classLoader);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
