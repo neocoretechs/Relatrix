@@ -132,7 +132,7 @@ public class AsynchRelatrixClient extends AsynchRelatrixClientInterfaceImpl impl
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
-  	    		rs.setObjectReturn(o);
+  	    		//rs.setObjectReturn(o);
   	    		rs.signalCompletion(o);
   	    		if(DEBUG)
   	    			System.out.printf("%s ASYNC got cf=%x for rs=%x after complete, oClass=%s%n",this.getClass().getName(),System.identityHashCode(rs.getCompletionFuture()), System.identityHashCode(rs), o == null ? "null" : o.getClass().getName());

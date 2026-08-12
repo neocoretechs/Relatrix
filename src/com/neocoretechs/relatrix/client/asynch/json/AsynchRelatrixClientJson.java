@@ -111,7 +111,7 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
-  	    		rs.setObjectReturn(o);
+  	    		//rs.setObjectReturn(o);
   	    		// and signal the latch we have finished
   	    		if( DEBUG )
   	    			System.out.printf("%s Asynch signaling completion%n",this.getClass().getName());

@@ -1562,7 +1562,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static List<Comparable> findSet(TransactionId xid, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.findSet prepping to find:"+c);
+			System.out.println("RelatrixTransaction.findSet prepping to find:"+c+" xid:"+xid);
 		List<Comparable> located = new RelationList(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
@@ -1607,7 +1607,7 @@ public final class RelatrixTransaction {
 		}
 		keysToInstances(xid, dbkeys, located);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.findSet exiting");
+			System.out.println("RelatrixTransaction.findSet xid:"+xid+" exiting");
 		return located;
 	}
 	/**
@@ -1649,7 +1649,7 @@ public final class RelatrixTransaction {
 	private static void keysToInstances(TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
 		// should have unique list of dbkeys
 		if(DEBUG) {
-			System.out.println("Keys to Instances Size:"+dbkeys.size());
+			System.out.println("RelatrixTransaction keysToInstances xid:"+xid+" Size:"+dbkeys.size());
 			int i = 1;
 			for(DBKey dbks : dbkeys) {
 				System.out.println((i++)+".)"+get(xid, dbks));
@@ -1679,7 +1679,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static List<Comparable> findSet(Alias alias, TransactionId xid, Object c) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException {
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.findSet prepping to find:"+c);
+			System.out.println("RelatrixTransaction.findSet prepping to find:"+c+" alias:"+alias+" xid:"+xid);
 		List<Comparable> located = new RelationList(); //Collections.synchronizedList(new ArrayList<DBKey>());
 		List<DBKey> dbkeys = new ArrayList<DBKey>();
 		DBKey dbk = null;
@@ -1730,7 +1730,7 @@ public final class RelatrixTransaction {
 		// should have unique list of dbkeys
 		keysToInstances(alias, xid, dbkeys, located);
 		if( DEBUG || DEBUGREMOVE )
-			System.out.println("Relatrix.findSet exiting");
+			System.out.println("RelatrixTransaction.findSet alias:"+alias+" xid:"+xid+" exiting");
 		return located;
 	}
 	/**
@@ -1772,7 +1772,7 @@ public final class RelatrixTransaction {
 	private static void keysToInstances(Alias alias, TransactionId xid, List<DBKey> dbkeys, List<Comparable> instances) throws IllegalAccessException, IOException {
 		// should have unique list of dbkeys
 		if(DEBUG) {
-			System.out.println("Keys to Instances Size:"+dbkeys.size());
+			System.out.println("RelatrixTransaction keyToInstances alias:"+alias+" xid:"+xid+" Size:"+dbkeys.size());
 			int i = 1;
 			for(DBKey dbks : dbkeys) {
 				System.out.println((i++)+".)"+alias+" "+xid+" "+dbks);
@@ -1786,9 +1786,16 @@ public final class RelatrixTransaction {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
 				((AbstractRelation)cx).setTransactionId(xid);
+				((AbstractRelation)cx).getDomain();
+				((AbstractRelation)cx).getMap();
+				((AbstractRelation)cx).getRange();
 			}
+			if(DEBUG)
+				System.out.println(cx);
 			instances.add((Comparable) cx);
 		}
+		if(DEBUG)
+			System.out.println("==========");
 	}
 	
 	/**

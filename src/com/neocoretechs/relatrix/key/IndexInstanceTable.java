@@ -376,9 +376,19 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		if(semaphore.get() > 0)
 			throw writeException;
 	}
-	
+	/**
+	 * Given a Relation with only instance fields, perform a retrieval of {@link PrimaryKeySet}
+	 * then do a getKey on the range element. IOW fill in key values, including identity,
+	 * given only instance fields.
+	 * @param relation the target with instance fields populated
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	public static void resolve(AbstractRelation relation) throws IllegalAccessException, ClassNotFoundException, IOException {
 		if(relation.identity == null) {
+			//if(DEBUG)
+				System.out.printf("IndexInstanceTable.resolve for Relation:%s%n", relation);
 			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
 			PrimaryKeySet pk = null;
 			if(relation.alias != null) {

@@ -2,8 +2,6 @@ package com.neocoretechs.relatrix.key;
 
 import java.io.IOException;
 
-import com.neocoretechs.relatrix.client.ClientInterface;
-import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
 
 /**

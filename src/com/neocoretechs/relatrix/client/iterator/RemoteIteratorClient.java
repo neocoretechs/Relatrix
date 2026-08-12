@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
+import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.client.RelatrixStatementInterface;
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 
@@ -167,7 +168,7 @@ public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements
 	            if (o instanceof Throwable) 
 	            	completionObject.completeExceptionally((Throwable) o);
 	            else 
-	            	completionObject.complete(o);
+	            	completionObject.complete(unpackFromTransport(o));
 	        } catch (Throwable t) {
 	            // Ensure caller doesn't hang if complete throws
 	            try { 
@@ -185,19 +186,24 @@ public class RemoteIteratorClient extends RemoteIteratorInterfaceImpl implements
 
 	@Override
 	public void setObjectReturn(Object o) {
-		objectReturn = o;
+		objectReturn = unpackFromTransport(o);
 		if( DEBUG )
 			System.out.printf("%s.setObjectReturn FROM Remote, from remote node:%s remote port:%s return object:%s%n",this.getClass().getName(),remoteNode,String.valueOf(remotePort),objectReturn);
-		if(objectReturn == TransportMorphism.class)
-			objectReturn = TransportMorphism.createMorphism((TransportMorphism) objectReturn);
-		else
-			if(objectReturn instanceof Result)
-				((Result)objectReturn).unpackFromTransport();
-			else
-				if(objectReturn instanceof Exception ) {
-					System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
-					objectReturn = ((Throwable)objectReturn).getCause();
-				}
+	}
+	
+	private Object unpackFromTransport(Object o) {
+		Object oReturn = o;
+		switch(o) {
+		case TransportMorphism _ -> oReturn = TransportMorphism.createMorphism((TransportMorphism) o);
+		case Result _ -> ((Result)oReturn).unpackFromTransport();
+		case TransportMorphismInterface _ -> ((TransportMorphismInterface)oReturn).unpackFromTransport();
+		case Exception _ -> {
+			System.out.println(this.getClass().getName()+" ******** REMOTE EXCEPTION ******** "+o);
+			oReturn = ((Throwable)oReturn).getCause();
+		}
+		default -> { break; }
+		}
+		return oReturn;
 	}
 	@Override
 	public void setServerObjectReturn(Object o) {

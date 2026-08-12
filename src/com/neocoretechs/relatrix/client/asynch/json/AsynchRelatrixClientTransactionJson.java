@@ -106,7 +106,6 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
   	    try {
   	    	while(shouldRun ) {
   	    		RelatrixTransactionStatementInterface rs = queuedRequests.takeFirstNotify();
-  	    		Object cf = rs.getCompletionObject();
   	    		workerHandler.sendObject(rs);
   	    		RemoteResponseInterface iori = (RemoteResponseInterface) workerHandler.readObject();
   	    		// get the original request from the stored table
@@ -128,7 +127,7 @@ public class AsynchRelatrixClientTransactionJson extends AsynchRelatrixClientTra
   	    		}
   	    		// We have the request after its session round trip, get it from outstanding waiters and signal
   	    		// set it with the response object
-  	    		rs.setObjectReturn(o);
+  	    		//rs.setObjectReturn(o);
   	    		// and signal the latch we have finished
   	    		rs.signalCompletion(o);
   	    	}

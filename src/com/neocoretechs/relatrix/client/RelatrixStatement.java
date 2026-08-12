@@ -310,7 +310,13 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 
 	@Override
 	public void setServerObjectReturn(Object o) {
-		objectReturn = o;
+		if(o instanceof AbstractRelation) {
+			objectReturn = TransportMorphism.createTransport((Relation) o);
+		} else {
+			if(o instanceof TransportMorphismInterface)
+				((TransportMorphismInterface)o).packForTransport();
+			objectReturn = o;
+		}
 		this.paramArray = new Object[0];
  		this.paramTypes = new String[0];
  		this.params = new Class[0];
