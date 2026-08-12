@@ -1216,10 +1216,10 @@ public final class Relatrix {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			//AbstractRelation.resolve((Comparable) get(dbks), located);
 			Object cx = get(dbks);
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}
@@ -1333,11 +1333,11 @@ public final class Relatrix {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			//AbstractRelation.resolve((Comparable) get(dbks), located);
 			Object cx = get(alias, dbks);
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}

@@ -1662,6 +1662,7 @@ public final class RelatrixTransaction {
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setTransactionId(xid);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}
@@ -1780,15 +1781,12 @@ public final class RelatrixTransaction {
 			System.out.println("==========");
 		}
 		for(DBKey dbks : dbkeys) {
-			//AbstractRelation.resolve((Comparable) get(alias, xid, dbks), located);
 			Object cx = get(alias, xid, dbks);
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
 				((AbstractRelation)cx).setTransactionId(xid);
-				((AbstractRelation)cx).getDomain();
-				((AbstractRelation)cx).getMap();
-				((AbstractRelation)cx).getRange();
+				Relation.resolve((AbstractRelation) cx);
 			}
 			if(DEBUG)
 				System.out.println(cx);

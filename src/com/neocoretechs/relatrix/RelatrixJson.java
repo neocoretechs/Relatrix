@@ -1409,6 +1409,7 @@ public final class RelatrixJson {
 			Object cx = get(dbks);
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}
@@ -1526,6 +1527,7 @@ public final class RelatrixJson {
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}

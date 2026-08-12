@@ -1860,6 +1860,7 @@ public final class RelatrixJsonTransaction {
 			if(cx instanceof AbstractRelation) {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setTransactionId(xid);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}
@@ -1979,6 +1980,7 @@ public final class RelatrixJsonTransaction {
 				((AbstractRelation)cx).setIdentity(dbks);
 				((AbstractRelation)cx).setAlias(alias);
 				((AbstractRelation)cx).setTransactionId(xid);
+				Relation.resolve((AbstractRelation) cx);
 			}
 			instances.add((Comparable) cx);
 		}
