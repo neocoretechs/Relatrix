@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.client;
 
 import java.io.Externalizable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
+import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.server.RelatrixServer;
 
 import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
@@ -32,7 +34,7 @@ import com.neocoretechs.relatrix.stream.BaseIteratorAccessInterface;
  *
  */
 public class RelatrixStatement implements Serializable, RelatrixStatementInterface {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
     static final long serialVersionUID = 8649844374668828845L;
     protected UUID session = null;
     protected UUID iteratorId;
@@ -142,17 +144,6 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 		completionObject = new CompletableFuture<Object>();
 	}
 
-	/*@Override
-	public synchronized void signalCompletion(Object o) {
-		if(o != null)
-	    	if (o instanceof Throwable) 
-	    		((CompletableFuture)completionObject).completeExceptionally((Throwable)o);
-	    	else
-	    		((CompletableFuture)completionObject).complete(o);
-		if(DEBUG)
-			System.out.printf("%s.signalCompletion%n", this.getClass().getName());
-	    completionLatch.countDown();
-	}*/
 	@Override
 	public void signalCompletion(Object o) {
 	    // Capture state under lock, but do not complete the CF while holding the lock
@@ -203,7 +194,7 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 			if(objectReturn != null && objectReturn.getClass() == TransportMorphism.class)
 				objectReturn = TransportMorphism.createMorphism((TransportMorphism)objectReturn);
 		if(DEBUG)
-			System.out.printf("%s.getObjectReturn returning class %s%n", this.getClass().getName(), objectReturn.getClass().getName());
+			System.out.printf("%s.getObjectReturn %s%n", this.getClass().getName(), objectReturn);
 		return objectReturn;
 	}
 	
@@ -211,9 +202,14 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
     	for(int i = 0; i < paramArray.length; i++) {
     		if(paramArray[i] instanceof AbstractRelation) {
     			paramArray[i] = TransportMorphism.createTransport((Relation) paramArray[i]);
+    		 	if(DEBUG)
+    				System.out.printf("%s.packParamArray was AbstractRelation %d.) %s%n", this.getClass().getName(),i,paramArray[i]);
     		} else {
-    			if(paramArray[i] instanceof TransportMorphismInterface)
-        			((TransportMorphismInterface)paramArray[i]).packForTransport();;
+    			if(paramArray[i] instanceof TransportMorphismInterface) {
+        			((TransportMorphismInterface)paramArray[i]).packForTransport();
+        		 	if(DEBUG)
+        				System.out.printf("%s.packParamArray was instanceof TransportMorphismInterface %d.) %s%n", this.getClass().getName(),i,paramArray[i]);
+    			}
     		}
     	}
     	if(DEBUG)
@@ -221,13 +217,27 @@ public class RelatrixStatement implements Serializable, RelatrixStatementInterfa
 	}
 	
 	protected void unpackParamArray() {
-		for(int i = 0; i < paramArray.length; i++)
+		for(int i = 0; i < paramArray.length; i++) {
 			if(paramArray[i] != null && paramArray[i].getClass() == TransportMorphism.class) {
 				paramArray[i] = TransportMorphism.createMorphism((TransportMorphism)paramArray[i]);
+				if(paramArray[i] instanceof AbstractRelation && ((AbstractRelation)paramArray[i]).getIdentity() == null) {
+					try {
+						IndexInstanceTable.resolve((AbstractRelation)paramArray[i]);
+					} catch (IllegalAccessException | ClassNotFoundException | IOException e) {
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
+				}		
+			 	if(DEBUG)
+    				System.out.printf("%s.unpackParamArray was TransportMorphism.class %d.) %s%n", this.getClass().getName(),i,paramArray[i]);
 			} else {
-				if(paramArray[i] instanceof TransportMorphismInterface)
+				if(paramArray[i] instanceof TransportMorphismInterface) {
 					((TransportMorphismInterface)paramArray[i]).unpackFromTransport();
+				 	if(DEBUG)
+	    				System.out.printf("%s.unpackParamArray was instanceof TransportMorphismInterface %d.) %s%n", this.getClass().getName(),i,paramArray[i]);
+				}
 			}
+		}
 	 	if(DEBUG)
 			System.out.printf("%s.unpackParamArray%n", this.getClass().getName());
 	}

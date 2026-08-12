@@ -23,7 +23,7 @@ import com.neocoretechs.relatrix.key.DBKey;
 
 /**
  * Helper routines to be used with headset, subset, tailset to populate a TreeMap with DBKeys ordered by indexes in 
- * three arraylists designated dkey, mkey and rkey for domain key, map key and range key, from a range of Morphisms.<p/>
+ * three arraylists designated dkey, mkey and rkey for domain key, map key and range key, from a range of Morphisms.<p>
  * The Morphisms are designated by xdmr lower bound inclusive to ydmr upper bound inclusive. The order is created by using the
  * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
  * retrieved from the given range in each of the 3 arrays formed into a Result3 used as key in the TreeMap. The TreeMap then
@@ -278,8 +278,8 @@ public class FindsetUtil {
 		r.set(buffer);
 		return r;
     }
-    
-	public static class Result2 extends Result1 implements Comparable, Serializable, Cloneable{
+
+	private static class Result2 extends Result1 implements Comparable, Serializable, Cloneable{
 		private static final long serialVersionUID = 3809564271332319041L;
 		protected Comparable two;	
 		public Result2() {}	
@@ -379,7 +379,8 @@ public class FindsetUtil {
 			return builder.toString();
 		}	
 	}
-	public static class Result3 extends Result2 implements Cloneable, Comparable, Serializable {
+    
+	private static final class Result3 extends Result2 implements Cloneable, Comparable, Serializable {
 		private static final long serialVersionUID = -8927948682023792282L;
 		private Comparable three;
 		public Result3() {}	

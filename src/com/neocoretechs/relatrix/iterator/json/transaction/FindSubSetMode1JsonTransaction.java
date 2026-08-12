@@ -19,12 +19,6 @@ import com.neocoretechs.rocksack.TransactionId;
  * API. <p>
  * * Legal permutations are:
  * *,*,[object],... <br>
- * *,?,[object],... <br>
- * ?,?,[object],... <br>
- * ?,*,[object],... <br>
- * The number of objects returned is the sum of the number of "?" PLUS the number of concrete object instances
- * specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
- * these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
  * @author Jonathan Groff Copyright (C) 2015,2026 NeoCoreTechs
  *
  */

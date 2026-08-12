@@ -14,6 +14,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.rocksack.KeyValue;
@@ -374,6 +375,28 @@ public final class IndexInstanceTable implements IndexInstanceTableInterface {
 		}
 		if(semaphore.get() > 0)
 			throw writeException;
+	}
+	
+	public static void resolve(AbstractRelation relation) throws IllegalAccessException, ClassNotFoundException, IOException {
+		if(relation.identity == null) {
+			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
+			PrimaryKeySet pk = null;
+			if(relation.alias != null) {
+				if(relation.transactionId != null)
+					pk = PrimaryKeySet.locate(relation.alias, relation.transactionId, relation.getDomain(), relation.getMap(), ctx);
+				else
+					pk = PrimaryKeySet.locate(relation.alias, relation.getDomain(), relation.getMap(), ctx); 
+			} else {
+				if(relation.transactionId != null)
+					pk = PrimaryKeySet.locate(relation.transactionId, relation.getDomain(), relation.getMap(), ctx);
+				else
+					pk = PrimaryKeySet.locate(relation.getDomain(), relation.getMap(), ctx); 
+			}
+			relation.identity = pk.identity;
+			relation.domainKey = pk.domainKey;
+			relation.mapKey = pk.mapKey;
+			relation.rangeKey = ctx.resolver().instanceTable.getKey(relation.getRange());
+		}
 	}
 	/**
 	 * Get the instance contained in the passed DBKey

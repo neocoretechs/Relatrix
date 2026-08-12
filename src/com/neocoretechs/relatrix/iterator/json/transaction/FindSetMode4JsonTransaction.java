@@ -13,17 +13,10 @@ import com.neocoretechs.rocksack.Alias;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
-* This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
-* for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
+* This variation accommodates findSet(object,"*","*")  domain functions as the domain in the retrieved relationships.
 * Legal permutations are:<br>
 * [object],*,* <br>
-* [object],*,?  <br>
-* [object],?,?  <br>
-* [object],?,* <br>
 * [TemplateClass],*,* <br>
-* [TemplateClass],*,? <br>
-* [TemplateClass],?,? <br>
-* [TemplateClass],?,* <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -41,7 +34,7 @@ public class FindSetMode4JsonTransaction extends FindSetMode4Json {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new Relation(true, null, xid, (Comparable)darg, null, null);
-		return createRelatrixIterator(dmr, null);
+		return createRelatrixIterator(dmr, ctx);
 	}
 	
 	@Override
@@ -55,7 +48,7 @@ public class FindSetMode4JsonTransaction extends FindSetMode4Json {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new Relation(true, alias, xid, (Comparable)darg, null, null);
-		return createRelatrixIterator(alias, dmr, null);
+		return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	@Override

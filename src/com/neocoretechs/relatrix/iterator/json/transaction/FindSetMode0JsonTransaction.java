@@ -40,7 +40,7 @@ public class FindSetMode0JsonTransaction extends FindSetMode0Json {
  		AbstractRelation dmr = new Relation(true, null, xid, null, null, null);
  		if( DEBUG  )
  			System.out.printf("%s.createIterator xid=%s setting search for %s%n",this.getClass().getName(),xid,dmr);
- 	    return createRelatrixIterator(dmr, null);
+ 	    return createRelatrixIterator(dmr, ctx);
  	}
  	
     /**
@@ -51,7 +51,7 @@ public class FindSetMode0JsonTransaction extends FindSetMode0Json {
  		AbstractRelation dmr = new Relation(true, alias, xid, null, null, null);
  		if( DEBUG  )
  			System.out.printf("%s.createIterator xid=%s alias=%s setting search for %s%n",this.getClass().getName(),xid,alias,dmr);
- 	    return createRelatrixIterator(alias, dmr, null);
+ 	    return createRelatrixIterator(alias, dmr, ctx);
  	}
  	
 	@Override

@@ -16,8 +16,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixSubsetIterator;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -54,21 +53,17 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
+     * @param ctx TODO
      * @throws IOException
      */
-    public RelatrixSubsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
       	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
       	this.xid = xid;
     	this.dmr_return = dmr_return;
        	this.base = template;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+       	this.indexResolver = ctx.resolver();
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -202,21 +197,17 @@ public class RelatrixSubsetIteratorTransaction extends RelatrixSubsetIterator {
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
+     * @param ctx TODO
      * @throws IOException
      */
-    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.alias = alias;
       	this.xid = xid;
     	this.dmr_return = dmr_return;
        	this.base = template;
-    	if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
+       	this.indexResolver = ctx.resolver();
     	identity = RelatrixIterator.isIdentity(this.dmr_return);
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element

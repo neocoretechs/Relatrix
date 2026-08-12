@@ -64,9 +64,9 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     		if( iter.hasNext() ) {
     			Map.Entry me = (Entry) iter.next();
     			buffer = (AbstractRelation)me.getKey();
+     			buffer.setResolver(indexResolver);
     			buffer.setTransactionId(xid);
     			buffer.setIdentity((DBKey) me.getValue());
-    			buffer.setResolver(indexResolver);
     			if( !templateMatches(base, buffer, dmr_return) ) {
     				buffer = null;
     				needsIter = false;
@@ -103,10 +103,10 @@ public class RelatrixIteratorTransaction extends RelatrixIterator {
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
     		buffer = (AbstractRelation)me.getKey();
+    		buffer.setResolver(indexResolver);
     		buffer.setTransactionId(xid);
     		buffer.setAlias(alias);
     		buffer.setIdentity((DBKey) me.getValue());
-    		buffer.setResolver(indexResolver);
     		if( !templateMatches(base, buffer, dmr_return) ) {
     			buffer = null;
     			needsIter = false;

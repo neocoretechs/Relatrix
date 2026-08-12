@@ -13,17 +13,11 @@ import com.neocoretechs.rocksack.TransactionId;
 
 
 /**
-* Find the set of objects in the relation via the specified predicate. Mode 1 = findset("*|?","*|?",object)
+* Find the set of objects in the relation via the specified predicate. Mode 1 = findset('*','*',object)
 * returning identity, 1 or 2 element Comparable array of tuples for each iteration of the retrieval.
 * Legal permutations are:
 * *,*,[object] <br>
-* *,?,[object] <br>
-* ?,?,[object] <br>
-* ?,*,[object] <br>
 * *,*,[TemplateClass] <br>
-* *,?,[TemplateClass] <br>
-* ?,?,[TemplateClass] <br>
-* ?,*,[TemplateClass] <br>
 * @author Jonthan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -41,7 +35,7 @@ public class FindSetMode1JsonTransaction extends FindSetMode1Json {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new RangeDomainMap(true, null, xid, null, null, (Comparable)rarg);
-	    return createRelatrixIterator(dmr, null);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
@@ -54,7 +48,7 @@ public class FindSetMode1JsonTransaction extends FindSetMode1Json {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new RangeDomainMap(true, alias, xid, null, null, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr, null);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {

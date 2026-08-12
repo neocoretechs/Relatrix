@@ -47,7 +47,7 @@ public class TCPIteratorTransactionWorkerJson implements Runnable {
 	
     public TCPIteratorTransactionWorkerJson(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket, classLoader, null);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader);
     	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
     	if(relatrixIteratorMethod == null) {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);

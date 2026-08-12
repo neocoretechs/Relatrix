@@ -34,7 +34,7 @@ import com.neocoretechs.relatrix.server.ServerInvokeMethod;
  *
  */
 public class TCPIteratorTransactionWorker implements Runnable {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static boolean TEST = false;
 	
 	public volatile boolean shouldRun = true;
@@ -48,14 +48,14 @@ public class TCPIteratorTransactionWorker implements Runnable {
 	
     public TCPIteratorTransactionWorker(SocketChannel datasocket, String iteratorClass, ClassLoader classLoader) throws IOException, ClassNotFoundException {
     	workerSocket = datasocket;
-    	workerHandler = new ConnectionHandler(datasocket, classLoader, null);
+    	workerHandler = new ConnectionHandler(datasocket, classLoader);
     	relatrixIteratorMethod = relatrixIteratorMethods.get(iteratorClass);
     	if(relatrixIteratorMethod == null) {
     		relatrixIteratorMethod = new ServerInvokeMethod(iteratorClass,0);
     		relatrixIteratorMethods.put(iteratorClass,relatrixIteratorMethod);
     	}
 		if(DEBUG) {
-			System.out.printf("%s with params datasocket:%s, handler:%s%n", this.getClass().getName(), workerHandler); 
+			System.out.printf("%s with handler:%s%n", this.getClass().getName(), workerHandler); 
 		}
 	}
 	
@@ -105,12 +105,18 @@ public class TCPIteratorTransactionWorker implements Runnable {
 					if(result instanceof AbstractRelation) {
 						((AbstractRelation)result).setTransactionId(((RelatrixTransactionStatementInterface)iori).getTransactionId());
 						Relation.resolve((AbstractRelation) result);
+						if( DEBUG ) {
+							System.out.println(this.getClass().getName()+" resolved:"+result);
+						}
 						result = TransportMorphism.createTransport((AbstractRelation)result);
 					} else {
 						if(result instanceof Result) {
 							if(((Result)result).get() instanceof AbstractRelation) {
 								AbstractRelation rel = (AbstractRelation) ((Result)result).get();
 								Relation.resolve(rel);
+								if( DEBUG ) {
+									System.out.println(this.getClass().getName()+" resolved:"+rel);
+								}
 								((Result)result).set(rel);
 							}
 							((Result) result).packForTransport();

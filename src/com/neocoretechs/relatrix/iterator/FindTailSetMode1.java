@@ -45,7 +45,7 @@ public class FindTailSetMode1 extends FindSetMode1 {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixTailsetIterator(tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIterator(tdmr, xdmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -70,6 +70,6 @@ public class FindTailSetMode1 extends FindSetMode1 {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixTailsetIterator(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIterator(alias, tdmr, xdmr, dmr_return, ctx);
 	}
 }

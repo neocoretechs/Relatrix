@@ -30,7 +30,7 @@ public class FindSetMode7JsonTransaction extends FindSetMode7Json {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new Relation(null, xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(dmr, null);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	
 	@Override
@@ -44,7 +44,7 @@ public class FindSetMode7JsonTransaction extends FindSetMode7Json {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new Relation(alias, xid, (Comparable)darg, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr, null);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	@Override

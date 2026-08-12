@@ -49,7 +49,7 @@ public class RemoteIteratorServer extends TCPServer {
 				// Create the worker, it in turn creates a WorkerRequestProcessor
              	IndexResolver indexResolver = new IndexResolver();
             	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-    			uworker = new TCPIteratorWorker(datasocket, iteratorClass, RelatrixKV.classLoader, pec);
+    			uworker = new TCPIteratorWorker(datasocket, iteratorClass, RelatrixKV.classLoader);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);
             	SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
 	            if( DEBUG ) {

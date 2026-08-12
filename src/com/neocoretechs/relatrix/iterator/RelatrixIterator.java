@@ -79,9 +79,9 @@ public class RelatrixIterator implements Iterator<Result> {
     		iter = RelatrixKV.findTailMapKV(template);
     		if( iter.hasNext() ) {
     			Map.Entry me = (Entry) iter.next();
+    			buffer.setResolver(indexResolver);
     			buffer = (AbstractRelation)me.getKey();
     			buffer.setIdentity((DBKey) me.getValue());
-    			buffer.setResolver(indexResolver);
     			if( !templateMatches(base, buffer, dmr_return) ) {
     				buffer = null;
     				needsIter = false;
@@ -135,8 +135,8 @@ public class RelatrixIterator implements Iterator<Result> {
     	if( iter.hasNext() ) {
     		Map.Entry me = (Entry) iter.next();
     		buffer = (AbstractRelation)me.getKey();
-    		buffer.setIdentity((DBKey)me.getValue());
     		buffer.setResolver(indexResolver);
+    		buffer.setIdentity((DBKey)me.getValue());
     		buffer.setAlias(alias);
     		if( !templateMatches(base, buffer, dmr_return) ) {
     			buffer = null;
@@ -174,8 +174,8 @@ public class RelatrixIterator implements Iterator<Result> {
     			if( iter.hasNext()) {
     				Map.Entry me = (Entry) iter.next();
     				nextit = (AbstractRelation)me.getKey();
-    				nextit.setIdentity((DBKey) me.getValue());
     				nextit.setResolver(indexResolver);
+    				nextit.setIdentity((DBKey) me.getValue());
     				if(alias != null)
     					nextit.setAlias(alias);
     				if( !templateMatches(base, nextit, dmr_return) ) {

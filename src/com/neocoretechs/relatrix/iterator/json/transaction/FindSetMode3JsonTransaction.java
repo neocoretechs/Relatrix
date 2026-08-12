@@ -12,15 +12,12 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
-* Find the set of objects in the relation via the specified predicate. Mode 3 = findSet("?|*",object,object)
+* Find the set of objects in the relation via the specified predicate. Mode 3 = findSet('*',object,object)
 * returns a 1 element {@link com.neocoretechs.relatrix.Result1} with the identity findSet("*",object,object) for all elements matching the
-* last 2 objects. In the case of findSet("?",object,object) a {@link com.neocoretechs.relatrix.Result1} is returned for each iteration
-* and it contains the object functioning as the domain in all relationships where the last 2 objects are the map and range.
+* last 2 objects.
 Legal permutations are:<br>
 * *,[object],[object] <br>
-* *,?,[object],[object] <br>
 * *,[TemplateClass],[TemplateClass] <br>
-* *,?,[TemplateClass],[TemplateClass] <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
@@ -38,7 +35,7 @@ public class FindSetMode3JsonTransaction extends FindSetMode3Json {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new MapRangeDomain(true, null, xid, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(dmr, null);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	
     @Override
@@ -59,7 +56,7 @@ public class FindSetMode3JsonTransaction extends FindSetMode3Json {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new MapRangeDomain(true, alias, xid, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr, null);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
     @Override

@@ -76,20 +76,16 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
      * @param template the findset operators and/or concrete object instances from findSet call
      * @param templateo the endargs lower bound original findset call
      * @param dmr_return findSet operator order and tuple return control
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixTailsetIterator(AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIterator(AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
     	this.base = template;
+    	this.indexResolver = ctx.resolver();
     	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
-    	if(ExecutionContextHolder.CONTEXT.isBound()) {
-    		ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-    		indexResolver = ctx.resolver();
-    	} else {
-    		indexResolver = new IndexResolver();
-    	}
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -205,8 +201,8 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKV.get(dbkey); // primary DBKey for AbstractRelation
-				buffer.setIdentity(dbkey);
 				buffer.setResolver(indexResolver);
+				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -225,25 +221,21 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
      * @param templateo the endargs lower bound original findset call
      * @param dmr_return findSet operator order and tuple return control
      * @param dmr_return
+     * @param ctx TODO
      * @throws IOException
      */
-    public RelatrixTailsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
       	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, Arrays.toString(dmr_return));
     	this.base = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
-       	if(ExecutionContextHolder.CONTEXT.isBound()) {
-    		ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-    		indexResolver = ctx.resolver();
-    	} else {
-    		indexResolver = new IndexResolver();
-    	}
+    	this.indexResolver = ctx.resolver();
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
     	try {
     		Stream<?> dstream = null;
+   			template.setResolver(indexResolver);
     		if(template.getDomain() != null) {
-    			template.setResolver(indexResolver);
     			DBKey dk = (DBKey) RelatrixKV.get(alias,template.getDomain());
     			if(dk != null) {
     				dkey.add(dk);
@@ -349,8 +341,8 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
     			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
 				buffer.setAlias(alias);
-				buffer.setIdentity(dbkey);
 				buffer.setResolver(indexResolver);
+				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -391,8 +383,8 @@ public class RelatrixTailsetIterator implements Iterator<Result> {
 	    				nextit = (AbstractRelation) RelatrixKV.get(alias,dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
-	    			nextit.setIdentity(dbkey);
 	    			nextit.setResolver(indexResolver);
+	    			nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}

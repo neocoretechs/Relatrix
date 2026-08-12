@@ -9,8 +9,6 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixEntrysetIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -23,14 +21,15 @@ import com.neocoretechs.relatrix.server.ServerMethod;
 public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterator {
 	private static boolean DEBUG = false;
 	private TransactionId xid = null;
-	  private IndexResolver indexResolver;
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
+     * @param ctx TODO
      * @param dmr_return
      * @throws IOException 
      */
-    public RelatrixEntrysetIteratorTransaction(TransactionId xid, Class c) throws IOException {
+    public RelatrixEntrysetIteratorTransaction(TransactionId xid, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVTransaction.entrySet(xid, c);
 		} catch (IllegalAccessException e) {
@@ -39,12 +38,6 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
-				if(ExecutionContextHolder.CONTEXT.isBound()) {
-					ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-					indexResolver = ctx.resolver();
-				} else {
-					indexResolver = new IndexResolver();
-				}
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setTransactionId(xid);
@@ -54,9 +47,10 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	}
     }
     
-    public RelatrixEntrysetIteratorTransaction(Alias alias, TransactionId xid, Class c) throws IOException {
+    public RelatrixEntrysetIteratorTransaction(Alias alias, TransactionId xid, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
     	this.xid = xid;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVTransaction.entrySet(alias, xid, c);
 		} catch (IllegalAccessException e) {
@@ -65,12 +59,6 @@ public class RelatrixEntrysetIteratorTransaction extends RelatrixEntrysetIterato
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
-				if(ExecutionContextHolder.CONTEXT.isBound()) {
-					ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-					indexResolver = ctx.resolver();
-				} else {
-					indexResolver = new IndexResolver();
-				}
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);

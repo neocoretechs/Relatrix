@@ -29,7 +29,7 @@ public class FindTailSetMode7Transaction extends FindSetMode7Transaction {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIteratorTransaction(xid, tdmr, xdmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -38,6 +38,6 @@ public class FindTailSetMode7Transaction extends FindSetMode7Transaction {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return, ctx);
 	}
 }

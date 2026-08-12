@@ -218,9 +218,9 @@ public class RelatrixTransactionServer extends TCPServer {
 	           	IndexResolver indexResolver = new IndexResolver();
         		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
     			// Create the worker, it in turn creates a WorkerRequestProcessor
-				uworker = new TCPWorker(datasocket, pec, RelatrixKVTransaction.classLoader);
+				uworker = new TCPWorker(datasocket, RelatrixKVTransaction.classLoader, pec);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-        		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
+        		SynchronizedThreadManager.getInstance().spin(uworker);
 
                 if( DEBUG ) {
                 	System.out.println(this.getClass().getName()+" starting new worker "+uworker);

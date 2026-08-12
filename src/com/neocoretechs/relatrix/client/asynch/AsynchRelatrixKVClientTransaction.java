@@ -11,13 +11,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
-
-import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
 import com.neocoretechs.relatrix.client.ClientTransactionInterface;
 import com.neocoretechs.relatrix.client.ConnectionHandler;
@@ -27,9 +24,7 @@ import com.neocoretechs.relatrix.client.RelatrixTransactionStatement;
 import com.neocoretechs.relatrix.client.RemoteCompletionInterface;
 import com.neocoretechs.relatrix.client.RemoteResponseInterface;
 import com.neocoretechs.relatrix.client.iterator.RemoteIteratorClient;
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.CircularBlockingDeque;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 

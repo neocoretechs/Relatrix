@@ -9,8 +9,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 import com.neocoretechs.relatrix.iterator.RelatrixKeysetIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -27,16 +26,12 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param xid the transaction Id
      * @param c The Class we are retrieving
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixKeysetIteratorTransaction(TransactionId xid, Class c) throws IOException {
+    public RelatrixKeysetIteratorTransaction(TransactionId xid, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVTransaction.entrySet(xid, c);
 		} catch (IllegalAccessException e) {
@@ -58,11 +53,13 @@ public class RelatrixKeysetIteratorTransaction extends RelatrixKeysetIterator {
      * @param alias The database alias
      * @param xid The transaction Id
      * @param c The class we are retrieving
+     * @param ctx TODO
      * @throws IOException for low level Db fail
      */
-    public RelatrixKeysetIteratorTransaction(Alias alias, TransactionId xid, Class c) throws IOException {
+    public RelatrixKeysetIteratorTransaction(Alias alias, TransactionId xid, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
     	this.xid = xid;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKVTransaction.entrySet(alias, xid, c);
 		} catch (IllegalAccessException e) {

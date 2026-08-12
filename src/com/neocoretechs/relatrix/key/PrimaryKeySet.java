@@ -39,23 +39,23 @@ public class PrimaryKeySet implements Externalizable, Comparable {
     public PrimaryKeySet() {}
     
 	public PrimaryKeySet(DBKey domainKey, DBKey mapKey) {
-		this.domainKey = domainKey;
-		this.mapKey = mapKey;
+		this.domainKey = domainKey == null ? DBKey.nullDBKey : domainKey;
+		this.mapKey = mapKey == null ? DBKey.nullDBKey : mapKey;
 	}
 	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, TransactionId transactionId) {
-		this.domainKey = domainKey;
-		this.mapKey = mapKey;
+		this.domainKey = domainKey == null ? DBKey.nullDBKey : domainKey;
+		this.mapKey = mapKey == null ? DBKey.nullDBKey : mapKey;
 		this.transactionId = transactionId;
 	}
 	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias) {
-		this.domainKey = domainKey;
-		this.mapKey = mapKey;
+		this.domainKey = domainKey == null ? DBKey.nullDBKey : domainKey;
+		this.mapKey = mapKey == null ? DBKey.nullDBKey : mapKey;
 		this.alias = alias;
 		this.isAliasImmutable = true;
 	}
 	public PrimaryKeySet(DBKey domainKey, DBKey mapKey, Alias alias, TransactionId transactionId) {
-		this.domainKey = domainKey;
-		this.mapKey = mapKey;
+		this.domainKey = domainKey == null ? DBKey.nullDBKey : domainKey;
+		this.mapKey = mapKey == null ? DBKey.nullDBKey : mapKey;
 		this.transactionId = transactionId;
 		this.alias = alias;
 		this.isAliasImmutable = true;
@@ -125,20 +125,15 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * If the decision is made to toss out the entry, may have spurious instances of domain and map.
 	 * @param skeyd domain instance
 	 * @param skeym instance for map
+	 * @param ctx Context with IndexResolver
 	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static PrimaryKeySet locate(Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(Comparable skeyd, Comparable skeym, ParallelExecutionContext ctx) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
-		IndexResolver resolver = null;
-		if (ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			throw new IOException("IndexResolver is not bound to context.");
-		}
+		IndexResolver resolver = ctx.resolver();
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
@@ -188,20 +183,15 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param alias
 	 * @param skeyd
 	 * @param skeym
+	 * @param ctx Context with IndexResolver
 	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static PrimaryKeySet locate(Alias alias, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(Alias alias, Comparable skeyd, Comparable skeym, ParallelExecutionContext ctx) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
-		IndexResolver resolver = null;
-		if (ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			throw new IOException("IndexResolver is not bound to context.");
-		}
+		IndexResolver resolver = ctx.resolver();
 		//
 		pk.setAlias(alias);
 		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
@@ -232,20 +222,15 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param transactionId
 	 * @param skeyd
 	 * @param skeym
+	 * @param ctx Context with IndexResolver
 	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(TransactionId transactionId, Comparable skeyd, Comparable skeym, ParallelExecutionContext ctx) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
-		IndexResolver resolver = null;
-		if (ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			throw new IOException("IndexResolver is not bound to context.");
-		}
+		IndexResolver resolver = ctx.resolver();
 		pk.transactionId = transactionId;
 		DBKey dKey = AbstractRelation.checkMorphism(skeyd);
 		if(dKey == null) {
@@ -276,20 +261,15 @@ public class PrimaryKeySet implements Externalizable, Comparable {
 	 * @param transactionId
 	 * @param skeyd
 	 * @param skeym
+	 * @param ctx Context with IndexResolver
 	 * @return The PrimaryKeySet instance with either null or resolved identity of the Relation instance
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public static PrimaryKeySet locate(Alias alias, TransactionId transactionId, Comparable skeyd, Comparable skeym) throws IllegalAccessException, ClassNotFoundException, IOException {
+	public static PrimaryKeySet locate(Alias alias, TransactionId transactionId, Comparable skeyd, Comparable skeym, ParallelExecutionContext ctx) throws IllegalAccessException, ClassNotFoundException, IOException {
 		PrimaryKeySet pk = new PrimaryKeySet();
-		IndexResolver resolver = null;
-		if (ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			throw new IOException("IndexResolver is not bound to context.");
-		}
+		IndexResolver resolver = ctx.resolver();
 		pk.setAlias(alias);
 		pk.transactionId = transactionId;
 		// transaction id and alias not null

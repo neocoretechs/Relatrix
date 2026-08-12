@@ -202,9 +202,9 @@ public class RelatrixServerJson extends TCPServer {
              	IndexResolver indexResolver = new IndexResolver();
             	indexResolver.setLocalJson();
             	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-				uworker = new TCPWorker(datasocket, pec, RelatrixKVJson.classLoader);
+				uworker = new TCPWorker(datasocket, RelatrixKVJson.classLoader, pec);
 				dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 
-            	SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
+            	SynchronizedThreadManager.getInstance().spin(uworker);
                 if( DEBUG ) {
                 	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                 }

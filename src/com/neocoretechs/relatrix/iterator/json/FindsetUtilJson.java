@@ -1,25 +1,27 @@
 package com.neocoretechs.relatrix.iterator.json;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
+
+import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.rocksack.Alias;
 
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 
 import com.neocoretechs.relatrix.Result;
-
-import com.neocoretechs.relatrix.iterator.FindsetUtil.Result3;
-import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.Result1;
+import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.key.DBKey;
-
 
 /**
  * Helper routines to be used with headset, subset, tailset to populate a TreeMap with DBKeys ordered by indexes in 
@@ -196,7 +198,7 @@ public class FindsetUtilJson {
     /**
      * Populate the TreeMap with the Relation morphisms in the range of the DBKey low and hi ranges provided.
      * If we find the 3 morphism keys in the arrays of domain, map, and range keys we built, they are eligible for the final post-order set.
-	 * <p/>
+	 * <p>
 	 * The low range AbstractRelation template is formed from the 3 low keys. The order is created by using the
 	 * ordered positions in the 3 domain, map and range key arrays based on indexOf each AbstractRelation component
 	 * retrieved from the given range in each of the 3 arrays, formed into a Result3, and used as key in the TreeMap as
@@ -263,6 +265,218 @@ public class FindsetUtilJson {
 			throw new IOException(e);
 		}
     }
-       
+    
+	private static class Result2 extends Result1 implements Comparable, Serializable, Cloneable{
+		private static final long serialVersionUID = 3809564271332319041L;
+		protected Comparable two;	
+		public Result2() {}	
+		public Result2(Result2 r) {
+			super(r);
+			this.two = r.two;
+		}	
+		@Override
+		public Comparable get(int res) {
+			switch(res) {
+				case 0:
+					return one;
+				case 1:
+					return two;
+				default:
+					return two;
+			}
+		}		
+		@Override
+		public Comparable get() {
+			return two;
+		}	
+		@Override
+		public void set(int res, Comparable elem) {
+			switch(res) {
+				case 0:
+					this.one = elem;
+					break;
+				case 1:
+				default:
+					this.two = elem;
+					break;
+			}
+		}     
+		@Override
+		public Comparable[] toArray() {
+			return new Comparable[] {one,two};
+		}	
+		@Override
+		public int length() {
+			return 2;
+		}	
+		@Override
+		public Object clone() {
+			return new Result2(this);
+		}	
+		@Override
+		public void packForTransport() {
+			if(one instanceof AbstractRelation)
+				one = createTransport((Relation) ((AbstractRelation) one).asRelation());
+			if(two instanceof AbstractRelation)
+				two = createTransport((Relation) ((AbstractRelation) two).asRelation());
+		}
+		@Override
+		public void unpackFromTransport() {
+			if(one != null && one.getClass() == TransportMorphism.class)
+				one = createRelation((TransportMorphism)one);	
+			if(two != null && two.getClass() == TransportMorphism.class)
+				two = createRelation((TransportMorphism)two);	
+		}	
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Objects.hash(two);
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj)) {
+				return false;
+			}
+			if (!(obj instanceof Result2)) {
+				return false;
+			}
+			Result2 other = (Result2) obj;
+			return fullEquals(two, other.two);
+		}
+		@Override
+		public int compareTo(Object o) {
+			int n = super.compareTo(o);
+			if(n != 0)
+				return n;
+			return fullCompareTo(two, ((Result2)o).two);
+		}
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			builder.append(one);
+			builder.append(", ");
+			builder.append(two);
+			builder.append("]");
+			return builder.toString();
+		}	
+	}
+    
+	private static final class Result3 extends Result2 implements Cloneable, Comparable, Serializable {
+		private static final long serialVersionUID = -8927948682023792282L;
+		private Comparable three;
+		public Result3() {}	
+		public Result3(Result3 r) {
+			super(r);
+			this.three = r.three;
+		}	
+		@Override
+		public Comparable get(int res) {
+			switch(res) {
+				case 0:
+					return one;
+				case 1:
+					return two;
+				case 2:
+					return three;
+				default:
+					return three;
+			}
+		}	
+		@Override
+		public Comparable get() {
+			return three;
+		}	
+		@Override
+		public void set(int res, Comparable elem) {
+			switch(res) {
+				case 0:
+					this.one = elem;
+					break;
+				case 1:
+					this.two = elem;
+					break;
+				case 2:
+				default:
+					this.three = elem;
+					break;
+			}
+		}
+		@Override
+		public Comparable[] toArray() {
+			return new Comparable[] {one,two,three};
+		}	
+		@Override
+		public int length() {
+			return 3;
+		}	
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Objects.hash(three);
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj)) {
+				return false;
+			}
+			if (!(obj instanceof Result3)) {
+				return false;
+			}
+			Result3 other = (Result3) obj;
+			return fullEquals(three, other.three);
+		}	
+		@Override
+		public int compareTo(Object o) {
+			int n = super.compareTo(o);
+			if(n != 0)
+				return n;
+			return fullCompareTo(three, ((Result3)o).three);
+		}	
+		@Override
+		public Object clone() {
+			return new Result3(this);
+		}	
+		@Override
+		public void packForTransport() {
+			if(one instanceof AbstractRelation)
+				one = createTransport((Relation) ((AbstractRelation) one).asRelation());
+			if(two instanceof AbstractRelation)
+				two = createTransport((Relation) ((AbstractRelation) two).asRelation());	
+			if(three instanceof AbstractRelation)
+				three = createTransport((Relation) ((AbstractRelation) three).asRelation());	
+		}	
+		@Override
+		public void unpackFromTransport() {
+			if(one != null && one.getClass() == TransportMorphism.class)
+				one = createRelation((TransportMorphism)one);
+			if(two != null && two.getClass() == TransportMorphism.class)
+				two = createRelation((TransportMorphism)two);
+			if(three != null && three.getClass() == TransportMorphism.class)
+				three = createRelation((TransportMorphism)three);
+		}		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			builder.append(one);
+			builder.append(", ");
+			builder.append(two);
+			builder.append(", ");
+			builder.append(three);
+			builder.append("]");
+			return builder.toString();
+		}
+	}   
 
 }

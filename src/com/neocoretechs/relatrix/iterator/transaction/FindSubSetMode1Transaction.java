@@ -66,7 +66,7 @@ public class FindSubSetMode1Transaction extends FindSetMode1Transaction {
 				}
 			} else
 				throw new IllegalAccessException("Improper AbstractRelation template.");
-			return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+			return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 		}
 
 		@Override
@@ -103,6 +103,6 @@ public class FindSubSetMode1Transaction extends FindSetMode1Transaction {
 				}
 			} else
 				throw new IllegalAccessException("Improper AbstractRelation template.");
-			return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+			return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 		}
 }

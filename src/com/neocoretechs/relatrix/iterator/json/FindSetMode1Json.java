@@ -46,7 +46,7 @@ public class FindSetMode1Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 	    AbstractRelation dmr = new RangeDomainMap(true, null, null, (Comparable)rarg);
-	    return createRelatrixIterator(dmr, null);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
@@ -59,7 +59,7 @@ public class FindSetMode1Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new RangeDomainMap(true, alias, null, null, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr, null);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {

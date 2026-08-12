@@ -12,12 +12,10 @@ import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
-* Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
+* Mode 6 = findSeT(object,object,"*") return identity or 1 element tuple.
 * Legal permutations are:<br>
 * [object],[object],* <br>
-* [object],[object],? <br>
 * [TemplateClass],[TemplateClass],* <br>
-* [TemplateClass],[TemplateClass],? <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -42,7 +40,7 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-	    return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
+	    return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return, ctx);
 	}
 	
 	@Override
@@ -59,6 +57,6 @@ public class FindHeadSetMode6Transaction extends FindSetMode6Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-	    return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
+	    return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return, ctx);
 	}
 }

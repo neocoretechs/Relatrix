@@ -13,8 +13,7 @@ import com.neocoretechs.relatrix.iterator.FindsetUtil;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixTailsetIterator;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -30,8 +29,8 @@ import com.neocoretechs.rocksack.TransactionId;
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
- * <p/>
- * Here, the tailset is retrieved.<p/>
+ * <p>
+ * Here, the tailset is retrieved.<p>
  * For each * wildcard return we need a corresponding Class or concrete instance object in the suffix arguments. These objects become the basis
  * for the tailset objects returned. If a Class is specified the entire range of ordered instances is replaced by the *, in the
  * case of a concrete instance, the ordered tailset from that instance (inclusive) to the end is returned or simply used to order
@@ -50,21 +49,17 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param templateo 
      * @param dmr_return
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixTailsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
        	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	this.indexResolver = ctx.resolver();
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -192,20 +187,15 @@ public class RelatrixTailsetIteratorTransaction extends RelatrixTailsetIterator 
 			System.out.println("RelatrixTailsetIteratorTransaction xid:"+xid+" "+super.toString());
     }
     
-    public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixTailsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
       	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	this.indexResolver = ctx.resolver();
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.

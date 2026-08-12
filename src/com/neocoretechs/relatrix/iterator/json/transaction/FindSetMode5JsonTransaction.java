@@ -13,15 +13,10 @@ import com.neocoretechs.rocksack.Alias;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
-* This mode is for (object,"?|*",object) returning 1 object or identity, but always a 1 element array of Comparable
-* where the map is returned where it is a component of the relationship, or an identity AbstractRelation subclass
-* in the case of findSet(object,"*",object) where the identity is returned for each relationship where the objects match
-* the specified two objects in the findSet.
+* This mode is for (object,"*",object) returning 1 object or identity, but always a 1 element array of Comparable
 * Legal permutations are:<br>
 * [object],*,[object] <br>
-* [object],?,[object] <br>
 * [TemplateClass],*,[TemplateClass] <br>
-* [TemplateClass],?,[TemplateClass] <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
@@ -39,7 +34,7 @@ public class FindSetMode5JsonTransaction extends FindSetMode5Json {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new DomainRangeMap(true, null, xid, (Comparable)darg, null, (Comparable)rarg);
-		return createRelatrixIterator(dmr, null);
+		return createRelatrixIterator(dmr, ctx);
 	}
 	
 	@Override
@@ -53,7 +48,7 @@ public class FindSetMode5JsonTransaction extends FindSetMode5Json {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new DomainRangeMap(true, alias, xid, (Comparable)darg, null, (Comparable)rarg);
-		return createRelatrixIterator(alias, dmr, null);
+		return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	@Override

@@ -65,7 +65,7 @@ public class FindSetMode3Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 	    AbstractRelation dmr = new MapRangeDomain(true, alias, null, (Comparable)marg, (Comparable)rarg);
-	    return createRelatrixIterator(alias, dmr, null);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	/**
 	 * Create the specific iterator. Subclass overrides for various set valued functions

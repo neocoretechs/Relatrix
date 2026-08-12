@@ -43,31 +43,6 @@ public class ConnectionHandler {
 	protected final Writer writer;
 	protected ClassLoader classLoader;
 
-	public ConnectionHandler(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-		this.readQueue = new ArrayBlockingQueue<>(QUEUESIZE, true);
-		this.writeQueue = new ArrayBlockingQueue<>(QUEUESIZE, true);
-		this.reader = new Reader(this);
-		this.writer = new Writer(this);
-	}
-
-	public ConnectionHandler(SocketChannel ch, ClassLoader classLoader, ParallelExecutionContext pec) throws IOException {
-		this.channel = ch;
-		this.classLoader = classLoader;
-		ch.configureBlocking(true);
-		ch.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		ch.setOption(StandardSocketOptions.SO_RCVBUF, 32767);
-		ch.setOption(StandardSocketOptions.SO_SNDBUF, 32767);
-		ch.setOption(StandardSocketOptions.TCP_NODELAY, true);
-		this.readQueue = new ArrayBlockingQueue<Object>(QUEUESIZE, true);
-		this.writeQueue = new ArrayBlockingQueue<Object>(QUEUESIZE, true);
-		this.reader = new Reader(this);
-		this.writer = new Writer(this);
-		SynchronizedThreadManager.getInstance().spinWithContext(reader, pec);
-		SynchronizedThreadManager.getInstance().spinWithContext(writer, pec);
-		if(DEBUG)
-			System.out.printf("%s channel:%s%n",this.getClass().getName(), ch);	
-	}
 	public ConnectionHandler(SocketChannel ch, ClassLoader classLoader) throws IOException {
 		this.channel = ch;
 		this.classLoader = classLoader;

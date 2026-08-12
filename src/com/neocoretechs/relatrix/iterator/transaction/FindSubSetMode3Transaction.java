@@ -43,7 +43,7 @@ public class FindSubSetMode3Transaction extends FindSetMode3Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
-		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -64,6 +64,6 @@ public class FindSubSetMode3Transaction extends FindSetMode3Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template."); // all wildcard or return tuple, should all be null
-		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

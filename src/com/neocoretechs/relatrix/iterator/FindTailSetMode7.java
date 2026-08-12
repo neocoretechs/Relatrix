@@ -26,7 +26,7 @@ public class FindTailSetMode7 extends FindSetMode7 {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-	    return new RelatrixTailsetIterator(tdmr, xdmr, dmr_return);
+	    return new RelatrixTailsetIterator(tdmr, xdmr, dmr_return, ctx);
 	}
 	
 	@Override
@@ -35,6 +35,6 @@ public class FindTailSetMode7 extends FindSetMode7 {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixTailsetIterator(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixTailsetIterator(alias, tdmr, xdmr, dmr_return, ctx);
 	}
 }

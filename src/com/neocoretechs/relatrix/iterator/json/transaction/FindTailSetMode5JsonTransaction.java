@@ -15,7 +15,6 @@ import com.neocoretechs.rocksack.TransactionId;
 * Mode 5. Permutation with 2 objects.
 * Legal permutations are:<br>
 * [object],*,[object],... <br>
-* [object],?,[object],... <br>
 * Concrete domain and range
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 * 

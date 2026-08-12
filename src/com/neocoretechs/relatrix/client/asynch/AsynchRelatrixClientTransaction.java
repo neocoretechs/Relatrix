@@ -86,7 +86,7 @@ public class AsynchRelatrixClientTransaction extends AsynchRelatrixClientTransac
 		workerSocket = SocketChannel.open(new InetSocketAddress(remoteNode, remotePort));
 		classLoader = new HandlerClassLoader();
 		Thread.currentThread().setContextClassLoader(classLoader);
-		workerHandler = new ConnectionHandler(workerSocket, classLoader, null);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		if( DEBUG ) {
 			System.out.printf("%s workerSocket:%s%n",this.getClass().getName(),workerSocket);
 		}

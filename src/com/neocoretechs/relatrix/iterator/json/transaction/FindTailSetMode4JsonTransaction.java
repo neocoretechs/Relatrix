@@ -14,9 +14,6 @@ import com.neocoretechs.rocksack.TransactionId;
 * Find elements greater or equal to 'from' element.
 * Legal permutations are:<br>
 * [object],*,*,... <br>
-* [object],*,?,...  <br>
-* [object],?,?,...  <br>
-* [object],?,*,... <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindTailSetMode4JsonTransaction extends FindSetMode4JsonTransaction {

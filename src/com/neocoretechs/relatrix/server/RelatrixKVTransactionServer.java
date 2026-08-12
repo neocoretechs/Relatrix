@@ -192,12 +192,12 @@ public class RelatrixKVTransactionServer extends TCPServer {
                     }
                 	IndexResolver indexResolver = new IndexResolver();
             		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-                    uworker = new TCPWorker(datasocket, pec, RelatrixKVTransaction.classLoader);
+                    uworker = new TCPWorker(datasocket, RelatrixKVTransaction.classLoader, pec);
                     dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker);
                     if( DEBUG ) {
                     	System.out.println(this.getClass().getName()+" starting new worker "+uworker);
                     }
-            		SynchronizedThreadManager.getInstance().spinWithContext(uworker, pec);
+            		SynchronizedThreadManager.getInstance().spin(uworker);
                     
 				} catch(Exception e) {
                     System.out.println(this.getClass().getName()+" node configuration server socket accept exception "+e);

@@ -32,7 +32,7 @@ public class FindSubSetMode7Transaction extends FindSetMode7Transaction {
 			xdmr = (AbstractRelation) tdmr.clone();
 			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -43,6 +43,6 @@ public class FindSubSetMode7Transaction extends FindSetMode7Transaction {
 			xdmr = (AbstractRelation) tdmr.clone();
 			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

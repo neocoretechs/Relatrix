@@ -13,12 +13,11 @@ import com.neocoretechs.rocksack.TransactionId;
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
-* value. Mode 2 findSet("?|*",object,"?|*") returning a Comparable of 1 or 2 elements containing the identity
-* or tuples from retrieval. For identity, if we specify findSet("*",object,"*") we get a Comparable of 1
+* value. Mode 2 findSet("*",object,"*")  if we specify findSet("*",object,"*") we get a Comparable of 1
 * element containing a AbstractRelation subclass.
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
-* *,[object],* *,[object],? ?,[object],? ?,[object],*
-* *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
+* *,[object],* 
+* *,[TemplateClass],* 
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */
@@ -37,7 +36,7 @@ public class FindSetMode2JsonTransaction extends FindSetMode2Json {
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new MapDomainRange(true, null, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		return createRelatrixIterator(dmr, null);
+		return createRelatrixIterator(dmr, ctx);
 	}
 	
     @Override
@@ -52,7 +51,7 @@ public class FindSetMode2JsonTransaction extends FindSetMode2Json {
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new MapDomainRange(true, alias, xid, null, (Comparable)marg, null);
 		//System.out.println("DMR "+dmr_return[0]+" "+dmr_return[1]+" "+dmr_return[2]+" "+dmr_return[3]);
-		return createRelatrixIterator(alias, dmr, null);
+		return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
     @Override

@@ -11,10 +11,9 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Find elements greater or equal to 'from' element.
-* Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
+* Mode 6 = findSeT(object,object,"*") return identity or 1 element tuple.
 * Legal permutations are:<br>
 * [object],[object],*,... <br>
-* [object],[object],?,... <br>
 * Concrete domain and map
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 *

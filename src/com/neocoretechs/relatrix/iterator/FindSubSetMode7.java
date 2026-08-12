@@ -30,7 +30,7 @@ public class FindSubSetMode7 extends FindSetMode7 {
 			xdmr = (AbstractRelation) tdmr.clone();
 			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixSubsetIterator(tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIterator(tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -41,6 +41,6 @@ public class FindSubSetMode7 extends FindSetMode7 {
 			xdmr = (AbstractRelation) tdmr.clone();
 			ydmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixSubsetIterator(alias, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIterator(alias, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

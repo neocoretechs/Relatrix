@@ -16,7 +16,6 @@ import com.neocoretechs.rocksack.TransactionId;
 * Mode 6 = findSeT(object,object,"*|?") return identity or 1 element tuple.
 * Legal permutations are:<br>
 * [object],[object],*,... <br>
-* [object],[object],?,... <br>
 * Concrete domain and map
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 *

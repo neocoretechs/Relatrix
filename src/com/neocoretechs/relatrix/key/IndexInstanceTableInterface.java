@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.key;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
@@ -210,5 +211,6 @@ public interface IndexInstanceTableInterface {
 	void putKey(Alias alias2, TransactionId transactionId, DBKey dbKey, Object instance);
 	
 	void putKey(TransactionId transactionId, DBKey dbKey, Object instance);
+	
 
 }

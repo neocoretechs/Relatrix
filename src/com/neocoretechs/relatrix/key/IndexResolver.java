@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientInterface;
  * @author Jonathan N. Groff Copyright (C) NeoCoreTechs 2021,2022
  *
  */
-public class IndexResolver {
+public final class IndexResolver {
 	public static boolean DEBUG = false;
 	IndexInstanceTableInterface instanceTable = null;
 	/**

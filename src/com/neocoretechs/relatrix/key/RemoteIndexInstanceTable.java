@@ -30,6 +30,7 @@ import com.neocoretechs.relatrix.client.json.RelatrixClientJson;
 import com.neocoretechs.relatrix.client.json.RelatrixClientJsonTransaction;
 import com.neocoretechs.relatrix.client.json.RelatrixKVClientJson;
 import com.neocoretechs.relatrix.client.json.RelatrixKVClientJsonTransaction;
+import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Relatrix;
 
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;

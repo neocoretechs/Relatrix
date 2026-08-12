@@ -12,15 +12,13 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
-* This mode is for (object,"?|*",object) returning 1 object or identity, but always a 1 element array of Comparable
+* This mode is for (object,"*",object) returning 1 object or identity, but always a 1 element array of Comparable
 * where the map is returned where it is a component of the relationship, or an identity AbstractRelation subclass
 * in the case of findSet(object,"*",object) where the identity is returned for each relationship where the objects match
 * the specified two objects in the findSet.
 * Legal permutations are:<br>
 * [object],*,[object] <br>
-* [object],?,[object] <br>
 * [TemplateClass],*,[TemplateClass] <br>
-* [TemplateClass],?,[TemplateClass] <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 * 
 */
@@ -48,7 +46,7 @@ public class FindSetMode5Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new DomainRangeMap(true, (Comparable)darg, null, (Comparable)rarg);
-		return createRelatrixIterator(dmr, null);
+		return createRelatrixIterator(dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx)throws IllegalAccessException, IOException {
@@ -61,7 +59,7 @@ public class FindSetMode5Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new DomainRangeMap(true, alias, (Comparable)darg, null, (Comparable)rarg);
-		return createRelatrixIterator(alias, dmr, null);
+		return createRelatrixIterator(alias, dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx)throws IllegalAccessException, IOException, NoSuchElementException {

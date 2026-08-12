@@ -49,7 +49,7 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIterator(tdmr, xdmr, dmr_return, ctx);
 	}
 	
 	@Override
@@ -74,6 +74,6 @@ public class FindHeadSetMode4 extends FindSetMode4 {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIterator(alias, tdmr, xdmr, dmr_return, ctx);
 	}
 }

@@ -101,7 +101,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 * @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
 */
 public final class Relatrix {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
@@ -241,7 +241,8 @@ public final class Relatrix {
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		PrimaryKeySet pk = PrimaryKeySet.locate(d, m);
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
+		PrimaryKeySet pk = PrimaryKeySet.locate(d, m, ctx);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
@@ -289,11 +290,12 @@ public final class Relatrix {
 			throw new IllegalAccessException("Neither domain, map, nor range may be null when storing a relationship");
 		Relation identity = new Relation(); // form it as template for duplicate key search
 		identity.setAlias(alias);
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
 		// check for domain/map match
 		// Enforce categorical structure; domain->map function uniquely determines range.
 		// If the search winds up at the key or the key is empty or the domain->map exists, the key
 		// cannot be inserted
-		PrimaryKeySet pk = PrimaryKeySet.locate(alias, d, m);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, d, m, ctx);
 		if(pk.getIdentity() == null) {
 			identity.setDomainKey(pk.getDomainKey());
 			identity.setMapKey(pk.getMapKey());
@@ -337,7 +339,8 @@ public final class Relatrix {
 		List<Comparable> identities = new RelationList();
 		Comparable[] tuple = tuples.get(0);
 		Relation identity = new Relation();
-		PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1]);
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
+		PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1], ctx);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
 		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
@@ -384,8 +387,9 @@ public final class Relatrix {
 		List<Comparable> identities = new RelationList();
 		Comparable[] tuple = tuples.get(0);
 		Relation identity = new Relation();
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(),null);
 		identity.setAlias(alias);
-		PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1]);
+		PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1], ctx);
 		identity.setDomainKey(pk.getDomainKey());
 		identity.setMapKey(pk.getMapKey());
 		DBKey rKey = AbstractRelation.checkMorphism(tuple[2]);
@@ -763,8 +767,9 @@ public final class Relatrix {
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
+			ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
 			while(index < removed.size()) {
-				removeSearch(item, removed, new ParallelExecutionContext(new IndexResolver(), null));
+				removeSearch(item, removed, ctx);
 				++index;
 				if(index < removed.size())
 					item = removed.get(index);
@@ -864,9 +869,10 @@ public final class Relatrix {
 		short dmr_return[] = new short[]{-1,0,2,2};
 		short mdr_return[] = new short[]{-1,2,0,2};
 		short rmd_return[] = new short[]{-1,2,2,0};
-		Iterator<?> itd = new RelatrixIterator(alias, dmr, dmr_return,new ParallelExecutionContext(new IndexResolver(), null)); //findSet(alias, transactionId, c,"*","*");
-		Iterator<?> itm = new RelatrixIterator(alias, mdr, mdr_return,new ParallelExecutionContext(new IndexResolver(), null)); //findSet(alias, transactionId, "*",c,"*");
-		Iterator<?> itr = new RelatrixIterator(alias, rmd, rmd_return,new ParallelExecutionContext(new IndexResolver(), null)); //findSet(alias, transactionId, "*","*",c);
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
+		Iterator<?> itd = new RelatrixIterator(alias, dmr, dmr_return, ctx); //findSet(alias, transactionId, c,"*","*");
+		Iterator<?> itm = new RelatrixIterator(alias, mdr, mdr_return, ctx); //findSet(alias, transactionId, "*",c,"*");
+		Iterator<?> itr = new RelatrixIterator(alias, rmd, rmd_return, ctx); //findSet(alias, transactionId, "*","*",c);
 		sequentialSearch(itd, itm, itr, deleted);
 	}
 	
@@ -1131,7 +1137,7 @@ public final class Relatrix {
 				} else {
 					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
 					Comparable[] tuple = tuples.get(0);
-					PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1]);
+					PrimaryKeySet pk = PrimaryKeySet.locate(tuple[0], tuple[1], ctx);
 					if(pk.getIdentity() != null) {
 						Object cx = get(pk.getIdentity());
 						if(cx != null) {
@@ -1246,7 +1252,7 @@ public final class Relatrix {
 				} else {
 					ArrayList<Comparable[]> tuples = ((Tuple)c).getTuples();
 					Comparable[] tuple = tuples.get(0);
-					PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1]);
+					PrimaryKeySet pk = PrimaryKeySet.locate(alias, tuple[0], tuple[1], ctx);
 					if(pk.getIdentity() != null) {
 						Object cx = get(alias, pk.getIdentity());
 						if(cx != null) {
@@ -1471,17 +1477,9 @@ public final class Relatrix {
 	@ServerMethod
 	public static List<Result> findSetParallel(List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
-		IndexResolver resolver;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			resolver = new IndexResolver();
-		}
-		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1496,7 +1494,7 @@ public final class Relatrix {
 					}
 					return res;
 				}
-			}, searchX, pec));
+			}, searchX));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1522,17 +1520,9 @@ public final class Relatrix {
 	@ServerMethod
 	public static List<Result> findSetParallel(Character d, List<Object> m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
-		IndexResolver resolver;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			resolver = new IndexResolver();
-		}
-		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1547,7 +1537,7 @@ public final class Relatrix {
 					}
 					return res;
 				}
-			}, searchX, pec));
+			}, searchX));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1625,17 +1615,9 @@ public final class Relatrix {
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
-		IndexResolver resolver;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			resolver = new IndexResolver();
-		}
-		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1650,7 +1632,7 @@ public final class Relatrix {
 					}
 					return res;
 				}
-			}, searchX, pec));
+			}, searchX));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1677,17 +1659,9 @@ public final class Relatrix {
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, Character d, List<Object> m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
-		IndexResolver resolver;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			resolver = new IndexResolver();
-		}
-		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1702,7 +1676,7 @@ public final class Relatrix {
 					}
 					return res;
 				}
-			}, searchX, pec));
+			}, searchX));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -1729,17 +1703,9 @@ public final class Relatrix {
 	@ServerMethod
 	public static List<Result> findSetParallel(Alias alias, Character d, Character m, List<Object> r) {
 		List<Future<Object>> futures = new ArrayList<>();
-		IndexResolver resolver;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			resolver = ctx.resolver();
-		} else {
-			resolver = new IndexResolver();
-		}
-		ParallelExecutionContext pec = new ParallelExecutionContext(resolver, new ConcurrentHashMap<String,Object>());
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1754,7 +1720,7 @@ public final class Relatrix {
 					}
 					return res;
 				}
-			}, searchX, pec));
+			}, searchX));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
@@ -2610,8 +2576,6 @@ public final class Relatrix {
 		IteratorFactory ifact = new FindSubSetMode6(darg, marg, rop, arg1, arg2);
 		return ifact.createIterator(alias,new ParallelExecutionContext(new IndexResolver(), null));
 	}
-	
-
 	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
@@ -3305,22 +3269,22 @@ public final class Relatrix {
 	@ServerMethod
 	public static Iterator<?> keySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIterator(clazz);
+		return new RelatrixKeysetIterator(clazz, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIterator(alias, clazz);
+		return new RelatrixKeysetIterator(alias, clazz, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> entrySet(Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIterator(clazz);
+		return new RelatrixEntrysetIterator(clazz, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> entrySet(Alias alias, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIterator(alias, clazz);
+		return new RelatrixEntrysetIterator(alias, clazz, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -3332,12 +3296,12 @@ public final class Relatrix {
 	@ServerMethod
 	public static Stream<?> entrySetStream(Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixStream(new RelatrixEntrysetIterator(clazz));
+		return new RelatrixStream(new RelatrixEntrysetIterator(clazz, new ParallelExecutionContext(new IndexResolver(),null)));
 	}
 	@ServerMethod
 	public static Stream<?> entrySetStream(Alias alias, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return new RelatrixStream(new RelatrixEntrysetIterator(alias,clazz));
+		return new RelatrixStream(new RelatrixEntrysetIterator(alias,clazz, new ParallelExecutionContext(new IndexResolver(),null)));
 	}
 	@ServerMethod
 	public static void flushAndCompactDB(Class<?> clazz) throws IOException, IllegalAccessException

@@ -29,7 +29,7 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -38,6 +38,6 @@ public class FindHeadSetMode7Transaction extends FindSetMode7Transaction {
 		try {
 			xdmr = (AbstractRelation) tdmr.clone();
 		} catch (CloneNotSupportedException e) {}
-		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return, ctx);
 	}
 }

@@ -12,17 +12,11 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
-* This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
+* This variation accommodates findSet(object,"*","*") 
 * for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
 * Legal permutations are:<br>
 * [object],*,* <br>
-* [object],*,?  <br>
-* [object],?,?  <br>
-* [object],?,* <br>
 * [TemplateClass],*,* <br>
-* [TemplateClass],*,? <br>
-* [TemplateClass],?,? <br>
-* [TemplateClass],?,* <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -49,7 +43,7 @@ public class FindSetMode4Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
 		AbstractRelation dmr = new Relation(true, (Comparable)darg, null, null);
-		return createRelatrixIterator(dmr, null);
+		return createRelatrixIterator(dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException {
@@ -62,7 +56,7 @@ public class FindSetMode4Json extends IteratorFactory {
 	@Override
 	public Iterator<?> createIterator(Alias alias, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException {
 		AbstractRelation dmr = new Relation(true, alias, (Comparable)darg, null, null);
-		return createRelatrixIterator(alias, dmr, null);
+		return createRelatrixIterator(alias, dmr, ctx);
 	}
 	@Override
 	protected Iterator<?> createRelatrixIterator(Alias alias, AbstractRelation tdmr, ParallelExecutionContext ctx) throws IllegalAccessException, IOException, NoSuchElementException{

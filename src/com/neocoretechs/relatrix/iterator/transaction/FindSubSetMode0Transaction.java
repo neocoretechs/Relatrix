@@ -14,7 +14,7 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.<p>
  * In this case, the domain, map, and range operators can be *, or concrete instance, just as other permutations, but the variable parameter
- * section suffix contains either a class designation for ? or * wildcard, or two concrete object instances for a start and end range
+ * section suffix contains either a class designation or * wildcard, or two concrete object instances for a start and end range
  * in the event there is * and no concrete instance in the corresponding operator section. In other words, we need a range to 
  * designate the subset where we do not have a class to use. If we have a class, we use the first to last keys in the corresponding class.<p>
  * If we dont have a class to use, we need those concrete instances to designate the range.<p>
@@ -84,7 +84,7 @@ public class FindSubSetMode0Transaction extends FindSetMode0Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -137,6 +137,6 @@ public class FindSubSetMode0Transaction extends FindSetMode0Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return);
+		return new RelatrixSubsetIteratorTransaction(alias, xid, tdmr, xdmr, ydmr, dmr_return, ctx);
 	}
 }

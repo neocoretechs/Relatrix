@@ -78,20 +78,16 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
+     * @param ctx TODO
      * @throws IOException
      */
-    public RelatrixSubsetIterator(AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIterator(AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
        	if(DEBUG)
     		System.out.printf("%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), template, templateo, templatep, Arrays.toString(dmr_return));
     	this.dmr_return = dmr_return;
        	this.base = template;
-    	if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+       	this.indexResolver = ctx.resolver();
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -204,8 +200,8 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     		try {
      			DBKey dbkey = (DBKey) iter.next();
 				buffer = (AbstractRelation) RelatrixKV.get(dbkey); // primary DBKey for AbstractRelation
-				buffer.setIdentity(dbkey);
 				buffer.setResolver(indexResolver);
+				buffer.setIdentity(dbkey);
 			} catch (IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -223,21 +219,17 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
      * @param templateo The lower range for searching primary key Morphisms
      * @param templatep The upper range for searching primary key Morphisms
      * @param dmr_return The operator sequence encoded as array
+     * @param ctx TODO
      * @throws IOException
      */
-    public RelatrixSubsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return) throws IOException {
+    public RelatrixSubsetIterator(Alias alias, AbstractRelation template, AbstractRelation templateo, AbstractRelation templatep, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
     	if(DEBUG)
     		System.out.printf("%s alias:%s template:%s templateo:%s templatep:%s dmr_return:%s%n", this.getClass().getName(), alias, template, templateo, templatep, Arrays.toString(dmr_return));
     	this.base = template;
     	this.dmr_return = dmr_return;
-    	if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
+    	this.indexResolver = ctx.resolver();
+    	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
       	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -340,9 +332,9 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
     		try {
     			DBKey dbkey = (DBKey) iter.next();
     			buffer = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
+     			buffer.setResolver(indexResolver);
     			buffer.setIdentity(dbkey);
     			buffer.setAlias(alias);
-    			buffer.setResolver(indexResolver);
     		} catch (IllegalAccessException | IOException e) {
     			throw new RuntimeException(e);
     		}
@@ -383,8 +375,8 @@ public class RelatrixSubsetIterator implements Iterator<Result> {
 	    				nextit = (AbstractRelation) RelatrixKV.get(alias, dbkey); // primary DBKey for AbstractRelation
 	    				nextit.setAlias(alias);
 	    			}
-	    			nextit.setIdentity(dbkey);
 	    			nextit.setResolver(indexResolver);
+	    			nextit.setIdentity(dbkey);
 				} catch (IllegalAccessException | IOException e) {
 					throw new RuntimeException(e);
 				}

@@ -34,15 +34,11 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
     /**
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param c the Class to retrieve
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixKeysetIterator(Class c) throws IOException {
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
+    public RelatrixKeysetIterator(Class c, ParallelExecutionContext ctx) throws IOException {
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKV.entrySet(c);
 		} catch (IllegalAccessException e) {
@@ -51,8 +47,8 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 			}
     	if( DEBUG )
 			System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
@@ -63,10 +59,12 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param alias the database alias
      * @param c The class we are retrieving
+     * @param ctx ExecutionContext with IndexResolver
      * @throws IOException 
      */
-    public RelatrixKeysetIterator(Alias alias, Class c) throws IOException {
+    public RelatrixKeysetIterator(Alias alias, Class c, ParallelExecutionContext ctx) throws IOException {
     	this.alias = alias;
+    	this.indexResolver = ctx.resolver();
     	try {
 			iter = RelatrixKV.entrySet(alias, c);
 		} catch (IllegalAccessException e) {
@@ -75,21 +73,21 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
     	if( iter.hasNext() ) {
 			buffer = (Comparable) iter.next();
 			if(((Map.Entry)buffer).getKey() instanceof AbstractRelation) {
+				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setIdentity((DBKey)((Map.Entry)buffer).getValue());
 				((AbstractRelation)((Map.Entry)buffer).getKey()).setAlias(alias);
-				((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 			}
     	if( DEBUG )
     		System.out.printf("%s hasNext=%b needsIter=%b %s%n",this.getClass().getName(),iter.hasNext(),needsIter,buffer);
     	}
     }
     
-    public RelatrixKeysetIterator(Comparable c) throws IOException {
-    	this(c.getClass());
+    public RelatrixKeysetIterator(Comparable c, ParallelExecutionContext ctx) throws IOException {
+    	this(c.getClass(), ctx);
     }
     
-    public RelatrixKeysetIterator(Alias alias, Comparable c) throws IOException {
-    	this(alias, c.getClass());
+    public RelatrixKeysetIterator(Alias alias, Comparable c, ParallelExecutionContext ctx) throws IOException {
+    	this(alias, c.getClass(), ctx);
     }
     
 	@Override
@@ -113,9 +111,9 @@ public class RelatrixKeysetIterator implements Iterator<Comparable> {
 			if( iter.hasNext()) {
 				nextit = (Comparable)iter.next();
 				if(((Map.Entry)nextit).getKey() instanceof AbstractRelation) {
+					((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setIdentity((DBKey)((Map.Entry)nextit).getValue());
 					((AbstractRelation)((Map.Entry)nextit).getKey()).setAlias(alias);
-					((AbstractRelation)((Map.Entry)buffer).getKey()).setResolver(indexResolver);
 				}
 			} else {
 				nextit = null;

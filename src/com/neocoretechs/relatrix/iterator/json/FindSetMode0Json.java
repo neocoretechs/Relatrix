@@ -50,7 +50,7 @@ public class FindSetMode0Json extends IteratorFactory {
 		AbstractRelation dmr = new Relation(true, null, null, null);
 		if( DEBUG  )
 			System.out.println("Relatrix FindsetMode0.createIterator setting search for "+dmr);
-	    return createRelatrixIterator(dmr, null);
+	    return createRelatrixIterator(dmr, ctx);
 	}
 	
 	@Override
@@ -66,7 +66,7 @@ public class FindSetMode0Json extends IteratorFactory {
 		AbstractRelation dmr = new Relation(true, alias, null, null, null);
 		if( DEBUG  )
 			System.out.println("Relatrix FindsetMode0.createIterator alias:"+alias+" setting search for "+dmr);
-	    return createRelatrixIterator(alias, dmr, null);
+	    return createRelatrixIterator(alias, dmr, ctx);
 	}
 	
 	@Override

@@ -54,7 +54,7 @@ public class FindHeadSetMode0Transaction extends FindSetMode0Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(xid, tdmr, xdmr, dmr_return, ctx);
 	}
 
 	@Override
@@ -87,6 +87,6 @@ public class FindHeadSetMode0Transaction extends FindSetMode0Transaction {
 			}
 		} else
 			throw new IllegalAccessException("Improper AbstractRelation template.");
-		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return);
+		return new RelatrixHeadsetIteratorTransaction(alias, xid, tdmr, xdmr, dmr_return, ctx);
 	}
 }

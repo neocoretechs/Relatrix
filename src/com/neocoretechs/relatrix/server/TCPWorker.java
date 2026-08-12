@@ -34,12 +34,12 @@ public class TCPWorker implements Runnable {
 	
 	public TCPWorker() {}
 	
-    public TCPWorker(SocketChannel workerSocket, ParallelExecutionContext context, ClassLoader classLoader) throws IOException {
+    public TCPWorker(SocketChannel workerSocket, ClassLoader classLoader, ParallelExecutionContext ctx) throws IOException {
     	this.workerSocket = workerSocket;
-		workerHandler = new ConnectionHandler(workerSocket, classLoader, null);
+		workerHandler = new ConnectionHandler(workerSocket, classLoader);
 		// spin the request processor thread for the worker
 		workerRequestProcessor = new WorkerRequestProcessor(this);
-		SynchronizedThreadManager.getInstance().spinWithContext(workerRequestProcessor, context);
+		SynchronizedThreadManager.getInstance().spinWithContext(workerRequestProcessor, ctx);
 		if( DEBUG ) {
 			System.out.printf("%s%n",this);
 			if(!workerSocket.isConnected())
@@ -126,6 +126,6 @@ public class TCPWorker implements Runnable {
     	indexResolver.setLocal();
     	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
     	HandlerClassLoader hcl = new HandlerClassLoader();
-		SynchronizedThreadManager.getInstance().spin(new TCPWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))), pec, hcl));
+		SynchronizedThreadManager.getInstance().spin(new TCPWorker(SocketChannel.open(new InetSocketAddress(args[0],Integer.parseInt(args[1]))), hcl, pec));
 	}
 }

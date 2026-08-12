@@ -16,8 +16,7 @@ import com.neocoretechs.relatrix.iterator.RelatrixHeadsetIterator;
 import com.neocoretechs.relatrix.iterator.RelatrixIterator;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -50,21 +49,18 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
      * Pass the array we use to indicate which values to return and element 0 counter
      * @param templateo 
      * @param dmr_return
+     * @param ctx TODO
      * @throws IOException 
      */
-    public RelatrixHeadsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIteratorTransaction(TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
     	if(DEBUG)
     		System.out.printf("%s %s %s %s%n", this.getClass().getName(), xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
+    	this.indexResolver = ctx.resolver();
     	this.identity = RelatrixIterator.isIdentity(this.dmr_return);
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			indexResolver = ctx.resolver();
-		} else {
-			indexResolver = new IndexResolver();
-		}
+
     	// if template domain, map, range was null, templateo was set with endarg last key for class,
     	// concrete type otherwise. template domain, map, range null means we are returning values for that element
     	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
@@ -191,23 +187,15 @@ public class RelatrixHeadsetIteratorTransaction extends RelatrixHeadsetIterator 
 			System.out.println("RelatrixHeadsetIteratorTransaction hasNext:"+iter.hasNext()+" needsIter:"+needsIter+" buffer:"+buffer+" template:"+base);
     }
     
-    public RelatrixHeadsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return) throws IOException {
+    public RelatrixHeadsetIteratorTransaction(Alias alias, TransactionId xid, AbstractRelation template, AbstractRelation templateo, short[] dmr_return, ParallelExecutionContext ctx) throws IOException {
     	this.xid = xid;
     	this.alias = alias;
      	if(DEBUG)
     		System.out.printf("%s %s %s %s %s%n", this.getClass().getName(), alias, xid, template, Arrays.toString(dmr_return));
     	this.template = template;
     	this.dmr_return = dmr_return;
-    	identity = RelatrixIterator.isIdentity(this.dmr_return);
-       	// if template domain, map, range was null, templateo was set with endarg last key for class,
-    	// concrete type otherwise. template domain, map, range null means we are returning values for that element
-    	// and a class or concrete type must have been supplied. For class, we would have inserted last key.
-      	if(ExecutionContextHolder.CONTEXT.isBound()) {
-    			ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-    			indexResolver = ctx.resolver();
-    		} else {
-    			indexResolver = new IndexResolver();
-    		}
+    	this.indexResolver = ctx.resolver();
+    	identity = RelatrixIterator.isIdentity(this.dmr_return); 
     	try {
       		template.setResolver(indexResolver);
     		if(template.getDomain() != null) {

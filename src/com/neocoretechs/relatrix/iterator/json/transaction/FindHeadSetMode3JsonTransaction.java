@@ -13,7 +13,6 @@ import com.neocoretechs.rocksack.TransactionId;
 /**
 * Find the head set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br>
 * *,[object],[object] <br>
-* *,?,[object],[object] <br>
 * Concrete instances in map and range
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 

@@ -16,6 +16,7 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.rocksack.TransactionId;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 import com.neocoretechs.rocksack.KeyValue;
@@ -627,5 +628,4 @@ public final class IndexInstanceTableJson implements IndexInstanceTableInterface
 			throw new RuntimeException(e);
 		}		
 	}
-
 }

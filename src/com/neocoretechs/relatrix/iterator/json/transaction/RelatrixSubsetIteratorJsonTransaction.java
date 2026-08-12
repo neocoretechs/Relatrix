@@ -29,7 +29,7 @@ import com.neocoretechs.relatrix.server.ServerMethod;
  * a {@link com.neocoretechs.relatrix.Result} object. Use that key to order a TreeMap entry with the primary key of the
  * retrieved AbstractRelation. The iterator for the findSet then becomes the ordered TreeMap iterator and the primary key is used to retrieve the original
  * AbstractRelation with all its actual payload objects. Ultimately return Result instance elements in next(), 
- * <p>>
+ * <p>
  * Here, the subset is retrieved.<p>
  * For each * wildcard return we need a corresponding Class or 2 concrete instance objects in the suffix arguments. These objects become the basis
  * for the subset objects returned. If a Class is specified the entire range of ordered instances is replaced by the *, in the
