@@ -34,7 +34,7 @@ import com.neocoretechs.relatrix.server.ServerInvokeMethod;
  *
  */
 public class TCPIteratorTransactionWorker implements Runnable {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static boolean TEST = false;
 	
 	public volatile boolean shouldRun = true;

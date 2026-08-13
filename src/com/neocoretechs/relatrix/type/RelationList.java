@@ -15,7 +15,7 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 
 public class RelationList implements Serializable, List<Comparable>, TransportMorphismInterface {
 	private static final long serialVersionUID = -8973345814107305867L;
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	
 	private ArrayList<Comparable> list = new ArrayList<Comparable>();
 	

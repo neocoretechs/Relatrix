@@ -83,10 +83,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 * For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
 * in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
 * order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p>
-* In the special case of the all wildcard specification: findSet("*","*","*"), which will return all elements of the
-* domain->map->range relationships, or the case of findSet(object,object,object), which return one element matching the
-* relationships of the 3 objects, the returned elements(s) constitute identities in the sense of these morphisms satisfying
-* the requirement to be 'categorical'.<p>
+* The returned elements(s) constitute identities in the sense of these morphisms satisfying the requirement to be 'categorical'.<p>
 * In general, all Streams or '3 element' arrays returned by the operators are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
 * since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p>
@@ -98,10 +95,10 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 * in Object-Oriented and Semantic Database Systems. Prentice Hall.
 * See also Category Theory, Set theory, morphisms, functors, function composition, group homomorphism and the works of
 * Mac Lane<p>
-* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021
+* @author Jonathan Groff (C) NeoCoreTechs 1997,2013,2014,2015,2020,2021,2026
 */
 public final class Relatrix {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private static boolean DEBUGREMOVE = false;
 	private static boolean TRACE = true;
 	
