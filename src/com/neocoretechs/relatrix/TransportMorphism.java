@@ -20,8 +20,7 @@ import com.neocoretechs.rocksack.TransactionId;
  */
 public class TransportMorphism implements Serializable, Comparable {
 	private static final long serialVersionUID = 654432956755099495L;
-	// AbstractRelation will store the keys to original AbstractRelation, domain, map, range instances are transient
-	private AbstractRelation abstractRelation;
+	private Class<? extends AbstractRelation> oType;
 	private DBKey identity;
 	private Alias alias;
 	private TransactionId transactionId;
@@ -33,15 +32,15 @@ public class TransportMorphism implements Serializable, Comparable {
 	protected Comparable range;
 	protected DBKey rangeKey;
 	private TransportMorphism(AbstractRelation abstractRelation) {
-		this.abstractRelation = abstractRelation;
+		oType = abstractRelation.getClass();
 		this.identity = abstractRelation.getIdentity();
 		this.alias = abstractRelation.getAlias();
 		this.transactionId = abstractRelation.getTransactionId();
-		this.domain = abstractRelation.domain;
+		this.domain = abstractRelation.getDomain();
 		this.domainKey = abstractRelation.getDomainKey();
-		this.map = abstractRelation.map;
+		this.map = abstractRelation.getMap();
 		this.mapKey = abstractRelation.getMapKey();
-		this.range = abstractRelation.range;
+		this.range = abstractRelation.getRange();
 		this.rangeKey = abstractRelation.getRangeKey();
 	}
 	
@@ -51,7 +50,7 @@ public class TransportMorphism implements Serializable, Comparable {
 		if(result == null)
 			return null;
 		TransportMorphism t = new TransportMorphism(result);
-		resolve(result,t);
+		resolve(t);
 		return t;
 	}
 	/**
@@ -63,7 +62,7 @@ public class TransportMorphism implements Serializable, Comparable {
 		if(t == null)
 			return null;
 		AbstractRelation m = t.getMorphism();
-		resolve(t,m);
+		resolve(m);
 		return m;
 	}
 	/**
@@ -72,16 +71,28 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @return The abstractRelation field once populated
 	 */
 	private AbstractRelation getMorphism() {
-		if(abstractRelation.getIdentity() == null && identity != null)
-			abstractRelation.setIdentity(identity);
-		if(abstractRelation.getAlias() == null && alias != null)
-			abstractRelation.setAlias(alias);
+		AbstractRelation abstractRelation;
+		if(oType == Relation.class) abstractRelation = new Relation();
+		else
+			if(oType == DomainRangeMap.class) abstractRelation = new DomainRangeMap();
+			else
+				if(oType == MapDomainRange.class) abstractRelation = new MapDomainRange();
+				else
+					if(oType == MapRangeDomain.class) abstractRelation = new MapRangeDomain();
+					else
+						if(oType == RangeDomainMap.class) abstractRelation = new RangeDomainMap();
+						else
+							if(oType == RangeMapDomain.class) abstractRelation = new RangeMapDomain();
+							else
+								throw new RuntimeException("Wrong type of class for getMorphism");
+		abstractRelation.setIdentity(identity);
+		abstractRelation.setAlias(alias);
 		abstractRelation.setTransactionId(transactionId);
 		abstractRelation.setDomainResolved(domain);
 		abstractRelation.setDomainKey(domainKey);
 		abstractRelation.setMapResolved(map);
 		abstractRelation.setMapKey(mapKey);
-		abstractRelation.setRangeResolved(range);;
+		abstractRelation.setRangeResolved(range);
 		abstractRelation.setRangeKey(rangeKey);
 		return abstractRelation;
 	}
@@ -90,18 +101,24 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @param target The Relation we are 'serializing'
 	 * @param newTransport The new TransportMorphism
 	 */
-	private static void resolve(AbstractRelation target, TransportMorphism newTransport) {
-		if(target.domain instanceof AbstractRelation) {
-			newTransport.setDomain(new TransportMorphism((AbstractRelation) target.domain));
-			resolve((AbstractRelation) target.domain, newTransport);
-		}	
-		if(target.map instanceof AbstractRelation) {
-			newTransport.setMap(new TransportMorphism((AbstractRelation) target.map));
-			resolve((AbstractRelation) target.map, newTransport);
+	private static void resolve(TransportMorphism newTransport) {
+		if(newTransport.getDomain() instanceof AbstractRelation) {
+			TransportMorphism newTr = new TransportMorphism((AbstractRelation) newTransport.getDomain());
+			newTransport.setDomain(newTr);
+			newTransport.setDomainKey(newTransport.getDomainKey());
+			resolve(newTr);
 		}
-		if(target.range instanceof AbstractRelation) {
-			newTransport.setRange(new TransportMorphism((AbstractRelation) target.range));
-			resolve((AbstractRelation) target.range, newTransport);
+		if(newTransport.getMap() instanceof AbstractRelation) {
+			TransportMorphism newTr = new TransportMorphism((AbstractRelation) newTransport.getMap());
+			newTransport.setMap(newTr);
+			newTransport.setMapKey(newTransport.getMapKey());
+			resolve(newTr);
+		}
+		if(newTransport.getRange() instanceof AbstractRelation) {
+			TransportMorphism newTr = new TransportMorphism((AbstractRelation) newTransport.getRange());
+			newTransport.setRange(newTr);
+			newTransport.setRangeKey(newTransport.getRangeKey());
+			resolve(newTr);
 		}
 	}
 	/**
@@ -109,22 +126,35 @@ public class TransportMorphism implements Serializable, Comparable {
 	 * @param target The TransportMorphism we are 'deserializing'
 	 * @param newTransport The new Relation
 	 */
-	private static void resolve(TransportMorphism target, AbstractRelation newTransport) {
-		if(target.domain instanceof TransportMorphism) {
-			newTransport.setDomainResolved(((TransportMorphism)target.domain).getMorphism());
-			newTransport.setDomainKey(((TransportMorphism)target.domain).domainKey);
-			resolve((TransportMorphism) target.domain, newTransport);
-		}	
-		if(target.map instanceof TransportMorphism) {
-			newTransport.setMapResolved(((TransportMorphism)target.map).getMap());
-			newTransport.setMapKey(((TransportMorphism)target.map).mapKey);
-			resolve((TransportMorphism) target.map, newTransport);
-		}
-		if(target.range instanceof TransportMorphism) {
-			newTransport.setRangeResolved( ((TransportMorphism)target.range).getRange());
-			newTransport.setRangeKey(((TransportMorphism)target.range).rangeKey);
-			resolve((TransportMorphism) target.range, newTransport);
-		}
+	private static void resolve(AbstractRelation newTransport) {
+		if(newTransport.getDomain() instanceof TransportMorphism) {
+			TransportMorphism tr = (TransportMorphism)newTransport.getDomain();
+			AbstractRelation ar = tr.getMorphism();
+			newTransport.setDomainResolved(ar);
+			newTransport.setDomainKey(tr.getDomainKey());
+			resolve(ar);
+		} 
+		if(newTransport.getMap() instanceof TransportMorphism) {
+			TransportMorphism tr = (TransportMorphism)newTransport.getMap();
+			AbstractRelation ar = tr.getMorphism();
+			newTransport.setMapResolved(ar);
+			newTransport.setMapKey(tr.getMapKey());
+			resolve(ar);
+		} 
+		if(newTransport.getRange() instanceof TransportMorphism) {
+			TransportMorphism tr = (TransportMorphism)newTransport.getRange();
+			AbstractRelation ar = tr.getMorphism();
+			newTransport.setRangeResolved(ar);
+			newTransport.setRangeKey(tr.getRangeKey());
+			resolve(ar);
+		} 
+		//newTransport.setIdentity(target.getIdentity());
+	}
+	private void setIdentity(DBKey id) {
+		this.identity = id;
+	}
+	private DBKey getIdentity() {
+		return identity;
 	}
 	private void setDomain(Comparable domain) {
 		this.domain = domain;
@@ -144,9 +174,63 @@ public class TransportMorphism implements Serializable, Comparable {
 	private Comparable getRange() {
 		return range;
 	}
+	private void setDomainKey(DBKey domain) {
+		this.domainKey = domain;
+	}
+	private void setMapKey(DBKey map) {
+		this.mapKey = map;
+	}
+	private void setRangeKey(DBKey range) {
+		this.rangeKey = range;
+	}
+	private DBKey getDomainKey() {
+		return domainKey;
+	}
+	private DBKey getMapKey() {
+		return mapKey;
+	}
+	private DBKey getRangeKey() {
+		return rangeKey;
+	}
 	@Override
 	public int compareTo(Object o) {
 		return identity.compareTo(((TransportMorphism)o).identity);
 	}
-
+    @Override
+    public String toString() {
+    	String s = String.format("Class:%s Identity Key:%s%n",this.getClass(),this.getIdentity());
+    	StringBuffer sb = new StringBuffer(s);
+    	if(alias != null) {
+    		sb.append("Alias:");
+    		sb.append(alias);
+    	}
+    	if(transactionId != null) {
+    		sb.append(" Xid:");
+    		sb.append(transactionId);
+    	}
+    	if(alias != null || transactionId != null)
+    		sb.append("\n");
+    	sb.append("Class:[");
+    	sb.append(getDomain() == null ? "NULL" :getDomain().getClass().getName());
+    	sb.append("->");
+    	sb.append(getMap() == null ? "NULL" : getMap().getClass().getName());
+    	sb.append("->");
+    	sb.append(getRange() == null ? "NULL" : getRange().getClass().getName());
+    	sb.append("]\n");
+    	sb.append("Keys:[");
+    	sb.append(getDomainKey() == null ? "NULL" : getDomainKey().toString());
+    	sb.append("->");
+    	sb.append(getMapKey() == null ? "NULL" : getMapKey().toString());
+    	sb.append("->");
+    	sb.append(getRangeKey() == null ? "NULL" : getRangeKey().toString());
+    	sb.append("]\n");
+    	sb.append("Vals:[");
+    	sb.append(getDomain() == null ? "NULL" : getDomain().toString());
+    	sb.append("->");
+    	sb.append(getMap() == null ? "NULL" : getMap().toString());
+    	sb.append("->");
+    	sb.append(getRange() == null ? "NULL" : getRange().toString());
+    	sb.append("]\n");
+    	return sb.toString();
+    }
 }

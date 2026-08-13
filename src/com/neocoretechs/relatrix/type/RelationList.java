@@ -15,6 +15,8 @@ import com.neocoretechs.relatrix.TransportMorphismInterface;
 
 public class RelationList implements Serializable, List<Comparable>, TransportMorphismInterface {
 	private static final long serialVersionUID = -8973345814107305867L;
+	private static boolean DEBUG = true;
+	
 	private ArrayList<Comparable> list = new ArrayList<Comparable>();
 	
 	public RelationList(List list) {
@@ -34,7 +36,6 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 
 	@Override
 	public void packForTransport() {
-		AbstractRelation.resolveRelations(null, null);
 		this.list.replaceAll(e -> createTransport((Relation)e));	
 	}
 
@@ -45,6 +46,8 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 
 	@Override
 	public TransportMorphism createTransport(AbstractRelation o) {
+		if(DEBUG)
+			System.out.printf("%s createTransport %s%n",this.getClass().getName(), o);
 		return TransportMorphism.createTransport(o);
 	}
 
@@ -164,10 +167,59 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 	public ListIterator<Comparable> listIterator(int index) {
 		return list.listIterator(index);
 	}
-
+	
 	@Override
 	public List<Comparable> subList(int fromIndex, int toIndex) {
 		return list.subList(fromIndex, toIndex);
 	}
-
-}
+	
+	int i;
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if(list.isEmpty()) {
+			sb.append("Empty\r\n);");
+			return sb.toString();
+		}
+		i = 1;
+		list.forEach(e->{
+			sb.append(i++);
+			sb.append(".) ");
+			//sb.append(e.toString());
+			if(e instanceof AbstractRelation) {
+				AbstractRelation ar = (AbstractRelation) e;
+				sb.append("Identity:");
+				sb.append(ar.getIdentity());
+				sb.append("\r\n");
+				sb.append("Keys:");
+				sb.append(ar.getDomainKey());
+				sb.append(",");
+				sb.append(ar.getMapKey());
+				sb.append(",");
+				sb.append(ar.getRangeKey());
+				sb.append("\r\n");
+				try {
+					sb.append(ar.getDomain());
+				} catch(RuntimeException re) {
+					sb.append(re.getMessage());
+				}
+				sb.append("\r\n");
+				try {
+					sb.append(ar.getMap());
+				} catch(RuntimeException re) {
+					sb.append(re.getMessage());
+				}
+				sb.append("\r\n");
+				try {
+					sb.append(ar.getRange());
+				} catch(RuntimeException re) {
+					sb.append(re.getMessage());
+				}
+			} else
+				sb.append(e.toString());
+			sb.append("\r\n");
+		});
+		return sb.toString();
+	}
+		
+	}
