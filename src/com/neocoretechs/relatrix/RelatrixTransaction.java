@@ -912,11 +912,12 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(transactionId, pks);
 		}
 		List<DBKey> removed = new ArrayList<DBKey>();//Collections.synchronizedList(new ArrayList<DBKey>()); slower parallel search
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
 			while(index < removed.size()) {
-				removeSearch(transactionId, item, removed, null);
+				removeSearch(transactionId, item, removed, ctx);
 				++index;
 				if( DEBUG || DEBUGREMOVE )
 					System.out.println("RemoveSearch index"+index+" size:"+removed.size());
@@ -958,11 +959,12 @@ public final class RelatrixTransaction {
 			RelatrixKVTransaction.remove(alias, transactionId, pks);
 		}
 		List<DBKey> removed = new ArrayList<DBKey>();//Collections.synchronizedList(new ArrayList<DBKey>());
+		ParallelExecutionContext ctx = new ParallelExecutionContext(new IndexResolver(), null);
 		try {
 			int index = -1;
 			DBKey item = primaryKey;
 			while(index < removed.size()) {
-				removeSearch(alias, transactionId, item, removed, null);
+				removeSearch(alias, transactionId, item, removed, ctx);
 				++index;
 				if(DEBUG || DEBUGREMOVE)
 					System.out.println("RemoveSearch index"+index+" size:"+removed.size());
@@ -3576,7 +3578,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixKeysetIteratorTransaction(xid, clazz, null);
+		return new RelatrixKeysetIteratorTransaction(xid, clazz, new ParallelExecutionContext(new IndexResolver(), null));
 	}
 	
 	/**
@@ -3591,13 +3593,13 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Iterator<?> keySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return new RelatrixKeysetIteratorTransaction(alias, xid, clazz, null);
+		return new RelatrixKeysetIteratorTransaction(alias, xid, clazz, new ParallelExecutionContext(new IndexResolver(), null));
 	}
 	
 	@ServerMethod
 	public static Iterator<?> entrySet(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixEntrysetIteratorTransaction(xid, clazz, null);
+		return new RelatrixEntrysetIteratorTransaction(xid, clazz, new ParallelExecutionContext(new IndexResolver(), null));
 	}
 	
 	/**
@@ -3612,7 +3614,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Iterator<?> entrySet(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return new RelatrixEntrysetIteratorTransaction(alias, xid, clazz, null);
+		return new RelatrixEntrysetIteratorTransaction(alias, xid, clazz, new ParallelExecutionContext(new IndexResolver(), null));
 	}
 	/**
 	 * Return the entry set for the given class type
@@ -3625,7 +3627,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Stream<?> entrySetStream(TransactionId xid, Class clazz) throws IOException, IllegalAccessException
 	{
-		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(xid, clazz, null));
+		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(xid, clazz, new ParallelExecutionContext(new IndexResolver(), null)));
 	}
 	
 	/**
@@ -3640,7 +3642,7 @@ public final class RelatrixTransaction {
 	@ServerMethod
 	public static Stream<?> entrySetStream(Alias alias, TransactionId xid, Class clazz) throws IOException, IllegalAccessException, NoSuchElementException
 	{
-		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(alias, xid, clazz, null));
+		return new RelatrixStream(new RelatrixEntrysetIteratorTransaction(alias, xid, clazz, new ParallelExecutionContext(new IndexResolver(), null)));
 	}
 	
 	/**
