@@ -43,7 +43,7 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	@Override
 	public Comparable[] toArray() {
 		if(one instanceof AbstractRelation) {
-			return new Comparable[] {((Relation)one).getDomain(),((Relation)one).getMap(),((Relation)one).getRange()};
+			return new Comparable[] {((AbstractRelation)one).getDomain(),((AbstractRelation)one).getMap(),((AbstractRelation)one).getRange()};
 		}
 		return new Comparable[] {one};
 	}
@@ -61,7 +61,10 @@ public class Result1 extends Result implements Comparable, Serializable, Cloneab
 	@Override
 	public void packForTransport() {
 		if(one instanceof AbstractRelation)
-			one = createTransport((Relation) ((AbstractRelation) one).asRelation());	
+			one = createTransport((AbstractRelation) one);
+		else
+		if(one instanceof TransportMorphismInterface && !(one instanceof Result))
+			((TransportMorphismInterface)one).packForTransport();
 	}
 	
 	@Override

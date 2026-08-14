@@ -19,6 +19,7 @@ import com.neocoretechs.rocksack.TransactionId;
  *
  */
 public class TransportMorphism implements Serializable, Comparable {
+	private static boolean DEBUG = false;
 	private static final long serialVersionUID = 654432956755099495L;
 	private Class<? extends AbstractRelation> oType;
 	private DBKey identity;
@@ -51,6 +52,8 @@ public class TransportMorphism implements Serializable, Comparable {
 			return null;
 		TransportMorphism t = new TransportMorphism(result);
 		resolve(t);
+		if(DEBUG)
+			System.out.println("TransportMorphism.createTransport returning:"+t);
 		return t;
 	}
 	/**
@@ -63,6 +66,8 @@ public class TransportMorphism implements Serializable, Comparable {
 			return null;
 		AbstractRelation m = t.getMorphism();
 		resolve(m);
+		if(DEBUG)
+			System.out.println("TransportMorphism.createMorphisn returning:"+m);
 		return m;
 	}
 	/**
