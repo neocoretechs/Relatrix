@@ -2970,7 +2970,6 @@ public final class RelatrixTransaction {
 		return new RelatrixStream(ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(), null)));
 	}
 	
-
 	/**
 	 * this method returns the first Relation
 	 * instance having the lowest valued key value of the index classes.

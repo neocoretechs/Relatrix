@@ -14,7 +14,7 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.server.ServerMethod;
 
@@ -79,8 +79,8 @@ public class RelatrixIterator implements Iterator<Result> {
     		iter = RelatrixKV.findTailMapKV(template);
     		if( iter.hasNext() ) {
     			Map.Entry me = (Entry) iter.next();
-    			buffer.setResolver(indexResolver);
     			buffer = (AbstractRelation)me.getKey();
+      			buffer.setResolver(indexResolver);
     			buffer.setIdentity((DBKey) me.getValue());
     			if( !templateMatches(base, buffer, dmr_return) ) {
     				buffer = null;

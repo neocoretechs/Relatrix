@@ -21,9 +21,9 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
  * determines the relationship for that domain, map, or range part and we forego having either a class or concrete object range in the variable
  * list of objects and classes in the suffix.<p>
  * Examples:<p>
- * ?,*,[object],[object],[object],[class] <br>
- * ?,?,?,[class],[class],[object],[object] <br>
- * ?,?,?,[object],[object],[object],[object],[object],[object] <br>
+ * *,*,[object],[object],[object],[class] <br>
+ * *,*,*,[class],[class],[object],[object] <br>
+ * *,*,*,[object],[object],[object],[object],[object],[object] <br>
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2024
  *
  */
