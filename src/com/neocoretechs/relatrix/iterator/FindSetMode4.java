@@ -11,17 +11,11 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Find the set of objects in the relation via the specified predicate. 
-* This variation accommodates findSet(object,"*|?","*|?") which returns a 1 or 2 element Comparable
+* This variation accommodates findSet(object,"*|","*|") 
 * for each iteration wherein the object specified in the domain functions as the domain in the retrieved relationships.
 * Legal permutations are:<br>
 * [object],*,* <br>
-* [object],*,?  <br>
-* [object],?,?  <br>
-* [object],?,* <br>
 * [TemplateClass],*,* <br>
-* [TemplateClass],*,? <br>
-* [TemplateClass],?,? <br>
-* [TemplateClass],?,* <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */
@@ -34,16 +28,16 @@ public class FindSetMode4 extends IteratorFactory {
     	this.darg = darg;
     	this.mop = mop;
     	this.rop = rop;
-	    // see if its ? or * operator
+	    // see if its  * operator
     	dmr_return[1] = 0;
         // map
-        // see if its ? or * operator
+        // see if its * operator
         dmr_return[2] = checkOp(mop);
         // range
         dmr_return[3] = checkOp(rop);
     }
     /**
-     *  @return The iterator for the returned set, each iterator return is a Comparable array of tuples of arity n=?'s
+     *  @return The iterator for the returned set
      */
 	@Override
 	public Iterator<?> createIterator(ParallelExecutionContext ctx) throws IllegalAccessException, IOException {

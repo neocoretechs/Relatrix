@@ -61,13 +61,22 @@ public class RelatrixClient extends RelatrixClientInterfaceImpl {
 	public int getRemotePort() {
 		return remotePort;
 	}
-	
+	/**
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
+	 * @param it The previously established iterator
+	 */
 	public void setIterator(Iterator<?> it) {
 		asynchClient.setIterator(((RemoteIteratorClient)it));
 	}
 	/**
-	 * Get the RemoteStream from the Stream, then the RemoteIteratorClient from the RemoteStream, then the AsynchRelatrixClient from the RemoteIteratorClient
-	 * and finally the 
+	 * Get the RemoteStream from the Stream, then the RemoteIteratorClient from the RemoteStream, then the AsynchRelatrixClient from the RemoteIteratorClient.
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
 	 * @param st
 	 */
 	public void setStream(Stream st) {

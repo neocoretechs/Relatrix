@@ -159,7 +159,11 @@ public class AsynchRelatrixClientJson extends AsynchRelatrixClientInterfaceJsonI
 	}
 	
 	/**
-	 * Set the RemoteIteratorClient
+	 * Set the RemoteIteratorClient.
+	 * The purpose of this is to prevent a new connection to a remote server inside a loop. The existing
+	 * client will be re-used rather than creating a new client connection to the remote iterator server.
+	 * This is critical for large queries that contain nested queries as exhaustion of remote connections
+	 * can occur otherwise.
 	 * @param client
 	 */
 	public void setIterator(Iterator<?> client) {
