@@ -14,12 +14,9 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
 * value. Map must contain concrete instance.
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
-* * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
-* *,[object],* <br/>
-* *,[object],? <br/>
-* ?,[object],? <br/>
-* ?,[object],* <br/>
-*  <p/>
+* * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br>
+* *,[object],* <br>
+*  <p>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015, 2021
 * 
 */

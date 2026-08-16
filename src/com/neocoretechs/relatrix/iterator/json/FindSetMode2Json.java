@@ -11,13 +11,13 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Mode 2 find returns a set in map, domain, range order. The map value is matched against the constructor
-* value. Mode 2 findSet("?|*",object,"?|*") returning a Comparable of 1 or 2 elements containing the identity
+* value. Mode 2 findSet("|*",object,"|*") returning a Comparable of 1 or 2 elements containing the identity
 * or tuples from retrieval. For identity, if we specify findSet("*",object,"*") we get a Comparable of 1
 * element containing a AbstractRelation subclass.
 * <pre>
 * Find the set of objects in the relation via the specified predicate. Legal permutations are
-* *,[object],* *,[object],? ?,[object],? ?,[object],*
-* *,[TemplateClass],* *,[TemplateClass],? ?,[TemplateClass],? ?,[TemplateClass],*
+* *,[object],* 
+* *,[TemplateClass],*
 * </pre>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2026
 * 

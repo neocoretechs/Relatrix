@@ -13,15 +13,9 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 /**
 * Mode 2 find returns a headSet in map, domain, range order. The map value is matched against the constructor
 * value. 
-* Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
-* *,[object],* <br/>
-* *,[object],? <br/>
-* ?,[object],? <br/>
-* ?,[object],* <br/>
-*  <p/>
-* The number of Comparable objects returned is the sum of the number of "?" PLUS the number of concrete object instances
-* specified in the variable parameters, in this case 1. Since we are returning a range of concrete objects we need to include
-* these items, and if a retrieval of a range of concrete objects is desired, the subset and substream are the means of doing so.
+* Find the set of objects in the relation via the specified predicate. Legal permutations are:<br>
+* *,[object],* <br>
+*  <p>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
 */

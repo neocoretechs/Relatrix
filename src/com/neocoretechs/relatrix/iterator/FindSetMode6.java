@@ -10,16 +10,11 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
-* Find the set of objects in the relation via the specified predicate. Mode 6 is for findSet(object,object,"?|*")
-* where a 1 element Comparable array is returned from each iteration of the constructed iterator returned from findSet.
-* The array has either the identity where the first 2 objects are components of the relationship for each iterated element of the 
-* findSet, or the object functioning as the range (codomain) for each iteration where the first 2 objects are domain and
-* map.
+* Find the set of objects in the relation via the specified predicate. Mode 6 is for findSet(object,object,"*")
+*
 * Legal permutations are:<br>
 * [object],[object],* <br>
-* [object],[object],? <br>
 * [TemplateClass],[TemplateClass],* <br>
-* [TemplateClass],[TemplateClass],? <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 *
 */

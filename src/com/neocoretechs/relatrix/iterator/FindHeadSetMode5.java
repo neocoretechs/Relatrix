@@ -12,9 +12,8 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
 * Mode 5. Permutation with 2 objects.
-* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br/>
+* Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br>
 * [object],*,[object] <br>
-* [object],?,[object] <br>
 * Concrete domain and range
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 

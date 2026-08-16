@@ -13,12 +13,8 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 * Mode 2 find returns a tailSet in map, domain, range order. The map value is matched against the constructor
 * value. Map must contain concrete instance.
 * Find the set of objects in the relation via the specified predicate greater or equal to 'from' element. 
-* * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br/>
-* *,[object],*,... <br/>
-* *,[object],?,... <br/>
-* ?,[object],?,... <br/>
-* ?,[object],*,... <br/>
-*  <p/>
+* * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br>
+* *,[object],*,... <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021,2024
 * 
 */

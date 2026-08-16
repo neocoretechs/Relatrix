@@ -10,13 +10,12 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
-* Find the set of objects in the relation via the specified predicate. Mode 3 = findSet("?|*",object,object)
+* Find the set of objects in the relation via the specified predicate. Mode 3 = findSet("*",object,object)
 * returns a 1 element Result with the identity findSet("*",object,object) for all elements matching the
-* last 2 objects. In the case of findSet("?",object,object) a {@link com.neocoretechs.relatrix.Result1} is return for each iteration
+* last 2 objects.  a {@link com.neocoretechs.relatrix.Result1} is return for each iteration
 * and it contains the object functioning as the domain in all relationships where the last 2 objects are the map and range.
 Legal permutations are:<br>
 * *,[object],[object] <br>
-* *,?,[object],[object] <br/>
 * *,[TemplateClass],[TemplateClass] <br>
 * *,?,[TemplateClass],[TemplateClass] <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021

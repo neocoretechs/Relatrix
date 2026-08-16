@@ -15,9 +15,6 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. 
 * * Find the set of objects in the relation via the specified predicate. Legal permutations are:<br>
 * *,[object],* <br>
-* *,[object],? <br>
-* ?,[object],? <br>
-* ?,[object],* <br>
 *  <p>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015, 2021,2026
 * 

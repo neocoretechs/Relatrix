@@ -12,9 +12,6 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 /**
 * Find the set of objects in the relation via the specified predicate strictly less than 'to' target. Legal permutations are:<br>
 * [object],*,* <br>
-* [object],*,?  <br>
-* [object],?,?  <br>
-* [object],?,* <br>
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 */
 public class FindHeadSetMode4 extends FindSetMode4 {

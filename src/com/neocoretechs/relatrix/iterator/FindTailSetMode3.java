@@ -13,7 +13,6 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 * Find elements greater or equal to 'from' element.
 * Legal permutations are:<br>
 * *,[object],[object],[class] <br>
-* ?,[object],[object],[object] <br>
 * Concrete instances in map and range
 * @author Jonathan Groff Copyright (C) NeoCoreTechs 2014,2015,2021
 * 
