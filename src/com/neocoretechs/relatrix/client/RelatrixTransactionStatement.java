@@ -102,11 +102,11 @@ public class RelatrixTransactionStatement extends RelatrixStatement implements R
 			signalCompletion(ric);
 		} else {
 			if(result instanceof AbstractRelation) {
-				resolve((Relation) result);
+				Relation.resolve((Relation) result);
 			} else {
 				if(result instanceof Result && ((Result)result).get() instanceof AbstractRelation) {
 					Relation rel = (Relation) ((Result)result).get();
-					resolve(rel);
+					Relation.resolve(rel);
 					((Result)result).set(rel);
 				}
 			}

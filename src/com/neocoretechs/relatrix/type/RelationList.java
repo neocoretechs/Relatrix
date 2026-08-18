@@ -36,7 +36,7 @@ public class RelationList implements Serializable, List<Comparable>, TransportMo
 
 	@Override
 	public void packForTransport() {
-		this.list.replaceAll(e -> createTransport((Relation)e));	
+		this.list.replaceAll(e -> createTransport((AbstractRelation)e));	
 	}
 
 	@Override

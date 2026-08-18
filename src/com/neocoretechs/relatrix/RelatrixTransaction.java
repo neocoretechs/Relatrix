@@ -1250,6 +1250,7 @@ public final class RelatrixTransaction {
 	/**
 	 * Perform parallel findSet with list of maps. Result set contains copies of original map for each returned
 	 * Result. The user must match original map set to returned Result(0) set.
+	 * The returned set will be a RElationList type with n querie results times n items in list of objects to query
 	 * @param transactionId transactionId
 	 * @param d domain operator
 	 * @param m List of maps
@@ -1257,11 +1258,11 @@ public final class RelatrixTransaction {
 	 * @return List of Results with original set included in Result(0) for reference
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(TransactionId transactionId, Character d, List<Object> m, Character r) {
+	public static List<? extends Comparable> findSetParallel(TransactionId transactionId, Character d, List<Object> m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1276,19 +1277,23 @@ public final class RelatrixTransaction {
 					}
 					return res;
 				}
-			}, searchXTransaction));
+			}, new ParallelExecutionContext(new IndexResolver(), null)));
 		}
 		// Collect results
-		List<Result> results = new ArrayList<>();
+		List<Comparable> results = new RelationList();
 		for (Future<Object> future : futures) {
 			List<Result> res;
 			try {
 				res = (List<Result>) future.get();
-				results.addAll(res); // Blocking call to get the result
+				for(Result re: res)
+					results.add(re.get()); // Blocking call to get the result
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
+		if(DEBUG)
+			for(Comparable rx: results)
+				System.out.println(rx);
 		return results;
 	}
 	/**
@@ -1305,7 +1310,7 @@ public final class RelatrixTransaction {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
@@ -1320,7 +1325,7 @@ public final class RelatrixTransaction {
 					}
 					return res;
 				}
-			}, searchXTransaction));
+			}, new ParallelExecutionContext(new IndexResolver(), null)));
 		}
 		// Collect results
 		List<Result> results = new ArrayList<>();
