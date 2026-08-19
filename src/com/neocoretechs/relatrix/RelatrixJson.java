@@ -2610,124 +2610,128 @@ public final class RelatrixJson {
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode7Json(darg, marg, rarg);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
+	}
+	@ServerMethod
+	public static Iterator<?> findSubSet(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
+	{
+		IteratorFactory ifact = new FindSubSetMode7Json(darg, marg, rarg);
+		return ifact.createIterator(new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Character rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Json(dop, mop, rop, arg1, arg2, arg3);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Character rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Json(dop, mop, rop, arg1, arg2, arg3, arg4);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Character rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Json(dop, mop, rop, arg1, arg2, arg3, arg4, arg5);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Character rop, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode0Json(dop, mop, rop, arg1, arg2, arg3, arg4, arg5, arg6);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Json(dop, mop, rarg, arg1, arg2);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Object rarg, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Json(dop, mop, rarg, arg1, arg2, arg3);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Character mop, Object rarg, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode1Json(dop, mop, rarg, arg1, arg2, arg3, arg4);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Object marg, Character rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Json(dop, marg, rop, arg1, arg2);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Object marg, Character rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Json(dop, marg, rop, arg1, arg2, arg3);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Object marg, Character rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode2Json(dop, marg, rop, arg1, arg2, arg3, arg4);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Object marg, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Json(dop, marg, rarg, arg1);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Character dop, Object marg, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode3Json(dop, marg, rarg, arg1, arg2);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Character mop, Character rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Json(darg, mop, rop, arg1, arg2);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Character mop, Character rop, Object arg1, Object arg2, Object arg3) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Json(darg, mop, rop, arg1, arg2, arg3);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Character mop, Character rop, Object arg1, Object arg2, Object arg3, Object arg4) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode4Json(darg, mop, rop, arg1, arg2, arg3, arg4);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Character mop, Object rarg, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Json(darg, mop, rarg, arg1);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Character mop, Object rarg, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode5Json(darg, mop, rarg, arg1, arg2);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, Character rop, Object arg1) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Json(darg, marg, rop, arg1);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
 	@ServerMethod
 	public static Iterator<?> findSubSet(Alias alias, Object darg, Object marg, Character rop, Object arg1, Object arg2) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
 		IteratorFactory ifact = new FindSubSetMode6Json(darg, marg, rop, arg1, arg2);
-		return ifact.createIterator(alias, null);
+		return ifact.createIterator(alias, new ParallelExecutionContext(new IndexResolver(),null));
 	}
-	
-
 	@ServerMethod
 	public static Stream<?> findSubStream(Object darg, Object marg, Object rarg) throws IOException, IllegalArgumentException, ClassNotFoundException, IllegalAccessException
 	{
