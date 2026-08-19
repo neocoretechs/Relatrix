@@ -13,7 +13,7 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.TransportMorphism;
 import com.neocoretechs.relatrix.TransportMorphismInterface;
 
-public class RelationList implements Serializable, List<Comparable>, TransportMorphismInterface {
+public final class RelationList implements Serializable, List<Comparable>, TransportMorphismInterface {
 	private static final long serialVersionUID = -8973345814107305867L;
 	private static boolean DEBUG = false;
 	

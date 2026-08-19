@@ -78,13 +78,13 @@ import com.neocoretechs.rocksack.session.DatabaseManager;
 * Top-level class that imparts behavior to the AbstractRelation subclasses which contain references for domain, map, range.<p>
 * The lynch pin is the AbstractRelation and its subclasses indexed
 * in the 6 permutations of the domain,map,and range so we can retrieve instances in all
-* the potential sort orders.<b>
+* the potential sort orders.<p>
 * The compareTo and fullCompareTo of AbstractRelation provide the comparison methods to drive the processes.
 * For retrieval, a partial template is constructed of the proper AbstractRelation subclass which puts the three elements
 * in the proper sort order. To retrieve the proper AbstractRelation subclass, partially construct a morphism template to
 * order the result set. The retrieval operators allow us to form the partially ordered result sets that are returned.<p>
 * The returned elements(s) constitute identities in the sense of these morphisms satisfying the requirement to be 'categorical'.<p>
-* In general, all Streams or '3 element' arrays returned by the operators are
+* In general, all Streams or Iterators returned by the operators produce {@link Result}s which are
 * the mathematical identity. To follow Categorical rules, the unique key in database terms are the first 2 elements, the domain and map,
 * since conceptually a AbstractRelation is a domain acted upon by the map function yielding the range.<p>
 * A given domain run through a 'map function' always yields the same range, 
@@ -1210,37 +1210,36 @@ public final class RelatrixTransaction {
 	 * @param d List of domain Objects
 	 * @param m map operator
 	 * @param r range operator
-	 * @return List of Results with original set included in Result(0) for reference
+	 * @return RelationList type with aggregated result sets
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(TransactionId transactionId, List<Object> d, Character m, Character r) {
+	public static List<? extends Comparable> findSetParallel(TransactionId transactionId, List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(transactionId, d.get(taskId), m, r);
-						while(it.hasNext()) {
-							Result r2 = (Result) it.next();
-							res.add(r2);
-						}
+						findStream(transactionId, d.get(taskId), m, r).forEach(e->{
+							res.add((Result)e);
+						});
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
 					return res;
 				}
-			}, searchXTransaction));
+			}, new ParallelExecutionContext(new IndexResolver(), null)));
 		}
 		// Collect results
-		List<Result> results = new ArrayList<>();
+		List<Comparable> results = new RelationList();
 		for (Future<Object> future : futures) {
 			List<Result> res;
 			try {
 				res = (List<Result>) future.get();
-				results.addAll(res); // Blocking call to get the result
+				for(Result re: res)
+					results.add(re.get()); // Blocking call to get the result
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
@@ -1248,14 +1247,13 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of maps. Result set contains copies of original map for each returned
-	 * Result. The user must match original map set to returned Result(0) set.
-	 * The returned set will be a RElationList type with n querie results times n items in list of objects to query
+	 * Perform parallel findSet with list of maps. 
+	 * The returned set will be a RelationList type with n query results times n items in list of objects to query
 	 * @param transactionId transactionId
 	 * @param d domain operator
 	 * @param m List of maps
 	 * @param r range operator
-	 * @return List of Results with original set included in Result(0) for reference
+	 * @return RelationList with retrieved aggregate results.
 	 */
 	@ServerMethod
 	public static List<? extends Comparable> findSetParallel(TransactionId transactionId, Character d, List<Object> m, Character r) {
@@ -1267,11 +1265,9 @@ public final class RelatrixTransaction {
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(transactionId, d, m.get(taskId), r);
-						while(it.hasNext()) {
-							Result r2 = (Result) it.next();
-							res.add(r2);
-						}
+						findStream(transactionId, d, m.get(taskId), r).forEach(e-> {
+							res.add((Result)e);
+						});
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1297,16 +1293,15 @@ public final class RelatrixTransaction {
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of ranges. Result set contains copies of original range for each returned
-	 * Result. The user must match original range set to returned Result(0) set.
+	 * Perform parallel findSet with list of ranges. Result set contains nxn queries x results
 	 * @param transactionId transactionId
 	 * @param d domain operator
 	 * @param m map operator
 	 * @param r List of ranges
-	 * @return List of Results with original set included in Result(0) for reference
+	 * @return RelationList with aggregate results
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(TransactionId transactionId, Character d, Character m, List<Object> r) {
+	public static List<? extends Comparable> findSetParallel(TransactionId transactionId, Character d, Character m, List<Object> r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
@@ -1315,11 +1310,9 @@ public final class RelatrixTransaction {
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(transactionId, d, m, r.get(taskId));
-						while(it.hasNext()) {
-							Result r2 = (Result) it.next();
-							res.add(r2);
-						}
+						findStream(transactionId, d, m, r.get(taskId)).forEach(e-> {
+							res.add((Result)e);
+						});
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -1328,155 +1321,162 @@ public final class RelatrixTransaction {
 			}, new ParallelExecutionContext(new IndexResolver(), null)));
 		}
 		// Collect results
-		List<Result> results = new ArrayList<>();
+		List<Comparable> results = new RelationList();
 		for (Future<Object> future : futures) {
 			List<Result> res;
 			try {
 				res = (List<Result>) future.get();
-				results.addAll(res); // Blocking call to get the result
+				for(Result re: res)
+					results.add(re.get()); // Blocking call to get the result
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
+		if(DEBUG)
+			for(Comparable rx: results)
+				System.out.println(rx);
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of domains. Result set contains copies of original domain for each returned
-	 * Result. The user must match original domain set to returned Result(0) set.
+	 * Perform parallel findSet with list of domains. Result set contains nxn queries x results
 	 * @param alias alias
 	 * @param transactionId transaction ID
 	 * @param d List of domain Objects
 	 * @param m map operator
 	 * @param r range operator
-	 * @return List of Results with original set included in Result(0) for reference
+	 * @return RelationList with aggregate results
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId, List<Object> d, Character m, Character r) {
+	public static List<? extends Comparable> findSetParallel(Alias alias, TransactionId transactionId, List<Object> d, Character m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < d.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(alias, transactionId, d.get(taskId), m, r);
-						while(it.hasNext()) {
-							Result r2 = (Result) it.next();
-							res.add(r2);
-						}
+						findStream(alias, transactionId, d.get(taskId), m, r).forEach(e->{
+							res.add((Result)e);
+						});
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
 					return res;
 				}
-			}, searchXTransaction));
+			}, new ParallelExecutionContext(new IndexResolver(), null)));
 		}
 		// Collect results
-		List<Result> results = new ArrayList<>();
+		List<Comparable> results = new RelationList();
 		for (Future<Object> future : futures) {
 			List<Result> res;
 			try {
 				res = (List<Result>) future.get();
-				results.addAll(res); // Blocking call to get the result
+				for(Result re: res)
+					results.add(re.get()); // Blocking call to get the result
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
+		if(DEBUG)
+			for(Comparable rx: results)
+				System.out.println(rx);
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of maps. Result set contains copies of original map for each returned
-	 * Result. The user must match original map set to returned Result(0) set.
+	 * Perform parallel findSet with list of maps. Performs n x n queries x results
 	 * @param alias alias
 	 * @param transactionId transaction Id
 	 * @param d domain operator
 	 * @param m List of maps
 	 * @param r range operator
-	 * @return List of Results with original set included in Result(0) for reference
+	 * @return RelationList type with aggregate query results
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId,  Character d, List<Object> m, Character r) {
+	public static List<? extends Comparable> findSetParallel(Alias alias, TransactionId transactionId,  Character d, List<Object> m, Character r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < m.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(alias, transactionId, d, m.get(taskId), r);
-						while(it.hasNext()) {
-							Result r2 = (Result) it.next();
-							res.add(r2);
-						}
+						findStream(alias, transactionId, d, m.get(taskId), r).forEach(e->{
+							res.add((Result)e);
+						});
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
 					return res;
 				}
-			}, searchXTransaction));
+			}, new ParallelExecutionContext(new IndexResolver(),null)));
 		}
 		// Collect results
-		List<Result> results = new ArrayList<>();
+		List<Comparable> results = new RelationList();
 		for (Future<Object> future : futures) {
 			List<Result> res;
 			try {
 				res = (List<Result>) future.get();
-				results.addAll(res); // Blocking call to get the result
+				for(Result re: res)
+					results.add(re.get()); // Blocking call to get the result
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
+		if(DEBUG)
+			for(Comparable rx: results)
+				System.out.println(rx);
 		return results;
 	}
 	/**
-	 * Perform parallel findSet with list of ranges. Result set contains copies of original range for each returned
-	 * Result. The user must match original range set to returned Result(0) set.
+	 * Perform parallel findSet with list of ranges. Performs n x n queries x Results
 	 * @param alias alias
 	 * @param transactionId transaction Id
 	 * @param d domain operator
 	 * @param m map operator
 	 * @param r List of ranges
-	 * @return List of Results with original set included in Result(0) for reference
+	 * @return RelationList type with aggregate query results
 	 */
 	@ServerMethod
-	public static List<Result> findSetParallel(Alias alias, TransactionId transactionId, Character d, Character m, List<Object> r) {
+	public static List<? extends Comparable> findSetParallel(Alias alias, TransactionId transactionId, Character d, Character m, List<Object> r) {
 		List<Future<Object>> futures = new ArrayList<>();
 		for(int i = 0; i < r.size(); i++) {
 			final int taskId = i;
-			futures.add( SynchronizedThreadManager.getInstance().submit(new Callable<Object>() {
+			futures.add( SynchronizedThreadManager.getInstance().submitWithContext(new Callable<Object>() {
 				@Override
 				public List<Result> call() {
 					List<Result> res = new ArrayList<Result>();
 					try {
-						Iterator<?> it = findSet(alias, transactionId, d, m, r.get(taskId));
-						while(it.hasNext()) {
-							Result r2 = (Result) it.next();
-							res.add(r2);
-						}
+						findStream(alias, transactionId, d, m, r.get(taskId)).forEach(e-> {
+							res.add((Result)e);
+						});
 					} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 						throw new RuntimeException(e);
 					}
 					return res;
 				}
-			}, searchXTransaction));
+			}, new ParallelExecutionContext(new IndexResolver(),null)));
 		}
 		// Collect results
-		List<Result> results = new ArrayList<>();
+		List<Comparable> results = new RelationList();
 		for (Future<Object> future : futures) {
 			List<Result> res;
 			try {
 				res = (List<Result>) future.get();
-				results.addAll(res); // Blocking call to get the result
+				for(Result re: res)
+					results.add(re.get()); // Blocking call to get the result
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 		}
+		if(DEBUG)
+			for(Comparable rx: results)
+				System.out.println(rx);
 		return results;
 	}
 	/**
-	 * 
+	 * Proceed through provided iterators, adding keys to array of deleted
 	 * @param itd
 	 * @param itm
 	 * @param itr
