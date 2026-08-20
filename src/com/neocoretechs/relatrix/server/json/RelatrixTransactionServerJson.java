@@ -17,12 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
+
 import com.neocoretechs.relatrix.server.ServerInvokeMethod;
 import com.neocoretechs.relatrix.server.TCPServer;
 import com.neocoretechs.relatrix.server.TCPWorker;
-import com.neocoretechs.relatrix.server.RelatrixServer.IteratorServerProcesses;
 import com.neocoretechs.relatrix.server.remoteiterator.RemoteIteratorTransactionServer;
 
 /**

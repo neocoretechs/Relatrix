@@ -38,7 +38,7 @@ import com.neocoretechs.relatrix.client.json.util.JsonRecordClassGenerator;
 import com.neocoretechs.relatrix.client.json.util.RelatrixTypeSynthesizer;
 
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 import com.neocoretechs.relatrix.server.BytecodeNotFoundInRepositoryException;
 import com.neocoretechs.relatrix.server.HandlerClassLoader;
 import com.neocoretechs.relatrix.server.ServerMethod;
@@ -164,6 +164,13 @@ public final class RelatrixKVJson {
 		Field f;
 		if(DEBUG)
 			System.out.println("RelatrixKVJson.getData for:"+c+" class:"+c.getClass());
+		if(c instanceof AbstractRelation) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(getData(((AbstractRelation)c).getDomain()));
+			sb.append(getData(((AbstractRelation)c).getMap()));
+			sb.append(getData(((AbstractRelation)c).getRange()));
+			return sb.toString();
+		}
 		try {
 			f = c.getClass().getField("cbor");
 		} catch (NoSuchFieldException e) {
