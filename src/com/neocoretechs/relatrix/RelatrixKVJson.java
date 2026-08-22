@@ -214,6 +214,13 @@ public final class RelatrixKVJson {
 	 */
 	public static Map.Entry<String,Object> decodeData(Map.Entry<Comparable,Object> c) {
 		Field f;
+		if(c.getKey() instanceof AbstractRelation) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(getData(((AbstractRelation)c.getKey()).getDomain()));
+			sb.append(getData(((AbstractRelation)c.getKey()).getMap()));
+			sb.append(getData(((AbstractRelation)c.getKey()).getRange()));
+			return new AbstractMap.SimpleEntry<String,Object>(sb.toString(),c.getValue());
+		}
 		try {
 			f = c.getKey().getClass().getField("cbor");
 		} catch (NoSuchFieldException e) {
@@ -241,6 +248,13 @@ public final class RelatrixKVJson {
 	 */
 	public static Map.Entry<JSONObject,Object> decodeJsonData(Map.Entry<Comparable,Object> c) {
 		Field f;
+		if(c.getKey() instanceof AbstractRelation) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(getData(((AbstractRelation)c.getKey()).getDomain()));
+			sb.append(getData(((AbstractRelation)c.getKey()).getMap()));
+			sb.append(getData(((AbstractRelation)c.getKey()).getRange()));
+			return new AbstractMap.SimpleEntry<JSONObject,Object>(new JSONObject(sb.toString()),c.getValue());
+		}
 		try {
 			f = c.getKey().getClass().getField("cbor");
 		} catch (NoSuchFieldException e) {
