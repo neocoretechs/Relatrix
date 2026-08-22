@@ -46,7 +46,7 @@ public class RemoteIteratorServerJson extends TCPServer {
 				}                   
 				// Create the worker, it in turn creates a WorkerRequestProcessor
 				uworker = new TCPIteratorWorkerJson(datasocket, iteratorClass, RelatrixKVJson.classLoader);
-             	IndexResolver indexResolver = new IndexResolver();
+             	IndexResolver indexResolver = new IndexResolver(true);
             	indexResolver.setLocalJson();
             	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
     			dbToWorker.put(datasocket.getRemoteAddress().toString(), uworker); 

@@ -196,7 +196,7 @@ public class RelatrixKVTransactionServerJson extends TCPServer {
                     		if( uworker.shouldRun )
                     			uworker.stopWorker();
                     }
-                 	IndexResolver indexResolver = new IndexResolver();
+                 	IndexResolver indexResolver = new IndexResolver(true);
                 	indexResolver.setLocalJson();
                 	ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
                     uworker = new TCPWorker(datasocket, RelatrixKVJsonTransaction.classLoader, pec);
